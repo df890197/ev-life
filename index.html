@@ -33,35 +33,78 @@
 <body class="bg-slate-50 text-slate-800 min-h-screen">
 
     <!-- 導覽列 -->
-    <nav class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-lg">
+    <nav class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-lg sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center space-x-3">
-                    <!-- 閃電/電動車車標 SVG -->
                     <svg class="w-8 h-8 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                     </svg>
                     <span class="font-black text-xl tracking-wider">EV Life <span class="font-light text-sm text-emerald-100">電動車能耗記錄</span></span>
                 </div>
-                <div class="flex space-x-2">
-                    <button onclick="exportCSV()" class="bg-emerald-700 hover:bg-emerald-800 text-xs px-3 py-1.5 rounded-lg transition flex items-center space-x-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        <span class="hidden sm:inline">匯出 CSV</span>
+                <div class="flex items-center space-x-2">
+                    <!-- 雲端同步按鈕 -->
+                    <button onclick="toggleSyncModal()" class="bg-emerald-800 hover:bg-emerald-900 text-xs px-3 py-1.5 rounded-lg transition flex items-center space-x-1 border border-emerald-500/30">
+                        <span id="syncStatusDot" class="w-2.5 h-2.5 rounded-full bg-rose-500 mr-1 animate-pulse"></span>
+                        <span id="syncBtnText">設定雲端同步</span>
                     </button>
-                    <label class="bg-emerald-700 hover:bg-emerald-800 text-xs px-3 py-1.5 rounded-lg transition flex items-center space-x-1 cursor-pointer">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                        <span class="hidden sm:inline">匯入 CSV</span>
-                        <input type="file" id="csvFileInput" accept=".csv" class="hidden" onchange="importCSV(event)">
-                    </label>
+                    <!-- CSV 匯出匯入 -->
+                    <button onclick="exportCSV()" class="bg-emerald-700 hover:bg-emerald-800 text-xs px-3 py-1.5 rounded-lg transition hidden md:flex items-center space-x-1">
+                        <span>匯出</span>
+                    </button>
                 </div>
             </div>
         </div>
     </nav>
 
+    <!-- 雲端同步設定模態視窗 -->
+    <div id="syncModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-6 shadow-2xl max-w-md w-full mx-4 transform scale-95 transition-transform duration-300" id="syncModalContent">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center space-x-2">
+                    <span>☁️</span>
+                    <span>Google 試算表雲端同步</span>
+                </h3>
+                <button onclick="toggleSyncModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">×</button>
+            </div>
+            
+            <div class="space-y-4">
+                <p class="text-xs text-slate-500 leading-relaxed">
+                    將您的 Google 試算表作為資料庫。啟用後，不論您是用哪台手機或電腦，點選「立即同步」即可無縫合併與更新所有行駛紀錄！
+                </p>
+                
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Google Apps Script 網頁應用程式網址</label>
+                    <input type="url" id="syncUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50">
+                </div>
+
+                <div class="bg-emerald-50 rounded-xl p-3 border border-emerald-100">
+                    <span class="text-[10px] text-emerald-700 font-bold block mb-1">同步邏輯說明：</span>
+                    <p class="text-[10px] text-slate-600 leading-relaxed">
+                        系統會自動<b>雙向合併</b>（依據每筆紀錄的唯一識別碼 ID）。如果手機上有新紀錄，而試算表也有他人新增的資料，點選同步會安全合併兩端資料，不遺漏任何一筆！
+                    </p>
+                </div>
+
+                <div id="syncTimeInfo" class="text-xs text-slate-400 hidden">
+                    上次同步時間：<span id="lastSyncTimeText">無</span>
+                </div>
+
+                <div class="flex space-x-3 pt-2">
+                    <button onclick="saveSyncSettings()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2.5 rounded-xl transition">
+                        儲存設定
+                    </button>
+                    <button id="triggerSyncBtn" onclick="syncWithCloud()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2.5 rounded-xl transition hidden">
+                        立即雙向同步
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 主內容區 -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        <!-- 自訂通知元件 (用來代替傳統 alert) -->
+        <!-- 自訂通知元件 -->
         <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3">
             <span id="toastIcon" class="text-emerald-400">⚡</span>
             <span id="toastMessage" class="text-sm font-medium"></span>
@@ -109,7 +152,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            <!-- 左側：記錄輸入與試算工具 (佔 5 格) -->
+            <!-- 左側：記錄輸入與試算工具 -->
             <div class="lg:col-span-5 space-y-8">
                 
                 <!-- 新增紀錄表單 -->
@@ -228,7 +271,7 @@
 
             </div>
 
-            <!-- 右側：圖表與歷史資料列表 (佔 7 格) -->
+            <!-- 右側：圖表與歷史資料列表 -->
             <div class="lg:col-span-7 space-y-8">
                 
                 <!-- 能耗與花費圖表 -->
@@ -302,13 +345,20 @@
 
         let records = [];
         let efficiencyChartInstance = null;
+        let syncUrl = "";
 
         // 當頁面載入時執行
         window.onload = function() {
             // 設定今日日期為表單預設日期
             document.getElementById('inputDate').value = new Date().toISOString().substring(0, 10);
             
-            // 讀取 localStorage
+            // 讀取同步設定
+            syncUrl = localStorage.getItem('ev_life_sync_url') || "";
+            document.getElementById('syncUrlInput').value = syncUrl;
+            
+            updateSyncUiStatus();
+
+            // 讀取 localStorage 資料
             const localData = localStorage.getItem('ev_life_records');
             if (localData) {
                 records = JSON.parse(localData);
@@ -320,6 +370,13 @@
             }
             
             renderDashboard();
+
+            // 如果有綁定雲端，載入時自動嘗試同步一次
+            if (syncUrl) {
+                setTimeout(() => {
+                    syncWithCloud(true); // 靜默自動同步
+                }, 1000);
+            }
         };
 
         // 顯示提示訊息 (Toast)
@@ -335,6 +392,148 @@
             setTimeout(() => {
                 toast.className = `fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3`;
             }, 3000);
+        }
+
+        // 雲端同步視窗開關
+        function toggleSyncModal() {
+            const modal = document.getElementById('syncModal');
+            const content = document.getElementById('syncModalContent');
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    modal.classList.add('opacity-100');
+                    content.classList.remove('scale-95');
+                    content.classList.add('scale-100');
+                }, 10);
+            } else {
+                modal.classList.remove('opacity-100');
+                content.classList.remove('scale-100');
+                content.classList.add('scale-95');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300);
+            }
+        }
+
+        // 儲存雲端同步網址設定
+        function saveSyncSettings() {
+            const urlInput = document.getElementById('syncUrlInput').value.trim();
+            if (urlInput && !urlInput.startsWith('https://script.google.com/')) {
+                showToast("這看起來不像是正確的 Google Apps Script 網址", true);
+                return;
+            }
+
+            syncUrl = urlInput;
+            localStorage.setItem('ev_life_sync_url', syncUrl);
+            
+            updateSyncUiStatus();
+            showToast("同步設定已儲存！");
+            
+            if (syncUrl) {
+                syncWithCloud();
+            }
+        }
+
+        // 更新同步相關 UI 狀態
+        function updateSyncUiStatus() {
+            const syncStatusDot = document.getElementById('syncStatusDot');
+            const syncBtnText = document.getElementById('syncBtnText');
+            const triggerSyncBtn = document.getElementById('triggerSyncBtn');
+            const syncTimeInfo = document.getElementById('syncTimeInfo');
+            const lastSyncTimeText = document.getElementById('lastSyncTimeText');
+
+            const lastSync = localStorage.getItem('ev_life_last_sync_time');
+
+            if (syncUrl) {
+                syncStatusDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 mr-1";
+                syncBtnText.textContent = "雲端同步已啟動";
+                triggerSyncBtn.classList.remove('hidden');
+                syncTimeInfo.classList.remove('hidden');
+                lastSyncTimeText.textContent = lastSync ? lastSync : "尚未同步";
+            } else {
+                syncStatusDot.className = "w-2.5 h-2.5 rounded-full bg-rose-500 mr-1 animate-pulse";
+                syncBtnText.textContent = "設定雲端同步";
+                triggerSyncBtn.classList.add('hidden');
+                syncTimeInfo.classList.add('hidden');
+            }
+        }
+
+        // 核心功能：雙向合併雲端與本地資料
+        async function syncWithCloud(isSilent = false) {
+            if (!syncUrl) {
+                if (!isSilent) showToast("請先輸入您的雲端同步網址！", true);
+                return;
+            }
+
+            if (!isSilent) showToast("連線中，正在雙向同步資料...");
+
+            try {
+                // 1. 從 Google Sheet 獲取雲端最新資料
+                const getResponse = await fetch(syncUrl);
+                if (!getResponse.ok) throw new Error("取得雲端資料失敗");
+                const cloudRecords = await getResponse.json();
+
+                // 2. 雙向合併邏輯
+                // 以 ID 為 key 合併 local 和 cloud
+                const mergedMap = new Map();
+                
+                // 先塞入雲端資料
+                cloudRecords.forEach(rec => {
+                    // 格式化資料型態確保一致
+                    mergedMap.set(rec.id.toString(), {
+                        id: rec.id.toString(),
+                        date: rec.date,
+                        chargeType: rec.chargeType,
+                        distance: parseFloat(rec.distance) || 0,
+                        power: parseFloat(rec.power) || 0,
+                        cost: parseInt(rec.cost) || 0,
+                        note: rec.note || ""
+                    });
+                });
+
+                // 再用本地資料覆蓋/新增 (本地通常是最新操作端)
+                records.forEach(rec => {
+                    mergedMap.set(rec.id.toString(), {
+                        id: rec.id.toString(),
+                        date: rec.date,
+                        chargeType: rec.chargeType,
+                        distance: parseFloat(rec.distance) || 0,
+                        power: parseFloat(rec.power) || 0,
+                        cost: parseInt(rec.cost) || 0,
+                        note: rec.note || ""
+                    });
+                });
+
+                const mergedRecordsList = Array.from(mergedMap.values());
+                // 日期排序
+                mergedRecordsList.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                // 3. 將合併後的完整資料上傳回 Google Sheet
+                const postResponse = await fetch(syncUrl, {
+                    method: 'POST',
+                    mode: 'no-cors', // 解決跨網域跨瀏覽器 CORS 問題
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(mergedRecordsList)
+                });
+
+                // 4. 更新本地儲存
+                records = mergedRecordsList;
+                localStorage.setItem('ev_life_records', JSON.stringify(records));
+                
+                const nowStr = new Date().toLocaleString();
+                localStorage.setItem('ev_life_last_sync_time', nowStr);
+                
+                // 更新 UI
+                renderDashboard();
+                updateSyncUiStatus();
+                
+                if (!isSilent) showToast(`同步成功！共整合了 ${records.length} 筆紀錄`);
+            } catch (error) {
+                console.error(error);
+                if (!isSilent) showToast("同步失敗，請確認網址是否正確或網路是否順暢", true);
+            }
         }
 
         // 計算並渲染儀表板與圖表
@@ -396,7 +595,6 @@
                 tableBody.appendChild(tr);
             });
 
-            // 計算平均與全局統計
             const avgEfficiency = totalPower > 0 ? (totalKm / totalPower) : 0;
             const costPerKm = totalKm > 0 ? (totalCost / totalKm) : 0;
 
@@ -413,14 +611,13 @@
             document.getElementById('statTotalCost').textContent = totalCost.toLocaleString();
             document.getElementById('statCostPerKm').textContent = costPerKm.toFixed(2);
 
-            // 計算 Wh/km 顯示
             const whKm = avgEfficiency > 0 ? Math.round(1000 / avgEfficiency) : 0;
             document.getElementById('statWhKm').textContent = `相當於約 ${whKm} Wh/km`;
             document.getElementById('statTotalPower').textContent = `累計充入 ${totalPower.toFixed(1)} 度電`;
         }
 
         // 新增記錄
-        function addRecord(e) {
+        async function addRecord(e) {
             e.preventDefault();
 
             const date = document.getElementById('inputDate').value;
@@ -455,7 +652,12 @@
             document.getElementById('inputNote').value = '';
 
             renderDashboard();
-            showToast("紀錄新增成功！");
+            showToast("紀錄已暫存於手機！");
+
+            // 如果有啟動雲端，自動上傳
+            if (syncUrl) {
+                syncWithCloud();
+            }
         }
 
         // 刪除特定記錄
@@ -464,6 +666,10 @@
             localStorage.setItem('ev_life_records', JSON.stringify(records));
             renderDashboard();
             showToast("記錄已刪除");
+            
+            if (syncUrl) {
+                syncWithCloud();
+            }
         }
 
         // 清空所有資料
@@ -481,14 +687,13 @@
             const capacity = parseFloat(document.getElementById('calcBatteryCapacity').value) || 0;
             const percent = parseFloat(document.getElementById('calcBatteryPercent').value) || 0;
             
-            // 計算目前全局平均能耗
             let totalKm = 0;
             let totalPower = 0;
             records.forEach(rec => {
                 totalKm += parseFloat(rec.distance);
                 totalPower += parseFloat(rec.power);
             });
-            const avgEfficiency = totalPower > 0 ? (totalKm / totalPower) : 5.5; // 若無資料，預設以 5.5 km/kWh 估算
+            const avgEfficiency = totalPower > 0 ? (totalKm / totalPower) : 5.5;
 
             const remainingPower = capacity * (percent / 100);
             const estimatedRange = remainingPower * avgEfficiency;
@@ -508,7 +713,6 @@
                 totalCost += parseFloat(rec.cost);
             });
 
-            // 燃油車成本 = (總里程 / 油耗) * 油價
             const gasCarCost = (totalKm / gasMileage) * gasPrice;
             const savings = gasCarCost - totalCost;
 
@@ -523,9 +727,8 @@
                 efficiencyChartInstance.destroy();
             }
 
-            // 只挑選最近 15 筆記錄用於圖表展示，避免過度擁擠
             const chartData = [...records].slice(-15);
-            const labels = chartData.map(rec => rec.date.substring(5)); // 只取月-日 (MM-DD)
+            const labels = chartData.map(rec => rec.date.substring(5));
             const efficiencies = chartData.map(rec => (rec.distance / rec.power).toFixed(2));
             const costs = chartData.map(rec => rec.cost);
 
@@ -537,7 +740,7 @@
                         {
                             label: '能耗 (km/kWh)',
                             data: efficiencies,
-                            borderColor: '#059669', // emerald-600
+                            borderColor: '#059669',
                             backgroundColor: 'rgba(5, 150, 105, 0.1)',
                             borderWidth: 3,
                             tension: 0.3,
@@ -548,7 +751,7 @@
                             label: '充電費用 (元)',
                             type: 'bar',
                             data: costs,
-                            backgroundColor: 'rgba(59, 130, 246, 0.4)', // blue-500
+                            backgroundColor: 'rgba(59, 130, 246, 0.4)',
                             borderColor: '#3b82f6',
                             borderWidth: 1,
                             yAxisID: 'yCost',
@@ -614,7 +817,7 @@
                                 color: '#3b82f6'
                             },
                             grid: {
-                                drawOnChartArea: false // 避免背景線條重疊混亂
+                                drawOnChartArea: false
                             }
                         }
                     }
@@ -629,8 +832,7 @@
                 return;
             }
 
-            // CSV 標頭
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // 加入 BOM 防止 Excel 中文亂碼
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
             csvContent += "日期,充電方式,行駛里程(km),消耗電量(kWh),充電費用(元),備註\n";
 
             records.forEach(rec => {
@@ -640,7 +842,7 @@
                     rec.distance,
                     rec.power,
                     rec.cost,
-                    `"${(rec.note || '').replace(/"/g, '""')}"` // 防止 CSV 破壞性逗號
+                    `"${(rec.note || '').replace(/"/g, '""')}"`
                 ].join(",");
                 csvContent += row + "\n";
             });
@@ -653,73 +855,6 @@
             link.click();
             document.body.removeChild(link);
             showToast("CSV 匯出成功！已開始下載");
-        }
-
-        // 匯入 CSV 備份
-        function importCSV(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const text = e.target.result;
-                    const lines = text.split("\n");
-                    const importedRecords = [];
-
-                    // 從第一行(跳過標頭)開始解析
-                    for (let i = 1; i < lines.length; i++) {
-                        const line = lines[i].trim();
-                        if (!line) continue;
-
-                        // 使用正則拆分逗號，以妥善處理帶引號的備註
-                        const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                        if (parts.length < 5) continue;
-
-                        const date = parts[0].trim();
-                        const chargeType = parts[1].trim();
-                        const distance = parseFloat(parts[2].trim());
-                        const power = parseFloat(parts[3].trim());
-                        const cost = parseInt(parts[4].trim()) || 0;
-                        let note = parts[5] ? parts[5].trim() : "";
-                        
-                        // 去除備註中的雙引號
-                        if (note.startsWith('"') && note.endsWith('"')) {
-                            note = note.slice(1, -1).replace(/""/g, '"');
-                        }
-
-                        if (date && !isNaN(distance) && !isNaN(power)) {
-                            importedRecords.push({
-                                id: (Date.now() + i).toString(),
-                                date,
-                                chargeType,
-                                distance,
-                                power,
-                                cost,
-                                note
-                            });
-                        }
-                    }
-
-                    if (importedRecords.length > 0) {
-                        if (confirm(`成功解析出 ${importedRecords.length} 筆資料。是否覆蓋目前現有資料？ (按取消將與現有資料合併)`)) {
-                            records = importedRecords;
-                        } else {
-                            records = [...records, ...importedRecords];
-                        }
-                        localStorage.setItem('ev_life_records', JSON.stringify(records));
-                        renderDashboard();
-                        showToast(`已成功載入 ${importedRecords.length} 筆資料！`);
-                    } else {
-                        showToast("無法解析 CSV，請檢查格式是否正確", true);
-                    }
-                } catch (error) {
-                    showToast("讀取檔案出錯，請確認為正確的 CSV 格式", true);
-                }
-            };
-            reader.readAsText(file);
-            // 清空 file input 的 value，以便下次選擇相同檔案時能觸發
-            event.target.value = '';
         }
     </script>
 </body>
