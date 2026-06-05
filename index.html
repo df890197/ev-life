@@ -55,16 +55,16 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center space-x-3">
-                    <svg class="w-8 h-8 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    <svg class="w-8 h-8 text-emerald-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                     </svg>
                     <span class="font-black text-xl tracking-wider">EV Life <span class="font-light text-sm text-emerald-100 dark:text-emerald-300/80">電動車能耗記錄</span></span>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <!-- 外置的立即同步按鈕 -->
-                    <button id="navSyncBtn" onclick="syncWithCloud()" class="bg-blue-600 hover:bg-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600 text-xs px-3 py-1.5 rounded-lg transition hidden items-center space-x-1 border border-blue-400/30 shadow-md">
-                        <svg id="navSyncIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 12H16"></path>
+                    <!-- 外置的立即同步按鈕 (使用更換後的極致相容雙向循環同步 SVG) -->
+                    <button id="navSyncBtn" onclick="syncWithCloud()" class="bg-blue-600 hover:bg-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600 text-xs px-3 py-1.5 rounded-lg transition hidden items-center space-x-1.5 border border-blue-400/30 shadow-md">
+                        <svg id="navSyncIcon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20 4v5h-5M4 20v-5h5M4 12A8 8 0 0 1 18 6.13L20 9M20 12a8 8 0 0 1-14 5.87L4 15"></path>
                         </svg>
                         <span class="font-bold">立即同步</span>
                     </button>
@@ -110,7 +110,7 @@
                     </p>
                 </div>
 
-                <div id="syncTimeInfo" class="text-xs text-slate-400 dark:text-slate-500 hidden">
+                <div id="syncTimeInfo" class="text-xs text-slate-400 dark:text-slate-550 hidden">
                     上次同步時間：<span id="lastSyncTimeText">無</span>
                 </div>
 
@@ -155,7 +155,7 @@
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <!-- 累積總里程 -->
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800 flex flex-col justify-between">
-                <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 tracking-wider">總行駛里程</span>
+                <span class="text-xs font-semibold text-slate-400 dark:text-slate-550 tracking-wider">總行駛里程</span>
                 <div class="flex items-baseline mt-2">
                     <span id="statTotalKm" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100">0</span>
                     <span class="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1">km</span>
@@ -164,7 +164,7 @@
             </div>
             <!-- 平均能耗 -->
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800 flex flex-col justify-between">
-                <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 tracking-wider">平均能耗</span>
+                <span class="text-xs font-semibold text-slate-400 dark:text-slate-550 tracking-wider">平均能耗</span>
                 <div class="flex items-baseline mt-2">
                     <span id="statAvgEfficiency" class="text-2xl md:text-3xl font-black text-emerald-600 dark:text-emerald-400">0.00</span>
                     <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 ml-1">km/kWh</span>
@@ -173,7 +173,7 @@
             </div>
             <!-- 總充電花費 -->
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800 flex flex-col justify-between">
-                <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 tracking-wider">總充電花費</span>
+                <span class="text-xs font-semibold text-slate-400 dark:text-slate-550 tracking-wider">總充電花費</span>
                 <div class="flex items-baseline mt-2">
                     <span id="statTotalCost" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100">0</span>
                     <span class="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1">TWD</span>
@@ -182,7 +182,7 @@
             </div>
             <!-- 每公里成本 -->
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800 flex flex-col justify-between">
-                <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 tracking-wider">每公里成本</span>
+                <span class="text-xs font-semibold text-slate-400 dark:text-slate-550 tracking-wider">每公里成本</span>
                 <div class="flex items-baseline mt-2">
                     <span id="statCostPerKm" class="text-2xl md:text-3xl font-black text-blue-600 dark:text-blue-400">0.00</span>
                     <span class="text-xs font-bold text-blue-600 dark:text-blue-400 ml-1">元/km</span>
@@ -390,7 +390,7 @@
                     </div>
 
                     <!-- 無資料時的提示 -->
-                    <div id="noDataPlaceholder" class="hidden p-8 text-center text-slate-400 dark:text-slate-500">
+                    <div id="noDataPlaceholder" class="hidden p-8 text-center text-slate-400 dark:text-slate-550">
                         <p class="text-sm">尚未有任何行駛紀錄，請由左側新增！</p>
                     </div>
                 </div>
@@ -401,7 +401,7 @@
     </main>
 
     <!-- 頁尾 -->
-    <footer class="bg-slate-900 dark:bg-slate-950 text-slate-400 dark:text-slate-500 text-center py-8 mt-12 border-t border-slate-800 dark:border-slate-900">
+    <footer class="bg-slate-900 dark:bg-slate-950 text-slate-400 dark:text-slate-550 text-center py-8 mt-12 border-t border-slate-800 dark:border-slate-900">
         <p class="text-xs">EV Life 電動車試算與能耗記錄工具 © 2026. 您的資料將安全地儲存在本機瀏覽器中。</p>
     </footer>
 
@@ -821,7 +821,7 @@
                 const dispPercent = rec.powerPercent ? parseFloat(rec.powerPercent) : ((rec.power / batteryCapacity) * 100);
                 const displayDate = rec.date && rec.date.includes('T') ? rec.date.split('T')[0] : (rec.date || '');
 
-                // 1. 扁平視圖：電腦端表格
+                // 1. 扁平視圖：電腦端表格 (高質感實心亮紅背景 🗑️ 操作按鈕)
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 dark:hover:bg-slate-800/40 transition border-b border-slate-100 dark:border-slate-800/60";
                 tr.innerHTML = `
@@ -947,7 +947,7 @@
                                     ${isOngoing ? '<span class="w-2 h-2 rounded-full bg-blue-500 mr-1 animate-pulse"></span>' : '🔌 '} ${cycle.chargeType}
                                 </span>
                             </div>
-                            <span class="text-[11px] text-slate-400 dark:text-slate-500 font-medium block mt-1">📅 週期區間：${dateRange}</span>
+                            <span class="text-[11px] text-slate-400 dark:text-slate-550 font-medium block mt-1">📅 週期區間：${dateRange}</span>
                         </div>
                         <div class="text-left sm:text-right">
                             <span class="text-[10px] text-slate-400 block">週期花費</span>
@@ -974,7 +974,7 @@
 
                     <!-- 週期內的單次行駛歷程表 -->
                     <div class="space-y-2 pt-1">
-                        <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">分段行駛明細</span>
+                        <span class="text-[11px] font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider block">分段行駛明細</span>
                         <div class="space-y-2 max-h-60 overflow-y-auto pr-1">
                             ${[...cycle.trips].reverse().map(t => {
                                 const tEff = (t.distance / t.power).toFixed(2);
@@ -990,7 +990,7 @@
                                         <div class="flex items-center space-x-3">
                                             <span class="font-bold text-emerald-600 dark:text-emerald-400">${tEff} km/度</span>
                                             ${isChargeTrip ? `<span class="bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 text-[9px] font-extrabold px-1.5 py-0.5 rounded-full">充 ${t.cost}元</span>` : ''}
-                                            <button onclick="confirmDeleteRecord('${t.id}')" class="text-rose-500 hover:text-rose-700 bg-rose-50 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 p-1.5 rounded-lg border border-rose-100 dark:border-rose-900/20 transition" title="刪除此段紀錄">
+                                            <button onclick="confirmDeleteRecord('${t.id}')" class="text-rose-600 dark:text-rose-400 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 p-1.5 rounded-xl border border-rose-200/40 dark:border-rose-900/20 transition inline-flex items-center justify-center shadow-sm" title="刪除此段紀錄">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                                 </svg>
