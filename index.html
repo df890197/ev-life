@@ -46,6 +46,16 @@
         .dark ::-webkit-scrollbar-thumb:hover {
             background: #475569;
         }
+
+        /* 關鍵修正：深色模式下，確保原生瀏覽器日曆圖標與控制項完全顯色 */
+        .dark input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
+        /* 讓瀏覽器知道 input 與 select 支援深色模式，使原生彈出的日曆窗也能自動變黑底白字 */
+        .dark input, .dark select {
+            color-scheme: dark;
+        }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-200">
@@ -160,7 +170,7 @@
                     <span id="statTotalKm" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100">0</span>
                     <span class="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1">km</span>
                 </div>
-                <span class="text-[10px] text-slate-400 dark:text-slate-500 mt-2">累計所有行駛區間</span>
+                <span class="text-[10px] text-slate-400 dark:text-slate-550 mt-2">累計所有行駛區間</span>
             </div>
             <!-- 平均能耗 -->
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800 flex flex-col justify-between">
@@ -203,7 +213,7 @@
                             <span class="text-emerald-500">📝</span>
                             <span>新增能耗/充電紀錄</span>
                         </h2>
-                        <span class="text-xs text-slate-400 dark:text-slate-550">填寫後自動重新計算</span>
+                        <span class="text-xs text-slate-400 dark:text-slate-555">填寫後自動重新計算</span>
                     </div>
 
                     <form id="recordForm" onsubmit="addRecord(event)" class="space-y-4">
@@ -329,39 +339,21 @@
                     </div>
                 </div>
 
-                <!-- 歷史資料列表 -->
+                <!-- 歷史資料列表 (回到純粹的單筆日誌列表) -->
                 <div class="bg-white dark:bg-slate-900 p-6 shadow-sm border border-slate-100 dark:border-slate-800">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-4 gap-4">
-                        <div class="flex items-center space-x-2">
-                            <h2 class="text-lg font-bold text-slate-800 dark:text-slate-200 flex items-center space-x-2">
-                                <span class="text-teal-500">📊</span>
-                                <span>歷史行駛能耗日誌</span>
-                            </h2>
-                        </div>
-                        
-                        <!-- 智慧視圖切換按鈕 (週期分組 / 單筆清單) -->
-                        <div class="flex items-center space-x-2 bg-slate-100 dark:bg-slate-950 p-1 rounded-xl text-xs font-bold self-start sm:self-center">
-                            <button onclick="setViewMode('cycle')" id="viewModeCycle" class="px-3 py-1.5 rounded-lg transition-all bg-white dark:bg-slate-800 shadow-sm text-slate-800 dark:text-slate-100">
-                                🔄 週期分組
-                            </button>
-                            <button onclick="setViewMode('flat')" id="viewModeFlat" class="px-3 py-1.5 rounded-lg transition-all text-slate-500 dark:text-slate-400">
-                                📋 單筆清單
-                            </button>
-                        </div>
-
+                        <h2 class="text-lg font-bold text-slate-800 dark:text-slate-200 flex items-center space-x-2">
+                            <span class="text-teal-500">📊</span>
+                            <span>歷史行駛能耗日誌</span>
+                        </h2>
                         <button onclick="clearAllData()" class="text-rose-500 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 text-xs font-bold transition self-start sm:self-center flex items-center space-x-1 p-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/20 px-2">
                             <svg class="w-4 h-4 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                             <span>清除全部</span>
                         </button>
                     </div>
 
-                    <!-- 視圖容器 1：充電週期分組視圖 (與車主想法 100% 貼合) -->
-                    <div id="cycleViewContainer" class="space-y-6">
-                        <!-- 動態插入週期卡片 -->
-                    </div>
-
-                    <!-- 視圖容器 2：傳統單筆清單視圖 (預設隱藏) -->
-                    <div id="flatViewContainer" class="hidden space-y-4">
+                    <!-- 視圖容器：傳統單筆清單視圖 -->
+                    <div id="flatViewContainer" class="space-y-4">
                         <!-- 電腦端表格佈局 -->
                         <div id="desktopTableWrapper" class="hidden md:block overflow-x-auto rounded-xl border border-slate-100 dark:border-slate-800">
                             <table class="min-w-full divide-y divide-slate-100 dark:divide-slate-800 text-sm text-left">
@@ -370,7 +362,7 @@
                                         <th class="px-3 py-2.5">日期</th>
                                         <th class="px-3 py-2.5">類型</th>
                                         <th class="px-3 py-2.5 text-right">里程 (km)</th>
-                                        <th class="px-3 py-2.5 text-right">消耗/充電電量</th>
+                                        <th class="px-3 py-2.5 text-right">消耗電量</th>
                                         <th class="px-3 py-2.5 text-right text-emerald-600 dark:text-emerald-400">能耗 (km/度)</th>
                                         <th class="px-3 py-2.5 text-right">費用 (元)</th>
                                         <th class="px-3 py-2.5">備註</th>
@@ -412,7 +404,6 @@
         let syncUrl = "";
         let batteryCapacity = 57.7; // 預設車輛電池總容量 (kWh)
         let activeConfirmCallback = null; // 自訂確認彈出視窗的回呼
-        let currentViewMode = "cycle"; // "cycle" 或 "flat"
 
         // 輔助函式：統一保存本地狀態並更新修改時間戳記
         function saveLocalState(newRecords) {
@@ -439,9 +430,6 @@
             // 讀取儲存的電池容量設定
             batteryCapacity = parseFloat(localStorage.getItem('ev_life_battery_capacity')) || 57.7;
             document.getElementById('calcBatteryCapacity').value = batteryCapacity;
-
-            // 讀取瀏覽記錄的檢視模式
-            currentViewMode = localStorage.getItem('ev_life_view_mode') || "cycle";
             
             // 綁定充電類型監聽，如果為「未充電」，則自動將費用設為 0 並且禁用
             const chargeTypeSelect = document.getElementById('inputChargeType');
@@ -480,7 +468,6 @@
             }
             
             renderDashboard();
-            setViewMode(currentViewMode);
 
             // 如果有綁定雲端，載入時自動嘗試同步一次
             if (syncUrl) {
@@ -498,68 +485,6 @@
                 });
             }
         };
-
-        // 設定檢視模式 (分組週期 / 扁平單筆)
-        function setViewMode(mode) {
-            currentViewMode = mode;
-            localStorage.setItem('ev_life_view_mode', mode);
-
-            const btnCycle = document.getElementById('viewModeCycle');
-            const btnFlat = document.getElementById('viewModeFlat');
-            const cycleContainer = document.getElementById('cycleViewContainer');
-            const flatContainer = document.getElementById('flatViewContainer');
-
-            if (mode === "cycle") {
-                btnCycle.className = "px-3 py-1.5 rounded-lg transition-all bg-white dark:bg-slate-800 shadow-sm text-slate-800 dark:text-slate-100";
-                btnFlat.className = "px-3 py-1.5 rounded-lg transition-all text-slate-500 dark:text-slate-400";
-                cycleContainer.classList.remove('hidden');
-                flatContainer.classList.add('hidden');
-            } else {
-                btnFlat.className = "px-3 py-1.5 rounded-lg transition-all bg-white dark:bg-slate-800 shadow-sm text-slate-800 dark:text-slate-100";
-                btnCycle.className = "px-3 py-1.5 rounded-lg transition-all text-slate-500 dark:text-slate-400";
-                flatContainer.classList.remove('hidden');
-                cycleContainer.classList.add('hidden');
-            }
-        }
-
-        // 智慧將扁平資料依照充電事件歸併為「充電週期」
-        function groupRecordsIntoCycles(recordsList) {
-            // recordsList 已預先按日期從舊到新排序
-            const cycles = [];
-            let currentCycle = {
-                id: "cycle_ongoing",
-                trips: [],
-                isCompleted: false,
-                chargeType: "進行中"
-            };
-
-            recordsList.forEach(rec => {
-                currentCycle.trips.push(rec);
-                if (rec.chargeType !== "未充電") {
-                    currentCycle.isCompleted = true;
-                    currentCycle.chargeType = rec.chargeType;
-                    currentCycle.cost = parseInt(rec.cost) || 0;
-                    currentCycle.id = "cycle_" + rec.id;
-                    cycles.push(currentCycle);
-                    
-                    // 重置下一段週期
-                    currentCycle = {
-                        id: "cycle_ongoing",
-                        trips: [],
-                        isCompleted: false,
-                        chargeType: "進行中"
-                    };
-                }
-            });
-
-            // 處理最後一段尚未充電的進行中旅程
-            if (currentCycle.trips.length > 0) {
-                cycles.push(currentCycle);
-            }
-
-            // 將週期倒序排列（讓最新/進行中的週期排在最上方）
-            return cycles.reverse();
-        }
 
         // 開啟自訂確認對話方塊
         function showConfirmModal(title, message, onConfirm) {
@@ -697,7 +622,7 @@
             }
         }
 
-        // 雙向合併同步
+        // 雙向合併同步 (LWW 智慧型防回寫)
         async function syncWithCloud(isSilent = false) {
             if (!syncUrl) {
                 if (!isSilent) showToast("請先設定您的雲端同步網址！", true);
@@ -766,20 +691,18 @@
             }
         }
 
-        // 計算並渲染儀表板、週期分組卡片、平板表格與手機小卡片
+        // 計算並渲染儀表板與單筆日誌列表
         function renderDashboard() {
             // 排序資料 (日期由舊到新)
             records.sort((a, b) => new Date(a.date) - new Date(b.date));
 
             const tableBody = document.getElementById('recordTableBody');
             const mobileList = document.getElementById('recordMobileList');
-            const cycleViewContainer = document.getElementById('cycleViewContainer');
             const placeholder = document.getElementById('noDataPlaceholder');
             const desktopTableWrapper = document.getElementById('desktopTableWrapper');
 
             tableBody.innerHTML = '';
             mobileList.innerHTML = '';
-            cycleViewContainer.innerHTML = '';
 
             // 確保過濾掉系統元數據與無效的空白列
             const activeRecords = records.filter(r => 
@@ -809,7 +732,7 @@
             let totalPower = 0;
             let totalCost = 0;
 
-            // 逆序排列用於扁平清單顯示（最新在最上面）
+            // 逆序排列（最新在最上面）
             const displayRecords = [...activeRecords].reverse();
 
             displayRecords.forEach(rec => {
@@ -821,7 +744,7 @@
                 const dispPercent = rec.powerPercent ? parseFloat(rec.powerPercent) : ((rec.power / batteryCapacity) * 100);
                 const displayDate = rec.date && rec.date.includes('T') ? rec.date.split('T')[0] : (rec.date || '');
 
-                // 1. 扁平視圖：電腦端表格 (高質感實心亮紅背景 🗑️ 操作按鈕)
+                // 1. 電腦端表格行
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 dark:hover:bg-slate-800/40 transition border-b border-slate-100 dark:border-slate-800/60";
                 tr.innerHTML = `
@@ -849,9 +772,9 @@
                 `;
                 tableBody.appendChild(tr);
 
-                // 2. 扁平視圖：手機端卡片
+                // 2. 手機端卡片 (高顯色亮紅垃圾桶 🗑️，絕不跑版)
                 const card = document.createElement('div');
-                card.className = "bg-slate-50 p-4 rounded-2xl border border-slate-100 dark:bg-slate-900/40 dark:border-slate-800/80 space-y-3 shadow-sm relative";
+                card.className = "bg-slate-50 dark:bg-slate-900/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-800/80 space-y-3 shadow-sm relative";
                 card.innerHTML = `
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-black text-slate-500 dark:text-slate-400 flex items-center">
@@ -879,7 +802,7 @@
                         </div>
                         <div>
                             <span class="text-[10px] text-slate-400 dark:text-slate-550 block font-medium">能耗表現</span>
-                            <span class="font-extrabold text-emerald-600 dark:text-emerald-400 text-sm">${efficiency} km/kWh</span>
+                            <span class="font-extrabold text-emerald-600 dark:text-emerald-400 text-sm">${efficiency} km/度</span>
                         </div>
                         <div>
                             <span class="text-[10px] text-slate-400 dark:text-slate-550 block font-medium">消耗電量</span>
@@ -899,110 +822,6 @@
                     ` : ''}
                 `;
                 mobileList.appendChild(card);
-            });
-
-            // 3. 充電週期分組渲染邏輯
-            const cycles = groupRecordsIntoCycles(activeRecords);
-            cycles.forEach((cycle, index) => {
-                let cycleDistance = 0;
-                let cyclePower = 0;
-                let cyclePowerPercent = 0;
-                let cycleCost = 0;
-                let startDate = "";
-                let endDate = "";
-
-                cycle.trips.forEach((t, i) => {
-                    cycleDistance += parseFloat(t.distance) || 0;
-                    cyclePower += parseFloat(t.power) || 0;
-                    cyclePowerPercent += parseFloat(t.powerPercent) || 0;
-                    cycleCost += parseInt(t.cost) || 0;
-
-                    const dateStr = t.date && t.date.includes('T') ? t.date.split('T')[0] : (t.date || '');
-                    if (i === 0) startDate = dateStr;
-                    endDate = dateStr;
-                });
-
-                const cycleEfficiency = cyclePower > 0 ? (cycleDistance / cyclePower).toFixed(2) : "0.00";
-                const cycleCostPerKm = cycleDistance > 0 ? (cycleCost / cycleDistance).toFixed(2) : "0.00";
-                const dateRange = startDate === endDate ? startDate : `${startDate} ~ ${endDate}`;
-                const cycleNum = cycles.length - index;
-
-                // 建立週期大卡片
-                const cycleCard = document.createElement('div');
-                cycleCard.className = "bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-100 dark:border-slate-800/80 shadow-md space-y-4";
-                
-                const isOngoing = cycle.chargeType === "進行中";
-                const badgeColor = isOngoing 
-                    ? "bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400 border border-blue-200/30" 
-                    : (cycle.chargeType.includes("快充") 
-                        ? "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200/30" 
-                        : "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200/30");
-
-                cycleCard.innerHTML = `
-                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-50 dark:border-slate-800/50 pb-3">
-                        <div>
-                            <div class="flex items-center space-x-2">
-                                <span class="font-black text-slate-800 dark:text-slate-100 text-base">充電週期 #${cycleNum}</span>
-                                <span class="px-2 py-0.5 text-xs rounded-full font-extrabold ${badgeColor} flex items-center">
-                                    ${isOngoing ? '<span class="w-2 h-2 rounded-full bg-blue-500 mr-1 animate-pulse"></span>' : '🔌 '} ${cycle.chargeType}
-                                </span>
-                            </div>
-                            <span class="text-[11px] text-slate-400 dark:text-slate-550 font-medium block mt-1">📅 週期區間：${dateRange}</span>
-                        </div>
-                        <div class="text-left sm:text-right">
-                            <span class="text-[10px] text-slate-400 block">週期花費</span>
-                            <span class="font-extrabold text-sm text-slate-700 dark:text-slate-200">${cycleCost} 元</span>
-                            ${!isOngoing ? `<span class="text-[10px] text-slate-400 block">(每公里 ${cycleCostPerKm} 元)</span>` : ''}
-                        </div>
-                    </div>
-
-                    <!-- 週期能耗整合儀表板 -->
-                    <div class="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-950/60 p-3 rounded-2xl text-center">
-                        <div>
-                            <span class="text-[10px] text-slate-400 block font-medium">總里程</span>
-                            <span class="font-black text-sm text-slate-700 dark:text-slate-200">${cycleDistance.toFixed(1)} <span class="text-[10px] font-normal">km</span></span>
-                        </div>
-                        <div>
-                            <span class="text-[10px] text-slate-400 block font-medium">總電耗</span>
-                            <span class="font-black text-sm text-slate-700 dark:text-slate-200">${cyclePowerPercent.toFixed(0)}% <span class="text-[10px] font-normal text-slate-400">(${cyclePower.toFixed(1)}度)</span></span>
-                        </div>
-                        <div>
-                            <span class="text-[10px] text-slate-400 block font-medium">平均能耗</span>
-                            <span class="font-black text-sm text-emerald-600 dark:text-emerald-400">${cycleEfficiency} <span class="text-[10px] font-normal">km/度</span></span>
-                        </div>
-                    </div>
-
-                    <!-- 週期內的單次行駛歷程表 -->
-                    <div class="space-y-2 pt-1">
-                        <span class="text-[11px] font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider block">分段行駛明細</span>
-                        <div class="space-y-2 max-h-60 overflow-y-auto pr-1">
-                            ${[...cycle.trips].reverse().map(t => {
-                                const tEff = (t.distance / t.power).toFixed(2);
-                                const tDate = t.date && t.date.includes('T') ? t.date.split('T')[0].substring(5) : (t.date || '').substring(5);
-                                const isChargeTrip = t.chargeType !== "未充電";
-                                return `
-                                    <div class="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/60 hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition text-xs">
-                                        <div class="flex items-center space-x-2">
-                                            <span class="text-slate-400 font-mono">${tDate}</span>
-                                            <span class="font-bold text-slate-700 dark:text-slate-300">${parseFloat(t.distance).toFixed(1)} km</span>
-                                            <span class="text-[10px] text-slate-400 dark:text-slate-550">(${t.powerPercent}% / ${parseFloat(t.power).toFixed(1)}度)</span>
-                                        </div>
-                                        <div class="flex items-center space-x-3">
-                                            <span class="font-bold text-emerald-600 dark:text-emerald-400">${tEff} km/度</span>
-                                            ${isChargeTrip ? `<span class="bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 text-[9px] font-extrabold px-1.5 py-0.5 rounded-full">充 ${t.cost}元</span>` : ''}
-                                            <button onclick="confirmDeleteRecord('${t.id}')" class="text-rose-600 dark:text-rose-400 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 p-1.5 rounded-xl border border-rose-200/40 dark:border-rose-900/20 transition inline-flex items-center justify-center shadow-sm" title="刪除此段紀錄">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-                    </div>
-                `;
-                cycleViewContainer.appendChild(cycleCard);
             });
 
             const avgEfficiency = totalPower > 0 ? (totalKm / totalPower) : 0;
@@ -1187,7 +1006,7 @@
                     labels: labels,
                     datasets: [
                         {
-                            label: '能耗 (km/kWh)',
+                            label: '能耗 (km/度)',
                             data: efficiencies,
                             borderColor: '#059669',
                             backgroundColor: isDarkMode ? 'rgba(5, 150, 105, 0.15)' : 'rgba(5, 150, 105, 0.1)',
