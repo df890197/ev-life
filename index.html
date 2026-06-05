@@ -187,8 +187,9 @@
                                 <input type="number" step="0.1" id="inputDistance" required placeholder="例如：120" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 mb-1">本次消耗/充電電量 (kWh/度)</label>
-                                <input type="number" step="0.01" id="inputPower" required placeholder="例如：20" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50">
+                                <label class="block text-xs font-bold text-slate-500 mb-1">本次消耗/充電電量百分比 (%)</label>
+                                <input type="number" step="1" id="inputPowerPercent" required placeholder="例如：25" oninput="updateConvertedPowerHint()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50">
+                                <span id="powerHintText" class="text-[10px] text-slate-400 mt-1 block">約等同於 0.00 度電</span>
                             </div>
                         </div>
 
@@ -219,7 +220,7 @@
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 mb-1">您的電池總容量 (kWh)</label>
-                                <input type="number" id="calcBatteryCapacity" value="60" oninput="calculateEstimatedRange()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50">
+                                <input type="number" id="calcBatteryCapacity" value="57.7" oninput="calculateEstimatedRange()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 mb-1">目前剩餘電量 (%)</label>
@@ -306,7 +307,7 @@
                                     <th class="px-4 py-3">日期</th>
                                     <th class="px-4 py-3">類型</th>
                                     <th class="px-4 py-3 text-right">里程 (km)</th>
-                                    <th class="px-4 py-3 text-right">電量 (度)</th>
+                                    <th class="px-4 py-3 text-right">消耗/充電電量</th>
                                     <th class="px-4 py-3 text-right text-emerald-600">能耗 (km/度)</th>
                                     <th class="px-4 py-3 text-right">費用 (元)</th>
                                     <th class="px-4 py-3">備註</th>
@@ -335,17 +336,10 @@
 
     <!-- JavaScript 邏輯控制 -->
     <script>
-        // 初始化預設測試資料，方便用戶體驗
-        const DEFAULT_RECORDS = [
-            { id: "1", date: "2026-05-15", chargeType: "AC-慢充", distance: 150.0, power: 25.0, cost: 150, note: "日常通勤，部分高架" },
-            { id: "2", date: "2026-05-20", chargeType: "DC-快充", distance: 310.0, power: 52.0, cost: 510, note: "週末出遊，國道定速110" },
-            { id: "3", date: "2026-05-28", chargeType: "AC-慢充", distance: 120.0, power: 18.5, cost: 110, note: "市區行駛為主" },
-            { id: "4", date: "2026-06-02", chargeType: "DC-快充", distance: 280.0, power: 46.0, cost: 450, note: "端午連假塞車" }
-        ];
-
         let records = [];
         let efficiencyChartInstance = null;
         let syncUrl = "";
+        let batteryCapacity = 57.7; // 預設車輛電池總容量 (kWh)
 
         // 當頁面載入時執行
         window.onload = function() {
@@ -356,17 +350,21 @@
             syncUrl = localStorage.getItem('ev_life_sync_url') || "";
             document.getElementById('syncUrlInput').value = syncUrl;
             
+            // 讀取儲存的電池容量設定
+            batteryCapacity = parseFloat(localStorage.getItem('ev_life_battery_capacity')) || 57.7;
+            document.getElementById('calcBatteryCapacity').value = batteryCapacity;
+            
             updateSyncUiStatus();
+            updateConvertedPowerHint();
 
             // 讀取 localStorage 資料
             const localData = localStorage.getItem('ev_life_records');
             if (localData) {
                 records = JSON.parse(localData);
             } else {
-                // 初次開啟使用預設範例資料
-                records = [...DEFAULT_RECORDS];
+                // 初次開啟使用全新的空白紀錄
+                records = [];
                 localStorage.setItem('ev_life_records', JSON.stringify(records));
-                showToast("⚡ 已為您載入範例資料！");
             }
             
             renderDashboard();
@@ -378,6 +376,18 @@
                 }, 1000);
             }
         };
+
+        // 即時計算輸入百分比對應的度數提示
+        function updateConvertedPowerHint() {
+            const percentInput = document.getElementById('inputPowerPercent');
+            if (!percentInput) return;
+            const percent = parseFloat(percentInput.value) || 0;
+            const calculatedKwh = batteryCapacity * (percent / 100);
+            const hintText = document.getElementById('powerHintText');
+            if (hintText) {
+                hintText.textContent = `約等同於 ${calculatedKwh.toFixed(2)} 度電 (依總容量 ${batteryCapacity} kWh 計算)`;
+            }
+        }
 
         // 顯示提示訊息 (Toast)
         function showToast(message, isError = false) {
@@ -571,6 +581,9 @@
 
                 const efficiency = (rec.distance / rec.power).toFixed(2);
                 
+                // 計算顯示用百分比 (若歷史紀錄無此欄位，則從度數回推)
+                const dispPercent = rec.powerPercent ? parseFloat(rec.powerPercent) : ((rec.power / batteryCapacity) * 100);
+                
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 transition";
                 tr.innerHTML = `
@@ -584,7 +597,7 @@
                         </span>
                     </td>
                     <td class="px-4 py-3 text-right font-bold">${parseFloat(rec.distance).toFixed(1)}</td>
-                    <td class="px-4 py-3 text-right">${parseFloat(rec.power).toFixed(1)}</td>
+                    <td class="px-4 py-3 text-right font-bold">${dispPercent.toFixed(0)}% <span class="text-xs font-normal text-slate-400">(${parseFloat(rec.power).toFixed(1)}度)</span></td>
                     <td class="px-4 py-3 text-right text-emerald-600 font-bold">${efficiency}</td>
                     <td class="px-4 py-3 text-right">${rec.cost}</td>
                     <td class="px-4 py-3 max-w-xs truncate" title="${rec.note || ''}">${rec.note || '-'}</td>
@@ -623,21 +636,25 @@
             const date = document.getElementById('inputDate').value;
             const chargeType = document.getElementById('inputChargeType').value;
             const distance = parseFloat(document.getElementById('inputDistance').value);
-            const power = parseFloat(document.getElementById('inputPower').value);
+            const powerPercent = parseFloat(document.getElementById('inputPowerPercent').value);
             const cost = parseInt(document.getElementById('inputCost').value) || 0;
             const note = document.getElementById('inputNote').value.trim();
 
-            if (!date || isNaN(distance) || isNaN(power) || distance <= 0 || power <= 0) {
+            if (!date || isNaN(distance) || isNaN(powerPercent) || distance <= 0 || powerPercent <= 0) {
                 showToast("請輸入有效的里程與能耗數值", true);
                 return;
             }
+
+            // 核心演算法：度數 = 電池總容量 * (電量百分比 / 100)
+            const power = batteryCapacity * (powerPercent / 100);
 
             const newRecord = {
                 id: Date.now().toString(),
                 date,
                 chargeType,
                 distance,
-                power,
+                power: parseFloat(power.toFixed(3)), // 保留到小數三位
+                powerPercent: powerPercent, // 額外紀錄百分比便於直接顯示
                 cost,
                 note
             };
@@ -647,9 +664,10 @@
 
             // 表單重設 (日期保留)
             document.getElementById('inputDistance').value = '';
-            document.getElementById('inputPower').value = '';
+            document.getElementById('inputPowerPercent').value = '';
             document.getElementById('inputCost').value = '';
             document.getElementById('inputNote').value = '';
+            updateConvertedPowerHint();
 
             renderDashboard();
             showToast("紀錄已暫存於手機！");
@@ -684,7 +702,11 @@
 
         // 剩餘里程估算
         function calculateEstimatedRange() {
-            const capacity = parseFloat(document.getElementById('calcBatteryCapacity').value) || 0;
+            const capacityInput = document.getElementById('calcBatteryCapacity');
+            batteryCapacity = parseFloat(capacityInput.value) || 57.7;
+            localStorage.setItem('ev_life_battery_capacity', batteryCapacity);
+            updateConvertedPowerHint(); // 同步更新新增表單中的換算提示字眼
+
             const percent = parseFloat(document.getElementById('calcBatteryPercent').value) || 0;
             
             let totalKm = 0;
@@ -695,7 +717,7 @@
             });
             const avgEfficiency = totalPower > 0 ? (totalKm / totalPower) : 5.5;
 
-            const remainingPower = capacity * (percent / 100);
+            const remainingPower = batteryCapacity * (percent / 100);
             const estimatedRange = remainingPower * avgEfficiency;
 
             document.getElementById('calcRangeResult').textContent = Math.round(estimatedRange);
