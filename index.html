@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EV Life - 電動車里程與能耗計算器</title>
+    <!-- 引入 Tailwind CSS 用於現代化 UI 設計 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Chart.js 用於能耗趨勢圖表 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+        /* 自訂滾動條樣式 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+
+    <!-- 導覽列 -->
+    <nav class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <!-- 閃電/電動車車標 SVG -->
+                    <svg class="w-8 h-8 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    <span class="font-black text-xl tracking-wider">EV Life <span class="font-light text-sm text-emerald-100">電動車能耗記錄</span></span>
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="exportCSV()" class="bg-emerald-700 hover:bg-emerald-800 text-xs px-3 py-1.5 rounded-lg transition flex items-center space-x-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        <span class="hidden sm:inline">匯出 CSV</span>
+                    </button>
+                    <label class="bg-emerald-700 hover:bg-emerald-800 text-xs px-3 py-1.5 rounded-lg transition flex items-center space-x-1 cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                        <span class="hidden sm:inline">匯入 CSV</span>
+                        <input type="file" id="csvFileInput" accept=".csv" class="hidden" onchange="importCSV(event)">
+                    </label>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主內容區 -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- 自訂通知元件 (用來代替傳統 alert) -->
+        <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3">
+            <span id="toastIcon" class="text-emerald-400">⚡</span>
+            <span id="toastMessage" class="text-sm font-medium"></span>
+        </div>
+
+        <!-- 頂部數據看板 -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <!-- 累積總里程 -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">
+                <span class="text-xs font-semibold text-slate-400 tracking-wider">總行駛里程</span>
+                <div class="flex items-baseline mt-2">
+                    <span id="statTotalKm" class="text-2xl md:text-3xl font-black text-slate-800">0</span>
+                    <span class="text-xs font-bold text-slate-500 ml-1">km</span>
+                </div>
+                <span class="text-[10px] text-slate-400 mt-2">累計所有行駛區間</span>
+            </div>
+            <!-- 平均能耗 -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">
+                <span class="text-xs font-semibold text-slate-400 tracking-wider">平均能耗</span>
+                <div class="flex items-baseline mt-2">
+                    <span id="statAvgEfficiency" class="text-2xl md:text-3xl font-black text-emerald-600">0.00</span>
+                    <span class="text-xs font-bold text-emerald-600 ml-1">km/kWh</span>
+                </div>
+                <span id="statWhKm" class="text-[10px] text-slate-400 mt-2">相當於 0 Wh/km</span>
+            </div>
+            <!-- 總充電花費 -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">
+                <span class="text-xs font-semibold text-slate-400 tracking-wider">總充電花費</span>
+                <div class="flex items-baseline mt-2">
+                    <span id="statTotalCost" class="text-2xl md:text-3xl font-black text-slate-800">0</span>
+                    <span class="text-xs font-bold text-slate-500 ml-1">TWD</span>
+                </div>
+                <span id="statTotalPower" class="text-[10px] text-slate-400 mt-2">累計充入 0 度電</span>
+            </div>
+            <!-- 每公里成本 -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">
+                <span class="text-xs font-semibold text-slate-400 tracking-wider">每公里成本</span>
+                <div class="flex items-baseline mt-2">
+                    <span id="statCostPerKm" class="text-2xl md:text-3xl font-black text-blue-600">0.00</span>
+                    <span class="text-xs font-bold text-blue-600 ml-1">元/km</span>
+                </div>
+                <span class="text-[10px] text-slate-400 mt-2">依充電費率估算</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- 左側：記錄輸入與試算工具 (佔 5 格) -->
+            <div class="lg:col-span-5 space-y-8">
+                
+                <!-- 新增紀錄表單 -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                    <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-50">
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center space-x-2">
+                            <span class="text-emerald-500">📝</span>
+                            <span>新增能耗/充電紀錄</span>
+                        </h2>
+                        <span class="text-xs text-slate-400">填寫後自動重新計算</span>
+                    </div>
+
+                    <form id="recordForm" onsubmit="addRecord(event)" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">記錄日期</label>
+                                <input type="date" id="inputDate" required class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">充電方式</label>
+                                <select id="inputChargeType" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50">
+                                    <option value="AC-慢充">家用/公共 AC 慢充</option>
+                                    <option value="DC-快充">原廠/第三方 DC 快充</option>
+                                    <option value="未充電">純里程記錄(未充電)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">本次行駛里程 (km)</label>
+                                <input type="number" step="0.1" id="inputDistance" required placeholder="例如：120" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">本次消耗/充電電量 (kWh/度)</label>
+                                <input type="number" step="0.01" id="inputPower" required placeholder="例如：20" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">本次充電費用 (TWD/元) - 若無請填 0</label>
+                            <input type="number" step="1" id="inputCost" required placeholder="例如：140" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 mb-1">備註/行駛路況 (選填)</label>
+                            <input type="text" id="inputNote" placeholder="例如：高速公路 80%、市區 20%" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50">
+                        </div>
+
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl transition shadow-lg shadow-emerald-100 flex justify-center items-center space-x-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            <span>新增此筆紀錄</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 剩餘里程估算器 -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center space-x-2 mb-4">
+                        <span class="text-blue-500">🔮</span>
+                        <span>剩餘續航里程估算</span>
+                    </h2>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">您的電池總容量 (kWh)</label>
+                                <input type="number" id="calcBatteryCapacity" value="60" oninput="calculateEstimatedRange()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">目前剩餘電量 (%)</label>
+                                <input type="number" id="calcBatteryPercent" value="50" min="0" max="100" oninput="calculateEstimatedRange()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50">
+                            </div>
+                        </div>
+                        <div class="bg-blue-50/50 rounded-xl p-4 border border-blue-100 flex items-center justify-between">
+                            <div>
+                                <span class="text-xs text-blue-600 font-bold block">預估可續航里程</span>
+                                <span class="text-[10px] text-slate-400">依據您歷史平均能耗計算</span>
+                            </div>
+                            <div class="text-right">
+                                <span id="calcRangeResult" class="text-2xl font-black text-blue-700">0</span>
+                                <span class="text-xs font-bold text-blue-700 ml-1">km</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 油電省錢對比試算 -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center space-x-2 mb-4">
+                        <span class="text-amber-500">💰</span>
+                        <span>燃油車對比省錢試算</span>
+                    </h2>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">對照油車平均油耗 (km/L)</label>
+                                <input type="number" id="calcGasMilage" value="14" oninput="calculateSavings()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-slate-50">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">目前平均油價 (元/L)</label>
+                                <input type="number" id="calcGasPrice" value="30" oninput="calculateSavings()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-slate-50">
+                            </div>
+                        </div>
+                        <div class="bg-amber-50/50 rounded-xl p-4 border border-amber-100 flex items-center justify-between">
+                            <div>
+                                <span class="text-xs text-amber-700 font-bold block">相比燃油車累計節省</span>
+                                <span class="text-[10px] text-slate-400">以本系統記錄之總里程計算</span>
+                            </div>
+                            <div class="text-right">
+                                <span id="calcSavingsResult" class="text-2xl font-black text-amber-700">0</span>
+                                <span class="text-xs font-bold text-amber-700 ml-1">元</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 右側：圖表與歷史資料列表 (佔 7 格) -->
+            <div class="lg:col-span-7 space-y-8">
+                
+                <!-- 能耗與花費圖表 -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                    <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center space-x-2">
+                        <span class="text-indigo-500">📈</span>
+                        <span>能耗趨勢與花費統計</span>
+                    </h2>
+                    <div class="h-64 relative">
+                        <canvas id="efficiencyChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 歷史資料列表 -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-3 border-b border-slate-100 mb-4 gap-2">
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center space-x-2">
+                            <span class="text-teal-500">📊</span>
+                            <span>歷史行駛能耗日誌</span>
+                        </h2>
+                        <button onclick="clearAllData()" class="text-rose-500 hover:text-rose-700 text-xs font-bold transition self-start sm:self-center flex items-center space-x-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            <span>清除所有紀錄</span>
+                        </button>
+                    </div>
+
+                    <!-- 表格容器 -->
+                    <div class="overflow-x-auto rounded-xl border border-slate-100">
+                        <table class="min-w-full divide-y divide-slate-100 text-sm text-left">
+                            <thead class="bg-slate-50 text-slate-500 font-bold text-xs uppercase tracking-wider">
+                                <tr>
+                                    <th class="px-4 py-3">日期</th>
+                                    <th class="px-4 py-3">類型</th>
+                                    <th class="px-4 py-3 text-right">里程 (km)</th>
+                                    <th class="px-4 py-3 text-right">電量 (度)</th>
+                                    <th class="px-4 py-3 text-right text-emerald-600">能耗 (km/度)</th>
+                                    <th class="px-4 py-3 text-right">費用 (元)</th>
+                                    <th class="px-4 py-3">備註</th>
+                                    <th class="px-4 py-3 text-center">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recordTableBody" class="divide-y divide-slate-100 text-slate-600">
+                                <!-- 動態插入表格內容 -->
+                            </tbody>
+                        </table>
+                        <div id="noDataPlaceholder" class="hidden p-8 text-center text-slate-400">
+                            <p class="text-sm">尚未有任何行駛紀錄，請由左側新增！</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- 頁尾 -->
+    <footer class="bg-slate-900 text-slate-400 text-center py-8 mt-12 border-t border-slate-800">
+        <p class="text-xs">EV Life 電動車試算與能耗記錄工具 © 2026. 您的資料將安全地儲存在本機瀏覽器中。</p>
+    </footer>
+
+    <!-- JavaScript 邏輯控制 -->
+    <script>
+        // 初始化預設測試資料，方便用戶體驗
+        const DEFAULT_RECORDS = [
+            { id: "1", date: "2026-05-15", chargeType: "AC-慢充", distance: 150.0, power: 25.0, cost: 150, note: "日常通勤，部分高架" },
+            { id: "2", date: "2026-05-20", chargeType: "DC-快充", distance: 310.0, power: 52.0, cost: 510, note: "週末出遊，國道定速110" },
+            { id: "3", date: "2026-05-28", chargeType: "AC-慢充", distance: 120.0, power: 18.5, cost: 110, note: "市區行駛為主" },
+            { id: "4", date: "2026-06-02", chargeType: "DC-快充", distance: 280.0, power: 46.0, cost: 450, note: "端午連假塞車" }
+        ];
+
+        let records = [];
+        let efficiencyChartInstance = null;
+
+        // 當頁面載入時執行
+        window.onload = function() {
+            // 設定今日日期為表單預設日期
+            document.getElementById('inputDate').value = new Date().toISOString().substring(0, 10);
+            
+            // 讀取 localStorage
+            const localData = localStorage.getItem('ev_life_records');
+            if (localData) {
+                records = JSON.parse(localData);
+            } else {
+                // 初次開啟使用預設範例資料
+                records = [...DEFAULT_RECORDS];
+                localStorage.setItem('ev_life_records', JSON.stringify(records));
+                showToast("⚡ 已為您載入範例資料！");
+            }
+            
+            renderDashboard();
+        };
+
+        // 顯示提示訊息 (Toast)
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+            
+            toastMessage.textContent = message;
+            toastIcon.textContent = isError ? "⚠️" : "⚡";
+            toast.className = `fixed bottom-5 right-5 z-50 transform translate-y-0 opacity-100 transition-all duration-300 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3`;
+            
+            setTimeout(() => {
+                toast.className = `fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3`;
+            }, 3000);
+        }
+
+        // 計算並渲染儀表板與圖表
+        function renderDashboard() {
+            // 排序資料 (日期由舊到新，利於圖表與邏輯)
+            records.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            const tableBody = document.getElementById('recordTableBody');
+            const placeholder = document.getElementById('noDataPlaceholder');
+            tableBody.innerHTML = '';
+
+            if (records.length === 0) {
+                placeholder.classList.remove('hidden');
+                updateStats(0, 0, 0, 0, 0);
+                if (efficiencyChartInstance) {
+                    efficiencyChartInstance.destroy();
+                    efficiencyChartInstance = null;
+                }
+                return;
+            } else {
+                placeholder.classList.add('hidden');
+            }
+
+            let totalKm = 0;
+            let totalPower = 0;
+            let totalCost = 0;
+
+            // 逆序排列用於表格顯示（最新在最上面）
+            const displayRecords = [...records].reverse();
+
+            displayRecords.forEach(rec => {
+                totalKm += parseFloat(rec.distance);
+                totalPower += parseFloat(rec.power);
+                totalCost += parseFloat(rec.cost);
+
+                const efficiency = (rec.distance / rec.power).toFixed(2);
+                
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition";
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-medium text-slate-800 whitespace-nowrap">${rec.date}</td>
+                    <td class="px-4 py-3">
+                        <span class="inline-block px-2 py-0.5 text-xs rounded-full font-semibold ${
+                            rec.chargeType.includes('快充') ? 'bg-amber-100 text-amber-700' : 
+                            rec.chargeType.includes('慢充') ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'
+                        }">
+                            ${rec.chargeType}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-right font-bold">${parseFloat(rec.distance).toFixed(1)}</td>
+                    <td class="px-4 py-3 text-right">${parseFloat(rec.power).toFixed(1)}</td>
+                    <td class="px-4 py-3 text-right text-emerald-600 font-bold">${efficiency}</td>
+                    <td class="px-4 py-3 text-right">${rec.cost}</td>
+                    <td class="px-4 py-3 max-w-xs truncate" title="${rec.note || ''}">${rec.note || '-'}</td>
+                    <td class="px-4 py-3 text-center">
+                        <button onclick="deleteRecord('${rec.id}')" class="text-rose-500 hover:text-rose-700 transition font-bold text-xs p-1">刪除</button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            // 計算平均與全局統計
+            const avgEfficiency = totalPower > 0 ? (totalKm / totalPower) : 0;
+            const costPerKm = totalKm > 0 ? (totalCost / totalKm) : 0;
+
+            updateStats(totalKm, avgEfficiency, totalCost, totalPower, costPerKm);
+            updateCharts();
+            calculateEstimatedRange();
+            calculateSavings();
+        }
+
+        // 更新頂部卡片文字
+        function updateStats(totalKm, avgEfficiency, totalCost, totalPower, costPerKm) {
+            document.getElementById('statTotalKm').textContent = totalKm.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
+            document.getElementById('statAvgEfficiency').textContent = avgEfficiency.toFixed(2);
+            document.getElementById('statTotalCost').textContent = totalCost.toLocaleString();
+            document.getElementById('statCostPerKm').textContent = costPerKm.toFixed(2);
+
+            // 計算 Wh/km 顯示
+            const whKm = avgEfficiency > 0 ? Math.round(1000 / avgEfficiency) : 0;
+            document.getElementById('statWhKm').textContent = `相當於約 ${whKm} Wh/km`;
+            document.getElementById('statTotalPower').textContent = `累計充入 ${totalPower.toFixed(1)} 度電`;
+        }
+
+        // 新增記錄
+        function addRecord(e) {
+            e.preventDefault();
+
+            const date = document.getElementById('inputDate').value;
+            const chargeType = document.getElementById('inputChargeType').value;
+            const distance = parseFloat(document.getElementById('inputDistance').value);
+            const power = parseFloat(document.getElementById('inputPower').value);
+            const cost = parseInt(document.getElementById('inputCost').value) || 0;
+            const note = document.getElementById('inputNote').value.trim();
+
+            if (!date || isNaN(distance) || isNaN(power) || distance <= 0 || power <= 0) {
+                showToast("請輸入有效的里程與能耗數值", true);
+                return;
+            }
+
+            const newRecord = {
+                id: Date.now().toString(),
+                date,
+                chargeType,
+                distance,
+                power,
+                cost,
+                note
+            };
+
+            records.push(newRecord);
+            localStorage.setItem('ev_life_records', JSON.stringify(records));
+
+            // 表單重設 (日期保留)
+            document.getElementById('inputDistance').value = '';
+            document.getElementById('inputPower').value = '';
+            document.getElementById('inputCost').value = '';
+            document.getElementById('inputNote').value = '';
+
+            renderDashboard();
+            showToast("紀錄新增成功！");
+        }
+
+        // 刪除特定記錄
+        function deleteRecord(id) {
+            records = records.filter(rec => rec.id !== id);
+            localStorage.setItem('ev_life_records', JSON.stringify(records));
+            renderDashboard();
+            showToast("記錄已刪除");
+        }
+
+        // 清空所有資料
+        function clearAllData() {
+            if (confirm("您確定要刪除所有行駛與充電記錄嗎？此動作無法復原。")) {
+                records = [];
+                localStorage.removeItem('ev_life_records');
+                renderDashboard();
+                showToast("所有歷史紀錄已清空", true);
+            }
+        }
+
+        // 剩餘里程估算
+        function calculateEstimatedRange() {
+            const capacity = parseFloat(document.getElementById('calcBatteryCapacity').value) || 0;
+            const percent = parseFloat(document.getElementById('calcBatteryPercent').value) || 0;
+            
+            // 計算目前全局平均能耗
+            let totalKm = 0;
+            let totalPower = 0;
+            records.forEach(rec => {
+                totalKm += parseFloat(rec.distance);
+                totalPower += parseFloat(rec.power);
+            });
+            const avgEfficiency = totalPower > 0 ? (totalKm / totalPower) : 5.5; // 若無資料，預設以 5.5 km/kWh 估算
+
+            const remainingPower = capacity * (percent / 100);
+            const estimatedRange = remainingPower * avgEfficiency;
+
+            document.getElementById('calcRangeResult').textContent = Math.round(estimatedRange);
+        }
+
+        // 相比燃油車省錢計算
+        function calculateSavings() {
+            const gasMileage = parseFloat(document.getElementById('calcGasMilage').value) || 1;
+            const gasPrice = parseFloat(document.getElementById('calcGasPrice').value) || 0;
+
+            let totalKm = 0;
+            let totalCost = 0;
+            records.forEach(rec => {
+                totalKm += parseFloat(rec.distance);
+                totalCost += parseFloat(rec.cost);
+            });
+
+            // 燃油車成本 = (總里程 / 油耗) * 油價
+            const gasCarCost = (totalKm / gasMileage) * gasPrice;
+            const savings = gasCarCost - totalCost;
+
+            document.getElementById('calcSavingsResult').textContent = Math.max(0, Math.round(savings)).toLocaleString();
+        }
+
+        // 渲染圖表 (Chart.js)
+        function updateCharts() {
+            const ctx = document.getElementById('efficiencyChart').getContext('2d');
+
+            if (efficiencyChartInstance) {
+                efficiencyChartInstance.destroy();
+            }
+
+            // 只挑選最近 15 筆記錄用於圖表展示，避免過度擁擠
+            const chartData = [...records].slice(-15);
+            const labels = chartData.map(rec => rec.date.substring(5)); // 只取月-日 (MM-DD)
+            const efficiencies = chartData.map(rec => (rec.distance / rec.power).toFixed(2));
+            const costs = chartData.map(rec => rec.cost);
+
+            efficiencyChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '能耗 (km/kWh)',
+                            data: efficiencies,
+                            borderColor: '#059669', // emerald-600
+                            backgroundColor: 'rgba(5, 150, 105, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.3,
+                            yAxisID: 'yEfficiency',
+                            fill: true
+                        },
+                        {
+                            label: '充電費用 (元)',
+                            type: 'bar',
+                            data: costs,
+                            backgroundColor: 'rgba(59, 130, 246, 0.4)', // blue-500
+                            borderColor: '#3b82f6',
+                            borderWidth: 1,
+                            yAxisID: 'yCost',
+                            barThickness: 12
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    family: "'Noto Sans TC', sans-serif",
+                                    size: 11
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        },
+                        yEfficiency: {
+                            type: 'linear',
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: '能耗 (公里/度)',
+                                font: {
+                                    weight: 'bold',
+                                    size: 11
+                                }
+                            },
+                            ticks: {
+                                color: '#059669'
+                            },
+                            grid: {
+                                color: '#f1f5f9'
+                            }
+                        },
+                        yCost: {
+                            type: 'linear',
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: '花費 (台幣)',
+                                font: {
+                                    weight: 'bold',
+                                    size: 11
+                                }
+                            },
+                            ticks: {
+                                color: '#3b82f6'
+                            },
+                            grid: {
+                                drawOnChartArea: false // 避免背景線條重疊混亂
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 匯出 CSV 備份
+        function exportCSV() {
+            if (records.length === 0) {
+                showToast("無資料可匯出！", true);
+                return;
+            }
+
+            // CSV 標頭
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // 加入 BOM 防止 Excel 中文亂碼
+            csvContent += "日期,充電方式,行駛里程(km),消耗電量(kWh),充電費用(元),備註\n";
+
+            records.forEach(rec => {
+                const row = [
+                    rec.date,
+                    rec.chargeType,
+                    rec.distance,
+                    rec.power,
+                    rec.cost,
+                    `"${(rec.note || '').replace(/"/g, '""')}"` // 防止 CSV 破壞性逗號
+                ].join(",");
+                csvContent += row + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `EV_Life_Record_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("CSV 匯出成功！已開始下載");
+        }
+
+        // 匯入 CSV 備份
+        function importCSV(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const text = e.target.result;
+                    const lines = text.split("\n");
+                    const importedRecords = [];
+
+                    // 從第一行(跳過標頭)開始解析
+                    for (let i = 1; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (!line) continue;
+
+                        // 使用正則拆分逗號，以妥善處理帶引號的備註
+                        const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                        if (parts.length < 5) continue;
+
+                        const date = parts[0].trim();
+                        const chargeType = parts[1].trim();
+                        const distance = parseFloat(parts[2].trim());
+                        const power = parseFloat(parts[3].trim());
+                        const cost = parseInt(parts[4].trim()) || 0;
+                        let note = parts[5] ? parts[5].trim() : "";
+                        
+                        // 去除備註中的雙引號
+                        if (note.startsWith('"') && note.endsWith('"')) {
+                            note = note.slice(1, -1).replace(/""/g, '"');
+                        }
+
+                        if (date && !isNaN(distance) && !isNaN(power)) {
+                            importedRecords.push({
+                                id: (Date.now() + i).toString(),
+                                date,
+                                chargeType,
+                                distance,
+                                power,
+                                cost,
+                                note
+                            });
+                        }
+                    }
+
+                    if (importedRecords.length > 0) {
+                        if (confirm(`成功解析出 ${importedRecords.length} 筆資料。是否覆蓋目前現有資料？ (按取消將與現有資料合併)`)) {
+                            records = importedRecords;
+                        } else {
+                            records = [...records, ...importedRecords];
+                        }
+                        localStorage.setItem('ev_life_records', JSON.stringify(records));
+                        renderDashboard();
+                        showToast(`已成功載入 ${importedRecords.length} 筆資料！`);
+                    } else {
+                        showToast("無法解析 CSV，請檢查格式是否正確", true);
+                    }
+                } catch (error) {
+                    showToast("讀取檔案出錯，請確認為正確的 CSV 格式", true);
+                }
+            };
+            reader.readAsText(file);
+            // 清空 file input 的 value，以便下次選擇相同檔案時能觸發
+            event.target.value = '';
+        }
+    </script>
+</body>
+</html>
