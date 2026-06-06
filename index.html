@@ -13,14 +13,27 @@
         tailwind.config = {
             darkMode: 'media',
             theme: {
-                extend: {}
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                        }
+                    }
+                }
             }
         }
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght=300;400;500;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght=300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
         body {
             font-family: 'Noto Sans TC', sans-serif;
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', 'Noto Sans TC', monospace;
         }
         /* 自訂滾動條樣式 */
         ::-webkit-scrollbar {
@@ -28,26 +41,26 @@
             height: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: #f1f1f1;
+            background: #f8fafc;
         }
         .dark ::-webkit-scrollbar-track {
-            background: #0f172a;
+            background: #020617;
         }
         ::-webkit-scrollbar-thumb {
             background: #cbd5e1;
-            border-radius: 3px;
+            border-radius: 99px;
         }
         .dark ::-webkit-scrollbar-thumb {
-            background: #334155;
+            background: #1e293b;
         }
         ::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
         .dark ::-webkit-scrollbar-thumb:hover {
-            background: #475569;
+            background: #334155;
         }
 
-        /* 關鍵修正 1：擴展原生 Webkit 日曆觸發熱區，使其覆蓋整個輸入框，確保在手機上任何位置點擊皆有反應 */
+        /* 擴展原生 Webkit 日曆觸發熱區 */
         input[type="date"] {
             position: relative;
         }
@@ -62,42 +75,47 @@
             color: transparent;
             background: transparent;
             cursor: pointer;
-            z-index: 30; /* 覆蓋在文字與自訂圖標之上 */
+            z-index: 30;
         }
         
-        /* 關鍵修正 2：在深色模式下，確保原生瀏覽器彈出的日曆窗體與選單自動適配深底白字 */
         .dark input, .dark select {
             color-scheme: dark;
         }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-200">
+<body class="bg-[#f8fafc] dark:bg-[#030712] text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-300 antialiased selection:bg-emerald-500/20">
 
-    <!-- 導覽列 -->
-    <nav class="bg-gradient-to-r from-emerald-600 to-teal-700 dark:from-slate-900 dark:to-emerald-950 dark:border-b dark:border-emerald-900/20 text-white shadow-lg sticky top-0 z-40">
+    <!-- 頂部精緻導覽列 -->
+    <nav class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800/40 text-slate-800 dark:text-slate-100 sticky top-0 z-40 transition-colors">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
+                <!-- 標誌與動態呼吸燈 -->
                 <div class="flex items-center space-x-3">
-                    <svg class="w-8 h-8 text-emerald-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                    </svg>
-                    <span class="font-black text-xl tracking-wider">EV Life <span class="font-light text-sm text-emerald-100 dark:text-emerald-300/80">電動車能耗記錄</span></span>
+                    <div class="relative flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 shadow-md shadow-emerald-500/10">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-300 border-2 border-white dark:border-slate-900 rounded-full animate-ping"></span>
+                    </div>
+                    <span class="font-extrabold text-lg tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-600 dark:from-white dark:via-slate-200 dark:to-emerald-400">EV Life <span class="font-light text-xs text-slate-400 dark:text-slate-500 ml-1">能耗記錄</span></span>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <!-- 外置的立即同步按鈕 (極致相容雙向循環同步 SVG) -->
-                    <button id="navSyncBtn" onclick="syncWithCloud()" class="bg-blue-600 hover:bg-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600 text-xs px-3 py-1.5 rounded-lg transition hidden items-center space-x-1.5 border border-blue-400/30 shadow-md">
-                        <svg id="navSyncIcon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                
+                <div class="flex items-center space-x-3">
+                    <!-- 立即同步按鈕 -->
+                    <button id="navSyncBtn" onclick="syncWithCloud()" class="bg-blue-600 hover:bg-blue-500 active:scale-95 dark:bg-blue-700 dark:hover:bg-blue-600 text-white text-xs px-3.5 py-2 rounded-xl font-bold transition-all flex items-center space-x-1.5 border border-blue-400/20 shadow-lg shadow-blue-500/10 hidden">
+                        <svg id="navSyncIcon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M20 4v5h-5M4 20v-5h5M4 12A8 8 0 0 1 18 6.13L20 9M20 12a8 8 0 0 1-14 5.87L4 15"></path>
                         </svg>
-                        <span class="font-bold">立即同步</span>
+                        <span>立即同步</span>
                     </button>
-                    <!-- 雲端同步按鈕 -->
-                    <button onclick="toggleSyncModal()" class="bg-emerald-800 hover:bg-emerald-900 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg transition flex items-center space-x-1 border border-emerald-500/30">
-                        <span id="syncStatusDot" class="w-2.5 h-2.5 rounded-full bg-rose-500 mr-1 animate-pulse"></span>
-                        <span id="syncBtnText" class="font-medium">設定雲端同步</span>
+                    <!-- 雲端同步設定 -->
+                    <button onclick="toggleSyncModal()" class="bg-slate-100 hover:bg-slate-200 active:scale-95 dark:bg-slate-800/80 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs px-3.5 py-2 rounded-xl transition-all flex items-center space-x-2 border border-slate-200/50 dark:border-slate-700/50">
+                        <span id="syncStatusDot" class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+                        <span id="syncBtnText" class="font-bold">雲端設定</span>
                     </button>
-                    <!-- CSV 匯出 -->
-                    <button onclick="exportCSV()" class="bg-emerald-700 hover:bg-emerald-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg transition hidden md:flex items-center space-x-1 border border-slate-500/20">
+                    <!-- 匯出按鈕 -->
+                    <button onclick="exportCSV()" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs px-3 py-2 rounded-xl transition-all hidden md:flex items-center border border-slate-200/50 dark:border-slate-700/50 font-bold">
+                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                         <span>匯出</span>
                     </button>
                 </div>
@@ -106,39 +124,39 @@
     </nav>
 
     <!-- 雲端同步設定模態 -->
-    <div id="syncModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+    <div id="syncModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
         <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-2xl max-w-md w-full mx-4 transform scale-95 transition-all duration-300 border border-slate-100 dark:border-slate-800" id="syncModalContent">
             <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 mb-4">
-                <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center space-x-2">
-                    <span>☁️</span>
+                <h3 class="text-base font-black text-slate-800 dark:text-slate-100 flex items-center space-x-2">
+                    <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
                     <span>Google 試算表雲端同步</span>
                 </h3>
-                <button onclick="toggleSyncModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold">×</button>
+                <button onclick="toggleSyncModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold transition-all">×</button>
             </div>
             
             <div class="space-y-4">
                 <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                    將您的 Google 試算表作為資料庫。啟用後，您可以使用任何設備（手機/電腦），點選導覽列上的「立即同步」即可無縫更新所有行駛紀錄！
+                    將您的 Google 試算表做為雲端資料庫。啟用後，不論在手機或電腦上記錄，點擊導覽列「立即同步」即可實現極速跨裝置備份！
                 </p>
                 
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">Google Apps Script 網頁應用程式網址</label>
-                    <input type="url" id="syncUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">Google Apps Script 網頁應用程式網址</label>
+                    <input type="url" id="syncUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-all font-mono">
                 </div>
 
-                <div class="bg-emerald-50 dark:bg-emerald-950/20 rounded-xl p-3 border border-emerald-100 dark:border-emerald-900/30">
-                    <span class="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold block mb-1">同步邏輯說明：</span>
-                    <p class="text-[10px] text-slate-600 dark:text-slate-300 leading-relaxed">
-                        採用安全智慧同步。點選同步時，系統會自動根據最後修改時間決定更新本機或覆蓋雲端，確保「單筆刪除」與「清空紀錄」能完美同步至雲端！
+                <div class="bg-emerald-50/60 dark:bg-emerald-950/10 rounded-xl p-3 border border-emerald-100/50 dark:border-emerald-900/30">
+                    <span class="text-[10px] text-emerald-700 dark:text-emerald-400 font-extrabold block mb-1">💡 雙向合併技術</span>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                        系統採用智慧毫秒時間戳記（LWW 機制）。同步時會融合裝置與雲端的最新異動，並支援安全的單筆刪除與完整清空。
                     </p>
                 </div>
 
-                <div id="syncTimeInfo" class="text-xs text-slate-400 dark:text-slate-550 hidden">
-                    上次同步時間：<span id="lastSyncTimeText">無</span>
+                <div id="syncTimeInfo" class="text-xs text-slate-400 dark:text-slate-500 hidden">
+                    上次同步時間：<span id="lastSyncTimeText" class="font-bold">無</span>
                 </div>
 
                 <div class="flex space-x-3 pt-2">
-                    <button onclick="saveSyncSettings()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2.5 rounded-xl transition">
+                    <button onclick="saveSyncSettings()" class="flex-1 bg-gradient-to-tr from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-xs font-bold py-3 rounded-xl transition-all shadow-md shadow-emerald-500/10">
                         儲存並嘗試同步
                     </button>
                 </div>
@@ -146,19 +164,21 @@
         </div>
     </div>
 
-    <!-- 自訂確認對話方塊 -->
-    <div id="confirmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+    <!-- 自訂確認對話方塊 (精美彈窗) -->
+    <div id="confirmModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
         <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-2xl max-w-sm w-full mx-4 transform scale-95 transition-all duration-300 border border-slate-100 dark:border-slate-800" id="confirmModalContent">
-            <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2 flex items-center space-x-2">
-                <span class="text-rose-500" id="confirmModalIcon">⚠️</span>
+            <h3 class="text-base font-black text-slate-800 dark:text-slate-100 mb-2 flex items-center space-x-2">
+                <span class="p-1.5 bg-rose-100 dark:bg-rose-950/40 rounded-lg text-rose-500" id="confirmModalIcon">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </span>
                 <span id="confirmModalTitle">確認操作</span>
             </h3>
-            <p id="confirmModalMessage" class="text-sm text-slate-500 dark:text-slate-400 mb-6 leading-relaxed"></p>
+            <p id="confirmModalMessage" class="text-xs text-slate-500 dark:text-slate-400 mb-6 leading-relaxed"></p>
             <div class="flex space-x-3">
-                <button onclick="closeConfirmModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold py-2.5 rounded-xl transition">
+                <button onclick="closeConfirmModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold py-2.5 rounded-xl transition-all">
                     取消
                 </button>
-                <button id="confirmSuccessBtn" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold py-2.5 rounded-xl transition">
+                <button id="confirmSuccessBtn" class="flex-1 bg-gradient-to-tr from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white text-xs font-bold py-2.5 rounded-xl transition-all">
                     確定
                 </button>
             </div>
@@ -168,86 +188,107 @@
     <!-- 主內容區 -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        <!-- 自訂通知元件 -->
-        <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3">
+        <!-- 自訂通知元件 (Toast) -->
+        <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900/95 dark:bg-slate-800/95 text-white px-5 py-3.5 rounded-xl shadow-2xl flex items-center space-x-3 border border-slate-200/10">
             <span id="toastIcon" class="text-emerald-400">⚡</span>
-            <span id="toastMessage" class="text-sm font-medium"></span>
+            <span id="toastMessage" class="text-xs font-medium"></span>
         </div>
 
-        <!-- 頂部數據看板 -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <!-- 頂部高級數據看板 -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <!-- 累積總里程 -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800 flex flex-col justify-between">
-                <span class="text-xs font-semibold text-slate-400 dark:text-slate-550 tracking-wider">總行駛里程</span>
-                <div class="flex items-baseline mt-2">
-                    <span id="statTotalKm" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100">0</span>
-                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1">km</span>
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl shadow-sm border border-slate-200/50 dark:border-slate-800/40 flex flex-col justify-between hover:shadow-md transition-all duration-200 group">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">總行駛里程</span>
+                    <span class="p-1.5 rounded-lg bg-emerald-100/60 dark:bg-emerald-950/20 text-emerald-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+                    </span>
                 </div>
-                <span class="text-[10px] text-slate-400 dark:text-slate-500 mt-2">累計所有行駛區間</span>
+                <div class="flex items-baseline mt-4">
+                    <span id="statTotalKm" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100 font-mono tracking-tight">0</span>
+                    <span class="text-xs font-bold text-slate-400 ml-1">km</span>
+                </div>
+                <span class="text-[10px] text-slate-400 dark:text-slate-500 mt-2">累計行駛總距離</span>
             </div>
             <!-- 平均能耗 -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800 flex flex-col justify-between">
-                <span class="text-xs font-semibold text-slate-400 dark:text-slate-555 tracking-wider">平均能耗</span>
-                <div class="flex items-baseline mt-2">
-                    <span id="statAvgEfficiency" class="text-2xl md:text-3xl font-black text-emerald-600 dark:text-emerald-400">0.00</span>
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl shadow-sm border border-slate-200/50 dark:border-slate-800/40 flex flex-col justify-between hover:shadow-md transition-all duration-200 group">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-555 tracking-wider">平均能耗</span>
+                    <span class="p-1.5 rounded-lg bg-sky-100/60 dark:bg-sky-950/20 text-sky-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </span>
+                </div>
+                <div class="flex items-baseline mt-4">
+                    <span id="statAvgEfficiency" class="text-2xl md:text-3xl font-black text-emerald-600 dark:text-emerald-400 font-mono tracking-tight">0.00</span>
                     <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 ml-1">km/度</span>
                 </div>
-                <span id="statWhKm" class="text-[10px] text-slate-400 dark:text-slate-550 mt-2">相當於 0 Wh/km</span>
+                <span id="statWhKm" class="text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-mono">相當於 0 Wh/km</span>
             </div>
             <!-- 總充電花費 -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800 flex flex-col justify-between">
-                <span class="text-xs font-semibold text-slate-400 dark:text-slate-555 tracking-wider">總充電花費</span>
-                <div class="flex items-baseline mt-2">
-                    <span id="statTotalCost" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100">0</span>
-                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1">TWD</span>
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl shadow-sm border border-slate-200/50 dark:border-slate-800/40 flex flex-col justify-between hover:shadow-md transition-all duration-200 group">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">總充電花費</span>
+                    <span class="p-1.5 rounded-lg bg-amber-100/60 dark:bg-amber-950/20 text-amber-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1c-1.11 0-2.08-.402-2.599-1M12 8V5m0 11c1.11 0 2.08-.402 2.599-1M12 16v1m0-1c-1.11 0-2.08-.402-2.599-1M12 16v2m2-12c0-.337-.01-.672-.03-1m0 1C14.542 5.342 15 6.618 15 8c0 3.038-2.155 5.513-5 5.93M9 14h.01M12 14h.01M15 14h.01M12 17h.01M18 14h.01M12 20h.01M15 20h.01M18 20h.01"></path></svg>
+                    </span>
                 </div>
-                <span id="statTotalPower" class="text-[10px] text-slate-400 dark:text-slate-555 mt-2">累計充入 0 度電</span>
+                <div class="flex items-baseline mt-4">
+                    <span id="statTotalCost" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100 font-mono tracking-tight">0</span>
+                    <span class="text-xs font-bold text-slate-400 ml-1">元</span>
+                </div>
+                <span id="statTotalPower" class="text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-mono">累計充入 0 度電</span>
             </div>
             <!-- 每公里成本 -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800 flex flex-col justify-between">
-                <span class="text-xs font-semibold text-slate-400 dark:text-slate-555 tracking-wider">每公里成本</span>
-                <div class="flex items-baseline mt-2">
-                    <span id="statCostPerKm" class="text-2xl md:text-3xl font-black text-blue-600 dark:text-blue-400">0.00</span>
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl shadow-sm border border-slate-200/50 dark:border-slate-800/40 flex flex-col justify-between hover:shadow-md transition-all duration-200 group">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">每公里成本</span>
+                    <span class="p-1.5 rounded-lg bg-indigo-100/60 dark:bg-indigo-950/20 text-indigo-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </span>
+                </div>
+                <div class="flex items-baseline mt-4">
+                    <span id="statCostPerKm" class="text-2xl md:text-3xl font-black text-blue-600 dark:text-blue-400 font-mono tracking-tight">0.00</span>
                     <span class="text-xs font-bold text-blue-600 dark:text-blue-400 ml-1">元/km</span>
                 </div>
-                <span class="text-[10px] text-slate-400 dark:text-slate-555 mt-2">依充電費率估算</span>
+                <span class="text-[10px] text-slate-400 dark:text-slate-555 mt-2">依總電費分攤</span>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            <!-- 左側：記錄輸入與試算工具 -->
+            <!-- 左側：記錄輸入與試算工具 (5/12) -->
             <div class="lg:col-span-5 space-y-8">
                 
                 <!-- 新增紀錄表單 -->
-                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800">
-                    <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-50 dark:border-slate-800/50">
-                        <h2 class="text-lg font-bold text-slate-800 dark:text-slate-200 flex items-center space-x-2">
-                            <span class="text-emerald-500">📝</span>
-                            <span>新增能耗/充電紀錄</span>
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-200/50 dark:border-slate-800/40">
+                    <div class="flex items-center justify-between mb-5 pb-3 border-b border-slate-100 dark:border-slate-800/50">
+                        <h2 class="text-base font-black text-slate-800 dark:text-slate-100 flex items-center space-x-2">
+                            <span class="text-emerald-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            </span>
+                            <span>新增用電/充電日誌</span>
                         </h2>
-                        <span class="text-xs text-slate-400 dark:text-slate-555">填寫後自動重新計算</span>
+                        <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold">手動登入</span>
                     </div>
 
                     <form id="recordForm" onsubmit="addRecord(event)" class="space-y-4">
-                        <!-- 響應式網格 -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <!-- 記錄日期 (新增絕對定位圖示與穿透效果，日曆隨意點擊均能彈出) -->
+                            <!-- 記錄日期 -->
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">記錄日期</label>
+                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">行駛/充電日期</label>
                                 <div class="relative">
-                                    <input type="date" id="inputDate" required class="w-full px-3 py-2 pr-10 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 relative z-15">
-                                    <!-- 自訂日曆圖示 (z-20 配合 pointer-events-none 實現點擊穿透) -->
-                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500 z-20">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <input type="date" id="inputDate" required class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:focus:ring-emerald-400/20 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 relative z-10 transition-all font-medium">
+                                    <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-550 z-20">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                         </svg>
                                     </div>
                                 </div>
                             </div>
+                            <!-- 充電方式 -->
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">充電方式</label>
-                                <select id="inputChargeType" class="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
+                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">登入類型</label>
+                                <select id="inputChargeType" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:focus:ring-emerald-400/20 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-all font-medium cursor-pointer">
                                     <option value="DC-快充" selected>原廠/第三方 DC 快充</option>
                                     <option value="AC-慢充">家用/公共 AC 慢充</option>
                                     <option value="未充電">純里程記錄(未充電)</option>
@@ -255,91 +296,96 @@
                             </div>
                         </div>
 
-                        <!-- 響應式網格 -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- 本次里程 -->
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">本次行駛里程 (km)</label>
-                                <input type="number" step="0.1" id="inputDistance" required placeholder="例如：120" class="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
+                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">行駛距離 (km)</label>
+                                <input type="number" step="0.1" id="inputDistance" required placeholder="例如：120" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:focus:ring-emerald-400/20 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-all font-mono">
                             </div>
+                            <!-- 本次消耗/充電百分比 -->
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">本次消耗多少電量(%)</label>
-                                <input type="number" step="1" id="inputPowerPercent" required placeholder="例如：25" oninput="updateConvertedPowerHint()" class="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
-                                <span id="powerHintText" class="text-[10px] text-slate-400 dark:text-slate-555 mt-1 block">約等同於 0.00 度電</span>
+                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">消耗/補回電量 (%)</label>
+                                <input type="number" step="1" id="inputPowerPercent" required placeholder="例如：25" oninput="updateConvertedPowerHint()" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:focus:ring-emerald-400/20 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-all font-mono">
+                                <span id="powerHintText" class="text-[10px] text-slate-400 dark:text-slate-500 mt-1 block font-medium">約等同於 0.00 度電</span>
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">本次充電費用 (TWD/元)</label>
-                            <input type="number" step="1" id="inputCost" required placeholder="例如：140" class="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
+                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">本次充電金額 (TWD/元) - 若無填 0</label>
+                            <input type="number" step="1" id="inputCost" required placeholder="例如：140" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:focus:ring-emerald-400/20 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-all font-mono">
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">備註/行駛路況 (選填)</label>
-                            <input type="text" id="inputNote" placeholder="例如：高速公路 80%、市區 20%" class="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
+                            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">行駛備註 / 胎壓路況 (選填)</label>
+                            <input type="text" id="inputNote" placeholder="例如：高速 80%、市區 20%" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:focus:ring-emerald-400/20 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-all font-medium">
                         </div>
 
-                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl transition shadow-lg shadow-emerald-100 dark:shadow-none flex justify-center items-center space-x-2">
+                        <button type="submit" class="w-full bg-gradient-to-tr from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold py-3 rounded-xl transition-all shadow-md shadow-emerald-500/10 flex justify-center items-center space-x-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
-                            <span>新增此筆紀錄</span>
+                            <span>登入此筆紀錄</span>
                         </button>
                     </form>
                 </div>
 
                 <!-- 剩餘里程估算器 -->
-                <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
-                    <h2 class="text-lg font-bold text-slate-800 dark:text-slate-200 flex items-center space-x-2 mb-4">
-                        <span class="text-blue-500">🔮</span>
-                        <span>剩餘續航里程估算</span>
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-200/50 dark:border-slate-800/40">
+                    <h2 class="text-base font-black text-slate-800 dark:text-slate-100 flex items-center space-x-2 mb-4">
+                        <span class="text-blue-500">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 21m0 0l-.813-5.096L9 21zm4.187 0L15 21m0 0l.813-5.096L15 21zM9.01 9a3 3 0 116 0A3 3 0 019.01 9zM21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </span>
+                        <span>動態續航里程估算</span>
                     </h2>
                     <div class="space-y-4">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">您的電池總容量 (kWh)</label>
-                                <input type="number" id="calcBatteryCapacity" value="57.7" oninput="calculateEstimatedRange()" class="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
+                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">愛車電池總量 (kWh)</label>
+                                <input type="number" id="calcBatteryCapacity" value="57.7" oninput="calculateEstimatedRange()" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-mono transition-all">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">目前剩餘電量 (%)</label>
-                                <input type="number" id="calcBatteryPercent" value="50" min="0" max="100" oninput="calculateEstimatedRange()" class="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
+                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">當前剩餘電量 (%)</label>
+                                <input type="number" id="calcBatteryPercent" value="50" min="0" max="100" oninput="calculateEstimatedRange()" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-mono transition-all">
                             </div>
                         </div>
-                        <div class="bg-blue-50/50 dark:bg-blue-950/20 rounded-xl p-4 border border-blue-100 dark:border-blue-900/40 flex items-center justify-between">
+                        <div class="bg-gradient-to-br from-blue-500/10 to-indigo-500/5 dark:from-blue-950/20 dark:to-transparent rounded-2xl p-4 border border-blue-100/50 dark:border-blue-900/30 flex items-center justify-between">
                             <div>
-                                <span class="text-xs text-blue-600 dark:text-blue-400 font-bold block">預估可續航里程</span>
-                                <span class="text-[10px] text-slate-400 dark:text-slate-555">依據您歷史平均能耗計算</span>
+                                <span class="text-xs text-blue-600 dark:text-blue-400 font-bold block">預估可跑距離</span>
+                                <span class="text-[10px] text-slate-400 dark:text-slate-500">依據您歷史平均能耗動態換算</span>
                             </div>
                             <div class="text-right">
-                                <span id="calcRangeResult" class="text-2xl font-black text-blue-700 dark:text-blue-400">0</span>
-                                <span class="text-xs font-bold text-blue-700 dark:text-blue-400 ml-1">km</span>
+                                <span id="calcRangeResult" class="text-2xl font-black text-blue-600 dark:text-blue-400 font-mono">0</span>
+                                <span class="text-xs font-bold text-blue-600 dark:text-blue-400 ml-1">km</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- 油電省錢對比試算 -->
-                <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
-                    <h2 class="text-lg font-bold text-slate-800 dark:text-slate-200 flex items-center space-x-2 mb-4">
-                        <span class="text-amber-500">💰</span>
-                        <span>燃油車對比省錢試算</span>
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-200/50 dark:border-slate-800/40">
+                    <h2 class="text-base font-black text-slate-800 dark:text-slate-100 flex items-center space-x-2 mb-4">
+                        <span class="text-amber-500">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        </span>
+                        <span>燃油車油錢節省試算</span>
                     </h2>
                     <div class="space-y-4">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">對照油車平均油耗 (km/L)</label>
-                                <input type="number" id="calcGasMilage" value="14" oninput="calculateSavings()" class="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
+                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">對照油車平均油耗 (km/L)</label>
+                                <input type="number" id="calcGasMilage" value="14" oninput="calculateSavings()" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-mono transition-all">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">目前平均油價 (元/L)</label>
-                                <input type="number" id="calcGasPrice" value="30" oninput="calculateSavings()" class="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
+                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">目前平均 95 油價 (元/L)</label>
+                                <input type="number" id="calcGasPrice" value="30" oninput="calculateSavings()" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-mono transition-all">
                             </div>
                         </div>
-                        <div class="bg-amber-50/50 dark:bg-amber-950/20 rounded-xl p-4 border border-amber-100 dark:border-amber-900/40 flex items-center justify-between">
+                        <div class="bg-gradient-to-br from-amber-500/10 to-orange-500/5 dark:from-amber-950/20 dark:to-transparent rounded-2xl p-4 border border-amber-100/50 dark:border-amber-900/30 flex items-center justify-between">
                             <div>
-                                <span class="text-xs text-amber-700 dark:text-amber-400 font-bold block">相比燃油車累計節省</span>
-                                <span class="text-[10px] text-slate-400 dark:text-slate-555">以本系統記錄之總里程計算</span>
+                                <span class="text-xs text-amber-600 dark:text-amber-400 font-bold block">相比燃油車累計節省</span>
+                                <span class="text-[10px] text-slate-400 dark:text-slate-500">以本系統記錄之總里程計算</span>
                             </div>
                             <div class="text-right">
-                                <span id="calcSavingsResult" class="text-2xl font-black text-amber-700 dark:text-amber-400">0</span>
-                                <span class="text-xs font-bold text-amber-700 dark:text-amber-400 ml-1">元</span>
+                                <span id="calcSavingsResult" class="text-2xl font-black text-amber-600 dark:text-amber-400 font-mono">0</span>
+                                <span class="text-xs font-bold text-amber-600 dark:text-amber-400 ml-1">元</span>
                             </div>
                         </div>
                     </div>
@@ -347,14 +393,16 @@
 
             </div>
 
-            <!-- 右側：圖表與歷史資料列表 -->
+            <!-- 右側：圖表與歷史資料列表 (7/12) -->
             <div class="lg:col-span-7 space-y-8">
                 
                 <!-- 能耗與花費圖表 -->
-                <div class="bg-white dark:bg-slate-900 p-6 shadow-sm border border-slate-100 dark:border-slate-800">
-                    <h2 class="text-lg font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center space-x-2">
-                        <span class="text-indigo-500">📈</span>
-                        <span>能耗趨勢與花費統計</span>
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-200/50 dark:border-slate-800/40">
+                    <h2 class="text-base font-black text-slate-800 dark:text-slate-200 mb-4 flex items-center space-x-2">
+                        <span class="text-indigo-500">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        </span>
+                        <span>能耗趨勢與費用分佈統計</span>
                     </h2>
                     <div class="h-64 relative">
                         <canvas id="efficiencyChart"></canvas>
@@ -362,36 +410,38 @@
                 </div>
 
                 <!-- 歷史資料列表 -->
-                <div class="bg-white dark:bg-slate-900 p-6 shadow-sm border border-slate-100 dark:border-slate-800">
-                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-4 gap-4">
-                        <h2 class="text-lg font-bold text-slate-800 dark:text-slate-200 flex items-center space-x-2">
-                            <span class="text-teal-500">📊</span>
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-200/50 dark:border-slate-800/40">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-slate-100 dark:border-slate-800/60 mb-4 gap-4">
+                        <h2 class="text-base font-black text-slate-800 dark:text-slate-200 flex items-center space-x-2">
+                            <span class="text-teal-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"></path></svg>
+                            </span>
                             <span>歷史行駛能耗日誌</span>
                         </h2>
-                        <button onclick="clearAllData()" class="text-rose-500 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 text-xs font-bold transition self-start sm:self-center flex items-center space-x-1 p-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/20 px-2">
-                            <svg class="w-4 h-4 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                            <span>清除全部</span>
+                        <button onclick="clearAllData()" class="text-rose-600 hover:text-rose-500 dark:text-rose-400 dark:hover:text-rose-300 text-xs font-bold transition-all self-start sm:self-center flex items-center space-x-1.5 p-2 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/20 border border-transparent hover:border-rose-100 dark:hover:border-rose-900/30">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            <span>清空日誌</span>
                         </button>
                     </div>
 
                     <!-- 視圖容器：傳統單筆清單視圖 -->
                     <div id="flatViewContainer" class="space-y-4">
                         <!-- 電腦端表格佈局 -->
-                        <div id="desktopTableWrapper" class="hidden md:block overflow-x-auto rounded-xl border border-slate-100 dark:border-slate-800">
-                            <table class="min-w-full divide-y divide-slate-100 dark:divide-slate-800 text-sm text-left">
-                                <thead class="bg-slate-50 dark:bg-slate-950/80 text-slate-500 dark:text-slate-400 font-bold text-xs uppercase tracking-wider">
+                        <div id="desktopTableWrapper" class="hidden md:block overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-slate-800/60">
+                            <table class="min-w-full divide-y divide-slate-100 dark:divide-slate-800/80 text-xs text-left">
+                                <thead class="bg-slate-50 dark:bg-slate-950/80 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">
                                     <tr>
-                                        <th class="px-3 py-2.5">日期</th>
-                                        <th class="px-3 py-2.5">類型</th>
-                                        <th class="px-3 py-2.5 text-right">里程 (km)</th>
-                                        <th class="px-3 py-2.5 text-right">消耗電量</th>
-                                        <th class="px-3 py-2.5 text-right text-emerald-600 dark:text-emerald-400">能耗 (km/度)</th>
-                                        <th class="px-3 py-2.5 text-right">費用 (元)</th>
-                                        <th class="px-3 py-2.5">備註</th>
-                                        <th class="px-3 py-2.5 text-center">操作</th>
+                                        <th class="px-4 py-3.5">行駛日期</th>
+                                        <th class="px-4 py-3.5">記錄類型</th>
+                                        <th class="px-4 py-3.5 text-right">里程 (km)</th>
+                                        <th class="px-4 py-3.5 text-right">消耗電量</th>
+                                        <th class="px-4 py-3.5 text-right text-emerald-600 dark:text-emerald-400">平均能耗</th>
+                                        <th class="px-4 py-3.5 text-right">費用 (元)</th>
+                                        <th class="px-4 py-3.5">日誌備註</th>
+                                        <th class="px-4 py-3.5 text-center">操作</th>
                                     </tr>
                                 </thead>
-                                <tbody id="recordTableBody" class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-600 dark:text-slate-300">
+                                <tbody id="recordTableBody" class="divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-600 dark:text-slate-300 font-medium">
                                     <!-- 動態插入單筆資料 -->
                                 </tbody>
                             </table>
@@ -404,8 +454,9 @@
                     </div>
 
                     <!-- 無資料時的提示 -->
-                    <div id="noDataPlaceholder" class="hidden p-8 text-center text-slate-400 dark:text-slate-550">
-                        <p class="text-sm">尚未有任何行駛紀錄，請由左側新增！</p>
+                    <div id="noDataPlaceholder" class="hidden p-12 text-center text-slate-400 dark:text-slate-500">
+                        <svg class="w-12 h-12 mx-auto mb-3 text-slate-300 dark:text-slate-700" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        <p class="text-xs font-bold">尚未有任何行駛紀錄，請由左側登入您的第一筆資料！</p>
                     </div>
                 </div>
 
@@ -415,8 +466,8 @@
     </main>
 
     <!-- 頁尾 -->
-    <footer class="bg-slate-900 dark:bg-slate-950 text-slate-400 dark:text-slate-550 text-center py-8 mt-12 border-t border-slate-800 dark:border-slate-900">
-        <p class="text-xs">EV Life 電動車試算與能耗記錄工具 © 2026. 您的資料將安全地儲存在本機瀏覽器中。</p>
+    <footer class="bg-white dark:bg-slate-950 text-slate-400 dark:text-slate-500 text-center py-10 mt-16 border-t border-slate-200/50 dark:border-slate-900 transition-colors">
+        <p class="text-xs font-medium">EV Life 電動車試算與能耗記錄工具 © 2026. 您的資料將安全地儲存在本地裝置瀏覽器中。</p>
     </footer>
 
     <!-- JavaScript 邏輯控制 -->
@@ -461,10 +512,10 @@
                 if (chargeTypeSelect.value === "未充電") {
                     costInput.value = "0";
                     costInput.disabled = true;
-                    costInput.classList.add('opacity-55', 'cursor-not-allowed');
+                    costInput.classList.add('opacity-45', 'cursor-not-allowed', 'bg-slate-100', 'dark:bg-slate-900');
                 } else {
                     costInput.disabled = false;
-                    costInput.classList.remove('opacity-55', 'cursor-not-allowed');
+                    costInput.classList.remove('opacity-45', 'cursor-not-allowed', 'bg-slate-100', 'dark:bg-slate-900');
                 }
             }
             
@@ -568,10 +619,10 @@
             
             toastMessage.textContent = message;
             toastIcon.textContent = isError ? "⚠️" : "⚡";
-            toast.className = `fixed bottom-5 right-5 z-50 transform translate-y-0 opacity-100 transition-all duration-300 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3`;
+            toast.className = `fixed bottom-5 right-5 z-50 transform translate-y-0 opacity-100 transition-all duration-300 bg-slate-900/95 dark:bg-slate-800/95 text-white px-5 py-3.5 rounded-xl shadow-2xl flex items-center space-x-3 border border-slate-200/10`;
             
             setTimeout(() => {
-                toast.className = `fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3`;
+                toast.className = `fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900/95 dark:bg-slate-800/95 text-white px-5 py-3.5 rounded-xl shadow-2xl flex items-center space-x-3 border border-slate-200/10`;
             }, 3000);
         }
 
@@ -629,14 +680,14 @@
             const lastSync = localStorage.getItem('ev_life_last_sync_time');
 
             if (syncUrl) {
-                syncStatusDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 mr-1";
-                syncBtnText.textContent = "同步設定已啟用";
+                syncStatusDot.className = "w-2 h-2 rounded-full bg-emerald-400";
+                syncBtnText.textContent = "雲端同步：啟用";
                 navSyncBtn.classList.remove('hidden');
                 navSyncBtn.classList.add('flex');
                 syncTimeInfo.classList.remove('hidden');
                 lastSyncTimeText.textContent = lastSync ? lastSync : "尚未同步";
             } else {
-                syncStatusDot.className = "w-2.5 h-2.5 rounded-full bg-rose-500 mr-1 animate-pulse";
+                syncStatusDot.className = "w-2 h-2 rounded-full bg-rose-500 animate-pulse";
                 syncBtnText.textContent = "設定雲端同步";
                 navSyncBtn.classList.remove('flex');
                 navSyncBtn.classList.add('hidden');
@@ -768,24 +819,24 @@
 
                 // 1. 電腦端表格行
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 dark:hover:bg-slate-800/40 transition border-b border-slate-100 dark:border-slate-800/60";
+                tr.className = "hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition border-b border-slate-100 dark:border-slate-800/60";
                 tr.innerHTML = `
-                    <td class="px-3 py-3 font-medium text-slate-800 dark:text-slate-100 whitespace-nowrap">${displayDate}</td>
-                    <td class="px-3 py-3">
-                        <span class="inline-block px-2 py-0.5 text-xs rounded-full font-semibold ${
-                            rec.chargeType.includes('快充') ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400' : 
-                            rec.chargeType.includes('慢充') ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                    <td class="px-3.5 py-4 font-bold text-slate-800 dark:text-slate-200 whitespace-nowrap font-mono">${displayDate}</td>
+                    <td class="px-3.5 py-4">
+                        <span class="inline-block px-2.5 py-0.5 text-[10px] rounded-lg font-black border tracking-wide uppercase ${
+                            rec.chargeType.includes('快充') ? 'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950/30 dark:border-amber-900/40 dark:text-amber-400' : 
+                            rec.chargeType.includes('慢充') ? 'bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-950/30 dark:border-emerald-900/40 dark:text-emerald-400' : 'bg-slate-100 border-slate-200 text-slate-600 dark:bg-slate-800 dark:border-slate-700/60 dark:text-slate-400'
                         }">
                             ${rec.chargeType}
                         </span>
                     </td>
-                    <td class="px-3 py-3 text-right font-bold">${parseFloat(rec.distance).toFixed(1)}</td>
-                    <td class="px-3 py-3 text-right font-bold">${dispPercent.toFixed(0)}% <span class="text-xs font-normal text-slate-400 dark:text-slate-550">(${parseFloat(rec.power).toFixed(1)}度)</span></td>
-                    <td class="px-3 py-3 text-right text-emerald-600 dark:text-emerald-400 font-bold">${efficiency}</td>
-                    <td class="px-3 py-3 text-right">${rec.cost}</td>
-                    <td class="px-3 py-3 max-w-xs truncate text-slate-500 dark:text-slate-400" title="${rec.note || ''}">${rec.note || '-'}</td>
-                    <td class="px-3 py-3 text-center whitespace-nowrap">
-                        <button class="delete-btn text-rose-600 dark:text-rose-400 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 p-2 rounded-xl transition inline-flex items-center justify-center border border-rose-200/40 dark:border-rose-900/30 shadow-sm" title="刪除此筆">
+                    <td class="px-3.5 py-4 text-right font-bold font-mono text-slate-800 dark:text-slate-100">${parseFloat(rec.distance).toFixed(1)}</td>
+                    <td class="px-3.5 py-4 text-right font-bold font-mono text-slate-800 dark:text-slate-100">${dispPercent.toFixed(0)}% <span class="text-[10px] font-normal text-slate-400 dark:text-slate-500">(${parseFloat(rec.power).toFixed(1)}度)</span></td>
+                    <td class="px-3.5 py-4 text-right text-emerald-600 dark:text-emerald-400 font-bold font-mono">${efficiency}</td>
+                    <td class="px-3.5 py-4 text-right font-bold font-mono text-slate-800 dark:text-slate-100">${rec.cost}</td>
+                    <td class="px-3.5 py-4 max-w-xs truncate text-slate-500 dark:text-slate-400 text-xs" title="${rec.note || ''}">${rec.note || '-'}</td>
+                    <td class="px-3.5 py-4 text-center whitespace-nowrap">
+                        <button class="delete-btn text-rose-500 dark:text-rose-400 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 p-2 rounded-xl transition inline-flex items-center justify-center border border-rose-200/40 dark:border-rose-900/30 shadow-sm active:scale-95" title="刪除此筆">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                             </svg>
@@ -798,50 +849,51 @@
 
                 // 2. 手機端卡片
                 const card = document.createElement('div');
-                card.className = "bg-slate-50 dark:bg-slate-900/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-800/80 space-y-3 shadow-sm relative";
+                card.className = "bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/50 dark:border-slate-800/40 space-y-3.5 shadow-sm relative";
                 card.innerHTML = `
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-black text-slate-500 dark:text-slate-400 flex items-center">
-                            <span class="mr-1">📅</span>${displayDate}
+                        <span class="text-xs font-black text-slate-500 dark:text-slate-400 flex items-center font-mono">
+                            <svg class="w-4 h-4 mr-1 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            ${displayDate}
                         </span>
                         <div class="flex items-center space-x-2">
-                            <span class="inline-block px-2 py-0.5 text-[10px] rounded-full font-bold ${
-                                rec.chargeType.includes('快充') ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400' : 
-                                rec.chargeType.includes('慢充') ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400' : 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                            <span class="inline-block px-2.5 py-0.5 text-[9px] rounded-lg font-black border tracking-wide uppercase ${
+                                rec.chargeType.includes('快充') ? 'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950/30 dark:border-amber-900/40 dark:text-amber-400' : 
+                                rec.chargeType.includes('慢充') ? 'bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-950/30 dark:border-emerald-900/40 dark:text-emerald-400' : 'bg-slate-100 border-slate-200 text-slate-600 dark:bg-slate-800 dark:border-slate-700/60 dark:text-slate-400'
                             }">
                                 ${rec.chargeType}
                             </span>
                             <button class="delete-btn text-rose-600 dark:text-rose-400 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 p-2 rounded-xl transition active:scale-95 border border-rose-200/40 dark:border-rose-900/30 shadow-sm" title="刪除此筆">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                 </svg>
                             </button>
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-y-3 gap-x-2 pt-1">
+                    <div class="grid grid-cols-2 gap-y-3 gap-x-4 pt-1 border-t border-slate-100 dark:border-slate-800/40">
                         <div>
-                            <span class="text-[10px] text-slate-400 dark:text-slate-550 block font-medium">行駛里程</span>
-                            <span class="font-extrabold text-slate-700 dark:text-slate-200 text-sm">${parseFloat(rec.distance).toFixed(1)} km</span>
+                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-bold">行駛里程</span>
+                            <span class="font-bold text-slate-700 dark:text-slate-200 text-sm font-mono">${parseFloat(rec.distance).toFixed(1)} km</span>
                         </div>
                         <div>
-                            <span class="text-[10px] text-slate-400 dark:text-slate-550 block font-medium">能耗表現</span>
-                            <span class="font-extrabold text-emerald-600 dark:text-emerald-400 text-sm">${efficiency} km/度</span>
+                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-bold">能耗表現</span>
+                            <span class="font-bold text-emerald-600 dark:text-emerald-400 text-sm font-mono">${efficiency} km/度</span>
                         </div>
                         <div>
-                            <span class="text-[10px] text-slate-400 dark:text-slate-555 block font-medium">消耗電量</span>
-                            <span class="font-bold text-slate-700 dark:text-slate-200 text-xs">${dispPercent.toFixed(0)}% <span class="text-[10px] font-normal text-slate-400 dark:text-slate-550">(${parseFloat(rec.power).toFixed(1)}度)</span></span>
+                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-bold">消耗電量</span>
+                            <span class="font-bold text-slate-700 dark:text-slate-200 text-xs font-mono">${dispPercent.toFixed(0)}% <span class="text-[10px] font-normal text-slate-400 dark:text-slate-550">(${parseFloat(rec.power).toFixed(1)}度)</span></span>
                         </div>
                         <div>
-                            <span class="text-[10px] text-slate-400 dark:text-slate-555 block font-medium">費用 (TWD)</span>
-                            <span class="font-bold text-slate-700 dark:text-slate-200 text-xs">${rec.cost} 元</span>
+                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-bold">費用 (TWD)</span>
+                            <span class="font-bold text-slate-700 dark:text-slate-200 text-xs font-mono">${rec.cost} 元</span>
                         </div>
                     </div>
 
                     ${rec.note ? `
-                    <div class="border-t border-slate-200/60 dark:border-slate-800 pt-2 mt-1 flex items-start space-x-1.5 text-xs text-slate-500 dark:text-slate-400">
-                        <span class="text-slate-400">📝</span>
-                        <span class="break-all">${rec.note}</span>
+                    <div class="border-t border-slate-100 dark:border-slate-800 pt-2.5 flex items-start space-x-1.5 text-xs text-slate-500 dark:text-slate-400">
+                        <svg class="w-4 h-4 text-slate-400 dark:text-slate-600 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
+                        <span class="break-all font-medium">${rec.note}</span>
                     </div>
                     ` : ''}
                 `;
@@ -917,7 +969,7 @@
             updateConvertedPowerHint();
 
             renderDashboard();
-            showToast("紀錄已暫存於裝置！");
+            showToast("紀錄已暫存於本機裝置！");
 
             // 如果有啟動雲端，自動上傳
             if (syncUrl) {
@@ -932,7 +984,7 @@
             
             showConfirmModal(
                 "確認刪除此筆紀錄？", 
-                `您即將刪除： 日期「${target.date && target.date.includes('T') ? target.date.split('T')[0] : target.date}」的能耗紀錄。本機刪除後會同步清除雲端試算表上的該筆資料，此動作無法復原。`, 
+                `您即將刪除： 日期「${target.date && target.date.includes('T') ? target.date.split('T')[0] : target.date}」的用能日誌。本機刪除後會同步清除雲端試算表上的該筆資料，此動作無法復原。`, 
                 function() {
                     const updated = records.filter(rec => rec.id !== id);
                     saveLocalState(updated);
@@ -1018,7 +1070,7 @@
 
             const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
             const textColor = isDarkMode ? '#94a3b8' : '#475569';
-            const gridColor = isDarkMode ? 'rgba(148, 163, 184, 0.08)' : '#f1f5f9';
+            const gridColor = isDarkMode ? 'rgba(148, 163, 184, 0.06)' : '#f1f5f9';
 
             const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA");
             const chartData = [...activeRecords].slice(-15);
@@ -1026,45 +1078,81 @@
             const efficiencies = chartData.map(rec => (rec.distance / rec.power).toFixed(2));
             const costs = chartData.map(rec => rec.cost);
 
+            // 建立圖表漸層填充
+            const lineGradient = ctx.createLinearGradient(0, 0, 0, 300);
+            if (isDarkMode) {
+                lineGradient.addColorStop(0, 'rgba(16, 185, 129, 0.25)');
+                lineGradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
+            } else {
+                lineGradient.addColorStop(0, 'rgba(16, 185, 129, 0.15)');
+                lineGradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
+            }
+
             efficiencyChartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels,
                     datasets: [
                         {
-                            label: '能耗 (km/度)',
+                            label: '平均能耗 (km/度)',
                             data: efficiencies,
-                            borderColor: '#059669',
-                            backgroundColor: isDarkMode ? 'rgba(5, 150, 105, 0.15)' : 'rgba(5, 150, 105, 0.1)',
+                            borderColor: '#10b981', // emerald-500
+                            backgroundColor: lineGradient,
                             borderWidth: 3,
-                            tension: 0.3,
+                            pointBackgroundColor: '#10b981',
+                            pointHoverRadius: 6,
+                            tension: 0.35,
                             yAxisID: 'yEfficiency',
                             fill: true
                         },
                         {
-                            label: '充電費用 (元)',
+                            label: '充電金額 (元)',
                             type: 'bar',
                             data: costs,
-                            backgroundColor: isDarkMode ? 'rgba(59, 130, 246, 0.5)' : 'rgba(59, 130, 246, 0.4)',
-                            borderColor: '#3b82f6',
-                            borderWidth: 1,
+                            backgroundColor: isDarkMode ? 'rgba(59, 130, 246, 0.45)' : 'rgba(59, 130, 246, 0.3)',
+                            borderColor: isDarkMode ? '#60a5fa' : '#3b82f6',
+                            borderWidth: 1.5,
+                            borderRadius: 6,
                             yAxisID: 'yCost',
-                            barThickness: 12
+                            barThickness: 14
                         }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
                     plugins: {
                         legend: {
                             position: 'top',
                             labels: {
                                 color: textColor,
+                                boxWidth: 12,
+                                boxHeight: 12,
                                 font: {
                                     family: "'Noto Sans TC', sans-serif",
-                                    size: 11
+                                    size: 11,
+                                    weight: 'bold'
                                 }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: isDarkMode ? '#1e293b' : '#ffffff',
+                            titleColor: isDarkMode ? '#ffffff' : '#1e293b',
+                            bodyColor: isDarkMode ? '#cbd5e1' : '#475569',
+                            borderColor: isDarkMode ? 'rgba(255,255,255,0.1)' : '#e2e8f0',
+                            borderWidth: 1,
+                            padding: 12,
+                            boxPadding: 6,
+                            titleFont: {
+                                family: "'Noto Sans TC', sans-serif",
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                family: "'Noto Sans TC', sans-serif"
                             }
                         }
                     },
@@ -1076,6 +1164,7 @@
                             ticks: {
                                 color: textColor,
                                 font: {
+                                    family: "'JetBrains Mono', sans-serif",
                                     size: 10
                                 }
                             }
@@ -1085,15 +1174,19 @@
                             position: 'left',
                             title: {
                                 display: true,
-                                text: '能耗 (公里/度)',
-                                color: '#059669',
+                                text: '能耗表現 (公里/度)',
+                                color: '#10b981',
                                 font: {
                                     weight: 'bold',
-                                    size: 11
+                                    size: 11,
+                                    family: "'Noto Sans TC', sans-serif"
                                 }
                             },
                             ticks: {
-                                color: '#059669'
+                                color: '#10b981',
+                                font: {
+                                    family: "'JetBrains Mono', sans-serif"
+                                }
                             },
                             grid: {
                                 color: gridColor
@@ -1104,15 +1197,19 @@
                             position: 'right',
                             title: {
                                 display: true,
-                                text: '花費 (台幣)',
+                                text: '充電費用 (新台幣)',
                                 color: '#3b82f6',
                                 font: {
                                     weight: 'bold',
-                                    size: 11
+                                    size: 11,
+                                    family: "'Noto Sans TC', sans-serif"
                                 }
                             },
                             ticks: {
-                                color: '#3b82f6'
+                                color: '#3b82f6',
+                                font: {
+                                    family: "'JetBrains Mono', sans-serif"
+                                }
                             },
                             grid: {
                                 drawOnChartArea: false
