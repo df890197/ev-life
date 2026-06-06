@@ -118,7 +118,7 @@
         }
     </style>
 </head>
-<body class="bg-[#f0f9f6] dark:bg-[#070c17] text-slate-700 dark:text-slate-200 min-h-screen transition-colors duration-300 antialiased selection:bg-cuteMint-100">
+<body class="bg-[#f0f9f6] dark:bg-[#070c17] text-slate-700 dark:text-slate-200 min-h-screen transition-colors duration-300 antialiased selection:bg-cuteMint-100 font-bold">
 
     <!-- 頂部精緻可愛導覽列 (薄荷綠與寶寶藍配色 - 🐾 探險日誌) -->
     <nav class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b-4 border-cuteMint-100 dark:border-slate-800 text-slate-700 dark:text-slate-100 sticky top-0 z-40 transition-colors">
@@ -315,7 +315,7 @@
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                             </span>
                             <!-- 關鍵修正：將容易造成渲染崩潰、不重疊跑版的特殊泰文兔兔符號 ꪔ̤̥ 移除，換成標準 paw 圖示 🐾 -->
-                            <span>新增用電紀錄 🐾</span>
+                            <span id="formTitle">新增用電紀錄 🐾</span>
                         </h2>
                         <span class="text-[10px] text-cuteMint-500 dark:text-cuteMint-300 font-black">日常小本子</span>
                     </div>
@@ -374,17 +374,22 @@
 
                         <div>
                             <label class="block text-xs font-bold text-slate-555 dark:text-slate-400 mb-1.5">行駛備註 / 旅途趣事 (選填)</label>
-                            <!-- 關鍵修正：將備註 placeholder 的貓咪特殊文字符號 ᓚᘏᗢ 改為相容性佳的實體繪文字 🐱🐾 -->
+                            <!-- 關鍵修正：將備註 placeholder 的貓咪特殊文字符號 改為相容性佳的實體繪文字 🐱🐾 -->
                             <input type="text" id="inputNote" placeholder="例如：帶貓咪去散步 🐱🐾" class="w-full px-4 py-2.5 border-2 border-cuteMint-100 dark:border-slate-800 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-200/50 dark:focus:ring-cuteMint-900/10 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-all font-bold">
                         </div>
 
                         <!-- 修正：將 bg-gradient 用的 -400 色階修復，不需 hover 即直接渲染 Q 彈亮麗薄荷藍漸層背景 -->
-                        <button type="submit" class="w-full bg-gradient-to-r from-cuteMint-300 via-cuteMint-500 to-cuteBlue-500 hover:from-cuteMint-500 hover:to-cuteBlue-600 text-white font-extrabold py-3.5 rounded-2xl transition-all shadow-md shadow-cuteMint-200/50 dark:shadow-none flex justify-center items-center space-x-2 active:scale-95">
-                            <!-- 閃電 SVG -->
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                            <!-- 關鍵修正：將按鈕內特殊符號替換 -->
-                            <span>登入這筆可愛日誌 (•̀ᴗ•́)و</span>
-                        </button>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <button type="submit" class="flex-1 bg-gradient-to-r from-cuteMint-300 via-cuteMint-500 to-cuteBlue-500 hover:from-cuteMint-500 hover:to-cuteBlue-600 text-white font-extrabold py-3.5 rounded-2xl transition-all shadow-md shadow-cuteMint-200/50 dark:shadow-none flex justify-center items-center space-x-2 active:scale-95">
+                                <!-- 閃電 SVG -->
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                <span id="submitBtnText">登入這筆可愛日誌 (•̀ᴗ•́)و</span>
+                            </button>
+                            <!-- 新增：取消編輯按鈕 -->
+                            <button type="button" id="cancelEditBtn" onclick="cancelEdit()" class="hidden bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-350 font-bold py-3.5 px-5 rounded-2xl transition-all active:scale-95 whitespace-nowrap">
+                                取消編輯
+                            </button>
+                        </div>
                     </form>
                 </div>
 
@@ -473,7 +478,7 @@
                                         <th class="px-4 py-3.5 text-center">操作</th>
                                     </tr>
                                 </thead>
-                                <tbody id="recordTableBody" class="divide-y divide-cuteMint-100 dark:divide-slate-800/60 text-slate-600 dark:text-slate-300 font-bold">
+                                <tbody id="recordTableBody" class="divide-y divide-cuteMint-100 dark:divide-slate-800/60 text-slate-650 dark:text-slate-300 font-bold">
                                     <!-- 動態插入單筆資料 -->
                                 </tbody>
                             </table>
@@ -510,6 +515,7 @@
         let syncUrl = "";
         let batteryCapacity = 57.7; // 預設車輛電池總容量 (kWh)
         let activeConfirmCallback = null; // 自訂確認彈出視窗的回呼
+        let editingRecordId = null; // 全域編輯狀態 ID
 
         // 輔助函式：統一保存本地狀態並更新修改時間戳記
         function saveLocalState(newRecords) {
@@ -518,6 +524,21 @@
             localStorage.setItem('ev_life_records', JSON.stringify(records));
             localStorage.setItem('ev_life_last_updated', timestamp);
             return timestamp;
+        }
+
+        // 綁定充電類型監聽，如果為「未充電」，則自動將費用設為 0 並且禁用
+        function handleChargeTypeChange() {
+            const chargeTypeSelect = document.getElementById('inputChargeType');
+            const costInput = document.getElementById('inputCost');
+            if (!chargeTypeSelect || !costInput) return;
+            if (chargeTypeSelect.value === "未充電") {
+                costInput.value = "0";
+                costInput.disabled = true;
+                costInput.classList.add('opacity-45', 'cursor-not-allowed', 'bg-slate-100', 'dark:bg-slate-900');
+            } else {
+                costInput.disabled = false;
+                costInput.classList.remove('opacity-45', 'cursor-not-allowed', 'bg-slate-100', 'dark:bg-slate-900');
+            }
         }
 
         // 當頁面載入時執行
@@ -546,23 +567,8 @@
                 calcBatteryCapacityInput.value = batteryCapacity;
             }
             
-            // 綁定充電類型監聽，如果為「未充電」，則自動將費用設為 0 並且禁用
             const chargeTypeSelect = document.getElementById('inputChargeType');
-            const costInput = document.getElementById('inputCost');
-            
-            function handleChargeTypeChange() {
-                if (!chargeTypeSelect || !costInput) return;
-                if (chargeTypeSelect.value === "未充電") {
-                    costInput.value = "0";
-                    costInput.disabled = true;
-                    costInput.classList.add('opacity-45', 'cursor-not-allowed', 'bg-slate-100', 'dark:bg-slate-900');
-                } else {
-                    costInput.disabled = false;
-                    costInput.classList.remove('opacity-45', 'cursor-not-allowed', 'bg-slate-100', 'dark:bg-slate-900');
-                }
-            }
-            
-            if (chargeTypeSelect && costInput) {
+            if (chargeTypeSelect) {
                 chargeTypeSelect.addEventListener('change', handleChargeTypeChange);
                 handleChargeTypeChange(); // 首次載入先執行一次
             }
@@ -824,6 +830,70 @@
             }
         }
 
+        // 開啟單筆編輯狀態
+        function editRecord(id) {
+            const rec = records.find(r => r.id === id);
+            if (!rec) return;
+
+            // 1. 將舊資料填入表單
+            document.getElementById('inputDate').value = rec.date;
+            document.getElementById('inputChargeType').value = rec.chargeType;
+            document.getElementById('inputDistance').value = rec.distance;
+            
+            // 優先取得百分比，若無則依容量回推
+            document.getElementById('inputPowerPercent').value = rec.powerPercent || Math.round((rec.power / batteryCapacity) * 100);
+            document.getElementById('inputCost').value = rec.cost;
+            document.getElementById('inputNote').value = rec.note || '';
+
+            // 2. 觸發即時計算與費用選單防呆
+            handleChargeTypeChange();
+            updateConvertedPowerHint();
+
+            // 3. 切換表單標題與按鈕文字狀態
+            editingRecordId = id;
+            document.getElementById('formTitle').textContent = "編輯用電紀錄 ✏️";
+            document.getElementById('submitBtnText').textContent = "儲存修改內容 💾";
+            document.getElementById('cancelEditBtn').classList.remove('hidden');
+
+            // 4. 動態平滑滾動至左側表單 (提升觸控易用性)
+            document.getElementById('recordForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 取消編輯狀態 (重設回新增模式)
+        function cancelEdit() {
+            editingRecordId = null;
+            document.getElementById('formTitle').textContent = "新增用電紀錄 🐾";
+            document.getElementById('submitBtnText').textContent = "登入這筆可愛日誌 (•̀ᴗ•́)و";
+            document.getElementById('cancelEditBtn').classList.add('hidden');
+
+            // 重設欄位預設值且載入今天日期
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            const dateInput = document.getElementById('inputDate');
+            if (dateInput) {
+                dateInput.value = `${yyyy}-${mm}-${dd}`;
+            }
+            
+            const distanceInput = document.getElementById('inputDistance');
+            const powerPercentInput = document.getElementById('inputPowerPercent');
+            const costInput = document.getElementById('inputCost');
+            const noteInput = document.getElementById('inputNote');
+
+            if (distanceInput) distanceInput.value = '';
+            if (powerPercentInput) powerPercentInput.value = '';
+            if (costInput) {
+                costInput.value = '';
+                costInput.disabled = false;
+                costInput.classList.remove('opacity-45', 'cursor-not-allowed', 'bg-slate-100', 'dark:bg-slate-900');
+            }
+            if (noteInput) noteInput.value = '';
+            
+            document.getElementById('inputChargeType').value = "DC-快充";
+            updateConvertedPowerHint();
+        }
+
         // 計算並渲染儀表板與單筆日誌列表
         function renderDashboard() {
             // 排序資料 (日期由舊到新)
@@ -877,7 +947,7 @@
                 const dispPercent = rec.powerPercent ? parseFloat(rec.powerPercent) : ((rec.power / batteryCapacity) * 100);
                 const displayDate = rec.date && rec.date.includes('T') ? rec.date.split('T')[0] : (rec.date || '');
 
-                // 1. 電腦端表格行 (大圓角與粉藍、薄荷風格)
+                // 1. 電腦端表格行 (大圓角與粉藍、薄荷風格，加入編輯功能 ✏️)
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-cuteMint-50/20 dark:hover:bg-slate-800/40 transition border-b border-cuteMint-100 dark:border-slate-800/60";
                 tr.innerHTML = `
@@ -885,28 +955,37 @@
                     <td class="px-3.5 py-4">
                         <span class="inline-block px-2.5 py-0.5 text-[10px] rounded-full font-black border tracking-wide uppercase ${
                             rec.chargeType.includes('快充') ? 'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950/30 dark:border-amber-900/40 dark:text-amber-400' : 
-                            rec.chargeType.includes('慢充') ? 'bg-cuteMint-50 border-cuteMint-200 text-cuteMint-600 dark:bg-cuteMint-950/30 dark:border-cuteMint-900/40 dark:text-cuteMint-400' : 'bg-slate-100 border-slate-200 text-slate-600 dark:bg-slate-800 dark:border-slate-700/60 dark:text-slate-400'
+                            rec.chargeType.includes('慢充') ? 'bg-[#fffdf9] border-cuteMint-200 text-cuteMint-600 dark:bg-cuteMint-950/30 dark:border-cuteMint-900/40 dark:text-cuteMint-400' : 'bg-slate-100 border-slate-200 text-slate-600 dark:bg-slate-800 dark:border-slate-700/60 dark:text-slate-400'
                         }">
                             ${rec.chargeType}
                         </span>
                     </td>
                     <td class="px-3.5 py-4 text-right font-bold font-mono text-slate-800 dark:text-slate-100">${parseFloat(rec.distance).toFixed(1)}</td>
-                    <td class="px-3.5 py-4 text-right font-bold font-mono text-slate-800 dark:text-slate-100">${dispPercent.toFixed(0)}% <span class="text-[10px] font-normal text-slate-400 dark:text-slate-500">(${parseFloat(rec.power).toFixed(1)}度)</span></td>
+                    <td class="px-3.5 py-4 text-right font-bold font-mono text-slate-800 dark:text-slate-100">${dispPercent.toFixed(0)}% <span class="text-[10px] font-normal text-slate-400 dark:text-slate-555">(${parseFloat(rec.power).toFixed(1)}度)</span></td>
                     <td class="px-3.5 py-4 text-right text-cuteMint-500 dark:text-cuteMint-400 font-bold font-mono">${efficiency}</td>
                     <td class="px-3.5 py-4 text-right font-bold font-mono text-slate-800 dark:text-slate-100">${rec.cost}</td>
                     <td class="px-3.5 py-4 max-w-xs truncate text-slate-550 dark:text-slate-400 text-xs font-semibold" title="${rec.note || ''}">${rec.note || '-'}</td>
                     <td class="px-3.5 py-4 text-center whitespace-nowrap">
-                        <button class="delete-btn text-rose-500 dark:text-rose-400 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 p-2 rounded-2xl transition inline-flex items-center justify-center border-2 border-rose-100 dark:border-rose-900/30 shadow-sm active:scale-95" title="刪除此筆">
+                        <!-- 編輯按鈕 -->
+                        <button class="edit-btn text-cuteMint-600 dark:text-cuteMint-400 bg-cuteMint-50 hover:bg-cuteMint-100 dark:bg-cuteMint-950/30 dark:hover:bg-cuteMint-950/60 p-2 rounded-2xl transition inline-flex items-center justify-center border-2 border-cuteMint-100 dark:border-cuteMint-900/30 shadow-sm active:scale-95 mr-1" title="編輯此筆">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"></path>
+                            </svg>
+                        </button>
+                        <!-- 刪除按鈕 -->
+                        <button class="delete-btn text-rose-500 dark:text-rose-400 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 p-2 rounded-2xl transition inline-flex items-center justify-center border-2 border-rose-100 dark:border-rose-900/30 shadow-sm active:scale-95" title="刪除此筆">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                             </svg>
                         </button>
                     </td>
                 `;
+                // 手機與電腦端實體事件監聽綁定
+                tr.querySelector('.edit-btn').addEventListener('click', () => editRecord(rec.id));
                 tr.querySelector('.delete-btn').addEventListener('click', () => confirmDeleteRecord(rec.id));
                 if (tableBody) tableBody.appendChild(tr);
 
-                // 2. 手機端卡片
+                // 2. 手機端卡片 (加載編輯按鈕)
                 const card = document.createElement('div');
                 card.className = "bg-[#fffefe] dark:bg-slate-900 p-5 rounded-[2rem] border-2 border-cuteMint-100/50 dark:border-slate-800/40 space-y-3.5 shadow-md relative";
                 card.innerHTML = `
@@ -922,6 +1001,13 @@
                             }">
                                 ${rec.chargeType}
                             </span>
+                            <!-- 手機編輯 -->
+                            <button class="edit-btn text-cuteMint-600 dark:text-cuteMint-400 bg-cuteMint-50 hover:bg-cuteMint-100 dark:bg-cuteMint-950/30 dark:hover:bg-cuteMint-950/60 p-2 rounded-2xl transition active:scale-95 border-2 border-cuteMint-100/60 dark:border-cuteMint-900/30 shadow-sm" title="編輯此筆">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"></path>
+                                </svg>
+                            </button>
+                            <!-- 手機刪除 -->
                             <button class="delete-btn text-rose-650 dark:text-rose-455 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 p-2 rounded-2xl transition active:scale-95 border-2 border-rose-100/60 dark:border-rose-900/30 shadow-sm" title="刪除此筆">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -956,6 +1042,8 @@
                     </div>
                     ` : ''}
                 `;
+                // 手機卡片監聽綁定
+                card.querySelector('.edit-btn').addEventListener('click', () => editRecord(rec.id));
                 card.querySelector('.delete-btn').addEventListener('click', () => confirmDeleteRecord(rec.id));
                 if (mobileList) mobileList.appendChild(card);
             });
@@ -1005,43 +1093,44 @@
 
             const power = batteryCapacity * (powerPercent / 100);
 
-            const newRecord = {
-                id: Date.now().toString(),
-                date,
-                chargeType,
-                distance,
-                power: parseFloat(power.toFixed(3)), // 保留到小數三位
-                powerPercent: powerPercent,
-                cost,
-                note
-            };
+            if (editingRecordId) {
+                // 1. 編輯模式下的保存邏輯
+                const index = records.findIndex(r => r.id === editingRecordId);
+                if (index !== -1) {
+                    records[index] = {
+                        ...records[index],
+                        date,
+                        chargeType,
+                        distance,
+                        power: parseFloat(power.toFixed(3)),
+                        powerPercent: powerPercent,
+                        cost,
+                        note
+                    };
+                    saveLocalState(records);
+                    showToast("日誌已成功儲存修改！✨");
+                }
+                cancelEdit(); // 修改完成自動轉回新增狀態
+            } else {
+                // 2. 新增模式下的登入邏輯
+                const newRecord = {
+                    id: Date.now().toString(),
+                    date,
+                    chargeType,
+                    distance,
+                    power: parseFloat(power.toFixed(3)), // 保留到小數三位
+                    powerPercent: powerPercent,
+                    cost,
+                    note
+                };
 
-            const updatedRecords = [...records, newRecord];
-            saveLocalState(updatedRecords); // 統一呼叫保存
-
-            // 表單重設且自動載入當天日期 (修正時區偏差)
-            const today = new Date();
-            const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const dd = String(today.getDate()).padStart(2, '0');
-            const dateInput = document.getElementById('inputDate');
-            if (dateInput) {
-                dateInput.value = `${yyyy}-${mm}-${dd}`;
+                const updatedRecords = [...records, newRecord];
+                saveLocalState(updatedRecords); // 統一呼叫保存
+                showToast("紀錄已寫在本機小本本囉！(•̀ᴗ•́)و");
+                cancelEdit(); // 藉由 cancelEdit 來重設表單輸入
             }
-            
-            const distanceInput = document.getElementById('inputDistance');
-            const powerPercentInput = document.getElementById('inputPowerPercent');
-            const costInput = document.getElementById('inputCost');
-            const noteInput = document.getElementById('inputNote');
-
-            if (distanceInput) distanceInput.value = '';
-            if (powerPercentInput) powerPercentInput.value = '';
-            if (costInput && document.getElementById('inputChargeType').value !== "未充電") costInput.value = '';
-            if (noteInput) noteInput.value = '';
-            updateConvertedPowerHint();
 
             renderDashboard();
-            showToast("紀錄已寫在本機小本本囉！(•̀ᴗ•́)و");
 
             // 如果有啟動雲端，自動上傳
             if (syncUrl) {
