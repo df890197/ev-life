@@ -414,7 +414,7 @@ function doPost(e) {
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         
         <!-- 自訂通知元件 (Toast - z-index 提升至 110 最上層) -->
-        <div id="toast" class="fixed bottom-5 right-5 z-[110] transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900/90 dark:bg-slate-855/95 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border-2 border-[#1e293b]">
+        <div id="toast" class="fixed bottom-5 right-5 z-[110] transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900/95 dark:bg-slate-855/95 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border-2 border-[#1e293b]">
             <span id="toastIcon" class="text-cuteMint-300 text-sm">🐾</span>
             <span id="toastMessage" class="text-xs font-bold"></span>
         </div>
@@ -588,7 +588,7 @@ function doPost(e) {
                         <div class="flex flex-col sm:flex-row gap-3 pt-2">
                             <button type="submit" class="flex-1 rpg-btn-primary text-sm font-extrabold py-3.5 rounded-2xl flex justify-center items-center space-x-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
-                                <span id="submitBtnText">登入這筆冒險日誌 (•̀ᴗ•́)و</span>
+                                <span id="submitBtnText">登入這筆冒險日誌 (•̀ᴗ•́)w</span>
                             </button>
                             <button type="button" id="cancelEditBtn" onclick="cancelEdit()" class="hidden rpg-btn-secondary text-sm font-extrabold py-3.5 px-5 rounded-2xl">
                                 取消編輯
@@ -696,7 +696,7 @@ function doPost(e) {
             clockEl.textContent = `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
         }
 
-        // 輔助編譯安全複製：剪貼簿相容
+        // 輔支編譯安全複製：剪貼簿相容
         function copyGasCode() {
             const textArea = document.getElementById('gasCodeText');
             if (!textArea) return;
@@ -1293,11 +1293,12 @@ function doPost(e) {
                     }
                 }
                 
+                // 🛠️ 修正電腦版：在電腦版 socText 也加上與手機版一致的度數標記
                 let socText = "";
                 if (hasValidSoc) {
-                    socText = `${startSocVal}% ➔ ${endSocVal}% <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">(${powerPercent}%)</span>`;
+                    socText = `${startSocVal}% ➔ ${endSocVal}% <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">(${powerPercent}%)</span> <span class="text-[10px] font-normal text-slate-400 dark:text-slate-500 whitespace-nowrap">(${parseFloat(rec.power).toFixed(1)}度)</span>`;
                 } else {
-                    socText = `${powerPercent}%`;
+                    socText = `${powerPercent}% <span class="text-[10px] font-normal text-slate-400 dark:text-slate-500 whitespace-nowrap">(${parseFloat(rec.power).toFixed(1)}度)</span>`;
                 }
 
                 const displayDate = rec.date && rec.date.includes('T') ? rec.date.split('T')[0] : (rec.date || '');
@@ -1339,7 +1340,7 @@ function doPost(e) {
                 tr.querySelector('.delete-btn').addEventListener('click', () => confirmDeleteRecord(rec.id));
                 if (tableBody) tableBody.appendChild(tr);
 
-                // 2. 關鍵修正：手機端卡片 (修正百分比 powerPercent 渲染，避免出現 undefined%)
+                // 2. 手機端卡片
                 let mobileSocText = "";
                 if (hasValidSoc) {
                     mobileSocText = `${startSocVal}% ➔ ${endSocVal}% <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">(${powerPercent}%)</span>`;
