@@ -47,12 +47,25 @@
             background: #475569;
         }
 
-        /* 關鍵修正：深色模式下，確保原生瀏覽器日曆圖標與控制項完全顯色 */
-        .dark input[type="date"]::-webkit-calendar-picker-indicator {
-            filter: invert(1);
-            cursor: pointer;
+        /* 關鍵修正 1：擴展原生 Webkit 日曆觸發熱區，使其覆蓋整個輸入框，確保在手機上任何位置點擊皆有反應 */
+        input[type="date"] {
+            position: relative;
         }
-        /* 讓瀏覽器知道 input 與 select 支援深色模式，使原生彈出的日曆窗也能自動變黑底白字 */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            color: transparent;
+            background: transparent;
+            cursor: pointer;
+            z-index: 30; /* 覆蓋在文字與自訂圖標之上 */
+        }
+        
+        /* 關鍵修正 2：在深色模式下，確保原生瀏覽器彈出的日曆窗體與選單自動適配深底白字 */
         .dark input, .dark select {
             color-scheme: dark;
         }
@@ -71,7 +84,7 @@
                     <span class="font-black text-xl tracking-wider">EV Life <span class="font-light text-sm text-emerald-100 dark:text-emerald-300/80">電動車能耗記錄</span></span>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <!-- 外置的立即同步按鈕 (使用更換後的極致相容雙向循環同步 SVG) -->
+                    <!-- 外置的立即同步按鈕 (極致相容雙向循環同步 SVG) -->
                     <button id="navSyncBtn" onclick="syncWithCloud()" class="bg-blue-600 hover:bg-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600 text-xs px-3 py-1.5 rounded-lg transition hidden items-center space-x-1.5 border border-blue-400/30 shadow-md">
                         <svg id="navSyncIcon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M20 4v5h-5M4 20v-5h5M4 12A8 8 0 0 1 18 6.13L20 9M20 12a8 8 0 0 1-14 5.87L4 15"></path>
@@ -170,34 +183,34 @@
                     <span id="statTotalKm" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100">0</span>
                     <span class="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1">km</span>
                 </div>
-                <span class="text-[10px] text-slate-400 dark:text-slate-550 mt-2">累計所有行駛區間</span>
+                <span class="text-[10px] text-slate-400 dark:text-slate-500 mt-2">累計所有行駛區間</span>
             </div>
             <!-- 平均能耗 -->
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800 flex flex-col justify-between">
-                <span class="text-xs font-semibold text-slate-400 dark:text-slate-550 tracking-wider">平均能耗</span>
+                <span class="text-xs font-semibold text-slate-400 dark:text-slate-555 tracking-wider">平均能耗</span>
                 <div class="flex items-baseline mt-2">
                     <span id="statAvgEfficiency" class="text-2xl md:text-3xl font-black text-emerald-600 dark:text-emerald-400">0.00</span>
-                    <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 ml-1">km/kWh</span>
+                    <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 ml-1">km/度</span>
                 </div>
                 <span id="statWhKm" class="text-[10px] text-slate-400 dark:text-slate-550 mt-2">相當於 0 Wh/km</span>
             </div>
             <!-- 總充電花費 -->
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800 flex flex-col justify-between">
-                <span class="text-xs font-semibold text-slate-400 dark:text-slate-550 tracking-wider">總充電花費</span>
+                <span class="text-xs font-semibold text-slate-400 dark:text-slate-555 tracking-wider">總充電花費</span>
                 <div class="flex items-baseline mt-2">
                     <span id="statTotalCost" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100">0</span>
                     <span class="text-xs font-bold text-slate-500 dark:text-slate-400 ml-1">TWD</span>
                 </div>
-                <span id="statTotalPower" class="text-[10px] text-slate-400 dark:text-slate-550 mt-2">累計充入 0 度電</span>
+                <span id="statTotalPower" class="text-[10px] text-slate-400 dark:text-slate-555 mt-2">累計充入 0 度電</span>
             </div>
             <!-- 每公里成本 -->
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800 flex flex-col justify-between">
-                <span class="text-xs font-semibold text-slate-400 dark:text-slate-550 tracking-wider">每公里成本</span>
+                <span class="text-xs font-semibold text-slate-400 dark:text-slate-555 tracking-wider">每公里成本</span>
                 <div class="flex items-baseline mt-2">
                     <span id="statCostPerKm" class="text-2xl md:text-3xl font-black text-blue-600 dark:text-blue-400">0.00</span>
                     <span class="text-xs font-bold text-blue-600 dark:text-blue-400 ml-1">元/km</span>
                 </div>
-                <span class="text-[10px] text-slate-400 dark:text-slate-550 mt-2">依充電費率估算</span>
+                <span class="text-[10px] text-slate-400 dark:text-slate-555 mt-2">依充電費率估算</span>
             </div>
         </div>
 
@@ -219,9 +232,18 @@
                     <form id="recordForm" onsubmit="addRecord(event)" class="space-y-4">
                         <!-- 響應式網格 -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- 記錄日期 (新增絕對定位圖示與穿透效果，日曆隨意點擊均能彈出) -->
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">記錄日期</label>
-                                <input type="date" id="inputDate" required class="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
+                                <div class="relative">
+                                    <input type="date" id="inputDate" required class="w-full px-3 py-2 pr-10 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 relative z-15">
+                                    <!-- 自訂日曆圖示 (z-20 配合 pointer-events-none 實現點擊穿透) -->
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500 z-20">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">充電方式</label>
@@ -242,7 +264,7 @@
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">本次消耗多少電量(%)</label>
                                 <input type="number" step="1" id="inputPowerPercent" required placeholder="例如：25" oninput="updateConvertedPowerHint()" class="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
-                                <span id="powerHintText" class="text-[10px] text-slate-400 dark:text-slate-550 mt-1 block">約等同於 0.00 度電</span>
+                                <span id="powerHintText" class="text-[10px] text-slate-400 dark:text-slate-555 mt-1 block">約等同於 0.00 度電</span>
                             </div>
                         </div>
 
@@ -257,7 +279,7 @@
                         </div>
 
                         <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl transition shadow-lg shadow-emerald-100 dark:shadow-none flex justify-center items-center space-x-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
                             <span>新增此筆紀錄</span>
                         </button>
                     </form>
@@ -283,7 +305,7 @@
                         <div class="bg-blue-50/50 dark:bg-blue-950/20 rounded-xl p-4 border border-blue-100 dark:border-blue-900/40 flex items-center justify-between">
                             <div>
                                 <span class="text-xs text-blue-600 dark:text-blue-400 font-bold block">預估可續航里程</span>
-                                <span class="text-[10px] text-slate-400 dark:text-slate-550">依據您歷史平均能耗計算</span>
+                                <span class="text-[10px] text-slate-400 dark:text-slate-555">依據您歷史平均能耗計算</span>
                             </div>
                             <div class="text-right">
                                 <span id="calcRangeResult" class="text-2xl font-black text-blue-700 dark:text-blue-400">0</span>
@@ -313,7 +335,7 @@
                         <div class="bg-amber-50/50 dark:bg-amber-950/20 rounded-xl p-4 border border-amber-100 dark:border-amber-900/40 flex items-center justify-between">
                             <div>
                                 <span class="text-xs text-amber-700 dark:text-amber-400 font-bold block">相比燃油車累計節省</span>
-                                <span class="text-[10px] text-slate-400 dark:text-slate-550">以本系統記錄之總里程計算</span>
+                                <span class="text-[10px] text-slate-400 dark:text-slate-555">以本系統記錄之總里程計算</span>
                             </div>
                             <div class="text-right">
                                 <span id="calcSavingsResult" class="text-2xl font-black text-amber-700 dark:text-amber-400">0</span>
@@ -339,7 +361,7 @@
                     </div>
                 </div>
 
-                <!-- 歷史資料列表 (回到純粹的單筆日誌列表) -->
+                <!-- 歷史資料列表 -->
                 <div class="bg-white dark:bg-slate-900 p-6 shadow-sm border border-slate-100 dark:border-slate-800">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-4 gap-4">
                         <h2 class="text-lg font-bold text-slate-800 dark:text-slate-200 flex items-center space-x-2">
@@ -763,16 +785,18 @@
                     <td class="px-3 py-3 text-right">${rec.cost}</td>
                     <td class="px-3 py-3 max-w-xs truncate text-slate-500 dark:text-slate-400" title="${rec.note || ''}">${rec.note || '-'}</td>
                     <td class="px-3 py-3 text-center whitespace-nowrap">
-                        <button onclick="confirmDeleteRecord('${rec.id}')" class="text-rose-600 dark:text-rose-400 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 p-2 rounded-xl transition inline-flex items-center justify-center border border-rose-200/40 dark:border-rose-900/30 shadow-sm" title="刪除此筆">
+                        <button class="delete-btn text-rose-600 dark:text-rose-400 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 p-2 rounded-xl transition inline-flex items-center justify-center border border-rose-200/40 dark:border-rose-900/30 shadow-sm" title="刪除此筆">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                             </svg>
                         </button>
                     </td>
                 `;
+                // 手機與電腦端實體事件綁定，免除內聯字串調用的 mobile click 異常
+                tr.querySelector('.delete-btn').addEventListener('click', () => confirmDeleteRecord(rec.id));
                 tableBody.appendChild(tr);
 
-                // 2. 手機端卡片 (高顯色亮紅垃圾桶 🗑️，絕不跑版)
+                // 2. 手機端卡片
                 const card = document.createElement('div');
                 card.className = "bg-slate-50 dark:bg-slate-900/40 p-4 rounded-2xl border border-slate-100 dark:border-slate-800/80 space-y-3 shadow-sm relative";
                 card.innerHTML = `
@@ -787,7 +811,7 @@
                             }">
                                 ${rec.chargeType}
                             </span>
-                            <button onclick="confirmDeleteRecord('${rec.id}')" class="text-rose-600 dark:text-rose-400 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 p-2 rounded-xl transition active:scale-95 border border-rose-200/40 dark:border-rose-900/30 shadow-sm" title="刪除此筆">
+                            <button class="delete-btn text-rose-600 dark:text-rose-400 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 p-2 rounded-xl transition active:scale-95 border border-rose-200/40 dark:border-rose-900/30 shadow-sm" title="刪除此筆">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                 </svg>
@@ -805,11 +829,11 @@
                             <span class="font-extrabold text-emerald-600 dark:text-emerald-400 text-sm">${efficiency} km/度</span>
                         </div>
                         <div>
-                            <span class="text-[10px] text-slate-400 dark:text-slate-550 block font-medium">消耗電量</span>
+                            <span class="text-[10px] text-slate-400 dark:text-slate-555 block font-medium">消耗電量</span>
                             <span class="font-bold text-slate-700 dark:text-slate-200 text-xs">${dispPercent.toFixed(0)}% <span class="text-[10px] font-normal text-slate-400 dark:text-slate-550">(${parseFloat(rec.power).toFixed(1)}度)</span></span>
                         </div>
                         <div>
-                            <span class="text-[10px] text-slate-400 dark:text-slate-550 block font-medium">費用 (TWD)</span>
+                            <span class="text-[10px] text-slate-400 dark:text-slate-555 block font-medium">費用 (TWD)</span>
                             <span class="font-bold text-slate-700 dark:text-slate-200 text-xs">${rec.cost} 元</span>
                         </div>
                     </div>
@@ -821,6 +845,8 @@
                     </div>
                     ` : ''}
                 `;
+                // 手機卡片程式化綁定
+                card.querySelector('.delete-btn').addEventListener('click', () => confirmDeleteRecord(rec.id));
                 mobileList.appendChild(card);
             });
 
@@ -877,7 +903,7 @@
             const updatedRecords = [...records, newRecord];
             saveLocalState(updatedRecords); // 統一呼叫保存
 
-            // 表單重設且自動載入當天日期
+            // 表單重設且自動載入當天日期 (修正時區偏差)
             const today = new Date();
             const yyyy = today.getFullYear();
             const mm = String(today.getMonth() + 1).padStart(2, '0');
