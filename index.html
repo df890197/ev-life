@@ -63,7 +63,18 @@
         /* 擴展原生 Webkit 日曆觸發熱區 */
         input[type="date"] {
             position: relative;
+            -webkit-appearance: none;
+            appearance: none;
+            display: block;
+            min-height: 2.625rem; /* ~42px, 確保與其他輸入框高度一致 */
+            line-height: 1.25rem;
         }
+        /* 關鍵修正：解決 iOS Safari 原生日期輸入框垂直居中與裁剪的問題 */
+        input[type="date"]::-webkit-date-and-time-value {
+            min-height: 1.25rem;
+            text-align: left;
+        }
+        
         input[type="date"]::-webkit-calendar-picker-indicator {
             position: absolute;
             top: 0;
@@ -89,31 +100,32 @@
     <nav class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800/40 text-slate-800 dark:text-slate-100 sticky top-0 z-40 transition-colors">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <!-- 標誌與動態呼吸燈 -->
-                <div class="flex items-center space-x-3">
-                    <div class="relative flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 shadow-md shadow-emerald-500/10">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <!-- 標誌與動態呼吸燈 (防止手機版能耗記錄換行 - 移除綠色閃爍點) -->
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <div class="relative flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 shadow-md shadow-emerald-500/10 flex-shrink-0">
+                        <svg class="w-4.5 h-4.5 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                         </svg>
-                        <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-300 border-2 border-white dark:border-slate-900 rounded-full animate-ping"></span>
                     </div>
-                    <span class="font-extrabold text-lg tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-600 dark:from-white dark:via-slate-200 dark:to-emerald-400">EV Life <span class="font-light text-xs text-slate-400 dark:text-slate-500 ml-1">能耗記錄</span></span>
+                    <span class="font-extrabold text-base sm:text-lg tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-600 dark:from-white dark:via-slate-200 dark:to-emerald-400 whitespace-nowrap">
+                        EV Life<span class="hidden sm:inline font-light text-xs text-slate-400 dark:text-slate-550 ml-1">能耗記錄</span>
+                    </span>
                 </div>
                 
-                <div class="flex items-center space-x-3">
-                    <!-- 立即同步按鈕 -->
-                    <button id="navSyncBtn" onclick="syncWithCloud()" class="bg-blue-600 hover:bg-blue-500 active:scale-95 dark:bg-blue-700 dark:hover:bg-blue-600 text-white text-xs px-3.5 py-2 rounded-xl font-bold transition-all flex items-center space-x-1.5 border border-blue-400/20 shadow-lg shadow-blue-500/10 hidden">
+                <div class="flex items-center space-x-2">
+                    <!-- 外置的立即同步按鈕 (縮短手機端文字，防止擠壓換行) -->
+                    <button id="navSyncBtn" onclick="syncWithCloud()" class="bg-blue-600 hover:bg-blue-500 active:scale-95 dark:bg-blue-700 dark:hover:bg-blue-600 text-white text-xs px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl font-bold transition-all flex items-center space-x-1 border border-blue-400/20 shadow-lg shadow-blue-500/10 hidden">
                         <svg id="navSyncIcon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M20 4v5h-5M4 20v-5h5M4 12A8 8 0 0 1 18 6.13L20 9M20 12a8 8 0 0 1-14 5.87L4 15"></path>
                         </svg>
-                        <span>立即同步</span>
+                        <span><span class="hidden sm:inline">立即</span>同步</span>
                     </button>
                     <!-- 雲端同步設定 -->
-                    <button onclick="toggleSyncModal()" class="bg-slate-100 hover:bg-slate-200 active:scale-95 dark:bg-slate-800/80 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs px-3.5 py-2 rounded-xl transition-all flex items-center space-x-2 border border-slate-200/50 dark:border-slate-700/50">
-                        <span id="syncStatusDot" class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
-                        <span id="syncBtnText" class="font-bold">雲端設定</span>
+                    <button onclick="toggleSyncModal()" class="bg-slate-100 hover:bg-slate-200 active:scale-95 dark:bg-slate-800/80 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl transition-all flex items-center space-x-1 border border-slate-200/50 dark:border-slate-700/50 font-bold">
+                        <span id="syncStatusDot" class="w-1.5 h-2 rounded-full bg-rose-500 animate-pulse mr-0.5 sm:mr-0"></span>
+                        <span id="syncBtnText">雲端<span class="hidden sm:inline">設定</span></span>
                     </button>
-                    <!-- 匯出按鈕 -->
+                    <!-- CSV 匯出 -->
                     <button onclick="exportCSV()" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs px-3 py-2 rounded-xl transition-all hidden md:flex items-center border border-slate-200/50 dark:border-slate-700/50 font-bold">
                         <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                         <span>匯出</span>
@@ -151,7 +163,7 @@
                     </p>
                 </div>
 
-                <div id="syncTimeInfo" class="text-xs text-slate-400 dark:text-slate-500 hidden">
+                <div id="syncTimeInfo" class="text-xs text-slate-400 dark:text-slate-550 hidden">
                     上次同步時間：<span id="lastSyncTimeText" class="font-bold">無</span>
                 </div>
 
@@ -197,9 +209,9 @@
         <!-- 頂部高級數據看板 -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <!-- 累積總里程 -->
-            <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl shadow-sm border border-slate-200/50 dark:border-slate-800/40 flex flex-col justify-between hover:shadow-md transition-all duration-200 group">
+            <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200/50 dark:bg-slate-900 dark:border-slate-800/40 flex flex-col justify-between hover:shadow-md transition-all duration-200 group">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">總行駛里程</span>
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-555 tracking-wider">總行駛里程</span>
                     <span class="p-1.5 rounded-lg bg-emerald-100/60 dark:bg-emerald-950/20 text-emerald-500">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
                     </span>
@@ -211,7 +223,7 @@
                 <span class="text-[10px] text-slate-400 dark:text-slate-500 mt-2">累計行駛總距離</span>
             </div>
             <!-- 平均能耗 -->
-            <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl shadow-sm border border-slate-200/50 dark:border-slate-800/40 flex flex-col justify-between hover:shadow-md transition-all duration-200 group">
+            <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200/50 dark:bg-slate-900 dark:border-slate-800/40 flex flex-col justify-between hover:shadow-md transition-all duration-200 group">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-slate-400 dark:text-slate-555 tracking-wider">平均能耗</span>
                     <span class="p-1.5 rounded-lg bg-sky-100/60 dark:bg-sky-950/20 text-sky-500">
@@ -225,7 +237,7 @@
                 <span id="statWhKm" class="text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-mono">相當於 0 Wh/km</span>
             </div>
             <!-- 總充電花費 -->
-            <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl shadow-sm border border-slate-200/50 dark:border-slate-800/40 flex flex-col justify-between hover:shadow-md transition-all duration-200 group">
+            <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200/50 dark:bg-slate-900 dark:border-slate-800/40 flex flex-col justify-between hover:shadow-md transition-all duration-200 group">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">總充電花費</span>
                     <span class="p-1.5 rounded-lg bg-amber-100/60 dark:bg-amber-950/20 text-amber-500">
@@ -239,7 +251,7 @@
                 <span id="statTotalPower" class="text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-mono">累計充入 0 度電</span>
             </div>
             <!-- 每公里成本 -->
-            <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl shadow-sm border border-slate-200/50 dark:border-slate-800/40 flex flex-col justify-between hover:shadow-md transition-all duration-200 group">
+            <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200/50 dark:bg-slate-900 dark:border-slate-800/40 flex flex-col justify-between hover:shadow-md transition-all duration-200 group">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">每公里成本</span>
                     <span class="p-1.5 rounded-lg bg-indigo-100/60 dark:bg-indigo-950/20 text-indigo-500">
@@ -262,7 +274,7 @@
                 <!-- 新增紀錄表單 -->
                 <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-200/50 dark:border-slate-800/40">
                     <div class="flex items-center justify-between mb-5 pb-3 border-b border-slate-100 dark:border-slate-800/50">
-                        <h2 class="text-base font-black text-slate-800 dark:text-slate-100 flex items-center space-x-2">
+                        <h2 class="text-base font-black text-slate-800 dark:text-slate-200 flex items-center space-x-2">
                             <span class="text-emerald-500">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                             </span>
@@ -272,12 +284,13 @@
                     </div>
 
                     <form id="recordForm" onsubmit="addRecord(event)" class="space-y-4">
+                        <!-- 響應式網格 -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <!-- 記錄日期 -->
+                            <!-- 記錄日期 (iOS 垂直置中與觸控範圍修復版) -->
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">行駛/充電日期</label>
                                 <div class="relative">
-                                    <input type="date" id="inputDate" required class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:focus:ring-emerald-400/20 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 relative z-10 transition-all font-medium">
+                                    <input type="date" id="inputDate" required class="w-full px-3.5 py-2.5 pr-10 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:focus:ring-emerald-400/20 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 relative z-10 transition-all font-medium">
                                     <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-550 z-20">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -304,7 +317,7 @@
                             </div>
                             <!-- 本次消耗/充電百分比 -->
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">消耗/補回電量 (%)</label>
+                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">本次消耗多少電量(%)</label>
                                 <input type="number" step="1" id="inputPowerPercent" required placeholder="例如：25" oninput="updateConvertedPowerHint()" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 dark:focus:ring-emerald-400/20 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-all font-mono">
                                 <span id="powerHintText" class="text-[10px] text-slate-400 dark:text-slate-500 mt-1 block font-medium">約等同於 0.00 度電</span>
                             </div>
@@ -359,38 +372,6 @@
                     </div>
                 </div>
 
-                <!-- 油電省錢對比試算 -->
-                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-200/50 dark:border-slate-800/40">
-                    <h2 class="text-base font-black text-slate-800 dark:text-slate-100 flex items-center space-x-2 mb-4">
-                        <span class="text-amber-500">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                        </span>
-                        <span>燃油車油錢節省試算</span>
-                    </h2>
-                    <div class="space-y-4">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">對照油車平均油耗 (km/L)</label>
-                                <input type="number" id="calcGasMilage" value="14" oninput="calculateSavings()" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-mono transition-all">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">目前平均 95 油價 (元/L)</label>
-                                <input type="number" id="calcGasPrice" value="30" oninput="calculateSavings()" class="w-full px-3.5 py-2.5 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-mono transition-all">
-                            </div>
-                        </div>
-                        <div class="bg-gradient-to-br from-amber-500/10 to-orange-500/5 dark:from-amber-950/20 dark:to-transparent rounded-2xl p-4 border border-amber-100/50 dark:border-amber-900/30 flex items-center justify-between">
-                            <div>
-                                <span class="text-xs text-amber-600 dark:text-amber-400 font-bold block">相比燃油車累計節省</span>
-                                <span class="text-[10px] text-slate-400 dark:text-slate-500">以本系統記錄之總里程計算</span>
-                            </div>
-                            <div class="text-right">
-                                <span id="calcSavingsResult" class="text-2xl font-black text-amber-600 dark:text-amber-400 font-mono">0</span>
-                                <span class="text-xs font-bold text-amber-600 dark:text-amber-400 ml-1">元</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
 
             <!-- 右側：圖表與歷史資料列表 (7/12) -->
@@ -410,7 +391,7 @@
                 </div>
 
                 <!-- 歷史資料列表 -->
-                <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-200/50 dark:border-slate-800/40">
+                <div class="bg-white dark:bg-slate-900 p-6 shadow-sm border border-slate-200/50 dark:border-slate-800/40">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-slate-100 dark:border-slate-800/60 mb-4 gap-4">
                         <h2 class="text-base font-black text-slate-800 dark:text-slate-200 flex items-center space-x-2">
                             <span class="text-teal-500">
@@ -454,7 +435,7 @@
                     </div>
 
                     <!-- 無資料時的提示 -->
-                    <div id="noDataPlaceholder" class="hidden p-12 text-center text-slate-400 dark:text-slate-500">
+                    <div id="noDataPlaceholder" class="hidden p-12 text-center text-slate-400 dark:text-slate-550">
                         <svg class="w-12 h-12 mx-auto mb-3 text-slate-300 dark:text-slate-700" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                         <p class="text-xs font-bold">尚未有任何行駛紀錄，請由左側登入您的第一筆資料！</p>
                     </div>
@@ -466,7 +447,7 @@
     </main>
 
     <!-- 頁尾 -->
-    <footer class="bg-white dark:bg-slate-950 text-slate-400 dark:text-slate-500 text-center py-10 mt-16 border-t border-slate-200/50 dark:border-slate-900 transition-colors">
+    <footer class="bg-white dark:bg-slate-950 text-slate-400 dark:text-slate-555 text-center py-10 mt-16 border-t border-slate-200/50 dark:border-slate-900 transition-colors">
         <p class="text-xs font-medium">EV Life 電動車試算與能耗記錄工具 © 2026. 您的資料將安全地儲存在本地裝置瀏覽器中。</p>
     </footer>
 
@@ -494,21 +475,31 @@
             const yyyy = today.getFullYear();
             const mm = String(today.getMonth() + 1).padStart(2, '0');
             const dd = String(today.getDate()).padStart(2, '0');
-            document.getElementById('inputDate').value = `${yyyy}-${mm}-${dd}`;
+            const dateInput = document.getElementById('inputDate');
+            if (dateInput) {
+                dateInput.value = `${yyyy}-${mm}-${dd}`;
+            }
             
             // 讀取同步設定
             syncUrl = localStorage.getItem('ev_life_sync_url') || "";
-            document.getElementById('syncUrlInput').value = syncUrl;
+            const syncUrlInput = document.getElementById('syncUrlInput');
+            if (syncUrlInput) {
+                syncUrlInput.value = syncUrl;
+            }
             
             // 讀取儲存的電池容量設定
             batteryCapacity = parseFloat(localStorage.getItem('ev_life_battery_capacity')) || 57.7;
-            document.getElementById('calcBatteryCapacity').value = batteryCapacity;
+            const calcBatteryCapacityInput = document.getElementById('calcBatteryCapacity');
+            if (calcBatteryCapacityInput) {
+                calcBatteryCapacityInput.value = batteryCapacity;
+            }
             
             // 綁定充電類型監聽，如果為「未充電」，則自動將費用設為 0 並且禁用
             const chargeTypeSelect = document.getElementById('inputChargeType');
             const costInput = document.getElementById('inputCost');
             
             function handleChargeTypeChange() {
+                if (!chargeTypeSelect || !costInput) return;
                 if (chargeTypeSelect.value === "未充電") {
                     costInput.value = "0";
                     costInput.disabled = true;
@@ -519,8 +510,10 @@
                 }
             }
             
-            chargeTypeSelect.addEventListener('change', handleChargeTypeChange);
-            handleChargeTypeChange(); // 首次載入先執行一次
+            if (chargeTypeSelect && costInput) {
+                chargeTypeSelect.addEventListener('change', handleChargeTypeChange);
+                handleChargeTypeChange(); // 首次載入先執行一次
+            }
 
             updateSyncUiStatus();
             updateConvertedPowerHint();
@@ -563,6 +556,8 @@
         function showConfirmModal(title, message, onConfirm) {
             const modal = document.getElementById('confirmModal');
             const content = document.getElementById('confirmModalContent');
+            if (!modal || !content) return;
+            
             document.getElementById('confirmModalTitle').textContent = title;
             document.getElementById('confirmModalMessage').textContent = message;
             
@@ -581,6 +576,8 @@
         function closeConfirmModal() {
             const modal = document.getElementById('confirmModal');
             const content = document.getElementById('confirmModalContent');
+            if (!modal || !content) return;
+            
             modal.classList.remove('opacity-100');
             modal.classList.add('opacity-0');
             content.classList.remove('scale-100');
@@ -592,12 +589,15 @@
         }
 
         // 綁定自訂對話方塊的確認動作
-        document.getElementById('confirmSuccessBtn').onclick = function() {
-            if (activeConfirmCallback) {
-                activeConfirmCallback();
-            }
-            closeConfirmModal();
-        };
+        const confirmSuccessBtn = document.getElementById('confirmSuccessBtn');
+        if (confirmSuccessBtn) {
+            confirmSuccessBtn.onclick = function() {
+                if (activeConfirmCallback) {
+                    activeConfirmCallback();
+                }
+                closeConfirmModal();
+            };
+        }
 
         // 即時計算輸入百分比對應的度數提示
         function updateConvertedPowerHint() {
@@ -616,6 +616,7 @@
             const toast = document.getElementById('toast');
             const toastMessage = document.getElementById('toastMessage');
             const toastIcon = document.getElementById('toastIcon');
+            if (!toast || !toastMessage || !toastIcon) return;
             
             toastMessage.textContent = message;
             toastIcon.textContent = isError ? "⚠️" : "⚡";
@@ -630,6 +631,7 @@
         function toggleSyncModal() {
             const modal = document.getElementById('syncModal');
             const content = document.getElementById('syncModalContent');
+            if (!modal || !content) return;
             if (modal.classList.contains('hidden')) {
                 modal.classList.remove('hidden');
                 setTimeout(() => {
@@ -651,7 +653,9 @@
 
         // 儲存雲端同步網址設定
         function saveSyncSettings() {
-            const urlInput = document.getElementById('syncUrlInput').value.trim();
+            const syncUrlInput = document.getElementById('syncUrlInput');
+            if (!syncUrlInput) return;
+            const urlInput = syncUrlInput.value.trim();
             if (urlInput && !urlInput.startsWith('https://script.google.com/')) {
                 showToast("這看起來不像是正確的 Google Apps Script 網址", true);
                 return;
@@ -680,18 +684,22 @@
             const lastSync = localStorage.getItem('ev_life_last_sync_time');
 
             if (syncUrl) {
-                syncStatusDot.className = "w-2 h-2 rounded-full bg-emerald-400";
-                syncBtnText.textContent = "雲端同步：啟用";
-                navSyncBtn.classList.remove('hidden');
-                navSyncBtn.classList.add('flex');
-                syncTimeInfo.classList.remove('hidden');
-                lastSyncTimeText.textContent = lastSync ? lastSync : "尚未同步";
+                if (syncStatusDot) syncStatusDot.className = "w-2 h-2 rounded-full bg-emerald-400";
+                if (syncBtnText) syncBtnText.innerHTML = `雲端<span class="hidden sm:inline">：啟用</span>`;
+                if (navSyncBtn) {
+                    navSyncBtn.classList.remove('hidden');
+                    navSyncBtn.classList.add('flex');
+                }
+                if (syncTimeInfo) syncTimeInfo.classList.remove('hidden');
+                if (lastSyncTimeText) lastSyncTimeText.textContent = lastSync ? lastSync : "尚未同步";
             } else {
-                syncStatusDot.className = "w-2 h-2 rounded-full bg-rose-500 animate-pulse";
-                syncBtnText.textContent = "設定雲端同步";
-                navSyncBtn.classList.remove('flex');
-                navSyncBtn.classList.add('hidden');
-                syncTimeInfo.classList.add('hidden');
+                if (syncStatusDot) syncStatusDot.className = "w-1.5 h-2 rounded-full bg-rose-500 animate-pulse mr-0.5 sm:mr-0";
+                if (syncBtnText) syncBtnText.innerHTML = `雲端<span class="hidden sm:inline">設定</span>`;
+                if (navSyncBtn) {
+                    navSyncBtn.classList.remove('flex');
+                    navSyncBtn.classList.add('hidden');
+                }
+                if (syncTimeInfo) syncTimeInfo.classList.add('hidden');
             }
         }
 
@@ -774,8 +782,8 @@
             const placeholder = document.getElementById('noDataPlaceholder');
             const desktopTableWrapper = document.getElementById('desktopTableWrapper');
 
-            tableBody.innerHTML = '';
-            mobileList.innerHTML = '';
+            if (tableBody) tableBody.innerHTML = '';
+            if (mobileList) mobileList.innerHTML = '';
 
             // 確保過濾掉系統元數據與無效的空白列
             const activeRecords = records.filter(r => 
@@ -786,7 +794,7 @@
             );
 
             if (activeRecords.length === 0) {
-                placeholder.classList.remove('hidden');
+                if (placeholder) placeholder.classList.remove('hidden');
                 if (desktopTableWrapper) desktopTableWrapper.classList.add('hidden');
                 if (mobileList) mobileList.classList.add('hidden');
                 updateStats(0, 0, 0, 0, 0);
@@ -796,7 +804,7 @@
                 }
                 return;
             } else {
-                placeholder.classList.add('hidden');
+                if (placeholder) placeholder.classList.add('hidden');
                 if (desktopTableWrapper) desktopTableWrapper.classList.remove('hidden');
                 if (mobileList) mobileList.classList.remove('hidden');
             }
@@ -831,7 +839,7 @@
                         </span>
                     </td>
                     <td class="px-3.5 py-4 text-right font-bold font-mono text-slate-800 dark:text-slate-100">${parseFloat(rec.distance).toFixed(1)}</td>
-                    <td class="px-3.5 py-4 text-right font-bold font-mono text-slate-800 dark:text-slate-100">${dispPercent.toFixed(0)}% <span class="text-[10px] font-normal text-slate-400 dark:text-slate-500">(${parseFloat(rec.power).toFixed(1)}度)</span></td>
+                    <td class="px-3.5 py-4 text-right font-bold font-mono text-slate-800 dark:text-slate-100">${dispPercent.toFixed(0)}% <span class="text-[10px] font-normal text-slate-400 dark:text-slate-555">(${parseFloat(rec.power).toFixed(1)}度)</span></td>
                     <td class="px-3.5 py-4 text-right text-emerald-600 dark:text-emerald-400 font-bold font-mono">${efficiency}</td>
                     <td class="px-3.5 py-4 text-right font-bold font-mono text-slate-800 dark:text-slate-100">${rec.cost}</td>
                     <td class="px-3.5 py-4 max-w-xs truncate text-slate-500 dark:text-slate-400 text-xs" title="${rec.note || ''}">${rec.note || '-'}</td>
@@ -845,7 +853,7 @@
                 `;
                 // 手機與電腦端實體事件綁定，免除內聯字串調用的 mobile click 異常
                 tr.querySelector('.delete-btn').addEventListener('click', () => confirmDeleteRecord(rec.id));
-                tableBody.appendChild(tr);
+                if (tableBody) tableBody.appendChild(tr);
 
                 // 2. 手機端卡片
                 const card = document.createElement('div');
@@ -859,7 +867,7 @@
                         <div class="flex items-center space-x-2">
                             <span class="inline-block px-2.5 py-0.5 text-[9px] rounded-lg font-black border tracking-wide uppercase ${
                                 rec.chargeType.includes('快充') ? 'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950/30 dark:border-amber-900/40 dark:text-amber-400' : 
-                                rec.chargeType.includes('慢充') ? 'bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-950/30 dark:border-emerald-900/40 dark:text-emerald-400' : 'bg-slate-100 border-slate-200 text-slate-600 dark:bg-slate-800 dark:border-slate-700/60 dark:text-slate-400'
+                                rec.chargeType.includes('慢充') ? 'bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-950/30 dark:border-emerald-900/40 dark:text-emerald-400' : 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
                             }">
                                 ${rec.chargeType}
                             </span>
@@ -877,15 +885,15 @@
                             <span class="font-bold text-slate-700 dark:text-slate-200 text-sm font-mono">${parseFloat(rec.distance).toFixed(1)} km</span>
                         </div>
                         <div>
-                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-bold">能耗表現</span>
+                            <span class="text-[10px] text-slate-400 dark:text-slate-555 block font-bold">能耗表現</span>
                             <span class="font-bold text-emerald-600 dark:text-emerald-400 text-sm font-mono">${efficiency} km/度</span>
                         </div>
                         <div>
-                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-bold">消耗電量</span>
+                            <span class="text-[10px] text-slate-400 dark:text-slate-555 block font-bold">消耗電量</span>
                             <span class="font-bold text-slate-700 dark:text-slate-200 text-xs font-mono">${dispPercent.toFixed(0)}% <span class="text-[10px] font-normal text-slate-400 dark:text-slate-550">(${parseFloat(rec.power).toFixed(1)}度)</span></span>
                         </div>
                         <div>
-                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-bold">費用 (TWD)</span>
+                            <span class="text-[10px] text-slate-400 dark:text-slate-555 block font-bold">費用 (TWD)</span>
                             <span class="font-bold text-slate-700 dark:text-slate-200 text-xs font-mono">${rec.cost} 元</span>
                         </div>
                     </div>
@@ -899,7 +907,7 @@
                 `;
                 // 手機卡片程式化綁定
                 card.querySelector('.delete-btn').addEventListener('click', () => confirmDeleteRecord(rec.id));
-                mobileList.appendChild(card);
+                if (mobileList) mobileList.appendChild(card);
             });
 
             const avgEfficiency = totalPower > 0 ? (totalKm / totalPower) : 0;
@@ -908,19 +916,25 @@
             updateStats(totalKm, avgEfficiency, totalCost, totalPower, costPerKm);
             updateCharts();
             calculateEstimatedRange();
-            calculateSavings();
         }
 
         // 更新頂部卡片文字
         function updateStats(totalKm, avgEfficiency, totalCost, totalPower, costPerKm) {
-            document.getElementById('statTotalKm').textContent = totalKm.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
-            document.getElementById('statAvgEfficiency').textContent = avgEfficiency.toFixed(2);
-            document.getElementById('statTotalCost').textContent = totalCost.toLocaleString();
-            document.getElementById('statCostPerKm').textContent = costPerKm.toFixed(2);
+            const statTotalKm = document.getElementById('statTotalKm');
+            const statAvgEfficiency = document.getElementById('statAvgEfficiency');
+            const statTotalCost = document.getElementById('statTotalCost');
+            const statCostPerKm = document.getElementById('statCostPerKm');
+            const statWhKm = document.getElementById('statWhKm');
+            const statTotalPower = document.getElementById('statTotalPower');
+
+            if (statTotalKm) statTotalKm.textContent = totalKm.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
+            if (statAvgEfficiency) statAvgEfficiency.textContent = avgEfficiency.toFixed(2);
+            if (statTotalCost) statTotalCost.textContent = totalCost.toLocaleString();
+            if (statCostPerKm) statCostPerKm.textContent = costPerKm.toFixed(2);
 
             const whKm = avgEfficiency > 0 ? Math.round(1000 / avgEfficiency) : 0;
-            document.getElementById('statWhKm').textContent = `相當於約 ${whKm} Wh/km`;
-            document.getElementById('statTotalPower').textContent = `累計充入 ${totalPower.toFixed(1)} 度電`;
+            if (statWhKm) statWhKm.textContent = `相當於約 ${whKm} Wh/km`;
+            if (statTotalPower) statTotalPower.textContent = `累計充入 ${totalPower.toFixed(1)} 度電`;
         }
 
         // 新增記錄
@@ -960,12 +974,20 @@
             const yyyy = today.getFullYear();
             const mm = String(today.getMonth() + 1).padStart(2, '0');
             const dd = String(today.getDate()).padStart(2, '0');
-            document.getElementById('inputDate').value = `${yyyy}-${mm}-${dd}`;
+            const dateInput = document.getElementById('inputDate');
+            if (dateInput) {
+                dateInput.value = `${yyyy}-${mm}-${dd}`;
+            }
             
-            document.getElementById('inputDistance').value = '';
-            document.getElementById('inputPowerPercent').value = '';
-            document.getElementById('inputCost').value = '';
-            document.getElementById('inputNote').value = '';
+            const distanceInput = document.getElementById('inputDistance');
+            const powerPercentInput = document.getElementById('inputPowerPercent');
+            const costInput = document.getElementById('inputCost');
+            const noteInput = document.getElementById('inputNote');
+
+            if (distanceInput) distanceInput.value = '';
+            if (powerPercentInput) powerPercentInput.value = '';
+            if (costInput && document.getElementById('inputChargeType').value !== "未充電") costInput.value = '';
+            if (noteInput) noteInput.value = '';
             updateConvertedPowerHint();
 
             renderDashboard();
@@ -1018,11 +1040,14 @@
         // 剩餘里程估算
         function calculateEstimatedRange() {
             const capacityInput = document.getElementById('calcBatteryCapacity');
-            batteryCapacity = parseFloat(capacityInput.value) || 57.7;
-            localStorage.setItem('ev_life_battery_capacity', batteryCapacity);
+            if (capacityInput) {
+                batteryCapacity = parseFloat(capacityInput.value) || 57.7;
+                localStorage.setItem('ev_life_battery_capacity', batteryCapacity);
+            }
             updateConvertedPowerHint();
 
-            const percent = parseFloat(document.getElementById('calcBatteryPercent').value) || 0;
+            const calcBatteryPercentInput = document.getElementById('calcBatteryPercent');
+            const percent = calcBatteryPercentInput ? (parseFloat(calcBatteryPercentInput.value) || 0) : 0;
             
             let totalKm = 0;
             let totalPower = 0;
@@ -1037,32 +1062,17 @@
             const remainingPower = batteryCapacity * (percent / 100);
             const estimatedRange = remainingPower * avgEfficiency;
 
-            document.getElementById('calcRangeResult').textContent = Math.round(estimatedRange);
-        }
-
-        // 相比燃油車省錢計算
-        function calculateSavings() {
-            const gasMileage = parseFloat(document.getElementById('calcGasMilage').value) || 1;
-            const gasPrice = parseFloat(document.getElementById('calcGasPrice').value) || 0;
-
-            let totalKm = 0;
-            let totalCost = 0;
-            records.forEach(rec => {
-                if (rec.id !== "SYSTEM_METADATA") {
-                    totalKm += parseFloat(rec.distance);
-                    totalCost += parseFloat(rec.cost);
-                }
-            });
-
-            const gasCarCost = (totalKm / gasMileage) * gasPrice;
-            const savings = gasCarCost - totalCost;
-
-            document.getElementById('calcSavingsResult').textContent = Math.max(0, Math.round(savings)).toLocaleString();
+            const calcRangeResult = document.getElementById('calcRangeResult');
+            if (calcRangeResult) {
+                calcRangeResult.textContent = Math.round(estimatedRange);
+            }
         }
 
         // 渲染圖表 (Chart.js)
         function updateCharts() {
-            const ctx = document.getElementById('efficiencyChart').getContext('2d');
+            const canvasElement = document.getElementById('efficiencyChart');
+            if (!canvasElement) return;
+            const ctx = canvasElement.getContext('2d');
 
             if (efficiencyChartInstance) {
                 efficiencyChartInstance.destroy();
