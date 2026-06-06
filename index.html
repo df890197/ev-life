@@ -233,8 +233,8 @@
 </head>
 <body class="bg-[#fcfaf2] dark:bg-[#090d16] text-slate-800 dark:text-slate-100 min-h-screen transition-all duration-300 antialiased selection:bg-cuteMint-200/50 font-bold relative">
 
-    <!-- 頂部精緻導覽列 (與實體卡片風格呼應) -->
-    <nav class="bg-gradient-to-r from-[#fffdf5] to-[#fffefb] dark:from-slate-900 dark:to-slate-950 border-b-4 border-[#1e293b] text-slate-800 dark:text-slate-100 sticky top-0 z-45 transition-colors shadow-md">
+    <!-- 頂部精緻導覽列 (與實體卡片風格呼應 - z-index 提升至 50 確保常駐置頂) -->
+    <nav class="bg-gradient-to-r from-[#fffdf5] to-[#fffefb] dark:from-slate-900 dark:to-slate-950 border-b-4 border-[#1e293b] text-slate-800 dark:text-slate-100 sticky top-0 z-50 transition-colors shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <!-- 標誌與 Luxgen n7 照片容器 -->
@@ -276,8 +276,8 @@
         </div>
     </nav>
 
-    <!-- 系統設定 & 雲端同步 模態 -->
-    <div id="syncModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+    <!-- 系統設定 & 雲端同步 模態 (z-index 提升至 100 避開 sticky 導覽列) -->
+    <div id="syncModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
         <div class="bg-[#fffdf9] dark:bg-slate-900 rounded-[2rem] p-6 shadow-2xl max-w-lg w-full mx-4 transform scale-95 transition-all duration-300 border-4 border-[#1e293b]" id="syncModalContent">
             <div class="flex items-center justify-between border-b-2 border-[#1e293b] pb-3 mb-4">
                 <h3 class="text-base font-black text-slate-800 dark:text-slate-100 flex items-center space-x-2">
@@ -389,8 +389,8 @@ function doPost(e) {
         </div>
     </div>
 
-    <!-- 自訂確認對話方塊 -->
-    <div id="confirmModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+    <!-- 自訂確認對話方塊 (z-index 提升至 100 避開 sticky 導覽列) -->
+    <div id="confirmModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
         <div class="bg-[#fffdf9] dark:bg-slate-900 rounded-[2.5rem] p-6 shadow-2xl max-w-sm w-full mx-4 transform scale-95 transition-all duration-300 border-4 border-[#1e293b]" id="confirmModalContent">
             <h3 class="text-base font-black text-slate-800 dark:text-slate-100 mb-2 flex items-center space-x-2">
                 <span class="p-2 bg-cuteBlue-100 dark:bg-slate-800 rounded-2xl text-cuteBlue-500" id="confirmModalIcon">
@@ -413,27 +413,27 @@ function doPost(e) {
     <!-- 主內容區 -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         
-        <!-- 自訂通知元件 (Toast) -->
-        <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900/90 dark:bg-slate-855/95 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border-2 border-[#1e293b]">
+        <!-- 自訂通知元件 (Toast - z-index 提升至 110 最上層) -->
+        <div id="toast" class="fixed bottom-5 right-5 z-[110] transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900/90 dark:bg-slate-855/95 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border-2 border-[#1e293b]">
             <span id="toastIcon" class="text-cuteMint-300 text-sm">🐾</span>
             <span id="toastMessage" class="text-xs font-bold"></span>
         </div>
 
-        <!-- 🐾 頂部 RPG HUD 冒險進行時橫幅 (加強遊戲世界感) -->
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6 bg-cuteMint-50/30 dark:bg-slate-900/40 p-4 rounded-3xl border-2 border-slate-800 dark:border-slate-700 shadow-[3px_3px_0px_0px_#1e293b] dark:shadow-[3px_3px_0px_0px_#02060c]">
-            <div>
-                <h1 class="text-lg font-black tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:to-cuteBlue-400">
+        <!-- 🐾 頂部 RPG HUD 冒險進行時橫幅 (已完美修正為在 iOS, Android 與電腦上均置中對稱排版) -->
+        <div class="flex flex-col justify-center items-center text-center gap-3 mb-6 bg-cuteMint-50/30 dark:bg-slate-900/40 p-4 rounded-3xl border-2 border-slate-800 dark:border-slate-700 shadow-[3px_3px_0px_0px_#1e293b] dark:shadow-[3px_3px_0px_0px_#02060c]">
+            <div class="text-center">
+                <h1 class="text-lg font-black tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:to-cuteBlue-400 text-center">
                     🐾 我的冒險大本營
                 </h1>
-                <p class="text-xs text-slate-500 dark:text-slate-400 font-bold">記錄下你與愛車的每一段電能奇幻旅程！</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 font-bold text-center">記錄下你與愛車的每一段電能奇幻旅程！</p>
             </div>
-            <!-- RPG 冒險時刻 HUD -->
-            <div class="flex items-center space-x-2 bg-white dark:bg-slate-950 py-1.5 px-3.5 rounded-2xl border-2 border-slate-800 dark:border-slate-700 shadow-[2px_2px_0px_0px_#1e293b] dark:shadow-[2px_2px_0px_0px_#02060c] font-mono text-xs">
+            <!-- RPG 冒險時刻 HUD (置中排版) -->
+            <div class="flex items-center justify-center space-x-2 bg-white dark:bg-slate-950 py-1.5 px-3.5 rounded-2xl border-2 border-slate-800 dark:border-slate-700 shadow-[2px_2px_0px_0px_#1e293b] dark:shadow-[2px_2px_0px_0px_#02060c] font-mono text-xs mx-auto">
                 <span class="relative flex h-2.5 w-2.5">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                 </span>
-                <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">HUD Time:</span>
+                <span class="text-[10px] text-slate-400 dark:text-slate-555 font-bold uppercase tracking-wider">HUD Time:</span>
                 <span id="liveClockText" class="text-slate-800 dark:text-slate-200 font-black">2026-06-07 00:00:00</span>
             </div>
         </div>
@@ -457,7 +457,7 @@ function doPost(e) {
             <!-- 平均能耗 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">平均能耗 ⚡</span>
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-555 tracking-wider">平均能耗 ⚡</span>
                     <span class="p-1.5 rounded-xl bg-amber-100/40 dark:bg-amber-955/20 text-amber-500 border-2 border-slate-800">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     </span>
@@ -471,7 +471,7 @@ function doPost(e) {
             <!-- 總充電花費 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">總費用 👛</span>
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-555 tracking-wider">總費用 👛</span>
                     <span class="p-1.5 rounded-xl bg-cuteBlue-50 dark:bg-cuteBlue-955/20 text-cuteBlue-500 border-2 border-slate-800">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path>
@@ -930,10 +930,10 @@ function doPost(e) {
             
             toastMessage.textContent = message;
             toastIcon.textContent = isError ? "⚠️🐾" : "⚡(ˊᗜˋ*)";
-            toast.className = `fixed bottom-5 right-5 z-50 transform translate-y-0 opacity-100 transition-all duration-300 bg-slate-900/95 dark:bg-slate-855/95 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border-2 border-[#1e293b]`;
+            toast.className = `fixed bottom-5 right-5 z-[110] transform translate-y-0 opacity-100 transition-all duration-300 bg-slate-900/95 dark:bg-slate-855/95 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border-2 border-[#1e293b]`;
             
             setTimeout(() => {
-                toast.className = `fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900/95 dark:bg-slate-855/95 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border-2 border-[#1e293b]`;
+                toast.className = `fixed bottom-5 right-5 z-[110] transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900/95 dark:bg-slate-855/95 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border-2 border-[#1e293b]`;
             }, 3000);
         }
 
@@ -1183,7 +1183,7 @@ function doPost(e) {
         function cancelEdit() {
             editingRecordId = null;
             document.getElementById('formTitle').textContent = "登入這趟里程 🐾";
-            document.getElementById('submitBtnText').textContent = "登入這筆冒險日誌 (•̀ᴗ•́)و";
+            document.getElementById('submitBtnText').textContent = "登入這筆冒險日誌 (•̀ᴗ•́)w";
             document.getElementById('cancelEditBtn').classList.add('hidden');
 
             // 重設欄位預設值且載入今天日期
@@ -1238,7 +1238,7 @@ function doPost(e) {
             const flatViewContainer = document.getElementById('flatViewContainer');
 
             if (tableBody) tableBody.innerHTML = '';
-            if (mobileList) mobileList.innerHTML = '';
+            if (mobileList) !mobileList.innerHTML ? mobileList.innerHTML = '' : mobileList.innerHTML = '';
 
             // 確保過濾掉系統元數據與無效的空白列
             const activeRecords = records.filter(r => 
@@ -1277,13 +1277,27 @@ function doPost(e) {
 
                 const efficiency = rec.power > 0 ? (rec.distance / rec.power).toFixed(2) : "0.00";
                 
-                // 智慧起訖電量整合文字 (消滅 undefined%)
+                // 🛠️ 關鍵防禦機制：確保動態算出有效的 powerPercent，消滅 undefined%
+                let startSocVal = parseFloat(rec.startSoc);
+                let endSocVal = parseFloat(rec.endSoc);
+                let hasValidSoc = rec.startSoc !== undefined && rec.endSoc !== undefined && !isNaN(startSocVal) && !isNaN(endSocVal);
+
+                let powerPercent = rec.powerPercent;
+                if (powerPercent === undefined || isNaN(powerPercent) || powerPercent === null) {
+                    if (hasValidSoc) {
+                        powerPercent = Math.abs(endSocVal - startSocVal);
+                    } else if (rec.power !== undefined && !isNaN(parseFloat(rec.power))) {
+                        powerPercent = Math.round((parseFloat(rec.power) / batteryCapacity) * 100);
+                    } else {
+                        powerPercent = 0;
+                    }
+                }
+                
                 let socText = "";
-                let hasValidSoc = rec.startSoc !== undefined && rec.endSoc !== undefined && !isNaN(rec.startSoc) && !isNaN(rec.endSoc);
                 if (hasValidSoc) {
-                    socText = `${rec.startSoc}% ➔ ${rec.endSoc}% <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">(${rec.powerPercent}%)</span>`;
+                    socText = `${startSocVal}% ➔ ${endSocVal}% <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">(${powerPercent}%)</span>`;
                 } else {
-                    socText = `${rec.powerPercent}%`;
+                    socText = `${powerPercent}%`;
                 }
 
                 const displayDate = rec.date && rec.date.includes('T') ? rec.date.split('T')[0] : (rec.date || '');
@@ -1305,7 +1319,7 @@ function doPost(e) {
                     <td class="px-4 py-3.5 text-right font-bold font-mono text-slate-800 dark:text-slate-100">${socText}</td>
                     <td class="px-4 py-3.5 text-right text-cuteMint-600 dark:text-cuteMint-400 font-bold font-mono">${efficiency}</td>
                     <td class="px-4 py-3.5 text-right font-bold font-mono text-slate-800 dark:text-slate-100">${rec.cost}</td>
-                    <td class="px-4 py-3.5 max-w-xs truncate text-slate-500 dark:text-slate-400 text-xs font-semibold" title="${rec.note || ''}">${rec.note || '-'}</td>
+                    <td class="px-4 py-3.5 max-w-xs truncate text-slate-550 dark:text-slate-400 text-xs font-semibold" title="${rec.note || ''}">${rec.note || '-'}</td>
                     <td class="px-4 py-3.5 text-center whitespace-nowrap">
                         <!-- 編輯按鈕 -->
                         <button class="edit-btn text-cuteMint-600 dark:text-cuteMint-400 bg-cuteMint-50 hover:bg-cuteMint-100 dark:bg-cuteMint-950/30 dark:hover:bg-cuteMint-950/60 p-2 rounded-2xl transition inline-flex items-center justify-center border-2 border-cuteMint-100 dark:border-cuteMint-900/30 shadow-sm active:scale-95 mr-1" title="編輯此筆">
@@ -1325,12 +1339,12 @@ function doPost(e) {
                 tr.querySelector('.delete-btn').addEventListener('click', () => confirmDeleteRecord(rec.id));
                 if (tableBody) tableBody.appendChild(tr);
 
-                // 2. 關鍵修正：手機端卡片 (套用精緻 .rpg-card 黑邊外框與底色偏置，符合 iOS & Android 系統比例)
+                // 2. 關鍵修正：手機端卡片 (修正百分比 powerPercent 渲染，避免出現 undefined%)
                 let mobileSocText = "";
                 if (hasValidSoc) {
-                    mobileSocText = `${rec.startSoc}% ➔ ${rec.endSoc}% <span class="text-[10px] text-slate-400 dark:text-slate-500">(${rec.powerPercent}%)</span>`;
+                    mobileSocText = `${startSocVal}% ➔ ${endSocVal}% <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">(${powerPercent}%)</span>`;
                 } else {
-                    mobileSocText = `${rec.powerPercent}%`;
+                    mobileSocText = `${powerPercent}%`;
                 }
 
                 const card = document.createElement('div');
