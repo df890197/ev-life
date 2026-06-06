@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // 設定 Tailwind CSS 支援系統自動深色模式，並定義男生也愛的可愛「薄荷綠與寶寶藍」色系
+        // 補上了 400 系列色階，徹底解決按鈕預設透明無色的跑版問題
         tailwind.config = {
             darkMode: 'media',
             theme: {
@@ -20,6 +21,7 @@
                             100: '#ccfbf1',
                             200: '#99f6e4',
                             300: '#5eead4',
+                            400: '#2dd4bf', /* 補上 400 色階 */
                             500: '#14b8a6',
                             600: '#0d9488',
                             750: '#115e59',
@@ -29,6 +31,7 @@
                             100: '#e0f2fe',
                             200: '#bae6fd',
                             300: '#7dd3fc',
+                            400: '#38bdf8', /* 補上 400 色階 */
                             500: '#0ea5e9',
                             600: '#0284c7',
                         },
@@ -117,7 +120,7 @@
 </head>
 <body class="bg-[#f0f9f6] dark:bg-[#070c17] text-slate-700 dark:text-slate-200 min-h-screen transition-colors duration-300 antialiased selection:bg-cuteMint-100">
 
-    <!-- 頂部精緻可愛導覽列 (薄荷綠與寶寶藍配色 - 更換為 🐾 探險日誌) -->
+    <!-- 頂部精緻可愛導覽列 (薄荷綠與寶寶藍配色 - 🐾 探險日誌) -->
     <nav class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b-4 border-cuteMint-100 dark:border-slate-800 text-slate-700 dark:text-slate-100 sticky top-0 z-40 transition-colors">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
@@ -144,7 +147,7 @@
                         <span><span class="hidden sm:inline">立即</span>同步</span>
                     </button>
                     <!-- 雲端同步設定 -->
-                    <button onclick="toggleSyncModal()" class="bg-cuteMint-50 hover:bg-cuteMint-100 active:scale-95 dark:bg-slate-800/80 dark:hover:bg-slate-800 text-cuteMint-600 dark:text-cuteMint-300 text-xs px-3.5 py-2 rounded-2xl transition-all flex items-center space-x-1 border border-cuteMint-200/50 dark:border-slate-700/50">
+                    <button onclick="toggleSyncModal()" class="bg-cuteMint-50 hover:bg-cuteMint-100 active:scale-95 dark:bg-slate-800/80 dark:hover:bg-slate-800 text-cuteMint-600 dark:text-cuteMint-300 text-xs px-3.5 py-2 rounded-2xl transition-all flex items-center space-x-1 border border-cuteMint-200/50 dark:border-slate-700/50 font-bold">
                         <span id="syncStatusDot" class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse mr-0.5 sm:mr-0"></span>
                         <span class="font-black">雲端<span class="hidden sm:inline">設定</span></span>
                     </button>
@@ -164,7 +167,7 @@
             <div class="flex items-center justify-between border-b border-cuteMint-100 dark:border-slate-800 pb-3 mb-4">
                 <h3 class="text-base font-black text-slate-800 dark:text-slate-100 flex items-center space-x-2">
                     <svg class="w-5 h-5 text-cuteMint-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
-                    <span>Google 試算表雲端同步 🐾(•̀ᴗ•́)و</span>
+                    <span>Google 試算表雲端同步 🐾(•̀ᴗ•́)</span>
                 </h3>
                 <button onclick="toggleSyncModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold transition-all">×</button>
             </div>
@@ -295,7 +298,7 @@
                     <span id="statCostPerKm" class="text-2xl md:text-3xl font-black text-cuteMint-600 dark:text-cuteMint-400 font-mono tracking-tight">0.00</span>
                     <span class="text-xs font-bold text-cuteMint-600 dark:text-cuteMint-400 ml-1">元/km</span>
                 </div>
-                <span class="text-[10px] text-slate-400 dark:text-slate-555 mt-2">荷包精打細算中 ꪔ̤̥</span>
+                <span class="text-[10px] text-slate-400 dark:text-slate-555 mt-2">荷包精打細算中 🐾</span>
             </div>
         </div>
 
@@ -311,7 +314,8 @@
                             <span class="text-cuteMint-500">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                             </span>
-                            <span>新增用電紀錄 ꪔ̤̥</span>
+                            <!-- 關鍵修正：將容易造成渲染崩潰、不重疊跑版的特殊泰文兔兔符號 ꪔ̤̥ 移除，換成標準 paw 圖示 🐾 -->
+                            <span>新增用電紀錄 🐾</span>
                         </h2>
                         <span class="text-[10px] text-cuteMint-500 dark:text-cuteMint-300 font-black">日常小本子</span>
                     </div>
@@ -370,12 +374,15 @@
 
                         <div>
                             <label class="block text-xs font-bold text-slate-555 dark:text-slate-400 mb-1.5">行駛備註 / 旅途趣事 (選填)</label>
-                            <input type="text" id="inputNote" placeholder="例如：帶貓咪去散步 ᓚᘏᗢ" class="w-full px-4 py-2.5 border-2 border-cuteMint-100 dark:border-slate-800 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-200/50 dark:focus:ring-cuteMint-900/10 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-all font-bold">
+                            <!-- 關鍵修正：將備註 placeholder 的貓咪特殊文字符號 ᓚᘏᗢ 改為相容性佳的實體繪文字 🐱🐾 -->
+                            <input type="text" id="inputNote" placeholder="例如：帶貓咪去散步 🐱🐾" class="w-full px-4 py-2.5 border-2 border-cuteMint-100 dark:border-slate-800 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-200/50 dark:focus:ring-cuteMint-900/10 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-all font-bold">
                         </div>
 
-                        <button type="submit" class="w-full bg-gradient-to-r from-cuteMint-400 via-teal-400 to-cuteBlue-400 hover:from-cuteMint-500 hover:to-cuteBlue-500 text-white font-extrabold py-3.5 rounded-2xl transition-all shadow-md shadow-cuteMint-200 dark:shadow-none flex justify-center items-center space-x-2 active:scale-95">
+                        <!-- 修正：將 bg-gradient 用的 -400 色階修復，不需 hover 即直接渲染 Q 彈亮麗薄荷藍漸層背景 -->
+                        <button type="submit" class="w-full bg-gradient-to-r from-cuteMint-300 via-cuteMint-500 to-cuteBlue-500 hover:from-cuteMint-500 hover:to-cuteBlue-600 text-white font-extrabold py-3.5 rounded-2xl transition-all shadow-md shadow-cuteMint-200/50 dark:shadow-none flex justify-center items-center space-x-2 active:scale-95">
                             <!-- 閃電 SVG -->
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            <!-- 關鍵修正：將按鈕內特殊符號替換 -->
                             <span>登入這筆可愛日誌 (•̀ᴗ•́)و</span>
                         </button>
                     </form>
@@ -403,7 +410,8 @@
                         <div class="bg-gradient-to-r from-cuteMint-500/10 to-cuteBlue-500/5 dark:from-cuteMint-950/20 dark:to-transparent rounded-2xl p-4 border-2 border-cuteMint-100/50 dark:border-cuteMint-900/30 flex items-center justify-between">
                             <div>
                                 <span class="text-xs text-cuteMint-600 dark:text-cuteMint-400 font-extrabold block">預估還能跑</span>
-                                <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold">依愛車目前的平均能耗計算 ꪔ̤̥</span>
+                                <!-- 關鍵修正：將特殊 bunny 符號替換為爪子 🐾 -->
+                                <span class="text-[10px] text-slate-400 dark:text-slate-550 font-bold">依愛車目前的平均能耗計算 🐾</span>
                             </div>
                             <div class="text-right">
                                 <span id="calcRangeResult" class="text-2xl font-black text-cuteMint-500 dark:text-cuteMint-400 font-mono">0</span>
@@ -425,7 +433,8 @@
                             <!-- 圖表 SVG -->
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                         </span>
-                        <span>能耗與花費趨勢圖 (⑅•ᴗ•⑅)</span>
+                        <!-- 關鍵修正：將圖表標題的顏文字改為標準 Emoji -->
+                        <span>能耗與花費趨勢圖 📈⚡</span>
                     </h2>
                     <div class="h-64 relative">
                         <canvas id="efficiencyChart"></canvas>
@@ -479,7 +488,8 @@
                     <!-- 無資料時的提示 -->
                     <div id="noDataPlaceholder" class="hidden p-12 text-center text-slate-400 dark:text-slate-550">
                         <svg class="w-12 h-12 mx-auto mb-3 text-cuteMint-200 dark:text-slate-700 animate-bounce" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                        <p class="text-xs font-black text-cuteMint-500">空空如也 ꪔ̤̥ 快來左邊寫下第一筆吧！</p>
+                        <!-- 關鍵修正：將提示內特殊 bunny 符號替換為 🐾 -->
+                        <p class="text-xs font-black text-cuteMint-500">空空如也 🐾 快來左邊寫下第一筆吧！</p>
                     </div>
                 </div>
 
@@ -871,7 +881,7 @@
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-cuteMint-50/20 dark:hover:bg-slate-800/40 transition border-b border-cuteMint-100 dark:border-slate-800/60";
                 tr.innerHTML = `
-                    <td class="px-3.5 py-4 font-bold text-slate-850 dark:text-slate-200 whitespace-nowrap font-mono">${displayDate}</td>
+                    <td class="px-3.5 py-4 font-bold text-slate-855 dark:text-slate-200 whitespace-nowrap font-mono">${displayDate}</td>
                     <td class="px-3.5 py-4">
                         <span class="inline-block px-2.5 py-0.5 text-[10px] rounded-full font-black border tracking-wide uppercase ${
                             rec.chargeType.includes('快充') ? 'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950/30 dark:border-amber-900/40 dark:text-amber-400' : 
@@ -908,7 +918,7 @@
                         <div class="flex items-center space-x-2">
                             <span class="inline-block px-2.5 py-0.5 text-[9px] rounded-lg font-black border tracking-wide uppercase ${
                                 rec.chargeType.includes('快充') ? 'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950/30 dark:border-amber-900/40 dark:text-amber-400' : 
-                                rec.chargeType.includes('慢充') ? 'bg-cuteMint-50 border-cuteMint-200 text-cuteMint-700 dark:bg-cuteMint-950/30 dark:border-cuteMint-900/40 dark:text-cuteMint-400' : 'bg-slate-200 text-slate-650 dark:bg-slate-800 dark:text-slate-400'
+                                rec.chargeType.includes('慢充') ? 'bg-cuteMint-50 border-cuteMint-200 text-cuteMint-700 dark:bg-cuteMint-950/30 dark:border-cuteMint-900/40 dark:text-cuteMint-400' : 'bg-slate-200 text-slate-655 dark:bg-slate-800 dark:text-slate-400'
                             }">
                                 ${rec.chargeType}
                             </span>
@@ -922,7 +932,7 @@
                     
                     <div class="grid grid-cols-2 gap-y-3 gap-x-4 pt-2 border-t-2 border-cuteMint-50/50 dark:border-slate-800/40">
                         <div>
-                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-bold">行駛里程</span>
+                            <span class="text-[10px] text-slate-400 dark:text-slate-555 block font-bold">行駛里程</span>
                             <span class="font-extrabold text-slate-700 dark:text-slate-200 text-sm font-mono">${parseFloat(rec.distance).toFixed(1)} km</span>
                         </div>
                         <div>
