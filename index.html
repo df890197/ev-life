@@ -313,7 +313,7 @@
 
                 <!-- 第三區：雲端 Apps Script 的指南 -->
                 <details class="group bg-slate-50 dark:bg-slate-950 rounded-2xl border-2 border-slate-800 dark:border-slate-800 p-3 transition-all">
-                    <summary class="text-xs font-black cursor-pointer flex items-center justify-between text-slate-700 dark:text-slate-300 select-none">
+                    <summary class="text-xs font-black cursor-pointer flex items-center justify-between text-slate-700 dark:text-slate-350 select-none">
                         <span>🛠️ 檢視 Google Apps Script 部署程式碼教學</span>
                     </summary>
                     <div class="mt-3 space-y-2">
@@ -424,7 +424,7 @@ function doPost(e) {
         <div class="flex flex-col justify-center items-center text-center gap-3 mb-6 bg-cuteMint-50/30 dark:bg-slate-900/40 p-4 rounded-3xl border-2 border-slate-800 dark:border-slate-700 shadow-[3px_3px_0px_0px_#1e293b] dark:shadow-[3px_3px_0px_0px_#02060c]">
             <div class="text-center">
                 <h1 class="text-lg font-black tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:to-cuteBlue-400 text-center">
-                    ⚡ 行車數據管理中心
+                    ⚡ 行車數據 management 中心
                 </h1>
                 <p class="text-xs text-slate-500 dark:text-slate-400 font-bold text-center">精準記錄每一段行駛與電能補給數據。</p>
             </div>
@@ -453,7 +453,7 @@ function doPost(e) {
                     <span id="statTotalKm" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100 font-mono tracking-tight">0</span>
                     <span class="text-xs font-bold text-slate-400 ml-1">km</span>
                 </div>
-                <span id="statVehicleSub" class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 mt-2 font-bold">愛車 LUXGEN n⁷ 已陪伴您行駛了長遠路程 🐾</span>
+                <span id="statVehicleSub" class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 mt-2 font-bold">愛車 LUXGEN n7 已陪伴您行駛了長遠路程 🐾</span>
             </div>
             <!-- 平均電耗 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
@@ -607,7 +607,7 @@ function doPost(e) {
                 <div class="rpg-card p-6 rounded-[2.5rem]">
                     <h2 class="text-base font-black text-slate-800 dark:text-slate-200 mb-4 flex items-center space-x-2">
                         <span class="text-cuteMint-600/80 dark:text-cuteMint-400">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2-2v14a2 2 0 002 2z"></path></svg>
                         </span>
                         <span>電耗與補給趨勢圖 📈⚡</span>
                     </h2>
@@ -829,7 +829,7 @@ function doPost(e) {
 
             if (startSocInput) startSocInput.addEventListener('input', restrictPercent);
             if (endSocInput) endSocInput.addEventListener('input', restrictPercent);
-            if (costInput) costInput.addEventListener('input', restrictCost);
+            if (costInput) font-mono; costInput.addEventListener('input', restrictCost);
         }
 
         // 當頁面載入時執行
@@ -856,11 +856,11 @@ function doPost(e) {
                 syncUrlInput.value = syncUrl;
             }
             
-            // 將舊車名 Luxgen n7 完全升級為高規格帶有上標的 "LUXGEN n⁷"
+            // 將舊車名 Luxgen n7 完全升級為高規格帶有上標的 "LUXGEN n7" -> "LUXGEN n7"
             let rawEvName = localStorage.getItem('ev_life_ev_name') || "";
-            if (!rawEvName || rawEvName.toLowerCase() === "luxgen n7" || rawEvName === "Luxgen n7") {
-                evName = "LUXGEN n⁷";
-                localStorage.setItem('ev_life_ev_name', "LUXGEN n⁷");
+            if (!rawEvName || rawEvName.toLowerCase() === "luxgen n7" || rawEvName === "Luxgen n7" || rawEvName.toLowerCase() === "luxgen n7" || rawEvName.toLowerCase() === "luxgen n7") {
+                evName = "LUXGEN n7";
+                localStorage.setItem('ev_life_ev_name', "LUXGEN n7");
             } else {
                 evName = rawEvName;
             }
@@ -1416,7 +1416,7 @@ function doPost(e) {
                 tr.querySelector('.delete-btn').addEventListener('click', () => confirmDeleteRecord(rec.id));
                 if (tableBody) tableBody.appendChild(tr);
 
-                // 2. 手機端卡片 (極致像素級置中，完美對齊綠色圖示中線)
+                // 2. 手機端卡片 (極致像素級置中，完美對齊綠色圖示與右側按鈕水平中心線)
                 let mobileSocText = "";
                 if (hasValidSoc) {
                     mobileSocText = `${startSocVal}% ➔ ${endSocVal}% <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">(${powerPercent}%)</span>`;
@@ -1441,18 +1441,18 @@ function doPost(e) {
                         </button>
                     </div>
 
-                    <!-- 頂部資訊列：採用完全扁平化的 flex items-center 排版，給予文字與標籤 -top-[2px] 以在多種手機字型基準線上均實現完美的水平置中對齊 -->
+                    <!-- 頂部資訊列：採用扁平化的 flex items-center 排版。補給標籤採用物理天然置中；日期數字相對上提 0.5px 完美校正 JetBrains Mono 基準線偏低落差 -->
                     <div class="flex items-center space-x-1.5 pb-2.5 border-b-2 border-cuteMint-50/50 dark:border-slate-800/40 pr-24 flex-nowrap min-w-0">
                         <!-- 日曆圖示 -->
                         <svg class="w-4 h-4 text-cuteMint-500 dark:text-cuteMint-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                         </svg>
-                        <!-- 日期文字 (相對上提 2px，完美抵消中英文字型基準線偏低問題) -->
-                        <span class="text-xs font-black text-slate-500 dark:text-slate-400 font-mono whitespace-nowrap flex-shrink-0 relative -top-[11.5px] leading-none">
+                        <!-- 日期文字 (微量上提 0.5px，精準平齊日曆圖示與標籤中線) -->
+                        <span class="text-xs font-black text-slate-500 dark:text-slate-400 font-mono whitespace-nowrap flex-shrink-0 relative -top-[0.5px] leading-none">
                             ${displayDate}
                         </span>
-                        <!-- 補給標籤 (相對上提 2px，完美抵消中英文字型基準線偏低問題) -->
-                        <span class="inline-flex items-center justify-center px-2 py-0.5 text-[9px] rounded-lg font-black border tracking-wide uppercase whitespace-nowrap flex-shrink-0 relative -top-[2px] leading-none ${
+                        <!-- 補給標籤 (移除多餘的 top 偏移，交由 Flexbox 自動依據容器高度完美水平置中對齊) -->
+                        <span class="inline-flex items-center justify-center px-2 py-0.5 text-[9px] rounded-lg font-black border tracking-wide uppercase whitespace-nowrap flex-shrink-0 leading-none ${
                             rec.chargeType.includes('快充') ? 'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950/30 dark:border-amber-900/40 dark:text-amber-400' : 
                             rec.chargeType.includes('慢充') ? 'bg-cuteMint-50 border-cuteMint-200 text-cuteMint-750 dark:bg-cuteMint-950/30 dark:border-cuteMint-900/40 dark:text-cuteMint-400' : 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
                         }">
