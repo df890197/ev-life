@@ -644,20 +644,21 @@ function doPost(e) {
 
                     <!-- 傳統單筆清單與響應式視圖 -->
                     <div id="flatViewContainer" class="space-y-4">
-                        <!-- 電腦端表格滾動高度限制 -->
-                        <div id="desktopTableWrapper" class="hidden md:block overflow-y-auto max-h-[480px] rounded-[1.5rem] border-2 border-slate-800 dark:border-slate-200 scrollable-log-container">
+                        <!-- 電腦端表格滾動高度限制 (關鍵修正：改為 overflow-auto 完美自適應多重對齊) -->
+                        <div id="desktopTableWrapper" class="hidden md:block overflow-auto max-h-[480px] rounded-[1.5rem] border-2 border-slate-800 dark:border-slate-200 scrollable-log-container">
                             <table class="min-w-full divide-y divide-slate-800 dark:divide-slate-200 text-xs text-left">
                                 <thead class="bg-[#fffdf9] dark:bg-slate-900 text-cuteMint-750 dark:text-cuteMint-200 font-extrabold uppercase tracking-wider border-b-2 border-slate-800 dark:border-slate-200 sticky top-0 z-20">
+                                    <!-- 關鍵修正：將補給類型、電量等寬度與對齊全部加上不換行 whitespace-nowrap 限制，並改為 text-center 置中對齊 -->
                                     <tr>
-                                        <th class="px-4 py-3.5">行駛日期</th>
-                                        <th class="px-4 py-3.5">補給類型</th>
-                                        <th class="px-4 py-3.5 text-right">里程 (km)</th>
-                                        <th class="px-4 py-3.5 text-right">起訖電量 (SOC)</th>
-                                        <th class="px-4 py-3.5 text-right text-cuteMint-600 dark:text-cuteMint-400">平均電耗</th>
-                                        <th class="px-4 py-3.5 text-right">費用 (元)</th>
+                                        <th class="px-4 py-3.5 whitespace-nowrap">行駛日期</th>
+                                        <th class="px-4 py-3.5 text-center whitespace-nowrap">補給類型</th>
+                                        <th class="px-4 py-3.5 text-center whitespace-nowrap">里程 (km)</th>
+                                        <th class="px-4 py-3.5 text-center whitespace-nowrap">起訖電量 (SOC)</th>
+                                        <th class="px-4 py-3.5 text-center whitespace-nowrap text-cuteMint-600 dark:text-cuteMint-400">平均電耗</th>
+                                        <th class="px-4 py-3.5 text-center whitespace-nowrap">費用 (元)</th>
                                         <!-- 更名：行駛備註 -->
-                                        <th class="px-4 py-3.5">行駛備註</th>
-                                        <th class="px-4 py-3.5 text-center">操作</th>
+                                        <th class="px-4 py-3.5 whitespace-nowrap">行駛備註</th>
+                                        <th class="px-4 py-3.5 text-center whitespace-nowrap">操作</th>
                                     </tr>
                                 </thead>
                                 <tbody id="recordTableBody" class="divide-y divide-cuteMint-100 dark:divide-slate-800/60 text-slate-800 dark:text-slate-100 font-bold">
@@ -1366,30 +1367,32 @@ function doPost(e) {
                 
                 let socText = "";
                 if (hasValidSoc) {
-                    socText = `${startSocVal}% ➔ ${endSocVal}% <span class="text-[10px] text-slate-400 dark:text-slate-550 font-mono">(${powerPercent}%)</span> <span class="text-[10px] font-normal text-slate-400 dark:text-slate-500 whitespace-nowrap">(${parseFloat(rec.power).toFixed(1)}度)</span>`;
+                    // 修正電腦端對齊：在這裡也加上度數，並與標頭一併置中
+                    socText = `${startSocVal}% ➔ ${endSocVal}% <span class="text-[10px] text-slate-400 dark:text-slate-550 font-mono">(${powerPercent}%)</span> <span class="text-[10px] font-normal text-slate-450 dark:text-slate-500 whitespace-nowrap">(${parseFloat(rec.power).toFixed(1)}度)</span>`;
                 } else {
-                    socText = `${powerPercent}% <span class="text-[10px] font-normal text-slate-400 dark:text-slate-500 whitespace-nowrap">(${parseFloat(rec.power).toFixed(1)}度)</span>`;
+                    socText = `${powerPercent}% <span class="text-[10px] font-normal text-slate-450 dark:text-slate-500 whitespace-nowrap">(${parseFloat(rec.power).toFixed(1)}度)</span>`;
                 }
 
                 const displayDate = rec.date && rec.date.includes('T') ? rec.date.split('T')[0] : (rec.date || '');
 
-                // 1. 電腦端表格行
+                // 1. 電腦端表格行 (補給類型 / 起訖電量 SOC / 補給費用全部精準置中)
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-cuteMint-50/20 dark:hover:bg-slate-800/40 transition border-b border-cuteMint-100 dark:border-slate-800/60";
                 tr.innerHTML = `
                     <td class="px-4 py-3.5 font-bold text-slate-855 dark:text-slate-200 whitespace-nowrap font-mono">${displayDate}</td>
-                    <td class="px-4 py-3.5">
-                        <span class="inline-block px-2.5 py-0.5 text-[10px] rounded-full font-black border tracking-wide uppercase ${
+                    <td class="px-4 py-3.5 text-center">
+                        <!-- 關鍵修正：能源補給標籤加入 whitespace-nowrap 防止換行 -->
+                        <span class="inline-block px-2.5 py-0.5 text-[10px] rounded-full font-black border tracking-wide uppercase whitespace-nowrap ${
                             rec.chargeType.includes('快充') ? 'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950/30 dark:border-amber-900/40 dark:text-amber-400' : 
                             rec.chargeType.includes('慢充') ? 'bg-cuteMint-50 border-cuteMint-200 text-cuteMint-600 dark:bg-cuteMint-950/30 dark:border-cuteMint-900/40 dark:text-cuteMint-400' : 'bg-slate-100 border-slate-200 text-slate-655 dark:bg-slate-800 dark:text-slate-400'
                         }">
                             ${rec.chargeType}
                         </span>
                     </td>
-                    <td class="px-4 py-3.5 text-right font-bold font-mono text-slate-800 dark:text-slate-100">${parseFloat(rec.distance).toFixed(1)}</td>
-                    <td class="px-4 py-3.5 text-right font-bold font-mono text-slate-800 dark:text-slate-100">${socText}</td>
-                    <td class="px-4 py-3.5 text-right text-cuteMint-500 dark:text-cuteMint-400 font-bold font-mono">${efficiency}</td>
-                    <td class="px-4 py-3.5 text-right font-bold font-mono text-slate-800 dark:text-slate-100">${rec.cost}</td>
+                    <td class="px-4 py-3.5 text-center font-bold font-mono text-slate-800 dark:text-slate-100">${parseFloat(rec.distance).toFixed(1)}</td>
+                    <td class="px-4 py-3.5 text-center font-bold font-mono text-slate-800 dark:text-slate-100">${socText}</td>
+                    <td class="px-4 py-3.5 text-center text-cuteMint-500 dark:text-cuteMint-400 font-bold font-mono">${efficiency}</td>
+                    <td class="px-4 py-3.5 text-center font-bold font-mono text-slate-800 dark:text-slate-100">${rec.cost}</td>
                     <td class="px-4 py-3.5 max-w-xs truncate text-slate-555 dark:text-slate-400 text-xs font-semibold" title="${rec.note || ''}">${rec.note || '-'}</td>
                     <td class="px-4 py-3.5 text-center whitespace-nowrap">
                         <!-- 編輯按鈕 -->
@@ -1762,7 +1765,7 @@ function doPost(e) {
                             position: 'right',
                             title: {
                                 display: true,
-                                text: '充電費用 (新台幣)',
+                                text: '補給費用 (新台幣)',
                                 color: '#0ea5e9',
                                 font: {
                                     weight: 'bold',
