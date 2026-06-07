@@ -237,10 +237,10 @@
     <nav class="bg-gradient-to-r from-[#fffdf5] to-[#fffefb] dark:from-slate-900 dark:to-slate-950 border-b-4 border-[#1e293b] text-slate-800 dark:text-slate-100 sticky top-0 z-50 transition-colors shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <!-- 標誌與 LUXGEN n7 照片容器 -->
+                <!-- 標誌與 LUXGEN n7 照片容器 (採用優雅的行內 SVG 預設圖以防加載時破圖) -->
                 <div class="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
                     <div class="relative w-14 h-9 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border-2 border-slate-800 dark:border-slate-700 bg-[#7dd3fc] dark:bg-slate-800 shadow-[2px_2px_0px_0px_#1e293b] dark:shadow-[2px_2px_0px_0px_#02060c] transition-all">
-                        <img id="navLogoImg" src="data:image/png;base64,123" alt="LUXGEN n7" class="w-full h-full object-cover scale-105 transition-all duration-300 dark:brightness-90 dark:opacity-85" onerror="handleLogoError(this)">
+                        <img id="navLogoImg" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60' fill='%230ea5e9'><rect width='100' height='60' rx='10' fill='%237dd3fc'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='bold' font-size='20' fill='%230284c7'>n⁷</text></svg>" alt="LUXGEN n7" class="w-full h-full object-cover scale-105 transition-all duration-300 dark:brightness-90 dark:opacity-85" onerror="handleLogoError(this)">
                     </div>
                     <!-- 導覽列標題 -->
                     <span id="navEvBrandName" class="font-extrabold text-base sm:text-lg tracking-wider whitespace-nowrap flex-shrink-0">
@@ -377,7 +377,7 @@ function doPost(e) {
                     </p>
                 </div>
 
-                <div id="syncTimeInfo" class="text-xs text-slate-400 dark:text-slate-555 hidden">
+                <div id="syncTimeInfo" class="text-xs text-slate-400 dark:text-slate-500 hidden">
                     上次同步時間：<span id="lastSyncTimeText" class="font-bold">無</span>
                 </div>
 
@@ -391,7 +391,7 @@ function doPost(e) {
     </div>
 
     <!-- 自訂確認對話方塊 -->
-    <div id="confirmModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+    <div id="confirmModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[110] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
         <div class="bg-[#fffdf9] dark:bg-slate-900 rounded-[2.5rem] p-6 shadow-2xl max-w-sm w-full mx-4 transform scale-95 transition-all duration-300 border-4 border-[#1e293b]" id="confirmModalContent">
             <h3 class="text-base font-black text-slate-800 dark:text-slate-100 mb-2 flex items-center space-x-2">
                 <span class="p-2 bg-cuteBlue-100 dark:bg-slate-800 rounded-2xl text-cuteBlue-500" id="confirmModalIcon">
@@ -415,7 +415,7 @@ function doPost(e) {
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         
         <!-- 自訂通知元件 (Toast) -->
-        <div id="toast" class="fixed bottom-5 right-5 z-[110] transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900/95 dark:bg-slate-800/95 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border-2 border-[#1e293b]">
+        <div id="toast" class="fixed bottom-5 right-5 z-[120] transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900/95 dark:bg-slate-800/95 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border-2 border-[#1e293b]">
             <span id="toastIcon" class="text-cuteMint-300 text-sm">🐾</span>
             <span id="toastMessage" class="text-xs font-bold"></span>
         </div>
@@ -554,10 +554,10 @@ function doPost(e) {
 
                         <!-- 里程與起始/結束電量 -->
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <!-- 本次里程 (鎖定純數字 + 行動端小數點鍵盤) -->
+                            <!-- 本次里程 (移除 pattern 以支援小數輸入，僅保留 inputmode="decimal") -->
                             <div class="sm:col-span-1">
                                 <label class="block text-xs font-black text-slate-600 dark:text-slate-400 mb-1.5">行駛里程 (km)</label>
-                                <input type="number" step="0.1" id="inputDistance" required placeholder="例如：120" inputmode="decimal" pattern="[0-9]*" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-bold font-mono">
+                                <input type="number" step="0.1" id="inputDistance" required placeholder="例如：120" inputmode="decimal" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-bold font-mono">
                             </div>
                             <!-- 起始電量 -->
                             <div>
@@ -856,9 +856,9 @@ function doPost(e) {
                 syncUrlInput.value = syncUrl;
             }
             
-            // 將舊車名 Luxgen n7 完全升級為高規格帶有上標的 "LUXGEN n7" -> "LUXGEN n7"
+            // 將舊車名 Luxgen n7 完全升級為高規格帶有上標的 "LUXGEN n7"
             let rawEvName = localStorage.getItem('ev_life_ev_name') || "";
-            if (!rawEvName || rawEvName.toLowerCase() === "luxgen n7" || rawEvName === "Luxgen n7" || rawEvName.toLowerCase() === "luxgen n7" || rawEvName.toLowerCase() === "luxgen n7") {
+            if (!rawEvName || rawEvName.toLowerCase() === "luxgen n7" || rawEvName === "Luxgen n7") {
                 evName = "LUXGEN n7";
                 localStorage.setItem('ev_life_ev_name', "LUXGEN n7");
             } else {
@@ -997,10 +997,10 @@ function doPost(e) {
             
             toastMessage.textContent = message;
             toastIcon.textContent = isError ? "⚠️🐾" : "⚡(ˊᗜˋ*)";
-            toast.className = `fixed bottom-5 right-5 z-[110] transform translate-y-0 opacity-100 transition-all duration-300 bg-slate-900/95 dark:bg-slate-800/95 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border-2 border-[#1e293b]`;
+            toast.className = `fixed bottom-5 right-5 z-[120] transform translate-y-0 opacity-100 transition-all duration-300 bg-slate-900/95 dark:bg-slate-800/95 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border-2 border-[#1e293b]`;
             
             setTimeout(() => {
-                toast.className = `fixed bottom-5 right-5 z-[110] transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900/95 dark:bg-slate-800/95 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border-2 border-[#1e293b]`;
+                toast.className = `fixed bottom-5 right-5 z-[120] transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900/95 dark:bg-slate-800/95 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border-2 border-[#1e293b]`;
             }, 3000);
         }
 
@@ -1102,7 +1102,7 @@ function doPost(e) {
             }
         }
 
-        // 雙向合併同步
+        // 雙向合併同步 (優化錯誤捕獲，防止當機)
         async function syncWithCloud(isSilent = false) {
             if (!syncUrl) {
                 if (!isSilent) showToast("請先設定您的雲端同步網址！", true);
@@ -1117,7 +1117,16 @@ function doPost(e) {
             try {
                 const getResponse = await fetch(syncUrl);
                 if (!getResponse.ok) throw new Error("取得雲端資料失敗");
-                const cloudPayload = await getResponse.json() || [];
+                
+                // 增加安全防護：防範 GAS 解析出錯或 CORS 重新導向非 JSON 內容
+                let cloudPayload = [];
+                try {
+                    const parsedJson = await getResponse.json();
+                    cloudPayload = Array.isArray(parsedJson) ? parsedJson : [];
+                } catch (e) {
+                    console.warn("解析雲端 JSON 格式失敗，採用空白陣列複寫處理", e);
+                    cloudPayload = [];
+                }
 
                 let cloudLastUpdated = 0;
                 const cloudRecords = [];
@@ -1414,7 +1423,7 @@ function doPost(e) {
                 tr.querySelector('.delete-btn').addEventListener('click', () => confirmDeleteRecord(rec.id));
                 if (tableBody) tableBody.appendChild(tr);
 
-                // 2. 手機端卡片 - 採用純 Flexbox 物理排版，日曆圖示、日期、補給標籤與右側按鈕水平完美齊平，決不遮擋
+                // 2. 手機端卡片 - 採用純 Flexbox 物理排版
                 let mobileSocText = "";
                 if (hasValidSoc) {
                     mobileSocText = `${startSocVal}% ➔ ${endSocVal}% <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">( ${powerPercent}% )</span>`;
@@ -1425,7 +1434,7 @@ function doPost(e) {
                 const card = document.createElement('div');
                 card.className = "rpg-card p-5 rounded-[2rem] space-y-3.5 mr-1.5 mb-2"; 
                 card.innerHTML = `
-                    <!-- 頂部資訊列與動作按鈕：無絕對定位，兩端對齊，絕對不會產生任何一高一低或覆蓋遮擋現象 -->
+                    <!-- 頂部資訊列與動作按鈕 -->
                     <div class="flex items-center justify-between pb-2.5 border-b-2 border-cuteMint-50/50 dark:border-slate-800/40 w-full min-w-0">
                         <!-- 左側資訊列 (日曆圖示、日期文字與補給類型標籤) -->
                         <div class="flex items-center space-x-1.5 min-w-0 flex-nowrap mr-2">
@@ -1433,11 +1442,11 @@ function doPost(e) {
                             <svg class="w-4 h-4 text-cuteMint-500 dark:text-cuteMint-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                             </svg>
-                            <!-- 日期文字 (相對上提 0.5px 完美對齊視覺重心) -->
+                            <!-- 日期文字 -->
                             <span class="text-xs font-black text-slate-500 dark:text-slate-400 font-mono whitespace-nowrap flex-shrink-0 relative -top-[0.5px] leading-none">
                                 ${displayDate}
                             </span>
-                            <!-- 補給標籤 (改用 relative -top-[0.5px] 與日期字體中線在同一緯度完美平齊) -->
+                            <!-- 補給標籤 -->
                             <span class="inline-flex items-center justify-center px-2 py-0.5 text-[9px] rounded-lg font-black border tracking-wide uppercase whitespace-nowrap flex-shrink-0 relative -top-[0.5px] leading-none ${
                                 rec.chargeType.includes('快充') ? 'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950/30 dark:border-amber-900/40 dark:text-amber-400' : 
                                 rec.chargeType.includes('慢充') ? 'bg-cuteMint-50 border-cuteMint-200 text-cuteMint-750 dark:bg-cuteMint-950/30 dark:border-cuteMint-900/40 dark:text-cuteMint-400' : 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
@@ -1446,7 +1455,7 @@ function doPost(e) {
                             </span>
                         </div>
 
-                        <!-- 右側動作按鈕：不再使用 absolute，在 Flex 流體排版下永久向右側推開 -->
+                        <!-- 右側動作按鈕 -->
                         <div class="flex items-center space-x-1.5 flex-shrink-0 ml-2">
                             <button class="edit-btn text-cuteMint-600 dark:text-cuteMint-400 bg-cuteMint-50 hover:bg-cuteMint-100 dark:bg-cuteMint-950/30 dark:hover:bg-cuteMint-950/60 p-1.5 rounded-2xl transition active:scale-95 border-2 border-cuteMint-100/60 dark:border-cuteMint-900/30 shadow-sm flex items-center justify-center" title="編輯此筆">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -1657,7 +1666,7 @@ function doPost(e) {
             const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA");
             const chartData = [...activeRecords].slice(-15);
             const labels = chartData.map(rec => rec.date && rec.date.includes('T') ? rec.date.split('T')[0].substring(5) : (rec.date || '').substring(5));
-            const efficiencies = chartData.map(rec => rec.power > 0 ? (rec.distance / rec.power).toFixed(2) : 0);
+            const efficiencies = chartData.map(rec => rec.power > 0 ? parseFloat((rec.distance / rec.power).toFixed(2)) : 0);
             const costs = chartData.map(rec => rec.cost);
 
             // 建立糖果薄荷與天空藍的漸層色線
