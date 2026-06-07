@@ -296,7 +296,7 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">愛車名稱/型號</label>
-                            <input type="text" id="evNameInput" placeholder="例如：LUXGEN n⁷" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-bold">
+                            <input type="text" id="evNameInput" placeholder="例如：LUXGEN n精度" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-bold">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">電池總可用容量 (kWh)</label>
@@ -377,7 +377,7 @@ function doPost(e) {
                     </p>
                 </div>
 
-                <div id="syncTimeInfo" class="text-xs text-slate-400 dark:text-slate-500 hidden">
+                <div id="syncTimeInfo" class="text-xs text-slate-400 dark:text-slate-555 hidden">
                     上次同步時間：<span id="lastSyncTimeText" class="font-bold">無</span>
                 </div>
 
@@ -434,7 +434,7 @@ function doPost(e) {
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                 </span>
-                <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">HUD Time:</span>
+                <span class="text-[10px] text-slate-400 dark:text-slate-555 font-bold uppercase tracking-wider">HUD Time:</span>
                 <span id="liveClockText" class="text-slate-800 dark:text-slate-200 font-black">2026-06-07 00:00:00</span>
             </div>
         </div>
@@ -444,7 +444,7 @@ function doPost(e) {
             <!-- 累積總里程 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">行駛總里程 🚗</span>
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-555 tracking-wider">行駛總里程 🚗</span>
                     <span class="p-1.5 rounded-xl bg-teal-100/40 dark:bg-teal-950/20 text-teal-600 dark:text-teal-400 border-2 border-slate-800">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
                     </span>
@@ -458,8 +458,8 @@ function doPost(e) {
             <!-- 平均電耗 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">平均電耗 ⚡</span>
-                    <span class="p-1.5 rounded-xl bg-amber-100/40 dark:bg-amber-900/20 text-amber-500 border-2 border-slate-800">
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-555 tracking-wider">平均電耗 ⚡</span>
+                    <span class="p-1.5 rounded-xl bg-amber-100/40 dark:bg-amber-955/20 text-amber-500 border-2 border-slate-800">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     </span>
                 </div>
@@ -467,13 +467,13 @@ function doPost(e) {
                     <span id="statAvgEfficiency" class="text-2xl md:text-3xl font-black text-teal-600 dark:text-teal-400 font-mono tracking-tight">0.00</span>
                     <span class="text-xs font-bold text-teal-600 dark:text-teal-400 ml-1">km/度</span>
                 </div>
-                <span id="statWhKm" class="text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-mono">相當於 0 Wh/km</span>
+                <span id="statWhKm" class="text-[10px] text-slate-400 dark:text-slate-555 mt-2 font-mono">相當於 0 Wh/km</span>
             </div>
             <!-- 累計補給花費 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">累計補給花費 👛</span>
-                    <span class="p-1.5 rounded-xl bg-cuteBlue-50 dark:bg-cuteBlue-600/20 text-cuteBlue-500 border-2 border-slate-800">
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-555 tracking-wider">累計補給花費 👛</span>
+                    <span class="p-1.5 rounded-xl bg-cuteBlue-50 dark:bg-cuteBlue-955/20 text-cuteBlue-500 border-2 border-slate-800">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path>
                         </svg>
@@ -483,12 +483,12 @@ function doPost(e) {
                     <span id="statTotalCost" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100 font-mono tracking-tight">0</span>
                     <span class="text-xs font-bold text-slate-400 ml-1">元</span>
                 </div>
-                <span id="statTotalPower" class="text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-mono">累計充入 0 度電</span>
+                <span id="statTotalPower" class="text-[10px] text-slate-400 dark:text-slate-555 mt-2 font-mono">累計充入 0 度電</span>
             </div>
             <!-- 每公里電費 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">每公里電費 🍩</span>
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-555 tracking-wider">每公里電費 🍩</span>
                     <span class="p-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/20 text-indigo-400 border-2 border-slate-800">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="12" cy="12" r="10"></circle>
@@ -500,7 +500,7 @@ function doPost(e) {
                     <span id="statCostPerKm" class="text-2xl md:text-3xl font-black text-cuteMint-600 dark:text-cuteMint-400 font-mono tracking-tight">0.00</span>
                     <span class="text-xs font-bold text-cuteMint-600 dark:text-cuteMint-400 ml-1">元/km</span>
                 </div>
-                <span class="text-[10px] text-slate-400 dark:text-slate-500 mt-2">荷包精打細算中 🐾</span>
+                <span class="text-[10px] text-slate-400 dark:text-slate-555 mt-2">荷包精打細算中 🐾</span>
             </div>
         </div>
 
@@ -681,7 +681,7 @@ function doPost(e) {
         let records = [];
         let efficiencyChartInstance = null;
         let syncUrl = "";
-        let evName = "LUXGEN n⁷"; // 預設愛車名稱
+        let evName = "LUXGEN n7"; // 預設愛車名稱
         let batteryCapacity = 57.7; // 預設車輛電池總容量 (kWh)
         let activeConfirmCallback = null; // 自訂確認彈出視窗的回呼
         let editingRecordId = null; // 全域編輯狀態 ID
@@ -1283,7 +1283,7 @@ function doPost(e) {
             // 動態更新導覽列的愛車客製化 Title
             const brandSpan = document.getElementById('navEvBrandName');
             if (brandSpan) {
-                brandSpan.innerHTML = `<span class="bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 via-teal-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:via-cuteMint-400 dark:to-cuteBlue-300 font-extrabold">${evName}</span><span class="text-slate-500 dark:text-slate-400 text-xs font-medium ml-1 hidden sm:inline">の 純電之旅</span>`;
+                brandSpan.innerHTML = `<span class="bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 via-teal-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:via-cuteMint-400 dark:to-cuteBlue-300 font-extrabold">${evName}</span><span class="text-slate-500 dark:text-slate-400 text-xs font-medium ml-1 hidden sm:inline"> de 純電之旅</span>`;
             }
             
             const statVehicleSub = document.getElementById('statVehicleSub');
@@ -1470,12 +1470,12 @@ function doPost(e) {
                             <span class="font-extrabold text-cuteMint-600 dark:text-cuteMint-400 text-sm font-mono whitespace-nowrap block">${efficiency} km/度</span>
                         </div>
                         <div>
-                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-bold">起訖電量</span>
+                            <span class="text-[10px] text-slate-400 dark:text-slate-555 block font-bold">起訖電量</span>
                             <span class="font-bold text-slate-700 dark:text-slate-200 text-xs font-mono whitespace-nowrap block">${mobileSocText}</span>
-                            <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 font-mono whitespace-nowrap block">(${parseFloat(rec.power).toFixed(1)} 度)</span>
+                            <span class="text-[10px] font-bold text-slate-400 dark:text-slate-555 font-mono whitespace-nowrap block">(${parseFloat(rec.power).toFixed(1)} 度)</span>
                         </div>
                         <div>
-                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-bold">本次費用</span>
+                            <span class="text-[10px] text-slate-400 dark:text-slate-555 block font-bold">本次費用</span>
                             <span class="font-bold text-slate-700 dark:text-slate-200 text-xs font-mono whitespace-nowrap block">${rec.cost} 元</span>
                         </div>
                     </div>
