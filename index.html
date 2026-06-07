@@ -1430,7 +1430,7 @@ function doPost(e) {
                 const card = document.createElement('div');
                 card.className = "rpg-card p-5 rounded-[2rem] space-y-3.5 relative mr-1.5 mb-2"; 
                 card.innerHTML = `
-                    <!-- 頂部右側動作按鈕：使用絕對定位 top-[14px]，與 header 列的垂直中線完美對合 -->
+                    <!-- 頂部右側動作按鈕：使用絕對定位，與 header 列的垂直中線完美對合 -->
                     <div class="absolute top-[14px] right-4 flex items-center space-x-1.5 z-20">
                         <button class="edit-btn text-cuteMint-600 dark:text-cuteMint-400 bg-cuteMint-50 hover:bg-cuteMint-100 dark:bg-cuteMint-950/30 dark:hover:bg-cuteMint-950/60 p-1.5 rounded-2xl transition active:scale-95 border-2 border-cuteMint-100/60 dark:border-cuteMint-900/30 shadow-sm" title="編輯此筆">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -1444,17 +1444,17 @@ function doPost(e) {
                         </button>
                     </div>
 
-                    <!-- 頂部資訊列：日期字樣、圖示、以及充電標籤全部設定 h-5 與 flex 垂直置中，保證在同一水平中線上 -->
+                    <!-- 頂部資訊列：日期字樣、圖示、以及充電標籤全部設定 h-5 與 flex 垂直置中，加入 relative 精準校正字型偏下 Bug -->
                     <div class="flex items-center space-x-1.5 pb-2.5 border-b-2 border-cuteMint-50/50 dark:border-slate-800/40 pr-24 flex-nowrap min-w-0">
-                        <span class="text-xs font-black text-slate-500 dark:text-slate-400 flex items-center h-5 font-mono whitespace-nowrap flex-shrink-0">
+                        <span class="text-xs font-black text-slate-500 dark:text-slate-400 flex items-center h-5 font-mono whitespace-nowrap flex-shrink-0 leading-none">
                             <svg class="w-4 h-4 mr-1 text-cuteMint-300 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            ${displayDate}
+                            <span class="relative -top-[0.5px] leading-none">${displayDate}</span>
                         </span>
-                        <span class="inline-flex items-center justify-center px-2.5 h-5 text-[9px] rounded-lg font-black border tracking-wide uppercase whitespace-nowrap flex-shrink-0 ${
+                        <span class="inline-flex items-center justify-center px-2.5 h-5 text-[9px] rounded-lg font-black border tracking-wide uppercase whitespace-nowrap flex-shrink-0 leading-none ${
                             rec.chargeType.includes('快充') ? 'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950/30 dark:border-amber-900/40 dark:text-amber-400' : 
                             rec.chargeType.includes('慢充') ? 'bg-cuteMint-50 border-cuteMint-200 text-cuteMint-750 dark:bg-cuteMint-950/30 dark:border-cuteMint-900/40 dark:text-cuteMint-400' : 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
                         }">
-                            ${rec.chargeType}
+                            <span class="relative -top-[1px] leading-none">${rec.chargeType}</span>
                         </span>
                     </div>
                     
