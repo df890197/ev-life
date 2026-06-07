@@ -233,12 +233,12 @@
 </head>
 <body class="bg-[#fcfaf2] dark:bg-[#090d16] text-slate-800 dark:text-slate-100 min-h-screen transition-all duration-300 antialiased selection:bg-cuteMint-200/50 font-bold relative">
 
-    <!-- 頂部精緻導覽列 - 手機版優化置中排版 -->
+    <!-- 頂部精緻導覽列 - 撐滿左右兩側空間優化 -->
     <nav class="bg-gradient-to-r from-[#fffdf5] to-[#fffefb] dark:from-slate-900 dark:to-slate-950 border-b-4 border-[#1e293b] text-slate-800 dark:text-slate-100 sticky top-0 z-50 transition-colors shadow-md">
-        <!-- px-2 代表在極端小螢幕下多出 16px 的空間 -->
-        <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
-            <!-- justify-center 讓手機版直接水平置中，桌面端 sm:justify-between 維持兩端對齊 -->
-            <div class="flex items-center justify-center sm:justify-between h-16 gap-x-1.5 sm:gap-x-0">
+        <!-- px-3 提供極窄螢幕下最舒適的安全邊框 -->
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+            <!-- justify-between 讓 Logo 靠最左、按鈕靠最右，完美消除兩側多餘留白 -->
+            <div class="flex items-center justify-between h-16 gap-x-2">
                 <!-- 標誌與 LUXGEN n⁷ 照片容器 -->
                 <div class="flex items-center space-x-1.5 sm:space-x-3 flex-shrink-0">
                     <!-- 輕量微縮 w-11 h-7 讓窄螢幕手機更友善 -->
