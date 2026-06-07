@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EV Life - 🐾 LUXGEN n Pont 行駛日誌</title>
+    <title>EV Life - 🐾 LUXGEN n⁷ 行駛日誌</title>
     <!-- 引入 Tailwind CSS 用於現代化 UI 設計 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入 Chart.js 用於能耗趨勢圖表 -->
@@ -233,41 +233,42 @@
 </head>
 <body class="bg-[#fcfaf2] dark:bg-[#090d16] text-slate-800 dark:text-slate-100 min-h-screen transition-all duration-300 antialiased selection:bg-cuteMint-200/50 font-bold relative">
 
-    <!-- 🐾 STREAMING_CHUNK: Styling layout nav bar and layout alignments... -->
+    <!-- 🐾 STREAMING_CHUNK: Formatting navigation brand container... -->
     <!-- 頂部精緻導覽列 -->
     <nav class="bg-gradient-to-r from-[#fffdf5] to-[#fffefb] dark:from-slate-900 dark:to-slate-950 border-b-4 border-[#1e293b] text-slate-800 dark:text-slate-100 sticky top-0 z-50 transition-colors shadow-md">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16 gap-2">
-                <!-- 標誌與 LUXGEN n7 照片容器 -->
-                <div class="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-shrink">
-                    <div class="relative w-14 h-9 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border-2 border-slate-800 dark:border-slate-700 bg-[#7dd3fc] dark:bg-slate-800 shadow-[2px_2px_0px_0px_#1e293b] dark:shadow-[2px_2px_0px_0px_#02060c] transition-all">
+        <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 gap-1 sm:gap-2">
+                <!-- 標誌與 LUXGEN n7 照片容器 (flex-shrink-0 確保絕對不被吃掉) -->
+                <div class="flex items-center space-x-1.5 sm:space-x-3 flex-shrink-0">
+                    <div class="relative w-12 h-8 sm:w-14 sm:h-9 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border-2 border-slate-800 dark:border-slate-700 bg-[#7dd3fc] dark:bg-slate-800 shadow-[2px_2px_0px_0px_#1e293b] dark:shadow-[2px_2px_0px_0px_#02060c] transition-all">
                         <img id="navLogoImg" src="data:image/png;base64,123" alt="LUXGEN n7" class="w-full h-full object-cover scale-105 transition-all duration-300 dark:brightness-90 dark:opacity-85" onerror="handleLogoError(this)">
                     </div>
-                    <!-- 導覽列標題 -->
-                    <span id="navEvBrandName" class="font-extrabold text-sm sm:text-base md:text-lg tracking-wider whitespace-nowrap truncate">
-                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 via-teal-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:via-cuteMint-400 dark:to-cuteBlue-300 font-extrabold">LUXGEN n7</span>
+                    <!-- 導覽列標題 (flex-shrink-0 確保寬度完好) -->
+                    <span id="navEvBrandName" class="font-extrabold text-sm sm:text-base md:text-lg tracking-wider whitespace-nowrap flex-shrink-0">
+                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 via-teal-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:via-cuteMint-400 dark:to-cuteBlue-300 font-extrabold">LUXGEN n⁷</span>
                         <span class="text-slate-500 dark:text-slate-400 text-xs font-medium ml-1 hidden sm:inline">の 純電之旅</span>
                     </span>
                 </div>
                 
+                <!-- 右側按鈕整合列 (微調間距，釋放最大水平空間) -->
                 <div class="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
                     <!-- 深淺色模式切換 -->
                     <button onclick="toggleTheme()" class="rpg-btn-secondary p-1.5 rounded-xl flex items-center justify-center flex-shrink-0" title="切換深/淺色主題">
                         <svg id="themeSunIcon" class="w-4 h-4 text-amber-500 hidden" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.46 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path></svg>
                         <svg id="themeMoonIcon" class="w-4 h-4 text-indigo-500 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
                     </button>
-                    <!-- 立即同步按鈕 (使用 whitespace-nowrap 限制與 flex-shrink-0 保護，防止任何換行行為) -->
-                    <button id="navSyncBtn" onclick="syncWithCloud()" class="rpg-btn-primary text-xs px-2.5 py-1.5 sm:px-3.5 sm:py-1.5 rounded-xl font-bold flex items-center space-x-1 sm:space-x-1.5 flex-shrink-0 whitespace-nowrap hidden">
+                    <!-- 立即同步按鈕 (whitespace-nowrap flex-shrink-0 限制，絕不換行) -->
+                    <button id="navSyncBtn" onclick="syncWithCloud()" class="rpg-btn-primary text-xs px-2 sm:px-3.5 py-1.5 rounded-xl font-bold flex items-center space-x-1 sm:space-x-1.5 flex-shrink-0 whitespace-nowrap hidden">
                         <svg id="navSyncIcon" class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M20 4v5h-5M4 20v-5h5M4 12A8 8 0 0 1 18 6.13L20 9M20 12a8 8 0 0 1-14 5.87L4 15"></path>
                         </svg>
                         <span class="whitespace-nowrap inline-block">同步</span>
                     </button>
-                    <!-- 雲端與車輛設定 -->
+                    <!-- 雲端與車輛設定 (行動端精簡為 "設定"，更節省 16px 寬度空間) -->
                     <button onclick="toggleSyncModal()" class="rpg-btn-secondary text-xs px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-xl flex items-center space-x-1 whitespace-nowrap flex-shrink-0">
                         <span id="syncStatusDot" class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse mr-0.5 sm:mr-1"></span>
                         <span class="hidden sm:inline">系統與雲端設定</span>
-                        <span class="inline sm:hidden">設定 🐾</span>
+                        <span class="inline sm:hidden">設定</span>
                     </button>
                     <!-- CSV 匯出 -->
                     <button onclick="exportCSV()" class="rpg-btn-secondary text-xs px-3.5 py-1.5 rounded-xl hidden md:flex items-center flex-shrink-0">
@@ -279,6 +280,7 @@
         </div>
     </nav>
 
+    <!-- 🐾 STREAMING_CHUNK: Configuring system configurations and modals... -->
     <!-- 系統設定 & 雲端同步 模態視窗 -->
     <div id="syncModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
         <div class="bg-[#fffdf9] dark:bg-slate-900 rounded-[2rem] p-6 shadow-2xl max-w-lg w-full mx-4 transform scale-95 transition-all duration-300 border-4 border-[#1e293b]" id="syncModalContent">
@@ -297,7 +299,7 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">愛車名稱/型號</label>
-                            <input type="text" id="evNameInput" placeholder="例如：LUXGEN n⁷" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-bold">
+                            <input type="text" id="evNameInput" placeholder="例如：LUXGEN n7" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-bold">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">電池總可用容量 (kWh)</label>
@@ -378,7 +380,7 @@ function doPost(e) {
                     </p>
                 </div>
 
-                <div id="syncTimeInfo" class="text-xs text-slate-400 dark:text-slate-555 hidden">
+                <div id="syncTimeInfo" class="text-xs text-slate-400 dark:text-slate-500 hidden">
                     上次同步時間：<span id="lastSyncTimeText" class="font-bold">無</span>
                 </div>
 
@@ -412,7 +414,7 @@ function doPost(e) {
         </div>
     </div>
 
-    <!-- 🐾 STREAMING_CHUNK: Formatting grid tables and mobile flex layouts... -->
+    <!-- 🐾 STREAMING_CHUNK: Rendering main interactive dashboard layouts... -->
     <!-- 主內容區 -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         
@@ -436,7 +438,7 @@ function doPost(e) {
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                 </span>
-                <span class="text-[10px] text-slate-400 dark:text-slate-555 font-bold uppercase tracking-wider">HUD Time:</span>
+                <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">HUD Time:</span>
                 <span id="liveClockText" class="text-slate-800 dark:text-slate-200 font-black">2026-06-07 00:00:00</span>
             </div>
         </div>
@@ -446,7 +448,7 @@ function doPost(e) {
             <!-- 累積總里程 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-555 tracking-wider">行駛總里程 🚗</span>
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">行駛總里程 🚗</span>
                     <span class="p-1.5 rounded-xl bg-teal-100/40 dark:bg-teal-950/20 text-teal-600 dark:text-teal-400 border-2 border-slate-800">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
                     </span>
@@ -455,12 +457,12 @@ function doPost(e) {
                     <span id="statTotalKm" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100 font-mono tracking-tight">0</span>
                     <span class="text-xs font-bold text-slate-400 ml-1">km</span>
                 </div>
-                <span id="statVehicleSub" class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 mt-2 font-bold">愛車 LUXGEN n7 已陪伴您行駛了長遠路程 🐾</span>
+                <span id="statVehicleSub" class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 mt-2 font-bold">愛車 LUXGEN n⁷ 已陪伴您行駛了長遠路程 🐾</span>
             </div>
             <!-- 平均電耗 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-555 tracking-wider">平均電耗 ⚡</span>
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">平均電耗 ⚡</span>
                     <span class="p-1.5 rounded-xl bg-amber-100/40 dark:bg-amber-900/20 text-amber-500 border-2 border-slate-800">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     </span>
@@ -469,12 +471,12 @@ function doPost(e) {
                     <span id="statAvgEfficiency" class="text-2xl md:text-3xl font-black text-teal-600 dark:text-teal-400 font-mono tracking-tight">0.00</span>
                     <span class="text-xs font-bold text-teal-600 dark:text-teal-400 ml-1">km/度</span>
                 </div>
-                <span id="statWhKm" class="text-[10px] text-slate-400 dark:text-slate-555 mt-2 font-mono">相當於 0 Wh/km</span>
+                <span id="statWhKm" class="text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-mono">相當於 0 Wh/km</span>
             </div>
             <!-- 累計補給花費 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-555 tracking-wider">累計補給花費 👛</span>
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">累計補給花費 👛</span>
                     <span class="p-1.5 rounded-xl bg-cuteBlue-50 dark:bg-cuteBlue-600/20 text-cuteBlue-500 border-2 border-slate-800">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path>
@@ -485,12 +487,12 @@ function doPost(e) {
                     <span id="statTotalCost" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100 font-mono tracking-tight">0</span>
                     <span class="text-xs font-bold text-slate-400 ml-1">元</span>
                 </div>
-                <span id="statTotalPower" class="text-[10px] text-slate-400 dark:text-slate-555 mt-2 font-mono">累計充入 0 度電</span>
+                <span id="statTotalPower" class="text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-mono">累計充入 0 度電</span>
             </div>
             <!-- 每公里電費 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-555 tracking-wider">每公里電費 🍩</span>
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">每公里電費 🍩</span>
                     <span class="p-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/20 text-indigo-400 border-2 border-slate-800">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="12" cy="12" r="10"></circle>
@@ -502,7 +504,7 @@ function doPost(e) {
                     <span id="statCostPerKm" class="text-2xl md:text-3xl font-black text-cuteMint-600 dark:text-cuteMint-400 font-mono tracking-tight">0.00</span>
                     <span class="text-xs font-bold text-cuteMint-600 dark:text-cuteMint-400 ml-1">元/km</span>
                 </div>
-                <span class="text-[10px] text-slate-400 dark:text-slate-555 mt-2">荷包精打細算中 🐾</span>
+                <span class="text-[10px] text-slate-400 dark:text-slate-500 mt-2">荷包精打細算中 🐾</span>
             </div>
         </div>
 
@@ -663,7 +665,7 @@ function doPost(e) {
                     </div>
 
                     <!-- 無資料時的提示 -->
-                    <div id="noDataPlaceholder" class="hidden p-12 text-center text-slate-400 dark:text-slate-555">
+                    <div id="noDataPlaceholder" class="hidden p-12 text-center text-slate-400 dark:text-slate-500">
                         <svg class="w-12 h-12 mx-auto mb-3 text-cuteMint-200 dark:text-slate-700 animate-bounce" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                         <p class="text-xs font-black text-cuteMint-500">空空如也 🐾 快來左邊寫下第一筆吧！</p>
                     </div>
@@ -674,7 +676,7 @@ function doPost(e) {
     </main>
 
     <!-- 頁尾 -->
-    <footer class="bg-white dark:bg-slate-950 text-slate-400 dark:text-slate-555 text-center py-10 mt-16 border-t-4 border-slate-800 dark:border-slate-200 transition-colors relative z-10">
+    <footer class="bg-white dark:bg-slate-950 text-slate-400 dark:text-slate-500 text-center py-10 mt-16 border-t-4 border-slate-800 dark:border-slate-200 transition-colors relative z-10">
         <p class="text-xs font-bold">EV Life 電動車試算與電耗記錄工具 © 2026. 您的資料將 safe 地儲存在本地裝置瀏覽器中。</p>
     </footer>
 
@@ -683,7 +685,7 @@ function doPost(e) {
         let records = [];
         let efficiencyChartInstance = null;
         let syncUrl = "";
-        let evName = "LUXGEN n⁷"; // 預設愛車名稱
+        let evName = "LUXGEN n7"; // 預設愛車名稱
         let batteryCapacity = 57.7; // 預設車輛電池總容量 (kWh)
         let activeConfirmCallback = null; // 自訂確認彈出視窗的回呼
         let editingRecordId = null; // 全域編輯狀態 ID
@@ -858,7 +860,7 @@ function doPost(e) {
                 syncUrlInput.value = syncUrl;
             }
             
-            // 將舊車名 Luxgen n7 完全升級為高規格帶有上標的 "LUXGEN n⁷"
+            // 將舊車名 Luxgen n7 完全升級為高規格帶有上標的 "LUXGEN n7" -> "LUXGEN n⁷"
             let rawEvName = localStorage.getItem('ev_life_ev_name') || "";
             if (!rawEvName || rawEvName.toLowerCase() === "luxgen n7" || rawEvName === "Luxgen n7") {
                 evName = "LUXGEN n⁷";
@@ -1189,7 +1191,7 @@ function doPost(e) {
             }
         }
 
-        // 解碼輔助函式：從備註中提取隱藏的起訖電量 SOC
+        // 解碼輔助函式：從備註中提取隱藏 of 起訖電量 SOC
         function parseRecordSoc(rec) {
             if (rec.startSoc !== undefined && rec.endSoc !== undefined) {
                 return rec;
@@ -1280,12 +1282,13 @@ function doPost(e) {
             handleChargeTypeChange(); 
         }
 
+        // 🐾 STREAMING_CHUNK: Formatting dashboard render scripts with precision centering alignments...
         // 計算並渲染儀表板與單筆日誌列表
         function renderDashboard() {
-            // 動態更新導覽列的愛車客製化 Title
+            // 動態更新導覽列的愛車客製化 Title (百分之百不 truncated 擠壓)
             const brandSpan = document.getElementById('navEvBrandName');
             if (brandSpan) {
-                brandSpan.innerHTML = `<span class="bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 via-teal-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:via-cuteMint-400 dark:to-cuteBlue-300 font-extrabold">${evName}</span><span class="text-slate-500 dark:text-slate-400 text-xs font-medium ml-1 hidden sm:inline">の 純電之旅</span>`;
+                brandSpan.innerHTML = `<span class="bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 via-teal-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:via-cuteMint-400 dark:to-cuteBlue-300 font-extrabold flex-shrink-0">${evName}</span><span class="text-slate-500 dark:text-slate-400 text-xs font-medium ml-1 hidden sm:inline">の 純電之旅</span>`;
             }
             
             const statVehicleSub = document.getElementById('statVehicleSub');
@@ -1331,8 +1334,7 @@ function doPost(e) {
             let totalPower = 0;
             let totalCost = 0;
 
-            // 核心演算法改良：為了避免「0km純充電記錄（例如回家只插槍或去快充補電但該列未記里程）」拉低整體旅程的「平均電耗（km/度）」，
-            // 計算電耗分母時，只累加「有行駛里程（> 0）」的充電紀錄，或是「純消耗（未充電）」的紀錄。
+            // 核心演算法改良：為了避免「0km純充電記錄」拉低整體旅程的「平均電耗（km/度）」
             let totalKmForEfficiency = 0;
             let totalPowerForEfficiency = 0;
 
@@ -1352,7 +1354,6 @@ function doPost(e) {
                     totalKmForEfficiency += distVal;
                     totalPowerForEfficiency += powerVal;
                 } else if (distVal > 0) {
-                    // 若充電紀錄中包含大於 0 的行駛距離，我們在此視作「回補該次行駛所消耗的能量」計入能耗公式
                     totalKmForEfficiency += distVal;
                     totalPowerForEfficiency += powerVal;
                 }
@@ -1418,7 +1419,7 @@ function doPost(e) {
                 tr.querySelector('.delete-btn').addEventListener('click', () => confirmDeleteRecord(rec.id));
                 if (tableBody) tableBody.appendChild(tr);
 
-                // 2. 手機端卡片
+                // 2. 手機端卡片 (極致像素級對齊，完美水平置中與按鈕高度對齊)
                 let mobileSocText = "";
                 if (hasValidSoc) {
                     mobileSocText = `${startSocVal}% ➔ ${endSocVal}% <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">(${powerPercent}%)</span>`;
@@ -1429,8 +1430,8 @@ function doPost(e) {
                 const card = document.createElement('div');
                 card.className = "rpg-card p-5 rounded-[2rem] space-y-3.5 relative mr-1.5 mb-2"; 
                 card.innerHTML = `
-                    <!-- 頂部右側動作按鈕：使用絕對定位，並稍微縮小按鈕內襯(p-1.5)以節省手機版空間 -->
-                    <div class="absolute top-4 right-4 flex items-center space-x-1.5 z-20">
+                    <!-- 頂部右側動作按鈕：使用絕對定位 top-[14px]，與 header 列的垂直中線完美對合 -->
+                    <div class="absolute top-[14px] right-4 flex items-center space-x-1.5 z-20">
                         <button class="edit-btn text-cuteMint-600 dark:text-cuteMint-400 bg-cuteMint-50 hover:bg-cuteMint-100 dark:bg-cuteMint-950/30 dark:hover:bg-cuteMint-950/60 p-1.5 rounded-2xl transition active:scale-95 border-2 border-cuteMint-100/60 dark:border-cuteMint-900/30 shadow-sm" title="編輯此筆">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"></path>
@@ -1443,15 +1444,15 @@ function doPost(e) {
                         </button>
                     </div>
 
-                    <!-- 頂部資訊列：將安全右邊距 pr-20 擴大至 pr-[104px]，徹底與右側動作按鈕劃清界限，絕對不遮擋任何充電標籤 -->
-                    <div class="flex items-center space-x-1.5 pb-2.5 border-b-2 border-cuteMint-50/50 dark:border-slate-800/40 pr-[104px] flex-nowrap min-w-0">
-                        <span class="text-xs font-black text-slate-500 dark:text-slate-400 flex items-center font-mono whitespace-nowrap flex-shrink-0">
+                    <!-- 頂部資訊列：日期字樣、圖示、以及充電標籤全部設定 h-5 與 flex 垂直置中，保證在同一水平中線上 -->
+                    <div class="flex items-center space-x-1.5 pb-2.5 border-b-2 border-cuteMint-50/50 dark:border-slate-800/40 pr-24 flex-nowrap min-w-0">
+                        <span class="text-xs font-black text-slate-500 dark:text-slate-400 flex items-center h-5 font-mono whitespace-nowrap flex-shrink-0">
                             <svg class="w-4 h-4 mr-1 text-cuteMint-300 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                             ${displayDate}
                         </span>
-                        <span class="inline-block px-2 py-0.5 text-[9px] rounded-lg font-black border tracking-wide uppercase whitespace-nowrap flex-shrink-0 ${
+                        <span class="inline-flex items-center justify-center px-2.5 h-5 text-[9px] rounded-lg font-black border tracking-wide uppercase whitespace-nowrap flex-shrink-0 ${
                             rec.chargeType.includes('快充') ? 'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950/30 dark:border-amber-900/40 dark:text-amber-400' : 
-                            rec.chargeType.includes('慢充') ? 'bg-cuteMint-50 border-cuteMint-200 text-cuteMint-600 dark:bg-cuteMint-950/30 dark:border-cuteMint-900/40 dark:text-cuteMint-400' : 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                            rec.chargeType.includes('慢充') ? 'bg-cuteMint-50 border-cuteMint-200 text-cuteMint-750 dark:bg-cuteMint-950/30 dark:border-cuteMint-900/40 dark:text-cuteMint-400' : 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
                         }">
                             ${rec.chargeType}
                         </span>
@@ -1528,9 +1529,7 @@ function doPost(e) {
             const cost = parseInt(document.getElementById('inputCost').value) || 0;
             const note = document.getElementById('inputNote').value.trim();
 
-            // 防呆與自適應驗證規則修正：
-            // 如果是純行駛記錄 (未充電)，里程 distance 必須 > 0。
-            // 如果是快充/慢充，里程 distance 可以等於 0 (代表純粹進站補電，沒開車)。
+            // 防呆與自適應驗證規則修正
             const isDistanceValid = (chargeType === "未充電") ? (distance > 0) : (distance >= 0);
 
             if (!date || isNaN(distance) || isNaN(startSoc) || isNaN(endSoc) || !isDistanceValid || startSoc < 0 || endSoc < 0) {
