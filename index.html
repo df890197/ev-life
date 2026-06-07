@@ -709,7 +709,7 @@ function doPost(e) {
                 document.execCommand('copy');
                 showToast("GAS 程式碼已成功複製到剪貼簿！📋");
             } catch (err) {
-                showToast("複製失敗，請手動複製！ ꪔ̤̥", true);
+                showToast("複製失敗，請手動複製！ (•🏼•)", true);
             }
         }
 
@@ -1043,7 +1043,7 @@ function doPost(e) {
             if (syncUrlInput) {
                 const urlInput = syncUrlInput.value.trim();
                 if (urlInput && !urlInput.startsWith('https://script.google.com/')) {
-                    showToast("這看起來不像是正確 Google Apps Script 網址 ꪔ̤̥", true);
+                    showToast("這看起來不像是正確 Google Apps Script 網址 (•🏼•)", true);
                     return;
                 }
                 syncUrl = urlInput;
@@ -1191,7 +1191,7 @@ function doPost(e) {
                 updateSyncUiStatus();
             } catch (error) {
                 console.error(error);
-                if (!isSilent) showToast("同步失敗，請檢查網址或網路 ꪔ̤̥", true);
+                if (!isSilent) showToast("同步失敗，請檢查網址或網路 (•🏼•)", true);
             } finally {
                 if (syncIcon) syncIcon.classList.remove('animate-spin');
             }
@@ -1551,7 +1551,7 @@ function doPost(e) {
             const isDistanceValid = (chargeType === "未充電") ? (distance > 0) : (distance >= 0);
 
             if (!date || isNaN(distance) || isNaN(startSoc) || isNaN(endSoc) || !isDistanceValid || startSoc < 0 || endSoc < 0) {
-                showToast("請輸入有效的里程與能耗數值 ꪔ̤̥", true);
+                showToast("請輸入有效的里程與能耗數值 (•🏼•)", true);
                 return;
             }
 
@@ -1624,7 +1624,7 @@ function doPost(e) {
             
             showConfirmModal(
                 "確認刪除此筆紀錄？", 
-                `您即將抹除： 日期「${target.date && target.date.includes('T') ? target.date.split('T')[0] : target.date}」的紀錄。刪除後也會同步清空雲端對應內容喔 ꪔ̤̥`, 
+                `您即將抹除： 日期「${target.date && target.date.includes('T') ? target.date.split('T')[0] : target.date}」的紀錄。刪除後也會同步清空雲端對應內容喔 (•🏼•)`, 
                 function() {
                     const updated = records.filter(rec => rec.id !== id);
                     saveLocalState(updated);
@@ -1646,7 +1646,7 @@ function doPost(e) {
                 function() {
                     saveLocalState([]);
                     renderDashboard();
-                    showToast("歷史紀錄已成功清空 ꪔ̤̥", true);
+                    showToast("歷史紀錄已成功清空 (•🏼•)", true);
                     
                     if (syncUrl) {
                         syncWithCloud();
