@@ -1368,7 +1368,7 @@ function doPost(e) {
                 let socText = "";
                 if (hasValidSoc) {
                     // 修正電腦端對齊：在這裡也加上度數，並與標頭一併置中
-                    socText = `${startSocVal}% ➔ ${endSocVal}% <span class="text-[10px] text-slate-400 dark:text-slate-550 font-mono">(${powerPercent}%)</span> <span class="text-[10px] font-normal text-slate-450 dark:text-slate-500 whitespace-nowrap">(${parseFloat(rec.power).toFixed(1)}度)</span>`;
+                    socText = `${startSocVal}% ➔ ${endSocVal}% <span class="text-[10px] text-slate-400 dark:text-slate-555 font-mono">(${powerPercent}%)</span> <span class="text-[10px] font-normal text-slate-450 dark:text-slate-500 whitespace-nowrap">(${parseFloat(rec.power).toFixed(1)}度)</span>`;
                 } else {
                     socText = `${powerPercent}% <span class="text-[10px] font-normal text-slate-450 dark:text-slate-500 whitespace-nowrap">(${parseFloat(rec.power).toFixed(1)}度)</span>`;
                 }
@@ -1413,7 +1413,7 @@ function doPost(e) {
                 tr.querySelector('.delete-btn').addEventListener('click', () => confirmDeleteRecord(rec.id));
                 if (tableBody) tableBody.appendChild(tr);
 
-                // 2. 手機端卡片
+                // 2. 手機端卡片 (關鍵修正：加入 whitespace-nowrap 避免日期因 hyphen 斷行)
                 let mobileSocText = "";
                 if (hasValidSoc) {
                     mobileSocText = `${startSocVal}% ➔ ${endSocVal}% <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">(${powerPercent}%)</span>`;
@@ -1425,7 +1425,8 @@ function doPost(e) {
                 card.className = "rpg-card p-5 rounded-[2rem] space-y-3.5 relative mr-1.5 mb-2"; 
                 card.innerHTML = `
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-555 dark:text-slate-400 flex items-center font-mono">
+                        <!-- 關鍵修正：加入 whitespace-nowrap 徹底解決手機端幾號換行到下一行的問題 -->
+                        <span class="text-xs font-bold text-slate-555 dark:text-slate-400 flex items-center font-mono whitespace-nowrap">
                             <svg class="w-4 h-4 mr-1 text-cuteMint-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                             ${displayDate}
                         </span>
@@ -1438,7 +1439,7 @@ function doPost(e) {
                             </span>
                             <button class="edit-btn text-cuteMint-600 dark:text-cuteMint-400 bg-cuteMint-50 hover:bg-cuteMint-100 dark:bg-cuteMint-950/30 dark:hover:bg-cuteMint-950/60 p-2 rounded-2xl transition active:scale-95 border-2 border-cuteMint-100/60 dark:border-cuteMint-900/30 shadow-sm" title="編輯此筆">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25(2.25) 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"></path>
                                 </svg>
                             </button>
                             <button class="delete-btn text-rose-655 dark:text-rose-455 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 p-2 rounded-2xl transition active:scale-95 border-2 border-rose-100/60 dark:border-rose-900/30 shadow-sm" title="刪除此筆">
