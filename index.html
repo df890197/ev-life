@@ -296,7 +296,7 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">愛車名稱/型號</label>
-                            <input type="text" id="evNameInput" placeholder="例如：LUXGEN n精度" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-bold">
+                            <input type="text" id="evNameInput" placeholder="例如：LUXGEN n⁷" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-bold">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">電池總可用容量 (kWh)</label>
@@ -424,7 +424,7 @@ function doPost(e) {
         <div class="flex flex-col justify-center items-center text-center gap-3 mb-6 bg-cuteMint-50/30 dark:bg-slate-900/40 p-4 rounded-3xl border-2 border-slate-800 dark:border-slate-700 shadow-[3px_3px_0px_0px_#1e293b] dark:shadow-[3px_3px_0px_0px_#02060c]">
             <div class="text-center">
                 <h1 class="text-lg font-black tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:to-cuteBlue-400 text-center">
-                    ⚡ 行車數據 management 中心
+                    ⚡ 行車數據管理中心
                 </h1>
                 <p class="text-xs text-slate-500 dark:text-slate-400 font-bold text-center">精準記錄每一段行駛與電能補給數據。</p>
             </div>
@@ -434,7 +434,7 @@ function doPost(e) {
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                 </span>
-                <span class="text-[10px] text-slate-400 dark:text-slate-555 font-bold uppercase tracking-wider">HUD Time:</span>
+                <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">HUD Time:</span>
                 <span id="liveClockText" class="text-slate-800 dark:text-slate-200 font-black">2026-06-07 00:00:00</span>
             </div>
         </div>
@@ -444,7 +444,7 @@ function doPost(e) {
             <!-- 累積總里程 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-555 tracking-wider">行駛總里程 🚗</span>
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">行駛總里程 🚗</span>
                     <span class="p-1.5 rounded-xl bg-teal-100/40 dark:bg-teal-950/20 text-teal-600 dark:text-teal-400 border-2 border-slate-800">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
                     </span>
@@ -458,8 +458,8 @@ function doPost(e) {
             <!-- 平均電耗 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-555 tracking-wider">平均電耗 ⚡</span>
-                    <span class="p-1.5 rounded-xl bg-amber-100/40 dark:bg-amber-955/20 text-amber-500 border-2 border-slate-800">
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">平均電耗 ⚡</span>
+                    <span class="p-1.5 rounded-xl bg-amber-100/40 dark:bg-amber-900/20 text-amber-500 border-2 border-slate-800">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     </span>
                 </div>
@@ -467,13 +467,13 @@ function doPost(e) {
                     <span id="statAvgEfficiency" class="text-2xl md:text-3xl font-black text-teal-600 dark:text-teal-400 font-mono tracking-tight">0.00</span>
                     <span class="text-xs font-bold text-teal-600 dark:text-teal-400 ml-1">km/度</span>
                 </div>
-                <span id="statWhKm" class="text-[10px] text-slate-400 dark:text-slate-555 mt-2 font-mono">相當於 0 Wh/km</span>
+                <span id="statWhKm" class="text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-mono">相當於 0 Wh/km</span>
             </div>
             <!-- 累計補給花費 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-555 tracking-wider">累計補給花費 👛</span>
-                    <span class="p-1.5 rounded-xl bg-cuteBlue-50 dark:bg-cuteBlue-955/20 text-cuteBlue-500 border-2 border-slate-800">
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">累計補給花費 👛</span>
+                    <span class="p-1.5 rounded-xl bg-cuteBlue-50 dark:bg-cuteBlue-600/20 text-cuteBlue-500 border-2 border-slate-800">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path>
                         </svg>
@@ -483,12 +483,12 @@ function doPost(e) {
                     <span id="statTotalCost" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100 font-mono tracking-tight">0</span>
                     <span class="text-xs font-bold text-slate-400 ml-1">元</span>
                 </div>
-                <span id="statTotalPower" class="text-[10px] text-slate-400 dark:text-slate-555 mt-2 font-mono">累計充入 0 度電</span>
+                <span id="statTotalPower" class="text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-mono">累計充入 0 度電</span>
             </div>
             <!-- 每公里電費 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-555 tracking-wider">每公里電費 🍩</span>
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">每公里電費 🍩</span>
                     <span class="p-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/20 text-indigo-400 border-2 border-slate-800">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="12" cy="12" r="10"></circle>
@@ -500,7 +500,7 @@ function doPost(e) {
                     <span id="statCostPerKm" class="text-2xl md:text-3xl font-black text-cuteMint-600 dark:text-cuteMint-400 font-mono tracking-tight">0.00</span>
                     <span class="text-xs font-bold text-cuteMint-600 dark:text-cuteMint-400 ml-1">元/km</span>
                 </div>
-                <span class="text-[10px] text-slate-400 dark:text-slate-555 mt-2">荷包精打細算中 🐾</span>
+                <span class="text-[10px] text-slate-400 dark:text-slate-500 mt-2">荷包精打細算中 🐾</span>
             </div>
         </div>
 
@@ -625,7 +625,7 @@ function doPost(e) {
                             </span>
                             <span>我的行駛日誌</span>
                         </h2>
-                        <button onclick="clearAllData()" class="text-rose-600 hover:text-rose-500 dark:text-rose-455 dark:hover:text-rose-350 text-xs font-black transition-all self-start sm:self-center flex items-center space-x-1.5 p-2 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/20 border border-transparent hover:border-rose-100/30 dark:hover:border-rose-900/30">
+                        <button onclick="clearAllData()" class="text-rose-600 hover:text-rose-500 dark:text-rose-400 dark:hover:text-rose-350 text-xs font-black transition-all self-start sm:self-center flex items-center space-x-1.5 p-2 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/20 border border-transparent hover:border-rose-100/30 dark:hover:border-rose-900/30">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                             <span>清除全部日誌</span>
                         </button>
@@ -1280,7 +1280,7 @@ function doPost(e) {
 
         // 計算並渲染儀表板與單筆日誌列表
         function renderDashboard() {
-            // 動態更新導覽列的愛車客製化 Title
+            // 確保愛車名稱有更新
             const brandSpan = document.getElementById('navEvBrandName');
             if (brandSpan) {
                 brandSpan.innerHTML = `<span class="bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 via-teal-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:via-cuteMint-400 dark:to-cuteBlue-300 font-extrabold">${evName}</span><span class="text-slate-500 dark:text-slate-400 text-xs font-medium ml-1 hidden sm:inline"> de 純電之旅</span>`;
@@ -1329,7 +1329,6 @@ function doPost(e) {
             let totalPower = 0;
             let totalCost = 0;
 
-            // 核心演算法改良：為了避免「0km純充電記錄」拉低整體旅程的「平均電耗（km/度）」，
             // 計算電耗分母時，只累加「有行駛里程（> 0）」的充電紀錄，或是「純消耗（未充電）」的紀錄。
             let totalKmForEfficiency = 0;
             let totalPowerForEfficiency = 0;
@@ -1350,7 +1349,6 @@ function doPost(e) {
                     totalKmForEfficiency += distVal;
                     totalPowerForEfficiency += powerVal;
                 } else if (distVal > 0) {
-                    // 若充電紀錄中包含大於 0 的行駛距離，我們在此視作「回補該次行駛所消耗的能量」計入能耗公式
                     totalKmForEfficiency += distVal;
                     totalPowerForEfficiency += powerVal;
                 }
@@ -1374,9 +1372,9 @@ function doPost(e) {
                 
                 let socText = "";
                 if (hasValidSoc) {
-                    socText = `${startSocVal}%➔${endSocVal}% <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">(${powerPercent}%)</span> <span class="text-[10px] font-normal text-slate-400 dark:text-slate-500 whitespace-nowrap">(${parseFloat(rec.power).toFixed(1)}度)</span>`;
+                    socText = `${startSocVal}%➔${endSocVal}% <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">( ${powerPercent}% )</span> <span class="text-[10px] font-normal text-slate-400 dark:text-slate-500 whitespace-nowrap">( ${parseFloat(rec.power).toFixed(1)} 度 )</span>`;
                 } else {
-                    socText = `${powerPercent}% <span class="text-[10px] font-normal text-slate-400 dark:text-slate-500 whitespace-nowrap">(${parseFloat(rec.power).toFixed(1)}度)</span>`;
+                    socText = `${powerPercent}% <span class="text-[10px] font-normal text-slate-400 dark:text-slate-500 whitespace-nowrap">( ${parseFloat(rec.power).toFixed(1)} 度 )</span>`;
                 }
 
                 const displayDate = rec.date && rec.date.includes('T') ? rec.date.split('T')[0] : (rec.date || '');
@@ -1416,10 +1414,10 @@ function doPost(e) {
                 tr.querySelector('.delete-btn').addEventListener('click', () => confirmDeleteRecord(rec.id));
                 if (tableBody) tableBody.appendChild(tr);
 
-                // 2. 手機端卡片 (幾何中線完美對齊，拋棄 absolute，採用 100% 同行 Flex 佈局)
+                // 2. 手機端卡片 - 採用純 Flexbox 物理排版，日曆圖示、日期、補給標籤與右側按鈕水平完美齊平，決不遮擋
                 let mobileSocText = "";
                 if (hasValidSoc) {
-                    mobileSocText = `${startSocVal}% ➔ ${endSocVal}% <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">(${powerPercent}%)</span>`;
+                    mobileSocText = `${startSocVal}% ➔ ${endSocVal}% <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">( ${powerPercent}% )</span>`;
                 } else {
                     mobileSocText = `${powerPercent}%`;
                 }
@@ -1427,19 +1425,19 @@ function doPost(e) {
                 const card = document.createElement('div');
                 card.className = "rpg-card p-5 rounded-[2rem] space-y-3.5 mr-1.5 mb-2"; 
                 card.innerHTML = `
-                    <!-- 頂部資訊列與動作按鈕：採用單一列 flex items-center justify-between 排版，保證百分之百對齊 -->
+                    <!-- 頂部資訊列與動作按鈕：無絕對定位，兩端對齊，絕對不會產生任何一高一低或覆蓋遮擋現象 -->
                     <div class="flex items-center justify-between pb-2.5 border-b-2 border-cuteMint-50/50 dark:border-slate-800/40 w-full min-w-0">
-                        <!-- 左側資訊列 -->
-                        <div class="flex items-center space-x-1.5 min-w-0 flex-nowrap">
+                        <!-- 左側資訊列 (日曆圖示、日期文字與補給類型標籤) -->
+                        <div class="flex items-center space-x-1.5 min-w-0 flex-nowrap mr-2">
                             <!-- 日曆圖示 -->
                             <svg class="w-4 h-4 text-cuteMint-500 dark:text-cuteMint-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                             </svg>
-                            <!-- 日期文字 (微調字型基準線 0.5px，平齊圖示與標籤中線) -->
+                            <!-- 日期文字 (相對上提 0.5px 完美對齊視覺重心) -->
                             <span class="text-xs font-black text-slate-500 dark:text-slate-400 font-mono whitespace-nowrap flex-shrink-0 relative -top-[0.5px] leading-none">
                                 ${displayDate}
                             </span>
-                            <!-- 補給標籤 (由 Flex 統一置中對齊) -->
+                            <!-- 補給標籤 (改用 relative -top-[0.5px] 與日期字體中線在同一緯度完美平齊) -->
                             <span class="inline-flex items-center justify-center px-2 py-0.5 text-[9px] rounded-lg font-black border tracking-wide uppercase whitespace-nowrap flex-shrink-0 relative -top-[0.5px] leading-none ${
                                 rec.chargeType.includes('快充') ? 'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950/30 dark:border-amber-900/40 dark:text-amber-400' : 
                                 rec.chargeType.includes('慢充') ? 'bg-cuteMint-50 border-cuteMint-200 text-cuteMint-750 dark:bg-cuteMint-950/30 dark:border-cuteMint-900/40 dark:text-cuteMint-400' : 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
@@ -1448,14 +1446,14 @@ function doPost(e) {
                             </span>
                         </div>
 
-                        <!-- 右側動作按鈕：不再使用絕對定位，直接在同行 flex 中靠右對齊 -->
-                        <div class="flex items-center space-x-1.5 flex-shrink-0">
-                            <button class="edit-btn text-cuteMint-600 dark:text-cuteMint-400 bg-cuteMint-50 hover:bg-cuteMint-100 dark:bg-cuteMint-950/30 dark:hover:bg-cuteMint-950/60 p-1.5 rounded-2xl transition active:scale-95 border-2 border-cuteMint-100/60 dark:border-cuteMint-900/30 shadow-sm" title="編輯此筆">
+                        <!-- 右側動作按鈕：不再使用 absolute，在 Flex 流體排版下永久向右側推開 -->
+                        <div class="flex items-center space-x-1.5 flex-shrink-0 ml-2">
+                            <button class="edit-btn text-cuteMint-600 dark:text-cuteMint-400 bg-cuteMint-50 hover:bg-cuteMint-100 dark:bg-cuteMint-950/30 dark:hover:bg-cuteMint-950/60 p-1.5 rounded-2xl transition active:scale-95 border-2 border-cuteMint-100/60 dark:border-cuteMint-900/30 shadow-sm flex items-center justify-center" title="編輯此筆">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                 </svg>
                             </button>
-                            <button class="delete-btn text-rose-500 dark:text-rose-400 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 p-1.5 rounded-2xl transition active:scale-95 border-2 border-rose-100/60 dark:border-rose-900/30 shadow-sm" title="刪除此筆">
+                            <button class="delete-btn text-rose-500 dark:text-rose-400 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 p-1.5 rounded-2xl transition active:scale-95 border-2 border-rose-100/60 dark:border-rose-900/30 shadow-sm flex items-center justify-center" title="刪除此筆">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                 </svg>
@@ -1473,12 +1471,12 @@ function doPost(e) {
                             <span class="font-extrabold text-cuteMint-600 dark:text-cuteMint-400 text-sm font-mono whitespace-nowrap block">${efficiency} km/度</span>
                         </div>
                         <div>
-                            <span class="text-[10px] text-slate-400 dark:text-slate-555 block font-bold">起訖電量</span>
+                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-bold">起訖電量</span>
                             <span class="font-bold text-slate-700 dark:text-slate-200 text-xs font-mono whitespace-nowrap block">${mobileSocText}</span>
-                            <span class="text-[10px] font-bold text-slate-400 dark:text-slate-555 font-mono whitespace-nowrap block">(${parseFloat(rec.power).toFixed(1)} 度)</span>
+                            <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 font-mono whitespace-nowrap block">( ${parseFloat(rec.power).toFixed(1)} 度 )</span>
                         </div>
                         <div>
-                            <span class="text-[10px] text-slate-400 dark:text-slate-555 block font-bold">本次費用</span>
+                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-bold">本次費用</span>
                             <span class="font-bold text-slate-700 dark:text-slate-200 text-xs font-mono whitespace-nowrap block">${rec.cost} 元</span>
                         </div>
                     </div>
