@@ -437,12 +437,12 @@ function doPost(e) {
             </div>
         </div>
 
-        <!-- 頂部冒險裝備看板 (Quest Stats) -->
+        <!-- 頂部冒險裝備看板 (Quest Stats - 說詞優化為純 EV 電能術語) -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <!-- 累積總里程 -->
+            <!-- 冒險總里程 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-555 tracking-wider">總里程 🚗</span>
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-555 tracking-wider">冒險總里程 🚗</span>
                     <span class="p-1.5 rounded-xl bg-teal-100/40 dark:bg-teal-950/20 text-teal-600 dark:text-teal-400 border-2 border-slate-800">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
                     </span>
@@ -453,10 +453,10 @@ function doPost(e) {
                 </div>
                 <span id="statVehicleSub" class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 mt-2 font-bold">愛車 n7 冒險好遠了呢！🐾</span>
             </div>
-            <!-- 平均能耗 -->
+            <!-- 平均電耗 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-555 tracking-wider">平均能耗 ⚡</span>
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-555 tracking-wider">平均電耗 ⚡</span>
                     <span class="p-1.5 rounded-xl bg-amber-100/40 dark:bg-amber-955/20 text-amber-500 border-2 border-slate-800">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     </span>
@@ -467,10 +467,10 @@ function doPost(e) {
                 </div>
                 <span id="statWhKm" class="text-[10px] text-slate-400 dark:text-slate-555 mt-2 font-mono">相當於 0 Wh/km</span>
             </div>
-            <!-- 總充電花費 -->
+            <!-- 累計補給花費 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-555 tracking-wider">總費用 👛</span>
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-555 tracking-wider">累計補給花費 👛</span>
                     <span class="p-1.5 rounded-xl bg-cuteBlue-50 dark:bg-cuteBlue-955/20 text-cuteBlue-500 border-2 border-slate-800">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path>
@@ -483,10 +483,10 @@ function doPost(e) {
                 </div>
                 <span id="statTotalPower" class="text-[10px] text-slate-400 dark:text-slate-555 mt-2 font-mono">累計充入 0 度電</span>
             </div>
-            <!-- 每公里成本 -->
+            <!-- 每公里電費 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-555 tracking-wider">行駛成本 🍩</span>
+                    <span class="text-xs font-bold text-slate-400 dark:text-slate-555 tracking-wider">每公里電費 🍩</span>
                     <span class="p-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/20 text-indigo-400 border-2 border-slate-800">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="12" cy="12" r="10"></circle>
@@ -513,7 +513,7 @@ function doPost(e) {
                             <span class="text-cuteMint-600 dark:text-cuteMint-400">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                             </span>
-                            <!-- 關鍵修正 3：將原本的「登入這趟里程」更換為「記錄本次探險」 -->
+                            <!-- 說詞優化：記錄本次探險 -->
                             <span id="formTitle">記錄本次探險 🐾</span>
                         </h2>
                         <span class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 font-black">QUEST LOG</span>
@@ -524,7 +524,7 @@ function doPost(e) {
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <!-- 記錄日期 -->
                             <div>
-                                <label class="block text-xs font-black text-slate-600 dark:text-slate-400 mb-1.5">行駛/充電日期</label>
+                                <label class="block text-xs font-black text-slate-600 dark:text-slate-400 mb-1.5">出發/補給日期</label>
                                 <div class="relative">
                                     <input type="date" id="inputDate" required class="w-full px-4 py-2.5 pr-10 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 relative z-10 font-bold transition-all">
                                     <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-800 dark:text-slate-200 z-20">
@@ -534,14 +534,14 @@ function doPost(e) {
                                     </div>
                                 </div>
                             </div>
-                            <!-- 充電方式 -->
+                            <!-- 能源補給方式 -->
                             <div>
-                                <label class="block text-xs font-black text-slate-600 dark:text-slate-400 mb-1.5">充電類型</label>
+                                <label class="block text-xs font-black text-slate-600 dark:text-slate-400 mb-1.5">能源補給類型</label>
                                 <div class="relative">
                                     <select id="inputChargeType" class="w-full pl-4 pr-10 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-bold cursor-pointer appearance-none -webkit-appearance-none">
-                                        <option value="DC-快充" selected>⚡ 原廠/第三方 DC 快充</option>
-                                        <option value="AC-慢充">🔌 家用/公共 AC 慢充</option>
-                                        <option value="未充電">🐾 純里程記錄(未充電)</option>
+                                        <option value="DC-快充" selected>⚡ 快速補給 (DC 快充)</option>
+                                        <option value="AC-慢充">🔌 慢速補給 (AC 慢充)</option>
+                                        <option value="未充電">🐾 純行駛記錄 (無補給)</option>
                                     </select>
                                     <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-800 dark:text-slate-200 z-20">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -554,40 +554,41 @@ function doPost(e) {
 
                         <!-- 里程與起始/結束電量 -->
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <!-- 本次里程 (關鍵修正：鎖定純數字 + 調用行動端小數點鍵盤) -->
+                            <!-- 本次里程 (鎖定純數字 + 行動端小數點鍵盤) -->
                             <div class="sm:col-span-1">
-                                <label class="block text-xs font-black text-slate-600 dark:text-slate-400 mb-1.5">里程 (km)</label>
+                                <label class="block text-xs font-black text-slate-600 dark:text-slate-400 mb-1.5">行駛里程 (km)</label>
                                 <input type="number" step="0.1" id="inputDistance" required placeholder="例如：120" inputmode="decimal" pattern="[0-9]*" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-bold font-mono">
                             </div>
-                            <!-- 起始電量 (關鍵修正：鎖定純數字 + 調用行動端整數鍵盤) -->
+                            <!-- 起始電量 (鎖定純數字 + 行動端整數鍵盤) -->
                             <div>
-                                <label id="startSocLabel" class="block text-xs font-black text-slate-600 dark:text-slate-400 mb-1.5">充電前 SOC</label>
+                                <label id="startSocLabel" class="block text-xs font-black text-slate-600 dark:text-slate-400 mb-1.5">出發前 SOC (%)</label>
                                 <input type="number" step="1" min="0" max="100" id="inputStartSoc" required placeholder="20" inputmode="numeric" pattern="[0-9]*" oninput="updateConvertedPowerHint()" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-bold font-mono">
                             </div>
-                            <!-- 結束電量 (關鍵修正：鎖定純數字 + 調用行動端整數鍵盤) -->
+                            <!-- 結束電量 (鎖定純數字 + 行動端整數鍵盤) -->
                             <div>
-                                <label id="endSocLabel" class="block text-xs font-black text-slate-600 dark:text-slate-400 mb-1.5">充電後 SOC</label>
+                                <label id="endSocLabel" class="block text-xs font-black text-slate-600 dark:text-slate-400 mb-1.5">抵達後 SOC (%)</label>
                                 <input type="number" step="1" min="0" max="100" id="inputEndSoc" required placeholder="80" inputmode="numeric" pattern="[0-9]*" oninput="updateConvertedPowerHint()" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-mono font-bold">
                             </div>
                         </div>
 
-                        <!-- 實時提示 -->
+                        <!-- 實時提示 (電耗補給語意優化) -->
                         <div class="text-right">
-                            <span id="powerHintText" class="text-[10px] text-cuteMint-750 dark:text-cuteMint-200 font-extrabold bg-cuteMint-100/50 dark:bg-slate-800 p-2.5 rounded-2xl inline-block border-2 border-slate-800 dark:border-slate-350">共充入 0% 電量 (約等同於 0.00 度電)</span>
+                            <span id="powerHintText" class="text-[10px] text-cuteMint-750 dark:text-cuteMint-200 font-extrabold bg-cuteMint-100/50 dark:bg-slate-800 p-2.5 rounded-2xl inline-block border-2 border-slate-800 dark:border-slate-350">共消耗 0% 電量 (約等同於 0.00 度電)</span>
+                        </div>
+
+                        <!-- 充電費用 (關鍵升級：鎖定純數字 + 行動端整數鍵盤) -->
+                        <div>
+                            <label class="block text-xs font-black text-slate-600 dark:text-slate-400 mb-1.5">本次補給費用 (元) - 若無填 0</label>
+                            <input type="number" step="1" id="inputCost" required placeholder="花費多少充電費？" inputmode="numeric" pattern="[0-9]*" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-bold font-mono">
                         </div>
 
                         <div>
-                            <label class="block text-xs font-black text-slate-600 dark:text-slate-400 mb-1.5">本次充電費用 (元) - 若無填 0</label>
-                            <input type="number" step="1" id="inputCost" required placeholder="花費多少充電費？" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-bold font-mono">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-black text-slate-600 dark:text-slate-400 mb-1.5">行駛備註 / 旅途趣事 (選填)</label>
+                            <label class="block text-xs font-black text-slate-600 dark:text-slate-400 mb-1.5">探險備忘 / 旅途趣事 (選填)</label>
                             <input type="text" id="inputNote" placeholder="例如：帶貓咪去散步 🐱🐾" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-bold">
                         </div>
 
                         <div class="flex flex-col sm:flex-row gap-3 pt-2">
-                            <!-- Q彈實體按鈕 (更名為「記錄這趟探險」) -->
+                            <!-- Q彈實體按鈕 (說詞更換為「記錄這趟探險」) -->
                             <button type="submit" class="flex-1 rpg-btn-primary text-sm font-extrabold py-3.5 rounded-2xl flex justify-center items-center space-x-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
                                 <span id="submitBtnText">記錄這趟探險 ⚡</span>
@@ -603,13 +604,13 @@ function doPost(e) {
             <!-- 右側：圖表與歷史資料列表 -->
             <div class="lg:col-span-7 space-y-8">
                 
-                <!-- 能耗與花費圖表 -->
+                <!-- 能耗與花費圖表 (電耗與補給趨勢) -->
                 <div class="rpg-card p-6 rounded-[2.5rem]">
                     <h2 class="text-base font-black text-slate-800 dark:text-slate-200 mb-4 flex items-center space-x-2">
                         <span class="text-cuteMint-600/80 dark:text-cuteMint-400">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                         </span>
-                        <span>能耗與花費趨勢圖 📈⚡</span>
+                        <span>電耗與補給趨勢圖 📈⚡</span>
                     </h2>
                     <div class="h-64 relative">
                         <canvas id="efficiencyChart"></canvas>
@@ -639,12 +640,12 @@ function doPost(e) {
                                 <thead class="bg-[#fffdf9] dark:bg-slate-900 text-cuteMint-750 dark:text-cuteMint-200 font-extrabold uppercase tracking-wider border-b-2 border-slate-800 dark:border-slate-200 sticky top-0 z-20">
                                     <tr>
                                         <th class="px-4 py-3.5">行駛日期</th>
-                                        <th class="px-4 py-3.5">充電類型</th>
+                                        <th class="px-4 py-3.5">補給類型</th>
                                         <th class="px-4 py-3.5 text-right">里程 (km)</th>
-                                        <th class="px-4 py-3.5 text-right">起訖電量 (比例)</th>
-                                        <th class="px-4 py-3.5 text-right text-cuteMint-600 dark:text-cuteMint-400">平均能耗</th>
+                                        <th class="px-4 py-3.5 text-right">起訖電量 (SOC)</th>
+                                        <th class="px-4 py-3.5 text-right text-cuteMint-600 dark:text-cuteMint-400">平均電耗</th>
                                         <th class="px-4 py-3.5 text-right">費用 (元)</th>
-                                        <th class="px-4 py-3.5">日誌備註</th>
+                                        <th class="px-4 py-3.5">探險備忘</th>
                                         <th class="px-4 py-3.5 text-center">操作</th>
                                     </tr>
                                 </thead>
@@ -673,7 +674,7 @@ function doPost(e) {
 
     <!-- 頁尾 -->
     <footer class="bg-white dark:bg-slate-950 text-slate-400 dark:text-slate-555 text-center py-10 mt-16 border-t-4 border-slate-800 dark:border-slate-200 transition-colors relative z-10">
-        <p class="text-xs font-bold">EV Life 電動車試算與能耗記錄工具 © 2026. 您的資料將 safe 地儲存在本地裝置瀏覽器中。</p>
+        <p class="text-xs font-bold">EV Life 電動車試算與電耗記錄工具 © 2026. 您的資料將 safe 地儲存在本地裝置瀏覽器中。</p>
     </footer>
 
     <!-- JavaScript 邏輯控制 -->
@@ -778,7 +779,7 @@ function doPost(e) {
             updateConvertedPowerHint();
         }
 
-        // 關鍵修正 2：鍵盤限制與強制數值處理腳本
+        // 關鍵修正 2：鍵盤限制與強制數值處理腳本 (已整合補給費用輸入鎖定純整數鍵盤)
         function setupNumericRestrictions() {
             const distanceInput = document.getElementById('inputDistance');
             const startSocInput = document.getElementById('inputStartSoc');
@@ -821,8 +822,17 @@ function doPost(e) {
                 updateConvertedPowerHint();
             };
 
+            const restrictCost = function() {
+                this.value = this.value.replace(/[^0-9]/g, ''); // 僅能整數
+                let val = parseInt(this.value);
+                if (!isNaN(val)) {
+                    if (val < 0) this.value = '0';
+                }
+            };
+
             if (startSocInput) startSocInput.addEventListener('input', restrictPercent);
             if (endSocInput) endSocInput.addEventListener('input', restrictPercent);
+            if (costInput) costInput.addEventListener('input', restrictCost);
         }
 
         // 當頁面載入時執行
@@ -970,7 +980,7 @@ function doPost(e) {
             
             // 計算電量差值
             let deltaSoc = Math.abs(endSoc - startSoc);
-            let actionText = (chargeType === "未充電") ? "消耗" : "充入";
+            let actionText = (chargeType === "未充電") ? "消耗" : "補給";
 
             const calculatedKwh = batteryCapacity * (deltaSoc / 100);
             hintText.textContent = `共${actionText} ${deltaSoc.toFixed(0)}% 電量 (約等同於 ${calculatedKwh.toFixed(2)} 度電)`;
@@ -1170,7 +1180,7 @@ function doPost(e) {
                 updateSyncUiStatus();
             } catch (error) {
                 console.error(error);
-                if (!isSilent) showToast("同步失敗，請確認網址或網路 ꪔ̤̥", true);
+                if (!isSilent) showToast("同步失敗，請檢查網址或網路 ꪔ̤̥", true);
             } finally {
                 if (syncIcon) syncIcon.classList.remove('animate-spin');
             }
@@ -1352,7 +1362,7 @@ function doPost(e) {
 
                 const displayDate = rec.date && rec.date.includes('T') ? rec.date.split('T')[0] : (rec.date || '');
 
-                // 1. 電腦端表格行
+                // 1. 電腦端表格行 (補給類型 / 起訖電量 SOC / 補給費用)
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-cuteMint-50/20 dark:hover:bg-slate-800/40 transition border-b border-cuteMint-100 dark:border-slate-800/60";
                 tr.innerHTML = `
@@ -1431,7 +1441,7 @@ function doPost(e) {
                             <span class="font-extrabold text-slate-700 dark:text-slate-200 text-sm font-mono">${parseFloat(rec.distance).toFixed(1)} km</span>
                         </div>
                         <div>
-                            <span class="text-[10px] text-slate-400 dark:text-slate-555 block font-bold">能耗表現</span>
+                            <span class="text-[10px] text-slate-400 dark:text-slate-555 block font-bold">電耗表現</span>
                             <span class="font-extrabold text-cuteMint-600 dark:text-cuteMint-400 text-sm font-mono">${efficiency} km/度</span>
                         </div>
                         <div>
@@ -1635,7 +1645,7 @@ function doPost(e) {
                     labels: labels,
                     datasets: [
                         {
-                            label: '平均能耗 (km/度)',
+                            label: '平均電耗 (km/度)',
                             data: efficiencies,
                             borderColor: '#14b8a6', /* 溫慢薄荷綠 */
                             backgroundColor: lineGradient,
@@ -1648,7 +1658,7 @@ function doPost(e) {
                             fill: true
                         },
                         {
-                            label: '充電費用 (元)',
+                            label: '補給費用 (元)',
                             type: 'bar',
                             data: costs,
                             backgroundColor: isDarkMode ? 'rgba(14, 165, 233, 0.45)' : 'rgba(14, 165, 233, 0.25)',
@@ -1718,7 +1728,7 @@ function doPost(e) {
                             position: 'left',
                             title: {
                                 display: true,
-                                text: '能耗表現 (公里/度)',
+                                text: '電耗表現 (公里/度)',
                                 color: '#14b8a6',
                                 font: {
                                     weight: 'bold',
@@ -1741,7 +1751,7 @@ function doPost(e) {
                             position: 'right',
                             title: {
                                 display: true,
-                                text: '充電費用 (新台幣)',
+                                text: '補給費用 (新台幣)',
                                 color: '#0ea5e9',
                                 font: {
                                     weight: 'bold',
@@ -1773,7 +1783,7 @@ function doPost(e) {
             }
 
             let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-            csvContent += "日期,充電方式,行駛里程(km),消耗電量(kWh),起始電量(%),結束電量(%),充電費用(元),備註\n";
+            csvContent += "日期,補給類型,行駛里程(km),電量消耗(kWh),起始電量(%),結束電量(%),補給費用(元),備註\n";
 
             activeRecords.forEach(rec => {
                 const displayDate = rec.date && rec.date.includes('T') ? rec.date.split('T')[0] : (rec.date || '');
