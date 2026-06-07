@@ -296,7 +296,7 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">愛車名稱/型號</label>
-                            <input type="text" id="evNameInput" placeholder="例如：LUXGEN n⁷" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-bold">
+                            <input type="text" id="evNameInput" placeholder="例如：LUXGEN n7" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-bold">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">電池總可用容量 (kWh)</label>
@@ -672,7 +672,7 @@ function doPost(e) {
     </main>
 
     <!-- 頁尾 -->
-    <footer class="bg-white dark:bg-slate-950 text-slate-400 dark:text-slate-500 text-center py-10 mt-16 border-t-4 border-slate-800 dark:border-slate-200 transition-colors relative z-10">
+    <footer class="bg-white dark:bg-slate-950 text-slate-400 dark:text-slate-555 text-center py-10 mt-16 border-t-4 border-slate-800 dark:border-slate-200 transition-colors relative z-10">
         <p class="text-xs font-bold">EV Life 電動車試算與電耗記錄工具 © 2026. 您的資料將 safe 地儲存在本地裝置瀏覽器中。</p>
     </footer>
 
@@ -1423,7 +1423,7 @@ function doPost(e) {
                 tr.querySelector('.delete-btn').addEventListener('click', () => confirmDeleteRecord(rec.id));
                 if (tableBody) tableBody.appendChild(tr);
 
-                // 2. 手機端卡片 - 採用純 Flexbox 物理排版
+                // 2. 手機端卡片 - 採用純 Flexbox 物理排版，並做深度的自適應防遮擋優化
                 let mobileSocText = "";
                 if (hasValidSoc) {
                     mobileSocText = `${startSocVal}% ➔ ${endSocVal}% <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">( ${powerPercent}% )</span>`;
@@ -1432,22 +1432,23 @@ function doPost(e) {
                 }
 
                 const card = document.createElement('div');
-                card.className = "rpg-card p-5 rounded-[2rem] space-y-3.5 mr-1.5 mb-2"; 
+                // 修改手機版卡片內縮距，從原本的 p-5 調整為 px-3.5 py-4 以釋放更多寶貴的橫向空間，防範按鈕與標籤重疊
+                card.className = "rpg-card px-3.5 py-4 sm:p-5 rounded-[2rem] space-y-3.5 mr-1 mb-2"; 
                 card.innerHTML = `
-                    <!-- 頂部資訊列與動作按鈕 -->
-                    <div class="flex items-center justify-between pb-2.5 border-b-2 border-cuteMint-50/50 dark:border-slate-800/40 w-full min-w-0">
+                    <!-- 頂部資訊列與動作按鈕：使用 gap-1.5 進行物理防撞分隔，兩端極限拉開，絕對不會產生任何一高一低或覆蓋遮擋現象 -->
+                    <div class="flex items-center justify-between pb-2.5 border-b-2 border-cuteMint-50/50 dark:border-slate-800/40 w-full min-w-0 gap-1.5">
                         <!-- 左側資訊列 (日曆圖示、日期文字與補給類型標籤) -->
-                        <div class="flex items-center space-x-1.5 min-w-0 flex-nowrap mr-2">
+                        <div class="flex items-center space-x-1 sm:space-x-1.5 min-w-0 flex-nowrap">
                             <!-- 日曆圖示 -->
-                            <svg class="w-4 h-4 text-cuteMint-500 dark:text-cuteMint-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cuteMint-500 dark:text-cuteMint-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                             </svg>
-                            <!-- 日期文字 -->
-                            <span class="text-xs font-black text-slate-500 dark:text-slate-400 font-mono whitespace-nowrap flex-shrink-0 relative -top-[0.5px] leading-none">
+                            <!-- 日期文字 (微調手機端字體大小以釋放寶貴空間) -->
+                            <span class="text-[11px] sm:text-xs font-black text-slate-500 dark:text-slate-400 font-mono whitespace-nowrap flex-shrink-0 relative -top-[0.5px] leading-none">
                                 ${displayDate}
                             </span>
-                            <!-- 補給標籤 -->
-                            <span class="inline-flex items-center justify-center px-2 py-0.5 text-[9px] rounded-lg font-black border tracking-wide uppercase whitespace-nowrap flex-shrink-0 relative -top-[0.5px] leading-none ${
+                            <!-- 補給標籤 (調整相對位置與字體大小，確保視覺效果完美流暢) -->
+                            <span class="inline-flex items-center justify-center px-1.5 sm:px-2 py-0.5 text-[9px] rounded-lg font-black border tracking-wide uppercase whitespace-nowrap flex-shrink-0 relative -top-[0.5px] leading-none ${
                                 rec.chargeType.includes('快充') ? 'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950/30 dark:border-amber-900/40 dark:text-amber-400' : 
                                 rec.chargeType.includes('慢充') ? 'bg-cuteMint-50 border-cuteMint-200 text-cuteMint-750 dark:bg-cuteMint-950/30 dark:border-cuteMint-900/40 dark:text-cuteMint-400' : 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
                             }">
@@ -1455,15 +1456,15 @@ function doPost(e) {
                             </span>
                         </div>
 
-                        <!-- 右側動作按鈕 -->
-                        <div class="flex items-center space-x-1.5 flex-shrink-0 ml-2">
-                            <button class="edit-btn text-cuteMint-600 dark:text-cuteMint-400 bg-cuteMint-50 hover:bg-cuteMint-100 dark:bg-cuteMint-950/30 dark:hover:bg-cuteMint-950/60 p-1.5 rounded-2xl transition active:scale-95 border-2 border-cuteMint-100/60 dark:border-cuteMint-900/30 shadow-sm flex items-center justify-center" title="編輯此筆">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <!-- 右側動作按鈕：不再使用絕對定位，在手機端使用 tighter 點擊區設計以絕不發生任何重疊 -->
+                        <div class="flex items-center space-x-1 sm:space-x-1.5 flex-shrink-0">
+                            <button class="edit-btn text-cuteMint-600 dark:text-cuteMint-400 bg-cuteMint-50 hover:bg-cuteMint-100 dark:bg-cuteMint-950/30 dark:hover:bg-cuteMint-950/60 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl transition active:scale-95 border-2 border-cuteMint-100/60 dark:border-cuteMint-900/30 shadow-sm flex items-center justify-center" title="編輯此筆">
+                                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                 </svg>
                             </button>
-                            <button class="delete-btn text-rose-500 dark:text-rose-400 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 p-1.5 rounded-2xl transition active:scale-95 border-2 border-rose-100/60 dark:border-rose-900/30 shadow-sm flex items-center justify-center" title="刪除此筆">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <button class="delete-btn text-rose-500 dark:text-rose-400 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl transition active:scale-95 border-2 border-rose-100/60 dark:border-rose-900/30 shadow-sm flex items-center justify-center" title="刪除此筆">
+                                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                 </svg>
                             </button>
