@@ -23,7 +23,7 @@
                             400: '#2dd4bf', 
                             500: '#14b8a6',
                             600: '#0d9488',
-                            700: '#115e59', // 修正為符合標準的 700 鍵值
+                            700: '#115e59', 
                         },
                         cuteBlue: {
                             50: '#f0f9ff',
@@ -386,9 +386,9 @@ function doPost(e) {
                 </details>
 
                 <div class="bg-cuteMint-50/50 dark:bg-cuteMint-950/10 rounded-2xl p-3 border-2 border-[#1e293b]">
-                    <span class="text-[10px] text-cuteMint-600 dark:text-cuteMint-300 font-extrabold block mb-1">🍭 雙向合併技術</span>
+                    <span class="text-[10px] text-cuteMint-600 dark:text-cuteMint-300 font-extrabold block mb-1">🍭 雙向設定同步技術</span>
                     <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                        系統採用智慧毫秒時間戳記（LWW 機制）。同步時會融合裝置與雲端的最新異動，並支援安全的單筆刪除與完整清空。
+                        系統已全面升級！現在不只同步行駛日誌，連你的「愛車名稱、電池容量、初始里程」等車輛參數也會隨日誌一同傳遞。
                     </p>
                 </div>
 
@@ -1032,6 +1032,8 @@ function doPost(e) {
                 if (evNameInput) evNameInput.value = evName;
                 const batteryCapacityInput = document.getElementById('batteryCapacityInput');
                 if (batteryCapacityInput) batteryCapacityInput.value = batteryCapacity;
+                const initialOdometerInput = document.getElementById('initialOdometerInput');
+                if (initialOdometerInput) initialOdometerInput.value = initialOdometer;
 
                 modal.classList.remove('hidden');
                 setTimeout(() => {
@@ -1094,6 +1096,9 @@ function doPost(e) {
                     return;
                 }
             }
+            
+            // 強制將「本機最後更新時間戳記」推進到當下，使同步程式判定本機有最新異動，進而將初始里程等設定推送上雲
+            localStorage.setItem('ev_life_last_updated', Date.now().toString());
             
             updateSyncUiStatus();
             toggleSyncModal();
@@ -1158,10 +1163,18 @@ function doPost(e) {
 
                 let cloudLastUpdated = 0;
                 const cloudRecords = [];
+                let cloudConfigParsed = null;
 
                 cloudPayload.forEach(item => {
                     if (item && item.id === "SYSTEM_METADATA") {
                         cloudLastUpdated = parseInt(item.note) || 0;
+                    } else if (item && item.id === "CONFIG_METADATA") {
+                        // 擷取雲端的愛車設定參數封包
+                        try {
+                            cloudConfigParsed = JSON.parse(item.note);
+                        } catch(err) {
+                            console.warn("解析雲端設定參數失敗", err);
+                        }
                     } else if (item) {
                         cloudRecords.push(parseRecordSoc(item));
                     }
@@ -1170,6 +1183,7 @@ function doPost(e) {
                 let localLastUpdated = parseInt(localStorage.getItem('ev_life_last_updated')) || 0;
 
                 if (localLastUpdated > cloudLastUpdated) {
+                    // 【本機較新】將日誌紀錄與系統設定一同打包上傳
                     const uploadPayload = records.map(rec => {
                         let syncedNote = rec.note || '';
                         if (rec.startSoc !== undefined && rec.endSoc !== undefined) {
@@ -1186,9 +1200,25 @@ function doPost(e) {
                         };
                     });
 
+                    // 建立一個特殊的 CONFIG_METADATA 項目，攜帶本機車型設定與初始里程
+                    const configMeta = {
+                        id: "CONFIG_METADATA",
+                        date: "",
+                        chargeType: "",
+                        distance: 0,
+                        power: 0,
+                        cost: 0,
+                        note: JSON.stringify({
+                            evName: evName,
+                            batteryCapacity: batteryCapacity,
+                            initialOdometer: initialOdometer
+                        })
+                    };
+
                     const uploadPayloadWithMeta = [
                         ...uploadPayload,
-                        { id: "SYSTEM_METADATA", note: localLastUpdated.toString() }
+                        { id: "SYSTEM_METADATA", note: localLastUpdated.toString() },
+                        configMeta
                     ];
 
                     await fetch(syncUrl, {
@@ -1203,13 +1233,38 @@ function doPost(e) {
                     localStorage.setItem('ev_life_last_sync_time', new Date().toLocaleString());
                     if (!isSilent) showToast(`同步成功！已將本地最新狀態送至雲端 ☁️`);
                 } else if (cloudLastUpdated > localLastUpdated) {
+                    // 【雲端較新】下載雲端的日誌，並套用雲端的系統與初始里程參數
                     records = cloudRecords;
                     localStorage.setItem('ev_life_records', JSON.stringify(records));
                     localStorage.setItem('ev_life_last_updated', cloudLastUpdated);
                     localStorage.setItem('ev_life_last_sync_time', new Date().toLocaleString());
                     
+                    // 如果雲端有攜帶設定參數，將其覆寫回本機 LocalStorage 並即時更新記憶體變數
+                    if (cloudConfigParsed) {
+                        if (cloudConfigParsed.evName) {
+                            evName = cloudConfigParsed.evName;
+                            localStorage.setItem('ev_life_ev_name', evName);
+                        }
+                        if (cloudConfigParsed.batteryCapacity) {
+                            batteryCapacity = parseFloat(cloudConfigParsed.batteryCapacity);
+                            localStorage.setItem('ev_life_battery_capacity', batteryCapacity.toString());
+                        }
+                        if (cloudConfigParsed.initialOdometer !== undefined) {
+                            initialOdometer = parseFloat(cloudConfigParsed.initialOdometer);
+                            localStorage.setItem('ev_life_initial_odometer', initialOdometer.toString());
+                        }
+                        
+                        // 同步更新設定視窗內的輸入框預設值
+                        const eNameInput = document.getElementById('evNameInput');
+                        if (eNameInput) eNameInput.value = evName;
+                        const bCapInput = document.getElementById('batteryCapacityInput');
+                        if (bCapInput) bCapInput.value = batteryCapacity;
+                        const initOdoInput = document.getElementById('initialOdometerInput');
+                        if (initOdoInput) initOdoInput.value = initialOdometer;
+                    }
+                    
                     renderDashboard();
-                    if (!isSilent) showToast(`同步成功！已從雲端下載最新日誌 (${records.length} 筆)`);
+                    if (!isSilent) showToast(`同步成功！已從雲端下載最新日誌與愛車設定參數 (${records.length} 筆)`);
                 } else {
                     localStorage.setItem('ev_life_last_sync_time', new Date().toLocaleString());
                     if (!isSilent) showToast("同步完成！本機與雲端已經一致囉 ✿");
@@ -1333,6 +1388,7 @@ function doPost(e) {
 
             const activeRecords = records.filter(r => 
                 r.id !== "SYSTEM_METADATA" && 
+                r.id !== "CONFIG_METADATA" && // 排除設定參數欄位
                 r.date && 
                 r.date.trim() !== "" && 
                 r.distance !== undefined &&
@@ -1690,7 +1746,7 @@ function doPost(e) {
             const labelTextColor = isDarkMode ? '#cbd5e1' : '#475569';
             const gridColor = isDarkMode ? 'rgba(148, 163, 184, 0.06)' : 'rgba(71, 85, 105, 0.08)';
 
-            const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA");
+            const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
             const chartData = [...activeRecords].slice(-15);
             const labels = chartData.map(rec => rec.date && rec.date.includes('T') ? rec.date.split('T')[0].substring(5) : (rec.date || '').substring(5));
             const efficiencies = chartData.map(rec => rec.power > 0 ? parseFloat((rec.distance / rec.power).toFixed(2)) : 0);
@@ -1842,7 +1898,7 @@ function doPost(e) {
 
         // 匯出 CSV (包含起訖電量格式)
         function exportCSV() {
-            const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA");
+            const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
             if (activeRecords.length === 0) {
                 showToast("無資料可匯出！", true);
                 return;
