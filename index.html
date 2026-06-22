@@ -340,7 +340,7 @@
                             <textarea readonly id="gasCodeText" class="w-full h-36 p-2 bg-slate-900 dark:bg-black text-slate-200 text-[10px] font-mono rounded-xl border border-slate-700 focus:outline-none scrollbar-thin resize-none">/* Google Apps Script for EV Life Sync */
 function doGet() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var data = sheet.getDataRange().getValues();
+  var data = sheet.getDataRange().getDisplayValues(); // 🌟 升級：使用 getDisplayValues() 避免時區將 Date 自動轉為 ISO 時間，徹底解決少一天的問題！
   var records = [];
   if (data.length <= 1) return ContentService.createTextOutput(JSON.stringify([])).setMimeType(ContentService.MimeType.JSON);
   var headers = data[0];
@@ -437,7 +437,7 @@ function doPost(e) {
         <div class="flex flex-col justify-center items-center text-center gap-3 mb-6 bg-cuteMint-50/30 dark:bg-neutral-950/40 p-4 rounded-3xl border-2 border-slate-800 dark:border-slate-700 shadow-[3px_3px_0px_0px_#1e293b] dark:shadow-[3px_3px_0px_0px_#000000]">
             <div class="text-center">
                 <h1 class="text-lg font-black tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:to-teal-600 text-center">
-                    ⚡ 行車數據 management Center
+                    ⚡ 行車數據管理中心
                 </h1>
                 <p class="text-xs text-slate-500 dark:text-slate-400 font-bold text-center">精準記錄每一段行駛與電能補給數據。</p>
             </div>
@@ -949,7 +949,7 @@ function doPost(e) {
             }
         };
 
-        // 開啟自訂確認對話方塊
+        // 開氣自訂確認對話方塊
         function showConfirmModal(title, message, onConfirm) {
             const modal = document.getElementById('confirmModal');
             const content = document.getElementById('confirmModalContent');
@@ -1300,9 +1300,31 @@ function doPost(e) {
                     cleanNote = match[3];
                 }
             }
+            
+            // 🌟 修正時區偏移 (Timezone Shift Safe-Guard) 🌟
+            // 如果從 Google Sheets 回傳的日期包含了 T（例如 2026-06-21T16:00:00.000Z）
+            // 我們必須把它解譯為本地時區，不然會少一天（即變成 2026-06-21）
+            let dateStr = '';
+            if (rec.date) {
+                const dStr = rec.date.toString().trim();
+                if (dStr.includes('T')) {
+                    const dateObj = new Date(dStr);
+                    if (!isNaN(dateObj.getTime())) {
+                        const yyyy = dateObj.getFullYear();
+                        const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+                        const dd = String(dateObj.getDate()).padStart(2, '0');
+                        dateStr = `${yyyy}-${mm}-${dd}`;
+                    } else {
+                        dateStr = dStr.split('T')[0];
+                    }
+                } else {
+                    dateStr = dStr;
+                }
+            }
+            
             return {
                 id: rec.id ? rec.id.toString() : Date.now().toString(),
-                date: rec.date ? rec.date.toString().split('T')[0] : '',
+                date: dateStr,
                 chargeType: rec.chargeType ? rec.chargeType.toString() : 'DC-快充',
                 distance: rec.distance !== undefined ? parseFloat(rec.distance) : 0,
                 power: rec.power !== undefined ? parseFloat(rec.power) : 0,
@@ -1485,7 +1507,7 @@ function doPost(e) {
             let totalConsumedSocPercent = globalStartSoc + totalChargedSocPercent - globalEndSoc;
             if (totalConsumedSocPercent < 0) totalConsumedSocPercent = 0;
 
-            // 將淨消耗的 SOC % 轉換為真實消耗的總度數 (kWh) 作為平均電耗的分母
+            // 將淨消耗 of the SOC % 轉換為真實消耗的總度數 (kWh) 作為平均電耗的分母
             const totalPowerConsumedReal = batteryCapacity * (totalConsumedSocPercent / 100);
 
             // --------------------------------------------
