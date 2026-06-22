@@ -254,8 +254,7 @@
                     </div>
                     <!-- 導覽列標題 -->
                     <span id="navEvBrandName" class="font-extrabold text-sm sm:text-lg tracking-wider whitespace-nowrap flex-shrink-0">
-                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 via-teal-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:via-teal-600 dark:to-cuteBlue-300 font-extrabold">LUXGEN n⁷</span>
-                        <span class="text-slate-500 dark:text-slate-400 text-xs font-medium ml-1 hidden sm:inline"> の 純電之旅</span>
+                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 via-teal-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:via-teal-600 dark:to-cuteBlue-300 font-extrabold">${evName}</span><span class="text-slate-500 dark:text-slate-400 text-xs font-medium ml-1 hidden sm:inline"> の 純電之旅</span>
                     </span>
                 </div>
                 
@@ -438,7 +437,7 @@ function doPost(e) {
         <div class="flex flex-col justify-center items-center text-center gap-3 mb-6 bg-cuteMint-50/30 dark:bg-neutral-950/40 p-4 rounded-3xl border-2 border-slate-800 dark:border-slate-700 shadow-[3px_3px_0px_0px_#1e293b] dark:shadow-[3px_3px_0px_0px_#000000]">
             <div class="text-center">
                 <h1 class="text-lg font-black tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:to-teal-600 text-center">
-                    ⚡ 行車數據管理中心
+                    ⚡ 行車數據 management Center
                 </h1>
                 <p class="text-xs text-slate-500 dark:text-slate-400 font-bold text-center">精準記錄每一段行駛與電能補給數據。</p>
             </div>
@@ -1418,7 +1417,46 @@ function doPost(e) {
                 if (flatViewContainer) flatViewContainer.classList.remove('hidden');
             }
 
-            // --- 核心修正：基於電量守恆定律計算總消耗量 ---
+            // --- 核心修正一：動態計算單列（逐趟行程）真實消耗 SOC % ---
+            // 由於用戶不一定充滿，單趟真正的電量消耗必須根據「上一次活動結束時的 SOC」➔ 扣掉「本次出發前/充電前的 SOC」來得知
+            for (let i = 0; i < activeRecords.length; i++) {
+                const rec = activeRecords[i];
+                let consumedSocPercent = 0;
+                
+                if (i === 0) {
+                    if (rec.chargeType === "未充電") {
+                        consumedSocPercent = Math.max(0, rec.startSoc - rec.endSoc);
+                    } else {
+                        // 第一筆且是充電：因為沒有更早的紀錄，預設假設起點是 100% 滿電狀態
+                        consumedSocPercent = Math.max(0, 100 - rec.startSoc);
+                    }
+                } else {
+                    const prevRec = activeRecords[i - 1];
+                    if (prevRec.endSoc !== undefined) {
+                        consumedSocPercent = prevRec.endSoc - rec.startSoc;
+                    } else {
+                        if (rec.chargeType === "未充電") {
+                            consumedSocPercent = rec.startSoc - rec.endSoc;
+                        } else {
+                            consumedSocPercent = 100 - rec.startSoc;
+                        }
+                    }
+
+                    // 防呆防負數：代表當前起點電量大於上一筆結束電量（通常是有漏記充電，或有插隊的未同步活動）
+                    if (consumedSocPercent < 0) {
+                        if (rec.chargeType === "未充電") {
+                            consumedSocPercent = Math.max(0, rec.startSoc - rec.endSoc);
+                        } else {
+                            // 預設成從 100% 開下來
+                            consumedSocPercent = Math.max(0, 100 - rec.startSoc);
+                        }
+                    }
+                }
+                // 綁定動態行駛消耗 SOC 比例供後續計算與渲染使用
+                rec.consumedSocPercent = consumedSocPercent;
+            }
+
+            // --- 核心修正二：基於電量守恆定律計算總消耗量 ---
             let totalKm = 0;
             let totalCost = 0;
             let totalPower = 0; // 累計補給總電量 (看荷包灌了多少度電)
@@ -1457,7 +1495,11 @@ function doPost(e) {
             displayRecords.forEach(rec => {
                 const distVal = parseFloat(rec.distance) || 0;
                 const powerVal = parseFloat(rec.power) || 0;
-                const efficiency = rec.power > 0 ? (rec.distance / rec.power).toFixed(2) : "0.00";
+                
+                // 動態計算此列的行駛淨消耗度數
+                const rowConsumedSoc = rec.consumedSocPercent !== undefined ? rec.consumedSocPercent : 0;
+                const rowConsumedPower = batteryCapacity * (rowConsumedSoc / 100);
+                const efficiency = rowConsumedPower > 0 ? (rec.distance / rowConsumedPower).toFixed(2) : "0.00";
                 
                 let startSocVal = parseFloat(rec.startSoc);
                 let endSocVal = parseFloat(rec.endSoc);
@@ -1475,11 +1517,12 @@ function doPost(e) {
                 }
                 
                 let socText = "";
+                let subActionWord = rec.chargeType === "未充電" ? "消耗" : "補給";
                 if (hasValidSoc) {
                     socText = `
                         <div class="leading-tight text-center">
                             <div class="whitespace-nowrap">${startSocVal}% ➔ ${endSocVal}%</div>
-                            <div class="text-[10px] text-slate-400 dark:text-slate-500 font-mono font-normal">(${powerPercent}% | ${parseFloat(rec.power).toFixed(1)}度)</div>
+                            <div class="text-[10px] text-slate-400 dark:text-slate-500 font-mono font-normal">(${subActionWord} ${powerPercent}% | ${parseFloat(rec.power).toFixed(1)}度)</div>
                         </div>
                     `;
                 } else {
@@ -1508,7 +1551,12 @@ function doPost(e) {
                     </td>
                     <td class="px-2 py-3 text-center font-bold font-mono text-slate-800 dark:text-slate-100">${parseFloat(rec.distance)} KM</td>
                     <td class="px-2 py-3 text-center font-bold font-mono text-slate-800 dark:text-slate-100">${socText}</td>
-                    <td class="px-2 py-3 text-center text-cuteMint-500 dark:text-cuteMint-400 font-bold font-mono whitespace-nowrap">${efficiency} km/度</td>
+                    <td class="px-2 py-3 text-center text-cuteMint-500 dark:text-cuteMint-400 font-bold font-mono whitespace-nowrap">
+                        <div>${efficiency} km/度</div>
+                        <div class="text-[10px] text-slate-400 dark:text-slate-500 font-normal leading-normal">
+                            (行駛消耗 ${rowConsumedSoc}% | ${rowConsumedPower.toFixed(1)}度)
+                        </div>
+                    </td>
                     <td class="px-2 py-3 text-center font-bold font-mono text-slate-800 dark:text-slate-100">${rec.cost} 元</td>
                     <td class="px-2 py-3 max-w-[120px] truncate text-slate-500 dark:text-slate-400 text-xs font-semibold" title="${rec.note || ''}">${rec.note || '-'}</td>
                     <td class="px-2 py-3 text-center whitespace-nowrap">
@@ -1531,7 +1579,7 @@ function doPost(e) {
                 // 2. 手機端卡片
                 let mobileSocText = "";
                 if (hasValidSoc) {
-                    mobileSocText = `${startSocVal}% ➔ ${endSocVal}% <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">(${powerPercent}%)</span>`;
+                    mobileSocText = `${startSocVal}% ➔ ${endSocVal}% <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">(${subActionWord} ${powerPercent}%)</span>`;
                 } else {
                     mobileSocText = `${powerPercent}%`;
                 }
@@ -1576,10 +1624,15 @@ function doPost(e) {
                         </div>
                         <div>
                             <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-bold">電耗表現</span>
-                            <span class="font-extrabold text-cuteMint-600 dark:text-cuteMint-400 text-sm font-mono whitespace-nowrap block">${efficiency} km/度</span>
+                            <span class="font-extrabold text-cuteMint-600 dark:text-cuteMint-400 text-sm font-mono whitespace-nowrap block">
+                                <div>${efficiency} km/度</div>
+                                <div class="text-[9px] text-slate-400 dark:text-slate-500 font-normal leading-normal">
+                                    (行駛消耗 ${rowConsumedSoc}% | ${rowConsumedPower.toFixed(1)}度)
+                                </div>
+                            </span>
                         </div>
                         <div>
-                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-bold">起訖電量</span>
+                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-bold">補給起訖</span>
                             <span class="font-bold text-slate-700 dark:text-slate-200 text-xs font-mono whitespace-nowrap block">${mobileSocText}</span>
                             <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 font-mono whitespace-nowrap block">(${parseFloat(rec.power).toFixed(1)} 度)</span>
                         </div>
@@ -1802,7 +1855,13 @@ function doPost(e) {
             const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
             const chartData = [...activeRecords].slice(-15);
             const labels = chartData.map(rec => rec.date && rec.date.includes('T') ? rec.date.split('T')[0].substring(5) : (rec.date || '').substring(5));
-            const efficiencies = chartData.map(rec => rec.power > 0 ? parseFloat((rec.distance / rec.power).toFixed(2)) : 0);
+            
+            // 使用動態計算出來的 consumedSocPercent 來繪製圖表，避免圖表 spikes 暴走
+            const efficiencies = chartData.map(rec => {
+                const consumedSoc = rec.consumedSocPercent !== undefined ? rec.consumedSocPercent : 0;
+                const rowConsumedPower = batteryCapacity * (consumedSoc / 100);
+                return rowConsumedPower > 0 ? parseFloat((rec.distance / rowConsumedPower).toFixed(2)) : 0;
+            });
             const costs = chartData.map(rec => rec.cost);
 
             const lineGradient = ctx.createLinearGradient(0, 0, 0, 300);
