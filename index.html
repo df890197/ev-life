@@ -243,7 +243,7 @@
 </head>
 <body class="bg-[#fcfaf2] dark:bg-black text-slate-800 dark:text-slate-100 min-h-screen transition-all duration-300 antialiased selection:bg-cuteMint-200 font-bold relative">
 
-    <!-- 頂部精緻導覽列 - 完美貼合左右兩側排版 -->
+    <!-- 頂部精緻導覽列 -->
     <nav class="bg-gradient-to-r from-[#fffdf5] to-[#fffefb] dark:from-neutral-950 dark:to-black border-b-4 border-[#1e293b] text-slate-800 dark:text-slate-100 sticky top-0 z-50 transition-colors shadow-md">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16 gap-x-2">
@@ -1377,7 +1377,7 @@ function doPost(e) {
             handleChargeTypeChange(); 
         }
 
-        // 修改後的 renderDashboard：UI 元素及背景全部採用黑色系
+        // 修改後的 renderDashboard：UI 元素及背景全部採用黑色系，並修正不充滿電耗失真問題
         function renderDashboard() {
             const brandSpan = document.getElementById('navEvBrandName');
             if (brandSpan) {
@@ -1418,32 +1418,45 @@ function doPost(e) {
                 if (flatViewContainer) flatViewContainer.classList.remove('hidden');
             }
 
+            // --- 核心修正：基於電量守恆定律計算總消耗量 ---
             let totalKm = 0;
-            let totalPower = 0;
             let totalCost = 0;
+            let totalPower = 0; // 累計補給總電量 (看荷包灌了多少度電)
+            let totalChargedSocPercent = 0; // 累計補給總 SOC %
 
-            let totalKmForEfficiency = 0;
-            let totalPowerForEfficiency = 0;
+            activeRecords.forEach(rec => {
+                totalKm += parseFloat(rec.distance) || 0;
+                totalCost += parseFloat(rec.cost) || 0;
+                
+                // 只有充電補給紀錄，才累加補給電量與補給 SOC
+                if (rec.chargeType !== "未充電") {
+                    totalPower += parseFloat(rec.power) || 0;
+                    if (rec.startSoc !== undefined && rec.endSoc !== undefined) {
+                        totalChargedSocPercent += Math.max(0, parseInt(rec.endSoc) - parseInt(rec.startSoc));
+                    }
+                }
+            });
+
+            // 歷史第一筆與最後一筆的 SOC
+            const firstRec = activeRecords[0];
+            const lastRec = activeRecords[activeRecords.length - 1];
+            const globalStartSoc = firstRec.startSoc !== undefined ? parseInt(firstRec.startSoc) : 100;
+            const globalEndSoc = lastRec.endSoc !== undefined ? parseInt(lastRec.endSoc) : 100;
+
+            // 真正行駛所「淨消耗」的總 SOC % = 初始電量 + 總充電注入 % - 最後剩餘電量
+            let totalConsumedSocPercent = globalStartSoc + totalChargedSocPercent - globalEndSoc;
+            if (totalConsumedSocPercent < 0) totalConsumedSocPercent = 0;
+
+            // 將淨消耗的 SOC % 轉換為真實消耗的總度數 (kWh) 作為平均電耗的分母
+            const totalPowerConsumedReal = batteryCapacity * (totalConsumedSocPercent / 100);
+
+            // --------------------------------------------
 
             const displayRecords = [...activeRecords].reverse();
 
             displayRecords.forEach(rec => {
                 const distVal = parseFloat(rec.distance) || 0;
                 const powerVal = parseFloat(rec.power) || 0;
-                const costVal = parseFloat(rec.cost) || 0;
-
-                totalKm += distVal;
-                totalPower += powerVal;
-                totalCost += costVal;
-
-                if (rec.chargeType === "未充電") {
-                    totalKmForEfficiency += distVal;
-                    totalPowerForEfficiency += powerVal;
-                } else if (distVal > 0) {
-                    totalKmForEfficiency += distVal;
-                    totalPowerForEfficiency += powerVal;
-                }
-
                 const efficiency = rec.power > 0 ? (rec.distance / rec.power).toFixed(2) : "0.00";
                 
                 let startSocVal = parseFloat(rec.startSoc);
@@ -1588,8 +1601,8 @@ function doPost(e) {
                 if (mobileList) mobileList.appendChild(card);
             });
 
-            // 計算平均電耗 (過濾掉純充電對分母的干擾)
-            const avgEfficiency = totalPowerForEfficiency > 0 ? (totalKmForEfficiency / totalPowerForEfficiency) : 0;
+            // 計算平均電耗 (採用全新守恆邏輯，分母為真正消耗的淨度數)
+            const avgEfficiency = totalPowerConsumedReal > 0 ? (totalKm / totalPowerConsumedReal) : 0;
             const costPerKm = totalKm > 0 ? (totalCost / totalKm) : 0;
 
             updateStats(totalKm, avgEfficiency, totalCost, totalPower, costPerKm);
