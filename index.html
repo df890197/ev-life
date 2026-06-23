@@ -2,22 +2,19 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>EV Life - 🐾 LUXGEN n⁷ 行駛日誌 & PWA App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EV Life - 🐾 LUXGEN n⁷ 行駛日誌</title>
     
-    <!-- ========================================== -->
-    <!--            PWA 與行動裝置適配標籤            -->
-    <!-- ========================================== -->
-    <!-- 內建 Base64 JSON Manifest 數據 (供 Chromium 瀏覽器進行 PWA 偵測) -->
-    <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIkVWIExpZmUgLSBMVVhHRU4gbjciLCAic2hvcnRfbmFtZSI6ICJFViBMaWZlIiwgInN0YXJ0X3VybCI6ICIuL2luZGV4Lmh0bWwiLCAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwgImJhY2tncm91bmRfY29sb3IiOiAiI2ZjZmFmMiIsICJ0aGVtZV9jb2xvciI6ICIjMmRkNGJmIiwgImljb25zIjogW3sic3JjIjogImh0dHBzOi8vcGxhY2Vob2xkLmNvLzE5MngxOTIvMmRkNGJmLzFlMjkzYj90ZXh0PUVWK0xpZmUiLCAic2l6ZXMiOiAiMTkyeDE5MiIsLCJ0eXBlIjogImltYWdlL3BuZyIsICJwdXJwb3NlIjogImFueSBtYXNrYWJsZSJ9LCB7InNyYyI6ICJodHRwczovL3BsYWNlaG9sZC5jLy81MTJ4NTEyLzJkZDRiZi8xZTI5M2I/dGV4dD1FVitMaWZlIiwgInNpemVzIjogIjUxMng1MTIiLCAidHlwZSI6ICJpbWFnZS9wbmciLCAicHVycG9zZSI6ICJhbnkgbWFza2FibGUifV19">
-    <meta name="theme-color" content="#2dd4bf">
-    
-    <!-- iOS 專屬 Web App 沉浸式支援 -->
+    <!-- PWA 行動裝置規格加強與色彩配置 -->
+    <meta name="theme-color" content="#1e293b" id="theme-color-meta">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="EV Life">
-    <link rel="apple-touch-icon" href="https://placehold.co/192x192/2dd4bf/1e293b?text=EV+Life">
-
+    <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='192' height='192' viewBox='0 0 192 192'><rect width='100%' height='100%' rx='40' fill='%231e293b'/><circle cx='96' cy='96' r='64' fill='%2314b8a6'/><text x='50%' y='55%' d='middle' text-anchor='middle' font-family='sans-serif' font-size='64' font-weight='900' fill='%23ffffff'>n7</text></svg>">
+    
+    <!-- PWA 設定清單鏈結 -->
+    <link rel="manifest" id="pwaManifestLink" href="manifest.json">
+    
     <!-- 引入 Tailwind CSS 用於現代化 UI 設計 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入 Chart.js 用於能耗趨勢圖表 -->
@@ -99,7 +96,6 @@
         
         body {
             font-family: 'Fredoka', 'Noto Sans TC', sans-serif;
-            padding-top: env(safe-area-inset-top); /* 確保 iOS 劉海頭安全區域 */
         }
         .font-mono {
             font-family: 'JetBrains Mono', 'Noto Sans TC', monospace;
@@ -254,18 +250,9 @@
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
-
-        /* PWA 安裝按鈕呼吸動畫效果 */
-        @keyframes pulse-light {
-            0%, 100% { transform: scale(1); box-shadow: 4px 4px 0px 0px #1e293b; }
-            50% { transform: scale(1.04); box-shadow: 6px 6px 0px 0px #1e293b; }
-        }
-        .animate-pwa-pulse {
-            animation: pulse-light 2s infinite ease-in-out;
-        }
     </style>
 </head>
-<body class="bg-[#fcfaf2] dark:bg-black text-slate-800 dark:text-slate-100 min-h-screen transition-all duration-300 antialiased selection:bg-cuteMint-200 font-bold relative pb-12">
+<body class="bg-[#fcfaf2] dark:bg-black text-slate-800 dark:text-slate-100 min-h-screen transition-all duration-300 antialiased selection:bg-cuteMint-200 font-bold relative">
 
     <!-- 頂部精緻導覽列 -->
     <nav class="bg-gradient-to-r from-[#fffdf5] to-[#fffefb] dark:from-neutral-950 dark:to-black border-b-4 border-[#1e293b] text-slate-800 dark:text-slate-100 sticky top-0 z-50 transition-colors shadow-md">
@@ -285,31 +272,30 @@
                 
                 <!-- 控制按鈕組 (緊湊好按，拒絕重疊) -->
                 <div class="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
-                    <!-- PWA 專屬「安裝 App」實體按鈕 (偵測支援時動態顯示) -->
-                    <button id="pwaInstallBtn" onclick="triggerPwaInstall()" class="rpg-btn-primary animate-pwa-pulse text-[11px] sm:text-xs px-2.5 py-1.5 rounded-lg sm:rounded-xl font-black items-center space-x-1 bg-gradient-to-r from-amber-400 to-amber-300 border-2 border-[#1e293b] hidden flex-shrink-0 shadow-md">
-                        <span>📥 安裝 App 🐾</span>
+                    <!-- PWA 快捷安裝按鈕 -->
+                    <button id="navInstallBtn" onclick="triggerPwaInstall()" class="rpg-btn-primary text-[10px] sm:text-xs px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl font-black bg-amber-400 dark:bg-amber-500 border-2 border-slate-800 text-slate-900 dark:text-slate-950 shadow-[2px_2px_0px_0px_#1e293b] hover:bg-amber-300 flex items-center space-x-1 whitespace-nowrap flex-shrink-0 hidden">
+                        <span>📲 安裝 App</span>
                     </button>
-
                     <!-- 深淺色模式切換 -->
-                    <button onclick="toggleTheme()" class="rpg-btn-secondary p-1.5 sm:p-2 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0" title="切換深/淺色主題">
+                    <button onclick="toggleTheme()" class="rpg-btn-secondary p-1 sm:p-1.5 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0" title="切換深/淺色主題">
                         <svg id="themeSunIcon" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500 hidden" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.46 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path></svg>
                         <svg id="themeMoonIcon" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-500 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
                     </button>
                     <!-- 立即同步按鈕 -->
-                    <button id="navSyncBtn" onclick="syncWithCloud()" class="rpg-btn-primary text-[10px] sm:text-xs px-2 sm:px-3.5 py-1.5 rounded-lg sm:rounded-xl font-bold flex items-center space-x-1 whitespace-nowrap flex-shrink-0 hidden">
+                    <button id="navSyncBtn" onclick="syncWithCloud()" class="rpg-btn-primary text-[10px] sm:text-xs px-2 sm:px-3.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl font-bold flex items-center space-x-1 whitespace-nowrap flex-shrink-0 hidden">
                         <svg id="navSyncIcon" class="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M20 4v5h-5M4 20v-5h5M4 12A8 8 0 0 1 18 6.13L20 9M20 12a8 8 0 0 1-14 5.87L4 15"></path>
                         </svg>
                         <span>同步</span>
                     </button>
                     <!-- 雲端與車輛設定 -->
-                    <button onclick="toggleSyncModal()" class="rpg-btn-secondary text-[10px] sm:text-xs px-2 py-1.5 sm:px-2.5 sm:py-2 rounded-lg sm:rounded-xl flex items-center space-x-0.5 sm:space-x-1 whitespace-nowrap flex-shrink-0">
+                    <button onclick="toggleSyncModal()" class="rpg-btn-secondary text-[10px] sm:text-xs px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg sm:rounded-xl flex items-center space-x-0.5 sm:space-x-1 whitespace-nowrap flex-shrink-0">
                         <span id="syncStatusDot" class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse mr-0.5"></span>
-                        <span class="hidden sm:inline">系統與 PWA 設定</span>
+                        <span class="hidden sm:inline">系統與雲端設定</span>
                         <span class="inline sm:hidden">設定 🐾</span>
                     </button>
                     <!-- CSV 匯出 -->
-                    <button onclick="exportCSV()" class="rpg-btn-secondary text-xs px-3.5 py-2 rounded-xl hidden md:flex items-center flex-shrink-0">
+                    <button onclick="exportCSV()" class="rpg-btn-secondary text-xs px-3.5 py-1.5 rounded-xl hidden md:flex items-center flex-shrink-0">
                         <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                         <span>匯出</span>
                     </button>
@@ -318,91 +304,71 @@
         </div>
     </nav>
 
-    <!-- 系統設定 & PWA 雲端同步 模態視窗 -->
+    <!-- 系統設定 & 雲端同步 模態視窗 -->
     <div id="syncModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-[#fffdf9] dark:bg-black rounded-[2rem] p-6 shadow-2xl max-w-lg w-full mx-4 transform scale-95 transition-all duration-300 border-4 border-[#1e293b]" id="syncModalContent">
-            <div class="flex items-center justify-between border-b-2 border-[#1e293b] pb-3 mb-4">
+        <div class="bg-[#fffdf9] dark:bg-black rounded-[2rem] shadow-2xl max-w-lg w-full mx-4 transform scale-95 transition-all duration-300 border-4 border-[#1e293b] overflow-hidden" id="syncModalContent">
+            
+            <!-- 設定面板標題 -->
+            <div class="flex items-center justify-between border-b-4 border-[#1e293b] p-5 bg-[#fffdf9] dark:bg-neutral-950">
                 <h3 class="text-base font-black text-slate-800 dark:text-slate-100 flex items-center space-x-2">
-                    <svg class="w-5 h-5 text-cuteMint-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                    <span>系統、PWA 與雲端設定 🐾</span>
+                    <svg class="w-5 h-5 text-cuteMint-500 animate-spin" style="animation-duration: 8s;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <span>系統與雲端備份設定 🐾</span>
                 </h3>
-                <button onclick="toggleSyncModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold transition-all">×</button>
+                <button onclick="toggleSyncModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl font-black transition-all">×</button>
+            </div>
+
+            <!-- RPG 分頁頁籤 -->
+            <div class="flex border-b-4 border-[#1e293b] bg-slate-100 dark:bg-neutral-900">
+                <button onclick="switchSettingsTab('settings-tab-main')" id="btn-tab-main" class="flex-1 py-3 text-xs font-black border-r-4 border-[#1e293b] transition-all bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white">
+                    🛠️ 愛車與雲端
+                </button>
+                <button onclick="switchSettingsTab('settings-tab-pwa')" id="btn-tab-pwa" class="flex-1 py-3 text-xs font-black text-slate-500 dark:text-slate-400 transition-all bg-slate-50 dark:bg-neutral-900">
+                    🐾 PWA 離線安裝
+                </button>
             </div>
             
-            <div class="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
-                <!-- PWA 現有執行狀態面板 -->
-                <div class="bg-amber-50/50 dark:bg-amber-950/10 rounded-2xl p-4 border-2 border-amber-300 dark:border-amber-900/60 space-y-2">
-                    <span class="text-xs text-amber-700 dark:text-amber-400 font-extrabold block">📱 App 執行狀態偵測</span>
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="text-slate-500 dark:text-slate-400">目前執行模式：</span>
-                        <span id="pwaStatusBadge" class="bg-amber-100 dark:bg-amber-950 px-2.5 py-1 rounded-lg text-[11px] font-black border border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-300">偵測中...</span>
-                    </div>
-                </div>
-
-                <!-- PWA 實體部署檔案一鍵下載區 -->
-                <details class="group bg-cuteMint-50/30 dark:bg-cuteMint-950/10 rounded-2xl border-2 border-cuteMint-300 dark:border-cuteMint-900/40 p-4 transition-all">
-                    <summary class="text-xs font-black cursor-pointer flex items-center justify-between text-cuteMint-700 dark:text-cuteMint-300 select-none">
-                        <span>📱 取得 PWA 獨立安裝離線包 (sw.js)</span>
-                    </summary>
-                    <div class="mt-3 space-y-2.5 text-xs font-bold leading-relaxed text-slate-600 dark:text-slate-300">
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-normal">
-                            根據瀏覽器規範，要將 App 完全安裝、支援完全離線快取，必須將網頁託管至支援 HTTPS 的伺服器，且網頁同層目錄需附帶 Manifest 與 Service Worker。
-                        </p>
-                        <div class="grid grid-cols-2 gap-2 pt-1">
-                            <button onclick="downloadPwaManifest()" class="p-2 text-center bg-cuteBlue-100 hover:bg-cuteBlue-200 dark:bg-cuteBlue-950/50 text-cuteBlue-700 dark:text-cuteBlue-300 border-2 border-slate-800 dark:border-slate-700 rounded-xl transition active:scale-95 text-[11px]">
-                                📥 下載 manifest.json
-                            </button>
-                            <button onclick="downloadPwaServiceWorker()" class="p-2 text-center bg-cuteMint-100 hover:bg-cuteMint-200 dark:bg-cuteMint-950/50 text-cuteMint-700 dark:text-cuteMint-300 border-2 border-slate-800 dark:border-slate-700 rounded-xl transition active:scale-95 text-[11px]">
-                                📥 下載 sw.js
-                            </button>
-                        </div>
-                        <p class="text-[10px] text-slate-400 dark:text-slate-500 font-normal">
-                            💡 **部署三步驟**：<br>
-                            1. 將此單一網頁存為 `index.html`。<br>
-                            2. 點擊上方兩個按鈕下載 `manifest.json` 與 `sw.js`。<br>
-                            3. 將這三個檔案放進同一個資料夾，一起上傳至您的伺服器（如 Github Pages），便能解鎖 100% 完美的離線 Native App 體驗！
-                        </p>
-                    </div>
-                </details>
-
-                <!-- 第一區：愛車基本設定 -->
-                <div class="bg-cuteBlue-50/50 dark:bg-black/60 rounded-2xl p-4 border-2 border-[#1e293b] space-y-3">
-                    <span class="text-xs text-cuteBlue-600 dark:text-cuteBlue-400 font-extrabold block">🚗 愛車參數設定</span>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">愛車名稱/型號</label>
-                            <input type="text" id="evNameInput" placeholder="例如：LUXGEN n⁷" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">愛車電池容量 (kWh)</label>
-                            <input type="number" step="0.1" id="batteryCapacityInput" placeholder="例如：57.7" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-mono font-bold">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">初始總里程 Odo (km)</label>
-                            <input type="number" step="0.1" id="initialOdometerInput" placeholder="例如：7115" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-mono font-bold">
+            <div class="p-6 space-y-4 max-h-[65vh] overflow-y-auto bg-[#fffdf9] dark:bg-black">
+                
+                <!-- 分頁一：主要設定與雲端 -->
+                <div id="settings-tab-main" class="space-y-4">
+                    <!-- 第一區：愛車基本設定 -->
+                    <div class="bg-cuteBlue-50/50 dark:bg-black/60 rounded-2xl p-4 border-2 border-[#1e293b] space-y-3 shadow-sm">
+                        <span class="text-xs text-cuteBlue-600 dark:text-cuteBlue-400 font-extrabold block">🚗 愛車參數設定</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">愛車名稱/型號</label>
+                                <input type="text" id="evNameInput" placeholder="例如：LUXGEN n7" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">愛車電池容量 (kWh)</label>
+                                <input type="number" step="0.1" id="batteryCapacityInput" placeholder="例如：57.7" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-mono font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">初始總里程 Odo (km)</label>
+                                <input type="number" step="0.1" id="initialOdometerInput" placeholder="例如：7115" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-mono font-bold">
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- 第二區：雲端設定 -->
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">Google Apps Script 網頁應用程式網址 (雙向同步)</label>
-                    <input type="url" id="syncUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3.5 py-2.5 border-2 border-[#1e293b] rounded-2xl text-xs focus:outline-none focus:ring-4 focus:ring-cuteMint-200/50 dark:focus:ring-cuteMint-900/20 bg-slate-50 dark:bg-black text-slate-800 dark:text-slate-100 transition-all font-mono">
-                </div>
+                    <!-- 第二區：雲端設定 -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">Google Apps Script 網頁應用程式網址 (雙向同步)</label>
+                        <input type="url" id="syncUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3.5 py-2.5 border-2 border-[#1e293b] rounded-2xl text-xs focus:outline-none focus:ring-4 focus:ring-cuteMint-200/50 dark:focus:ring-cuteMint-900/20 bg-slate-50 dark:bg-black text-slate-800 dark:text-slate-100 transition-all font-mono">
+                    </div>
 
-                <!-- 第三區：雲端 Apps Script 的指南 -->
-                <details class="group bg-slate-50 dark:bg-black rounded-2xl border-2 border-slate-800 dark:border-slate-800 p-3 transition-all">
-                    <summary class="text-xs font-black cursor-pointer flex items-center justify-between text-slate-700 dark:text-slate-300 select-none">
-                        <span>🛠️ 檢視 Google Apps Script 部署教學</span>
-                    </summary>
-                    <div class="mt-3 space-y-2">
-                        <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                            1. 建立一個全新的「Google 試算表」。<br>
-                            2. 點擊頂部選單「擴充功能」 ➔「Apps Script」。<br>
-                            3. 清除所有預設程式碼，貼上以下內容後點擊上方「儲存（磁碟圖示）」。
-                        </p>
-                        <div class="relative">
-                            <textarea readonly id="gasCodeText" class="w-full h-36 p-2 bg-slate-900 dark:bg-black text-slate-200 text-[10px] font-mono rounded-xl border border-slate-700 focus:outline-none scrollbar-thin resize-none">/* Google Apps Script for EV Life Sync */
+                    <!-- 第三區：雲端 Apps Script 的指南 -->
+                    <details class="group bg-slate-50 dark:bg-black rounded-2xl border-2 border-slate-800 dark:border-slate-800 p-3 transition-all">
+                        <summary class="text-xs font-black cursor-pointer flex items-center justify-between text-slate-700 dark:text-slate-300 select-none">
+                            <span>🛠️ 檢視 Google Apps Script 部署教學</span>
+                        </summary>
+                        <div class="mt-3 space-y-2">
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                                1. 建立一個全新的「Google 試算表」。<br>
+                                2. 點擊頂部選單「擴充功能」 ➔「Apps Script」。<br>
+                                3. 清除所有預設程式碼，貼上以下內容後點擊上方「儲存（磁碟圖示）」。
+                            </p>
+                            <div class="relative">
+                                <textarea readonly id="gasCodeText" class="w-full h-36 p-2 bg-slate-900 dark:bg-black text-slate-200 text-[10px] font-mono rounded-xl border border-slate-700 focus:outline-none scrollbar-thin resize-none">/* Google Apps Script for EV Life Sync */
 function doGet() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = sheet.getDataRange().getDisplayValues(); // 🌟 升級：使用 getDisplayValues() 避免時區將 Date 自動轉為 ISO 時間，徹底解決少一天的問題！
@@ -438,22 +404,64 @@ function doPost(e) {
   }
   return ContentService.createTextOutput("Success");
 }</textarea>
-                            <button onclick="copyGasCode()" class="absolute right-2 bottom-2 bg-cuteMint-500 hover:bg-cuteMint-600 text-slate-900 text-[10px] px-2.5 py-1 rounded-lg font-black shadow-sm transition active:scale-95">複製程式碼</button>
+                                <button onclick="copyGasCode()" class="absolute right-2 bottom-2 bg-cuteMint-500 hover:bg-cuteMint-600 text-slate-900 text-[10px] px-2.5 py-1 rounded-lg font-black shadow-sm transition active:scale-95">複製程式碼</button>
+                            </div>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                                4. 點擊「新增部署」，類型選擇「網頁應用程式」，並設定：<br>
+                                &nbsp;&nbsp;&nbsp;- 專案負責人：【您自己】<br>
+                                &nbsp;&nbsp;&nbsp;- 誰有權限存取：【所有人】<br>
+                                5. 點擊「部署」，授權存取後，將產生的「網頁應用程式網址」複製貼回此設定欄位即可。
+                            </p>
                         </div>
+                    </details>
+
+                    <div class="bg-cuteMint-50/50 dark:bg-cuteMint-950/10 rounded-2xl p-3 border-2 border-[#1e293b]">
+                        <span class="text-[10px] text-cuteMint-600 dark:text-cuteMint-300 font-extrabold block mb-1">🍭 雙向合併與配置同步</span>
                         <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                            4. 點擊「新增部署」，類型選擇「網頁應用程式」，並設定：<br>
-                            &nbsp;&nbsp;&nbsp;- 專案負責人：【您自己】<br>
-                            &nbsp;&nbsp;&nbsp;- 誰有權限存取：【所有人】<br>
-                            5. 點擊「部署」，授權存取後，將產生的「網頁應用程式網址」複製貼回此設定欄位即可。
+                            系統已全面升級！現在不只同步行駛日誌，連你的「愛車名稱、電池容量、初始里程」等車輛配置也會隨日誌一同儲存上雲、多端復原。
                         </p>
                     </div>
-                </details>
+                </div>
 
-                <div class="bg-cuteMint-50/50 dark:bg-cuteMint-950/10 rounded-2xl p-3 border-2 border-[#1e293b]">
-                    <span class="text-[10px] text-cuteMint-600 dark:text-cuteMint-300 font-extrabold block mb-1">🍭 雙向合併與配置同步</span>
-                    <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                        系統已全面升級！現在不只同步行駛日誌，連你的「愛車名稱、電池容量、初始里程」等車輛配置也會隨日誌一同儲存上雲、多端復原。
-                    </p>
+                <!-- 分頁二：PWA 離線設定面板 -->
+                <div id="settings-tab-pwa" class="space-y-4 hidden">
+                    <div class="bg-cuteMint-50/40 dark:bg-neutral-950/40 p-4 rounded-2xl border-2 border-slate-800 space-y-2">
+                        <span class="text-xs text-cuteMint-600 dark:text-cuteMint-400 font-extrabold block">📲 甚麼是 PWA 離線安裝？</span>
+                        <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                            PWA 允許您將 EV Life 行車記錄工具直接安裝到 iOS、Android、Windows 或 Mac 的桌面上，當作原生 App 快速啟用。即使在無網路環境中也能正常查看、新增日誌！
+                        </p>
+                    </div>
+
+                    <!-- PWA 即時診斷清單 -->
+                    <div class="bg-white dark:bg-black p-4 rounded-2xl border-2 border-slate-800 space-y-2.5 text-xs">
+                        <span class="font-black text-slate-700 dark:text-slate-300">🔍 PWA 系統環境診斷：</span>
+                        <div class="space-y-1.5 font-bold font-mono text-[11px]" id="pwaDiagnosticList">
+                            <div id="diag-https">🟢 正在載入診斷數據...</div>
+                            <div id="diag-sw">⚪ Service Worker 未初始化</div>
+                            <div id="diag-network">🟢 在線模式 (連線正常)</div>
+                        </div>
+                    </div>
+
+                    <!-- 安裝按鈕 -->
+                    <button id="pwaInstallBtn" onclick="triggerPwaInstall()" class="w-full rpg-btn-primary bg-amber-400 hover:bg-amber-300 dark:bg-amber-500 dark:hover:bg-amber-400 text-slate-900 text-xs font-black py-3.5 rounded-2xl transition-all hidden justify-center items-center space-x-2">
+                        <span>📲 一鍵將本系統安裝至手機桌面</span>
+                    </button>
+
+                    <!-- 下載外部檔案 -->
+                    <div class="space-y-2 border-t-2 border-dashed border-[#1e293b] pt-3">
+                        <span class="text-[10px] text-slate-400 block font-bold">🛠️ 獨立部署與離線支援：</span>
+                        <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                            PWA 需要三個檔案放在同一個主機目錄下：<code class="text-cuteMint-600 font-mono">index.html</code> (本網頁)、<code class="text-cuteMint-600 font-mono">manifest.json</code> 與 <code class="text-cuteMint-600 font-mono">sw.js</code>。請點擊下方按鈕，直接下載對應配置：
+                        </p>
+                        <div class="grid grid-cols-2 gap-3 pt-1">
+                            <button onclick="downloadManifest()" class="rpg-btn-secondary py-2.5 text-[10px] font-black rounded-xl">
+                                💾 下載 manifest.json
+                            </button>
+                            <button onclick="downloadServiceWorker()" class="rpg-btn-secondary py-2.5 text-[10px] font-black rounded-xl">
+                                ⚙️ 下載 sw.js
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="syncTimeInfo" class="text-xs text-slate-400 dark:text-slate-500 hidden">
@@ -507,19 +515,13 @@ function doPost(e) {
                 <p class="text-xs text-slate-500 dark:text-slate-400 font-bold text-center">精準記錄每一段行駛與電能補給數據。</p>
             </div>
             <!-- RPG 冒險時刻 HUD -->
-            <div class="flex flex-wrap items-center justify-center gap-2 bg-white dark:bg-black py-1.5 px-3.5 rounded-2xl border-2 border-slate-800 dark:border-slate-700 shadow-[2px_2px_0px_0px_#1e293b] dark:shadow-[2px_2px_0px_0px_#000000] font-mono text-xs mx-auto">
-                <div class="flex items-center space-x-1.5">
-                    <div class="relative flex h-2.5 w-2.5 flex-shrink-0">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 flex-shrink-0"></span>
-                    </div>
-                    <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">HUD Time:</span>
-                    <span id="liveClockText" class="text-slate-800 dark:text-slate-200 font-black">2026-06-07 00:00:00</span>
+            <div class="flex items-center justify-center space-x-2 bg-white dark:bg-black py-1.5 px-3.5 rounded-2xl border-2 border-slate-800 dark:border-slate-700 shadow-[2px_2px_0px_0px_#1e293b] dark:shadow-[2px_2px_0px_0px_#000000] font-mono text-xs mx-auto">
+                <div class="relative flex h-2.5 w-2.5 flex-shrink-0">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 flex-shrink-0"></span>
                 </div>
-                <div class="h-3 w-[2px] bg-slate-300 dark:bg-slate-700 hidden sm:block"></div>
-                <div class="flex items-center space-x-1">
-                    <span id="pwaHomeBadge" class="bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400 border border-teal-200 dark:border-teal-900/40 text-[9px] px-1.5 py-0.5 rounded-md font-bold">🌐 Browser</span>
-                </div>
+                <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">HUD Time:</span>
+                <span id="liveClockText" class="text-slate-800 dark:text-slate-200 font-black">2026-06-07 00:00:00</span>
             </div>
         </div>
 
@@ -726,7 +728,7 @@ function doPost(e) {
 
                     <!-- 傳統單筆清單與響應式視圖 -->
                     <div id="flatViewContainer" class="space-y-4">
-                        <!-- 電腦與平板端表格 -->
+                        <!-- 電腦與平板端表格：寬度精準自適應，md 段在小螢幕平板上啟用 overflow 自行滑動，lg 以上無卷軸 -->
                         <div id="desktopTableWrapper" class="hidden md:block overflow-x-auto lg:overflow-x-hidden max-h-[480px] rounded-[1.5rem] border-2 border-slate-800 dark:border-slate-700 scrollable-log-container">
                             <table class="min-w-full divide-y divide-slate-800 dark:divide-slate-700 text-xs text-left table-auto">
                                 <thead class="bg-[#fffdf9] dark:bg-black text-cuteMint-700 dark:text-cuteMint-200 font-extrabold uppercase tracking-wider border-b-2 border-slate-800 dark:border-slate-700 sticky top-0 z-20">
@@ -766,7 +768,7 @@ function doPost(e) {
 
     <!-- 頁尾 -->
     <footer class="bg-white dark:bg-black text-slate-400 dark:text-slate-500 text-center py-10 mt-16 border-t-4 border-slate-800 dark:border-slate-700 transition-colors relative z-10">
-        <p class="text-xs font-bold">EV Life 電動車試算與電耗記錄工具 © 2026. 您的資料安全地儲存在本機裝置與您的專屬雲端試算表中。</p>
+        <p class="text-xs font-bold">EV Life 電動車試算與電耗記錄工具 © 2026. 您的資料將安全地儲存在本地裝置瀏覽器中。</p>
     </footer>
 
     <!-- JavaScript 邏輯控制 -->
@@ -774,194 +776,13 @@ function doPost(e) {
         let records = [];
         let efficiencyChartInstance = null;
         let syncUrl = "";
-        let evName = "LUXGEN n⁷"; // 預設愛車名稱
+        let evName = "LUXGEN n7"; // 預設愛車名稱
         let batteryCapacity = 57.7; // 預設車輛電池總容量 (kWh)
         let initialOdometer = 0; // 預設初始里程為 0
         let activeConfirmCallback = null; // 自訂確認彈出視窗的回呼
         let editingRecordId = null; // 全域編輯狀態 ID
         let currentChartFilter = 'all'; // 全域圖表篩選狀態：'all' | 'efficiency' | 'cost'
-        let deferredPrompt; // 供 PWA 安裝觸發用
-
-        // ==========================================
-        //               PWA 核心功能邏輯
-        // ==========================================
-
-        // 偵測 PWA 模式並更新系統徽章與狀態
-        function detectPwaMode() {
-            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-            const badgeEl = document.getElementById('pwaStatusBadge');
-            const homeBadgeEl = document.getElementById('pwaHomeBadge');
-            
-            if (badgeEl) {
-                if (isStandalone) {
-                    badgeEl.textContent = "📱 獨立 App 沉浸模式";
-                    badgeEl.className = "bg-emerald-100 dark:bg-emerald-950 px-2.5 py-1 rounded-lg text-[11px] font-black border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300";
-                } else {
-                    badgeEl.textContent = "🌐 瀏覽器分頁運行";
-                    badgeEl.className = "bg-amber-100 dark:bg-amber-950 px-2.5 py-1 rounded-lg text-[11px] font-black border border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-300";
-                }
-            }
-
-            if (homeBadgeEl) {
-                if (isStandalone) {
-                    homeBadgeEl.textContent = "📱 App Mode";
-                    homeBadgeEl.className = "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40 text-[9px] px-1.5 py-0.5 rounded-md font-bold";
-                } else {
-                    homeBadgeEl.textContent = "🌐 Browser";
-                    homeBadgeEl.className = "bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400 border border-teal-200 dark:border-teal-900/40 text-[9px] px-1.5 py-0.5 rounded-md font-bold";
-                }
-            }
-        }
-
-        // 監聽 PWA 安裝提示事件
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); // 阻擋原生橫幅顯示
-            deferredPrompt = e; // 儲存事件供後續按鈕觸發
-            
-            const installBtn = document.getElementById('pwaInstallBtn');
-            if (installBtn) {
-                installBtn.classList.remove('hidden');
-                installBtn.classList.add('flex');
-            }
-        });
-
-        // 觸發自訂 PWA 安裝程序
-        function triggerPwaInstall() {
-            if (!deferredPrompt) {
-                showToast("您的瀏覽器已安裝此 App 或目前不支援此安裝功能 ₍ᐢ.ˬ.ᐢ₎", true);
-                return;
-            }
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    showToast("太棒了！已開始安裝 EV Life App 🐾");
-                    const installBtn = document.getElementById('pwaInstallBtn');
-                    if (installBtn) installBtn.classList.add('hidden');
-                } else {
-                    showToast("取消安裝 (,,•́ . •̀,,)", true);
-                }
-                deferredPrompt = null;
-            });
-        }
-
-        // 當 App 安裝成功時觸發
-        window.addEventListener('appinstalled', (evt) => {
-            showToast("🎉 恭喜！EV Life 成功安裝至您的主畫面，快去體驗吧！");
-            const installBtn = document.getElementById('pwaInstallBtn');
-            if (installBtn) installBtn.classList.add('hidden');
-            detectPwaMode();
-        });
-
-        // 下載 manifest.json 檔以進行完整 PWA 獨立部署
-        function downloadPwaManifest() {
-            const manifestObj = {
-                "name": "EV Life - LUXGEN n⁷ 行駛日誌",
-                "short_name": "EV Life",
-                "start_url": "./index.html",
-                "display": "standalone",
-                "background_color": "#fcfaf2",
-                "theme_color": "#2dd4bf",
-                "icons": [
-                    {
-                        "src": "https://placehold.co/192x192/2dd4bf/1e293b?text=EV+Life",
-                        "sizes": "192x192",
-                        "type": "image/png",
-                        "purpose": "any maskable"
-                    },
-                    {
-                        "src": "https://placehold.co/512x512/2dd4bf/1e293b?text=EV+Life",
-                        "sizes": "512x512",
-                        "type": "image/png",
-                        "purpose": "any maskable"
-                    }
-                ]
-            };
-            const blob = new Blob([JSON.stringify(manifestObj, null, 2)], {type: 'application/json'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'manifest.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            showToast("manifest.json 下載成功！請將此檔案與 index.html 放於同目錄 ☁️");
-        }
-
-        // 下載 sw.js 獨立 Service Worker 快取檔
-        function downloadPwaServiceWorker() {
-            const swContent = `const CACHE_NAME = 'ev-life-cache-v1';
-const ASSETS = [
-  './',
-  './index.html',
-  'https://cdn.tailwindcss.com',
-  'https://cdn.jsdelivr.net/npm/chart.js',
-  'https://fonts.googleapis.com/css2?family=Fredoka:wght=300;400;500;600;700&family=Noto+Sans+TC:wght=300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap'
-];
-
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(ASSETS);
-    }).then(() => self.skipWaiting())
-  );
-});
-
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(keys => {
-      return Promise.all(
-        keys.map(key => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
-        })
-      );
-    }).then(() => self.clients.claim())
-  );
-});
-
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request).then(cachedResponse => {
-      if (cachedResponse) {
-        // 背景更新快取機制
-        fetch(event.request).then(networkResponse => {
-          if (networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse));
-          }
-        }).catch(() => {});
-        return cachedResponse;
-      }
-      return fetch(event.request);
-    })
-  );
-});`;
-            const blob = new Blob([swContent], {type: 'application/javascript'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'sw.js';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            showToast("sw.js 快取檔案下載成功！請將此檔案與 index.html 放於同目錄 🔌");
-        }
-
-        // 自動嘗試註冊本地實體 Service Worker (如果有的話)
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                // 如果伺服器目錄上有 sw.js，瀏覽器將自動啟用
-                navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('ServiceWorker 註冊成功，Scope: ', reg.scope))
-                .catch(err => console.log('本機直接開啟模式暫不啟用實體離線快取 (此屬正常現象): ', err));
-            });
-        }
-
-        // ==========================================
-        //             行車日誌原有主要邏輯
-        // ==========================================
+        let deferredPrompt = null; // PWA 安裝事件暫存
 
         // 動態 RPG HUD 時間更新函數
         function updateLiveClock() {
@@ -1003,7 +824,7 @@ self.addEventListener('fetch', event => {
             updateLogoPlaceholder();
         }
 
-        // 深淺色模式切換
+        // 修改後的 toggleTheme：背景採用 `dark:bg-black` 替代原本的深藍色
         function toggleTheme() {
             const isDark = document.documentElement.classList.contains('dark');
             if (isDark) {
@@ -1109,7 +930,6 @@ self.addEventListener('fetch', event => {
 
         window.onload = function() {
             setupThemeIcons();
-            detectPwaMode(); // 偵測 PWA 狀態
 
             // 啟動動態時鐘
             updateLiveClock();
@@ -1134,8 +954,8 @@ self.addEventListener('fetch', event => {
             // 愛車名稱
             let rawEvName = localStorage.getItem('ev_life_ev_name') || "";
             if (!rawEvName) {
-                evName = "LUXGEN n⁷";
-                localStorage.setItem('ev_life_ev_name', "LUXGEN n⁷");
+                evName = "LUXGEN n7";
+                localStorage.setItem('ev_life_ev_name', "LUXGEN n7");
             } else {
                 evName = rawEvName;
             }
@@ -1201,6 +1021,9 @@ self.addEventListener('fetch', event => {
                     }
                 });
             }
+
+            // 初始化 PWA 診斷
+            updatePwaDiagnostic();
         };
 
         // 開啟自訂確認對話方塊
@@ -1298,6 +1121,7 @@ self.addEventListener('fetch', event => {
                 if (initialOdometerInput) initialOdometerInput.value = initialOdometer;
 
                 modal.classList.remove('hidden');
+                switchSettingsTab('settings-tab-main'); // 預設打開主設定
                 setTimeout(() => {
                     modal.classList.remove('opacity-0');
                     modal.classList.add('opacity-100');
@@ -1312,6 +1136,27 @@ self.addEventListener('fetch', event => {
                 setTimeout(() => {
                     modal.classList.add('hidden');
                 }, 300);
+            }
+        }
+
+        // 頁籤切換器
+        function switchSettingsTab(tabId) {
+            const mainTab = document.getElementById('settings-tab-main');
+            const pwaTab = document.getElementById('settings-tab-pwa');
+            const btnMain = document.getElementById('btn-tab-main');
+            const btnPwa = document.getElementById('btn-tab-pwa');
+
+            if (tabId === 'settings-tab-main') {
+                if (mainTab) mainTab.classList.remove('hidden');
+                if (pwaTab) pwaTab.classList.add('hidden');
+                if (btnMain) btnMain.className = "flex-1 py-3 text-xs font-black border-r-4 border-[#1e293b] transition-all bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white";
+                if (btnPwa) btnPwa.className = "flex-1 py-3 text-xs font-black text-slate-500 dark:text-slate-400 transition-all bg-slate-50 dark:bg-neutral-900";
+            } else {
+                if (mainTab) mainTab.classList.add('hidden');
+                if (pwaTab) pwaTab.classList.remove('hidden');
+                if (btnMain) btnMain.className = "flex-1 py-3 text-xs font-black border-r-4 border-[#1e293b] text-slate-500 dark:text-slate-400 transition-all bg-slate-50 dark:bg-neutral-900";
+                if (btnPwa) btnPwa.className = "flex-1 py-3 text-xs font-black transition-all bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white";
+                updatePwaDiagnostic();
             }
         }
 
@@ -1333,7 +1178,7 @@ self.addEventListener('fetch', event => {
             }
 
             if (evNameInput) {
-                evName = evNameInput.value.trim() || "LUXGEN n⁷";
+                evName = evNameInput.value.trim() || "LUXGEN n7";
                 localStorage.setItem('ev_life_ev_name', evName);
             }
 
@@ -1652,7 +1497,7 @@ self.addEventListener('fetch', event => {
             handleChargeTypeChange(); 
         }
 
-        // 重新繪製整個行車數據仪表板與表格
+        // 修改後的 renderDashboard：UI 元素及背景全部採用黑色系，並修正不充滿電耗失真問題
         function renderDashboard() {
             const brandSpan = document.getElementById('navEvBrandName');
             if (brandSpan) {
@@ -1694,6 +1539,7 @@ self.addEventListener('fetch', event => {
             }
 
             // --- 核心修正一：動態計算單列（逐趟行程）真實消耗 SOC % ---
+            // 由於用戶不一定充滿，單趟真正的電量消耗必須根據「上一次活動結束時的 SOC」➔ 扣掉「本次出發前/充電前的 SOC」來得知
             for (let i = 0; i < activeRecords.length; i++) {
                 const rec = activeRecords[i];
                 let consumedSocPercent = 0;
@@ -1702,6 +1548,7 @@ self.addEventListener('fetch', event => {
                     if (rec.chargeType === "未充電") {
                         consumedSocPercent = Math.max(0, rec.startSoc - rec.endSoc);
                     } else {
+                        // 第一筆且是充電：因為沒有更早的紀錄，預設假設起點是 100% 滿電狀態
                         consumedSocPercent = Math.max(0, 100 - rec.startSoc);
                     }
                 } else {
@@ -1716,27 +1563,31 @@ self.addEventListener('fetch', event => {
                         }
                     }
 
+                    // 防呆防負數：代表當前起點電量大於上一筆結束電量（通常是有漏記充電，或有插隊的未同步活動）
                     if (consumedSocPercent < 0) {
                         if (rec.chargeType === "未充電") {
                             consumedSocPercent = Math.max(0, rec.startSoc - rec.endSoc);
                         } else {
+                            // 預設成從 100% 開下來
                             consumedSocPercent = Math.max(0, 100 - rec.startSoc);
                         }
                     }
                 }
+                // 綁定動態行駛消耗 SOC 比例供後續計算與渲染使用
                 rec.consumedSocPercent = consumedSocPercent;
             }
 
             // --- 核心修正二：基於電量守恆定律計算總消耗量 ---
             let totalKm = 0;
             let totalCost = 0;
-            let totalPower = 0; // 累計補給總電量
+            let totalPower = 0; // 累計補給總電量 (看荷包灌了多少度電)
             let totalChargedSocPercent = 0; // 累計補給總 SOC %
 
             activeRecords.forEach(rec => {
                 totalKm += parseFloat(rec.distance) || 0;
                 totalCost += parseFloat(rec.cost) || 0;
                 
+                // 只有充電補給紀錄，才累加補給電量與補給 SOC
                 if (rec.chargeType !== "未充電") {
                     totalPower += parseFloat(rec.power) || 0;
                     if (rec.startSoc !== undefined && rec.endSoc !== undefined) {
@@ -1758,12 +1609,15 @@ self.addEventListener('fetch', event => {
             // 將淨消耗 of the SOC % 轉換為真實消耗的總度數 (kWh) 作為平均電耗的分母
             const totalPowerConsumedReal = batteryCapacity * (totalConsumedSocPercent / 100);
 
+            // --------------------------------------------
+
             const displayRecords = [...activeRecords].reverse();
 
             displayRecords.forEach(rec => {
                 const distVal = parseFloat(rec.distance) || 0;
                 const powerVal = parseFloat(rec.power) || 0;
                 
+                // 遞迴計算此列的行駛淨消耗度數
                 const rowConsumedSoc = rec.consumedSocPercent !== undefined ? rec.consumedSocPercent : 0;
                 const rowConsumedPower = batteryCapacity * (rowConsumedSoc / 100);
                 const efficiency = rowConsumedPower > 0 ? (rec.distance / rowConsumedPower).toFixed(2) : "0.00";
@@ -1921,7 +1775,7 @@ self.addEventListener('fetch', event => {
                 if (mobileList) mobileList.appendChild(card);
             });
 
-            // 計算平均電耗 (採用全新守恆邏輯)
+            // 計算平均電耗 (採用全新守恆邏輯，分母為真正消耗的淨度數)
             const avgEfficiency = totalPowerConsumedReal > 0 ? (totalKm / totalPowerConsumedReal) : 0;
             const costPerKm = totalKm > 0 ? (totalCost / totalKm) : 0;
 
@@ -2014,7 +1868,7 @@ self.addEventListener('fetch', event => {
                     date,
                     chargeType,
                     distance,
-                    power: parseFloat(power.toFixed(3)),
+                    power: parseFloat(power.toFixed(3)), // 保留到小數三位
                     powerPercent: powerPercent,
                     startSoc: startSoc,
                     endSoc: endSoc,
@@ -2098,7 +1952,6 @@ self.addEventListener('fetch', event => {
             updateCharts();
         }
 
-        // 繪製與更新能耗、花費 Chart.js
         function updateCharts() {
             const canvasElement = document.getElementById('efficiencyChart');
             if (!canvasElement) return;
@@ -2124,6 +1977,7 @@ self.addEventListener('fetch', event => {
             const chartData = [...activeRecords].slice(-15);
             const labels = chartData.map(rec => rec.date && rec.date.includes('T') ? rec.date.split('T')[0].substring(5) : (rec.date || '').substring(5));
             
+            // 使用動態計算出來的 consumedSocPercent 來繪製圖表，避免圖表 spikes 暴走
             const efficiencies = chartData.map(rec => {
                 const consumedSoc = rec.consumedSocPercent !== undefined ? rec.consumedSocPercent : 0;
                 const rowConsumedPower = batteryCapacity * (consumedSoc / 100);
@@ -2140,6 +1994,7 @@ self.addEventListener('fetch', event => {
                 lineGradient.addColorStop(1, 'rgba(20, 184, 166, 0)');
             }
 
+            // 定義數據與對應座標軸配置
             const datasets = [];
             const scalesConfig = {
                 x: {
@@ -2156,13 +2011,13 @@ self.addEventListener('fetch', event => {
                 datasets.push({
                     label: '平均電耗 (km/度)',
                     data: efficiencies,
-                    borderColor: '#14b8a6',
+                    borderColor: '#14b8a6', /* 溫和薄荷綠 */
                     backgroundColor: lineGradient,
                     borderWidth: 4,
                     pointBackgroundColor: '#14b8a6',
                     pointHoverRadius: 7,
                     pointRadius: 4,
-                    tension: 0.4,
+                    tension: 0.4, /* 貝氏平滑曲線 */
                     yAxisID: 'yEfficiency',
                     fill: true
                 });
@@ -2215,7 +2070,7 @@ self.addEventListener('fetch', event => {
                         font: { family: "'JetBrains Mono', sans-serif", weight: 'bold' }
                     },
                     grid: {
-                        drawOnChartArea: false
+                        drawOnChartArea: false /* 避免左右網格線互相重疊交叉 */
                     }
                 };
             }
@@ -2304,6 +2159,244 @@ self.addEventListener('fetch', event => {
             link.click();
             document.body.removeChild(link);
             showToast("CSV 匯出成功！已開始下載");
+        }
+
+        // ==================== PWA 核心技術擴充腳本 ====================
+
+        // 1. Service Worker 註冊機制
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                // 嘗試註冊同目錄下的 sw.js
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => {
+                        console.log('EV Life PWA Service Worker 註冊成功！範疇：', reg.scope);
+                        updatePwaDiagnostic();
+                    })
+                    .catch(err => {
+                        console.warn('Service Worker 註冊暫時略過 (可能在預覽沙盒或本地檔案中)：', err);
+                        updatePwaDiagnostic();
+                    });
+            });
+        }
+
+        // 2. 安裝狀態攔截與觸發 (BeforeInstallPrompt)
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // 防止瀏覽器預設的彈出框，改由我們提供更漂亮的 RPG 街機風格安裝按鈕
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // 顯現頂部與內部安裝按鈕
+            const navInstallBtn = document.getElementById('navInstallBtn');
+            if (navInstallBtn) navInstallBtn.classList.remove('hidden');
+            
+            const pwaInstallBtn = document.getElementById('pwaInstallBtn');
+            if (pwaInstallBtn) {
+                pwaInstallBtn.classList.remove('hidden');
+                pwaInstallBtn.classList.add('flex');
+            }
+            updatePwaDiagnostic();
+        });
+
+        // 安裝觸發器
+        function triggerPwaInstall() {
+            if (!deferredPrompt) {
+                showToast("當前裝置已安裝此應用程式，或瀏覽器已略過 PWA 安裝。🐾");
+                return;
+            }
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    showToast("謝謝您的安裝！EV Life 已成功在您的裝置扎根 ⚡");
+                    hideInstallButtons();
+                } else {
+                    showToast("已取消安裝，您可以隨時在設定中重新安裝 🐾", true);
+                }
+                deferredPrompt = null;
+            });
+        }
+
+        window.addEventListener('appinstalled', (evt) => {
+            showToast("🎉 恭喜！EV Life 行駛日誌已成功建立到桌面！");
+            hideInstallButtons();
+            updatePwaDiagnostic();
+        });
+
+        function hideInstallButtons() {
+            const navInstallBtn = document.getElementById('navInstallBtn');
+            if (navInstallBtn) navInstallBtn.classList.add('hidden');
+            const pwaInstallBtn = document.getElementById('pwaInstallBtn');
+            if (pwaInstallBtn) {
+                pwaInstallBtn.classList.add('hidden');
+                pwaInstallBtn.classList.remove('flex');
+            }
+        }
+
+        // 3. PWA 即時環境診斷數據
+        function updatePwaDiagnostic() {
+            const diagHttps = document.getElementById('diag-https');
+            const diagSw = document.getElementById('diag-sw');
+            const diagNetwork = document.getElementById('diag-network');
+
+            // 協議安全檢測 (localhost / 127.0.0.1 在 PWA 中也安全)
+            const isHttps = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            if (diagHttps) {
+                diagHttps.innerHTML = isHttps 
+                    ? '<span class="text-emerald-500 font-extrabold">🟢 HTTPS 啟用 (符合 PWA 安全傳輸規格)</span>'
+                    : '<span class="text-rose-500 font-extrabold">🔴 HTTP 模式 (PWA 需部署至 HTTPS 或 localhost 才能安裝)</span>';
+            }
+
+            // Service Worker 快取模組檢測
+            if (diagSw) {
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistration().then(reg => {
+                        if (reg && reg.active) {
+                            diagSw.innerHTML = '<span class="text-emerald-500 font-extrabold">🟢 Service Worker 運行中 (已啟動離線快取守護)</span>';
+                        } else {
+                            diagSw.innerHTML = '<span class="text-amber-500 font-extrabold">🟡 支援離線快取，但未成功偵測到 sw.js (請部署下載檔案)</span>';
+                        }
+                    }).catch(() => {
+                        diagSw.innerHTML = '<span class="text-slate-400 font-extrabold">⚪ Service Worker 未就緒</span>';
+                    });
+                } else {
+                    diagSw.innerHTML = '<span class="text-rose-500 font-extrabold">🔴 您的瀏覽器核心不支援 Service Worker 技術</span>';
+                }
+            }
+
+            // 在線/離線狀態
+            if (diagNetwork) {
+                diagNetwork.innerHTML = navigator.onLine
+                    ? '<span class="text-emerald-500 font-extrabold">🟢 在線模式 (同步上雲網路正常)</span>'
+                    : '<span class="text-rose-500 font-extrabold">🔴 離線模式 (正由本地 Storage 及 PWA 提供無網使用)</span>';
+            }
+        }
+
+        // 監聽連線變動
+        window.addEventListener('online', () => {
+            updatePwaDiagnostic();
+            showToast("網路已恢復，已回到在線同步模式 ⚡");
+        });
+        window.addEventListener('offline', () => {
+            updatePwaDiagnostic();
+            showToast("網路已斷開，EV Life 已無縫切換到「純離線行車記錄」模式！🐾", true);
+        });
+
+        // 4. 動態下載 PWA 設定檔公用機制
+        function downloadBlobFile(content, fileName, contentType) {
+            const a = document.createElement("a");
+            const file = new Blob([content], {type: contentType});
+            a.href = URL.createObjectURL(file);
+            a.download = fileName;
+            a.click();
+            URL.revokeObjectURL(a.href);
+        }
+
+        // 下載 manifest.json
+        function downloadManifest() {
+            const manifestObj = {
+                "name": "EV Life - LUXGEN n7 行駛日誌",
+                "short_name": "EV Life",
+                "description": "精準記錄每一段行駛與電能補給數據的行駛日誌工具。",
+                "start_url": "./",
+                "scope": "./",
+                "display": "standalone",
+                "background_color": "#fcfaf2",
+                "theme_color": "#1e293b",
+                "orientation": "portrait-primary",
+                "icons": [
+                    {
+                        "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='192' height='192' viewBox='0 0 192 192'><rect width='100%' height='100%' rx='40' fill='%231e293b'/><circle cx='96' cy='96' r='64' fill='%2314b8a6'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='64' font-weight='900' fill='%23ffffff'>n7</text></svg>",
+                        "sizes": "192x192",
+                        "type": "image/svg+xml",
+                        "purpose": "any maskable"
+                    },
+                    {
+                        "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='512' height='512' viewBox='0 0 512 512'><rect width='100%' height='100%' rx='96' fill='%231e293b'/><circle cx='256' cy='256' r='180' fill='%2314b8a6'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='180' font-weight='900' fill='%23ffffff'>n7</text></svg>",
+                        "sizes": "512x512",
+                        "type": "image/svg+xml",
+                        "purpose": "any maskable"
+                    }
+                ]
+            };
+            downloadBlobFile(JSON.stringify(manifestObj, null, 2), "manifest.json", "application/json");
+            showToast("成功下載 manifest.json！請直接上傳至與 index.html 相同的根目錄。🐾");
+        }
+
+        // 下載 sw.js
+        function downloadServiceWorker() {
+            const swCode = `// EV Life - LUXGEN n7 行駛日誌 PWA 離線快取快遞員
+const CACHE_NAME = 'ev-life-cache-v1';
+const ASSETS = [
+  './',
+  'index.html',
+  'manifest.json',
+  'https://cdn.tailwindcss.com',
+  'https://cdn.jsdelivr.net/npm/chart.js'
+];
+
+// 1. 安裝 Service Worker：主動將重要套件與本體網頁存入快取記憶體
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => {
+      console.log('[SW] 正在建立快取寶箱，確保離線行車記錄可用...');
+      return cache.addAll(ASSETS);
+    }).then(() => self.skipWaiting())
+  );
+});
+
+// 2. 啟用階段：清除舊版本的過時快取，保持輕量
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys => {
+      return Promise.all(
+        keys.map(key => {
+          if (key !== CACHE_NAME) {
+            console.log('[SW] 清理舊版過時快取資源:', key);
+            return caches.delete(key);
+          }
+        })
+      );
+    }).then(() => self.clients.claim())
+  );
+});
+
+// 3. 截獲請求：採用 Network-First With Cache-Fallback 或 Cache-First-With-Network-Update 策略
+// 確保您在無訊號的山區或高速公路上仍可載入行車日誌
+self.addEventListener('fetch', event => {
+  // 略過雲端 API 同步 POST/GET 的請求，由實時網路發送
+  if (event.request.url.includes('script.google.com')) {
+    return;
+  }
+
+  event.respondWith(
+    caches.match(event.request).then(cachedResponse => {
+      if (cachedResponse) {
+        // 在背景發送請求取得最新版本，更新快取，保證下次開啟是最新
+        fetch(event.request).then(networkResponse => {
+          if (networkResponse.status === 200) {
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse));
+          }
+        }).catch(() => {/* 離線時忽略錯誤 */});
+        
+        return cachedResponse; // 立即返還快取，零秒極速載入
+      }
+      
+      // 若快取無資源，改由網路載入並塞入快取
+      return fetch(event.request).then(networkResponse => {
+        if (networkResponse.status === 200) {
+          return caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, networkResponse.clone());
+            return networkResponse;
+          });
+        }
+        return networkResponse;
+      }).catch(() => {
+        // 全線斷網且無快取資源
+      });
+    })
+  );
+});`;
+            downloadBlobFile(swCode, "sw.js", "application/javascript");
+            showToast("成功下載 sw.js！請直接上傳至與 index.html 相同的根目錄。🐾");
         }
     </script>
 </body>
