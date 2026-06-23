@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <!-- 🌟 關鍵修正：鎖定 PWA 縮放與適應現代手機瀏海屏 (viewport-fit=cover) 🌟 -->
+    <!-- 🌟 關鍵修正：鎖定 PWA 行動端手勢縮放，防止誤觸跑版，適應現代手機瀏海屏 (viewport-fit=cover) 🌟 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>EV Life - 🐾 LUXGEN n⁷ 行駛日誌</title>
     
@@ -12,8 +12,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="EV Life">
     
-    <!-- iOS 專屬 Icon 換成實體符合規範的 PNG，徹底避免被判定為一般網頁書籤 -->
-    <link rel="apple-touch-icon" href="https://placehold.co/192x192/1e293b/14b8a6.png?text=n7">
+    <!-- 🌟 iOS 專屬 Icon 改為讀取您本地的 icon-192.png 🌟 -->
+    <link rel="apple-touch-icon" href="icon-192.png">
     
     <!-- PWA 設定清單鏈結 -->
     <link rel="manifest" id="pwaManifestLink" href="manifest.json">
@@ -267,7 +267,7 @@
                 <!-- 標誌與 LUXGEN n7 照片容器 -->
                 <div class="flex items-center space-x-1.5 sm:space-x-3 flex-shrink-0">
                     <div class="relative w-11 h-7 sm:w-14 sm:h-9 rounded-lg sm:rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border-2 border-slate-800 dark:border-slate-700 bg-[#7dd3fc] dark:bg-black shadow-[1.5px_1.5px_0px_0px_#1e293b] dark:shadow-[1.5px_1.5px_0px_0px_#000000] sm:shadow-[2px_2px_0px_0px_#1e293b] sm:dark:shadow-[2px_2px_0px_0px_#000000] transition-all">
-                        <!-- 🌟 關鍵修正：將 src 預設路徑指向當前根目錄的 logo.png 🌟 -->
+                        <!-- 🌟 將 src 預設路徑指向當前根目錄的 logo.png 🌟 -->
                         <img id="navLogoImg" src="logo.png" alt="LUXGEN n7" class="w-full h-full object-cover scale-105 transition-all duration-300 dark:brightness-90 dark:opacity-85" onerror="handleLogoError(this)">
                     </div>
                     <!-- 導覽列標題 -->
@@ -1604,6 +1604,13 @@ function doPost(e) {
                 rec.consumedSocPercent = consumedSocPercent;
             }
 
+            // 🌟 核心更新：根據時序動態推算每趟旅程的滾動累計 Odometer（累計里程總和）🌟
+            let rollingOdoAccumulator = initialOdometer;
+            activeRecords.forEach(rec => {
+                rollingOdoAccumulator += parseFloat(rec.distance) || 0;
+                rec.rollingOdo = rollingOdoAccumulator;
+            });
+
             // --- 核心修正二：基於電量守恆定律計算總消耗量 ---
             let totalKm = 0;
             let totalCost = 0;
@@ -1727,7 +1734,7 @@ function doPost(e) {
                 // 2. 手機端卡片
                 let mobileSocText = "";
                 if (hasValidSoc) {
-                    mobileSocText = `${startSocVal}% ➔ ${endSocVal}% <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">(${subActionWord} ${powerPercent}%)</span>`;
+                    mobileSocText = `${startSocVal}% ➔ ${endSocVal}%`;
                 } else {
                     mobileSocText = `${powerPercent}%`;
                 }
@@ -1765,37 +1772,54 @@ function doPost(e) {
                         </div>
                     </div>
                     
-                    <!-- 🌟 關鍵修正：更換為絕不重疊的客製化 Grid 卡片佈局 🌟 -->
+                    <!-- 🌟 關鍵修正：全新完美對稱、防換行與對齊 Grid 排版 🌟 -->
                     <div class="grid grid-cols-2 gap-3 pt-2">
-                        <!-- 行駛里程 -->
-                        <div class="bg-slate-50 dark:bg-neutral-900/40 p-2.5 rounded-2xl border border-slate-200/50 dark:border-neutral-800">
-                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-black">行駛里程</span>
-                            <span class="font-extrabold text-slate-700 dark:text-slate-200 text-sm font-mono block">${parseFloat(rec.distance)} KM</span>
+                        <!-- 行駛里程 (左側) -->
+                        <div class="bg-slate-50 dark:bg-neutral-900/40 p-3 rounded-2xl border border-slate-200/50 dark:border-neutral-800/80 flex flex-col justify-between items-stretch min-h-[92px]">
+                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-black leading-none mb-1">行駛里程</span>
+                            <div class="whitespace-nowrap my-1 leading-none">
+                                <span class="font-black text-slate-800 dark:text-slate-100 text-base sm:text-lg font-mono">${parseFloat(rec.distance)}</span>
+                                <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold ml-0.5">km</span>
+                            </div>
+                            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold leading-tight block mt-1">
+                                (累計里程 ${rec.rollingOdo.toFixed(1)} km)
+                            </span>
                         </div>
-                        <!-- 電耗表現 -->
-                        <div class="bg-slate-50 dark:bg-neutral-900/40 p-2.5 rounded-2xl border border-slate-200/50 dark:border-neutral-800">
-                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-black">電耗表現</span>
-                            <span class="font-extrabold text-cuteMint-600 dark:text-cuteMint-400 text-sm font-mono block">${efficiency} km/度</span>
-                            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-normal block leading-tight">
+                        
+                        <!-- 電耗表現 (右側) -->
+                        <div class="bg-slate-50 dark:bg-neutral-900/40 p-3 rounded-2xl border border-slate-200/50 dark:border-neutral-800/80 flex flex-col justify-between items-stretch min-h-[92px]">
+                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-black leading-none mb-1">電耗表現</span>
+                            <div class="whitespace-nowrap my-1 leading-none">
+                                <span class="font-black text-cuteMint-600 dark:text-cuteMint-400 text-base sm:text-lg font-mono">${efficiency}</span>
+                                <span class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 font-bold ml-0.5">km/度</span>
+                            </div>
+                            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold leading-tight block mt-1">
                                 (消耗 ${rowConsumedSoc}% | ${rowConsumedPower.toFixed(1)}度)
                             </span>
                         </div>
-                        <!-- 電量變化與費用 (單獨成大列，左右分流，徹底防重疊) -->
-                        <div class="col-span-2 bg-slate-50 dark:bg-neutral-900/40 p-3 rounded-2xl border border-slate-200/50 dark:border-neutral-800 space-y-2">
-                            <div class="flex justify-between items-center text-[10px] text-slate-400 dark:text-slate-500 font-black">
-                                <span>補給起訖 (電量與度數)</span>
-                                <span>本次費用</span>
-                            </div>
-                            <div class="flex justify-between items-start gap-2">
-                                <div class="font-mono text-xs text-slate-700 dark:text-slate-200">
-                                    <div class="font-black text-sm">${startSocVal}% ➔ ${endSocVal}%</div>
-                                    <div class="text-[10px] text-slate-400 dark:text-slate-500 font-normal">
-                                        (${subActionWord} ${powerPercent}% | ${parseFloat(rec.power).toFixed(1)} 度)
+                        
+                        <!-- 電量變化與費用 (下方滿版，加入中間精緻分隔線，徹底杜絕橫向重疊) -->
+                        <div class="col-span-2 bg-slate-50 dark:bg-neutral-900/40 p-3.5 rounded-2xl border border-slate-200/50 dark:border-neutral-800/80 flex justify-between items-stretch gap-4">
+                            <!-- 左區：補電變化 -->
+                            <div class="space-y-1 flex-1 min-w-0 flex flex-col justify-between">
+                                <span class="text-[9px] text-slate-400 dark:text-slate-500 block font-black uppercase tracking-wider leading-none">補給起訖 (電量與度數)</span>
+                                <div class="font-mono text-slate-700 dark:text-slate-200">
+                                    <div class="font-black text-xs sm:text-sm whitespace-nowrap leading-tight">${mobileSocText}</div>
+                                    <div class="text-[9px] text-slate-400 dark:text-slate-500 font-bold leading-tight truncate">
+                                        (${subActionWord} ${powerPercent}% | ${parseFloat(rec.power).toFixed(1)}度)
                                     </div>
                                 </div>
-                                <div class="font-mono text-right flex-shrink-0">
-                                    <span class="font-black text-sm text-slate-700 dark:text-slate-200">${rec.cost}</span>
-                                    <span class="text-[10px] text-slate-400"> 元</span>
+                            </div>
+                            
+                            <!-- 中間分隔虛線 -->
+                            <div class="w-[2px] bg-slate-200 dark:bg-neutral-800/80 self-stretch my-1"></div>
+                            
+                            <!-- 右區：費用 -->
+                            <div class="text-right flex-shrink-0 min-w-[72px] flex flex-col justify-between">
+                                <span class="text-[9px] text-slate-400 dark:text-slate-500 block font-black uppercase tracking-wider leading-none">本次費用</span>
+                                <div class="font-mono leading-none mt-1">
+                                    <span class="font-black text-sm sm:text-base text-slate-800 dark:text-slate-100">${rec.cost}</span>
+                                    <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold">元</span>
                                 </div>
                             </div>
                         </div>
@@ -2329,8 +2353,7 @@ function doPost(e) {
         }
 
         // 下載 manifest.json
-        // 🌟 關鍵修正：將 Manifest 內的圖標徹底更換為可靠的實體 PNG。
-        // 這能 100% 滿足 Chrome 與 Safari 對於 PWA 安全性與安裝標準的校驗，避免降級為一般網頁捷徑。 🌟
+        // 🌟 關鍵修正：將下載生成的圖示也自動鏈結為您本地的專體圖示名稱 🌟
         function downloadManifest() {
             const manifestObj = {
                 "name": "EV Life - LUXGEN n7 行駛日誌",
@@ -2344,13 +2367,13 @@ function doPost(e) {
                 "orientation": "portrait-primary",
                 "icons": [
                     {
-                        "src": "https://placehold.co/192x192/1e293b/14b8a6.png?text=n7",
+                        "src": "icon-192.png",
                         "sizes": "192x192",
                         "type": "image/png",
                         "purpose": "any"
                     },
                     {
-                        "src": "https://placehold.co/512x512/1e293b/14b8a6.png?text=n7",
+                        "src": "icon-512.png",
                         "sizes": "512x512",
                         "type": "image/png",
                         "purpose": "any"
@@ -2369,6 +2392,9 @@ const ASSETS = [
   './',
   'index.html',
   'manifest.json',
+  'logo.png',
+  'icon-192.png',
+  'icon-512.png',
   'https://cdn.tailwindcss.com',
   'https://cdn.jsdelivr.net/npm/chart.js'
 ];
