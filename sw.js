@@ -1,5 +1,5 @@
 // EV Life - LUXGEN n7 行駛日誌 PWA 離線快取快遞員
-const CACHE_NAME = 'ev-life-cache-v1';
+const CACHE_NAME = 'ev-life-cache-v2'; // 🌟 升級至 v2 確保資源能主動覆蓋更新 🌟
 const ASSETS = [
   './',
   'index.html',
@@ -34,8 +34,7 @@ self.addEventListener('activate', event => {
   );
 });
 
-// 3. 截獲請求：採用 Network-First With Cache-Fallback 或 Cache-First-With-Network-Update 策略
-// 確保您在無訊號的山區或高速公路上仍可載入行車日誌
+// 3. 截獲請求：確保您在無訊號的山區或高速公路上仍可載入行車日誌
 self.addEventListener('fetch', event => {
   // 略過雲端 API 同步 POST/GET 的請求，由實時網路發送
   if (event.request.url.includes('script.google.com')) {
