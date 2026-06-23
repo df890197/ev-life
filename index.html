@@ -811,7 +811,7 @@ function doPost(e) {
         let currentChartFilter = 'all'; // 全域圖表篩選狀態：'all' | 'efficiency' | 'cost'
         let deferredPrompt = null; // PWA 安裝事件暫存
 
-        // 動態 RPG HUD 時間更新函數
+        // 進階：動態更新時鐘
         function updateLiveClock() {
             const clockEl = document.getElementById('liveClockText');
             if (!clockEl) return;
@@ -1693,7 +1693,7 @@ function doPost(e) {
 
                 // 1. 電腦端表格行
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-cuteMint-50/20 dark:hover:bg-slate-800/40 transition border-b border-cuteMint-100 dark:border-slate-800/60";
+                tr.className = "hover:bg-cuteMint-50/20 dark:hover:bg-slate-800/40 transition border-b border-cuteMint-100/60 dark:border-slate-800/60";
                 tr.innerHTML = `
                     <td class="px-1 lg:px-2 py-3 text-center font-bold text-slate-800 dark:text-slate-200 whitespace-nowrap font-mono">${displayDate}</td>
                     <td class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">
@@ -2225,13 +2225,27 @@ function doPost(e) {
 
         // ==================== PWA 核心技術擴充腳本 ====================
 
-        // 1. Service Worker 註冊機制
+        // 1. Service Worker 註冊機制 (支援自動快取破壞)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                // 嘗試註冊同目錄下的 sw.js
                 navigator.serviceWorker.register('sw.js')
                     .then(reg => {
                         console.log('EV Life PWA Service Worker 註冊成功！範疇：', reg.scope);
+                        
+                        // 🌟 核心更新：如果偵測到 SW 檔案有變更（即快取名稱升級為 v3），立即強制重整 🌟
+                        reg.onupdatefound = () => {
+                            const installingWorker = reg.installing;
+                            installingWorker.onstatechange = () => {
+                                if (installingWorker.state === 'installed') {
+                                    if (navigator.serviceWorker.controller) {
+                                        showToast("偵測到系統全新升級！正在為您自動更新並載入新版... ⚡");
+                                        setTimeout(() => {
+                                            window.location.reload();
+                                        }, 1500);
+                                    }
+                                }
+                            };
+                        };
                         updatePwaDiagnostic();
                     })
                     .catch(err => {
@@ -2243,11 +2257,9 @@ function doPost(e) {
 
         // 2. 安裝狀態攔截與觸發 (BeforeInstallPrompt)
         window.addEventListener('beforeinstallprompt', (e) => {
-            // 防止瀏覽器預設的彈出框，改由我們提供更漂亮的 RPG 街機風格安裝按鈕
             e.preventDefault();
             deferredPrompt = e;
             
-            // 顯現頂部與內部安裝按鈕
             const navInstallBtn = document.getElementById('navInstallBtn');
             if (navInstallBtn) navInstallBtn.classList.remove('hidden');
             
@@ -2259,7 +2271,6 @@ function doPost(e) {
             updatePwaDiagnostic();
         });
 
-        // 安裝觸發器
         function triggerPwaInstall() {
             if (!deferredPrompt) {
                 showToast("當前裝置已安裝此應用程式，或瀏覽器已略過 PWA 安裝。🐾");
@@ -2299,7 +2310,6 @@ function doPost(e) {
             const diagSw = document.getElementById('diag-sw');
             const diagNetwork = document.getElementById('diag-network');
 
-            // 協議安全檢測 (localhost / 127.0.0.1 在 PWA 中也安全)
             const isHttps = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
             if (diagHttps) {
                 diagHttps.innerHTML = isHttps 
@@ -2307,7 +2317,6 @@ function doPost(e) {
                     : '<span class="text-rose-500 font-extrabold">🔴 HTTP 模式 (PWA 需部署至 HTTPS 或 localhost 才能安裝)</span>';
             }
 
-            // Service Worker 快取模組檢測
             if (diagSw) {
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.getRegistration().then(reg => {
@@ -2324,7 +2333,6 @@ function doPost(e) {
                 }
             }
 
-            // 在線/離線狀態
             if (diagNetwork) {
                 diagNetwork.innerHTML = navigator.onLine
                     ? '<span class="text-emerald-500 font-extrabold">🟢 在線模式 (同步上雲網路正常)</span>'
@@ -2332,7 +2340,6 @@ function doPost(e) {
             }
         }
 
-        // 監聽連線變動
         window.addEventListener('online', () => {
             updatePwaDiagnostic();
             showToast("網路已恢復，已回到在線同步模式 ⚡");
@@ -2353,7 +2360,6 @@ function doPost(e) {
         }
 
         // 下載 manifest.json
-        // 🌟 關鍵修正：將下載生成的圖示也自動鏈結為您本地的專體圖示名稱 🌟
         function downloadManifest() {
             const manifestObj = {
                 "name": "EV Life - LUXGEN n7 行駛日誌",
@@ -2387,7 +2393,7 @@ function doPost(e) {
         // 下載 sw.js
         function downloadServiceWorker() {
             const swCode = `// EV Life - LUXGEN n7 行駛日誌 PWA 離線快取快遞員
-const CACHE_NAME = 'ev-life-cache-v2'; // 🌟 升級至 v2 確保資源能主動覆蓋更新 🌟
+const CACHE_NAME = 'ev-life-cache-v3'; // 🌟 快取升級至 v3 🌟
 const ASSETS = [
   './',
   'index.html',
@@ -2399,7 +2405,6 @@ const ASSETS = [
   'https://cdn.jsdelivr.net/npm/chart.js'
 ];
 
-// 1. 安裝 Service Worker：主動將重要套件與本體網頁存入快取記憶體
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
@@ -2409,7 +2414,6 @@ self.addEventListener('install', event => {
   );
 });
 
-// 2. 啟用階段：清除舊版本的過時快取，保持輕量
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys => {
@@ -2425,9 +2429,7 @@ self.addEventListener('activate', event => {
   );
 });
 
-// 3. 截獲請求：確保您在無訊號的山區或高速公路上仍可載入行車日誌
 self.addEventListener('fetch', event => {
-  // 略過雲端 API 同步 POST/GET 的請求，由實時網路發送
   if (event.request.url.includes('script.google.com')) {
     return;
   }
@@ -2435,17 +2437,14 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
       if (cachedResponse) {
-        // 在背景發送請求取得最新版本，更新快取，保證下次開啟是最新
         fetch(event.request).then(networkResponse => {
           if (networkResponse.status === 200) {
             caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse));
           }
-        }).catch(() => {/* 離線時忽略錯誤 */});
-        
-        return cachedResponse; // 立即返還快取，零秒極速載入
+        }).catch(() => {});
+        return cachedResponse;
       }
       
-      // 若快取無資源，改由網路載入並塞入快取
       return fetch(event.request).then(networkResponse => {
         if (networkResponse.status === 200) {
           return caches.open(CACHE_NAME).then(cache => {
@@ -2454,9 +2453,7 @@ self.addEventListener('fetch', event => {
           });
         }
         return networkResponse;
-      }).catch(() => {
-        // 全線斷網且無快取資源
-      });
+      }).catch(() => {});
     })
   );
 });`;
