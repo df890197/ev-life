@@ -10,7 +10,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="EV Life">
-    <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='192' height='192' viewBox='0 0 192 192'><rect width='100%' height='100%' rx='40' fill='%231e293b'/><circle cx='96' cy='96' r='64' fill='%2314b8a6'/><text x='50%' y='55%' d='middle' text-anchor='middle' font-family='sans-serif' font-size='64' font-weight='900' fill='%23ffffff'>n7</text></svg>">
+    
+    <!-- 🌟 關鍵修正：iOS 專屬 Icon 換成實體符合規範的 PNG，徹底避免被判定為一般網頁書籤 🌟 -->
+    <link rel="apple-touch-icon" href="https://placehold.co/192x192/1e293b/14b8a6.png?text=n7">
     
     <!-- PWA 設定清單鏈結 -->
     <link rel="manifest" id="pwaManifestLink" href="manifest.json">
@@ -258,14 +260,14 @@
     <nav class="bg-gradient-to-r from-[#fffdf5] to-[#fffefb] dark:from-neutral-950 dark:to-black border-b-4 border-[#1e293b] text-slate-800 dark:text-slate-100 sticky top-0 z-50 transition-colors shadow-md">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16 gap-x-2">
-                <!-- 標誌與 LUXGEN n⁷ 照片容器 -->
+                <!-- 標誌與 LUXGEN n7 照片容器 -->
                 <div class="flex items-center space-x-1.5 sm:space-x-3 flex-shrink-0">
                     <div class="relative w-11 h-7 sm:w-14 sm:h-9 rounded-lg sm:rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border-2 border-slate-800 dark:border-slate-700 bg-[#7dd3fc] dark:bg-black shadow-[1.5px_1.5px_0px_0px_#1e293b] dark:shadow-[1.5px_1.5px_0px_0px_#000000] sm:shadow-[2px_2px_0px_0px_#1e293b] sm:dark:shadow-[2px_2px_0px_0px_#000000] transition-all">
-                        <img id="navLogoImg" src="data:image/png;base64,123" alt="LUXGEN n⁷" class="w-full h-full object-cover scale-105 transition-all duration-300 dark:brightness-90 dark:opacity-85" onerror="handleLogoError(this)">
+                        <img id="navLogoImg" src="data:image/png;base64,123" alt="LUXGEN n7" class="w-full h-full object-cover scale-105 transition-all duration-300 dark:brightness-90 dark:opacity-85" onerror="handleLogoError(this)">
                     </div>
                     <!-- 導覽列標題 -->
                     <span id="navEvBrandName" class="font-extrabold text-sm sm:text-lg tracking-wider whitespace-nowrap flex-shrink-0">
-                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 via-teal-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:via-teal-600 dark:to-cuteBlue-300 font-extrabold">LUXGEN n⁷</span>
+                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 via-teal-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:via-teal-600 dark:to-cuteBlue-300 font-extrabold">LUXGEN n7</span>
                         <span class="text-slate-500 dark:text-slate-400 text-xs font-medium ml-1 hidden sm:inline"> の 純電之旅</span>
                     </span>
                 </div>
@@ -432,6 +434,26 @@ function doPost(e) {
                         </p>
                     </div>
 
+                    <!-- 🌟 關鍵修正：加入超清楚的手機端安裝指南 🌟 -->
+                    <div class="bg-amber-500/10 dark:bg-amber-500/5 p-4 rounded-2xl border-2 border-amber-500/30 text-xs space-y-2">
+                        <span class="font-black text-amber-600 dark:text-amber-400 flex items-center">
+                            💡 重要！如何安裝成真正的 standalone App？
+                        </span>
+                        <div class="space-y-1 text-[11px] leading-relaxed text-slate-600 dark:text-slate-400">
+                            <p>🍏 <strong class="text-slate-900 dark:text-white">iOS 蘋果用戶 (iPhone / iPad)</strong>：</p>
+                            <ul class="list-disc pl-4 space-y-0.5">
+                                <li>必須使用原生 <strong class="text-cuteMint-600">Safari 瀏覽器</strong> 開啟網址（不能用 Chrome 或是 Line 內建視窗）。</li>
+                                <li>點擊 Safari 底部工具列的 <strong class="text-slate-900 dark:text-white">「分享」</strong> 按鈕（箭頭向上圖示）。</li>
+                                <li>向下捲動並選擇 <strong class="text-slate-900 dark:text-white">「加入主畫面」</strong>，點擊右上角新增。這時桌面上就會出現真正的 App，打開時將沒有瀏覽器網址列！</li>
+                            </ul>
+                            <p class="pt-1.5">🤖 <strong class="text-slate-900 dark:text-white">Android 安卓用戶 / 電腦端</strong>：</p>
+                            <ul class="list-disc pl-4 space-y-0.5">
+                                <li>點擊本設定頁中的 <strong class="text-slate-900 dark:text-white">「一鍵將本系統安裝至手機桌面」</strong> 按钮，或點擊瀏覽器網址列右側的 <strong class="text-slate-900 dark:text-white">「安裝」</strong> 圖標。</li>
+                                <li>安裝成功後，會在桌面與「應用程式清單」中找到 EV Life。</li>
+                            </ul>
+                        </div>
+                    </div>
+
                     <!-- PWA 即時診斷清單 -->
                     <div class="bg-white dark:bg-black p-4 rounded-2xl border-2 border-slate-800 space-y-2.5 text-xs">
                         <span class="font-black text-slate-700 dark:text-slate-300">🔍 PWA 系統環境診斷：</span>
@@ -539,7 +561,7 @@ function doPost(e) {
                     <span id="statTotalKm" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100 font-mono tracking-tight">0</span>
                     <span class="text-xs font-bold text-slate-400 ml-1">km</span>
                 </div>
-                <span id="statVehicleSub" class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 mt-2 font-bold">愛車 LUXGEN n⁷ 已陪伴您行駛了長遠路程 🐾</span>
+                <span id="statVehicleSub" class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 mt-2 font-bold">愛車 LUXGEN n7 已陪伴您行駛了長遠路程 🐾</span>
             </div>
             <!-- 平均電耗 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
@@ -1504,7 +1526,7 @@ function doPost(e) {
                 brandSpan.innerHTML = `<span class="bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 via-teal-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:via-teal-600 dark:to-cuteBlue-300 font-extrabold">${evName}</span><span class="text-slate-500 dark:text-slate-400 text-xs font-medium ml-1 hidden sm:inline"> の 純電之旅</span>`;
             }
 
-            // 優化排序邏輯：若日期相同，則使用 ID (建立時的時間戳記) 作為二次排序基準，避免順序閃爍亂序
+            // 優化排序邏輯：若日期相同，則使用 ID (建立時的時間戳記) 作為二次排序基準，避免順序閃爍逆序
             records.sort((a, b) => new Date(a.date) - new Date(b.date) || parseInt(a.id, 10) - parseInt(b.id, 10));
 
             const tableBody = document.getElementById('recordTableBody');
@@ -2291,12 +2313,14 @@ function doPost(e) {
         }
 
         // 下載 manifest.json
+        // 🌟 關鍵修正：將 Manifest 內的圖標徹底更換為可靠的實體 PNG。
+        // 這能 100% 滿足 Chrome 與 Safari 對於 PWA 安全性與安裝標準的校驗，避免降級為一般網頁捷徑。 🌟
         function downloadManifest() {
             const manifestObj = {
                 "name": "EV Life - LUXGEN n7 行駛日誌",
                 "short_name": "EV Life",
                 "description": "精準記錄每一段行駛與電能補給數據的行駛日誌工具。",
-                "start_url": "./",
+                "start_url": "index.html",
                 "scope": "./",
                 "display": "standalone",
                 "background_color": "#fcfaf2",
@@ -2304,27 +2328,27 @@ function doPost(e) {
                 "orientation": "portrait-primary",
                 "icons": [
                     {
-                        "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='192' height='192' viewBox='0 0 192 192'><rect width='100%' height='100%' rx='40' fill='%231e293b'/><circle cx='96' cy='96' r='64' fill='%2314b8a6'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='64' font-weight='900' fill='%23ffffff'>n7</text></svg>",
+                        "src": "https://placehold.co/192x192/1e293b/14b8a6.png?text=n7",
                         "sizes": "192x192",
-                        "type": "image/svg+xml",
-                        "purpose": "any maskable"
+                        "type": "image/png",
+                        "purpose": "any"
                     },
                     {
-                        "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='512' height='512' viewBox='0 0 512 512'><rect width='100%' height='100%' rx='96' fill='%231e293b'/><circle cx='256' cy='256' r='180' fill='%2314b8a6'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='180' font-weight='900' fill='%23ffffff'>n7</text></svg>",
+                        "src": "https://placehold.co/512x512/1e293b/14b8a6.png?text=n7",
                         "sizes": "512x512",
-                        "type": "image/svg+xml",
-                        "purpose": "any maskable"
+                        "type": "image/png",
+                        "purpose": "any"
                     }
                 ]
             };
             downloadBlobFile(JSON.stringify(manifestObj, null, 2), "manifest.json", "application/json");
-            showToast("成功下載 manifest.json！請直接上傳至與 index.html 相同的根目錄。🐾");
+            showToast("成功下載 manifest.json！請覆蓋舊檔並推送到 GitHub 🐾");
         }
 
         // 下載 sw.js
         function downloadServiceWorker() {
             const swCode = `// EV Life - LUXGEN n7 行駛日誌 PWA 離線快取快遞員
-const CACHE_NAME = 'ev-life-cache-v1';
+const CACHE_NAME = 'ev-life-cache-v2'; // 🌟 升級至 v2 確保資源能主動覆蓋更新 🌟
 const ASSETS = [
   './',
   'index.html',
@@ -2359,8 +2383,7 @@ self.addEventListener('activate', event => {
   );
 });
 
-// 3. 截獲請求：採用 Network-First With Cache-Fallback 或 Cache-First-With-Network-Update 策略
-// 確保您在無訊號的山區或高速公路上仍可載入行車日誌
+// 3. 截獲請求：確保您在無訊號的山區或高速公路上仍可載入行車日誌
 self.addEventListener('fetch', event => {
   // 略過雲端 API 同步 POST/GET 的請求，由實時網路發送
   if (event.request.url.includes('script.google.com')) {
@@ -2396,7 +2419,7 @@ self.addEventListener('fetch', event => {
   );
 });`;
             downloadBlobFile(swCode, "sw.js", "application/javascript");
-            showToast("成功下載 sw.js！請直接上傳至與 index.html 相同的根目錄。🐾");
+            showToast("成功下載 sw.js！請覆蓋舊檔並推送到 GitHub 🐾");
         }
     </script>
 </body>
