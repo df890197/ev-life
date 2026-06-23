@@ -1703,12 +1703,12 @@ function doPost(e) {
                 tr.querySelector('.delete-btn').addEventListener('click', () => confirmDeleteRecord(rec.id));
                 if (tableBody) tableBody.appendChild(tr);
 
-                // 2. 手機端卡片
+                // 2. 手機端卡片 (🌟 全新完美對稱美學排版 🌟)
                 let mobileSocText = "";
                 if (hasValidSoc) {
-                    mobileSocText = `${startSocVal}% ➔ ${endSocVal}%`;
+                    mobileSocText = `<span class="font-black text-sm sm:text-base text-slate-800 dark:text-slate-100 font-mono tracking-tight">${startSocVal}% ➔ ${endSocVal}%</span>`;
                 } else {
-                    mobileSocText = `${powerPercent}%`;
+                    mobileSocText = `<span class="font-black text-sm sm:text-base text-slate-800 dark:text-slate-100 font-mono tracking-tight">${powerPercent}%</span>`;
                 }
 
                 const card = document.createElement('div');
@@ -1744,57 +1744,54 @@ function doPost(e) {
                         </div>
                     </div>
                     
-                    <!-- 🌟 關鍵修正：全新無裁切、完美對稱、防換行與對齊 Grid 排版 🌟 -->
-                    <div class="grid grid-cols-2 gap-3 pt-2">
-                        <!-- 行駛里程 (左側) -->
-                        <div class="bg-slate-50 dark:bg-neutral-900/40 p-3 rounded-2xl border border-slate-200/50 dark:border-neutral-800/80 flex flex-col justify-between items-stretch min-h-[92px]">
-                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-black leading-none mb-1">行駛里程</span>
-                            <div class="whitespace-nowrap my-1 leading-none">
-                                <span class="font-black text-slate-800 dark:text-slate-100 text-base sm:text-lg font-mono">${parseFloat(rec.distance)}</span>
-                                <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold ml-0.5">km</span>
+                    <!-- 🌟 Grid 3.0：強制防擠壓、絕對中線、與靠左對齊設計 🌟 -->
+                    <div class="grid grid-cols-2 gap-2.5 pt-2">
+                        
+                        <!-- 上排左側：行駛里程 -->
+                        <div class="bg-slate-50 dark:bg-neutral-900/40 p-3 rounded-[1rem] border border-slate-200/50 dark:border-neutral-800/80 flex flex-col justify-center overflow-hidden">
+                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-bold mb-1 whitespace-nowrap">行駛里程</span>
+                            <div class="flex items-baseline whitespace-nowrap">
+                                <span class="font-black text-slate-800 dark:text-slate-100 text-base sm:text-lg font-mono tracking-tight">${parseFloat(rec.distance)}</span>
+                                <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold ml-1">km</span>
                             </div>
-                            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold leading-tight block mt-1">
+                            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold mt-1 whitespace-nowrap tracking-tight">
                                 (累計里程 ${rec.rollingOdo.toFixed(1)} km)
                             </span>
                         </div>
                         
-                        <!-- 電耗表現 (右側) -->
-                        <div class="bg-slate-50 dark:bg-neutral-900/40 p-3 rounded-2xl border border-slate-200/50 dark:border-neutral-800/80 flex flex-col justify-between items-stretch min-h-[92px]">
-                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-black leading-none mb-1">電耗表現</span>
-                            <div class="whitespace-nowrap my-1 leading-none">
-                                <span class="font-black text-cuteMint-600 dark:text-cuteMint-400 text-base sm:text-lg font-mono">${efficiency}</span>
-                                <span class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 font-bold ml-0.5">km/度</span>
+                        <!-- 上排右側：電耗表現 -->
+                        <div class="bg-slate-50 dark:bg-neutral-900/40 p-3 rounded-[1rem] border border-slate-200/50 dark:border-neutral-800/80 flex flex-col justify-center overflow-hidden">
+                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-bold mb-1 whitespace-nowrap">電耗表現</span>
+                            <div class="flex items-baseline whitespace-nowrap">
+                                <span class="font-black text-cuteMint-600 dark:text-cuteMint-400 text-base sm:text-lg font-mono tracking-tight">${efficiency}</span>
+                                <span class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 font-bold ml-1">km/度</span>
                             </div>
-                            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold leading-tight block mt-1">
+                            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold mt-1 whitespace-nowrap tracking-tight">
                                 (消耗 ${rowConsumedSoc}% | ${rowConsumedPower.toFixed(1)}度)
                             </span>
                         </div>
                         
-                        <!-- 電量變化與費用 (下方滿版，加入中間精緻分隔線，徹底杜絕橫向重疊) -->
-                        <!-- 🌟 關鍵修正：移除這裡的 truncate 類別，防止補給電量括號內容被縮寫為 "..." 🌟 -->
-                        <div class="col-span-2 bg-slate-50 dark:bg-neutral-900/40 p-3.5 rounded-2xl border border-slate-200/50 dark:border-neutral-800/80 flex justify-between items-stretch gap-4">
-                            <!-- 左區：補電變化 -->
-                            <div class="space-y-1 flex-1 min-w-0 flex flex-col justify-between">
-                                <span class="text-[9px] text-slate-400 dark:text-slate-500 block font-black uppercase tracking-wider leading-none">補給起訖 (電量與度數)</span>
-                                <div class="font-mono text-slate-700 dark:text-slate-200">
-                                    <div class="font-black text-xs sm:text-sm whitespace-nowrap leading-tight">${mobileSocText}</div>
-                                    <div class="text-[9px] text-slate-400 dark:text-slate-500 font-bold leading-tight">
-                                        (${subActionWord} ${powerPercent}% | ${parseFloat(rec.power).toFixed(1)}度)
-                                    </div>
-                                </div>
+                        <!-- 下排滿版：起訖電量 與 本次費用 (結合為一個盒子，中間切線，保證完美居中) -->
+                        <div class="col-span-2 bg-slate-50 dark:bg-neutral-900/40 rounded-[1rem] border border-slate-200/50 dark:border-neutral-800/80 flex overflow-hidden">
+                            
+                            <!-- 底部左半部：補給起訖 -->
+                            <div class="flex-1 p-3 border-r border-slate-200/80 dark:border-neutral-800/80 flex flex-col justify-center min-w-0">
+                                <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-bold mb-1 whitespace-nowrap">補給起訖 (電量與度數)</span>
+                                <div class="whitespace-nowrap">${mobileSocText}</div>
+                                <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold mt-1 whitespace-nowrap tracking-tight">
+                                    (${subActionWord} ${powerPercent}% | ${parseFloat(rec.power).toFixed(1)}度)
+                                </span>
                             </div>
                             
-                            <!-- 中間分隔虛線 -->
-                            <div class="w-[2px] bg-slate-200 dark:bg-neutral-800/80 self-stretch my-1"></div>
-                            
-                            <!-- 右區：費用 -->
-                            <div class="text-right flex-shrink-0 min-w-[72px] flex flex-col justify-between">
-                                <span class="text-[9px] text-slate-400 dark:text-slate-500 block font-black uppercase tracking-wider leading-none">本次費用</span>
-                                <div class="font-mono leading-none mt-1">
-                                    <span class="font-black text-sm sm:text-base text-slate-800 dark:text-slate-100">${rec.cost}</span>
-                                    <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold">元</span>
+                            <!-- 底部右半部：本次費用 (改為靠左對齊 text-left) -->
+                            <div class="flex-1 p-3 flex flex-col justify-center min-w-0 text-left">
+                                <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-bold mb-1 whitespace-nowrap">本次費用</span>
+                                <div class="flex items-baseline whitespace-nowrap mt-0.5">
+                                    <span class="font-black text-lg sm:text-xl text-slate-800 dark:text-slate-100 font-mono tracking-tight">${rec.cost}</span>
+                                    <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold ml-1">元</span>
                                 </div>
                             </div>
+
                         </div>
                     </div>
 
