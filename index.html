@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="EV Life">
     
-    <!-- 🌟 關鍵修正：iOS 專屬 Icon 換成實體符合規範的 PNG，徹底避免被判定為一般網頁書籤 🌟 -->
+    <!-- iOS 專屬 Icon 換成實體符合規範的 PNG，徹底避免被判定為一般網頁書籤 -->
     <link rel="apple-touch-icon" href="https://placehold.co/192x192/1e293b/14b8a6.png?text=n7">
     
     <!-- PWA 設定清單鏈結 -->
@@ -263,7 +263,8 @@
                 <!-- 標誌與 LUXGEN n7 照片容器 -->
                 <div class="flex items-center space-x-1.5 sm:space-x-3 flex-shrink-0">
                     <div class="relative w-11 h-7 sm:w-14 sm:h-9 rounded-lg sm:rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border-2 border-slate-800 dark:border-slate-700 bg-[#7dd3fc] dark:bg-black shadow-[1.5px_1.5px_0px_0px_#1e293b] dark:shadow-[1.5px_1.5px_0px_0px_#000000] sm:shadow-[2px_2px_0px_0px_#1e293b] sm:dark:shadow-[2px_2px_0px_0px_#000000] transition-all">
-                        <img id="navLogoImg" src="data:image/png;base64,123" alt="LUXGEN n7" class="w-full h-full object-cover scale-105 transition-all duration-300 dark:brightness-90 dark:opacity-85" onerror="handleLogoError(this)">
+                        <!-- 🌟 關鍵修正：將 src 預設路徑指向當前根目錄的 logo.png 🌟 -->
+                        <img id="navLogoImg" src="logo.png" alt="LUXGEN n7" class="w-full h-full object-cover scale-105 transition-all duration-300 dark:brightness-90 dark:opacity-85" onerror="handleLogoError(this)">
                     </div>
                     <!-- 導覽列標題 -->
                     <span id="navEvBrandName" class="font-extrabold text-sm sm:text-lg tracking-wider whitespace-nowrap flex-shrink-0">
@@ -434,7 +435,7 @@ function doPost(e) {
                         </p>
                     </div>
 
-                    <!-- 🌟 關鍵修正：加入超清楚的手機端安裝指南 🌟 -->
+                    <!-- 重要！手機端安裝指南 -->
                     <div class="bg-amber-500/10 dark:bg-amber-500/5 p-4 rounded-2xl border-2 border-amber-500/30 text-xs space-y-2">
                         <span class="font-black text-amber-600 dark:text-amber-400 flex items-center">
                             💡 重要！如何安裝成真正的 standalone App？
@@ -861,7 +862,7 @@ function doPost(e) {
             renderDashboard(); // 確保切換主題時，動態生成的愛車名稱標籤顏色同步更新！
         }
 
-        // 輔助函式：統一保存本地狀態並更新修改時間戳記
+        // 輔育函式：統一保存本地狀態並更新修改時間戳記
         function saveLocalState(newRecords) {
             records = newRecords;
             const timestamp = Date.now();
