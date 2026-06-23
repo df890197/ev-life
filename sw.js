@@ -1,5 +1,5 @@
 // EV Life - LUXGEN n7 行駛日誌 PWA 離線快取快遞員
-const CACHE_NAME = 'ev-life-cache-v3'; // 🌟 快取升級至 v3 🌟
+const CACHE_NAME = 'ev-life-cache-v3'; // 🌟 升級至 v3 確保資源能主動覆蓋更新 🌟
 const ASSETS = [
   './',
   'index.html',
