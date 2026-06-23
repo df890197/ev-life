@@ -4,6 +4,9 @@ const ASSETS = [
   './',
   'index.html',
   'manifest.json',
+  'logo.png',
+  'icon-192.png',
+  'icon-512.png',
   'https://cdn.tailwindcss.com',
   'https://cdn.jsdelivr.net/npm/chart.js'
 ];
