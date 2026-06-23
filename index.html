@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <!-- 🌟 關鍵修正：鎖定 PWA 行動端手勢縮放，防止誤觸跑版，適應現代手機瀏海屏 (viewport-fit=cover) 🌟 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>EV Life - 🐾 LUXGEN n⁷ 行駛日誌</title>
+    <title>EV Life - 🐾 LUXGEN n7 行駛日誌</title>
     
     <!-- PWA 行動裝置規格加強與色彩配置 -->
     <meta name="theme-color" content="#1e293b" id="theme-color-meta">
@@ -12,7 +12,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="EV Life">
     
-    <!-- 🌟 iOS 專屬 Icon 改為讀取您本地的 icon-192.png 🌟 -->
+    <!-- iOS 專屬 Icon 讀取本地的 icon-192.png -->
     <link rel="apple-touch-icon" href="icon-192.png">
     
     <!-- PWA 設定清單鏈結 -->
@@ -23,7 +23,6 @@
     <!-- 引入 Chart.js 用於能耗趨勢圖表 -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // 控制深色主題：結合 LocalStorage 與系統預設
         tailwind.config = {
             darkMode: 'class',
             theme: {
@@ -70,7 +69,7 @@
         }
         initTheme(); // DOM 加載前立即執行，徹底避免白光閃爍
 
-        // 當圖片載入失敗時，根據目前的主題（深色/淺色）智慧載入專屬占位圖
+        // 當圖片載入失敗時，根據目前的主題智慧載入專屬占位圖
         function handleLogoError(imgElement) {
             imgElement.onerror = null; // 防止無窮迴圈
             const isDark = document.documentElement.classList.contains('dark');
@@ -81,7 +80,7 @@
             }
         }
 
-        // 切換深淺色模式時，若使用的是 placeholder，一併更新其色調
+        // 切換主題時更新 placeholder
         function updateLogoPlaceholder() {
             const img = document.getElementById('navLogoImg');
             if (img && img.src.includes('placehold.co')) {
@@ -107,7 +106,7 @@
             font-family: 'JetBrains Mono', 'Noto Sans TC', monospace;
         }
         
-        /* 自訂可愛圓角滾動條 */
+        /* 自訂圓角滾動條 */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -116,7 +115,7 @@
             background: transparent;
         }
         ::-webkit-scrollbar-thumb {
-            background: rgba(186, 230, 253, 0.6); /* 寶寶藍半透明 */
+            background: rgba(186, 230, 253, 0.6);
             border-radius: 99px;
             border: 2px solid transparent;
             background-clip: padding-box;
@@ -140,9 +139,8 @@
             appearance: none;
             display: block;
             min-height: 2.75rem;
-            line-height: normal; /* 使用 normal 防止行高截斷中文字 */
+            line-height: normal;
         }
-        /* 解決 iOS Safari 原生日期輸入框垂直居中與裁剪的問題 */
         input[type="date"]::-webkit-date-and-time-value {
             height: auto;
             min-height: 1.5em;
@@ -151,7 +149,6 @@
             padding: 0;
             width: 100%;
         }
-        /* 確保 Webkit 內部的日期編輯欄位不會換行或截斷中文字 */
         input[type="date"]::-webkit-datetime-edit {
             padding: 0;
             display: inline-flex;
@@ -183,14 +180,12 @@
             box-shadow: 6px 6px 0px 0px #1e293b;
             transition: all 0.15s ease-in-out;
         }
-        /* 深色模式下立體陰影配置 */
         .dark .rpg-card {
             background: #000000;
             border: 4px solid #1e293b;
             box-shadow: 6px 6px 0px 0px #000000;
         }
 
-        /* 實心陰影 Q 彈懸浮回饋 */
         .rpg-card:hover {
             transform: translate(-2px, -2px);
             box-shadow: 8px 8px 0px 0px #1e293b;
@@ -199,7 +194,6 @@
             box-shadow: 8px 8px 0px 0px #000000;
         }
 
-        /* Q彈實體按鈕 - 經典街機按鍵質感 */
         .rpg-btn-primary {
             background: #2dd4bf;
             border: 3px solid #1e293b;
@@ -228,7 +222,6 @@
             box-shadow: 1px 1px 0px 0px #000000;
         }
 
-        /* 灰白輔助按鈕 */
         .rpg-btn-secondary {
             background: #f1f5f9;
             border: 3px solid #1e293b;
@@ -250,7 +243,6 @@
             box-shadow: 1px 1px 0px 0px #000000;
         }
 
-        /* 自適應滾動鎖定框 */
         .scrollable-log-container {
             max-height: 480px;
             overflow-y: auto;
@@ -264,44 +256,35 @@
     <nav class="bg-gradient-to-r from-[#fffdf5] to-[#fffefb] dark:from-neutral-950 dark:to-black border-b-4 border-[#1e293b] text-slate-800 dark:text-slate-100 sticky top-0 z-50 transition-colors shadow-md">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16 gap-x-2">
-                <!-- 標誌與 LUXGEN n7 照片容器 -->
                 <div class="flex items-center space-x-1.5 sm:space-x-3 flex-shrink-0">
                     <div class="relative w-11 h-7 sm:w-14 sm:h-9 rounded-lg sm:rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border-2 border-slate-800 dark:border-slate-700 bg-[#7dd3fc] dark:bg-black shadow-[1.5px_1.5px_0px_0px_#1e293b] dark:shadow-[1.5px_1.5px_0px_0px_#000000] sm:shadow-[2px_2px_0px_0px_#1e293b] sm:dark:shadow-[2px_2px_0px_0px_#000000] transition-all">
-                        <!-- 🌟 將 src 預設路徑指向當前根目錄的 logo.png 🌟 -->
                         <img id="navLogoImg" src="logo.png" alt="LUXGEN n7" class="w-full h-full object-cover scale-105 transition-all duration-300 dark:brightness-90 dark:opacity-85" onerror="handleLogoError(this)">
                     </div>
-                    <!-- 導覽列標題 -->
                     <span id="navEvBrandName" class="font-extrabold text-sm sm:text-lg tracking-wider whitespace-nowrap flex-shrink-0">
                         <span class="bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 via-teal-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:via-teal-600 dark:to-cuteBlue-300 font-extrabold">LUXGEN n7</span>
                         <span class="text-slate-500 dark:text-slate-400 text-xs font-medium ml-1 hidden sm:inline"> の 純電之旅</span>
                     </span>
                 </div>
                 
-                <!-- 控制按鈕組 (緊湊好按，拒絕重疊) -->
                 <div class="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
-                    <!-- PWA 快捷安裝按鈕 -->
                     <button id="navInstallBtn" onclick="triggerPwaInstall()" class="rpg-btn-primary text-[10px] sm:text-xs px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl font-black bg-amber-400 dark:bg-amber-500 border-2 border-slate-800 text-slate-900 dark:text-slate-950 shadow-[2px_2px_0px_0px_#1e293b] hover:bg-amber-300 flex items-center space-x-1 whitespace-nowrap flex-shrink-0 hidden">
                         <span>📲 安裝 App</span>
                     </button>
-                    <!-- 深淺色模式切換 -->
                     <button onclick="toggleTheme()" class="rpg-btn-secondary p-1 sm:p-1.5 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0" title="切換深/淺色主題">
                         <svg id="themeSunIcon" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500 hidden" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.46 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path></svg>
                         <svg id="themeMoonIcon" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-500 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
                     </button>
-                    <!-- 立即同步按鈕 -->
                     <button id="navSyncBtn" onclick="syncWithCloud()" class="rpg-btn-primary text-[10px] sm:text-xs px-2 sm:px-3.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl font-bold flex items-center space-x-1 whitespace-nowrap flex-shrink-0 hidden">
                         <svg id="navSyncIcon" class="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M20 4v5h-5M4 20v-5h5M4 12A8 8 0 0 1 18 6.13L20 9M20 12a8 8 0 0 1-14 5.87L4 15"></path>
                         </svg>
                         <span>同步</span>
                     </button>
-                    <!-- 雲端與車輛設定 -->
                     <button onclick="toggleSyncModal()" class="rpg-btn-secondary text-[10px] sm:text-xs px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg sm:rounded-xl flex items-center space-x-0.5 sm:space-x-1 whitespace-nowrap flex-shrink-0">
                         <span id="syncStatusDot" class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse mr-0.5"></span>
                         <span class="hidden sm:inline">系統與雲端設定</span>
                         <span class="inline sm:hidden">設定 🐾</span>
                     </button>
-                    <!-- CSV 匯出 -->
                     <button onclick="exportCSV()" class="rpg-btn-secondary text-xs px-3.5 py-1.5 rounded-xl hidden md:flex items-center flex-shrink-0">
                         <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                         <span>匯出</span>
@@ -315,7 +298,6 @@
     <div id="syncModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
         <div class="bg-[#fffdf9] dark:bg-black rounded-[2rem] shadow-2xl max-w-lg w-full mx-4 transform scale-95 transition-all duration-300 border-4 border-[#1e293b] overflow-hidden" id="syncModalContent">
             
-            <!-- 設定面板標題 -->
             <div class="flex items-center justify-between border-b-4 border-[#1e293b] p-5 bg-[#fffdf9] dark:bg-neutral-950">
                 <h3 class="text-base font-black text-slate-800 dark:text-slate-100 flex items-center space-x-2">
                     <svg class="w-5 h-5 text-cuteMint-500 animate-spin" style="animation-duration: 8s;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -324,7 +306,6 @@
                 <button onclick="toggleSyncModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl font-black transition-all">×</button>
             </div>
 
-            <!-- RPG 分頁頁籤 -->
             <div class="flex border-b-4 border-[#1e293b] bg-slate-100 dark:bg-neutral-900">
                 <button onclick="switchSettingsTab('settings-tab-main')" id="btn-tab-main" class="flex-1 py-3 text-xs font-black border-r-4 border-[#1e293b] transition-all bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white">
                     🛠️ 愛車與雲端
@@ -336,9 +317,7 @@
             
             <div class="p-6 space-y-4 max-h-[65vh] overflow-y-auto bg-[#fffdf9] dark:bg-black">
                 
-                <!-- 分頁一：主要設定與雲端 -->
                 <div id="settings-tab-main" class="space-y-4">
-                    <!-- 第一區：愛車基本設定 -->
                     <div class="bg-cuteBlue-50/50 dark:bg-black/60 rounded-2xl p-4 border-2 border-[#1e293b] space-y-3 shadow-sm">
                         <span class="text-xs text-cuteBlue-600 dark:text-cuteBlue-400 font-extrabold block">🚗 愛車參數設定</span>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -357,13 +336,11 @@
                         </div>
                     </div>
 
-                    <!-- 第二區：雲端設定 -->
                     <div>
                         <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">Google Apps Script 網頁應用程式網址 (雙向同步)</label>
                         <input type="url" id="syncUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3.5 py-2.5 border-2 border-[#1e293b] rounded-2xl text-xs focus:outline-none focus:ring-4 focus:ring-cuteMint-200/50 dark:focus:ring-cuteMint-900/20 bg-slate-50 dark:bg-black text-slate-800 dark:text-slate-100 transition-all font-mono">
                     </div>
 
-                    <!-- 第三區：雲端 Apps Script 的指南 -->
                     <details class="group bg-slate-50 dark:bg-black rounded-2xl border-2 border-slate-800 dark:border-slate-800 p-3 transition-all">
                         <summary class="text-xs font-black cursor-pointer flex items-center justify-between text-slate-700 dark:text-slate-300 select-none">
                             <span>🛠️ 檢視 Google Apps Script 部署教學</span>
@@ -378,7 +355,7 @@
                                 <textarea readonly id="gasCodeText" class="w-full h-36 p-2 bg-slate-900 dark:bg-black text-slate-200 text-[10px] font-mono rounded-xl border border-slate-700 focus:outline-none scrollbar-thin resize-none">/* Google Apps Script for EV Life Sync */
 function doGet() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var data = sheet.getDataRange().getDisplayValues(); // 🌟 升級：使用 getDisplayValues() 避免時區將 Date 自動轉為 ISO 時間，徹底解決少一天的問題！
+  var data = sheet.getDataRange().getDisplayValues();
   var records = [];
   if (data.length <= 1) return ContentService.createTextOutput(JSON.stringify([])).setMimeType(ContentService.MimeType.JSON);
   var headers = data[0];
@@ -430,7 +407,6 @@ function doPost(e) {
                     </div>
                 </div>
 
-                <!-- 分頁二：PWA 離線設定面板 -->
                 <div id="settings-tab-pwa" class="space-y-4 hidden">
                     <div class="bg-cuteMint-50/40 dark:bg-neutral-950/40 p-4 rounded-2xl border-2 border-slate-800 space-y-2">
                         <span class="text-xs text-cuteMint-600 dark:text-cuteMint-400 font-extrabold block">📲 甚麼是 PWA 離線安裝？</span>
@@ -439,7 +415,6 @@ function doPost(e) {
                         </p>
                     </div>
 
-                    <!-- 重要！手機端安裝指南 -->
                     <div class="bg-amber-500/10 dark:bg-amber-500/5 p-4 rounded-2xl border-2 border-amber-500/30 text-xs space-y-2">
                         <span class="font-black text-amber-600 dark:text-amber-400 flex items-center">
                             💡 重要！如何安裝成真正的 standalone App？
@@ -459,7 +434,6 @@ function doPost(e) {
                         </div>
                     </div>
 
-                    <!-- PWA 即時診斷清單 -->
                     <div class="bg-white dark:bg-black p-4 rounded-2xl border-2 border-slate-800 space-y-2.5 text-xs">
                         <span class="font-black text-slate-700 dark:text-slate-300">🔍 PWA 系統環境診斷：</span>
                         <div class="space-y-1.5 font-bold font-mono text-[11px]" id="pwaDiagnosticList">
@@ -469,12 +443,10 @@ function doPost(e) {
                         </div>
                     </div>
 
-                    <!-- 安裝按鈕 -->
                     <button id="pwaInstallBtn" onclick="triggerPwaInstall()" class="w-full rpg-btn-primary bg-amber-400 hover:bg-amber-300 dark:bg-amber-500 dark:hover:bg-amber-400 text-slate-900 text-xs font-black py-3.5 rounded-2xl transition-all hidden justify-center items-center space-x-2">
                         <span>📲 一鍵將本系統安裝至手機桌面</span>
                     </button>
 
-                    <!-- 下載外部檔案 -->
                     <div class="space-y-2 border-t-2 border-dashed border-[#1e293b] pt-3">
                         <span class="text-[10px] text-slate-400 block font-bold">🛠️ 獨立部署與離線支援：</span>
                         <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -1677,7 +1649,7 @@ function doPost(e) {
                     socText = `
                         <div class="leading-tight text-center whitespace-nowrap">
                             <div>${startSocVal}% ➔ ${endSocVal}%</div>
-                            <div class="text-[10px] text-slate-400 dark:text-slate-500 font-mono font-normal">(${subActionWord} ${powerPercent}% | ${parseFloat(rec.power).toFixed(1)}度)</div>
+                            <div class="text-[10px] text-slate-400 dark:text-slate-500 font-mono font-normal">(消耗/補給 ${powerPercent}% | ${parseFloat(rec.power).toFixed(1)}度)</div>
                         </div>
                     `;
                 } else {
@@ -1772,7 +1744,7 @@ function doPost(e) {
                         </div>
                     </div>
                     
-                    <!-- 🌟 關鍵修正：全新完美對稱、防換行與對齊 Grid 排版 🌟 -->
+                    <!-- 🌟 關鍵修正：全新無裁切、完美對稱、防換行與對齊 Grid 排版 🌟 -->
                     <div class="grid grid-cols-2 gap-3 pt-2">
                         <!-- 行駛里程 (左側) -->
                         <div class="bg-slate-50 dark:bg-neutral-900/40 p-3 rounded-2xl border border-slate-200/50 dark:border-neutral-800/80 flex flex-col justify-between items-stretch min-h-[92px]">
@@ -1799,13 +1771,14 @@ function doPost(e) {
                         </div>
                         
                         <!-- 電量變化與費用 (下方滿版，加入中間精緻分隔線，徹底杜絕橫向重疊) -->
+                        <!-- 🌟 關鍵修正：移除這裡的 truncate 類別，防止補給電量括號內容被縮寫為 "..." 🌟 -->
                         <div class="col-span-2 bg-slate-50 dark:bg-neutral-900/40 p-3.5 rounded-2xl border border-slate-200/50 dark:border-neutral-800/80 flex justify-between items-stretch gap-4">
                             <!-- 左區：補電變化 -->
                             <div class="space-y-1 flex-1 min-w-0 flex flex-col justify-between">
                                 <span class="text-[9px] text-slate-400 dark:text-slate-500 block font-black uppercase tracking-wider leading-none">補給起訖 (電量與度數)</span>
                                 <div class="font-mono text-slate-700 dark:text-slate-200">
                                     <div class="font-black text-xs sm:text-sm whitespace-nowrap leading-tight">${mobileSocText}</div>
-                                    <div class="text-[9px] text-slate-400 dark:text-slate-500 font-bold leading-tight truncate">
+                                    <div class="text-[9px] text-slate-400 dark:text-slate-500 font-bold leading-tight">
                                         (${subActionWord} ${powerPercent}% | ${parseFloat(rec.power).toFixed(1)}度)
                                     </div>
                                 </div>
@@ -1832,6 +1805,7 @@ function doPost(e) {
                     </div>
                     ` : ''}
                 `;
+                card.className = "rpg-card px-3.5 py-4 sm:p-5 rounded-[2rem] space-y-3.5 mr-1 mb-2";
                 card.querySelector('.edit-btn').addEventListener('click', () => editRecord(rec.id));
                 card.querySelector('.delete-btn').addEventListener('click', () => confirmDeleteRecord(rec.id));
                 if (mobileList) mobileList.appendChild(card);
@@ -2225,31 +2199,16 @@ function doPost(e) {
 
         // ==================== PWA 核心技術擴充腳本 ====================
 
-        // 1. Service Worker 註冊機制 (支援自動快取破壞)
+        // 1. Service Worker 註冊機制
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
                     .then(reg => {
                         console.log('EV Life PWA Service Worker 註冊成功！範疇：', reg.scope);
-                        
-                        // 🌟 核心更新：如果偵測到 SW 檔案有變更（即快取名稱升級為 v3），立即強制重整 🌟
-                        reg.onupdatefound = () => {
-                            const installingWorker = reg.installing;
-                            installingWorker.onstatechange = () => {
-                                if (installingWorker.state === 'installed') {
-                                    if (navigator.serviceWorker.controller) {
-                                        showToast("偵測到系統全新升級！正在為您自動更新並載入新版... ⚡");
-                                        setTimeout(() => {
-                                            window.location.reload();
-                                        }, 1500);
-                                    }
-                                }
-                            };
-                        };
                         updatePwaDiagnostic();
                     })
                     .catch(err => {
-                        console.warn('Service Worker 註冊暫時略過 (可能在預覽沙盒或本地檔案中)：', err);
+                        console.warn('Service Worker 註冊暫時略過：', err);
                         updatePwaDiagnostic();
                     });
             });
@@ -2271,6 +2230,7 @@ function doPost(e) {
             updatePwaDiagnostic();
         });
 
+        // 安裝觸發器
         function triggerPwaInstall() {
             if (!deferredPrompt) {
                 showToast("當前裝置已安裝此應用程式，或瀏覽器已略過 PWA 安裝。🐾");
@@ -2340,6 +2300,7 @@ function doPost(e) {
             }
         }
 
+        // 監聽連線變動
         window.addEventListener('online', () => {
             updatePwaDiagnostic();
             showToast("網路已恢復，已回到在線同步模式 ⚡");
@@ -2393,7 +2354,7 @@ function doPost(e) {
         // 下載 sw.js
         function downloadServiceWorker() {
             const swCode = `// EV Life - LUXGEN n7 行駛日誌 PWA 離線快取快遞員
-const CACHE_NAME = 'ev-life-cache-v3'; // 🌟 快取升級至 v3 🌟
+const CACHE_NAME = 'ev-life-cache-v3'; // 🌟 升級至 v3 確保資源能主動覆蓋更新 🌟
 const ASSETS = [
   './',
   'index.html',
