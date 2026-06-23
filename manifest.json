@@ -1,0 +1,22 @@
+{
+  "name": "EV Life - LUXGEN n⁷ 行駛日誌",
+  "short_name": "EV Life",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#fcfaf2",
+  "theme_color": "#2dd4bf",
+  "icons": [
+    {
+      "src": "https://placehold.co/192x192/2dd4bf/1e293b?text=EV+Life",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://placehold.co/512x512/2dd4bf/1e293b?text=EV+Life",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
