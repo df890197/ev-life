@@ -2,18 +2,26 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
+    <!-- 關鍵修正：鎖定 PWA 行動端手勢縮放，並啟用 viewport-fit=cover 適應現代手機瀏海屏與動態島 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>EV Life - 🐾 LUXGEN n⁷ 行駛日誌</title>
     
+    <!-- PWA 行動裝置規格加強與色彩配置 -->
     <meta name="theme-color" content="#1e293b" id="theme-color-meta">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- 修正：改用 default 以配合 safe-area-inset-top 進行最精準的高度適配 -->
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="EV Life">
     
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <!-- iOS 專屬 Icon -->
+    <link class="apple-touch-icon" rel="apple-touch-icon" href="icon-192.png">
+    
+    <!-- PWA 設定清單鏈結 -->
     <link rel="manifest" id="pwaManifestLink" href="manifest.json">
 
+    <!-- 🌟 核心消滅白閃防禦 CSS + iOS 瀏海高度適配 🌟 -->
     <style>
+        /* 在瀏覽器渲染初期，強制將整個 html 視窗與 body 鎖定為與啟動畫面完全相同的深藍色 (#1e293b) */
         html, body {
             background-color: #1e293b !important;
             margin: 0;
@@ -21,6 +29,7 @@
             height: 100%;
             width: 100%;
         }
+        /* 當啟動動畫淡出後，才釋放背景色由 Tailwind (bg-[#fcfaf2] 或 dark:bg-black) 接管 */
         html.app-loaded {
             background-color: #fcfaf2 !important;
         }
@@ -34,11 +43,13 @@
             background-color: transparent !important;
         }
         
+        /* 100% 確保 iOS 瀏海與動態島安全區域頂部適配在所有瀏覽器精準生效 */
         .ios-safe-nav {
             padding-top: env(safe-area-inset-top, 0px) !important;
         }
     </style>
     
+    <!-- 引入 Tailwind CSS 與 Chart.js -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
@@ -86,7 +97,7 @@
                 document.documentElement.classList.remove('dark');
             }
         }
-        initTheme();
+        initTheme(); // DOM 加載前立即執行，徹底避免黑白切換時閃爍
 
         function adaptContainerBgToImage(img) {
             try {
@@ -169,6 +180,7 @@
             font-family: 'JetBrains Mono', 'Noto Sans TC', monospace;
         }
         
+        /* 自訂圓角滾動條 */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -298,23 +310,32 @@
 </head>
 <body class="bg-[#fcfaf2] dark:bg-black text-slate-800 dark:text-slate-100 min-h-screen transition-all duration-300 antialiased selection:bg-cuteMint-200 font-bold relative">
 
+    <!-- 🌟 優雅啟動畫面 (Splash Screen) - 完美防閃白光 + 巨大的爪子 + 漸變呼吸文字 -->
     <div id="appSplashScreen" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#1e293b] text-white transition-opacity duration-500">
-        <div class="text-center space-y-4 animate-pulse">
-            <span class="text-4xl">🐾</span>
-            <h2 class="text-xl font-black tracking-wider text-cuteMint-300">EV Life Loading...</h2>
-            <p class="text-xs text-slate-400">正在準備您的行駛日誌資料</p>
+        <div class="text-center space-y-6 flex flex-col items-center">
+            <!-- 巨大的爪子圖形 -->
+            <span class="text-7xl md:text-8xl animate-bounce drop-shadow-[0_0_15px_rgba(45,212,191,0.4)]">🐾</span>
+            <div class="space-y-2 animate-pulse flex flex-col items-center">
+                <!-- 呼吸感漸變文字 -->
+                <h2 class="text-xl md:text-2xl font-black tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-300 via-teal-300 to-cuteBlue-300">
+                    EV Life Loading...
+                </h2>
+                <!-- 底部的細緻小字 -->
+                <p class="text-xs text-slate-400">正在準備您的行駛日誌資料</p>
+            </div>
         </div>
     </div>
 
-    <nav class="ios-safe-nav bg-gradient-to-r from-[#fffdf5] to-[#fffefb] dark:from-neutral-950 dark:to-black border-b-4 border-[#1e293b] text-slate-800 dark:text-slate-100 sticky top-0 z-50 transition-colors shadow-md">
+    <!-- 頂部導覽列：自動適配瀏海高度 (safe-area-inset-top) -->
+    <nav class="bg-gradient-to-r from-[#fffdf5] to-[#fffefb] dark:from-neutral-950 dark:to-black border-b-4 border-[#1e293b] text-slate-800 dark:text-slate-100 sticky top-0 z-50 transition-colors shadow-md pt-[env(safe-area-inset-top,0px)]">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16 gap-x-2">
                 <div class="flex items-center space-x-1.5 sm:space-x-3 flex-shrink-0">
                     <div class="relative w-11 h-7 sm:w-14 sm:h-9 rounded-lg sm:rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border-2 border-slate-800 dark:border-slate-700 bg-white dark:bg-neutral-900 shadow-[1.5px_1.5px_0px_0px_#1e293b] dark:shadow-[1.5px_1.5px_0px_0px_#000000] sm:shadow-[2px_2px_0px_0px_#1e293b] sm:dark:shadow-[2px_2px_0px_0px_#000000] transition-all">
-                        <img id="navLogoImg" src="logo.png" alt="LUXGEN n7" class="w-full h-full object-contain p-0.5 scale-105 transition-all duration-300 dark:brightness-95" onload="adaptContainerBgToImage(this)" onerror="handleLogoError(this)">
+                        <img id="navLogoImg" src="logo.png" alt="LUXGEN n⁷" class="w-full h-full object-contain p-0.5 scale-105 transition-all duration-300 dark:brightness-95" onload="adaptContainerBgToImage(this)" onerror="handleLogoError(this)">
                     </div>
                     <span id="navEvBrandName" class="font-extrabold text-sm sm:text-lg tracking-wider whitespace-nowrap flex-shrink-0">
-                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 via-teal-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:via-teal-600 dark:to-cuteBlue-300 font-extrabold">LUXGEN n7</span>
+                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 via-teal-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:via-teal-600 dark:to-cuteBlue-300 font-extrabold">LUXGEN n⁷</span>
                         <span class="text-slate-500 dark:text-slate-400 text-xs font-medium ml-1 hidden sm:inline"> の 純電之旅</span>
                     </span>
                 </div>
@@ -347,6 +368,7 @@
         </div>
     </nav>
 
+    <!-- 系統設定 & 雲端同步 模態視窗 -->
     <div id="syncModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
         <div class="bg-[#fffdf9] dark:bg-black rounded-[2rem] shadow-2xl max-w-lg w-full mx-4 transform scale-95 transition-all duration-300 border-4 border-[#1e293b] overflow-hidden" id="syncModalContent">
             
@@ -368,7 +390,7 @@
             </div>
             
             <div class="p-6 space-y-4 max-h-[65vh] overflow-y-auto bg-[#fffdf9] dark:bg-black">
-                
+                <!-- 分頁一：主要設定與雲端 -->
                 <div id="settings-tab-main" class="space-y-4">
                     <div class="bg-cuteBlue-50/50 dark:bg-black/60 rounded-2xl p-4 border-2 border-[#1e293b] space-y-3 shadow-sm">
                         <span class="text-xs text-cuteBlue-600 dark:text-cuteBlue-400 font-extrabold block">🚗 愛車參數設定</span>
@@ -459,6 +481,7 @@ function doPost(e) {
                     </div>
                 </div>
 
+                <!-- 分頁二：PWA 離線安裝 -->
                 <div id="settings-tab-pwa" class="space-y-4 hidden">
                     <div class="bg-cuteMint-50/40 dark:bg-neutral-950/40 p-4 rounded-2xl border-2 border-slate-800 space-y-2">
                         <span class="text-xs text-cuteMint-600 dark:text-cuteMint-400 font-extrabold block">📲 甚麼是 PWA 離線安裝？</span>
@@ -528,6 +551,7 @@ function doPost(e) {
         </div>
     </div>
 
+    <!-- 自訂確認對話方塊 -->
     <div id="confirmModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[110] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
         <div class="bg-[#fffdf9] dark:bg-black rounded-[2rem] p-6 shadow-2xl max-w-md w-full mx-4 transform scale-95 transition-all duration-300 border-4 border-[#1e293b]" id="confirmModalContent">
             <div class="border-b-2 border-[#1e293b] pb-3 mb-4">
@@ -547,13 +571,16 @@ function doPost(e) {
         </div>
     </div>
 
+    <!-- 主內容區 -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         
+        <!-- 自訂通知元件 (Toast) -->
         <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[120] transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900/95 dark:bg-slate-800/95 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border-2 border-[#1e293b] max-w-[90vw] whitespace-nowrap">
             <span id="toastIcon" class="text-cuteMint-300 text-sm">🐾</span>
             <span id="toastMessage" class="text-xs font-bold"></span>
         </div>
 
+        <!-- 頂部 RPG HUD -->
         <div class="flex flex-col justify-center items-center text-center gap-3 mb-6 bg-cuteMint-50/30 dark:bg-neutral-950/40 p-4 rounded-3xl border-2 border-slate-800 dark:border-slate-700 shadow-[3px_3px_0px_0px_#1e293b] dark:shadow-[3px_3px_0px_0px_#000000]">
             <div class="text-center">
                 <h1 class="text-lg font-black tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:to-teal-600 text-center">
@@ -571,7 +598,9 @@ function doPost(e) {
             </div>
         </div>
 
+        <!-- 頂部冒險裝備看板 (Quest Stats) -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <!-- 累積總里程 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">行駛總里程 🚗</span>
@@ -585,7 +614,7 @@ function doPost(e) {
                 </div>
                 <span id="statVehicleSub" class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 mt-2 font-bold">愛車 LUXGEN n⁷ 已陪伴您行駛了長遠路程 🐾</span>
             </div>
-            
+            <!-- 平均電耗 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">平均電耗 ⚡</span>
@@ -599,7 +628,7 @@ function doPost(e) {
                 </div>
                 <span id="statWhKm" class="text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-mono">相當於 0 Wh/km</span>
             </div>
-
+            <!-- 累計補給花費 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">累計補給花費 👛</span>
@@ -615,7 +644,7 @@ function doPost(e) {
                 </div>
                 <span id="statTotalPower" class="text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-mono">累計充入 0 度電</span>
             </div>
-
+            <!-- 每公里電費 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">每公里電費 🍩</span>
@@ -634,12 +663,12 @@ function doPost(e) {
             </div>
         </div>
 
+        <!-- 主要內容雙欄排版 -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
-            <!-- Left Side: Interactive forms -->
+            <!-- 左側：記錄輸入與試算工具 -->
             <div class="lg:col-span-4 space-y-8">
                 <div class="rpg-card p-6 rounded-[2rem]">
-                    <div class="flex items-center justify-between mb-5 pb-3 border-b-2 border-slate-200 dark:border-slate-800">
+                    <div class="flex items-center justify-between mb-5 pb-3 border-b-2 border-slate-200 dark:border-slate-200">
                         <h2 class="text-base font-black text-slate-800 dark:text-slate-100 flex items-center space-x-2">
                             <span class="text-cuteMint-600 dark:text-cuteMint-400">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
@@ -721,9 +750,9 @@ function doPost(e) {
                 </div>
             </div>
 
-            <!-- Right Side: Visualization charts and history records -->
+            <!-- 右側：圖表與歷史資料列表 -->
             <div class="lg:col-span-8 space-y-8">
-                <!-- Power efficiency trend chart -->
+                <!-- 能耗與花費圖表 -->
                 <div class="rpg-card p-6 rounded-[2.5rem]">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
                         <h2 class="text-base font-black text-slate-800 dark:text-slate-200 flex items-center space-x-2">
@@ -743,6 +772,7 @@ function doPost(e) {
                     </div>
                 </div>
 
+                <!-- 歷史資料列表 -->
                 <div class="rpg-card p-6 rounded-[2.5rem]">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b-2 border-slate-200 dark:border-slate-800 mb-4 gap-4">
                         <h2 class="text-base font-black text-slate-800 dark:text-slate-200 flex items-center space-x-2">
@@ -795,11 +825,12 @@ function doPost(e) {
         <p class="text-xs font-bold">EV Life 電動車試算與電耗記錄工具 © 2026. 您的資料將安全地儲存在本地裝置瀏覽器中。</p>
     </footer>
 
+    <!-- JavaScript 邏輯控制 -->
     <script>
         let records = [];
         let efficiencyChartInstance = null;
         let syncUrl = "";
-        let evName = "LUXGEN n⁷";
+        let evName = "LUXGEN n7";
         let batteryCapacity = 57.7;
         let initialOdometer = 0;
         let activeConfirmCallback = null;
@@ -967,8 +998,8 @@ function doPost(e) {
             
             let rawEvName = localStorage.getItem('ev_life_ev_name') || "";
             if (!rawEvName) {
-                evName = "LUXGEN n⁷";
-                localStorage.setItem('ev_life_ev_name', "LUXGEN n⁷");
+                evName = "LUXGEN n7"; // 🌟 若舊資料為n7，初始化會直接升級為包含特殊符號的名稱
+                localStorage.setItem('ev_life_ev_name', "LUXGEN n7");
             } else {
                 evName = rawEvName.replace("n7", "n⁷");
             }
@@ -1043,10 +1074,13 @@ function doPost(e) {
                 });
             }
 
+            // 🌟 修正閃白光邏輯：當 APP 設定都讀取並編譯就緒後，為 html 加上 `.app-loaded` 解鎖背景底色，並淡出移除 Splash Screen 🌟
             setTimeout(() => {
                 const splash = document.getElementById('appSplashScreen');
                 if (splash) {
+                    // 解鎖真正的主題背景色
                     document.documentElement.classList.add('app-loaded');
+                    // 淡出啟動畫面
                     splash.classList.add('opacity-0', 'pointer-events-none');
                     setTimeout(() => splash.remove(), 500);
                 }
@@ -1197,7 +1231,7 @@ function doPost(e) {
             }
 
             if (evNameInput) {
-                evName = evNameInput.value.trim().replace("n7", "n⁹") || "LUXGEN n⁹";
+                evName = evNameInput.value.trim().replace("n7", "n⁷") || "LUXGEN n⁷";
                 localStorage.setItem('ev_life_ev_name', evName);
             }
 
@@ -1361,7 +1395,7 @@ function doPost(e) {
                     
                     if (cloudConfigParsed) {
                         if (cloudConfigParsed.evName) {
-                            evName = cloudConfigParsed.evName.replace("n7", "n⁷");
+                            evName = cloudConfigParsed.evName.replace("n7", "n⁹");
                             localStorage.setItem('ev_life_ev_name', evName);
                         }
                         if (cloudConfigParsed.batteryCapacity) {
@@ -2146,6 +2180,8 @@ function doPost(e) {
             document.body.removeChild(link);
             showToast("CSV 匯出成功！已開始下載");
         }
+
+        // ==================== PWA 核心技術擴充腳本 ====================
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
