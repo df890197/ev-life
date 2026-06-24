@@ -1,5 +1,5 @@
 // EV Life - LUXGEN n⁷ 行駛日誌 PWA 離線快取守護
-const CACHE_NAME = 'ev-life-cache-v5'; 
+const CACHE_NAME = 'ev-life-cache-v7'; 
 const ASSETS = [
   './',
   './index.html',
