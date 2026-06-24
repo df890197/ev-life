@@ -2,24 +2,24 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <!-- 關鍵修正：鎖定 PWA 行動端手勢縮放，並啟用 viewport-fit=cover 適應現代手機瀏海屏與動態島 -->
+    <!-- 鎖定 PWA 行動端手勢縮放，並啟用 viewport-fit=cover 適應現代手機瀏海屏與動態島 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>EV Life - 🐾 LUXGEN n⁷ 行駛日誌</title>
     
     <!-- PWA 行動裝置規格加強與色彩配置 -->
     <meta name="theme-color" content="#1e293b" id="theme-color-meta">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <!-- 修正：改用 default 以配合 safe-area-inset-top 進行最精準的高度適配 -->
+    <!-- 配合 safe-area-inset-top 進行精準高度適配 -->
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="EV Life">
     
-    <!-- iOS 專屬 Icon -->
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <!-- iOS 專屬 Icon (相對路徑) -->
+    <link rel="apple-touch-icon" href="./icon-192.png">
     
-    <!-- PWA 設定清單鏈結 -->
-    <link rel="manifest" id="pwaManifestLink" href="manifest.json">
+    <!-- PWA 設定清單鏈結 (改為相對路徑，防止子目錄部署失效) -->
+    <link rel="manifest" id="pwaManifestLink" href="./manifest.json">
 
-    <!-- 🌟 核心消滅白閃防禦 CSS + iOS 瀏海高度適配 🌟 -->
+    <!-- 核心消滅白閃防禦 CSS + iOS 瀏海高度適配 -->
     <style>
         /* 在瀏覽器渲染初期，強制將整個 html 視窗與 body 鎖定為與啟動畫面完全相同的深藍色 (#1e293b) */
         html, body {
@@ -29,7 +29,7 @@
             height: 100%;
             width: 100%;
         }
-        /* 當啟動動畫淡出後，才釋放背景色由 Tailwind (bg-[#fcfaf2] 或 dark:bg-black) 接管 */
+        /* 當啟動動畫淡出後，才釋放背景色由 Tailwind 接管 */
         html.app-loaded {
             background-color: #fcfaf2 !important;
         }
@@ -43,7 +43,7 @@
             background-color: transparent !important;
         }
         
-        /* 100% 確保 iOS 瀏海與動態島安全區域頂部適配在所有瀏覽器精準生效 */
+        /* 確保 iOS 瀏海與動態島安全區域頂部適配在所有瀏覽器精準生效 */
         .ios-safe-nav {
             padding-top: env(safe-area-inset-top, 0px) !important;
         }
@@ -97,7 +97,7 @@
                 document.documentElement.classList.remove('dark');
             }
         }
-        initTheme(); // DOM 加載前立即執行，徹底避免黑白切換時閃爍
+        initTheme(); // 徹底避免黑白切換時閃爍
 
         function adaptContainerBgToImage(img) {
             try {
@@ -310,7 +310,7 @@
 </head>
 <body class="bg-[#fcfaf2] dark:bg-black text-slate-800 dark:text-slate-100 min-h-screen transition-all duration-300 antialiased selection:bg-cuteMint-200 font-bold relative">
 
-    <!-- 🌟 優雅網頁加載啟動畫面 (Splash Screen) - 完美防閃白光 -->
+    <!-- 優雅網頁加載啟動畫面 (Splash Screen) - 完美防閃白光 -->
     <div id="appSplashScreen" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#1e293b] text-white transition-opacity duration-500">
         <div class="text-center space-y-6 flex flex-col items-center">
             <!-- 巨大的爪子圖形 -->
@@ -341,6 +341,7 @@
                 </div>
                 
                 <div class="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
+                    <!-- PWA 安裝按鈕 -->
                     <button id="navInstallBtn" onclick="triggerPwaInstall()" class="rpg-btn-primary text-[10px] sm:text-xs px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl font-black bg-amber-400 dark:bg-amber-500 border-2 border-slate-800 text-slate-900 dark:text-slate-950 shadow-[2px_2px_0px_0px_#1e293b] hover:bg-amber-300 flex items-center space-x-1 whitespace-nowrap flex-shrink-0 hidden">
                         <span>📲 安裝 App</span>
                     </button>
@@ -486,7 +487,7 @@ function doPost(e) {
                     <div class="bg-cuteMint-50/40 dark:bg-neutral-950/40 p-4 rounded-2xl border-2 border-slate-800 space-y-2">
                         <span class="text-xs text-cuteMint-600 dark:text-cuteMint-400 font-extrabold block">📲 甚麼是 PWA 離線安裝？</span>
                         <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                            PWA 允許您將 EV Life 行車記錄工具直接安裝 to iOS、Android、Windows 或 Mac 的桌面上，當作原生 App 快速啟用。即使在無網路環境中也能正常查看、新增日誌！
+                            PWA 允許您將 EV Life 行車記錄工具直接安裝至 iOS、Android、Windows 或 Mac 的桌面上，當作原生 App 快速啟用。即使在無網路環境中也能正常查看、新增日誌！
                         </p>
                     </div>
 
@@ -499,11 +500,11 @@ function doPost(e) {
                             <ul class="list-disc pl-4 space-y-0.5">
                                 <li>必須使用原生 <strong class="text-cuteMint-600">Safari 瀏覽器</strong> 開啟網址（不能用 Chrome 或是 Line 內建視窗）。</li>
                                 <li>點擊 Safari 底部工具列的 <strong class="text-slate-900 dark:text-white">「分享」</strong> 按鈕（箭頭向上圖示）。</li>
-                                <li>向下捲動並選擇 <strong class="text-slate-900 dark:text-white">「加入主畫面」</strong>，點擊右上角新增。這時桌面上就會出現真正的 App，打開時將沒有瀏覽器網址列！</li>
+                                <li>向下捲動並選擇 <strong class="text-slate-900 dark:text-white">「加入主畫面」</strong>，點擊右上角新增。這時桌面上就會出現真正的 App，開啟時將沒有瀏覽器網址列！</li>
                             </ul>
                             <p class="pt-1.5">🤖 <strong class="text-slate-900 dark:text-white">Android 安卓用戶 / 電腦端</strong>：</p>
                             <ul class="list-disc pl-4 space-y-0.5">
-                                <li>點擊本設定頁中的 <strong class="text-slate-900 dark:text-white">「一鍵將本系統安裝至手機桌面」</strong> 按钮，或點擊瀏覽器網址列右側的 <strong class="text-slate-900 dark:text-white">「安裝」</strong> 圖標。</li>
+                                <li>點擊本設定頁中的 <strong class="text-slate-900 dark:text-white">「一鍵將本系統安裝至手機桌面」</strong> 按鈕，或點擊瀏覽器網址列右側的 <strong class="text-slate-900 dark:text-white">「安裝」</strong> 圖標。</li>
                                 <li>安裝成功後，會在桌面與「應用程式清單」中找到 EV Life。</li>
                             </ul>
                         </div>
@@ -998,7 +999,7 @@ function doPost(e) {
             
             let rawEvName = localStorage.getItem('ev_life_ev_name') || "";
             if (!rawEvName) {
-                evName = "LUXGEN n7"; // 若舊資料為n7，初始化會直接升級為包含特殊符號的名稱
+                evName = "LUXGEN n7"; 
                 localStorage.setItem('ev_life_ev_name', "LUXGEN n7");
             } else {
                 evName = rawEvName.replace("n7", "n⁷");
@@ -1074,13 +1075,11 @@ function doPost(e) {
                 });
             }
 
-            // 🌟 修正閃白光邏輯：當 APP 設定都讀取並編譯就緒後，為 html 加上 `.app-loaded` 解鎖背景底色，並淡出移除 Splash Screen 🌟
+            // 優雅防閃白光淡出動畫
             setTimeout(() => {
                 const splash = document.getElementById('appSplashScreen');
                 if (splash) {
-                    // 解鎖真正的主題背景色
                     document.documentElement.classList.add('app-loaded');
-                    // 淡出啟動畫面
                     splash.classList.add('opacity-0', 'pointer-events-none');
                     setTimeout(() => splash.remove(), 500);
                 }
@@ -1223,7 +1222,7 @@ function doPost(e) {
             if (syncUrlInput) {
                 const urlInput = syncUrlInput.value.trim();
                 if (urlInput && !urlInput.startsWith('https://script.google.com/')) {
-                    showToast("這看起來不像是正確 Google Apps Script 網址 (๑•́ ₃ •̀๑)", true);
+                    showToast("這看起來不像是正確的 Google Apps Script 網址 (๑•́ ₃ •̀๑)", true);
                     return;
                 }
                 syncUrl = urlInput;
@@ -1911,7 +1910,7 @@ function doPost(e) {
 
                 const updatedRecords = [...records, newRecord];
                 saveLocalState(updatedRecords);
-                showToast("紀錄已寫在本機小本本囉！(•̀ᴗ•́)受");
+                showToast("紀錄已寫在本機小本本囉！(•̀ᴗ•́)و ̑̑");
                 cancelEdit(); 
             }
 
@@ -2185,13 +2184,14 @@ function doPost(e) {
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
+                // 強制採用精確的相對路徑註冊 Service Worker 確保子目錄運作正常
+                navigator.serviceWorker.register('./sw.js', { scope: './' })
                     .then(reg => {
                         console.log('EV Life PWA Service Worker 註冊成功！範疇：', reg.scope);
                         updatePwaDiagnostic();
                     })
                     .catch(err => {
-                        console.warn('Service Worker 註冊暫時略過：', err);
+                        console.warn('Service Worker 註冊失敗，請確認 sw.js 已上傳至伺服器同目錄。錯誤訊息：', err);
                         updatePwaDiagnostic();
                     });
             });
@@ -2214,16 +2214,16 @@ function doPost(e) {
 
         function triggerPwaInstall() {
             if (!deferredPrompt) {
-                showToast("當前裝置已安裝此應用程式，或瀏覽器已略過 PWA 安裝。🐾");
+                showToast("當前裝置不支援或已安裝此應用程式。🐾");
                 return;
             }
             deferredPrompt.prompt();
             deferredPrompt.userChoice.then((choiceResult) => {
                 if (choiceResult.outcome === 'accepted') {
-                    showToast("謝謝您的安裝！EV Life 已成功在您的裝置逆流而上 ⚡");
+                    showToast("謝謝您的安裝！EV Life 已成功新增至您的主畫面 ⚡");
                     hideInstallButtons();
                 } else {
-                    showToast("已取消安裝，您可以隨時在設定中重新安裝 🐾", true);
+                    showToast("已取消安裝 🐾", true);
                 }
                 deferredPrompt = null;
             });
@@ -2251,10 +2251,16 @@ function doPost(e) {
             const diagNetwork = document.getElementById('diag-network');
 
             const isHttps = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const isLocalFile = window.location.protocol === 'file:';
+
             if (diagHttps) {
-                diagHttps.innerHTML = isHttps 
-                    ? '<span class="text-emerald-500 font-extrabold">🟢 HTTPS 啟用 (符合 PWA 安全傳輸規格)</span>'
-                    : '<span class="text-rose-500 font-extrabold">🔴 HTTP 模式 (PWA 需部署至 HTTPS 或 localhost 才能安裝)</span>';
+                if (isLocalFile) {
+                    diagHttps.innerHTML = '<span class="text-rose-500 font-extrabold">🔴 本機檔案模式 (file://)。瀏覽器不允許在此模式下啟動 Service Worker，請部署至 HTTPS 或利用 Live Server 進行測試！</span>';
+                } else {
+                    diagHttps.innerHTML = isHttps 
+                        ? '<span class="text-emerald-500 font-extrabold">🟢 安全傳輸環境 (HTTPS 或 localhost 符合 PWA 安裝規範)</span>'
+                        : '<span class="text-rose-500 font-extrabold">🔴 非安全連線 (PWA 需部署至 HTTPS 或 localhost 才能安裝)</span>';
+                }
             }
 
             if (diagSw) {
@@ -2263,30 +2269,30 @@ function doPost(e) {
                         if (reg && reg.active) {
                             diagSw.innerHTML = '<span class="text-emerald-500 font-extrabold">🟢 Service Worker 運行中 (已啟動離線快取守護)</span>';
                         } else {
-                            diagSw.innerHTML = '<span class="text-amber-500 font-extrabold">🟡 支援離線快取，但未成功偵測到 sw.js (請部署下載檔案)</span>';
+                            diagSw.innerHTML = '<span class="text-amber-500 font-extrabold">閒置中 🟡 您的瀏覽器支援，但 sw.js 尚未安裝運作 (請上傳專案網頁中的 sw.js 檔案)</span>';
                         }
                     }).catch(() => {
                         diagSw.innerHTML = '<span class="text-slate-400 font-extrabold">⚪ Service Worker 未就緒</span>';
                     });
                 } else {
-                    diagSw.innerHTML = '<span class="text-rose-500 font-extrabold">🔴 您的瀏覽器核心不支援 Service Worker 技術</span>';
+                    diagSw.innerHTML = '<span class="text-rose-500 font-extrabold">🔴 您的瀏覽器不支援 Service Worker 技術</span>';
                 }
             }
 
             if (diagNetwork) {
                 diagNetwork.innerHTML = navigator.onLine
-                    ? '<span class="text-emerald-500 font-extrabold">🟢 在線模式 (同步上雲網路正常)</span>'
-                    : '<span class="text-rose-500 font-extrabold">🔴 離線模式 (正由本地 Storage 及 PWA 提供無網使用)</span>';
+                    ? '<span class="text-emerald-500 font-extrabold">🟢 在線模式 (連線正常)</span>'
+                    : '<span class="text-rose-500 font-extrabold">🔴 離線模式 (正由本地快取及 PWA 提供無網運作)</span>';
             }
         }
 
         window.addEventListener('online', () => {
             updatePwaDiagnostic();
-            showToast("網路已恢復，已回到在線同步模式 ⚡");
+            showToast("網路已恢復，已自動同步 ⚡");
         });
         window.addEventListener('offline', () => {
             updatePwaDiagnostic();
-            showToast("網路已斷開，EV Life 已無縫切換到「純離線行車記錄」模式！🐾", true);
+            showToast("網路已斷開，已無縫切換到「離線行車記錄」模式！🐾", true);
         });
 
         function downloadBlobFile(content, fileName, contentType) {
@@ -2303,7 +2309,7 @@ function doPost(e) {
                 "name": "EV Life - LUXGEN n⁷ 行駛日誌",
                 "short_name": "EV Life",
                 "description": "精準記錄每一段行駛與電能補給數據的行駛日誌工具。",
-                "start_url": "index.html",
+                "start_url": "./index.html",
                 "scope": "./",
                 "display": "standalone",
                 "background_color": "#1e293b",
@@ -2311,13 +2317,13 @@ function doPost(e) {
                 "orientation": "portrait-primary",
                 "icons": [
                     {
-                        "src": "icon-192.png",
+                        "src": "./icon-192.png",
                         "sizes": "192x192",
                         "type": "image/png",
                         "purpose": "any"
                     },
                     {
-                        "src": "icon-512.png",
+                        "src": "./icon-512.png",
                         "sizes": "512x512",
                         "type": "image/png",
                         "purpose": "any"
@@ -2325,19 +2331,19 @@ function doPost(e) {
                 ]
             };
             downloadBlobFile(JSON.stringify(manifestObj, null, 2), "manifest.json", "application/json");
-            showToast("成功下載 manifest.json！請覆蓋舊檔並推送到 GitHub 🐾");
+            showToast("成功下載 manifest.json！請上傳至與 index.html 同層資料夾中 🐾");
         }
 
         function downloadServiceWorker() {
-            const swCode = `// EV Life - LUXGEN n⁷ 行駛日誌 PWA 離線快取快遞員
-const CACHE_NAME = 'ev-life-cache-v4'; 
+            const swCode = `// EV Life - LUXGEN n⁷ 行駛日誌 PWA 離線快取守護
+const CACHE_NAME = 'ev-life-cache-v5'; 
 const ASSETS = [
   './',
-  'index.html',
-  'manifest.json',
-  'logo.png',
-  'icon-192.png',
-  'icon-512.png',
+  './index.html',
+  './manifest.json',
+  './logo.png',
+  './icon-192.png',
+  './icon-512.png',
   'https://cdn.tailwindcss.com',
   'https://cdn.jsdelivr.net/npm/chart.js'
 ];
@@ -2345,8 +2351,15 @@ const ASSETS = [
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('[SW] 正在建立快取寶箱，確保離線行車記錄可用...');
-      return cache.addAll(ASSETS);
+      console.log('[SW] 正在建立快取寶箱...');
+      // 關鍵修正：逐一新增快取檔案，避免單一檔案(404)遺失而導致整個 PWA 快取與安裝失效！
+      return Promise.allSettled(
+        ASSETS.map(asset => {
+          return cache.add(asset).catch(err => {
+            console.warn('[SW] 快取失敗或檔案不存在 (不影響 PWA 啟動):', asset, err);
+          });
+        })
+      );
     }).then(() => self.skipWaiting())
   );
 });
@@ -2357,7 +2370,7 @@ self.addEventListener('activate', event => {
       return Promise.all(
         keys.map(key => {
           if (key !== CACHE_NAME) {
-            console.log('[SW] 清理舊版過時快取資源:', key);
+            console.log('[SW] 清理過時快取資源:', key);
             return caches.delete(key);
           }
         })
@@ -2367,6 +2380,7 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+  // 排除 Google 試算表雲端同步 API 的快取
   if (event.request.url.includes('script.google.com')) {
     return;
   }
@@ -2374,6 +2388,7 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
       if (cachedResponse) {
+        // 後台背景更新策略
         fetch(event.request).then(networkResponse => {
           if (networkResponse.status === 200) {
             caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse));
@@ -2395,7 +2410,7 @@ self.addEventListener('fetch', event => {
   );
 });`;
             downloadBlobFile(swCode, "sw.js", "application/javascript");
-            showToast("成功下載 sw.js！請覆蓋舊檔並推送到 GitHub 🐾");
+            showToast("成功下載 sw.js！請上傳至與 index.html 同層資料夾中 🐾");
         }
     </script>
 </body>
