@@ -2,25 +2,44 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <!-- 🌟 關鍵修正：鎖定 PWA 行動端手勢縮放，防止誤觸跑版，適應現代手機瀏海屏 (viewport-fit=cover) 🌟 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>EV Life - 🐾 LUXGEN n7 行駛日誌</title>
+    <title>EV Life - 🐾 LUXGEN n⁷ 行駛日誌</title>
     
-    <!-- PWA 行動裝置規格加強與色彩配置 -->
     <meta name="theme-color" content="#1e293b" id="theme-color-meta">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="EV Life">
     
-    <!-- iOS 專屬 Icon 讀取本地的 icon-192.png -->
     <link rel="apple-touch-icon" href="icon-192.png">
-    
-    <!-- PWA 設定清單鏈結 -->
     <link rel="manifest" id="pwaManifestLink" href="manifest.json">
+
+    <style>
+        html, body {
+            background-color: #1e293b !important;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+        }
+        html.app-loaded {
+            background-color: #fcfaf2 !important;
+        }
+        html.app-loaded.dark {
+            background-color: #000000 !important;
+        }
+        html.app-loaded, html.app-loaded body {
+            transition: background-color 0.4s ease-in-out;
+        }
+        html.app-loaded body {
+            background-color: transparent !important;
+        }
+        
+        .ios-safe-nav {
+            padding-top: env(safe-area-inset-top, 0px) !important;
+        }
+    </style>
     
-    <!-- 引入 Tailwind CSS 用於現代化 UI 設計 -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 引入 Chart.js 用於能耗趨勢圖表 -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
@@ -67,16 +86,12 @@
                 document.documentElement.classList.remove('dark');
             }
         }
-        initTheme(); // DOM 加載前立即執行，徹底避免白光閃爍
+        initTheme();
 
-        // 🌟 關鍵新技術：適應本地 logo 像素色彩採集，徹底解決外框白邊問題 🌟
         function adaptContainerBgToImage(img) {
             try {
                 if (!img.complete) return;
-                // 若為預設 placeholder 圖，不進行色值分析
-                if (img.src.includes('placehold.co')) {
-                    return;
-                }
+                if (img.src.includes('placehold.co')) return;
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 canvas.width = 10;
@@ -84,13 +99,12 @@
                 ctx.drawImage(img, 0, 0, 10, 10);
                 const imgData = ctx.getImageData(0, 0, 10, 10).data;
                 
-                // 採樣邊緣 10x10 的像素平均顏色
                 let r = 0, g = 0, b = 0, count = 0;
                 for (let x = 0; x < 10; x++) {
                     for (let y = 0; y < 10; y++) {
                         if (x === 0 || x === 9 || y === 0 || y === 9) {
                             const idx = (y * 10 + x) * 4;
-                            if (imgData[idx+3] > 50) { // 過濾透明通道
+                            if (imgData[idx+3] > 50) {
                                 r += imgData[idx];
                                 g += imgData[idx+1];
                                 b += imgData[idx+2];
@@ -107,14 +121,12 @@
                     const parent = img.parentElement;
                     if (parent) {
                         parent.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
-                        // 讓邊框顏色自適應深淺，消除生硬感
                         const isDark = document.documentElement.classList.contains('dark');
                         const borderFactor = isDark ? 1.2 : 0.8;
                         const br = Math.min(255, Math.max(0, Math.round(r * borderFactor)));
                         const bg = Math.min(255, Math.max(0, Math.round(g * borderFactor)));
                         const bb = Math.min(255, Math.max(0, Math.round(b * borderFactor)));
                         parent.style.borderColor = `rgb(${br}, ${bg}, ${bb})`;
-                        
                         parent.classList.remove('bg-white', 'dark:bg-black', 'bg-[#7dd3fc]', 'dark:bg-neutral-900', 'border-slate-800', 'dark:border-slate-700');
                     }
                 }
@@ -123,9 +135,8 @@
             }
         }
 
-        // 當圖片載入失敗時，根據目前的主題智慧載入專屬占位圖
         function handleLogoError(imgElement) {
-            imgElement.onerror = null; // 防止無窮迴圈
+            imgElement.onerror = null;
             const isDark = document.documentElement.classList.contains('dark');
             if (isDark) {
                 imgElement.src = 'https://placehold.co/100x60/000000/14b8a6?text=n%E2%81%B7';
@@ -134,7 +145,6 @@
             }
         }
 
-        // 切換主題時更新 placeholder
         function updateLogoPlaceholder() {
             const img = document.getElementById('navLogoImg');
             if (img && img.src.includes('placehold.co')) {
@@ -150,7 +160,6 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght=300;400;500;600;700&family=Noto+Sans+TC:wght=300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
         
-        /* 🌟 鎖定行動裝置 PWA 縮放，避免手勢放大破壞版面 🌟 */
         body {
             font-family: 'Fredoka', 'Noto Sans TC', sans-serif;
             touch-action: manipulation;
@@ -160,7 +169,6 @@
             font-family: 'JetBrains Mono', 'Noto Sans TC', monospace;
         }
         
-        /* 自訂圓角滾動條 */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -186,7 +194,6 @@
             background: #475569;
         }
 
-        /* 擴展原生 Webkit 日曆觸發熱區 */
         input[type="date"] {
             position: relative;
             -webkit-appearance: none;
@@ -213,7 +220,6 @@
             color-scheme: dark;
         }
 
-        /* --- 8-Bit RPG 復古裝備卡片樣式 --- */
         .rpg-card {
             background: #ffffff;
             border: 4px solid #1e293b;
@@ -292,13 +298,19 @@
 </head>
 <body class="bg-[#fcfaf2] dark:bg-black text-slate-800 dark:text-slate-100 min-h-screen transition-all duration-300 antialiased selection:bg-cuteMint-200 font-bold relative">
 
-    <!-- 頂部精緻導覽列 -->
-    <nav class="bg-gradient-to-r from-[#fffdf5] to-[#fffefb] dark:from-neutral-950 dark:to-black border-b-4 border-[#1e293b] text-slate-800 dark:text-slate-100 sticky top-0 z-50 transition-colors shadow-md">
+    <div id="appSplashScreen" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#1e293b] text-white transition-opacity duration-500">
+        <div class="text-center space-y-4 animate-pulse">
+            <span class="text-4xl">🐾</span>
+            <h2 class="text-xl font-black tracking-wider text-cuteMint-300">EV Life Loading...</h2>
+            <p class="text-xs text-slate-400">正在準備您的行駛日誌資料</p>
+        </div>
+    </div>
+
+    <nav class="ios-safe-nav bg-gradient-to-r from-[#fffdf5] to-[#fffefb] dark:from-neutral-950 dark:to-black border-b-4 border-[#1e293b] text-slate-800 dark:text-slate-100 sticky top-0 z-50 transition-colors shadow-md">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16 gap-x-2">
                 <div class="flex items-center space-x-1.5 sm:space-x-3 flex-shrink-0">
                     <div class="relative w-11 h-7 sm:w-14 sm:h-9 rounded-lg sm:rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border-2 border-slate-800 dark:border-slate-700 bg-white dark:bg-neutral-900 shadow-[1.5px_1.5px_0px_0px_#1e293b] dark:shadow-[1.5px_1.5px_0px_0px_#000000] sm:shadow-[2px_2px_0px_0px_#1e293b] sm:dark:shadow-[2px_2px_0px_0px_#000000] transition-all">
-                        <!-- 🌟 移除 crossorigin 屬性，防範 same-origin 資源因 CORS 校驗造成 Canvas 染毒 🌟 -->
                         <img id="navLogoImg" src="logo.png" alt="LUXGEN n7" class="w-full h-full object-contain p-0.5 scale-105 transition-all duration-300 dark:brightness-95" onload="adaptContainerBgToImage(this)" onerror="handleLogoError(this)">
                     </div>
                     <span id="navEvBrandName" class="font-extrabold text-sm sm:text-lg tracking-wider whitespace-nowrap flex-shrink-0">
@@ -308,29 +320,24 @@
                 </div>
                 
                 <div class="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
-                    <!-- PWA 快捷安裝按鈕 -->
                     <button id="navInstallBtn" onclick="triggerPwaInstall()" class="rpg-btn-primary text-[10px] sm:text-xs px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl font-black bg-amber-400 dark:bg-amber-500 border-2 border-slate-800 text-slate-900 dark:text-slate-950 shadow-[2px_2px_0px_0px_#1e293b] hover:bg-amber-300 flex items-center space-x-1 whitespace-nowrap flex-shrink-0 hidden">
                         <span>📲 安裝 App</span>
                     </button>
-                    <!-- 深淺色模式切換 -->
                     <button onclick="toggleTheme()" class="rpg-btn-secondary p-1 sm:p-1.5 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0" title="切換深/淺色主題">
                         <svg id="themeSunIcon" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500 hidden" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.46 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path></svg>
                         <svg id="themeMoonIcon" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-500 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
                     </button>
-                    <!-- 立即同步按鈕 -->
                     <button id="navSyncBtn" onclick="syncWithCloud()" class="rpg-btn-primary text-[10px] sm:text-xs px-2 sm:px-3.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl font-bold flex items-center space-x-1 whitespace-nowrap flex-shrink-0 hidden">
                         <svg id="navSyncIcon" class="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M20 4v5h-5M4 20v-5h5M4 12A8 8 0 0 1 18 6.13L20 9M20 12a8 8 0 0 1-14 5.87L4 15"></path>
                         </svg>
                         <span>同步</span>
                     </button>
-                    <!-- 雲端與車輛設定 -->
                     <button onclick="toggleSyncModal()" class="rpg-btn-secondary text-[10px] sm:text-xs px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg sm:rounded-xl flex items-center space-x-0.5 sm:space-x-1 whitespace-nowrap flex-shrink-0">
                         <span id="syncStatusDot" class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse mr-0.5"></span>
                         <span class="hidden sm:inline">系統與雲端設定</span>
                         <span class="inline sm:hidden">設定 🐾</span>
                     </button>
-                    <!-- CSV 匯出 -->
                     <button onclick="exportCSV()" class="rpg-btn-secondary text-xs px-3.5 py-1.5 rounded-xl hidden md:flex items-center flex-shrink-0">
                         <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                         <span>匯出</span>
@@ -340,7 +347,6 @@
         </div>
     </nav>
 
-    <!-- 系統設定 & 雲端同步 模態視窗 -->
     <div id="syncModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
         <div class="bg-[#fffdf9] dark:bg-black rounded-[2rem] shadow-2xl max-w-lg w-full mx-4 transform scale-95 transition-all duration-300 border-4 border-[#1e293b] overflow-hidden" id="syncModalContent">
             
@@ -363,9 +369,7 @@
             
             <div class="p-6 space-y-4 max-h-[65vh] overflow-y-auto bg-[#fffdf9] dark:bg-black">
                 
-                <!-- 分頁一：主要設定與雲端 -->
                 <div id="settings-tab-main" class="space-y-4">
-                    <!-- 第一區：愛車基本設定 -->
                     <div class="bg-cuteBlue-50/50 dark:bg-black/60 rounded-2xl p-4 border-2 border-[#1e293b] space-y-3 shadow-sm">
                         <span class="text-xs text-cuteBlue-600 dark:text-cuteBlue-400 font-extrabold block">🚗 愛車參數設定</span>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -440,9 +444,9 @@ function doPost(e) {
                             </div>
                             <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
                                 4. 點擊「新增部署」，類型選擇「網頁應用程式」，並設定：<br>
-                                &nbsp;&nbsp;&nbsp;- 專案負責人：【您自己】<br>
-                                &nbsp;&nbsp;&nbsp;- 誰有權限存取：【所有人】<br>
-                                5. 點擊「部署」，授權存取後，將產生的「網頁應用程式網址」複製貼回此設定欄位即可。
+                                   &nbsp;&nbsp;&nbsp;- 專案負責人：【您自己】<br>
+                                   &nbsp;&nbsp;&nbsp;- 誰有權限存取：【所有人】<br>
+                                   5. 點擊「部署」，授權存取後，將產生的「網頁應用程式網址」複製貼回此設定欄位即可。
                             </p>
                         </div>
                     </details>
@@ -524,7 +528,6 @@ function doPost(e) {
         </div>
     </div>
 
-    <!-- 自訂確認對話方裝 (Confirm Modal) -->
     <div id="confirmModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[110] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
         <div class="bg-[#fffdf9] dark:bg-black rounded-[2rem] p-6 shadow-2xl max-w-md w-full mx-4 transform scale-95 transition-all duration-300 border-4 border-[#1e293b]" id="confirmModalContent">
             <div class="border-b-2 border-[#1e293b] pb-3 mb-4">
@@ -544,16 +547,13 @@ function doPost(e) {
         </div>
     </div>
 
-    <!-- 主內容區 -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         
-        <!-- 自訂通知元件 (Toast) -->
         <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[120] transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900/95 dark:bg-slate-800/95 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border-2 border-[#1e293b] max-w-[90vw] whitespace-nowrap">
             <span id="toastIcon" class="text-cuteMint-300 text-sm">🐾</span>
             <span id="toastMessage" class="text-xs font-bold"></span>
         </div>
 
-        <!-- 頂部 RPG HUD 旅程進行時橫幅 -->
         <div class="flex flex-col justify-center items-center text-center gap-3 mb-6 bg-cuteMint-50/30 dark:bg-neutral-950/40 p-4 rounded-3xl border-2 border-slate-800 dark:border-slate-700 shadow-[3px_3px_0px_0px_#1e293b] dark:shadow-[3px_3px_0px_0px_#000000]">
             <div class="text-center">
                 <h1 class="text-lg font-black tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:to-teal-600 text-center">
@@ -561,7 +561,6 @@ function doPost(e) {
                 </h1>
                 <p class="text-xs text-slate-500 dark:text-slate-400 font-bold text-center">精準記錄每一段行駛與電能補給數據。</p>
             </div>
-            <!-- RPG 冒險時刻 HUD -->
             <div class="flex items-center justify-center space-x-2 bg-white dark:bg-black py-1.5 px-3.5 rounded-2xl border-2 border-slate-800 dark:border-slate-700 shadow-[2px_2px_0px_0px_#1e293b] dark:shadow-[2px_2px_0px_0px_#000000] font-mono text-xs mx-auto">
                 <div class="relative flex h-2.5 w-2.5 flex-shrink-0">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -572,9 +571,7 @@ function doPost(e) {
             </div>
         </div>
 
-        <!-- 頂部冒險裝備看板 (Quest Stats) -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <!-- 累積總里程 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">行駛總里程 🚗</span>
@@ -586,9 +583,9 @@ function doPost(e) {
                     <span id="statTotalKm" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100 font-mono tracking-tight">0</span>
                     <span class="text-xs font-bold text-slate-400 ml-1">km</span>
                 </div>
-                <span id="statVehicleSub" class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 mt-2 font-bold">愛車 LUXGEN n7 已陪伴您行駛了長遠路程 🐾</span>
+                <span id="statVehicleSub" class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 mt-2 font-bold">愛車 LUXGEN n⁷ 已陪伴您行駛了長遠路程 🐾</span>
             </div>
-            <!-- 平均電耗 -->
+            
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">平均電耗 ⚡</span>
@@ -602,7 +599,7 @@ function doPost(e) {
                 </div>
                 <span id="statWhKm" class="text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-mono">相當於 0 Wh/km</span>
             </div>
-            <!-- 累計補給花費 -->
+
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">累計補給花費 👛</span>
@@ -618,7 +615,7 @@ function doPost(e) {
                 </div>
                 <span id="statTotalPower" class="text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-mono">累計充入 0 度電</span>
             </div>
-            <!-- 每公里電費 -->
+
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">每公里電費 🍩</span>
@@ -637,12 +634,10 @@ function doPost(e) {
             </div>
         </div>
 
-        <!-- 主要內容雙欄排版 -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            <!-- 左側：記錄輸入與試算工具 -->
+            <!-- Left Side: Interactive forms -->
             <div class="lg:col-span-4 space-y-8">
-                <!-- 新增紀錄表單 -->
                 <div class="rpg-card p-6 rounded-[2rem]">
                     <div class="flex items-center justify-between mb-5 pb-3 border-b-2 border-slate-200 dark:border-slate-800">
                         <h2 class="text-base font-black text-slate-800 dark:text-slate-100 flex items-center space-x-2">
@@ -656,7 +651,6 @@ function doPost(e) {
 
                     <form id="recordForm" onsubmit="addRecord(event)" class="space-y-4">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <!-- 記錄日期 -->
                             <div>
                                 <label class="text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5">出發/補給日期</label>
                                 <div class="relative">
@@ -668,7 +662,6 @@ function doPost(e) {
                                     </div>
                                 </div>
                             </div>
-                            <!-- 能源補給方式 -->
                             <div>
                                 <label class="text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5">能源補給類型</label>
                                 <div class="relative">
@@ -686,31 +679,25 @@ function doPost(e) {
                             </div>
                         </div>
 
-                        <!-- 里程與起始/結束電量 -->
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <!-- 本次里程 -->
                             <div class="sm:col-span-1">
                                 <label class="text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5">行駛里程 (km)</label>
                                 <input type="number" step="0.1" id="inputDistance" required placeholder="120" inputmode="decimal" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold font-mono">
                             </div>
-                            <!-- 起始電量 -->
                             <div>
                                 <label id="startSocLabel" class="text-[11px] sm:text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5 whitespace-nowrap">出發前 SOC (%)</label>
                                 <input type="number" step="1" min="0" max="100" id="inputStartSoc" required placeholder="20" inputmode="numeric" pattern="[0-9]*" oninput="updateConvertedPowerHint()" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold font-mono">
                             </div>
-                            <!-- 結束電量 -->
                             <div>
                                 <label id="endSocLabel" class="text-[11px] sm:text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5 whitespace-nowrap">抵達後 SOC (%)</label>
                                 <input type="number" step="1" min="0" max="100" id="inputEndSoc" required placeholder="80" inputmode="numeric" pattern="[0-9]*" oninput="updateConvertedPowerHint()" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-mono font-bold">
                             </div>
                         </div>
 
-                        <!-- 實時提示 -->
                         <div class="text-right">
                             <span id="powerHintText" class="text-[10px] text-cuteMint-700 dark:text-cuteMint-200 font-extrabold bg-cuteMint-100/50 dark:bg-black p-2.5 rounded-2xl inline-block border-2 border-slate-800 dark:border-slate-700">共消耗 0% 電量 (約等同於 0.00 度電)</span>
                         </div>
 
-                        <!-- 充電費用 -->
                         <div>
                             <label class="text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5">本次補給費用 (元) - 若無填 0</label>
                             <input type="number" step="1" id="inputCost" required placeholder="0" inputmode="numeric" pattern="[0-9]*" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold font-mono">
@@ -722,7 +709,6 @@ function doPost(e) {
                         </div>
 
                         <div class="flex flex-col sm:flex-row gap-3 pt-2">
-                            <!-- Q彈實體按鈕 -->
                             <button type="submit" class="flex-1 rpg-btn-primary text-sm font-extrabold py-3.5 rounded-2xl flex justify-center items-center space-x-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
                                 <span id="submitBtnText">記錄這趟旅程 ⚡</span>
@@ -735,9 +721,9 @@ function doPost(e) {
                 </div>
             </div>
 
-            <!-- 右側：圖表與歷史資料列表 -->
+            <!-- Right Side: Visualization charts and history records -->
             <div class="lg:col-span-8 space-y-8">
-                <!-- 能耗與花費圖表 -->
+                <!-- Power efficiency trend chart -->
                 <div class="rpg-card p-6 rounded-[2.5rem]">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
                         <h2 class="text-base font-black text-slate-800 dark:text-slate-200 flex items-center space-x-2">
@@ -746,7 +732,6 @@ function doPost(e) {
                             </span>
                             <span>電耗與補給趨勢圖 📈⚡</span>
                         </h2>
-                        <!-- 趨勢圖 RPG 切換頁籤 -->
                         <div class="flex p-1 bg-slate-100 dark:bg-black rounded-xl border-2 border-slate-800 dark:border-slate-800 self-start sm:self-center font-bold">
                             <button onclick="setChartFilter('all')" id="btnChartAll" class="px-2.5 py-1 text-[10px] rounded-lg transition-all border-2 border-slate-800 dark:border-slate-700 bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white shadow-[1px_1px_0px_0px_#1e293b] dark:shadow-[1px_1px_0px_0px_#000000]">全部</button>
                             <button onclick="setChartFilter('efficiency')" id="btnChartEfficiency" class="px-2.5 py-1 text-[10px] rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-all ml-1">僅電耗 📈</button>
@@ -758,7 +743,6 @@ function doPost(e) {
                     </div>
                 </div>
 
-                <!-- 歷史資料列表 -->
                 <div class="rpg-card p-6 rounded-[2.5rem]">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b-2 border-slate-200 dark:border-slate-800 mb-4 gap-4">
                         <h2 class="text-base font-black text-slate-800 dark:text-slate-200 flex items-center space-x-2">
@@ -773,9 +757,7 @@ function doPost(e) {
                         </button>
                     </div>
 
-                    <!-- 傳統單筆清單與響應式視圖 -->
                     <div id="flatViewContainer" class="space-y-4">
-                        <!-- 電腦與平板端表格：寬度精準自適應，md 段在小螢幕平板上啟用 overflow 自行滑動，lg 以上無卷軸 -->
                         <div id="desktopTableWrapper" class="hidden md:block overflow-x-auto lg:overflow-x-hidden max-h-[480px] rounded-[1.5rem] border-2 border-slate-800 dark:border-slate-700 scrollable-log-container">
                             <table class="min-w-full divide-y divide-slate-800 dark:divide-slate-700 text-xs text-left table-auto">
                                 <thead class="bg-[#fffdf9] dark:bg-black text-cuteMint-700 dark:text-cuteMint-200 font-extrabold uppercase tracking-wider border-b-2 border-slate-800 dark:border-slate-700 sticky top-0 z-20">
@@ -791,24 +773,19 @@ function doPost(e) {
                                     </tr>
                                 </thead>
                                 <tbody id="recordTableBody" class="divide-y divide-cuteMint-100 dark:divide-slate-800/60 text-slate-800 dark:text-slate-100 font-bold">
-                                    <!-- 動態插入單筆資料 -->
                                 </tbody>
                             </table>
                         </div>
 
-                        <!-- 手機端卡片滾動高度限制 -->
                         <div id="recordMobileList" class="block md:hidden space-y-4 max-h-[480px] overflow-y-auto pb-4 pr-1.5 scrollable-log-container">
-                            <!-- 動態插入卡片 -->
                         </div>
                     </div>
 
-                    <!-- 無資料時的提示 -->
                     <div id="noDataPlaceholder" class="hidden p-12 text-center text-slate-400 dark:text-slate-500">
                         <svg class="w-12 h-12 mx-auto mb-3 text-cuteMint-200 dark:text-slate-700 animate-bounce" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                         <p class="text-xs font-black text-cuteMint-500">空空如也 🐾 快來左邊寫下第一筆吧！</p>
                     </div>
                 </div>
-
             </div>
         </div>
     </main>
@@ -818,20 +795,18 @@ function doPost(e) {
         <p class="text-xs font-bold">EV Life 電動車試算與電耗記錄工具 © 2026. 您的資料將安全地儲存在本地裝置瀏覽器中。</p>
     </footer>
 
-    <!-- JavaScript 邏輯控制 -->
     <script>
         let records = [];
         let efficiencyChartInstance = null;
         let syncUrl = "";
-        let evName = "LUXGEN n7"; // 預設愛車名稱
-        let batteryCapacity = 57.7; // 預設車輛電池總容量 (kWh)
-        let initialOdometer = 0; // 預設初始里程為 0
-        let activeConfirmCallback = null; // 自訂確認彈出視窗的回呼
-        let editingRecordId = null; // 全域編輯狀態 ID
-        let currentChartFilter = 'all'; // 全域圖表篩選狀態：'all' | 'efficiency' | 'cost'
-        let deferredPrompt = null; // PWA 安裝事件暫存
+        let evName = "LUXGEN n⁷";
+        let batteryCapacity = 57.7;
+        let initialOdometer = 0;
+        let activeConfirmCallback = null;
+        let editingRecordId = null;
+        let currentChartFilter = 'all';
+        let deferredPrompt = null;
 
-        // 進階：動態更新時鐘
         function updateLiveClock() {
             const clockEl = document.getElementById('liveClockText');
             if (!clockEl) return;
@@ -845,7 +820,6 @@ function doPost(e) {
             clockEl.textContent = `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
         }
 
-        // 剪貼簿複製
         function copyGasCode() {
             const textArea = document.getElementById('gasCodeText');
             if (!textArea) return;
@@ -858,7 +832,6 @@ function doPost(e) {
             }
         }
 
-        // 導航欄與 LocalStorage 主題初始化
         function setupThemeIcons() {
             const isDark = document.documentElement.classList.contains('dark');
             if (isDark) {
@@ -871,7 +844,6 @@ function doPost(e) {
             updateLogoPlaceholder();
         }
 
-        // 修改後的 toggleTheme：背景採用 `dark:bg-black` 替代原本的深藍色
         function toggleTheme() {
             const isDark = document.documentElement.classList.contains('dark');
             if (isDark) {
@@ -883,10 +855,9 @@ function doPost(e) {
             }
             setupThemeIcons();
             updateCharts();
-            renderDashboard(); // 確保切換主題時，動態生成的愛車名稱標籤顏色同步更新！
+            renderDashboard();
         }
 
-        // 輔育函式：統一保存本地狀態並更新修改時間戳記
         function saveLocalState(newRecords) {
             records = newRecords;
             const timestamp = Date.now();
@@ -895,7 +866,6 @@ function doPost(e) {
             return timestamp;
         }
 
-        // 充電類型監聽
         function handleChargeTypeChange() {
             const chargeTypeSelect = document.getElementById('inputChargeType');
             const costInput = document.getElementById('inputCost');
@@ -924,7 +894,6 @@ function doPost(e) {
             updateConvertedPowerHint();
         }
 
-        // 關鍵限制與強制數值處理腳本
         function setupNumericRestrictions() {
             const distanceInput = document.getElementById('inputDistance');
             const startSocInput = document.getElementById('inputStartSoc');
@@ -978,7 +947,6 @@ function doPost(e) {
         window.onload = function() {
             setupThemeIcons();
 
-            // 啟動動態時鐘
             updateLiveClock();
             setInterval(updateLiveClock, 1000);
 
@@ -991,20 +959,18 @@ function doPost(e) {
                 dateInput.value = `${yyyy}-${mm}-${dd}`;
             }
             
-            // 讀取同步與基本參數設定
             syncUrl = localStorage.getItem('ev_life_sync_url') || "";
             const sUrlInput = document.getElementById('syncUrlInput');
             if (sUrlInput) {
                 sUrlInput.value = syncUrl;
             }
             
-            // 愛車名稱
             let rawEvName = localStorage.getItem('ev_life_ev_name') || "";
             if (!rawEvName) {
-                evName = "LUXGEN n7";
-                localStorage.setItem('ev_life_ev_name', "LUXGEN n7");
+                evName = "LUXGEN n⁷";
+                localStorage.setItem('ev_life_ev_name', "LUXGEN n⁷");
             } else {
-                evName = rawEvName;
+                evName = rawEvName.replace("n7", "n⁷");
             }
             const eNameInput = document.getElementById('evNameInput');
             if (eNameInput) {
@@ -1032,7 +998,6 @@ function doPost(e) {
             setupNumericRestrictions();
             updateSyncUiStatus();
 
-            // 讀取 localStorage 資料，並透過優化後的 parseRecordSoc 防呆規格化
             const localData = localStorage.getItem('ev_life_records');
             if (localData) {
                 const rawRecords = JSON.parse(localData);
@@ -1042,7 +1007,6 @@ function doPost(e) {
                 localStorage.setItem('ev_life_records', JSON.stringify(records));
             }
 
-            // 升級遷移時間戳記
             let lastUpdated = parseInt(localStorage.getItem('ev_life_last_updated')) || 0;
             if (records.length > 0 && lastUpdated === 0) {
                 localStorage.setItem('ev_life_last_updated', Date.now());
@@ -1050,14 +1014,12 @@ function doPost(e) {
             
             renderDashboard();
 
-            // 如果有綁定雲端，載入時自動嘗試同步一次
             if (syncUrl) {
                 setTimeout(() => {
                     syncWithCloud(true); 
                 }, 1000);
             }
 
-            // 監聽系統主題切換事件
             if (window.matchMedia) {
                 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
                     if (!localStorage.getItem('ev_life_theme')) {
@@ -1069,10 +1031,8 @@ function doPost(e) {
                 });
             }
 
-            // 初始化 PWA 診斷
             updatePwaDiagnostic();
             
-            // 🌟 核心更新：確保在 Cache 載入完成、同步觸發前先對 navLogo 進行一波無防禦同源背景分析 🌟
             const logoImg = document.getElementById('navLogoImg');
             if (logoImg) {
                 if (logoImg.complete) {
@@ -1082,9 +1042,17 @@ function doPost(e) {
                     adaptContainerBgToImage(this);
                 });
             }
+
+            setTimeout(() => {
+                const splash = document.getElementById('appSplashScreen');
+                if (splash) {
+                    document.documentElement.classList.add('app-loaded');
+                    splash.classList.add('opacity-0', 'pointer-events-none');
+                    setTimeout(() => splash.remove(), 500);
+                }
+            }, 600);
         };
 
-        // 開啟自訂確認對話方塊
         function showConfirmModal(title, message, onConfirm) {
             const modal = document.getElementById('confirmModal');
             const content = document.getElementById('confirmModalContent');
@@ -1104,7 +1072,6 @@ function doPost(e) {
             }, 10);
         }
 
-        // 關閉自訂確認對話方塊
         function closeConfirmModal() {
             const modal = document.getElementById('confirmModal');
             const content = document.getElementById('confirmModalContent');
@@ -1120,7 +1087,6 @@ function doPost(e) {
             }, 300);
         }
 
-        // 綁定自訂對話方塊的確認動作
         const confirmSuccessBtn = document.getElementById('confirmSuccessBtn');
         if (confirmSuccessBtn) {
             confirmSuccessBtn.onclick = function() {
@@ -1131,7 +1097,6 @@ function doPost(e) {
             };
         }
 
-        // 即時電量比例與度數換算提示
         function updateConvertedPowerHint() {
             const chargeType = document.getElementById('inputChargeType').value;
             const startSocInput = document.getElementById('inputStartSoc');
@@ -1149,7 +1114,6 @@ function doPost(e) {
             hintText.textContent = `共${actionText} ${deltaSoc.toFixed(0)}% 電量 (約等同於 ${calculatedKwh.toFixed(2)} 度電)`;
         }
 
-        // 顯示提示訊息
         function showToast(message, isError = false) {
             const toast = document.getElementById('toast');
             const toastMessage = document.getElementById('toastMessage');
@@ -1165,7 +1129,6 @@ function doPost(e) {
             }, 3000);
         }
 
-        // 系統與雲端設定視窗開關
         function toggleSyncModal() {
             const modal = document.getElementById('syncModal');
             const content = document.getElementById('syncModalContent');
@@ -1179,7 +1142,7 @@ function doPost(e) {
                 if (initialOdometerInput) initialOdometerInput.value = initialOdometer;
 
                 modal.classList.remove('hidden');
-                switchSettingsTab('settings-tab-main'); // 預設打開主設定
+                switchSettingsTab('settings-tab-main');
                 setTimeout(() => {
                     modal.classList.remove('opacity-0');
                     modal.classList.add('opacity-100');
@@ -1197,7 +1160,6 @@ function doPost(e) {
             }
         }
 
-        // 頁籤切換器
         function switchSettingsTab(tabId) {
             const mainTab = document.getElementById('settings-tab-main');
             const pwaTab = document.getElementById('settings-tab-pwa');
@@ -1218,7 +1180,6 @@ function doPost(e) {
             }
         }
 
-        // 儲存設定
         function saveSyncSettings() {
             const syncUrlInput = document.getElementById('syncUrlInput');
             const evNameInput = document.getElementById('evNameInput');
@@ -1236,7 +1197,7 @@ function doPost(e) {
             }
 
             if (evNameInput) {
-                evName = evNameInput.value.trim() || "LUXGEN n7";
+                evName = evNameInput.value.trim().replace("n7", "n⁹") || "LUXGEN n⁹";
                 localStorage.setItem('ev_life_ev_name', evName);
             }
 
@@ -1262,21 +1223,19 @@ function doPost(e) {
                 }
             }
             
-            // 強制將「本機最後更新時間戳記」推進到當下，使同步程式判定本機有最新異動，進而將初始里程等設定推送上雲
             localStorage.setItem('ev_life_last_updated', Date.now().toString());
             
             updateSyncUiStatus();
             toggleSyncModal();
             showToast("所有參數與雲端設定已儲存！🐾");
             
-            renderDashboard(); // 重新整理看板
+            renderDashboard();
 
             if (syncUrl) {
                 syncWithCloud();
             }
         }
 
-        // 更新同步相關 UI 狀態
         function updateSyncUiStatus() {
             const syncStatusDot = document.getElementById('syncStatusDot');
             const navSyncBtn = document.getElementById('navSyncBtn');
@@ -1334,7 +1293,6 @@ function doPost(e) {
                     if (item && item.id === "SYSTEM_METADATA") {
                         cloudLastUpdated = parseInt(item.note) || 0;
                     } else if (item && item.id === "CONFIG_METADATA") {
-                        // 擷取雲端的愛車設定參數封包
                         try {
                             cloudConfigParsed = JSON.parse(item.note);
                         } catch(err) {
@@ -1348,7 +1306,6 @@ function doPost(e) {
                 let localLastUpdated = parseInt(localStorage.getItem('ev_life_last_updated')) || 0;
 
                 if (localLastUpdated > cloudLastUpdated) {
-                    // 【本機較新】將日誌紀錄與系統設定一同打包上傳
                     const uploadPayload = records.map(rec => {
                         let syncedNote = rec.note || '';
                         if (rec.startSoc !== undefined && rec.endSoc !== undefined) {
@@ -1365,7 +1322,6 @@ function doPost(e) {
                         };
                     });
 
-                    // 建立一個特殊的 CONFIG_METADATA 項目，攜帶本機車型設定與初始里程
                     const configMeta = {
                         id: "CONFIG_METADATA",
                         date: "",
@@ -1398,16 +1354,14 @@ function doPost(e) {
                     localStorage.setItem('ev_life_last_sync_time', new Date().toLocaleString());
                     if (!isSilent) showToast(`同步成功！已將本地最新狀態送至雲端 ☁️`);
                 } else if (cloudLastUpdated > localLastUpdated) {
-                    // 【雲端較新】下載雲端的日誌，並套用雲端的系統與初始里程參數
                     records = cloudRecords;
                     localStorage.setItem('ev_life_records', JSON.stringify(records));
                     localStorage.setItem('ev_life_last_updated', cloudLastUpdated);
                     localStorage.setItem('ev_life_last_sync_time', new Date().toLocaleString());
                     
-                    // 如果雲端有攜帶設定參數，將其覆寫回本機 LocalStorage 並即時更新記憶體變數
                     if (cloudConfigParsed) {
                         if (cloudConfigParsed.evName) {
-                            evName = cloudConfigParsed.evName;
+                            evName = cloudConfigParsed.evName.replace("n7", "n⁷");
                             localStorage.setItem('ev_life_ev_name', evName);
                         }
                         if (cloudConfigParsed.batteryCapacity) {
@@ -1419,7 +1373,6 @@ function doPost(e) {
                             localStorage.setItem('ev_life_initial_odometer', initialOdometer.toString());
                         }
                         
-                        // 同步更新設定視窗內的輸入框預設值
                         const eNameInput = document.getElementById('evNameInput');
                         if (eNameInput) eNameInput.value = evName;
                         const bCapInput = document.getElementById('batteryCapacityInput');
@@ -1444,7 +1397,6 @@ function doPost(e) {
             }
         }
 
-        // 解碼輔助函式：從備註中提取隱藏的起訖電量 SOC，並優化規格化型態防呆
         function parseRecordSoc(rec) {
             let startSoc = rec.startSoc;
             let endSoc = rec.endSoc;
@@ -1458,7 +1410,6 @@ function doPost(e) {
                 }
             }
             
-            // 🌟 修正時區偏移 🌟
             let dateStr = '';
             if (rec.date) {
                 const dStr = rec.date.toString().trim();
@@ -1491,7 +1442,6 @@ function doPost(e) {
             };
         }
 
-        // 開啟單筆編輯狀態
         function editRecord(id) {
             const rec = records.find(r => r.id === id);
             if (!rec) return;
@@ -1517,7 +1467,6 @@ function doPost(e) {
             document.getElementById('recordForm').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // 取消編輯狀態 (重設回新增模式)
         function cancelEdit() {
             editingRecordId = null;
             document.getElementById('formTitle').textContent = "記錄本次旅程 🐾";
@@ -1631,8 +1580,6 @@ function doPost(e) {
                 rec.rollingOdo = rollingOdoAccumulator;
             });
 
-            // 🌟 核心更新：重構全球守恆電量與電耗計算演算法 🌟
-            // 累加每一趟行車記錄中，系統已算出的各行程實際消耗電量（度），作為最嚴謹精確的物理分母
             let totalKm = 0;
             let totalCost = 0;
             let totalPower = 0;
@@ -1646,7 +1593,6 @@ function doPost(e) {
                     totalPower += parseFloat(rec.power) || 0;
                 }
 
-                // 累計每趟車程真實計算消耗度數（以電池容量與起訖 SOC 百分比換算）
                 const rowConsumedSoc = rec.consumedSocPercent !== undefined ? rec.consumedSocPercent : 0;
                 const rowConsumedPower = batteryCapacity * (rowConsumedSoc / 100);
                 totalPowerConsumedReal += rowConsumedPower;
@@ -1680,7 +1626,6 @@ function doPost(e) {
                 let socText = "";
                 let subActionWord = rec.chargeType === "未充電" ? "消耗" : "補給";
                 if (hasValidSoc) {
-                    // 🌟 核心修正 1：電腦版的「起訖電量 (SOC)」下方移除贅字，未充電純行駛顯示「消耗」，充電補給則純粹顯示「補給」，解決不嚴謹文字 🌟
                     socText = `
                         <div class="leading-tight text-center whitespace-nowrap">
                             <div>${startSocVal}% ➔ ${endSocVal}%</div>
@@ -1698,7 +1643,6 @@ function doPost(e) {
 
                 const displayDate = rec.date && rec.date.includes('T') ? rec.date.split('T')[0] : (rec.date || '').split('T')[0];
 
-                // 1. 電腦端表格行
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-cuteMint-50/20 dark:hover:bg-slate-800/40 transition border-b border-cuteMint-100/60 dark:border-slate-800/60";
                 tr.innerHTML = `
@@ -1738,7 +1682,6 @@ function doPost(e) {
                 tr.querySelector('.delete-btn').addEventListener('click', () => confirmDeleteRecord(rec.id));
                 if (tableBody) tableBody.appendChild(tr);
 
-                // 2. 手機端卡片 (🌟 全新置中、完美對等對齊與鑽石 $2 \times 2$ 四角盒子佈局 🌟)
                 let mobileSocText = "";
                 if (hasValidSoc) {
                     mobileSocText = `${startSocVal}% ➔ ${endSocVal}%`;
@@ -1749,7 +1692,6 @@ function doPost(e) {
                 const card = document.createElement('div');
                 card.className = "rpg-card px-3.5 py-4 sm:p-5 rounded-[2rem] space-y-3.5 mr-1 mb-2"; 
                 
-                // 🌟 關鍵修正 2：手機版重構為 4 個高度完全等寬盒子 + 內容百分之百置中對齊 + whitespace-nowrap 鎖定防折行 🌟
                 card.innerHTML = `
                     <div class="flex items-center justify-between pb-2.5 border-b-2 border-cuteMint-50/50 dark:border-slate-800/40 w-full min-w-0 gap-1.5">
                         <div class="flex items-center space-x-1 sm:space-x-1.5 min-w-0 flex-nowrap">
@@ -1782,7 +1724,6 @@ function doPost(e) {
                     </div>
                     
                     <div class="grid grid-cols-2 gap-2.5 pt-2">
-                        <!-- 框框 1：行駛里程 -->
                         <div class="bg-slate-50 dark:bg-neutral-900/40 p-3 rounded-[1.2rem] border border-slate-200/50 dark:border-neutral-800/80 flex flex-col justify-center items-center text-center overflow-hidden min-h-[96px]">
                             <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-black mb-1 whitespace-nowrap">行駛里程</span>
                             <div class="flex items-baseline justify-center whitespace-nowrap">
@@ -1794,7 +1735,6 @@ function doPost(e) {
                             </span>
                         </div>
                         
-                        <!-- 框框 2：電耗表現 -->
                         <div class="bg-slate-50 dark:bg-neutral-900/40 p-3 rounded-[1.2rem] border border-slate-200/50 dark:border-neutral-800/80 flex flex-col justify-center items-center text-center overflow-hidden min-h-[96px]">
                             <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-black mb-1 whitespace-nowrap">電耗表現</span>
                             <div class="flex items-baseline justify-center whitespace-nowrap">
@@ -1806,7 +1746,6 @@ function doPost(e) {
                             </span>
                         </div>
                         
-                        <!-- 框框 3：補給起訖 (已完全精簡移除「電量與度數」) -->
                         <div class="bg-slate-50 dark:bg-neutral-900/40 p-3 rounded-[1.2rem] border border-slate-200/50 dark:border-neutral-800/80 flex flex-col justify-center items-center text-center overflow-hidden min-h-[96px]">
                             <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-black mb-1 whitespace-nowrap">補給起訖</span>
                             <div class="whitespace-nowrap font-black text-sm sm:text-base text-slate-800 dark:text-slate-100 font-mono tracking-tight my-0.5 leading-none">
@@ -1817,7 +1756,6 @@ function doPost(e) {
                             </span>
                         </div>
                         
-                        <!-- 框框 4：本次費用 -->
                         <div class="bg-slate-50 dark:bg-neutral-900/40 p-3 rounded-[1.2rem] border border-slate-200/50 dark:border-neutral-800/80 flex flex-col justify-center items-center text-center overflow-hidden min-h-[96px]">
                             <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-black mb-1 whitespace-nowrap">本次費用</span>
                             <div class="flex items-baseline justify-center whitespace-nowrap my-0.5 leading-none">
@@ -1842,7 +1780,6 @@ function doPost(e) {
                 if (mobileList) mobileList.appendChild(card);
             });
 
-            // 🌟 核心更新：使用絕對精準的每趟行程「累加實耗度數」作為分母，完美修正平均電耗失真問題 🌟
             const avgEfficiency = totalPowerConsumedReal > 0 ? (totalKm / totalPowerConsumedReal) : 0;
             const costPerKm = totalKm > 0 ? (totalCost / totalKm) : 0;
 
@@ -1850,7 +1787,6 @@ function doPost(e) {
             updateCharts();
         }
 
-        // 更新頂部卡片文字
         function updateStats(totalKm, avgEfficiency, totalCost, totalPower, costPerKm) {
             const statTotalKm = document.getElementById('statTotalKm');
             const statAvgEfficiency = document.getElementById('statAvgEfficiency');
@@ -1878,7 +1814,6 @@ function doPost(e) {
             }
         }
 
-        // 新增與編輯記錄
         async function addRecord(e) {
             e.preventDefault();
 
@@ -1897,7 +1832,6 @@ function doPost(e) {
                 return;
             }
 
-            // 起訖電量智慧計算
             let powerPercent = 0;
             if (chargeType === "未充電") {
                 powerPercent = startSoc - endSoc;
@@ -1909,7 +1843,6 @@ function doPost(e) {
             const power = batteryCapacity * (powerPercent / 100);
 
             if (editingRecordId) {
-                // 1. 編輯模式下的保存邏輯
                 const index = records.findIndex(r => r.id === editingRecordId);
                 if (index !== -1) {
                     records[index] = {
@@ -1927,15 +1860,14 @@ function doPost(e) {
                     saveLocalState(records);
                     showToast("日誌已成功儲存修改！✨");
                 }
-                cancelEdit(); // 修改完成自動轉回新增狀態
+                cancelEdit();
             } else {
-                // 2. 新增模式下的寫入邏輯
                 const newRecord = {
                     id: Date.now().toString(),
                     date,
                     chargeType,
                     distance,
-                    power: parseFloat(power.toFixed(3)), // 保留到小數三位
+                    power: parseFloat(power.toFixed(3)),
                     powerPercent: powerPercent,
                     startSoc: startSoc,
                     endSoc: endSoc,
@@ -1944,20 +1876,18 @@ function doPost(e) {
                 };
 
                 const updatedRecords = [...records, newRecord];
-                saveLocalState(updatedRecords); // 統一呼叫保存
+                saveLocalState(updatedRecords);
                 showToast("紀錄已寫在本機小本本囉！(•̀ᴗ•́)受");
                 cancelEdit(); 
             }
 
             renderDashboard();
 
-            // 如果有啟動雲端，自動上傳
             if (syncUrl) {
                 syncWithCloud();
             }
         }
 
-        // 單筆刪除
         function confirmDeleteRecord(id) {
             const target = records.find(rec => rec.id === id);
             if (!target) return;
@@ -1978,7 +1908,6 @@ function doPost(e) {
             );
         }
 
-        // 清空所有資料
         function clearAllData() {
             showConfirmModal(
                 "要把日誌全部清空嗎？", 
@@ -1995,11 +1924,9 @@ function doPost(e) {
             );
         }
 
-        // 趨勢圖篩選與樣式切換器
         function setChartFilter(filter) {
             currentChartFilter = filter;
             
-            // 復原全部按鈕預設樣式
             const btnAll = document.getElementById('btnChartAll');
             const btnEff = document.getElementById('btnChartEfficiency');
             const btnCost = document.getElementById('btnChartCost');
@@ -2010,7 +1937,6 @@ function doPost(e) {
                 }
             });
             
-            // 啟用點擊按鈕的 active RPG 街機風格
             const activeBtn = document.getElementById(`btnChart${filter.charAt(0).toUpperCase() + filter.slice(1)}`);
             if (activeBtn) {
                 activeBtn.className = "px-2.5 py-1 text-[10px] rounded-lg transition-all border-2 border-slate-800 dark:border-slate-700 bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white shadow-[1px_1px_0px_0px_#1e293b] dark:shadow-[1px_1px_0px_0px_#000000] font-bold";
@@ -2023,13 +1949,11 @@ function doPost(e) {
             const canvasElement = document.getElementById('efficiencyChart');
             if (!canvasElement) return;
 
-            // 抓取 Canvas 身上綁定的任何活躍圖表並直接銷毀它，解決 Canvas in use 衝突
             const existingChart = Chart.getChart(canvasElement);
             if (existingChart) {
                 existingChart.destroy();
             }
 
-            // 同步銷毀舊變數
             if (efficiencyChartInstance) {
                 efficiencyChartInstance.destroy();
                 efficiencyChartInstance = null;
@@ -2044,7 +1968,6 @@ function doPost(e) {
             const chartData = [...activeRecords].slice(-15);
             const labels = chartData.map(rec => rec.date && rec.date.includes('T') ? rec.date.split('T')[0].substring(5) : (rec.date || '').substring(5));
             
-            // 使用動態計算出來的 consumedSocPercent 來繪製圖表，避免圖表 spikes 暴走
             const efficiencies = chartData.map(rec => {
                 const consumedSoc = rec.consumedSocPercent !== undefined ? rec.consumedSocPercent : 0;
                 const rowConsumedPower = batteryCapacity * (consumedSoc / 100);
@@ -2061,7 +1984,6 @@ function doPost(e) {
                 lineGradient.addColorStop(1, 'rgba(20, 184, 166, 0)');
             }
 
-            // 定義數據與對應座標軸配置
             const datasets = [];
             const scalesConfig = {
                 x: {
@@ -2073,18 +1995,17 @@ function doPost(e) {
                 }
             };
 
-            // 1. 注入電耗曲線
             if (currentChartFilter === 'all' || currentChartFilter === 'efficiency') {
                 datasets.push({
                     label: '平均電耗 (km/度)',
                     data: efficiencies,
-                    borderColor: '#14b8a6', /* 溫和薄荷綠 */
+                    borderColor: '#14b8a6',
                     backgroundColor: lineGradient,
                     borderWidth: 4,
                     pointBackgroundColor: '#14b8a6',
                     pointHoverRadius: 7,
                     pointRadius: 4,
-                    tension: 0.4, /* 貝氏平滑曲線 */
+                    tension: 0.4,
                     yAxisID: 'yEfficiency',
                     fill: true
                 });
@@ -2109,7 +2030,6 @@ function doPost(e) {
                 };
             }
 
-            // 2. 注入補給費用直條圖
             if (currentChartFilter === 'all' || currentChartFilter === 'cost') {
                 datasets.push({
                     label: '補給費用 (元)',
@@ -2137,7 +2057,7 @@ function doPost(e) {
                         font: { family: "'JetBrains Mono', sans-serif", weight: 'bold' }
                     },
                     grid: {
-                        drawOnChartArea: false /* 避免左右網格線互相重疊交叉 */
+                        drawOnChartArea: false 
                     }
                 };
             }
@@ -2175,7 +2095,7 @@ function doPost(e) {
                             bodyColor: isDarkMode ? '#cbd5e1' : '#475569',
                             borderColor: '#ccfbf1',
                             borderWidth: 2,
-                            cornerRadius: 16,
+                            borderRadius: 16,
                             padding: 12,
                             boxPadding: 6,
                             titleFont: {
@@ -2192,7 +2112,6 @@ function doPost(e) {
             });
         }
 
-        // 匯出 CSV (包含起訖電量格式)
         function exportCSV() {
             const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
             if (activeRecords.length === 0) {
@@ -2228,9 +2147,6 @@ function doPost(e) {
             showToast("CSV 匯出成功！已開始下載");
         }
 
-        // ==================== PWA 核心技術擴充腳本 ====================
-
-        // 1. Service Worker 註冊機制
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
@@ -2245,7 +2161,6 @@ function doPost(e) {
             });
         }
 
-        // 2. 安裝狀態攔截與觸發 (BeforeInstallPrompt)
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
@@ -2261,7 +2176,6 @@ function doPost(e) {
             updatePwaDiagnostic();
         });
 
-        // 安裝觸發器
         function triggerPwaInstall() {
             if (!deferredPrompt) {
                 showToast("當前裝置已安裝此應用程式，或瀏覽器已略過 PWA 安裝。🐾");
@@ -2295,7 +2209,6 @@ function doPost(e) {
             }
         }
 
-        // 3. PWA 即時環境診斷數據
         function updatePwaDiagnostic() {
             const diagHttps = document.getElementById('diag-https');
             const diagSw = document.getElementById('diag-sw');
@@ -2331,7 +2244,6 @@ function doPost(e) {
             }
         }
 
-        // 監聽連線變動
         window.addEventListener('online', () => {
             updatePwaDiagnostic();
             showToast("網路已恢復，已回到在線同步模式 ⚡");
@@ -2341,7 +2253,6 @@ function doPost(e) {
             showToast("網路已斷開，EV Life 已無縫切換到「純離線行車記錄」模式！🐾", true);
         });
 
-        // 4. 動態下載 PWA 設定檔公用機制
         function downloadBlobFile(content, fileName, contentType) {
             const a = document.createElement("a");
             const file = new Blob([content], {type: contentType});
@@ -2351,10 +2262,9 @@ function doPost(e) {
             URL.revokeObjectURL(a.href);
         }
 
-        // 下載 manifest.json
         function downloadManifest() {
             const manifestObj = {
-                "name": "EV Life - LUXGEN n7 行駛日誌",
+                "name": "EV Life - LUXGEN n⁷ 行駛日誌",
                 "short_name": "EV Life",
                 "description": "精準記錄每一段行駛與電能補給數據的行駛日誌工具。",
                 "start_url": "index.html",
@@ -2382,9 +2292,8 @@ function doPost(e) {
             showToast("成功下載 manifest.json！請覆蓋舊檔並推送到 GitHub 🐾");
         }
 
-        // 下載 sw.js
         function downloadServiceWorker() {
-            const swCode = `// EV Life - LUXGEN n7 行駛日誌 PWA 離線快取快遞員
+            const swCode = `// EV Life - LUXGEN n⁷ 行駛日誌 PWA 離線快取快遞員
 const CACHE_NAME = 'ev-life-cache-v4'; 
 const ASSETS = [
   './',
