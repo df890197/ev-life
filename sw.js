@@ -3,7 +3,6 @@ const CACHE_NAME = 'ev-life-cache-v5';
 const ASSETS = [
   './',
   './index.html',
-  './manifest.json',
   './logo.png',
   './icon-192.png',
   './icon-512.png',
@@ -45,6 +44,7 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   // 排除 Google 試算表雲端同步 API 的快取
   if (event.request.url.includes('script.google.com')) {
+    event.respondWith(fetch(event.request));
     return;
   }
 
