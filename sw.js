@@ -1,4 +1,4 @@
-// EV Life - LUXGEN n⁷ 行駛日誌 PWA 離線快取守護程序
+// EV Life - LUXGEN n⁷ 行駛日誌 PWA 離線快取快遞員
 const CACHE_NAME = 'ev-life-cache-v4'; 
 const ASSETS = [
   './',
@@ -36,7 +36,6 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // 排除 Google 雲端同步腳本的快取，確保雙向同步數據即時性
   if (event.request.url.includes('script.google.com')) {
     return;
   }
@@ -44,7 +43,6 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
       if (cachedResponse) {
-        // Stale-While-Revalidate 策略：先用快取顯示，並在背景默默更新快取寶箱
         fetch(event.request).then(networkResponse => {
           if (networkResponse.status === 200) {
             caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse));
