@@ -1,11 +1,14 @@
 <!DOCTYPE html>
-<!-- 關鍵修正：行內樣式優先級，在瀏覽器解析第一行時強制鎖定深藍背景，徹底防禦 First Paint 閃白 -->
+<!-- 關鍵優化 1：在 html 標籤上直接宣告最優先級的行內樣式，確保瀏覽器讀取到第 1 個字元時就鎖定深藍色 -->
 <html lang="zh-TW" class="bg-[#1e293b]" style="background-color: #1e293b !important;">
 <head>
     <meta charset="UTF-8">
     <!-- 鎖定 PWA 行動端手勢縮放，並啟用 viewport-fit=cover 適應現代手機瀏海屏與動態島 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>EV Life - 🐾 LUXGEN n dream 行駛日誌</title>
+    
+    <!-- 關鍵優化 2：向 iOS 底層引擎宣告 color-scheme，讓系統在加載網頁前即以深色調模式（Dark）初始化視窗 -->
+    <meta name="color-scheme" content="dark light">
     
     <!-- PWA 行動裝置規格加強與色彩配置 -->
     <meta name="theme-color" content="#1e293b" id="theme-color-meta">
@@ -25,7 +28,7 @@
     <link rel="apple-touch-startup-image" href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221290%22%20height%3D%222796%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2246%25%22%20font-size%3D%22160%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E🐾%3C%2Ftext%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2254%25%22%20font-size%3D%2245%22%20fill%3D%22%232dd4bf%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22900%22%20text-anchor%3D%22middle%22%3EEV%20Life%3C%2Ftext%3E%3C%2Fsvg%3E" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)">
     
     <!-- iPhone 14 Pro, 15, 15 Pro, 16 (393 x 852 @3x) -->
-    <link rel="apple-touch-startup-image" href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221179%22%20height%3D%222556%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2246%25%22%20font-size%3D%22150%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E🐾%3C%2Ftext%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2254%25%22%20font-size%3D%2240%22%20fill%3D%22%232dd4bf%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22900%22%20text-anchor%3D%22middle%22%3EEV%20Life%3C%2Ftext%3E%3C%2Fsvg%3E" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)">
+    <link rel="apple-touch-startup-image" href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221179%22%20height%3D%222556%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2246%25%22%20font-size%3D%22150%22%20text-anchor%3D%22middle%22%20dominant-baseline%22%3E🐾%3C%2Ftext%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2254%25%22%20font-size%3D%2240%22%20fill%3D%22%232dd4bf%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22900%22%20text-anchor%3D%22middle%22%3EEV%20Life%3C%2Ftext%3E%3C%2Fsvg%3E" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)">
     
     <!-- iPhone 12, 12 Pro, 13, 13 Pro, 14 (390 x 844 @3x) -->
     <link rel="apple-touch-startup-image" href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221170%22%20height%3D%222532%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2246%25%22%20font-size%3D%22150%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E🐾%3C%2Ftext%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2254%25%22%20font-size%3D%2240%22%20fill%3D%22%232dd4bf%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22900%22%20text-anchor%3D%22middle%22%3EEV%20Life%3C%2Ftext%3E%3C%2Fsvg%3E" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)">
@@ -46,9 +49,10 @@
     <link rel="apple-touch-startup-image" href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22750%22%20height%3D%221334%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2246%25%22%20font-size%3D%22100%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E🐾%3C%2Ftext%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2254%25%22%20font-size%3D%2230%22%20fill%3D%22%232dd4bf%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22900%22%20text-anchor%3D%22middle%22%3EEV%20Life%3C%2Ftext%3E%3C%2Fsvg%3E" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)">
     <!-- ====================================================================================================== -->
 
-    <!-- 核心消滅白閃防禦 CSS + iOS 瀏海高度適配 -->
+    <!-- 關鍵優化 3：最速渲染 CSS！必須排在所有外部 JS 下載前！
+         這保證了在下載阻塞性的外部 Tailwind CSS 和非阻塞 Chart.js 期間，
+         瀏覽器在網頁最早期就已經將背景色繪製為深藍，消除這 0.1 秒的白閃。 -->
     <style>
-        /* 在瀏覽器渲染初期，強制將整個 html 視窗與 body 鎖定為與啟動畫面完全相同的深藍色 (#1e293b) */
         html, body {
             background-color: #1e293b !important;
             margin: 0;
@@ -78,7 +82,8 @@
     
     <!-- 引入 Tailwind CSS 與 Chart.js -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- 關鍵優化 4：將不影響網頁底色繪製的 Chart.js 加上 defer（非同步延遲載入），不阻塞關鍵渲染路徑 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -335,7 +340,6 @@
         }
     </style>
 </head>
-<!-- 關鍵優化：在 body 行內寫死深藍背景，徹底消滅 iOS 加載 HTML 渲染空白期 -->
 <body class="bg-[#1e293b] text-slate-800 dark:text-slate-100 min-h-screen transition-all duration-300 antialiased selection:bg-cuteMint-200 font-bold relative" style="background-color: #1e293b !important;">
 
     <!-- 優雅網頁加載啟動畫面 (Splash Screen) - 完美防閃白光 -->
@@ -360,7 +364,7 @@
             <div class="flex items-center justify-between h-16 gap-x-2">
                 <div class="flex items-center space-x-1.5 sm:space-x-3 flex-shrink-0">
                     <div class="relative w-11 h-7 sm:w-14 sm:h-9 rounded-lg sm:rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border-2 border-slate-800 dark:border-slate-700 bg-white dark:bg-neutral-900 shadow-[1.5px_1.5px_0px_0px_#1e293b] dark:shadow-[1.5px_1.5px_0px_0px_#000000] sm:shadow-[2px_2px_0px_0px_#1e293b] sm:dark:shadow-[2px_2px_0px_0px_#000000] transition-all">
-                        <img id="navLogoImg" src="logo.png" alt="LUXGEN n7" class="w-full h-full object-contain p-0.5 scale-105 transition-all duration-300 dark:brightness-95" onload="adaptContainerBgToImage(this)" onerror="handleLogoError(this)">
+                        <img id="navLogoImg" src="logo.png" alt="LUXGEN n⁷" class="w-full h-full object-contain p-0.5 scale-105 transition-all duration-300 dark:brightness-95" onload="adaptContainerBgToImage(this)" onerror="handleLogoError(this)">
                     </div>
                     <span id="navEvBrandName" class="font-extrabold text-sm sm:text-lg tracking-wider whitespace-nowrap flex-shrink-0">
                         <span class="bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 via-teal-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:via-teal-600 dark:to-cuteBlue-300 font-extrabold">LUXGEN n⁷</span>
@@ -663,8 +667,7 @@ function doPost(e) {
                     <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">累計補給花費 👛</span>
                     <span class="p-1.5 rounded-xl bg-cuteBlue-50 dark:bg-cuteBlue-600/20 text-cuteBlue-500 border-2 border-slate-800 dark:border-slate-700">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path>
-                        </svg>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></svg>
                     </span>
                 </div>
                 <div class="flex items-baseline mt-4">
@@ -851,7 +854,7 @@ function doPost(e) {
 
     <!-- 頁尾 -->
     <footer class="bg-white dark:bg-black text-slate-400 dark:text-slate-500 text-center py-10 mt-16 border-t-4 border-slate-800 dark:border-slate-700 transition-colors relative z-10">
-        <p class="text-xs font-bold">EV Life 電動車試算與電耗記錄工具 © 2026. 您的資料將安全地儲存在本地裝置瀏覽器中。</p>
+        <p class="text-xs font-bold">EV Life 電動車試算與電耗記錄工具 © 2026. 您的資料將 safe 地儲存在本地裝置瀏覽器中。</p>
     </footer>
 
     <!-- JavaScript 邏輯控制 -->
@@ -859,7 +862,7 @@ function doPost(e) {
         let records = [];
         let efficiencyChartInstance = null;
         let syncUrl = "";
-        let evName = "LUXGEN n dream";
+        let evName = "LUXGEN n⁷";
         let batteryCapacity = 57.7;
         let initialOdometer = 0;
         let activeConfirmCallback = null;
@@ -892,6 +895,7 @@ function doPost(e) {
             }
         }
 
+        // 優化 5：將主題色初始化封裝，加快調用速度
         function setupThemeIcons() {
             const isDark = document.documentElement.classList.contains('dark');
             if (isDark) {
@@ -1027,10 +1031,10 @@ function doPost(e) {
             
             let rawEvName = localStorage.getItem('ev_life_ev_name') || "";
             if (!rawEvName) {
-                evName = "LUXGEN n7"; 
-                localStorage.setItem('ev_life_ev_name', "LUXGEN n7");
+                evName = "LUXGEN n⁷"; 
+                localStorage.setItem('ev_life_ev_name', "LUXGEN n⁷");
             } else {
-                evName = rawEvName.replace("n7", "n⁷");
+                evName = rawEvName.replace("n7", "n⁷").replace("n dream", "n⁷");
             }
             const eNameInput = document.getElementById('evNameInput');
             if (eNameInput) {
@@ -1258,7 +1262,7 @@ function doPost(e) {
             }
 
             if (evNameInput) {
-                evName = evNameInput.value.trim().replace("n7", "n⁷") || "LUXGEN n⁷";
+                evName = evNameInput.value.trim().replace("n7", "n⁷").replace("n dream", "n⁷") || "LUXGEN n⁷";
                 localStorage.setItem('ev_life_ev_name', evName);
             }
 
@@ -1422,7 +1426,7 @@ function doPost(e) {
                     
                     if (cloudConfigParsed) {
                         if (cloudConfigParsed.evName) {
-                            evName = cloudConfigParsed.evName.replace("n7", "n syndicate").replace("n syndicate", "n⁷");
+                            evName = cloudConfigParsed.evName.replace("n7", "n⁷").replace("n dream", "n⁷");
                             localStorage.setItem('ev_life_ev_name', evName);
                         }
                         if (cloudConfigParsed.batteryCapacity) {
