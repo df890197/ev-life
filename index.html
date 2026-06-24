@@ -9,54 +9,17 @@
     <!-- PWA 行動裝置規格加強與色彩配置 -->
     <meta name="theme-color" content="#1e293b" id="theme-color-meta">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <!-- 配合 safe-area-inset-top 進行最精準的高度適配 -->
+    <!-- 配合 safe-area-inset-top 進行精準高度適配 -->
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="EV Life">
     
-    <!-- iOS 專屬 Icon (相對路徑) -->
+    <!-- iOS 專屬 Icon (優先指向實體路徑) -->
     <link rel="apple-touch-icon" href="./icon-192.png">
     
-    <!-- PWA 設定清單鏈結 (預留動態寫入 ID，相容於各種託管環境) -->
-    <link rel="manifest" id="pwaManifestLink" href="">
+    <!-- 關鍵修正：PWA 標準實體清單鏈結，指向實體 manifest.json 確保 WebAPK 能順利編譯安裝 -->
+    <link rel="manifest" href="./manifest.json">
 
-    <script>
-        (function() {
-            const manifestData = {
-                "name": "EV Life - LUXGEN n⁷ 行駛日誌",
-                "short_name": "EV Life",
-                "description": "精準記錄每一段行駛與電能補給數據的行駛日誌工具。",
-                "start_url": "./index.html",
-                "scope": "./",
-                "display": "standalone",
-                "background_color": "#1e293b",
-                "theme_color": "#1e293b",
-                "orientation": "portrait-primary",
-                "icons": [
-                    {
-                        "src": "./icon-192.png",
-                        "sizes": "192x192",
-                        "type": "image/png",
-                        "purpose": "any"
-                    },
-                    {
-                        "src": "./icon-512.png",
-                        "sizes": "512x512",
-                        "type": "image/png",
-                        "purpose": "any"
-                    }
-                ]
-            };
-            const manifestStr = encodeURIComponent(JSON.stringify(manifestData));
-            // 於 DOM 渲染前立刻內聯寫入連結
-            document.addEventListener("DOMContentLoaded", () => {
-                const link = document.getElementById("pwaManifestLink");
-                if (link) {
-                    link.setAttribute("href", `data:application/manifest+json,${manifestStr}`);
-                }
-            });
-        })();
-    </script>
-
+    <!-- 核心消滅白閃防禦 CSS + iOS 瀏海高度適配 -->
     <style>
         /* 在瀏覽器渲染初期，強制將整個 html 視窗與 body 鎖定為與啟動畫面完全相同的深藍色 (#1e293b) */
         html, body {
@@ -347,19 +310,23 @@
 </head>
 <body class="bg-[#fcfaf2] dark:bg-black text-slate-800 dark:text-slate-100 min-h-screen transition-all duration-300 antialiased selection:bg-cuteMint-200 font-bold relative">
 
-    <!-- 啟動網頁 Splash Screen -->
+    <!-- 優雅網頁加載啟動畫面 (Splash Screen) - 完美防閃白光 -->
     <div id="appSplashScreen" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#1e293b] text-white transition-opacity duration-500">
         <div class="text-center space-y-6 flex flex-col items-center">
+            <!-- 巨大的爪子圖形 -->
             <span class="text-7xl md:text-8xl animate-bounce drop-shadow-[0_0_15px_rgba(45,212,191,0.4)]">🐾</span>
             <div class="space-y-2 animate-pulse flex flex-col items-center">
+                <!-- 呼吸感漸變文字 -->
                 <h2 class="text-xl md:text-2xl font-black tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-300 via-teal-300 to-cuteBlue-300">
                     EV Life Loading...
                 </h2>
+                <!-- 底部的細緻小字 -->
                 <p class="text-xs text-slate-400">正在準備您的行駛日誌資料</p>
             </div>
         </div>
     </div>
 
+    <!-- 頂部導覽列：自動適配 iOS 安全區域 (.ios-safe-nav 確保不卡瀏海) -->
     <nav class="ios-safe-nav bg-gradient-to-r from-[#fffdf5] to-[#fffefb] dark:from-neutral-950 dark:to-black border-b-4 border-[#1e293b] text-slate-800 dark:text-slate-100 sticky top-0 z-50 transition-colors shadow-md">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16 gap-x-2">
@@ -402,6 +369,7 @@
         </div>
     </nav>
 
+    <!-- 系統設定 & 雲端同步 模態視窗 -->
     <div id="syncModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
         <div class="bg-[#fffdf9] dark:bg-black rounded-[2rem] shadow-2xl max-w-lg w-full mx-4 transform scale-95 transition-all duration-300 border-4 border-[#1e293b] overflow-hidden" id="syncModalContent">
             
@@ -430,7 +398,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">愛車名稱/型號</label>
-                                <input type="text" id="evNameInput" placeholder="例如：LUXGEN n7" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold">
+                                <input type="text" id="evNameInput" placeholder="例如：LUXGEN n⁷" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold">
                             </div>
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">愛車電池容量 (kWh)</label>
@@ -604,6 +572,7 @@ function doPost(e) {
         </div>
     </div>
 
+    <!-- 主內容區 -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         
         <!-- 自訂通知元件 (Toast) -->
@@ -630,6 +599,7 @@ function doPost(e) {
             </div>
         </div>
 
+        <!-- 頂部冒險裝備看板 (Quest Stats) -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <!-- 累積總里程 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
@@ -643,7 +613,7 @@ function doPost(e) {
                     <span id="statTotalKm" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100 font-mono tracking-tight">0</span>
                     <span class="text-xs font-bold text-slate-400 ml-1">km</span>
                 </div>
-                <span id="statVehicleSub" class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 mt-2 font-bold">愛車 LUXGEN n布局 已陪伴您行駛了長遠路程 🐾</span>
+                <span id="statVehicleSub" class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 mt-2 font-bold">愛車 LUXGEN n⁷ 已陪伴您行駛了長遠路程 🐾</span>
             </div>
             <!-- 平均電耗 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
@@ -696,6 +666,7 @@ function doPost(e) {
 
         <!-- 主要內容雙欄排版 -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- 左側：記錄輸入與試算工具 -->
             <div class="lg:col-span-4 space-y-8">
                 <div class="rpg-card p-6 rounded-[2rem]">
                     <div class="flex items-center justify-between mb-5 pb-3 border-b-2 border-slate-200 dark:border-slate-200">
@@ -780,6 +751,7 @@ function doPost(e) {
                 </div>
             </div>
 
+            <!-- 右側：圖表與歷史資料列表 -->
             <div class="lg:col-span-8 space-y-8">
                 <!-- 能耗與花費圖表 -->
                 <div class="rpg-card p-6 rounded-[2.5rem]">
@@ -1027,8 +999,8 @@ function doPost(e) {
             
             let rawEvName = localStorage.getItem('ev_life_ev_name') || "";
             if (!rawEvName) {
-                evName = "LUXGEN n⁷"; 
-                localStorage.setItem('ev_life_ev_name', "LUXGEN n⁷");
+                evName = "LUXGEN n7"; 
+                localStorage.setItem('ev_life_ev_name', "LUXGEN n7");
             } else {
                 evName = rawEvName.replace("n7", "n⁷");
             }
@@ -2213,7 +2185,7 @@ function doPost(e) {
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 // 強制採用精確的相對路徑註冊 Service Worker 確保子目錄運作正常
-                navigator.serviceWorker.register('./sw.js')
+                navigator.serviceWorker.register('./sw.js', { scope: './' })
                     .then(reg => {
                         console.log('EV Life PWA Service Worker 註冊成功！範疇：', reg.scope);
                         updatePwaDiagnostic();
@@ -2320,7 +2292,7 @@ function doPost(e) {
         });
         window.addEventListener('offline', () => {
             updatePwaDiagnostic();
-            showToast("網路已斷開，已無縫切換 to「離線行車記錄」模式！🐾", true);
+            showToast("網路已斷開，已無縫切換至「離線行車記錄」模式！🐾", true);
         });
 
         function downloadBlobFile(content, fileName, contentType) {
@@ -2333,8 +2305,9 @@ function doPost(e) {
         }
 
         function downloadManifest() {
+            // 直接由網頁端產生最新的 manifest.json
             const manifestObj = {
-                "name": "EV Life - LUXGEN nBox 行駛日誌", // n⁷
+                "name": "EV Life - LUXGEN nTarget 行駛日誌",
                 "short_name": "EV Life",
                 "description": "精準記錄每一段行駛與電能補給數據的行駛日誌工具。",
                 "start_url": "./index.html",
@@ -2345,13 +2318,13 @@ function doPost(e) {
                 "orientation": "portrait-primary",
                 "icons": [
                     {
-                        "src": "./icon-192.png",
+                        "src": "https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=192&h=192&q=80",
                         "sizes": "192x192",
                         "type": "image/png",
                         "purpose": "any"
                     },
                     {
-                        "src": "./icon-512.png",
+                        "src": "https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=512&h=512&q=80",
                         "sizes": "512x512",
                         "type": "image/png",
                         "purpose": "any"
@@ -2368,9 +2341,8 @@ const CACHE_NAME = 'ev-life-cache-v5';
 const ASSETS = [
   './',
   './index.html',
+  './manifest.json',
   './logo.png',
-  './icon-192.png',
-  './icon-512.png',
   'https://cdn.tailwindcss.com',
   'https://cdn.jsdelivr.net/npm/chart.js'
 ];
@@ -2379,7 +2351,6 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
       console.log('[SW] 正在建立快取寶箱...');
-      // 逐一新增快取檔案，避免單一檔案(404)遺失而導致整個 PWA 快取與安裝失效！
       return Promise.allSettled(
         ASSETS.map(asset => {
           return cache.add(asset).catch(err => {
@@ -2407,16 +2378,13 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // 排除 Google 試算表雲端同步 API 的快取
   if (event.request.url.includes('script.google.com')) {
-    event.respondWith(fetch(event.request));
     return;
   }
 
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
       if (cachedResponse) {
-        // 後台背景更新策略
         fetch(event.request).then(networkResponse => {
           if (networkResponse.status === 200) {
             caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse));
