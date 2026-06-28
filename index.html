@@ -10,17 +10,18 @@
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
     
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <!-- 將狀態列改為 black-translucent 沉浸式透明，避免上方出現白條 -->
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- 恢復 default，避免淺色模式下上方狀態列文字隱形 -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="EV Life">
     
     <link rel="apple-touch-icon" href="./icon-192.png">
     <link rel="manifest" href="./manifest.json">
 
     <!-- ====================================================================================================== -->
-    <!-- 🚀 終極 iOS PWA 防閃白方案 (設備精準匹配版) -->
+    <!-- 🚀 終極 iOS PWA 防閃白方案 (Manifest 覆寫 + 單一圖層強制綁定版) -->
     <!-- 1. CSS 立即底層填色：在載入任何元素前鎖定背景色 -->
-    <!-- 2. 動態生成 Splash Screen：透過精準的 device-width 與像素密度，強迫 iOS 吞下這張啟動圖 -->
+    <!-- 2. 動態 Manifest：針對 iOS 16.4+，強制覆寫 background_color，讓系統原生支援深淺色底 -->
+    <!-- 3. 動態 Splash Screen：針對舊版 iOS，取消所有條件判斷，塞入唯一純色圖強迫接收 -->
     <!-- ====================================================================================================== -->
     <style>
         /* 第一時間鎖定底色，杜絕渲染空窗期 */
@@ -53,43 +54,46 @@
                 }
             } catch (e) {}
 
-            // [2] 針對 iOS PWA：動態生成完美符合該手機長寬比例的啟動圖
+            // [2] 終極防閃白機制：動態替換 Manifest 與啟動圖
             try {
+                var manifestColor = isDark ? '#000000' : '#fcfaf2';
+                
+                // 1. 動態替換 Manifest (支援 iOS 16.4+ 的原生啟動背景色)
+                var dynamicManifest = {
+                    "name": "EV Life - LUXGEN n⁷ 行駛日誌",
+                    "short_name": "EV Life",
+                    "start_url": "./index.html",
+                    "display": "standalone",
+                    "background_color": manifestColor,
+                    "theme_color": manifestColor,
+                    "orientation": "portrait-primary",
+                    "icons": [{"src": "https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=192&h=192&q=80","sizes": "192x192","type": "image/png"}]
+                };
+                var encodedManifest = "data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dynamicManifest));
+                var existingManifest = document.querySelector('link[rel="manifest"]');
+                if (existingManifest) {
+                    existingManifest.href = encodedManifest;
+                }
+
+                // 2. 動態替換 Apple Splash Screen (支援舊版 iOS)
                 var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
                 if (isIOS) {
-                    var w = window.screen.width;
-                    var h = window.screen.height;
+                    var w = Math.min(window.screen.width, window.screen.height);
+                    var h = Math.max(window.screen.width, window.screen.height);
                     var pr = window.devicePixelRatio || 1;
                     
-                    var generateSplash = function(color, schemeFallback) {
-                        var canvas = document.createElement('canvas');
-                        // 必須精確符合設備實體像素
-                        canvas.width = w * pr;
-                        canvas.height = h * pr;
-                        var ctx = canvas.getContext('2d');
-                        ctx.fillStyle = color;
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-                        var dataUrl = canvas.toDataURL('image/png');
-                        
-                        var link = document.createElement('link');
-                        link.rel = 'apple-touch-startup-image';
-                        link.href = dataUrl;
-                        
-                        // ⚠️ 關鍵修復：iOS 嚴格要求 media 屬性必須完美命中當前設備的尺寸
-                        var mediaQuery = '(device-width: ' + w + 'px) and (device-height: ' + h + 'px) and (-webkit-device-pixel-ratio: ' + pr + ')';
-                        if (schemeFallback) {
-                            mediaQuery += ' and (prefers-color-scheme: ' + schemeFallback + ')';
-                        }
-                        link.media = mediaQuery;
-                        document.head.appendChild(link);
-                    };
+                    var canvas = document.createElement('canvas');
+                    canvas.width = w * pr;
+                    canvas.height = h * pr;
+                    var ctx = canvas.getContext('2d');
+                    ctx.fillStyle = manifestColor;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
                     
-                    // 1. 保底方案：針對當前主題生成一張無條件匹配的啟動圖 (確保舊版 iOS 買單)
-                    generateSplash(isDark ? '#000000' : '#fcfaf2');
-                    
-                    // 2. 現代 iOS 方案：同時預載深淺色，讓系統根據深淺色模式自動切換
-                    generateSplash('#fcfaf2', 'light');
-                    generateSplash('#000000', 'dark');
+                    var link = document.createElement('link');
+                    link.rel = 'apple-touch-startup-image';
+                    // 故意不加 media 條件，強迫 iOS 系統將其作為唯一啟動圖，避免尺寸匹配失敗而落入白畫面
+                    link.href = canvas.toDataURL('image/png');
+                    document.head.appendChild(link);
                 }
             } catch (e) {}
         })();
@@ -445,7 +449,7 @@
                     🛠️ 愛車與雲端
                 </button>
                 <button onclick="switchSettingsTab('settings-tab-pwa')" id="btn-tab-pwa" class="flex-1 py-3 text-xs font-black text-slate-500 dark:text-slate-400 transition-all bg-slate-50 dark:bg-neutral-900">
-                    🐾 PWA 離安裝
+                    🐾 PWA 離線安裝
                 </button>
             </div>
             
