@@ -10,28 +10,73 @@
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
     
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <!-- 將狀態列改為 black-translucent 沉浸式透明，避免上方出現白條 -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="EV Life">
     
     <link rel="apple-touch-icon" href="./icon-192.png">
     <link rel="manifest" href="./manifest.json">
 
     <!-- ====================================================================================================== -->
-    <!-- 🚀 終極防閃白方案：在瀏覽器渲染任何像素前，同步執行微秒級腳本，直接塗上正確深淺色的底漆 -->
-    <!-- 完全不破壞原本的主題，徹底解決載入時的 HTML 白畫面閃爍 -->
+    <!-- 🚀 終極 iOS PWA 防閃白方案 (企業級應用優化版) -->
+    <!-- 1. CSS 立即底層填色：在載入任何元素前鎖定背景色 -->
+    <!-- 2. 動態生成 Splash Screen：解決 iOS 系統級別的啟動白畫面 -->
     <!-- ====================================================================================================== -->
+    <style>
+        /* 第一時間鎖定底色，杜絕渲染空窗期 */
+        :root, html, body {
+            background-color: #fcfaf2;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root, html, body {
+                background-color: #000000;
+            }
+        }
+        html.dark, html.dark body { background-color: #000000 !important; }
+        html:not(.dark), html:not(.dark) body { background-color: #fcfaf2 !important; }
+    </style>
+
     <script>
         (function() {
+            // [1] 自動適配使用者選擇的主題，執行比框架更早
             try {
                 var theme = localStorage.getItem('ev_life_theme');
                 var isDark = theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
                 var htmlElement = document.documentElement;
                 if (isDark) {
                     htmlElement.classList.add('dark');
-                    htmlElement.style.backgroundColor = '#000000'; // 深色版純黑底
+                    htmlElement.style.backgroundColor = '#000000';
                 } else {
                     htmlElement.classList.remove('dark');
-                    htmlElement.style.backgroundColor = '#fcfaf2'; // 淺色版米白底
+                    htmlElement.style.backgroundColor = '#fcfaf2';
+                }
+            } catch (e) {}
+
+            // [2] 針對 iOS PWA：自動生成 1:1 精確尺寸的啟動畫面，防止 OS 級別的預設白閃
+            try {
+                var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                if (isIOS) {
+                    var generateSplash = function(color, mediaQuery) {
+                        var canvas = document.createElement('canvas');
+                        // 必須精確符合設備實體像素，iOS 才會承認這是一張有效的啟動圖
+                        canvas.width = screen.width * window.devicePixelRatio;
+                        canvas.height = screen.height * window.devicePixelRatio;
+                        var ctx = canvas.getContext('2d');
+                        ctx.fillStyle = color;
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        var dataUrl = canvas.toDataURL('image/png');
+                        
+                        var link = document.createElement('link');
+                        link.rel = 'apple-touch-startup-image';
+                        link.href = dataUrl;
+                        if (mediaQuery) {
+                            link.media = mediaQuery; // 支援深淺色模式無縫切換
+                        }
+                        document.head.appendChild(link);
+                    };
+                    // 分別為主畫面生成淺色與深色的預設緩衝圖片
+                    generateSplash('#fcfaf2', '(prefers-color-scheme: light)');
+                    generateSplash('#000000', '(prefers-color-scheme: dark)');
                 }
             } catch (e) {}
         })();
