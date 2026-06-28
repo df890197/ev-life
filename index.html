@@ -1,90 +1,95 @@
 <!DOCTYPE html>
+<!-- 移除原本寫死的行內樣式，恢復乾淨的 HTML 標籤 -->
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <!-- 鎖定 PWA 行動端手勢縮放，並啟用 viewport-fit=cover 適應現代手機瀏海屏與動態島 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>EV Life - 🐾 LUXGEN n⁷ 行駛日誌</title>
     
-    <!-- 關鍵優化 1：向 iOS 底層 WebKit 引擎宣告 color-scheme，讓系統在解析 HTML 前即以正確的底色初始化視窗 -->
+    <!-- 關鍵：最早期宣告色彩配置，讓系統知道這支援深色模式 -->
     <meta name="color-scheme" content="dark light">
-    
-    <!-- PWA 行動裝置規格加強與雙色狀態列適配 -->
     <meta name="theme-color" content="#fcfaf2" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="EV Life">
     
-    <!-- iOS 專屬 Icon (優先指向實體路徑) -->
     <link rel="apple-touch-icon" href="./icon-192.png">
-    
-    <!-- PWA 標準實體清單鏈結 -->
     <link rel="manifest" href="./manifest.json">
 
-    <!-- ==================== 🌟 終極 iOS PWA 啟動圖防閃白裝甲 (自動適應深淺色) 🌟 ==================== -->
-    <!-- 淺色模式啟動圖 (Light Mode Splash) -->
-    <!-- iPhone 14 Pro Max, 15 Pro Max, 16 Pro Max (430 x 932) -->
+    <!-- ==================== 🌟 終極防閃白裝甲：原生 CSS 遮罩 🌟 ==================== -->
+    <!-- 
+      這段 CSS 必須在 <head> 最頂端！
+      它會立刻生成一個全螢幕遮罩，顏色會根據使用者的系統深淺色設定自動適配。
+      這能完美擋住 Tailwind 下載與編譯期間 (FOUC) 的任何白光閃爍。
+    -->
+    <style>
+        /* 預設為淺色遮罩 */
+        #pwa-anti-flash-shield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #fcfaf2; /* 與 Tailwind bg-[#fcfaf2] 一致 */
+            z-index: 2147483647; /* 確保在最上層 */
+            pointer-events: none;
+            transition: opacity 0.5s ease-out;
+        }
+
+        /* 系統偏好深色時，瞬間改為深色遮罩 */
+        @media (prefers-color-scheme: dark) {
+            #pwa-anti-flash-shield {
+                background-color: #000000; /* 與 Tailwind dark:bg-black 一致 */
+            }
+        }
+        
+        /* 當 JS 判斷用戶手動設定了深色主題時，強制套用深色遮罩 */
+        html.dark #pwa-anti-flash-shield {
+             background-color: #000000;
+        }
+        
+        /* 隱藏原生捲軸，直到頁面準備好 */
+        html.blocking-scroll {
+             overflow: hidden;
+        }
+    </style>
+    <!-- ====================================================================================================== -->
+
+    <!-- ==================== iOS PWA 啟動圖 (Startup Images) ==================== -->
+    <!-- 淺色模式啟動圖 -->
     <link rel="apple-touch-startup-image" href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221290%22%20height%3D%222796%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23fcfaf2%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2246%25%22%20font-size%3D%22160%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E🐾%3C%2Ftext%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2254%25%22%20font-size%3D%2245%22%20fill%3D%22%2314b8a6%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22900%22%20text-anchor%3D%22middle%22%3EEV%20Life%3C%2Ftext%3E%3C%2Fsvg%3E" media="(prefers-color-scheme: light) and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)">
-    <!-- iPhone 14 Pro, 15, 15 Pro, 16 (393 x 852) -->
     <link rel="apple-touch-startup-image" href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221179%22%20height%3D%222556%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23fcfaf2%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2246%25%22%20font-size%3D%22150%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E🐾%3C%2Ftext%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2254%25%22%20font-size%3D%2240%22%20fill%3D%22%2314b8a6%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22900%22%20text-anchor%3D%22middle%22%3EEV%20Life%3C%2Ftext%3E%3C%2Fsvg%3E" media="(prefers-color-scheme: light) and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)">
-    <!-- iPhone 12, 12 Pro, 13, 13 Pro, 14 (390 x 844) -->
     <link rel="apple-touch-startup-image" href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221170%22%20height%3D%222532%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23fcfaf2%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2246%25%22%20font-size%3D%22150%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E🐾%3C%2Ftext%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2254%25%22%20font-size%3D%2240%22%20fill%3D%22%2314b8a6%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22900%22%20text-anchor%3D%22middle%22%3EEV%20Life%3C%2Ftext%3E%3C%2Fsvg%3E" media="(prefers-color-scheme: light) and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)">
-    <!-- iPhone SE, 8, 7, 6s (375 x 667) -->
     <link rel="apple-touch-startup-image" href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22750%22%20height%3D%221334%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23fcfaf2%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2246%25%22%20font-size%3D%22100%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E🐾%3C%2Ftext%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2254%25%22%20font-size%3D%2230%22%20fill%3D%22%2314b8a6%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22900%22%20text-anchor%3D%22middle%22%3EEV%20Life%3C%2Ftext%3E%3C%2Fsvg%3E" media="(prefers-color-scheme: light) and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)">
 
-    <!-- 深色模式啟動圖 (Dark Mode Splash - 全黑背景) -->
-    <!-- iPhone 14 Pro Max, 15 Pro Max, 16 Pro Max (430 x 932) -->
+    <!-- 深色模式啟動圖 -->
     <link rel="apple-touch-startup-image" href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221290%22%20height%3D%222796%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23000000%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2246%25%22%20font-size%3D%22160%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E🐾%3C%2Ftext%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2254%25%22%20font-size%3D%2245%22%20fill%3D%22%232dd4bf%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22900%22%20text-anchor%3D%22middle%22%3EEV%20Life%3C%2Ftext%3E%3C%2Fsvg%3E" media="(prefers-color-scheme: dark) and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)">
-    <!-- iPhone 14 Pro, 15, 15 Pro, 16 (393 x 852) -->
     <link rel="apple-touch-startup-image" href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221179%22%20height%3D%222556%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23000000%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2246%25%22%20font-size%3D%22150%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E🐾%3C%2Ftext%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2254%25%22%20font-size%3D%2240%22%20fill%3D%22%232dd4bf%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22900%22%20text-anchor%3D%22middle%22%3EEV%20Life%3C%2Ftext%3E%3C%2Fsvg%3E" media="(prefers-color-scheme: dark) and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)">
-    <!-- iPhone 12, 12 Pro, 13, 13 Pro, 14 (390 x 844) -->
     <link rel="apple-touch-startup-image" href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221170%22%20height%3D%222532%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23000000%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2246%25%22%20font-size%3D%22150%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E🐾%3C%2Ftext%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2254%25%22%20font-size%3D%2240%22%20fill%3D%22%232dd4bf%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22900%22%20text-anchor%3D%22middle%22%3EEV%20Life%3C%2Ftext%3E%3C%2Fsvg%3E" media="(prefers-color-scheme: dark) and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)">
-    <!-- iPhone SE, 8, 7, 6s (375 x 667) -->
     <link rel="apple-touch-startup-image" href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22750%22%20height%3D%221334%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23000000%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2246%25%22%20font-size%3D%22100%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E🐾%3C%2Ftext%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2254%25%22%20font-size%3D%2230%22%20fill%3D%22%232dd4bf%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22900%22%20text-anchor%3D%22middle%22%3EEV%20Life%3C%2Ftext%3E%3C%2Fsvg%3E" media="(prefers-color-scheme: dark) and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)">
     <!-- ====================================================================================================== -->
 
-    <!-- 關鍵優化 2：關鍵渲染 CSS 區塊置頂！
-         利用瀏覽器最底層的 Media Query 先行處理渲染，
-         完全不需要等外部 JavaScript (Tailwind/Chart.js) 下載執行，消滅 0.1 秒閃白！ -->
-    <style>
-        /* 系統偏好預解析 (在 JS 載入前極速接管畫布) */
-        @media (prefers-color-scheme: dark) {
-            html, body {
-                background-color: #000000 !important;
+    <!-- 在所有外部腳本之前，立即執行主題判斷腳本，為 html 加上 dark 類別 (如果需要) -->
+    <!-- 這確保了上方的原生 CSS 能精準選中 `html.dark` 套用純黑遮罩 -->
+    <script>
+        (function() {
+            // 在頁面渲染前極速執行，加上一個 blocking class 鎖住滾動
+            document.documentElement.classList.add('blocking-scroll');
+            
+            const savedTheme = localStorage.getItem('ev_life_theme');
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
             }
-        }
-        @media (prefers-color-scheme: light) {
-            html, body {
-                background-color: #fcfaf2 !important;
-            }
-        }
-
-        /* 根據 JS 的 initTheme 主題設定精準套用（毫秒級執行） */
-        html {
-            background-color: #fcfaf2 !important;
-        }
-        html.dark {
-            background-color: #000000 !important;
-        }
-        
-        /* 載入完成後的背景平滑轉場 */
-        html.app-loaded, html.app-loaded body {
-            transition: background-color 0.4s ease-in-out;
-        }
-        html.app-loaded body {
-            background-color: transparent !important;
-        }
-        
-        /* 確保 iOS 瀏海與動態島安全區域頂部適配在所有瀏覽器精準生效 */
-        .ios-safe-nav {
-            padding-top: env(safe-area-inset-top, 0px) !important;
-        }
-    </style>
+        })();
+    </script>
     
     <!-- 引入 Tailwind CSS 與 Chart.js -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 將不影響底色初始渲染的 Chart.js 加上 defer（非同步延遲載入），排除於關鍵渲染路徑之外 -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <script>
         tailwind.config = {
@@ -121,18 +126,6 @@
                 }
             }
         }
-
-        // 核心：系統與手動選擇主題自動切換邏輯 (DOM 加載前極速執行)
-        function initTheme() {
-            const savedTheme = localStorage.getItem('ev_life_theme');
-            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
-        }
-        initTheme();
 
         function adaptContainerBgToImage(img) {
             try {
@@ -215,6 +208,11 @@
             font-family: 'JetBrains Mono', 'Noto Sans TC', monospace;
         }
         
+        /* 確保 iOS 瀏海與動態島安全區域頂部適配在所有瀏覽器精準生效 */
+        .ios-safe-nav {
+            padding-top: env(safe-area-inset-top, 0px) !important;
+        }
+
         /* 自訂圓角滾動條 */
         ::-webkit-scrollbar {
             width: 8px;
@@ -345,8 +343,11 @@
 </head>
 <body class="bg-[#fcfaf2] dark:bg-black text-slate-800 dark:text-slate-100 min-h-screen transition-all duration-300 antialiased selection:bg-cuteMint-200 font-bold relative">
 
-    <!-- 🌟 優雅網頁加載啟動畫面 (Splash Screen) - 背景色動態適配，徹底消滅 0.1s 載入色差閃爍 -->
-    <div id="appSplashScreen" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#fcfaf2] dark:bg-[#000000] text-slate-800 dark:text-white transition-opacity duration-500">
+    <!-- 🌟 原生 CSS 防閃白遮罩 (直接渲染，免等 Tailwind) 🌟 -->
+    <div id="pwa-anti-flash-shield"></div>
+
+    <!-- 🌟 優雅網頁加載啟動畫面 (Splash Screen) -->
+    <div id="appSplashScreen" class="fixed inset-0 z-[9998] flex flex-col items-center justify-center bg-[#fcfaf2] dark:bg-[#000000] text-slate-800 dark:text-white transition-opacity duration-500">
         <div class="text-center space-y-6 flex flex-col items-center">
             <!-- 巨大的爪子圖形 -->
             <span class="text-7xl md:text-8xl animate-bounce drop-shadow-[0_0_15px_rgba(45,212,191,0.4)]">🐾</span>
@@ -367,7 +368,7 @@
             <div class="flex items-center justify-between h-16 gap-x-2">
                 <div class="flex items-center space-x-1.5 sm:space-x-3 flex-shrink-0">
                     <div class="relative w-11 h-7 sm:w-14 sm:h-9 rounded-lg sm:rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border-2 border-slate-800 dark:border-slate-700 bg-white dark:bg-neutral-900 shadow-[1.5px_1.5px_0px_0px_#1e293b] dark:shadow-[1.5px_1.5px_0px_0px_#000000] sm:shadow-[2px_2px_0px_0px_#1e293b] sm:dark:shadow-[2px_2px_0px_0px_#000000] transition-all">
-                        <img id="navLogoImg" src="logo.png" alt="LUXGEN n7" class="w-full h-full object-contain p-0.5 scale-105 transition-all duration-300 dark:brightness-95" onload="adaptContainerBgToImage(this)" onerror="handleLogoError(this)">
+                        <img id="navLogoImg" src="logo.png" alt="LUXGEN n⁷" class="w-full h-full object-contain p-0.5 scale-105 transition-all duration-300 dark:brightness-95" onload="adaptContainerBgToImage(this)" onerror="handleLogoError(this)">
                     </div>
                     <span id="navEvBrandName" class="font-extrabold text-sm sm:text-lg tracking-wider whitespace-nowrap flex-shrink-0">
                         <span class="bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 via-teal-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:via-teal-600 dark:to-cuteBlue-300 font-extrabold">LUXGEN n⁷</span>
@@ -410,7 +411,7 @@
             
             <div class="flex items-center justify-between border-b-4 border-[#1e293b] p-5 bg-[#fffdf9] dark:bg-neutral-950">
                 <h3 class="text-base font-black text-slate-800 dark:text-slate-100 flex items-center space-x-2">
-                    <svg class="w-5 h-5 text-cuteMint-500 animate-spin" style="animation-duration: 8s;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924-1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <svg class="w-5 h-5 text-cuteMint-500 animate-spin" style="animation-duration: 8s;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     <span>系統與雲端備份設定 🐾</span>
                 </h3>
                 <button onclick="toggleSyncModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl font-black transition-all">×</button>
@@ -648,7 +649,7 @@ function doPost(e) {
                     <span id="statTotalKm" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100 font-mono tracking-tight">0</span>
                     <span class="text-xs font-bold text-slate-400 ml-1">km</span>
                 </div>
-                <span id="statVehicleSub" class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 mt-2 font-bold">愛車 LUXGEN n7 已陪伴您行駛了長遠路程 🐾</span>
+                <span id="statVehicleSub" class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 mt-2 font-bold">愛車 LUXGEN n⁷ 已陪伴您行駛了長遠路程 🐾</span>
             </div>
             <!-- 平均電耗 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
@@ -670,7 +671,8 @@ function doPost(e) {
                     <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">累計補給花費 👛</span>
                     <span class="p-1.5 rounded-xl bg-cuteBlue-50 dark:bg-cuteBlue-600/20 text-cuteBlue-500 border-2 border-slate-800 dark:border-slate-700">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></svg>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path>
+                        </svg>
                     </span>
                 </div>
                 <div class="flex items-baseline mt-4">
@@ -898,7 +900,6 @@ function doPost(e) {
             }
         }
 
-        // 優化 5：將主題色初始化封裝，加快調用速度
         function setupThemeIcons() {
             const isDark = document.documentElement.classList.contains('dark');
             if (isDark) {
@@ -1034,10 +1035,10 @@ function doPost(e) {
             
             let rawEvName = localStorage.getItem('ev_life_ev_name') || "";
             if (!rawEvName) {
-                evName = "LUXGEN n7"; 
-                localStorage.setItem('ev_life_ev_name', "LUXGEN n7");
+                evName = "LUXGEN n⁷"; 
+                localStorage.setItem('ev_life_ev_name', "LUXGEN n⁷");
             } else {
-                evName = rawEvName.replace("n7", "n⁷");
+                evName = rawEvName.replace("n7", "n⁷").replace("n dream", "n⁷");
             }
             const eNameInput = document.getElementById('evNameInput');
             if (eNameInput) {
@@ -1090,7 +1091,13 @@ function doPost(e) {
             if (window.matchMedia) {
                 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
                     if (!localStorage.getItem('ev_life_theme')) {
-                        initTheme();
+                        // 如果用戶沒有手動設定過主題，才跟隨系統切換
+                        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                        if (systemPrefersDark) {
+                            document.documentElement.classList.add('dark');
+                        } else {
+                            document.documentElement.classList.remove('dark');
+                        }
                         setupThemeIcons();
                         updateCharts();
                         renderDashboard();
@@ -1110,15 +1117,26 @@ function doPost(e) {
                 });
             }
 
-            // 優雅防閃白光淡出動畫
+            // 🌟 終極防閃白：優雅淡出原生 CSS 遮罩與載入動畫 🌟
             setTimeout(() => {
+                const shield = document.getElementById('pwa-anti-flash-shield');
                 const splash = document.getElementById('appSplashScreen');
+                
+                // 解鎖捲動
+                document.documentElement.classList.remove('blocking-scroll');
+                
                 if (splash) {
-                    document.documentElement.classList.add('app-loaded');
                     splash.classList.add('opacity-0', 'pointer-events-none');
-                    setTimeout(() => splash.remove(), 500);
                 }
-            }, 600);
+                
+                if (shield) {
+                    shield.style.opacity = '0';
+                    setTimeout(() => {
+                        if (splash) splash.remove();
+                        if (shield) shield.remove();
+                    }, 500);
+                }
+            }, 600); // 留給 Tailwind 編譯與 JS 執行的緩衝時間
         };
 
         function showConfirmModal(title, message, onConfirm) {
@@ -1265,7 +1283,7 @@ function doPost(e) {
             }
 
             if (evNameInput) {
-                evName = evNameInput.value.trim().replace("n7", "n7") || "LUXGEN n7";
+                evName = evNameInput.value.trim().replace("n7", "n⁷").replace("n dream", "n⁷") || "LUXGEN n⁷";
                 localStorage.setItem('ev_life_ev_name', evName);
             }
 
@@ -1429,7 +1447,7 @@ function doPost(e) {
                     
                     if (cloudConfigParsed) {
                         if (cloudConfigParsed.evName) {
-                            evName = cloudConfigParsed.evName.replace("n7", "n7");
+                            evName = cloudConfigParsed.evName.replace("n7", "n⁷").replace("n dream", "n⁷");
                             localStorage.setItem('ev_life_ev_name', evName);
                         }
                         if (cloudConfigParsed.batteryCapacity) {
@@ -1450,7 +1468,7 @@ function doPost(e) {
                     }
                     
                     renderDashboard();
-                    if (!isSilent) showToast("同步成功！已從雲端下載最新日誌與愛車設定參數 ✿");
+                    if (!isSilent) showToast(`同步成功！已從雲端下載最新日誌與愛車設定參數 (${records.length} 筆)`);
                 } else {
                     localStorage.setItem('ev_life_last_sync_time', new Date().toLocaleString());
                     if (!isSilent) showToast("同步完成！本機與雲端已經一致囉 ✿");
