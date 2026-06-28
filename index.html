@@ -15,27 +15,34 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="EV Life">
     
+    <!-- iOS 專屬 Icon (優先指向實體路徑) -->
     <link rel="apple-touch-icon" href="./icon-192.png">
+    
+    <!-- PWA 標準實體清單鏈結 -->
     <link rel="manifest" href="./manifest.json">
 
-    <!-- ==================== 🌟 終極防閃白裝甲：原生 CSS 遮罩 🌟 ==================== -->
-    <!-- 
-      這段 CSS 必須在 <head> 最頂端！
-      它會立刻生成一個全螢幕遮罩，顏色會根據使用者的系統深淺色設定自動適配。
-      這能完美擋住 Tailwind 下載與編譯期間 (FOUC) 的任何白光閃爍。
-    -->
+    <!-- 關鍵優化 3：最速渲染 CSS！必須排在所有外部 JS 下載前！
+         這保證了在下載阻塞性的外部 Tailwind CSS 和非阻塞 Chart.js 期間，
+         瀏覽器在網頁最早期就已經將背景色繪製為深藍，消除這 0.1 秒的白閃。 -->
     <style>
-        /* 預設為淺色遮罩 */
-        #pwa-anti-flash-shield {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: #fcfaf2; /* 與 Tailwind bg-[#fcfaf2] 一致 */
-            z-index: 2147483647; /* 確保在最上層 */
-            pointer-events: none;
-            transition: opacity 0.5s ease-out;
+        /* 系統偏好預解析 (在 JS 載入前極速接管畫布) */
+        @media (prefers-color-scheme: dark) {
+            html, body {
+                background-color: #000000 !important;
+            }
+        }
+        @media (prefers-color-scheme: light) {
+            html, body {
+                background-color: #fcfaf2 !important;
+            }
+        }
+
+        /* 根據 JS 的 initTheme 主題設定精準套用（毫秒級執行） */
+        html {
+            background-color: #fcfaf2 !important;
+        }
+        html.dark {
+            background-color: #000000 !important;
         }
 
         /* 系統偏好深色時，瞬間改為深色遮罩 */
@@ -825,7 +832,7 @@ function doPost(e) {
                     </div>
 
                     <div id="flatViewContainer" class="space-y-4">
-                        <div id="desktopTableWrapper" class="hidden md:block overflow-x-auto lg:overflow-x-hidden max-h-[480px] rounded-[1.5rem] border-2 border-slate-800 dark:border-slate-700 scrollable-log-container">
+                        <div id="desktopTableWrapper" class="hidden md:block overflow-x-auto lg:overflow-x-hidden max-h-[480px] rounded-[1.5rem] border-2 border-slate-800 dark:border-slate-700 scrollable-log-container mb-12">
                             <table class="min-w-full divide-y divide-slate-800 dark:divide-slate-700 text-xs text-left table-auto">
                                 <thead class="bg-[#fffdf9] dark:bg-black text-cuteMint-700 dark:text-cuteMint-200 font-extrabold uppercase tracking-wider border-b-2 border-slate-800 dark:border-slate-700 sticky top-0 z-20">
                                     <tr>
@@ -844,7 +851,7 @@ function doPost(e) {
                             </table>
                         </div>
 
-                        <div id="recordMobileList" class="block md:hidden space-y-4 max-h-[480px] overflow-y-auto pb-4 pr-1.5 scrollable-log-container">
+                        <div id="recordMobileList" class="block md:hidden space-y-4 max-h-[480px] overflow-y-auto pb-12 pr-1.5 scrollable-log-container mb-12">
                         </div>
                     </div>
 
