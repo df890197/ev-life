@@ -1331,7 +1331,8 @@ function doPost(e) {
                 }
             }
             
-            localStorage.setItem('ev_life_last_updated', Date.now().toString());
+            // 移除強制更新時間戳，避免新裝置誤殺雲端資料
+            // localStorage.setItem('ev_life_last_updated', Date.now().toString());
             
             updateSyncUiStatus();
             toggleSyncModal();
@@ -1412,6 +1413,13 @@ function doPost(e) {
                 });
 
                 let localLastUpdated = parseInt(localStorage.getItem('ev_life_last_updated')) || 0;
+                const isLocallyCleared = localStorage.getItem('ev_life_cleared') === 'true';
+
+                // 🚨 終極防呆攔截機制：阻止空裝置誤殺雲端資料
+                if (localLastUpdated > cloudLastUpdated && records.length === 0 && cloudRecords.length > 0 && !isLocallyCleared) {
+                    console.warn("防呆機制觸發：偵測到本地為空且未點擊清空，強制改為下載雲端資料！");
+                    localLastUpdated = 0; 
+                }
 
                 if (localLastUpdated > cloudLastUpdated) {
                     const uploadPayload = records.map(rec => {
@@ -1466,6 +1474,7 @@ function doPost(e) {
                     localStorage.setItem('ev_life_records', JSON.stringify(records));
                     localStorage.setItem('ev_life_last_updated', cloudLastUpdated);
                     localStorage.setItem('ev_life_last_sync_time', new Date().toLocaleString());
+                    localStorage.removeItem('ev_life_cleared'); // 下載雲端資料後解除清空狀態
                     
                     if (cloudConfigParsed) {
                         if (cloudConfigParsed.evName) {
@@ -1984,6 +1993,7 @@ function doPost(e) {
                 };
 
                 const updatedRecords = [...records, newRecord];
+                localStorage.removeItem('ev_life_cleared'); // 新增紀錄時解除清空標記
                 saveLocalState(updatedRecords);
                 showToast("紀錄已寫在本機小本本囉！(•̀ᴗ•́)و ̑̑");
                 cancelEdit(); 
@@ -2005,6 +2015,9 @@ function doPost(e) {
                 `您即將抹除： 日期「${target.date && target.date.includes('T') ? target.date.split('T')[0] : target.date}」的紀錄。刪除後也會同步清空雲端對應內容喔 🐾`, 
                 function() {
                     const updated = records.filter(rec => rec.id !== id);
+                    if (updated.length === 0) {
+                        localStorage.setItem('ev_life_cleared', 'true'); // 刪到沒半筆時標記為清空
+                    }
                     saveLocalState(updated);
                     renderDashboard();
                     showToast("記錄已順利擦除！✿");
@@ -2021,6 +2034,7 @@ function doPost(e) {
                 "要把日誌全部清空嗎？", 
                 "這會永久抹除所有的里程與能耗記錄！如果有同步雲端，試算表的資料也將一併清空。建議先點擊右上方「匯出」下載備份喔 (⑅•ᴗ•⑅)", 
                 function() {
+                    localStorage.setItem('ev_life_cleared', 'true'); // 標記為明確清空
                     saveLocalState([]);
                     renderDashboard();
                     showToast("歷史紀錄已成功清空 🐾", true);
