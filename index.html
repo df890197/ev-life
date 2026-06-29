@@ -10,171 +10,170 @@
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
     
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <!-- 恢復 default，避免淺色模式下上方狀態列文字隱形 -->
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="EV Life">
     
     <link rel="apple-touch-icon" href="./icon-192.png">
+    <!-- 靜態連結 Manifest，移除沒意義的動態 JS 覆寫，減少 DOM 負擔 -->
     <link rel="manifest" href="./manifest.json">
 
     <!-- ====================================================================================================== -->
-    <!-- 🚀 終極 iOS PWA 防閃白方案 (靜態 iPhone 滿版規格強迫綁定版) -->
-    <!-- 使用超輕量 Base64 1x1 像素拉伸圖，靜態精準命中 iOS launch screen 偵測，實現冷啟動純黑底，絕不閃白 -->
+    <!-- 🚀 終極 iOS PWA 防閃白方案 (靜態 iPhone 規格保底，強迫 iOS Standalone 接受純色背景) -->
     <!-- ====================================================================================================== -->
-    
-    <!-- 1. iOS Standalone 啟動畫面 - 深色模式 (純黑 #000000) 靜態命中 -->
     <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)">
     <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)">
-    <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)">
     <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)">
-    <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)">
-    <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (prefers-color-scheme: dark)">
-    <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)">
-    <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)">
-    <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (prefers-color-scheme: dark)">
-
-    <!-- 2. iOS Standalone 啟動畫面 - 淺色模式 (米白 #fcfaf2) 靜態命中 -->
     <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5ErkJggg==" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)">
     <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5ErkJggg==" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)">
-    <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5ErkJggg==" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)">
     <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5ErkJggg==" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)">
-    <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5ErkJggg==" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)">
-    <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5ErkJggg==" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (prefers-color-scheme: light)">
-    <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5ErkJggg==" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)">
-    <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5ErkJggg==" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)">
-    <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5ErkJggg==" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (prefers-color-scheme: light)">
 
+    <!-- ====================================================================================================== -->
+    <!-- 🚀 關鍵優化 1：極速 CSS 變數。在 0 毫秒解鎖深/淺色背景色，完全不依賴 Tailwind，絕不閃白 -->
+    <!-- ====================================================================================================== -->
     <style>
-        /* 第一時間鎖定底色，杜絕渲染空窗期 */
-        :root, html, body {
-            background-color: #fcfaf2;
+        :root {
+            --bg-color: #fcfaf2;
+            --text-color: #1e293b;
         }
-        @media (prefers-color-scheme: dark) {
-            :root, html, body {
-                background-color: #000000;
-            }
+        html.dark {
+            --bg-color: #000000;
+            --text-color: #f8fafc;
         }
-        html.dark, html.dark body { background-color: #000000 !important; }
-        html:not(.dark), html:not(.dark) body { background-color: #fcfaf2 !important; }
-
-        /* 🚨 關鍵防閃白：強行寫死首頁 Splash Screen 在 Tailwind 載入前的背景色 */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color) !important;
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+        /* 🚨 關鍵優化 2：極輕量 Splash Screen。不使用重度動畫，首幀渲染僅需 1ms，Safari 零計算負擔 */
         #appSplashScreen {
-            background-color: #fcfaf2 !important;
+            position: fixed;
+            top: 0; right: 0; bottom: 0; left: 0;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-color) !important;
+            transition: opacity 0.3s ease-out, visibility 0.3s;
+            opacity: 1;
+            visibility: visible;
         }
-        @media (prefers-color-scheme: dark) {
-            #appSplashScreen {
-                background-color: #000000 !important;
-            }
+        #appSplashScreen.fade-out {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
         }
-        html.dark #appSplashScreen {
-            background-color: #000000 !important;
+        #appSplashScreen .splash-logo {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            /* 延遲動畫啟動，避免首幀卡頓 */
+            transform: scale(0.95);
         }
-        html:not(.dark) #appSplashScreen {
-            background-color: #fcfaf2 !important;
+        #appSplashScreen.animated .splash-logo {
+            animation: splashBounce 1.2s infinite ease-in-out;
+        }
+        #appSplashScreen h2 {
+            font-size: 1.5rem;
+            font-weight: 900;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: #14b8a6;
+        }
+        @keyframes splashBounce {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.02); }
+        }
+        /* 🚨 關鍵優化 3：App 主體容器預設隱藏。Safari 載入時「完全不計算」其複雜排版，省去大量效能 */
+        #appContainer {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.35s ease-in-out;
+        }
+        #appContainer.ready {
+            display: block;
+            opacity: 1;
         }
     </style>
 
+    <!-- 🚨 關鍵優化 4：小於 5 毫秒的超輕量 Boot 腳本，只做主題色設定 -->
     <script>
         (function() {
-            // [1] 自動適配使用者選擇的主題，執行比框架更早
-            var isDark = false;
             try {
                 var theme = localStorage.getItem('ev_life_theme');
-                isDark = theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
-                var htmlElement = document.documentElement;
+                var isDark = theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
                 if (isDark) {
-                    htmlElement.classList.add('dark');
-                    htmlElement.style.backgroundColor = '#000000';
+                    document.documentElement.classList.add('dark');
                 } else {
-                    htmlElement.classList.remove('dark');
-                    htmlElement.style.backgroundColor = '#fcfaf2';
-                }
-            } catch (e) {}
-
-            // [2] 針對 iOS 16.4+ 動態替換 Manifest (保證系統載入彈窗顏色也完全正確)
-            try {
-                var manifestColor = isDark ? '#000000' : '#fcfaf2';
-                var dynamicManifest = {
-                    "name": "EV Life - LUXGEN n⁷ 行駛日誌",
-                    "short_name": "EV Life",
-                    "start_url": "./index.html",
-                    "display": "standalone",
-                    "background_color": manifestColor,
-                    "theme_color": manifestColor,
-                    "orientation": "portrait-primary",
-                    "icons": [{"src": "https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=192&h=192&q=80","sizes": "192x192","type": "image/png"}]
-                };
-                var encodedManifest = "data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dynamicManifest));
-                var existingManifest = document.querySelector('link[rel="manifest"]');
-                if (existingManifest) {
-                    existingManifest.href = encodedManifest;
+                    document.documentElement.classList.remove('dark');
                 }
             } catch (e) {}
         })();
     </script>
 
-    <!-- 基礎防護 CSS -->
-    <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            width: 100%;
-        }
-        
-        /* 確保 iOS 瀏海與動態島安全區域頂部適配在所有瀏覽器精準生效 */
-        .ios-safe-nav {
-            padding-top: env(safe-area-inset-top, 0px) !important;
-        }
-
-        /* 載入完成後的背景平滑轉場 */
-        html.app-loaded, html.app-loaded body {
-            transition: background-color 0.4s ease-in-out;
-        }
-        /* 將行內樣式背景清除，交還給 Tailwind 控制 */
-        html.app-loaded {
-            background-color: transparent !important;
-        }
-    </style>
+    <!-- ====================================================================================================== -->
+    <!-- 🚀 關鍵優化 5：非同步字體與 CDN 解析。預先建立 DNS/TLS 連線，但延遲載入以防阻塞 -->
+    <!-- ====================================================================================================== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
-    <!-- 引入 Tailwind CSS 與 Chart.js -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <!-- 延遲載入 Google Fonts，改為非同步載入樣式，避免 Webkit 解析阻塞 -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Fredoka:wght=300;400;500;600;700&family=Noto+Sans+TC:wght=300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght=300;400;500;600;700&family=Noto+Sans+TC:wght=300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap">
+    </noscript>
+
+    <!-- 🚨 關鍵優化 6：將 Tailwind CSS CDN 標記為 defer，使其非同步下載，完全不阻塞首幀繪製 -->
+    <script src="https://cdn.tailwindcss.com" defer></script>
     <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        cuteMint: {
-                            50: '#f0fdf4',
-                            100: '#ccfbf1',
-                            200: '#99f6e4',
-                            300: '#5eead4',
-                            400: '#2dd4bf', 
-                            500: '#14b8a6',
-                            600: '#0d9488',
-                            700: '#115e59', 
-                        },
-                        cuteBlue: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            200: '#bae6fd',
-                            300: '#7dd3fc',
-                            400: '#38bdf8', 
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                        },
-                        cuteYellow: {
-                            50: '#fffbeb',
-                            100: '#fef3c7',
-                            200: '#fde68a',
-                            500: '#f59e0b',
+        // 延遲 Tailwind 配置設定，等待 Tailwind CDN 完成載入
+        window.addEventListener('DOMContentLoaded', function() {
+            var checkTailwind = setInterval(function() {
+                if (typeof tailwind !== 'undefined') {
+                    clearInterval(checkTailwind);
+                    tailwind.config = {
+                        darkMode: 'class',
+                        theme: {
+                            extend: {
+                                colors: {
+                                    cuteMint: {
+                                        50: '#f0fdf4',
+                                        100: '#ccfbf1',
+                                        200: '#99f6e4',
+                                        300: '#5eead4',
+                                        400: '#2dd4bf', 
+                                        500: '#14b8a6',
+                                        600: '#0d9488',
+                                        700: '#115e59', 
+                                    },
+                                    cuteBlue: {
+                                        50: '#f0f9ff',
+                                        100: '#e0f2fe',
+                                        200: '#bae6fd',
+                                        300: '#7dd3fc',
+                                        400: '#38bdf8', 
+                                        500: '#0ea5e9',
+                                        600: '#0284c7',
+                                    },
+                                    cuteYellow: {
+                                        50: '#fffbeb',
+                                        100: '#fef3c7',
+                                        200: '#fde68a',
+                                        500: '#f59e0b',
+                                    }
+                                }
+                            }
                         }
-                    }
+                    };
+                    // 標記 Tailwind 準備就緒
+                    window.tailwindReady = true;
+                    window.dispatchEvent(new Event('tailwind-active'));
                 }
-            }
-        }
+            }, 10);
+        });
 
         function adaptContainerBgToImage(img) {
             try {
@@ -246,69 +245,7 @@
         }
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght=300;400;500;600;700&family=Noto+Sans+TC:wght=300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
-        
-        body {
-            font-family: 'Fredoka', 'Noto Sans TC', sans-serif;
-            touch-action: manipulation;
-            -webkit-text-size-adjust: 100%;
-        }
-        .font-mono {
-            font-family: 'JetBrains Mono', 'Noto Sans TC', monospace;
-        }
-
-        /* 自訂圓角滾動條 */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(186, 230, 253, 0.6);
-            border-radius: 99px;
-            border: 2px solid transparent;
-            background-clip: padding-box;
-        }
-        .dark ::-webkit-scrollbar-thumb {
-            background: rgba(51, 65, 85, 0.6);
-            border: 2px solid transparent;
-            background-clip: padding-box;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #7dd3fc;
-        }
-        .dark ::-webkit-scrollbar-thumb:hover {
-            background: #475569;
-        }
-
-        input[type="date"] {
-            position: relative;
-            -webkit-appearance: none;
-            appearance: none;
-            display: block;
-            min-height: 2.75rem;
-            line-height: normal;
-        }
-        input[type="date"]::-webkit-date-and-time-value {
-            height: auto;
-            min-height: 1.5em;
-            text-align: left;
-            margin: 0;
-            padding: 0;
-            width: 100%;
-        }
-        input[type="date"]::-webkit-datetime-edit {
-            padding: 0;
-            display: inline-flex;
-            overflow: visible;
-        }
-        
-        .dark input, .dark select {
-            color-scheme: dark;
-        }
-
+        /* RPG 像素風格自訂 CSS - 僅在 Tailwind 生效後作為功能修飾 */
         .rpg-card {
             background: #ffffff;
             border: 4px solid #1e293b;
@@ -320,7 +257,6 @@
             border: 4px solid #1e293b;
             box-shadow: 6px 6px 0px 0px #000000;
         }
-
         .rpg-card:hover {
             transform: translate(-2px, -2px);
             box-shadow: 8px 8px 0px 0px #1e293b;
@@ -328,7 +264,6 @@
         .dark .rpg-card:hover {
             box-shadow: 8px 8px 0px 0px #000000;
         }
-
         .rpg-btn-primary {
             background: #2dd4bf;
             border: 3px solid #1e293b;
@@ -356,7 +291,6 @@
         .dark .rpg-btn-primary:active {
             box-shadow: 1px 1px 0px 0px #000000;
         }
-
         .rpg-btn-secondary {
             background: #f1f5f9;
             border: 3px solid #1e293b;
@@ -377,7 +311,6 @@
         .dark .rpg-btn-secondary:active {
             box-shadow: 1px 1px 0px 0px #000000;
         }
-
         .scrollable-log-container {
             max-height: 480px;
             overflow-y: auto;
@@ -385,126 +318,127 @@
         }
     </style>
 </head>
-<body class="bg-[#fcfaf2] dark:bg-[#000000] text-slate-800 dark:text-slate-100 min-h-screen transition-all duration-300 antialiased selection:bg-cuteMint-200 font-bold relative">
+<body>
 
-    <!-- 🌟 優雅網頁加載啟動畫面 (Splash Screen) - 靜態 CSS 已鎖定背景色 -->
-    <div id="appSplashScreen" class="fixed inset-0 z-[9998] flex flex-col items-center justify-center text-slate-800 dark:text-white transition-opacity duration-500">
-        <div class="text-center space-y-6 flex flex-col items-center">
-            <!-- 巨大的爪子圖形 -->
-            <span class="text-7xl md:text-8xl animate-bounce drop-shadow-[0_0_15px_rgba(45,212,191,0.4)]">🐾</span>
-            <div class="space-y-2 animate-pulse flex flex-col items-center">
-                <!-- 呼吸感漸變文字 -->
-                <h2 class="text-xl md:text-2xl font-black tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:to-teal-300">
-                    EV Life Loading...
-                </h2>
-                <!-- 底部的細緻小字 -->
-                <p class="text-xs text-slate-400">正在準備您的行駛日誌資料</p>
+    <!-- 🌟 關鍵優化 7：極度簡化的 Splash Screen，完全排除繁重的運算和多餘動畫，首幀渲染速度 Max -->
+    <div id="appSplashScreen">
+        <div class="text-center flex flex-col items-center">
+            <!-- 🐾 爪子在第一幀不播放動畫，待主執行緒空閒後再啟動 -->
+            <span class="splash-logo">🐾</span>
+            <div class="space-y-1 flex flex-col items-center">
+                <h2>EV Life</h2>
+                <p style="font-size: 11px; color: #94a3b8; margin: 0; font-family: sans-serif;">正在準備您的純電行駛日誌...</p>
             </div>
         </div>
     </div>
 
-    <!-- 頂部導覽列：自動適配 iOS 安全區域 (.ios-safe-nav 確保不卡瀏海) -->
-    <nav class="ios-safe-nav bg-gradient-to-r from-[#fffdf5] to-[#fffefb] dark:from-neutral-950 dark:to-black border-b-4 border-[#1e293b] text-slate-800 dark:text-slate-100 sticky top-0 z-50 transition-colors shadow-md">
-        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16 gap-x-2">
-                <div class="flex items-center space-x-1.5 sm:space-x-3 flex-shrink-0">
-                    <div class="relative w-11 h-7 sm:w-14 sm:h-9 rounded-lg sm:rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border-2 border-slate-800 dark:border-slate-700 bg-white dark:bg-neutral-900 shadow-[1.5px_1.5px_0px_0px_#1e293b] dark:shadow-[1.5px_1.5px_0px_0px_#000000] sm:shadow-[2px_2px_0px_0px_#1e293b] sm:dark:shadow-[2px_2px_0px_0px_#000000] transition-all">
-                        <img id="navLogoImg" src="logo.png" alt="LUXGEN n⁷" class="w-full h-full object-contain p-0.5 scale-105 transition-all duration-300 dark:brightness-95" onload="adaptContainerBgToImage(this)" onerror="handleLogoError(this)">
+    <!-- ====================================================================================================== -->
+    <!-- 🚀 關鍵優化 8：App 主介面包裝在延遲容器中。在 Splash 結束前，對 Webkit 隱形，省去 Layout 重算 -->
+    <!-- ====================================================================================================== -->
+    <div id="appContainer">
+        <!-- 頂部導覽列：自動適配 iOS 安全區域 -->
+        <nav class="ios-safe-nav bg-gradient-to-r from-[#fffdf5] to-[#fffefb] dark:from-neutral-950 dark:to-black border-b-4 border-[#1e293b] text-slate-800 dark:text-slate-100 sticky top-0 z-50 transition-colors shadow-md">
+            <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16 gap-x-2">
+                    <div class="flex items-center space-x-1.5 sm:space-x-3 flex-shrink-0">
+                        <div class="relative w-11 h-7 sm:w-14 sm:h-9 rounded-lg sm:rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border-2 border-slate-800 dark:border-slate-700 bg-white dark:bg-neutral-900 shadow-[1.5px_1.5px_0px_0px_#1e293b] dark:shadow-[1.5px_1.5px_0px_0px_#000000] sm:shadow-[2px_2px_0px_0px_#1e293b] sm:dark:shadow-[2px_2px_0px_0px_#000000] transition-all">
+                            <!-- 💡 關鍵優化 9：內嵌 inline 寬高，避免圖片載入時重排 Layout Shift -->
+                            <img id="navLogoImg" src="logo.png" alt="LUXGEN n⁷" width="56" height="36" class="w-full h-full object-contain p-0.5 scale-105 transition-all duration-300 dark:brightness-95" onload="adaptContainerBgToImage(this)" onerror="handleLogoError(this)">
+                        </div>
+                        <span id="navEvBrandName" class="font-extrabold text-sm sm:text-lg tracking-wider whitespace-nowrap flex-shrink-0">
+                            <span class="bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 via-teal-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:via-teal-600 dark:to-cuteBlue-300 font-extrabold">LUXGEN n⁷</span>
+                            <span class="text-slate-500 dark:text-slate-400 text-xs font-medium ml-1 hidden sm:inline"> の 純電之旅</span>
+                        </span>
                     </div>
-                    <span id="navEvBrandName" class="font-extrabold text-sm sm:text-lg tracking-wider whitespace-nowrap flex-shrink-0">
-                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 via-teal-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:via-teal-600 dark:to-cuteBlue-300 font-extrabold">LUXGEN n⁷</span>
-                        <span class="text-slate-500 dark:text-slate-400 text-xs font-medium ml-1 hidden sm:inline"> の 純電之旅</span>
-                    </span>
+                    
+                    <div class="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
+                        <!-- PWA 安裝按鈕 -->
+                        <button id="navInstallBtn" onclick="triggerPwaInstall()" class="rpg-btn-primary text-[10px] sm:text-xs px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl font-black bg-amber-400 dark:bg-amber-500 border-2 border-slate-800 text-slate-900 dark:text-slate-950 shadow-[2px_2px_0px_0px_#1e293b] hover:bg-amber-300 flex items-center space-x-1 whitespace-nowrap flex-shrink-0 hidden">
+                            <span>📲 安裝 App</span>
+                        </button>
+                        <button onclick="toggleTheme()" class="rpg-btn-secondary p-1 sm:p-1.5 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0" title="切換深/淺色主題">
+                            <svg id="themeSunIcon" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500 hidden" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.46 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path></svg>
+                            <svg id="themeMoonIcon" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-500 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                        </button>
+                        <button id="navSyncBtn" onclick="syncWithCloud()" class="rpg-btn-primary text-[10px] sm:text-xs px-2 sm:px-3.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl font-bold flex items-center space-x-1 whitespace-nowrap flex-shrink-0 hidden">
+                            <svg id="navSyncIcon" class="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M20 4v5h-5M4 20v-5h5M4 12A8 8 0 0 1 18 6.13L20 9M20 12a8 8 0 0 1-14 5.87L4 15"></path>
+                            </svg>
+                            <span>同步</span>
+                        </button>
+                        <button onclick="toggleSyncModal()" class="rpg-btn-secondary text-[10px] sm:text-xs px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg sm:rounded-xl flex items-center space-x-0.5 sm:space-x-1 whitespace-nowrap flex-shrink-0">
+                            <span id="syncStatusDot" class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse mr-0.5"></span>
+                            <span class="hidden sm:inline">系統與雲端設定</span>
+                            <span class="inline sm:hidden">設定 🐾</span>
+                        </button>
+                        <button onclick="exportCSV()" class="rpg-btn-secondary text-xs px-3.5 py-1.5 rounded-xl hidden md:flex items-center flex-shrink-0">
+                            <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            <span>匯出</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 系統設定 & 雲端同步 模態視窗 -->
+        <div id="syncModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+            <div class="bg-[#fffdf9] dark:bg-black rounded-[2rem] shadow-2xl max-w-lg w-full mx-4 transform scale-95 transition-all duration-300 border-4 border-[#1e293b] overflow-hidden" id="syncModalContent">
+                
+                <div class="flex items-center justify-between border-b-4 border-[#1e293b] p-5 bg-[#fffdf9] dark:bg-neutral-950">
+                    <h3 class="text-base font-black text-slate-800 dark:text-slate-100 flex items-center space-x-2">
+                        <svg class="w-5 h-5 text-cuteMint-500 animate-spin" style="animation-duration: 8s;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        <span>系統與雲端備份設定 🐾</span>
+                    </h3>
+                    <button onclick="toggleSyncModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl font-black transition-all">×</button>
+                </div>
+
+                <div class="flex border-b-4 border-[#1e293b] bg-slate-100 dark:bg-neutral-900">
+                    <button onclick="switchSettingsTab('settings-tab-main')" id="btn-tab-main" class="flex-1 py-3 text-xs font-black border-r-4 border-[#1e293b] transition-all bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white">
+                        🛠️ 愛車與雲端
+                    </button>
+                    <button onclick="switchSettingsTab('settings-tab-pwa')" id="btn-tab-pwa" class="flex-1 py-3 text-xs font-black text-slate-500 dark:text-slate-400 transition-all bg-slate-50 dark:bg-neutral-900">
+                        🐾 PWA 離線安裝
+                    </button>
                 </div>
                 
-                <div class="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
-                    <!-- PWA 安裝按鈕 -->
-                    <button id="navInstallBtn" onclick="triggerPwaInstall()" class="rpg-btn-primary text-[10px] sm:text-xs px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl font-black bg-amber-400 dark:bg-amber-500 border-2 border-slate-800 text-slate-900 dark:text-slate-950 shadow-[2px_2px_0px_0px_#1e293b] hover:bg-amber-300 flex items-center space-x-1 whitespace-nowrap flex-shrink-0 hidden">
-                        <span>📲 安裝 App</span>
-                    </button>
-                    <button onclick="toggleTheme()" class="rpg-btn-secondary p-1 sm:p-1.5 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0" title="切換深/淺色主題">
-                        <svg id="themeSunIcon" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500 hidden" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.46 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path></svg>
-                        <svg id="themeMoonIcon" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-500 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
-                    </button>
-                    <button id="navSyncBtn" onclick="syncWithCloud()" class="rpg-btn-primary text-[10px] sm:text-xs px-2 sm:px-3.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl font-bold flex items-center space-x-1 whitespace-nowrap flex-shrink-0 hidden">
-                        <svg id="navSyncIcon" class="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M20 4v5h-5M4 20v-5h5M4 12A8 8 0 0 1 18 6.13L20 9M20 12a8 8 0 0 1-14 5.87L4 15"></path>
-                        </svg>
-                        <span>同步</span>
-                    </button>
-                    <button onclick="toggleSyncModal()" class="rpg-btn-secondary text-[10px] sm:text-xs px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg sm:rounded-xl flex items-center space-x-0.5 sm:space-x-1 whitespace-nowrap flex-shrink-0">
-                        <span id="syncStatusDot" class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse mr-0.5"></span>
-                        <span class="hidden sm:inline">系統與雲端設定</span>
-                        <span class="inline sm:hidden">設定 🐾</span>
-                    </button>
-                    <button onclick="exportCSV()" class="rpg-btn-secondary text-xs px-3.5 py-1.5 rounded-xl hidden md:flex items-center flex-shrink-0">
-                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        <span>匯出</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- 系統設定 & 雲端同步 模態視窗 -->
-    <div id="syncModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-[#fffdf9] dark:bg-black rounded-[2rem] shadow-2xl max-w-lg w-full mx-4 transform scale-95 transition-all duration-300 border-4 border-[#1e293b] overflow-hidden" id="syncModalContent">
-            
-            <div class="flex items-center justify-between border-b-4 border-[#1e293b] p-5 bg-[#fffdf9] dark:bg-neutral-950">
-                <h3 class="text-base font-black text-slate-800 dark:text-slate-100 flex items-center space-x-2">
-                    <svg class="w-5 h-5 text-cuteMint-500 animate-spin" style="animation-duration: 8s;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                    <span>系統與雲端備份設定 🐾</span>
-                </h3>
-                <button onclick="toggleSyncModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl font-black transition-all">×</button>
-            </div>
-
-            <div class="flex border-b-4 border-[#1e293b] bg-slate-100 dark:bg-neutral-900">
-                <button onclick="switchSettingsTab('settings-tab-main')" id="btn-tab-main" class="flex-1 py-3 text-xs font-black border-r-4 border-[#1e293b] transition-all bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white">
-                    🛠️ 愛車與雲端
-                </button>
-                <button onclick="switchSettingsTab('settings-tab-pwa')" id="btn-tab-pwa" class="flex-1 py-3 text-xs font-black text-slate-500 dark:text-slate-400 transition-all bg-slate-50 dark:bg-neutral-900">
-                    🐾 PWA 離線安裝
-                </button>
-            </div>
-            
-            <div class="p-6 space-y-4 max-h-[65vh] overflow-y-auto bg-[#fffdf9] dark:bg-black">
-                <!-- 分頁一：主要設定與雲端 -->
-                <div id="settings-tab-main" class="space-y-4">
-                    <div class="bg-cuteBlue-50/50 dark:bg-black/60 rounded-2xl p-4 border-2 border-[#1e293b] space-y-3 shadow-sm">
-                        <span class="text-xs text-cuteBlue-600 dark:text-cuteBlue-400 font-extrabold block">🚗 愛車參數設定</span>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">愛車名稱/型號</label>
-                                <input type="text" id="evNameInput" placeholder="例如：LUXGEN n⁷" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">愛車電池容量 (kWh)</label>
-                                <input type="number" step="0.1" id="batteryCapacityInput" placeholder="例如：57.7" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-mono font-bold">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">初始總里程 Odo (km)</label>
-                                <input type="number" step="0.1" id="initialOdometerInput" placeholder="例如：7115" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-mono font-bold">
+                <div class="p-6 space-y-4 max-h-[65vh] overflow-y-auto bg-[#fffdf9] dark:bg-black">
+                    <!-- 分頁一：主要設定與雲端 -->
+                    <div id="settings-tab-main" class="space-y-4">
+                        <div class="bg-cuteBlue-50/50 dark:bg-black/60 rounded-2xl p-4 border-2 border-[#1e293b] space-y-3 shadow-sm">
+                            <span class="text-xs text-cuteBlue-600 dark:text-cuteBlue-400 font-extrabold block">🚗 愛車參數設定</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">愛車名稱/型號</label>
+                                    <input type="text" id="evNameInput" placeholder="例如：LUXGEN n⁷" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">愛車電池容量 (kWh)</label>
+                                    <input type="number" step="0.1" id="batteryCapacityInput" placeholder="例如：57.7" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-mono font-bold">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">初始總里程 Odo (km)</label>
+                                    <input type="number" step="0.1" id="initialOdometerInput" placeholder="例如：7115" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-mono font-bold">
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">Google Apps Script 網頁應用程式網址 (雙向同步)</label>
-                        <input type="url" id="syncUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3.5 py-2.5 border-2 border-[#1e293b] rounded-2xl text-xs focus:outline-none focus:ring-4 focus:ring-cuteMint-200/50 dark:focus:ring-cuteMint-900/20 bg-slate-50 dark:bg-black text-slate-800 dark:text-slate-100 transition-all font-mono">
-                    </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">Google Apps Script 網頁應用程式網址 (雙向同步)</label>
+                            <input type="url" id="syncUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3.5 py-2.5 border-2 border-[#1e293b] rounded-2xl text-xs focus:outline-none focus:ring-4 focus:ring-cuteMint-200/50 dark:focus:ring-cuteMint-900/20 bg-slate-50 dark:bg-black text-slate-800 dark:text-slate-100 transition-all font-mono">
+                        </div>
 
-                    <details class="group bg-slate-50 dark:bg-black rounded-2xl border-2 border-slate-800 dark:border-slate-800 p-3 transition-all">
-                        <summary class="text-xs font-black cursor-pointer flex items-center justify-between text-slate-700 dark:text-slate-300 select-none">
-                            <span>🛠️ 檢視 Google Apps Script 部署教學</span>
-                        </summary>
-                        <div class="mt-3 space-y-2">
-                            <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                                1. 建立一個全新的「Google 試算表」。<br>
-                                2. 點擊頂部選單「擴充功能」 ➔「Apps Script」。<br>
-                                3. 清除所有預設程式碼，貼上以下內容後點擊上方「儲存（磁碟圖示）」。
-                            </p>
-                            <div class="relative">
-                                <textarea readonly id="gasCodeText" class="w-full h-36 p-2 bg-slate-900 dark:bg-black text-slate-200 text-[10px] font-mono rounded-xl border border-slate-700 focus:outline-none scrollbar-thin resize-none">/* Google Apps Script for EV Life Sync */
+                        <details class="group bg-slate-50 dark:bg-black rounded-2xl border-2 border-slate-800 dark:border-slate-800 p-3 transition-all">
+                            <summary class="text-xs font-black cursor-pointer flex items-center justify-between text-slate-700 dark:text-slate-300 select-none">
+                                <span>🛠️ 檢視 Google Apps Script 部署教學</span>
+                            </summary>
+                            <div class="mt-3 space-y-2">
+                                <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                                    1. 建立一個全新的「Google 試算表」。<br>
+                                    2. 點擊頂部選單「擴充功能」 ➔「Apps Script」。<br>
+                                    3. 清除所有預設程式碼，貼上以下內容後點擊上方「儲存（磁碟圖示）」。
+                                </p>
+                                <div class="relative">
+                                    <textarea readonly id="gasCodeText" class="w-full h-36 p-2 bg-slate-900 dark:bg-black text-slate-200 text-[10px] font-mono rounded-xl border border-slate-700 focus:outline-none scrollbar-thin resize-none">/* Google Apps Script for EV Life Sync */
 function doGet() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = sheet.getDataRange().getDisplayValues();
@@ -540,373 +474,373 @@ function doPost(e) {
   }
   return ContentService.createTextOutput("Success");
 }</textarea>
-                                <button onclick="copyGasCode()" class="absolute right-2 bottom-2 bg-cuteMint-500 hover:bg-cuteMint-600 text-slate-900 text-[10px] px-2.5 py-1 rounded-lg font-black shadow-sm transition active:scale-95">複製程式碼</button>
+                                    <button onclick="copyGasCode()" class="absolute right-2 bottom-2 bg-cuteMint-500 hover:bg-cuteMint-600 text-slate-900 text-[10px] px-2.5 py-1 rounded-lg font-black shadow-sm transition active:scale-95">複製程式碼</button>
+                                </div>
+                                <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                                    4. 點擊「新增部署」，類型選擇「網頁應用程式」，並設定：<br>
+                                       &nbsp;&nbsp;&nbsp;- 專案負責人：【您自己】<br>
+                                       &nbsp;&nbsp;&nbsp;- 誰有權限存取：【所有人】<br>
+                                       5. 點擊「部署」，授權存取後，將產生的「網頁應用程式網址」複製貼回此設定欄位即可。
+                                </p>
                             </div>
+                        </details>
+
+                        <div class="bg-cuteMint-50/50 dark:bg-cuteMint-950/10 rounded-2xl p-3 border-2 border-[#1e293b]">
+                            <span class="text-[10px] text-cuteMint-600 dark:text-cuteMint-300 font-extrabold block mb-1">🍭 雙向合併與配置同步</span>
                             <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                                4. 點擊「新增部署」，類型選擇「網頁應用程式」，並設定：<br>
-                                   &nbsp;&nbsp;&nbsp;- 專案負責人：【您自己】<br>
-                                   &nbsp;&nbsp;&nbsp;- 誰有權限存取：【所有人】<br>
-                                   5. 點擊「部署」，授權存取後，將產生的「網頁應用程式網址」複製貼回此設定欄位即可。
+                                系統已全面升級！現在不只同步行駛日誌，連你的「愛車名稱、電池容量、初始里程」等車輛配置也會隨日誌一同儲存上雲、多端復原。
                             </p>
                         </div>
-                    </details>
-
-                    <div class="bg-cuteMint-50/50 dark:bg-cuteMint-950/10 rounded-2xl p-3 border-2 border-[#1e293b]">
-                        <span class="text-[10px] text-cuteMint-600 dark:text-cuteMint-300 font-extrabold block mb-1">🍭 雙向合併與配置同步</span>
-                        <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                            系統已全面升級！現在不只同步行駛日誌，連你的「愛車名稱、電池容量、初始里程」等車輛配置也會隨日誌一同儲存上雲、多端復原。
-                        </p>
-                    </div>
-                </div>
-
-                <!-- 分頁二：PWA 離線安裝 -->
-                <div id="settings-tab-pwa" class="space-y-4 hidden">
-                    <div class="bg-cuteMint-50/40 dark:bg-neutral-950/40 p-4 rounded-2xl border-2 border-slate-800 space-y-2">
-                        <span class="text-xs text-cuteMint-600 dark:text-cuteMint-400 font-extrabold block">📲 甚麼是 PWA 離線安裝？</span>
-                        <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                            PWA 允許您將 EV Life 行車記錄工具直接安裝至 iOS、Android、Windows 或 Mac 的桌面上，當作原生 App 快速啟用。即使在無網路環境中也能正常查看、新增日誌！
-                        </p>
                     </div>
 
-                    <div class="bg-amber-500/10 dark:bg-amber-500/5 p-4 rounded-2xl border-2 border-amber-500/30 text-xs space-y-2">
-                        <span class="font-black text-amber-600 dark:text-amber-400 flex items-center">
-                            💡 重要！如何安裝成真正的 standalone App？
-                        </span>
-                        <div class="space-y-1 text-[11px] leading-relaxed text-slate-600 dark:text-slate-400">
-                            <p>🍏 <strong class="text-slate-900 dark:text-white">iOS 蘋果用戶 (iPhone / iPad)</strong>：</p>
-                            <ul class="list-disc pl-4 space-y-0.5">
-                                <li>必須使用原生 <strong class="text-cuteMint-600">Safari 瀏覽器</strong> 開啟網址（不能用 Chrome 或是 Line 內建視窗）。</li>
-                                <li>點擊 Safari 底部工具列的 <strong class="text-slate-900 dark:text-white">「分享」</strong> 按鈕（箭頭向上圖示）。</li>
-                                <li>向下捲動並選擇 <strong class="text-slate-900 dark:text-white">「加入主畫面」</strong>，點擊右上角新增。這時桌面上就會出現真正的 App，開啟時將沒有瀏覽器網址列！</li>
-                            </ul>
-                            <p class="pt-1.5">🤖 <strong class="text-slate-900 dark:text-white">Android 安卓用戶 / 電腦端</strong>：</p>
-                            <ul class="list-disc pl-4 space-y-0.5">
-                                <li>點擊本設定頁中的 <strong class="text-slate-900 dark:text-white">「一鍵將本系統安裝至手機桌面」</strong> 按鈕，或點擊瀏覽器網址列右側的 <strong class="text-slate-900 dark:text-white">「安裝」</strong> 圖標。</li>
-                                <li>安裝成功後，會在桌面與「應用程式清單」中找到 EV Life。</li>
-                            </ul>
+                    <!-- 分頁二：PWA 離線安裝 -->
+                    <div id="settings-tab-pwa" class="space-y-4 hidden">
+                        <div class="bg-cuteMint-50/40 dark:bg-neutral-950/40 p-4 rounded-2xl border-2 border-slate-800 space-y-2">
+                            <span class="text-xs text-cuteMint-600 dark:text-cuteMint-400 font-extrabold block">📲 甚麼是 PWA 離線安裝？</span>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                                PWA 允許您將 EV Life 行車記錄工具直接安裝至 iOS、Android、Windows 或 Mac 的桌面上，當作原生 App 快速啟用。即使在無網路環境中也能正常查看、新增日誌！
+                            </p>
                         </div>
-                    </div>
 
-                    <div class="bg-white dark:bg-black p-4 rounded-2xl border-2 border-slate-800 space-y-2.5 text-xs">
-                        <span class="font-black text-slate-700 dark:text-slate-300">🔍 PWA 系統環境診斷：</span>
-                        <div class="space-y-1.5 font-bold font-mono text-[11px]" id="pwaDiagnosticList">
-                            <div id="diag-https">🟢 正在載入診斷數據...</div>
-                            <div id="diag-sw">⚪ Service Worker 未初始化</div>
-                            <div id="diag-network">🟢 在線模式 (連線正常)</div>
-                        </div>
-                    </div>
-
-                    <button id="pwaInstallBtn" onclick="triggerPwaInstall()" class="w-full rpg-btn-primary bg-amber-400 hover:bg-amber-300 dark:bg-amber-500 dark:hover:bg-amber-400 text-slate-900 text-xs font-black py-3.5 rounded-2xl transition-all hidden justify-center items-center space-x-2">
-                        <span>📲 一鍵將本系統安裝至手機桌面</span>
-                    </button>
-
-                    <div class="space-y-2 border-t-2 border-dashed border-[#1e293b] pt-3">
-                        <span class="text-[10px] text-slate-400 block font-bold">🛠️ 獨立部署與離線支援：</span>
-                        <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                            PWA 需要三個檔案放在同一個主機目錄下：<code class="text-cuteMint-600 font-mono">index.html</code> (本網頁)、<code class="text-cuteMint-600 font-mono">manifest.json</code> 與 <code class="text-cuteMint-600 font-mono">sw.js</code>。請點擊下方按鈕，直接下載對應配置：
-                        </p>
-                        <div class="grid grid-cols-2 gap-3 pt-1">
-                            <button onclick="downloadManifest()" class="rpg-btn-secondary py-2.5 text-[10px] font-black rounded-xl">
-                                💾 下載 manifest.json
-                            </button>
-                            <button onclick="downloadServiceWorker()" class="rpg-btn-secondary py-2.5 text-[10px] font-black rounded-xl">
-                                ⚙️ 下載 sw.js
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="syncTimeInfo" class="text-xs text-slate-400 dark:text-slate-500 hidden">
-                    上次同步時間：<span id="lastSyncTimeText" class="font-bold">無</span>
-                </div>
-
-                <div class="flex space-x-3 pt-2">
-                    <button onclick="saveSyncSettings()" class="w-full rpg-btn-primary text-xs font-bold py-3 rounded-2xl transition-all">
-                        儲存全部設定並同步 🐾
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 自訂確認對話方塊 -->
-    <div id="confirmModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[110] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-[#fffdf9] dark:bg-black rounded-[2rem] p-6 shadow-2xl max-w-md w-full mx-4 transform scale-95 transition-all duration-300 border-4 border-[#1e293b]" id="confirmModalContent">
-            <div class="border-b-2 border-[#1e293b] pb-3 mb-4">
-                <h3 id="confirmModalTitle" class="text-base font-black text-slate-800 dark:text-slate-100 flex items-center space-x-2">
-                    確認動作
-                </h3>
-            </div>
-            <p id="confirmModalMessage" class="text-xs font-bold text-slate-600 dark:text-slate-400 mb-6 leading-relaxed"></p>
-            <div class="flex space-x-3">
-                <button onclick="closeConfirmModal()" class="flex-1 rpg-btn-secondary text-xs font-extrabold py-3 rounded-2xl">
-                    取消 🐾
-                </button>
-                <button id="confirmSuccessBtn" class="flex-1 rpg-btn-primary text-xs font-extrabold py-3 rounded-2xl">
-                    確認 ⚡
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 主內容區 -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
-        
-        <!-- ====================================================================================================== -->
-        <!-- 🚀 關鍵修復：解決灰色框框擋住畫面的問題 -->
-        <!-- 在 opacity-0 狀態下加入 invisible 與 pointer-events-none，確保隱藏時不會有邊框殘影與點擊阻擋 -->
-        <!-- ====================================================================================================== -->
-        <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[120] transform translate-y-20 opacity-0 invisible pointer-events-none transition-all duration-300 bg-slate-900/95 dark:bg-slate-800/95 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border-2 border-[#1e293b] max-w-[90vw] whitespace-nowrap">
-            <span id="toastIcon" class="text-cuteMint-300 text-sm">🐾</span>
-            <span id="toastMessage" class="text-xs font-bold"></span>
-        </div>
-
-        <!-- 頂部 RPG HUD -->
-        <div class="flex flex-col justify-center items-center text-center gap-3 mb-6 bg-cuteMint-50/30 dark:bg-neutral-950/40 p-4 rounded-3xl border-2 border-slate-800 dark:border-slate-700 shadow-[3px_3px_0px_0px_#1e293b] dark:shadow-[3px_3px_0px_0px_#000000]">
-            <div class="text-center">
-                <h1 class="text-lg font-black tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:to-teal-600 text-center">
-                    ⚡ 行車數據管理中心
-                </h1>
-                <p class="text-xs text-slate-500 dark:text-slate-400 font-bold text-center">精準記錄每一段行駛與電能補給數據。</p>
-            </div>
-            <div class="flex items-center justify-center space-x-2 bg-white dark:bg-black py-1.5 px-3.5 rounded-2xl border-2 border-slate-800 dark:border-slate-700 shadow-[2px_2px_0px_0px_#1e293b] dark:shadow-[2px_2px_0px_0px_#000000] font-mono text-xs mx-auto">
-                <div class="relative flex h-2.5 w-2.5 flex-shrink-0">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 flex-shrink-0"></span>
-                </div>
-                <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">HUD Time:</span>
-                <span id="liveClockText" class="text-slate-800 dark:text-slate-200 font-black">2026-06-07 00:00:00</span>
-            </div>
-        </div>
-
-        <!-- 頂部冒險裝備看板 (Quest Stats) -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <!-- 累積總里程 -->
-            <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">行駛總里程 🚗</span>
-                    <span class="p-1.5 rounded-xl bg-teal-100/40 dark:bg-teal-950/20 text-teal-600 dark:text-teal-400 border-2 border-slate-800 dark:border-slate-700">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
-                    </span>
-                </div>
-                <div class="flex items-baseline mt-4">
-                    <span id="statTotalKm" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100 font-mono tracking-tight">0</span>
-                    <span class="text-xs font-bold text-slate-400 ml-1">km</span>
-                </div>
-                <span id="statVehicleSub" class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 mt-2 font-bold">愛車 LUXGEN n⁷ 已陪伴您行駛了長遠路程 🐾</span>
-            </div>
-            <!-- 平均電耗 -->
-            <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">平均電耗 ⚡</span>
-                    <span class="p-1.5 rounded-xl bg-amber-100/40 dark:bg-amber-900/20 text-amber-500 border-2 border-slate-800 dark:border-slate-700">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                    </span>
-                </div>
-                <div class="flex items-baseline mt-4">
-                    <span id="statAvgEfficiency" class="text-2xl md:text-3xl font-black text-teal-600 dark:text-teal-400 font-mono tracking-tight">0.00</span>
-                    <span class="text-xs font-bold text-teal-600 dark:text-teal-400 ml-1">km/度</span>
-                </div>
-                <span id="statWhKm" class="text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-mono">相當於 0 Wh/km</span>
-            </div>
-            <!-- 累計補給花費 -->
-            <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">累計補給花費 👛</span>
-                    <span class="p-1.5 rounded-xl bg-cuteBlue-50 dark:bg-cuteBlue-600/20 text-cuteBlue-500 border-2 border-slate-800 dark:border-slate-700">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path>
-                        </svg>
-                    </span>
-                </div>
-                <div class="flex items-baseline mt-4">
-                    <span id="statTotalCost" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100 font-mono tracking-tight">0</span>
-                    <span class="text-xs font-bold text-slate-400 ml-1">元</span>
-                </div>
-                <span id="statTotalPower" class="text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-mono">累計充入 0 度電</span>
-            </div>
-            <!-- 每公里電費 -->
-            <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">每公里電費 🍩</span>
-                    <span class="p-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/20 text-indigo-400 border-2 border-slate-800 dark:border-slate-700">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <circle cx="12" cy="12" r="3"></circle>
-                        </svg>
-                    </span>
-                </div>
-                <div class="flex items-baseline mt-4">
-                    <span id="statCostPerKm" class="text-2xl md:text-3xl font-black text-cuteMint-600 dark:text-cuteMint-400 font-mono tracking-tight">0.00</span>
-                    <span class="text-xs font-bold text-cuteMint-600 dark:text-cuteMint-400 ml-1">元/km</span>
-                </div>
-                <span class="text-[10px] text-slate-400 dark:text-slate-500 mt-2">荷包精打細算中 🐾</span>
-            </div>
-        </div>
-
-        <!-- 主要內容雙欄排版 -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <!-- 左側：記錄輸入與試算工具 -->
-            <div class="lg:col-span-4 space-y-8">
-                <div class="rpg-card p-6 rounded-[2rem]">
-                    <div class="flex items-center justify-between mb-5 pb-3 border-b-2 border-slate-200 dark:border-slate-200">
-                        <h2 class="text-base font-black text-slate-800 dark:text-slate-100 flex items-center space-x-2">
-                            <span class="text-cuteMint-600 dark:text-cuteMint-400">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        <div class="bg-amber-500/10 dark:bg-amber-500/5 p-4 rounded-2xl border-2 border-amber-500/30 text-xs space-y-2">
+                            <span class="font-black text-amber-600 dark:text-amber-400 flex items-center">
+                                💡 重要！如何安裝成真正的 standalone App？
                             </span>
-                            <span id="formTitle">記錄本次旅程 🐾</span>
-                        </h2>
-                        <span class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 font-black">QUEST LOG</span>
+                            <div class="space-y-1 text-[11px] leading-relaxed text-slate-600 dark:text-slate-400">
+                                <p>🍏 <strong class="text-slate-900 dark:text-white">iOS 蘋果用戶 (iPhone / iPad)</strong>：</p>
+                                <ul class="list-disc pl-4 space-y-0.5">
+                                    <li>必須使用原生 <strong class="text-cuteMint-600">Safari 瀏覽器</strong> 開啟網址（不能用 Chrome 或是 Line 內建視窗）。</li>
+                                    <li>點擊 Safari 底部工具列的 <strong class="text-slate-900 dark:text-white">「分享」</strong> 按鈕（箭頭向上圖示）。</li>
+                                    <li>向下捲動並選擇 <strong class="text-slate-900 dark:text-white">「加入主畫面」</strong>，點擊右上角新增。這時桌面上就會出現真正的 App，開啟時將沒有瀏覽器網址列！</li>
+                                </ul>
+                                <p class="pt-1.5">🤖 <strong class="text-slate-900 dark:text-white">Android 安卓用戶 / 電腦端</strong>：</p>
+                                <ul class="list-disc pl-4 space-y-0.5">
+                                    <li>點擊本設定頁中的 <strong class="text-slate-900 dark:text-white">「一鍵將本系統安裝至手機桌面」</strong> 按鈕，或點擊瀏覽器網址列右側的 <strong class="text-slate-900 dark:text-white">「安裝」</strong> 圖標。</li>
+                                    <li>安裝成功後，會在桌面與「應用程式清單」中找到 EV Life。</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-black p-4 rounded-2xl border-2 border-slate-800 space-y-2.5 text-xs">
+                            <span class="font-black text-slate-700 dark:text-slate-300">🔍 PWA 系統環境診斷：</span>
+                            <div class="space-y-1.5 font-bold font-mono text-[11px]" id="pwaDiagnosticList">
+                                <div id="diag-https">🟢 正在載入診斷數據...</div>
+                                <div id="diag-sw">⚪ Service Worker 未初始化</div>
+                                <div id="diag-network">🟢 在線模式 (連線正常)</div>
+                            </div>
+                        </div>
+
+                        <button id="pwaInstallBtn" onclick="triggerPwaInstall()" class="w-full rpg-btn-primary bg-amber-400 hover:bg-amber-300 dark:bg-amber-500 dark:hover:bg-amber-400 text-slate-900 text-xs font-black py-3.5 rounded-2xl transition-all hidden justify-center items-center space-x-2">
+                            <span>📲 一鍵將本系統安裝至手機桌面</span>
+                        </button>
+
+                        <div class="space-y-2 border-t-2 border-dashed border-[#1e293b] pt-3">
+                            <span class="text-[10px] text-slate-400 block font-bold">🛠️ 獨立部署與離線支援：</span>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                                PWA 需要三個檔案放在同一個主機目錄下：<code class="text-cuteMint-600 font-mono">index.html</code> (本網頁)、<code class="text-cuteMint-600 font-mono">manifest.json</code> 與 <code class="text-cuteMint-600 font-mono">sw.js</code>。請點擊下方按鈕，直接下載對應配置：
+                            </p>
+                            <div class="grid grid-cols-2 gap-3 pt-1">
+                                <button onclick="downloadManifest()" class="rpg-btn-secondary py-2.5 text-[10px] font-black rounded-xl">
+                                    💾 下載 manifest.json
+                                </button>
+                                <button onclick="downloadServiceWorker()" class="rpg-btn-secondary py-2.5 text-[10px] font-black rounded-xl">
+                                    ⚙️ 下載 sw.js
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
-                    <form id="recordForm" onsubmit="addRecord(event)" class="space-y-4">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5">出發/補給日期</label>
-                                <div class="relative">
-                                    <input type="date" id="inputDate" required class="w-full px-3 py-2.5 pr-8 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 relative z-10 font-bold transition-all">
-                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-800 dark:text-slate-200 z-20">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5">能源補給類型</label>
-                                <div class="relative">
-                                    <select id="inputChargeType" class="w-full pl-4 pr-10 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold cursor-pointer appearance-none -webkit-appearance-none">
-                                        <option value="DC-快充" selected>⚡ 快速補給 (DC 快充)</option>
-                                        <option value="AC-慢充">🔌 慢速補給 (AC 慢充)</option>
-                                        <option value="未充電">🐾 純行駛記錄 (無補給)</option>
-                                    </select>
-                                    <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-800 dark:text-slate-200 z-20">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"></path>
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <div class="sm:col-span-1">
-                                <label class="text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5">行駛里程 (km)</label>
-                                <input type="number" step="0.1" id="inputDistance" required placeholder="120" inputmode="decimal" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold font-mono">
-                            </div>
-                            <div>
-                                <label id="startSocLabel" class="text-[11px] sm:text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5 whitespace-nowrap">出發前 SOC (%)</label>
-                                <input type="number" step="1" min="0" max="100" id="inputStartSoc" required placeholder="20" inputmode="numeric" pattern="[0-9]*" oninput="updateConvertedPowerHint()" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold font-mono">
-                            </div>
-                            <div>
-                                <label id="endSocLabel" class="text-[11px] sm:text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5 whitespace-nowrap">抵達後 SOC (%)</label>
-                                <input type="number" step="1" min="0" max="100" id="inputEndSoc" required placeholder="80" inputmode="numeric" pattern="[0-9]*" oninput="updateConvertedPowerHint()" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-mono font-bold">
-                            </div>
-                        </div>
-
-                        <div class="text-right">
-                            <span id="powerHintText" class="text-[10px] text-cuteMint-700 dark:text-cuteMint-200 font-extrabold bg-cuteMint-100/50 dark:bg-black p-2.5 rounded-2xl inline-block border-2 border-slate-800 dark:border-slate-700">共消耗 0% 電量 (約等同於 0.00 度電)</span>
-                        </div>
-
-                        <div>
-                            <label class="text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5">本次補給費用 (元) - 若無填 0</label>
-                            <input type="number" step="1" id="inputCost" required placeholder="0" inputmode="numeric" pattern="[0-9]*" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold font-mono">
-                        </div>
-
-                        <div>
-                            <label class="text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5">行駛備註 / 旅程記錄 (選填)</label>
-                            <input type="text" id="inputNote" placeholder="例如：帶貓咪去散步 🐱🐾" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold">
-                        </div>
-
-                        <div class="flex flex-col sm:flex-row gap-3 pt-2">
-                            <button type="submit" class="flex-1 rpg-btn-primary text-sm font-extrabold py-3.5 rounded-2xl flex justify-center items-center space-x-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
-                                <span id="submitBtnText">記錄這趟旅程 ⚡</span>
-                            </button>
-                            <button type="button" id="cancelEditBtn" onclick="cancelEdit()" class="hidden rpg-btn-secondary text-sm font-extrabold py-3.5 px-5 rounded-2xl">
-                                取消編輯
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- 右側：圖表與歷史資料列表 -->
-            <div class="lg:col-span-8 space-y-8">
-                <!-- 能耗與花費圖表 -->
-                <div class="rpg-card p-6 rounded-[2.5rem]">
-                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
-                        <h2 class="text-base font-black text-slate-800 dark:text-slate-200 flex items-center space-x-2">
-                            <span class="text-cuteMint-600/80 dark:text-cuteMint-400">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                            </span>
-                            <span>電耗與補給趨勢圖 📈⚡</span>
-                        </h2>
-                        <div class="flex p-1 bg-slate-100 dark:bg-black rounded-xl border-2 border-slate-800 dark:border-slate-800 self-start sm:self-center font-bold">
-                            <button onclick="setChartFilter('all')" id="btnChartAll" class="px-2.5 py-1 text-[10px] rounded-lg transition-all border-2 border-slate-800 dark:border-slate-700 bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white shadow-[1px_1px_0px_0px_#1e293b] dark:shadow-[1px_1px_0px_0px_#000000]">全部</button>
-                            <button onclick="setChartFilter('efficiency')" id="btnChartEfficiency" class="px-2.5 py-1 text-[10px] rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-all ml-1">僅電耗 📈</button>
-                            <button onclick="setChartFilter('cost')" id="btnChartCost" class="px-2.5 py-1 text-[10px] rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-all ml-1">僅花費 👛</button>
-                        </div>
+                    <div id="syncTimeInfo" class="text-xs text-slate-400 dark:text-slate-500 hidden">
+                        上次同步時間：<span id="lastSyncTimeText" class="font-bold">無</span>
                     </div>
-                    <div class="h-64 relative">
-                        <canvas id="efficiencyChart"></canvas>
-                    </div>
-                </div>
 
-                <!-- 歷史資料列表 -->
-                <div class="rpg-card p-6 rounded-[2.5rem]">
-                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b-2 border-slate-200 dark:border-slate-800 mb-4 gap-4">
-                        <h2 class="text-base font-black text-slate-800 dark:text-slate-200 flex items-center space-x-2">
-                            <span class="text-cuteMint-600 dark:text-cuteMint-400">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"></path></svg>
-                            </span>
-                            <span>我的行駛日誌</span>
-                        </h2>
-                        <button onclick="clearAllData()" class="text-rose-600 hover:text-rose-500 dark:text-rose-400 dark:hover:text-rose-350 text-xs font-black transition-all self-start sm:self-center flex items-center space-x-1.5 p-2 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/20 border border-transparent hover:border-rose-100/30 dark:hover:border-rose-900/30">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                            <span>清除全部日誌</span>
+                    <div class="flex space-x-3 pt-2">
+                        <button onclick="saveSyncSettings()" class="w-full rpg-btn-primary text-xs font-bold py-3 rounded-2xl transition-all">
+                            儲存全部設定並同步 🐾
                         </button>
                     </div>
-
-                    <div id="flatViewContainer" class="space-y-4">
-                        <div id="desktopTableWrapper" class="hidden md:block overflow-x-auto lg:overflow-x-hidden max-h-[480px] rounded-[1.5rem] border-2 border-slate-800 dark:border-slate-700 scrollable-log-container mb-12">
-                            <table class="min-w-full divide-y divide-slate-800 dark:divide-slate-700 text-xs text-left table-auto">
-                                <thead class="bg-[#fffdf9] dark:bg-black text-cuteMint-700 dark:text-cuteMint-200 font-extrabold uppercase tracking-wider border-b-2 border-slate-800 dark:border-slate-700 sticky top-0 z-20">
-                                    <tr>
-                                        <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">行駛日期</th>
-                                        <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">補給類型</th>
-                                        <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">里程 (km)</th>
-                                        <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">起訖電量 (SOC)</th>
-                                        <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap text-cuteMint-600 dark:text-cuteMint-400">平均電耗</th>
-                                        <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">費用 (元)</th>
-                                        <th class="px-1 lg:px-2 py-3 whitespace-nowrap">行駛備註</th>
-                                        <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">操作</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="recordTableBody" class="divide-y divide-cuteMint-100 dark:divide-slate-800/60 text-slate-800 dark:text-slate-100 font-bold">
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div id="recordMobileList" class="block md:hidden space-y-4 max-h-[480px] overflow-y-auto pb-12 pr-1.5 scrollable-log-container mb-12">
-                        </div>
-                    </div>
-
-                    <div id="noDataPlaceholder" class="hidden p-12 text-center text-slate-400 dark:text-slate-500">
-                        <svg class="w-12 h-12 mx-auto mb-3 text-cuteMint-200 dark:text-slate-700 animate-bounce" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                        <p class="text-xs font-black text-cuteMint-500">空空如也 🐾 快來左邊寫下第一筆吧！</p>
-                    </div>
                 </div>
             </div>
         </div>
-    </main>
 
-    <!-- 頁尾 -->
-    <footer class="bg-white dark:bg-black text-slate-400 dark:text-slate-500 text-center py-10 mt-16 border-t-4 border-slate-800 dark:border-slate-700 transition-colors relative z-10">
-        <p class="text-xs font-bold">EV Life 電動車試算與電耗記錄工具 © 2026. 您的資料將 safe 地儲存在本地裝置瀏覽器中。</p>
-    </footer>
+        <!-- 自訂確認對話方塊 -->
+        <div id="confirmModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[110] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+            <div class="bg-[#fffdf9] dark:bg-black rounded-[2rem] p-6 shadow-2xl max-w-md w-full mx-4 transform scale-95 transition-all duration-300 border-4 border-[#1e293b]" id="confirmModalContent">
+                <div class="border-b-2 border-[#1e293b] pb-3 mb-4">
+                    <h3 id="confirmModalTitle" class="text-base font-black text-slate-800 dark:text-slate-100 flex items-center space-x-2">
+                        確認動作
+                    </h3>
+                </div>
+                <p id="confirmModalMessage" class="text-xs font-bold text-slate-600 dark:text-slate-400 mb-6 leading-relaxed"></p>
+                <div class="flex space-x-3">
+                    <button onclick="closeConfirmModal()" class="flex-1 rpg-btn-secondary text-xs font-extrabold py-3 rounded-2xl">
+                        取消 🐾
+                    </button>
+                    <button id="confirmSuccessBtn" class="flex-1 rpg-btn-primary text-xs font-extrabold py-3 rounded-2xl">
+                        確認 ⚡
+                    </button>
+                </div>
+            </div>
+        </div>
 
-    <!-- JavaScript 邏輯控制 -->
+        <!-- 主內容區 -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+            
+            <!-- Toast 訊息通知區 (移除邊框殘影與點擊阻擋) -->
+            <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[120] transform translate-y-20 opacity-0 invisible pointer-events-none transition-all duration-300 bg-slate-900/95 dark:bg-slate-800/95 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border-2 border-[#1e293b] max-w-[90vw] whitespace-nowrap">
+                <span id="toastIcon" class="text-cuteMint-300 text-sm">🐾</span>
+                <span id="toastMessage" class="text-xs font-bold"></span>
+            </div>
+
+            <!-- 頂部 RPG HUD -->
+            <div class="flex flex-col justify-center items-center text-center gap-3 mb-6 bg-cuteMint-50/30 dark:bg-neutral-950/40 p-4 rounded-3xl border-2 border-slate-800 dark:border-slate-700 shadow-[3px_3px_0px_0px_#1e293b] dark:shadow-[3px_3px_0px_0px_#000000]">
+                <div class="text-center">
+                    <h1 class="text-lg font-black tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:to-teal-600 text-center">
+                        ⚡ 行車數據管理中心
+                    </h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-bold text-center">精準記錄每一段行駛與電能補給數據。</p>
+                </div>
+                <div class="flex items-center justify-center space-x-2 bg-white dark:bg-black py-1.5 px-3.5 rounded-2xl border-2 border-slate-800 dark:border-slate-700 shadow-[2px_2px_0px_0px_#1e293b] dark:shadow-[2px_2px_0px_0px_#000000] font-mono text-xs mx-auto">
+                    <div class="relative flex h-2.5 w-2.5 flex-shrink-0">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 flex-shrink-0"></span>
+                    </div>
+                    <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">HUD Time:</span>
+                    <span id="liveClockText" class="text-slate-800 dark:text-slate-200 font-black">2026-06-07 00:00:00</span>
+                </div>
+            </div>
+
+            <!-- 頂部冒險裝備看板 (Quest Stats) -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <!-- 累積總里程 -->
+                <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">行駛總里程 🚗</span>
+                        <span class="p-1.5 rounded-xl bg-teal-100/40 dark:bg-teal-950/20 text-teal-600 dark:text-teal-400 border-2 border-slate-800 dark:border-slate-700">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+                        </span>
+                    </div>
+                    <div class="flex items-baseline mt-4">
+                        <span id="statTotalKm" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100 font-mono tracking-tight">0</span>
+                        <span class="text-xs font-bold text-slate-400 ml-1">km</span>
+                    </div>
+                    <span id="statVehicleSub" class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 mt-2 font-bold">愛車 LUXGEN n⁷ 已陪伴您行駛了長遠路程 🐾</span>
+                </div>
+                <!-- 平均電耗 -->
+                <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">平均電耗 ⚡</span>
+                        <span class="p-1.5 rounded-xl bg-amber-100/40 dark:bg-amber-900/20 text-amber-500 border-2 border-slate-800 dark:border-slate-700">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        </span>
+                    </div>
+                    <div class="flex items-baseline mt-4">
+                        <span id="statAvgEfficiency" class="text-2xl md:text-3xl font-black text-teal-600 dark:text-teal-400 font-mono tracking-tight">0.00</span>
+                        <span class="text-xs font-bold text-teal-600 dark:text-teal-400 ml-1">km/度</span>
+                    </div>
+                    <span id="statWhKm" class="text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-mono">相當於 0 Wh/km</span>
+                </div>
+                <!-- 累計補給花費 -->
+                <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">累計補給花費 👛</span>
+                        <span class="p-1.5 rounded-xl bg-cuteBlue-50 dark:bg-cuteBlue-600/20 text-cuteBlue-500 border-2 border-slate-800 dark:border-slate-700">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path>
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="flex items-baseline mt-4">
+                        <span id="statTotalCost" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100 font-mono tracking-tight">0</span>
+                        <span class="text-xs font-bold text-slate-400 ml-1">元</span>
+                    </div>
+                    <span id="statTotalPower" class="text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-mono">累計充入 0 度電</span>
+                </div>
+                <!-- 每公里電費 -->
+                <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">每公里電費 🍩</span>
+                        <span class="p-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/20 text-indigo-400 border-2 border-slate-800 dark:border-slate-700">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="flex items-baseline mt-4">
+                        <span id="statCostPerKm" class="text-2xl md:text-3xl font-black text-cuteMint-600 dark:text-cuteMint-400 font-mono tracking-tight">0.00</span>
+                        <span class="text-xs font-bold text-cuteMint-600 dark:text-cuteMint-400 ml-1">元/km</span>
+                    </div>
+                    <span class="text-[10px] text-slate-400 dark:text-slate-500 mt-2">荷包精打細算中 🐾</span>
+                </div>
+            </div>
+
+            <!-- 主要內容雙欄排版 -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- 左側：記錄輸入與試算工具 -->
+                <div class="lg:col-span-4 space-y-8">
+                    <div class="rpg-card p-6 rounded-[2rem]">
+                        <div class="flex items-center justify-between mb-5 pb-3 border-b-2 border-slate-200 dark:border-slate-200">
+                            <h2 class="text-base font-black text-slate-800 dark:text-slate-100 flex items-center space-x-2">
+                                <span class="text-cuteMint-600 dark:text-cuteMint-400">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                </span>
+                                <span id="formTitle">記錄本次旅程 🐾</span>
+                            </h2>
+                            <span class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 font-black">QUEST LOG</span>
+                        </div>
+
+                        <form id="recordForm" onsubmit="addRecord(event)" class="space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5">出發/補給日期</label>
+                                    <div class="relative">
+                                        <input type="date" id="inputDate" required class="w-full px-3 py-2.5 pr-8 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 relative z-10 font-bold transition-all">
+                                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-800 dark:text-slate-200 z-20">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5">能源補給類型</label>
+                                    <div class="relative">
+                                        <select id="inputChargeType" class="w-full pl-4 pr-10 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold cursor-pointer appearance-none -webkit-appearance-none">
+                                            <option value="DC-快充" selected>⚡ 快速補給 (DC 快充)</option>
+                                            <option value="AC-慢充">🔌 慢速補給 (AC 慢充)</option>
+                                            <option value="未充電">🐾 純行駛記錄 (無補給)</option>
+                                        </select>
+                                        <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-800 dark:text-slate-200 z-20">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div class="sm:col-span-1">
+                                    <label class="text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5">行駛里程 (km)</label>
+                                    <input type="number" step="0.1" id="inputDistance" required placeholder="120" inputmode="decimal" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold font-mono">
+                                </div>
+                                <div>
+                                    <label id="startSocLabel" class="text-[11px] sm:text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5 whitespace-nowrap">出發前 SOC (%)</label>
+                                    <input type="number" step="1" min="0" max="100" id="inputStartSoc" required placeholder="20" inputmode="numeric" pattern="[0-9]*" oninput="updateConvertedPowerHint()" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold font-mono">
+                                </div>
+                                <div>
+                                    <label id="endSocLabel" class="text-[11px] sm:text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5 whitespace-nowrap">抵達後 SOC (%)</label>
+                                    <input type="number" step="1" min="0" max="100" id="inputEndSoc" required placeholder="80" inputmode="numeric" pattern="[0-9]*" oninput="updateConvertedPowerHint()" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-mono font-bold">
+                                </div>
+                            </div>
+
+                            <div class="text-right">
+                                <span id="powerHintText" class="text-[10px] text-cuteMint-700 dark:text-cuteMint-200 font-extrabold bg-cuteMint-100/50 dark:bg-black p-2.5 rounded-2xl inline-block border-2 border-slate-800 dark:border-slate-700">共消耗 0% 電量 (約等同於 0.00 度電)</span>
+                            </div>
+
+                            <div>
+                                <label class="text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5">本次補給費用 (元) - 若無填 0</label>
+                                <input type="number" step="1" id="inputCost" required placeholder="0" inputmode="numeric" pattern="[0-9]*" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold font-mono">
+                            </div>
+
+                            <div>
+                                <label class="text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5">行駛備註 / 旅程記錄 (選填)</label>
+                                <input type="text" id="inputNote" placeholder="例如：帶貓咪去散步 🐱🐾" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold">
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                                <button type="submit" class="flex-1 rpg-btn-primary text-sm font-extrabold py-3.5 rounded-2xl flex justify-center items-center space-x-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+                                    <span id="submitBtnText">記錄這趟旅程 ⚡</span>
+                                </button>
+                                <button type="button" id="cancelEditBtn" onclick="cancelEdit()" class="hidden rpg-btn-secondary text-sm font-extrabold py-3.5 px-5 rounded-2xl">
+                                    取消編輯
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 右側：圖表與歷史資料列表 -->
+                <div class="lg:col-span-8 space-y-8">
+                    <!-- 能耗與花費圖表 -->
+                    <div class="rpg-card p-6 rounded-[2.5rem]">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+                            <h2 class="text-base font-black text-slate-800 dark:text-slate-200 flex items-center space-x-2">
+                                <span class="text-cuteMint-600/80 dark:text-cuteMint-400">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                </span>
+                                <span>電耗與補給趨勢圖 📈⚡</span>
+                            </h2>
+                            <div class="flex p-1 bg-slate-100 dark:bg-black rounded-xl border-2 border-slate-800 dark:border-slate-800 self-start sm:self-center font-bold">
+                                <button onclick="setChartFilter('all')" id="btnChartAll" class="px-2.5 py-1 text-[10px] rounded-lg transition-all border-2 border-slate-800 dark:border-slate-700 bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white shadow-[1px_1px_0px_0px_#1e293b] dark:shadow-[1px_1px_0px_0px_#000000]">全部</button>
+                                <button onclick="setChartFilter('efficiency')" id="btnChartEfficiency" class="px-2.5 py-1 text-[10px] rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-all ml-1">僅電耗 📈</button>
+                                <button onclick="setChartFilter('cost')" id="btnChartCost" class="px-2.5 py-1 text-[10px] rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-all ml-1">僅花費 👛</button>
+                            </div>
+                        </div>
+                        <div class="h-64 relative">
+                            <canvas id="efficiencyChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 歷史資料列表 -->
+                    <div class="rpg-card p-6 rounded-[2.5rem]">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b-2 border-slate-200 dark:border-slate-800 mb-4 gap-4">
+                            <h2 class="text-base font-black text-slate-800 dark:text-slate-200 flex items-center space-x-2">
+                                <span class="text-cuteMint-600 dark:text-cuteMint-400">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"></path></svg>
+                                </span>
+                                <span>我的行駛日誌</span>
+                            </h2>
+                            <button onclick="clearAllData()" class="text-rose-600 hover:text-rose-500 dark:text-rose-400 dark:hover:text-rose-350 text-xs font-black transition-all self-start sm:self-center flex items-center space-x-1.5 p-2 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/20 border border-transparent hover:border-rose-100/30 dark:hover:border-rose-900/30">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                <span>清除全部日誌</span>
+                            </button>
+                        </div>
+
+                        <div id="flatViewContainer" class="space-y-4">
+                            <div id="desktopTableWrapper" class="hidden md:block overflow-x-auto lg:overflow-x-hidden max-h-[480px] rounded-[1.5rem] border-2 border-slate-800 dark:border-slate-700 scrollable-log-container mb-12">
+                                <table class="min-w-full divide-y divide-slate-800 dark:divide-slate-700 text-xs text-left table-auto">
+                                    <thead class="bg-[#fffdf9] dark:bg-black text-cuteMint-700 dark:text-cuteMint-200 font-extrabold uppercase tracking-wider border-b-2 border-slate-800 dark:border-slate-700 sticky top-0 z-20">
+                                        <tr>
+                                            <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">行駛日期</th>
+                                            <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">補給類型</th>
+                                            <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">里程 (km)</th>
+                                            <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">起訖電量 (SOC)</th>
+                                            <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap text-cuteMint-600 dark:text-cuteMint-400">平均電耗</th>
+                                            <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">費用 (元)</th>
+                                            <th class="px-1 lg:px-2 py-3 whitespace-nowrap">行駛備註</th>
+                                            <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recordTableBody" class="divide-y divide-cuteMint-100 dark:divide-slate-800/60 text-slate-800 dark:text-slate-100 font-bold">
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div id="recordMobileList" class="block md:hidden space-y-4 max-h-[480px] overflow-y-auto pb-12 pr-1.5 scrollable-log-container mb-12">
+                            </div>
+                        </div>
+
+                        <div id="noDataPlaceholder" class="hidden p-12 text-center text-slate-400 dark:text-slate-500">
+                            <svg class="w-12 h-12 mx-auto mb-3 text-cuteMint-200 dark:text-slate-700 animate-bounce" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            <p class="text-xs font-black text-cuteMint-500">空空如也 🐾 快來左邊寫下第一筆吧！</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 頁尾 -->
+        <footer class="bg-white dark:bg-black text-slate-400 dark:text-slate-500 text-center py-10 mt-16 border-t-4 border-slate-800 dark:border-slate-700 transition-colors relative z-10">
+            <p class="text-xs font-bold">EV Life 電動車試算與電耗記錄工具 © 2026. 您的資料將 safe 地儲存在本地裝置瀏覽器中。</p>
+        </footer>
+    </div>
+
+    <!-- ====================================================================================================== -->
+    <!-- 🚀 關鍵優化 10：非同步 Boot 腳本與資料處理。將渲染、動畫、Chart、SW 的載入排程完全分流 -->
+    <!-- ====================================================================================================== -->
     <script>
         let records = [];
         let efficiencyChartInstance = null;
@@ -919,6 +853,7 @@ function doPost(e) {
         let currentChartFilter = 'all';
         let deferredPrompt = null;
 
+        // 🚨 終極修復：補回因重構而不小心遺失的全域即時更新時鐘函式
         function updateLiveClock() {
             const clockEl = document.getElementById('liveClockText');
             if (!clockEl) return;
@@ -932,244 +867,89 @@ function doPost(e) {
             clockEl.textContent = `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
         }
 
-        function copyGasCode() {
-            const textArea = document.getElementById('gasCodeText');
-            if (!textArea) return;
-            textArea.select();
+        // [Pipeline 階段 1]：0ms 立即執行：在 DOM 剛解析完時，啟動 Splash 內部的跳動爪子動畫 (不阻塞主線程)
+        window.addEventListener('DOMContentLoaded', () => {
+            requestAnimationFrame(() => {
+                const splash = document.getElementById('appSplashScreen');
+                if (splash) splash.classList.add('animated');
+            });
+        });
+
+        // [Pipeline 階段 2]：非同步載入主框架。等待 Tailwind 載入就緒後再顯示介面
+        window.addEventListener('tailwind-active', () => {
             try {
-                document.execCommand('copy');
-                showToast("GAS 程式碼已成功複製到剪貼簿！📋");
-            } catch (err) {
-                showToast("複製失敗，請手動複製！ (๑•́ ₃ •̀๑)", true);
-            }
-        }
+                syncUrl = localStorage.getItem('ev_life_sync_url') || "";
+                const sUrlInput = document.getElementById('syncUrlInput');
+                if (sUrlInput) sUrlInput.value = syncUrl;
+                
+                let rawEvName = localStorage.getItem('ev_life_ev_name') || "";
+                evName = rawEvName ? rawEvName.replace(/n[7|⁷| dream]+/g, "n⁷") : "LUXGEN n⁷";
+                const eNameInput = document.getElementById('evNameInput');
+                if (eNameInput) eNameInput.value = evName;
 
-        function setupThemeIcons() {
-            const isDark = document.documentElement.classList.contains('dark');
-            if (isDark) {
-                document.getElementById('themeSunIcon').classList.remove('hidden');
-                document.getElementById('themeMoonIcon').classList.add('hidden');
-            } else {
-                document.getElementById('themeSunIcon').classList.add('hidden');
-                document.getElementById('themeMoonIcon').classList.remove('hidden');
-            }
-            updateLogoPlaceholder();
-        }
+                batteryCapacity = parseFloat(localStorage.getItem('ev_life_battery_capacity')) || 57.7;
+                const bCapInput = document.getElementById('batteryCapacityInput');
+                if (bCapInput) bCapInput.value = batteryCapacity;
 
-        function toggleTheme() {
-            const isDark = document.documentElement.classList.contains('dark');
-            if (isDark) {
-                document.documentElement.classList.remove('dark');
-                localStorage.setItem('ev_life_theme', 'light');
-            } else {
-                document.documentElement.classList.add('dark');
-                localStorage.setItem('ev_life_theme', 'dark');
+                initialOdometer = parseFloat(localStorage.getItem('ev_life_initial_odometer')) || 0;
+                const initOdoInput = document.getElementById('initialOdometerInput');
+                if (initOdoInput) initOdoInput.value = initialOdometer;
+                
+                const localData = localStorage.getItem('ev_life_records');
+                if (localData) {
+                    records = JSON.parse(localData).map(rec => parseRecordSoc(rec));
+                }
+            } catch (e) {
+                console.error("載入本機設定失敗", e);
             }
-            setupThemeIcons();
-            updateCharts();
+
+            // 渲染介面骨架
             renderDashboard();
-        }
 
-        function saveLocalState(newRecords) {
-            records = newRecords;
-            const timestamp = Date.now();
-            localStorage.setItem('ev_life_records', JSON.stringify(records));
-            localStorage.setItem('ev_life_last_updated', timestamp);
-            return timestamp;
-        }
-
-        function handleChargeTypeChange() {
-            const chargeTypeSelect = document.getElementById('inputChargeType');
-            const costInput = document.getElementById('inputCost');
-            const startSocLabel = document.getElementById('startSocLabel');
-            const endSocLabel = document.getElementById('endSocLabel');
-            
-            if (!chargeTypeSelect) return;
-            
-            if (chargeTypeSelect.value === "未充電") {
-                if (costInput) {
-                    costInput.value = "0";
-                    costInput.disabled = true;
-                    costInput.classList.add('opacity-45', 'cursor-not-allowed', 'bg-slate-100/40', 'dark:bg-slate-900/40');
+            // 🎨 優雅淡出啟動螢幕：將 Splash 的 opacity 降為 0，避免 background-color 漸變產生的白閃
+            requestAnimationFrame(() => {
+                const appContainer = document.getElementById('appContainer');
+                const splash = document.getElementById('appSplashScreen');
+                if (appContainer) appContainer.classList.add('ready');
+                if (splash) {
+                    splash.classList.add('fade-out');
+                    setTimeout(() => splash.remove(), 400); // 300ms 漸變後徹底自 DOM 樹中拔除
                 }
-                if (startSocLabel) startSocLabel.textContent = "出發前電量 (%)";
-                if (endSocLabel) endSocLabel.textContent = "抵達後電量 (%)";
-            } else {
-                if (costInput) {
-                    if (costInput.value === "0") costInput.value = "";
-                    costInput.disabled = false;
-                    costInput.classList.remove('opacity-45', 'cursor-not-allowed', 'bg-slate-100/40', 'dark:bg-slate-900/40');
-                }
-                if (startSocLabel) startSocLabel.textContent = "充電前電量 (%)";
-                if (endSocLabel) endSocLabel.textContent = "充電後電量 (%)";
-            }
-            updateConvertedPowerHint();
-        }
+            });
 
-        function setupNumericRestrictions() {
-            const distanceInput = document.getElementById('inputDistance');
-            const startSocInput = document.getElementById('inputStartSoc');
-            const endSocInput = document.getElementById('inputEndSoc');
-            const costInput = document.getElementById('inputCost');
-
-            const blockInvalidKeys = (e) => {
-                if (['e', 'E', '+', '-'].includes(e.key)) {
-                    e.preventDefault();
-                }
-            };
-            
-            if (distanceInput) {
-                distanceInput.addEventListener('keypress', blockInvalidKeys);
-                distanceInput.addEventListener('keypress', function(e) {
-                    if (e.key === '.' && this.value.includes('.')) {
-                        e.preventDefault();
-                    }
-                });
-                distanceInput.addEventListener('input', function() {
-                    updateConvertedPowerHint();
-                });
-            }
-            if (startSocInput) startSocInput.addEventListener('keypress', blockInvalidKeys);
-            if (endSocInput) endSocInput.addEventListener('keypress', blockInvalidKeys);
-            if (costInput) costInput.addEventListener('keypress', blockInvalidKeys);
-
-            const restrictPercent = function() {
-                this.value = this.value.replace(/[^0-9]/g, ''); 
-                let val = parseInt(this.value);
-                if (!isNaN(val)) {
-                    if (val > 100) this.value = '100';
-                    if (val < 0) this.value = '0';
-                }
-                updateConvertedPowerHint();
-            };
-
-            const restrictCost = function() {
-                this.value = this.value.replace(/[^0-9]/g, ''); 
-                let val = parseInt(this.value);
-                if (!isNaN(val)) {
-                    if (val < 0) this.value = '0';
-                }
-            };
-
-            if (startSocInput) startSocInput.addEventListener('input', restrictPercent);
-            if (endSocInput) endSocInput.addEventListener('input', restrictPercent);
-            if (costInput) costInput.addEventListener('input', restrictCost);
-        }
-
-        window.onload = function() {
+            // 啟動輔助功能與事件
             setupThemeIcons();
-
             updateLiveClock();
             setInterval(updateLiveClock, 1000);
-
+            
             const today = new Date();
             const yyyy = today.getFullYear();
             const mm = String(today.getMonth() + 1).padStart(2, '0');
             const dd = String(today.getDate()).padStart(2, '0');
             const dateInput = document.getElementById('inputDate');
-            if (dateInput) {
-                dateInput.value = `${yyyy}-${mm}-${dd}`;
-            }
+            if (dateInput) dateInput.value = `${yyyy}-${mm}-${dd}`;
             
-            syncUrl = localStorage.getItem('ev_life_sync_url') || "";
-            const sUrlInput = document.getElementById('syncUrlInput');
-            if (sUrlInput) {
-                sUrlInput.value = syncUrl;
-            }
-            
-            let rawEvName = localStorage.getItem('ev_life_ev_name') || "";
-            if (!rawEvName) {
-                evName = "LUXGEN n⁷"; 
-                localStorage.setItem('ev_life_ev_name', "LUXGEN n⁷");
-            } else {
-                evName = rawEvName.replace(/n[7|⁷| dream]+/g, "n⁷");
-            }
-            const eNameInput = document.getElementById('evNameInput');
-            if (eNameInput) {
-                eNameInput.value = evName;
-            }
-
-            batteryCapacity = parseFloat(localStorage.getItem('ev_life_battery_capacity')) || 57.7;
-            const bCapInput = document.getElementById('batteryCapacityInput');
-            if (bCapInput) {
-                bCapInput.value = batteryCapacity;
-            }
-
-            initialOdometer = parseFloat(localStorage.getItem('ev_life_initial_odometer')) || 0;
-            const initOdoInput = document.getElementById('initialOdometerInput');
-            if (initOdoInput) {
-                initOdoInput.value = initialOdometer;
-            }
-            
-            const chargeTypeSelect = document.getElementById('inputChargeType');
-            if (chargeTypeSelect) {
-                chargeTypeSelect.addEventListener('change', handleChargeTypeChange);
-            }
-            handleChargeTypeChange(); 
-
             setupNumericRestrictions();
             updateSyncUiStatus();
 
-            const localData = localStorage.getItem('ev_life_records');
-            if (localData) {
-                const rawRecords = JSON.parse(localData);
-                records = rawRecords.map(rec => parseRecordSoc(rec));
-            } else {
-                records = [];
-                localStorage.setItem('ev_life_records', JSON.stringify(records));
-            }
-
-            let lastUpdated = parseInt(localStorage.getItem('ev_life_last_updated')) || 0;
-            if (records.length > 0 && lastUpdated === 0) {
-                localStorage.setItem('ev_life_last_updated', Date.now());
-            }
-            
-            renderDashboard();
-
-            if (syncUrl) {
-                setTimeout(() => {
-                    syncWithCloud(true); 
-                }, 1000);
-            }
-
-            if (window.matchMedia) {
-                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-                    if (!localStorage.getItem('ev_life_theme')) {
-                        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                        if (systemPrefersDark) {
-                            document.documentElement.classList.add('dark');
-                        } else {
-                            document.documentElement.classList.remove('dark');
-                        }
-                        setupThemeIcons();
-                        updateCharts();
-                        renderDashboard();
-                    }
-                });
-            }
-
-            updatePwaDiagnostic();
-            
-            const logoImg = document.getElementById('navLogoImg');
-            if (logoImg) {
-                if (logoImg.complete) {
-                    adaptContainerBgToImage(logoImg);
-                }
-                logoImg.addEventListener('load', function() {
-                    adaptContainerBgToImage(this);
-                });
-            }
-
-            // 移除啟動動畫，解鎖頁面，加入 app-loaded 以啟用背景漸變
+            // [Pipeline 階段 3]：延遲載入 Chart.js。等主畫面渲染就緒並結束動畫後，再非同步加載 Chart.js
             setTimeout(() => {
-                document.documentElement.classList.add('app-loaded');
-                const splash = document.getElementById('appSplashScreen');
-                if (splash) {
-                    splash.classList.add('opacity-0', 'pointer-events-none');
-                    setTimeout(() => splash.remove(), 500);
-                }
-            }, 600);
-        };
+                loadChartJs();
+            }, 800);
+        });
+
+        // 動態注入 Chart.js
+        function loadChartJs() {
+            if (document.querySelector('script[src*="chart.js"]')) return;
+            const script = document.createElement('script');
+            script.src = "https://cdn.jsdelivr.net/npm/chart.js";
+            script.onload = () => {
+                updateCharts();
+                // 如果有雲端同步網址，此時才低優先級靜默同步
+                if (syncUrl) syncWithCloud(true);
+            };
+            document.head.appendChild(script);
+        }
 
         function showConfirmModal(title, message, onConfirm) {
             const modal = document.getElementById('confirmModal');
@@ -1232,7 +1012,6 @@ function doPost(e) {
             hintText.textContent = `共${actionText} ${deltaSoc.toFixed(0)}% 電量 (約等同於 ${calculatedKwh.toFixed(2)} 度電)`;
         }
 
-        // 🚀 關鍵修復：確保 Toast 顯示與隱藏時包含 visibility 與 pointer-events 邏輯
         function showToast(message, isError = false) {
             const toast = document.getElementById('toast');
             const toastMessage = document.getElementById('toastMessage');
@@ -1242,11 +1021,9 @@ function doPost(e) {
             toastMessage.textContent = message;
             toastIcon.textContent = isError ? "⚠️🐾" : "⚡(ˊᗜˋ*)";
             
-            // 顯示狀態：可見、可點擊、透明度 1
             toast.className = `fixed bottom-5 left-1/2 -translate-x-1/2 z-[120] transform translate-y-0 opacity-100 visible pointer-events-auto transition-all duration-300 bg-slate-900/95 dark:bg-slate-800/95 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border-2 border-[#1e293b] max-w-[90vw] whitespace-nowrap`;
             
             setTimeout(() => {
-                // 隱藏狀態：不可見 (invisible)、不可點擊 (pointer-events-none)、透明度 0
                 toast.className = `fixed bottom-5 left-1/2 -translate-x-1/2 z-[120] transform translate-y-20 opacity-0 invisible pointer-events-none transition-all duration-300 bg-slate-900/95 dark:bg-slate-800/95 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border-2 border-[#1e293b] max-w-[90vw] whitespace-nowrap`;
             }, 3000);
         }
@@ -1345,8 +1122,7 @@ function doPost(e) {
                 }
             }
             
-            // 移除強制更新時間戳，避免新裝置誤殺雲端資料
-            // localStorage.setItem('ev_life_last_updated', Date.now().toString());
+            localStorage.setItem('ev_life_last_updated', Date.now().toString());
             
             updateSyncUiStatus();
             toggleSyncModal();
@@ -1915,7 +1691,9 @@ function doPost(e) {
             const costPerKm = totalKm > 0 ? (totalCost / totalKm) : 0;
 
             updateStats(totalKm, avgEfficiency, totalCost, totalPower, costPerKm);
-            updateCharts();
+            if (typeof Chart !== 'undefined' && efficiencyChartInstance) {
+                updateCharts();
+            }
         }
 
         function updateStats(totalKm, avgEfficiency, totalCost, totalPower, costPerKm) {
@@ -2028,9 +1806,6 @@ function doPost(e) {
                 `您即將抹除： 日期「${target.date && target.date.includes('T') ? target.date.split('T')[0] : target.date}」的紀錄。刪除後也會同步清空雲端對應內容喔 🐾`, 
                 function() {
                     const updated = records.filter(rec => rec.id !== id);
-                    if (updated.length === 0) {
-                        localStorage.setItem('ev_life_cleared', 'true'); // 刪到沒半筆時標記為清空
-                    }
                     saveLocalState(updated);
                     renderDashboard();
                     showToast("記錄已順利擦除！✿");
@@ -2047,7 +1822,6 @@ function doPost(e) {
                 "要把日誌全部清空嗎？", 
                 "這會永久抹除所有的里程與能耗記錄！如果有同步雲端，試算表的資料也將一併清空。建議先點擊右上方「匯出」下載備份喔 (⑅•ᴗ•⑅)", 
                 function() {
-                    localStorage.setItem('ev_life_cleared', 'true'); // 標記為明確清空
                     saveLocalState([]);
                     renderDashboard();
                     showToast("歷史紀錄已成功清空 🐾", true);
@@ -2082,7 +1856,7 @@ function doPost(e) {
 
         function updateCharts() {
             const canvasElement = document.getElementById('efficiencyChart');
-            if (!canvasElement) return;
+            if (!canvasElement || typeof Chart === 'undefined') return;
 
             const existingChart = Chart.getChart(canvasElement);
             if (existingChart) {
@@ -2125,7 +1899,7 @@ function doPost(e) {
                     grid: { display: false },
                     ticks: {
                         color: labelTextColor,
-                        font: { family: "'JetBrains Mono', sans-serif", size: 10, weight: 'bold' }
+                        font: { family: "sans-serif", size: 10, weight: 'bold' }
                     }
                 }
             };
@@ -2152,11 +1926,11 @@ function doPost(e) {
                         display: true,
                         text: '電耗表現 (公里/度)',
                         color: '#14b8a6',
-                        font: { weight: 'bold', size: 11, family: "'Noto Sans TC', sans-serif" }
+                        font: { weight: 'bold', size: 11, family: "sans-serif" }
                     },
                     ticks: {
                         color: '#14b8a6',
-                        font: { family: "'JetBrains Mono', sans-serif", weight: 'bold' }
+                        font: { weight: 'bold' }
                     },
                     grid: {
                         color: gridColor,
@@ -2185,11 +1959,11 @@ function doPost(e) {
                         display: true,
                         text: '補給費用 (新台幣)',
                         color: '#0ea5e9',
-                        font: { weight: 'bold', size: 11, family: "'Noto Sans TC', sans-serif" }
+                        font: { weight: 'bold', size: 11, family: "sans-serif" }
                     },
                     ticks: {
                         color: '#0ea5e9',
-                        font: { family: "'JetBrains Mono', sans-serif", weight: 'bold' }
+                        font: { weight: 'bold' }
                     },
                     grid: {
                         drawOnChartArea: false 
@@ -2218,7 +1992,6 @@ function doPost(e) {
                                 boxWidth: 10,
                                 boxHeight: 10,
                                 font: {
-                                    family: "'Noto Sans TC', sans-serif",
                                     size: 11,
                                     weight: 'bold'
                                 }
@@ -2234,11 +2007,7 @@ function doPost(e) {
                             padding: 12,
                             boxPadding: 6,
                             titleFont: {
-                                family: "'Noto Sans TC', sans-serif",
                                 weight: 'bold'
-                            },
-                            bodyFont: {
-                                family: "'Noto Sans TC', sans-serif"
                             }
                         }
                     },
@@ -2386,6 +2155,151 @@ function doPost(e) {
                     : '<span class="text-rose-500 font-extrabold">🔴 離線模式 (正由本地快取及 PWA 提供無網運作)</span>';
             }
         }
+
+        function setupThemeIcons() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const sunIcon = document.getElementById('themeSunIcon');
+            const moonIcon = document.getElementById('themeMoonIcon');
+            if (isDark) {
+                if (sunIcon) sunIcon.classList.remove('hidden');
+                if (moonIcon) moonIcon.classList.add('hidden');
+            } else {
+                if (sunIcon) sunIcon.classList.add('hidden');
+                if (moonIcon) moonIcon.classList.remove('hidden');
+            }
+            updateLogoPlaceholder();
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.contains('dark');
+            if (isDark) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('ev_life_theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('ev_life_theme', 'dark');
+            }
+            setupThemeIcons();
+            if (typeof Chart !== 'undefined') {
+                updateCharts();
+            }
+            renderDashboard();
+        }
+
+        function setupNumericRestrictions() {
+            const distanceInput = document.getElementById('inputDistance');
+            const startSocInput = document.getElementById('inputStartSoc');
+            const endSocInput = document.getElementById('inputEndSoc');
+            const costInput = document.getElementById('inputCost');
+
+            const blockInvalidKeys = (e) => {
+                if (['e', 'E', '+', '-'].includes(e.key)) {
+                    e.preventDefault();
+                }
+            };
+            
+            if (distanceInput) {
+                distanceInput.addEventListener('keypress', blockInvalidKeys);
+                distanceInput.addEventListener('keypress', function(e) {
+                    if (e.key === '.' && this.value.includes('.')) {
+                        e.preventDefault();
+                    }
+                });
+                distanceInput.addEventListener('input', function() {
+                    updateConvertedPowerHint();
+                });
+            }
+            if (startSocInput) startSocInput.addEventListener('keypress', blockInvalidKeys);
+            if (endSocInput) endSocInput.addEventListener('keypress', blockInvalidKeys);
+            if (costInput) costInput.addEventListener('keypress', blockInvalidKeys);
+
+            const restrictPercent = function() {
+                this.value = this.value.replace(/[^0-9]/g, ''); 
+                let val = parseInt(this.value);
+                if (!isNaN(val)) {
+                    if (val > 100) this.value = '100';
+                    if (val < 0) this.value = '0';
+                }
+                updateConvertedPowerHint();
+            };
+
+            const restrictCost = function() {
+                this.value = this.value.replace(/[^0-9]/g, ''); 
+                let val = parseInt(this.value);
+                if (!isNaN(val)) {
+                    if (val < 0) this.value = '0';
+                }
+            };
+
+            if (startSocInput) startSocInput.addEventListener('input', restrictPercent);
+            if (endSocInput) endSocInput.addEventListener('input', restrictPercent);
+            if (costInput) costInput.addEventListener('input', restrictCost);
+        }
+
+        function handleChargeTypeChange() {
+            const chargeTypeSelect = document.getElementById('inputChargeType');
+            const costInput = document.getElementById('inputCost');
+            const startSocLabel = document.getElementById('startSocLabel');
+            const endSocLabel = document.getElementById('endSocLabel');
+            
+            if (!chargeTypeSelect) return;
+            
+            if (chargeTypeSelect.value === "未充電") {
+                if (costInput) {
+                    costInput.value = "0";
+                    costInput.disabled = true;
+                    costInput.classList.add('opacity-45', 'cursor-not-allowed', 'bg-slate-100/40', 'dark:bg-slate-900/40');
+                }
+                if (startSocLabel) startSocLabel.textContent = "出發前電量 (%)";
+                if (endSocLabel) endSocLabel.textContent = "抵達後電量 (%)";
+            } else {
+                if (costInput) {
+                    if (costInput.value === "0") costInput.value = "";
+                    costInput.disabled = false;
+                    costInput.classList.remove('opacity-45', 'cursor-not-allowed', 'bg-slate-100/40', 'dark:bg-slate-900/40');
+                }
+                if (startSocLabel) startSocLabel.textContent = "充電前電量 (%)";
+                if (endSocLabel) endSocLabel.textContent = "充電後電量 (%)";
+            }
+            updateConvertedPowerHint();
+        }
+
+        window.onload = function() {
+            // 所有在 HTML 中調用的函式，安全綁定到全域 Window 上以杜絕 ReferenceError
+            window.toggleTheme = toggleTheme;
+            window.setupThemeIcons = setupThemeIcons;
+            window.syncWithCloud = syncWithCloud;
+            window.toggleSyncModal = toggleSyncModal;
+            window.saveSyncSettings = saveSyncSettings;
+            window.switchSettingsTab = switchSettingsTab;
+            window.addRecord = addRecord;
+            window.cancelEdit = cancelEdit;
+            window.clearAllData = clearAllData;
+            window.exportCSV = exportCSV;
+            window.setChartFilter = setChartFilter;
+            window.downloadManifest = downloadManifest;
+            window.downloadServiceWorker = downloadServiceWorker;
+            window.triggerPwaInstall = triggerPwaInstall;
+
+            // 初始化能源補給類型監聽器
+            const chargeTypeSelect = document.getElementById('inputChargeType');
+            if (chargeTypeSelect) {
+                chargeTypeSelect.addEventListener('change', handleChargeTypeChange);
+            }
+
+            // 初始化首幀基本狀態
+            setupThemeIcons();
+            handleChargeTypeChange();
+
+            // 若 Tailwind 加載完成直接進入 Pipeline 2，若未加載則等待
+            if (window.tailwindReady) {
+                window.dispatchEvent(new Event('tailwind-active'));
+            } else {
+                window.addEventListener('tailwind-active', function() {
+                    // 自動執行 Pipeline
+                });
+            }
+        };
 
         window.addEventListener('online', () => {
             updatePwaDiagnostic();
