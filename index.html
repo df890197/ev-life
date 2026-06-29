@@ -1475,10 +1475,12 @@ function doPost(e) {
             document.getElementById('inputStartSoc').value = rec.startSoc !== undefined ? rec.startSoc : '';
             document.getElementById('inputEndSoc').value = rec.endSoc !== undefined ? rec.endSoc : '';
             
-            document.getElementById('inputCost').value = rec.cost;
+            // 🚀 修復：必須先呼叫 UI 狀態更新，再把數值填入，否則費用數值會被重置邏輯覆蓋
+            handleChargeTypeChange();
+
+            document.getElementById('inputCost').value = rec.cost !== undefined ? rec.cost : '';
             document.getElementById('inputNote').value = rec.note || '';
 
-            handleChargeTypeChange();
             updateConvertedPowerHint();
 
             editingRecordId = id;
@@ -1780,12 +1782,12 @@ function doPost(e) {
                         
                         <div class="bg-slate-50 dark:bg-neutral-900/40 p-3 rounded-[1.2rem] border border-slate-200/50 dark:border-neutral-800/80 flex flex-col justify-center items-center text-center overflow-hidden min-h-[96px]">
                             <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-black mb-1 whitespace-nowrap">本次費用</span>
-                            <div class="flex items-baseline justify-center whitespace-nowrap my-0.5 leading-none">
+                            <div class="flex items-baseline justify-center whitespace-nowrap my-0.5 leading-none w-full">
                                 <span class="font-black text-slate-800 dark:text-slate-100 text-base sm:text-lg font-mono tracking-tight">${rec.cost}</span>
                                 <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold ml-1 whitespace-nowrap">元</span>
                             </div>
-                            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold mt-1 whitespace-nowrap tracking-tight invisible">
-                                (對齊佔位空行)
+                            <span class="text-[9px] text-transparent select-none font-bold mt-1 whitespace-nowrap tracking-tight block w-full">
+                                -
                             </span>
                         </div>
                     </div>
