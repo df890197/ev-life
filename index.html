@@ -1001,6 +1001,9 @@ function doPost(e) {
             
             if (chargeTypeSelect.value === "未充電") {
                 if (costInput) {
+                    if (costInput.value !== "0" && costInput.value !== "") {
+                        costInput.dataset.prevCost = costInput.value;
+                    }
                     costInput.value = "0";
                     costInput.disabled = true;
                     costInput.classList.add('opacity-45', 'cursor-not-allowed', 'bg-slate-100/40', 'dark:bg-slate-900/40');
@@ -1009,7 +1012,9 @@ function doPost(e) {
                 if (endSocLabel) endSocLabel.textContent = "抵達後電量 (%)";
             } else {
                 if (costInput) {
-                    if (costInput.value === "0") costInput.value = "";
+                    if (costInput.disabled && costInput.value === "0") {
+                        costInput.value = costInput.dataset.prevCost || "";
+                    }
                     costInput.disabled = false;
                     costInput.classList.remove('opacity-45', 'cursor-not-allowed', 'bg-slate-100/40', 'dark:bg-slate-900/40');
                 }
@@ -1459,7 +1464,7 @@ function doPost(e) {
                 powerPercent: rec.powerPercent !== undefined ? parseInt(rec.powerPercent, 10) : (startSoc !== undefined && endSoc !== undefined ? Math.abs(endSoc - startSoc) : 0),
                 startSoc: startSoc !== undefined && !isNaN(startSoc) ? parseInt(startSoc, 10) : undefined,
                 endSoc: endSoc !== undefined && !isNaN(endSoc) ? parseInt(endSoc, 10) : undefined,
-                cost: rec.cost !== undefined ? parseInt(rec.cost, 10) : 0,
+                cost: (rec.cost !== undefined && rec.cost !== null && rec.cost !== "") ? parseInt(rec.cost, 10) : 0,
                 note: cleanNote
             };
         }
@@ -1475,10 +1480,18 @@ function doPost(e) {
             document.getElementById('inputStartSoc').value = rec.startSoc !== undefined ? rec.startSoc : '';
             document.getElementById('inputEndSoc').value = rec.endSoc !== undefined ? rec.endSoc : '';
             
-            // 🚀 修復：必須先呼叫 UI 狀態更新，再把數值填入，否則費用數值會被重置邏輯覆蓋
+            // 🚀 修復：先切換 UI 狀態，避免數值被覆蓋
             handleChargeTypeChange();
 
-            document.getElementById('inputCost').value = rec.cost !== undefined ? rec.cost : '';
+            // 🚀 修復：確保 cost 正確填入
+            const costInput = document.getElementById('inputCost');
+            if (rec.chargeType !== "未充電") {
+                let parsedCost = parseInt(rec.cost, 10);
+                costInput.value = !isNaN(parsedCost) ? parsedCost : '';
+            } else {
+                costInput.value = "0";
+            }
+
             document.getElementById('inputNote').value = rec.note || '';
 
             updateConvertedPowerHint();
@@ -1786,8 +1799,8 @@ function doPost(e) {
                                 <span class="font-black text-slate-800 dark:text-slate-100 text-base sm:text-lg font-mono tracking-tight">${rec.cost}</span>
                                 <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold ml-1 whitespace-nowrap">元</span>
                             </div>
-                            <span class="text-[9px] text-transparent select-none font-bold mt-1 whitespace-nowrap tracking-tight block w-full">
-                                -
+                            <span class="text-[9px] font-bold mt-1 whitespace-nowrap tracking-tight invisible block w-full select-none">
+                                (對齊佔位)
                             </span>
                         </div>
                     </div>
