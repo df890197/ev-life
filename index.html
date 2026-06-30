@@ -151,18 +151,37 @@
         }
     </script>
 
-    <!-- 🚀 優化 1 & 9: 極簡 Boot Script (< 10ms)，徹底砍掉耗時的 Dynamic Manifest -->
+    <!-- 🚀 優化 1 & 9: 極簡 Boot Script (< 10ms)，引導系統迅速進入 dark mode 並動態加載本地 PWA 設定 -->
     <script>
         (function() {
             try {
                 var theme = localStorage.getItem('ev_life_theme');
                 var isDark = theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                var htmlElement = document.documentElement;
                 if (isDark) {
-                    document.documentElement.classList.add('dark');
-                    document.documentElement.style.backgroundColor = '#000000';
+                    htmlElement.classList.add('dark');
+                    htmlElement.style.backgroundColor = '#000000';
                 } else {
-                    document.documentElement.classList.remove('dark');
-                    document.documentElement.style.backgroundColor = '#fcfaf2';
+                    htmlElement.classList.remove('dark');
+                    htmlElement.style.backgroundColor = '#fcfaf2';
+                }
+
+                // 🚀 修復 Android PWA 圖示：將特斯拉跑車線上占位圖網址一併替換為您本地端的實體圖標 `./icon-192.png`
+                var manifestColor = isDark ? '#000000' : '#fcfaf2';
+                var dynamicManifest = {
+                    "name": "EV Life - LUXGEN nTarget 行駛日誌",
+                    "short_name": "EV Life",
+                    "start_url": "./index.html",
+                    "display": "standalone",
+                    "background_color": manifestColor,
+                    "theme_color": manifestColor,
+                    "orientation": "portrait-primary",
+                    "icons": [{"src": "./icon-192.png","sizes": "192x192","type": "image/png"}]
+                };
+                var encodedManifest = "data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dynamicManifest));
+                var existingManifest = document.querySelector('link[rel="manifest"]');
+                if (existingManifest) {
+                    existingManifest.href = encodedManifest;
                 }
             } catch (e) {}
         })();
@@ -455,7 +474,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">愛車名稱/型號</label>
-                                <input type="text" id="evNameInput" placeholder="例如：LUXGEN n殘" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold">
+                                <input type="text" id="evNameInput" placeholder="例如：LUXGEN n⁷" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold">
                             </div>
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">愛車電池容量 (kWh)</label>
@@ -670,7 +689,7 @@ function doPost(e) {
                     <span id="statTotalKm" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100 font-mono tracking-tight">0</span>
                     <span class="text-xs font-bold text-slate-400 ml-1">km</span>
                 </div>
-                <span id="statVehicleSub" class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 mt-2 font-bold">愛車 LUXGEN n7 已陪伴您行駛了長遠路程 🐾</span>
+                <span id="statVehicleSub" class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 mt-2 font-bold">愛車 LUXGEN n⁷ 已陪伴您行駛了長遠路程 🐾</span>
             </div>
             <!-- 平均電耗 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
@@ -792,7 +811,7 @@ function doPost(e) {
 
                         <div>
                             <label class="text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5">行駛備註 / 旅程記錄 (選填)</label>
-                            <input type="text" id="inputNote" placeholder="Lieutenant:帶貓咪去散步 🐱🐾" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold">
+                            <input type="text" id="inputNote" placeholder="例如：帶貓咪去散步 🐱🐾" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold">
                         </div>
 
                         <div class="flex flex-col sm:flex-row gap-3 pt-2">
@@ -888,7 +907,7 @@ function doPost(e) {
         let records = [];
         let efficiencyChartInstance = null;
         let syncUrl = "";
-        let evName = "LUXGEN n7";
+        let evName = "LUXGEN n⁷"; 
         let batteryCapacity = 57.7;
         let initialOdometer = 0;
         let activeConfirmCallback = null;
@@ -896,6 +915,34 @@ function doPost(e) {
         let currentChartFilter = 'all';
         let deferredPrompt = null;
 
+        // 🚀 新增：補回因優化腳本時不慎遺漏的 updateLiveClock 核心函數，消除 ReferenceError 🐾
+        function updateLiveClock() {
+            const clockEl = document.getElementById('liveClockText');
+            if (!clockEl) return;
+            const now = new Date();
+            const yyyy = now.getFullYear();
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const dd = String(now.getDate()).padStart(2, '0');
+            const hh = String(now.getHours()).padStart(2, '0');
+            const min = String(now.getMinutes()).padStart(2, '0');
+            const ss = String(now.getSeconds()).padStart(2, '0');
+            clockEl.textContent = `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
+        }
+
+        // 🚀 新增：補回複製 Google Apps Script 程式碼的核心函數
+        function copyGasCode() {
+            const textArea = document.getElementById('gasCodeText');
+            if (!textArea) return;
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast("GAS 程式碼已成功複製到剪貼簿！📋");
+            } catch (err) {
+                showToast("複製失敗，請手動複製！ (๑•́ ₃ •̀๑)", true);
+            }
+        }
+
+        // Phase 1: Boot UI 解鎖，讓出主執行緒避免白畫面卡死
         document.addEventListener('DOMContentLoaded', () => {
             requestAnimationFrame(() => {
                 const nav = document.getElementById('mainNav');
@@ -954,7 +1001,7 @@ function doPost(e) {
                 evName = "LUXGEN n7"; 
                 localStorage.setItem('ev_life_ev_name', "LUXGEN n7");
             } else {
-                evName = rawEvName.replace(/n[7|⁷| dream]+/g, "n7");
+                evName = rawEvName.replace(/n[7|7| dream]+/g, "n7");
             }
             const eNameInput = document.getElementById('evNameInput');
             if (eNameInput) {
@@ -1315,7 +1362,7 @@ function doPost(e) {
             }
 
             if (evNameInput) {
-                evName = evNameInput.value.trim().replace(/n[7|⁷]+/g, "n7") || "LUXGEN n7";
+                evName = evNameInput.value.trim().replace(/n[7|7]+/g, "n7") || "LUXGEN n7";
                 localStorage.setItem('ev_life_ev_name', evName);
             }
 
@@ -1916,7 +1963,7 @@ function doPost(e) {
                             </div>
                         </div>
                         
-                        <!-- 格子 4: 本次費用 (完美與其他格子格式高度完全拉齊，達到絕對幾何居中) -->
+                        <!-- 格子 4: 本次費用 (已完美與其他格子格式高度完全拉齊，達到絕對置中對稱) -->
                         <div class="bg-slate-50 dark:bg-neutral-900/40 p-3 rounded-[1.2rem] border border-slate-200/50 dark:border-neutral-800/80 flex flex-col justify-center items-center text-center overflow-hidden min-h-[104px] py-3.5">
                             <div class="h-4 flex items-center justify-center w-full mb-1">
                                 <span class="text-[10px] text-slate-400 dark:text-slate-500 font-black whitespace-nowrap">本次費用</span>
@@ -2475,7 +2522,7 @@ function doPost(e) {
         }
 
         function downloadServiceWorker() {
-            const swCode = `// EV Life - LUXGEN n7 行駛日誌 PWA 離線快取守護
+            const swCode = `// EV Life - LUXGEN n⁷ 行駛日誌 PWA 離線快取守護
 const CACHE_NAME = 'ev-life-cache-v7'; 
 const ASSETS = [
   './',
