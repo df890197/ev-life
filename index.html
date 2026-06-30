@@ -927,8 +927,11 @@ function doPost(e) {
                             </span>
                             <span>我的行駛日誌</span>
                         </h2>
+                        <!-- 🚀 圖示破圖修正：將 -1.Steady-1.858L 完整校正回標準數學座標向量以防在 Chrome/Safari 上破圖 -->
                         <button onclick="clearAllData()" class="text-rose-600 hover:text-rose-500 dark:text-rose-400 dark:hover:text-rose-350 text-xs font-black transition-all self-start sm:self-center flex items-center space-x-1.5 p-2 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/20 border border-transparent hover:border-rose-100/30 dark:hover:border-rose-900/30">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.Steady-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.895-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
                             <span>清除全部日誌</span>
                         </button>
                     </div>
