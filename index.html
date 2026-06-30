@@ -10,29 +10,30 @@
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
     
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- 恢復 default，避免淺色模式下上方狀態列文字隱形 -->
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="EV Life">
     
     <link rel="apple-touch-icon" href="./icon-192.png">
     <link rel="manifest" href="./manifest.json">
 
-    <!-- 🚀 優化 3: Google Fonts 非阻塞載入 -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght=300;400;500;600;700&family=Noto+Sans+TC:wght=300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-
-    <!-- 1. iOS Standalone 啟動畫面 - 深色模式 -->
+    <!-- ====================================================================================================== -->
+    <!-- 🚀 終極 iOS PWA 防閃白方案 (靜態 iPhone 滿版規格強迫綁定版) -->
+    <!-- 使用超輕量 Base64 1x1 像素拉伸圖，靜態精準命中 iOS launch screen 偵測，實現冷啟動純黑底，絕不閃白 -->
+    <!-- ====================================================================================================== -->
+    
+    <!-- 1. iOS Standalone 啟動畫面 - 深色模式 (純黑 #000000) 靜態命中 -->
     <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)">
     <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)">
     <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)">
     <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)">
-    <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)">
+    <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)">
     <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (prefers-color-scheme: dark)">
     <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)">
     <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)">
     <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (prefers-color-scheme: dark)">
 
-    <!-- 2. iOS Standalone 啟動畫面 - 淺色模式 -->
+    <!-- 2. iOS Standalone 啟動畫面 - 淺色模式 (米白 #fcfaf2) 靜態命中 -->
     <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5ErkJggg==" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)">
     <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5ErkJggg==" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)">
     <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5ErkJggg==" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)">
@@ -41,7 +42,7 @@
     <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5ErkJggg==" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (prefers-color-scheme: light)">
     <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5ErkJggg==" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)">
     <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5ErkJggg==" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)">
-    <link rel="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5ErkJggg==" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (prefers-color-scheme: light)">
+    <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5ErkJggg==" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (prefers-color-scheme: light)">
 
     <style>
         /* 第一時間鎖定底色，杜絕渲染空窗期 */
@@ -56,16 +57,27 @@
         html.dark, html.dark body { background-color: #000000 !important; }
         html:not(.dark), html:not(.dark) body { background-color: #fcfaf2 !important; }
 
-        /* 🚨 優化 8: 放棄 background transition，避免 Safari 白屏閃動 */
+        /* 🚨 關鍵防閃白：強行寫死首頁 Splash Screen 在 Tailwind 載入前的背景色 */
         #appSplashScreen {
-            background-color: inherit;
-            transition: opacity 0.4s ease-out;
+            background-color: #fcfaf2 !important;
         }
-        
-        .ios-safe-nav {
-            padding-top: env(safe-area-inset-top, 0px) !important;
+        @media (prefers-color-scheme: dark) {
+            #appSplashScreen {
+                background-color: #000000 !important;
+            }
+        }
+        html.dark #appSplashScreen {
+            background-color: #000000 !important;
+        }
+        html:not(.dark) #appSplashScreen {
+            background-color: #fcfaf2 !important;
         }
     </style>
+
+    <!-- 🚀 優化 3: Google Fonts 非阻塞載入 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght=300;400;500;600;700&family=Noto+Sans+TC:wght=300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
     <!-- 🚀 優化 1 & 9: 極簡 Boot Script (< 10ms)，徹底砍掉耗時的 Dynamic Manifest -->
     <script>
@@ -73,16 +85,44 @@
             try {
                 var theme = localStorage.getItem('ev_life_theme');
                 var isDark = theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
-                if (isDark) document.documentElement.classList.add('dark');
+                if (isDark) {
+                    document.documentElement.classList.add('dark');
+                    document.documentElement.style.backgroundColor = '#000000';
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    document.documentElement.style.backgroundColor = '#fcfaf2';
+                }
             } catch (e) {}
         })();
     </script>
 
+    <!-- 基礎防護 CSS -->
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+        }
+        
+        /* 確保 iOS 瀏海與動態島安全區域頂部適配在所有瀏覽器精準生效 */
+        .ios-safe-nav {
+            padding-top: env(safe-area-inset-top, 0px) !important;
+        }
+
+        /* 載入完成後的背景平滑轉場 */
+        html.app-loaded, html.app-loaded body {
+            transition: opacity 0.4s ease-in-out;
+        }
+        /* 將行內樣式背景清除，交還給 Tailwind 控制 */
+        html.app-loaded {
+            background-color: transparent !important;
+        }
+    </style>
+    
     <!-- 引入 Tailwind CSS 與 Chart.js -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 🚀 優化 4: Defer Chart.js，讓主線程優先繪製畫面 -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
-    
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -90,20 +130,35 @@
                 extend: {
                     colors: {
                         cuteMint: {
-                            50: '#f0fdf4', 100: '#ccfbf1', 200: '#99f6e4', 300: '#5eead4', 400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488', 700: '#115e59', 
+                            50: '#f0fdf4',
+                            100: '#ccfbf1',
+                            200: '#99f6e4',
+                            300: '#5eead4',
+                            400: '#2dd4bf', 
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#115e59', 
                         },
                         cuteBlue: {
-                            50: '#f0f9ff', 100: '#e0f2fe', 200: '#bae6fd', 300: '#7dd3fc', 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7',
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8', 
+                            500: '#0ea5e9',
+                            600: '#0284c7',
                         },
                         cuteYellow: {
-                            50: '#fffbeb', 100: '#fef3c7', 200: '#fde68a', 500: '#f59e0b',
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            200: '#fde68a',
+                            500: '#f59e0b',
                         }
                     }
                 }
             }
         }
     </script>
-
     <style>
         body {
             font-family: 'Fredoka', 'Noto Sans TC', sans-serif;
@@ -114,66 +169,137 @@
             font-family: 'JetBrains Mono', 'Noto Sans TC', monospace;
         }
 
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
+        /* 自訂圓角滾動條 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
         ::-webkit-scrollbar-thumb {
             background: rgba(186, 230, 253, 0.6);
-            border-radius: 99px; border: 2px solid transparent; background-clip: padding-box;
+            border-radius: 99px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
         }
         .dark ::-webkit-scrollbar-thumb {
             background: rgba(51, 65, 85, 0.6);
-            border: 2px solid transparent; background-clip: padding-box;
+            border: 2px solid transparent;
+            background-clip: padding-box;
         }
-        ::-webkit-scrollbar-thumb:hover { background: #7dd3fc; }
-        .dark ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #7dd3fc;
+        }
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
 
         input[type="date"] {
-            position: relative; -webkit-appearance: none; appearance: none; display: block; min-height: 2.75rem; line-height: normal;
+            position: relative;
+            -webkit-appearance: none;
+            appearance: none;
+            display: block;
+            min-height: 2.75rem;
+            line-height: normal;
         }
         input[type="date"]::-webkit-date-and-time-value {
-            height: auto; min-height: 1.5em; text-align: left; margin: 0; padding: 0; width: 100%;
+            height: auto;
+            min-height: 1.5em;
+            text-align: left;
+            margin: 0;
+            padding: 0;
+            width: 100%;
         }
         input[type="date"]::-webkit-datetime-edit {
-            padding: 0; display: inline-flex; overflow: visible;
+            padding: 0;
+            display: inline-flex;
+            overflow: visible;
         }
         
-        .dark input, .dark select { color-scheme: dark; }
+        .dark input, .dark select {
+            color-scheme: dark;
+        }
 
         .rpg-card {
-            background: #ffffff; border: 4px solid #1e293b; box-shadow: 6px 6px 0px 0px #1e293b; transition: all 0.15s ease-in-out;
+            background: #ffffff;
+            border: 4px solid #1e293b;
+            box-shadow: 6px 6px 0px 0px #1e293b;
+            transition: all 0.15s ease-in-out;
         }
         .dark .rpg-card {
-            background: #000000; border: 4px solid #1e293b; box-shadow: 6px 6px 0px 0px #000000;
+            background: #000000;
+            border: 4px solid #1e293b;
+            box-shadow: 6px 6px 0px 0px #000000;
         }
-        .rpg-card:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0px 0px #1e293b; }
-        .dark .rpg-card:hover { box-shadow: 8px 8px 0px 0px #000000; }
+
+        .rpg-card:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 8px 8px 0px 0px #1e293b;
+        }
+        .dark .rpg-card:hover {
+            box-shadow: 8px 8px 0px 0px #000000;
+        }
 
         .rpg-btn-primary {
-            background: #2dd4bf; border: 3px solid #1e293b; color: #1e293b; box-shadow: 4px 4px 0px 0px #1e293b; transition: all 0.1s ease-in-out;
+            background: #2dd4bf;
+            border: 3px solid #1e293b;
+            color: #1e293b;
+            box-shadow: 4px 4px 0px 0px #1e293b;
+            transition: all 0.1s ease-in-out;
         }
         .dark .rpg-btn-primary {
-            background: #14b8a6; border: 3px solid #1e293b; color: #ffffff; box-shadow: 4px 4px 0px 0px #000000;
+            background: #14b8a6;
+            border: 3px solid #1e293b;
+            color: #ffffff;
+            box-shadow: 4px 4px 0px 0px #000000;
         }
-        .rpg-btn-primary:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0px 0px #1e293b; }
-        .dark .rpg-btn-primary:hover { box-shadow: 5px 5px 0px 0px #000000; }
-        .rpg-btn-primary:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0px 0px #1e293b; }
-        .dark .rpg-btn-primary:active { box-shadow: 1px 1px 0px 0px #000000; }
+        .rpg-btn-primary:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 5px 5px 0px 0px #1e293b;
+        }
+        .dark .rpg-btn-primary:hover {
+            box-shadow: 5px 5px 0px 0px #000000;
+        }
+        .rpg-btn-primary:active {
+            transform: translate(3px, 3px);
+            box-shadow: 1px 1px 0px 0px #1e293b;
+        }
+        .dark .rpg-btn-primary:active {
+            box-shadow: 1px 1px 0px 0px #000000;
+        }
 
         .rpg-btn-secondary {
-            background: #f1f5f9; border: 3px solid #1e293b; color: #1e293b; box-shadow: 4px 4px 0px 0px #1e293b; transition: all 0.1s ease-in-out;
+            background: #f1f5f9;
+            border: 3px solid #1e293b;
+            color: #1e293b;
+            box-shadow: 4px 4px 0px 0px #1e293b;
+            transition: all 0.1s ease-in-out;
         }
         .dark .rpg-btn-secondary {
-            background: #1f2937; border: 3px solid #1e293b; color: #ffffff; box-shadow: 4px 4px 0px 0px #000000;
+            background: #1f2937;
+            border: 3px solid #1e293b;
+            color: #ffffff;
+            box-shadow: 4px 4px 0px 0px #000000;
         }
-        .rpg-btn-secondary:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0px 0px #1e293b; }
-        .dark .rpg-btn-secondary:active { box-shadow: 1px 1px 0px 0px #000000; }
+        .rpg-btn-secondary:active {
+            transform: translate(3px, 3px);
+            box-shadow: 1px 1px 0px 0px #1e293b;
+        }
+        .dark .rpg-btn-secondary:active {
+            box-shadow: 1px 1px 0px 0px #000000;
+        }
 
-        .scrollable-log-container { max-height: 480px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .scrollable-log-container {
+            max-height: 480px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
     </style>
 </head>
 <body class="bg-[#fcfaf2] dark:bg-[#000000] text-slate-800 dark:text-slate-100 min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative">
 
-    <!-- 🚀 優化 11: 極簡化 Splash Screen，拿掉 Safari 必須重新計算的重度動畫 -->
+    <!-- 🚀 優化 11: 極簡 Splash，去除耗能動畫，等待 JS Ready 後才 Fade Out -->
     <div id="appSplashScreen" class="fixed inset-0 z-[9998] flex flex-col items-center justify-center text-slate-800 dark:text-white transition-opacity duration-400">
         <div class="text-center space-y-4 flex flex-col items-center">
             <span class="text-7xl md:text-8xl">🐾</span>
@@ -859,7 +985,7 @@ function doPost(e) {
             }
         }
 
-        /* ----- 以下完全保留您的原始邏輯，無任何刪減 ----- */
+        /* ----- 核心業務邏輯排版與細節修正 ----- */
 
         function adaptContainerBgToImage(img) {
             try {
@@ -908,7 +1034,6 @@ function doPost(e) {
             }
         }
 
-        // 👉 修復區域：補回遺失的 handleLogoError 函式
         function handleLogoError(imgElement) {
             imgElement.onerror = null;
             const isDark = document.documentElement.classList.contains('dark');
@@ -919,7 +1044,6 @@ function doPost(e) {
             }
         }
 
-        // 👉 修復區域：補回遺失的 updateLogoPlaceholder 函式
         function updateLogoPlaceholder() {
             const img = document.getElementById('navLogoImg');
             if (img && img.src.includes('placehold.co')) {
@@ -1001,9 +1125,6 @@ function doPost(e) {
             
             if (chargeTypeSelect.value === "未充電") {
                 if (costInput) {
-                    if (costInput.value !== "0" && costInput.value !== "") {
-                        costInput.dataset.prevCost = costInput.value;
-                    }
                     costInput.value = "0";
                     costInput.disabled = true;
                     costInput.classList.add('opacity-45', 'cursor-not-allowed', 'bg-slate-100/40', 'dark:bg-slate-900/40');
@@ -1012,9 +1133,7 @@ function doPost(e) {
                 if (endSocLabel) endSocLabel.textContent = "抵達後電量 (%)";
             } else {
                 if (costInput) {
-                    if (costInput.disabled && costInput.value === "0") {
-                        costInput.value = costInput.dataset.prevCost || "";
-                    }
+                    if (costInput.value === "0") costInput.value = "";
                     costInput.disabled = false;
                     costInput.classList.remove('opacity-45', 'cursor-not-allowed', 'bg-slate-100/40', 'dark:bg-slate-900/40');
                 }
@@ -1469,6 +1588,7 @@ function doPost(e) {
             };
         }
 
+        // 🚀 優化：編輯紀錄邏輯修正，將 handleChargeTypeChange 的呼叫順序移至最前
         function editRecord(id) {
             const rec = records.find(r => r.id === id);
             if (!rec) return;
@@ -1480,10 +1600,10 @@ function doPost(e) {
             document.getElementById('inputStartSoc').value = rec.startSoc !== undefined ? rec.startSoc : '';
             document.getElementById('inputEndSoc').value = rec.endSoc !== undefined ? rec.endSoc : '';
             
-            // 🚀 修復：先切換 UI 狀態，避免數值被覆蓋
+            // 🚀 修復：先跑 handleChargeTypeChange 切換輸入框屬性（如果是「未充電」會先 disabled，反之則 enabled）
             handleChargeTypeChange();
 
-            // 🚀 修復：確保 cost 正確填入
+            // 🚀 修復：此時再精準填入本次費用數值，防止數值被 handleChargeTypeChange 預設清除。若為未充電則一律維持 0 元
             const costInput = document.getElementById('inputCost');
             if (rec.chargeType !== "未充電") {
                 let parsedCost = parseInt(rec.cost, 10);
@@ -1638,9 +1758,6 @@ function doPost(e) {
             const displayRecords = [...activeRecords].reverse();
 
             displayRecords.forEach(rec => {
-                const distVal = parseFloat(rec.distance) || 0;
-                const powerVal = parseFloat(rec.power) || 0;
-                
                 const rowConsumedSoc = rec.consumedSocPercent !== undefined ? rec.consumedSocPercent : 0;
                 const rowConsumedPower = batteryCapacity * (rowConsumedSoc / 100);
                 const efficiency = rowConsumedPower > 0 ? (rec.distance / rowConsumedPower).toFixed(2) : "0.00";
@@ -1729,6 +1846,7 @@ function doPost(e) {
                 const card = document.createElement('div');
                 card.className = "rpg-card px-3.5 py-4 sm:p-5 rounded-[2rem] space-y-3.5 mr-1 mb-2"; 
                 
+                // 🚀 優化：為「本次費用」加入與其他格子高寬完全一致的隱形 placeholders，解決手機板排版高低偏斜與無法置中問題
                 card.innerHTML = `
                     <div class="flex items-center justify-between pb-2.5 border-b-2 border-cuteMint-50/50 dark:border-slate-800/40 w-full min-w-0 gap-1.5">
                         <div class="flex items-center space-x-1 sm:space-x-1.5 min-w-0 flex-nowrap">
@@ -1795,11 +1913,12 @@ function doPost(e) {
                         
                         <div class="bg-slate-50 dark:bg-neutral-900/40 p-3 rounded-[1.2rem] border border-slate-200/50 dark:border-neutral-800/80 flex flex-col justify-center items-center text-center overflow-hidden min-h-[96px]">
                             <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-black mb-1 whitespace-nowrap">本次費用</span>
-                            <div class="flex items-baseline justify-center whitespace-nowrap my-0.5 leading-none w-full">
+                            <div class="flex items-baseline justify-center whitespace-nowrap my-0.5 leading-none">
                                 <span class="font-black text-slate-800 dark:text-slate-100 text-base sm:text-lg font-mono tracking-tight">${rec.cost}</span>
                                 <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold ml-1 whitespace-nowrap">元</span>
                             </div>
-                            <span class="text-[9px] font-bold mt-1 whitespace-nowrap tracking-tight invisible block w-full select-none">
+                            <!-- 🚀 修復：使用 w-full 與 block 高度配合 text-transparent，完美佔位拉齊，將「本次費用」數字強制水平居中對稱 -->
+                            <span class="text-[9px] text-transparent select-none font-bold mt-1 whitespace-nowrap tracking-tight block w-full">
                                 (對齊佔位)
                             </span>
                         </div>
@@ -1821,7 +1940,7 @@ function doPost(e) {
             const costPerKm = totalKm > 0 ? (totalCost / totalKm) : 0;
 
             updateStats(totalKm, avgEfficiency, totalCost, totalPower, costPerKm);
-            if(typeof Chart !== 'undefined') updateCharts();
+            if (typeof Chart !== 'undefined') updateCharts();
         }
 
         function updateStats(totalKm, avgEfficiency, totalCost, totalPower, costPerKm) {
@@ -1935,7 +2054,7 @@ function doPost(e) {
                 function() {
                     const updated = records.filter(rec => rec.id !== id);
                     if (updated.length === 0) {
-                        localStorage.setItem('ev_life_cleared', 'true');
+                        localStorage.setItem('ev_life_cleared', 'true'); // 刪到沒半筆時標記為清空
                     }
                     saveLocalState(updated);
                     renderDashboard();
@@ -1953,7 +2072,7 @@ function doPost(e) {
                 "要把日誌全部清空嗎？", 
                 "這會永久抹除所有的里程與能耗記錄！如果有同步雲端，試算表的資料也將一併清空。建議先點擊右上方「匯出」下載備份喔 (⑅•ᴗ•⑅)", 
                 function() {
-                    localStorage.setItem('ev_life_cleared', 'true');
+                    localStorage.setItem('ev_life_cleared', 'true'); // 標記為明確清空
                     saveLocalState([]);
                     renderDashboard();
                     showToast("歷史紀錄已成功清空 🐾", true);
