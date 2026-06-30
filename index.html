@@ -38,7 +38,7 @@
     <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5ErkJggg==" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)">
     <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5ErkJggg==" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)">
     <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5ErkJggg==" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)">
-    <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5ErkJggg==" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)">
+    <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAA(2013年)iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5ErkJggg==" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)">
     <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5ErkJggg==" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (prefers-color-scheme: light)">
     <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5ErkJggg==" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)">
     <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5ErkJggg==" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)">
@@ -455,7 +455,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">愛車名稱/型號</label>
-                                <input type="text" id="evNameInput" placeholder="例如：LUXGEN n⁷" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold">
+                                <input type="text" id="evNameInput" placeholder="例如：LUXGEN n殘" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold">
                             </div>
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">愛車電池容量 (kWh)</label>
@@ -670,7 +670,7 @@ function doPost(e) {
                     <span id="statTotalKm" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100 font-mono tracking-tight">0</span>
                     <span class="text-xs font-bold text-slate-400 ml-1">km</span>
                 </div>
-                <span id="statVehicleSub" class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 mt-2 font-bold">愛車 LUXGEN n⁷ 已陪伴您行駛了長遠路程 🐾</span>
+                <span id="statVehicleSub" class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 mt-2 font-bold">愛車 LUXGEN n7 已陪伴您行駛了長遠路程 🐾</span>
             </div>
             <!-- 平均電耗 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
@@ -888,7 +888,7 @@ function doPost(e) {
         let records = [];
         let efficiencyChartInstance = null;
         let syncUrl = "";
-        let evName = "LUXGEN n⁷";
+        let evName = "LUXGEN n7";
         let batteryCapacity = 57.7;
         let initialOdometer = 0;
         let activeConfirmCallback = null;
@@ -896,7 +896,6 @@ function doPost(e) {
         let currentChartFilter = 'all';
         let deferredPrompt = null;
 
-        // Phase 1: Boot UI 解鎖，讓出主執行緒避免白畫面卡死
         document.addEventListener('DOMContentLoaded', () => {
             requestAnimationFrame(() => {
                 const nav = document.getElementById('mainNav');
@@ -930,7 +929,6 @@ function doPost(e) {
             });
         });
 
-        // Phase 2: Core Logic (純資料與事件綁定，無重度繪圖)
         function initAppCore() {
             setupThemeIcons();
             updateLiveClock();
@@ -953,10 +951,10 @@ function doPost(e) {
             
             let rawEvName = localStorage.getItem('ev_life_ev_name') || "";
             if (!rawEvName) {
-                evName = "LUXGEN n⁷"; 
-                localStorage.setItem('ev_life_ev_name', "LUXGEN n⁷");
+                evName = "LUXGEN n7"; 
+                localStorage.setItem('ev_life_ev_name', "LUXGEN n7");
             } else {
-                evName = rawEvName.replace(/n[7|⁷| dream]+/g, "n⁷");
+                evName = rawEvName.replace(/n[7|⁷| dream]+/g, "n7");
             }
             const eNameInput = document.getElementById('evNameInput');
             if (eNameInput) {
@@ -1057,7 +1055,31 @@ function doPost(e) {
             }
         }
 
-        /* ----- 核心業務邏輯排版與細節修正 ----- */
+        function setupThemeIcons() {
+            const isDark = document.documentElement.classList.contains('dark');
+            if (isDark) {
+                document.getElementById('themeSunIcon').classList.remove('hidden');
+                document.getElementById('themeMoonIcon').classList.add('hidden');
+            } else {
+                document.getElementById('themeSunIcon').classList.add('hidden');
+                document.getElementById('themeMoonIcon').classList.remove('hidden');
+            }
+            updateLogoPlaceholder();
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.contains('dark');
+            if (isDark) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('ev_life_theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('ev_life_theme', 'dark');
+            }
+            setupThemeIcons();
+            if(typeof Chart !== 'undefined') updateCharts();
+            renderDashboard();
+        }
 
         function saveLocalState(newRecords) {
             records = newRecords;
@@ -1085,7 +1107,10 @@ function doPost(e) {
                 if (endSocLabel) endSocLabel.textContent = "抵達後電量 (%)";
             } else {
                 if (costInput) {
-                    if (costInput.value === "0") costInput.value = "";
+                    // 🚀 優化：只有在非編輯狀態 (editingRecordId === null) 下，切換型態時才將 0 洗成空字串
+                    if (editingRecordId === null && costInput.value === "0") {
+                        costInput.value = "";
+                    }
                     costInput.disabled = false;
                     costInput.classList.remove('opacity-45', 'cursor-not-allowed', 'bg-slate-100/40', 'dark:bg-slate-900/40');
                 }
@@ -1290,7 +1315,7 @@ function doPost(e) {
             }
 
             if (evNameInput) {
-                evName = evNameInput.value.trim().replace(/n[7|⁷]+/g, "n⁷") || "LUXGEN n⁷";
+                evName = evNameInput.value.trim().replace(/n[7|⁷]+/g, "n7") || "LUXGEN n7";
                 localStorage.setItem('ev_life_ev_name', evName);
             }
 
@@ -1459,7 +1484,7 @@ function doPost(e) {
                     
                     if (cloudConfigParsed) {
                         if (cloudConfigParsed.evName) {
-                            evName = cloudConfigParsed.evName.replace(/n[7|⁷]+/g, "n⁷");
+                            evName = cloudConfigParsed.evName.replace(/n[7|7]+/g, "n7");
                             localStorage.setItem('ev_life_ev_name', evName);
                         }
                         if (cloudConfigParsed.batteryCapacity) {
@@ -1540,27 +1565,30 @@ function doPost(e) {
             };
         }
 
-        // 🚀 優化：編輯紀錄邏輯修正，先跑 handleChargeTypeChange 狀態重置，最後強制填寫 Cost
+        // 🚀 優化：編輯紀錄邏輯修正，將屬性重置移至最前，最後才填入金額
         function editRecord(id) {
             const rec = records.find(r => r.id === id);
             if (!rec) return;
 
-            // 1. 先帶入基本欄位
+            // 1. 先填入非費用的一般欄位
             document.getElementById('inputDate').value = rec.date;
-            document.getElementById('inputChargeType').value = rec.chargeType;
             document.getElementById('inputDistance').value = rec.distance;
             document.getElementById('inputStartSoc').value = rec.startSoc !== undefined ? rec.startSoc : '';
             document.getElementById('inputEndSoc').value = rec.endSoc !== undefined ? rec.endSoc : '';
             document.getElementById('inputNote').value = rec.note || '';
 
+            // 🚀 重要修正：在變更類別與呼叫狀態重置前，必須先寫入 `inputChargeType` 的值
+            document.getElementById('inputChargeType').value = rec.chargeType;
+
             // 2. 優先設定編輯狀態，並執行充電類別切換邏輯
             editingRecordId = id;
             handleChargeTypeChange();
 
-            // 3. 在所有屬性切換之後，強制並精確帶入此筆紀錄的實際費用，完美繞開 handleChargeTypeChange 內部的空白覆寫邏輯
+            // 3. 在所有屬性與 UI 狀態切換完畢之後，強制將金額覆寫填回費用欄位，完美避開 handleChargeTypeChange 內部的空白覆寫防呆邏輯
             const costInput = document.getElementById('inputCost');
             if (costInput) {
-                costInput.value = (rec.cost !== undefined && rec.cost !== null) ? rec.cost : "0";
+                let parsedCost = parseInt(rec.cost, 10);
+                costInput.value = !isNaN(parsedCost) ? parsedCost : 0;
             }
 
             updateConvertedPowerHint();
@@ -1793,12 +1821,14 @@ function doPost(e) {
                     mobileSocText = `${powerPercent}%`;
                 }
 
-                // 🚀 優化 4: 手機版卡片「本次費用」加入對應每公里平均花費數據 (${tripCostPerKm} 元/km)，使其完美補齊第 3 行，與其他 3 個格子格式物理高度、上下邊距完全對齊！
+                // 手機版卡片「本次費用」加入對應每公里平均花費數據 (${tripCostPerKm} 元/km)
                 const tripCostPerKm = distVal > 0 ? (rec.cost / distVal).toFixed(2) : "0.00";
 
                 const card = document.createElement('div');
                 card.className = "rpg-card px-3.5 py-4 sm:p-5 rounded-[2rem] space-y-3.5 mr-1 mb-2"; 
                 
+                // 🚀 關鍵對齊優化：利用固定高度容器槽 (h-4 標題槽 / h-8 數值槽 / h-4 說明槽) 重新設計卡片
+                // 並在格子 4 (本次費用) 數字左側，加上同等寬度、同等字型的隱形對稱 `元` 佔位符，完成像素級絕對幾何置中！
                 card.innerHTML = `
                     <div class="flex items-center justify-between pb-2.5 border-b-2 border-cuteMint-50/50 dark:border-slate-800/40 w-full min-w-0 gap-1.5">
                         <div class="flex items-center space-x-1 sm:space-x-1.5 min-w-0 flex-nowrap">
@@ -1832,54 +1862,78 @@ function doPost(e) {
                     
                     <div class="grid grid-cols-2 gap-2.5 pt-2">
                         <!-- 格子 1: 行駛里程 -->
-                        <div class="bg-slate-50 dark:bg-neutral-900/40 p-3 rounded-[1.2rem] border border-slate-200/50 dark:border-neutral-800/80 flex flex-col justify-between items-center text-center overflow-hidden min-h-[96px] py-3.5">
-                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-black mb-1 whitespace-nowrap">行駛里程</span>
-                            <div class="flex items-baseline justify-center whitespace-nowrap my-0.5 leading-none w-full">
-                                <span class="text-[10px] opacity-0 pointer-events-none select-none font-bold mr-1">km</span>
-                                <span class="font-black text-slate-800 dark:text-slate-100 text-base sm:text-lg font-mono tracking-tight">${parseFloat(rec.distance)}</span>
-                                <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold ml-1 whitespace-nowrap">km</span>
+                        <div class="bg-slate-50 dark:bg-neutral-900/40 p-3 rounded-[1.2rem] border border-slate-200/50 dark:border-neutral-800/80 flex flex-col justify-center items-center text-center overflow-hidden min-h-[104px] py-3.5">
+                            <div class="h-4 flex items-center justify-center w-full mb-1">
+                                <span class="text-[10px] text-slate-400 dark:text-slate-500 font-black whitespace-nowrap">行駛里程</span>
                             </div>
-                            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold mt-1 whitespace-nowrap tracking-tight">
-                                (累計 ${rec.rollingOdo.toFixed(1)} km)
-                            </span>
+                            <div class="h-8 flex items-center justify-center w-full my-0.5">
+                                <div class="flex items-baseline justify-center whitespace-nowrap">
+                                    <span class="text-[10px] opacity-0 pointer-events-none select-none font-bold mr-1">km</span>
+                                    <span class="font-black text-slate-800 dark:text-slate-100 text-base sm:text-lg font-mono tracking-tight leading-none">${parseFloat(rec.distance)}</span>
+                                    <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold ml-1 whitespace-nowrap">km</span>
+                                </div>
+                            </div>
+                            <div class="h-4 flex items-center justify-center w-full mt-1">
+                                <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold whitespace-nowrap tracking-tight">
+                                    (累計 ${rec.rollingOdo.toFixed(1)} km)
+                                </span>
+                            </div>
                         </div>
                         
                         <!-- 格子 2: 電耗表現 -->
-                        <div class="bg-slate-50 dark:bg-neutral-900/40 p-3 rounded-[1.2rem] border border-slate-200/50 dark:border-neutral-800/80 flex flex-col justify-between items-center text-center overflow-hidden min-h-[96px] py-3.5">
-                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-black mb-1 whitespace-nowrap">電耗表現</span>
-                            <div class="flex items-baseline justify-center whitespace-nowrap my-0.5 leading-none w-full">
-                                <span class="text-[10px] opacity-0 pointer-events-none select-none font-bold mr-1">km/度</span>
-                                <span class="font-black text-cuteMint-600 dark:text-cuteMint-400 text-base sm:text-lg font-mono tracking-tight">${efficiency}</span>
-                                <span class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 font-bold ml-1 whitespace-nowrap">km/度</span>
+                        <div class="bg-slate-50 dark:bg-neutral-900/40 p-3 rounded-[1.2rem] border border-slate-200/50 dark:border-neutral-800/80 flex flex-col justify-center items-center text-center overflow-hidden min-h-[104px] py-3.5">
+                            <div class="h-4 flex items-center justify-center w-full mb-1">
+                                <span class="text-[10px] text-slate-400 dark:text-slate-500 font-black whitespace-nowrap">電耗表現</span>
                             </div>
-                            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold mt-1 whitespace-nowrap tracking-tight">
-                                (消耗 ${rowConsumedSoc}% | ${rowConsumedPower.toFixed(1)}度)
-                            </span>
+                            <div class="h-8 flex items-center justify-center w-full my-0.5">
+                                <div class="flex items-baseline justify-center whitespace-nowrap">
+                                    <span class="text-[10px] opacity-0 pointer-events-none select-none font-bold mr-1">km/度</span>
+                                    <span class="font-black text-cuteMint-600 dark:text-cuteMint-400 text-base sm:text-lg font-mono tracking-tight leading-none">${efficiency}</span>
+                                    <span class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 font-bold ml-1 whitespace-nowrap">km/度</span>
+                                </div>
+                            </div>
+                            <div class="h-4 flex items-center justify-center w-full mt-1">
+                                <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold whitespace-nowrap tracking-tight">
+                                    (消耗 ${rowConsumedSoc}% | ${rowConsumedPower.toFixed(1)}度)
+                                </span>
+                            </div>
                         </div>
                         
                         <!-- 格子 3: 補給起訖 -->
-                        <div class="bg-slate-50 dark:bg-neutral-900/40 p-3 rounded-[1.2rem] border border-slate-200/50 dark:border-neutral-800/80 flex flex-col justify-between items-center text-center overflow-hidden min-h-[96px] py-3.5">
-                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-black mb-1 whitespace-nowrap">補給起訖</span>
-                            <div class="whitespace-nowrap font-black text-sm sm:text-base text-slate-800 dark:text-slate-100 font-mono tracking-tight my-0.5 leading-none w-full flex justify-center items-center">
-                                ${mobileSocText}
+                        <div class="bg-slate-50 dark:bg-neutral-900/40 p-3 rounded-[1.2rem] border border-slate-200/50 dark:border-neutral-800/80 flex flex-col justify-center items-center text-center overflow-hidden min-h-[104px] py-3.5">
+                            <div class="h-4 flex items-center justify-center w-full mb-1">
+                                <span class="text-[10px] text-slate-400 dark:text-slate-500 font-black whitespace-nowrap">補給起訖</span>
                             </div>
-                            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold mt-1 whitespace-nowrap tracking-tight">
-                                (${subActionWord} ${powerPercent}% | ${parseFloat(rec.power).toFixed(1)}度)
-                            </span>
+                            <div class="h-8 flex items-center justify-center w-full my-0.5">
+                                <span class="font-black text-slate-800 dark:text-slate-100 text-sm sm:text-base font-mono tracking-tight whitespace-nowrap leading-none flex items-center justify-center">
+                                    ${mobileSocText}
+                                </span>
+                            </div>
+                            <div class="h-4 flex items-center justify-center w-full mt-1">
+                                <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold whitespace-nowrap tracking-tight">
+                                    (${subActionWord} ${powerPercent}% | ${parseFloat(rec.power).toFixed(1)}度)
+                                </span>
+                            </div>
                         </div>
                         
-                        <!-- 格子 4: 本次費用 (已完美與其他格子格式 3 行結構完全拉齊，達到像素級完美水平、垂直居中) -->
-                        <div class="bg-slate-50 dark:bg-neutral-900/40 p-3 rounded-[1.2rem] border border-slate-200/50 dark:border-neutral-800/80 flex flex-col justify-between items-center text-center overflow-hidden min-h-[96px] py-3.5">
-                            <span class="text-[10px] text-slate-400 dark:text-slate-500 block font-black mb-1 whitespace-nowrap">本次費用</span>
-                            <div class="flex items-baseline justify-center whitespace-nowrap my-0.5 leading-none w-full">
-                                <!-- 🚀 對稱寬度佔位：左側加入一個看不見的與右側「元」寬度、字型、外距完全相同的元素，將主數值強制鎖死在卡片正中 -->
-                                <span class="text-[10px] opacity-0 pointer-events-none select-none font-bold mr-1">元</span>
-                                <span class="font-black text-slate-800 dark:text-slate-100 text-base sm:text-lg font-mono tracking-tight">${rec.cost}</span>
-                                <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold ml-1 whitespace-nowrap">元</span>
+                        <!-- 格子 4: 本次費用 (完美與其他格子格式高度完全拉齊，達到絕對幾何居中) -->
+                        <div class="bg-slate-50 dark:bg-neutral-900/40 p-3 rounded-[1.2rem] border border-slate-200/50 dark:border-neutral-800/80 flex flex-col justify-center items-center text-center overflow-hidden min-h-[104px] py-3.5">
+                            <div class="h-4 flex items-center justify-center w-full mb-1">
+                                <span class="text-[10px] text-slate-400 dark:text-slate-500 font-black whitespace-nowrap">本次費用</span>
                             </div>
-                            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold mt-1 whitespace-nowrap tracking-tight">
-                                (${tripCostPerKm} 元/km)
-                            </span>
+                            <div class="h-8 flex items-center justify-center w-full my-0.5">
+                                <div class="flex items-baseline justify-center whitespace-nowrap">
+                                    <!-- 🚀 關鍵對稱優化：左側加入一個同寬度的隱形「元」占位符，將主數值強制鎖死在格子正中 -->
+                                    <span class="text-[10px] opacity-0 pointer-events-none select-none font-bold mr-1">元</span>
+                                    <span class="font-black text-slate-800 dark:text-slate-100 text-base sm:text-lg font-mono tracking-tight leading-none">${rec.cost}</span>
+                                    <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold ml-1 whitespace-nowrap">元</span>
+                                </div>
+                            </div>
+                            <div class="h-4 flex items-center justify-center w-full mt-1">
+                                <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold whitespace-nowrap tracking-tight">
+                                    (${tripCostPerKm} 元/km)
+                                </span>
+                            </div>
                         </div>
                     </div>
 
@@ -2389,7 +2443,7 @@ function doPost(e) {
             URL.revokeObjectURL(a.href);
         }
 
-        // 🚀 優化: 將 PWA 下載清單中的 icons 預設特斯拉跑車替換為本地的 icon-192.png
+        // 🚀 優化: 將 PWA 下載清單中的跑車圖示替換為自訂的 icon-192.png
         function downloadManifest() {
             const manifestObj = {
                 "name": "EV Life - LUXGEN nTarget 行駛日誌",
@@ -2421,7 +2475,7 @@ function doPost(e) {
         }
 
         function downloadServiceWorker() {
-            const swCode = `// EV Life - LUXGEN n⁷ 行駛日誌 PWA 離線快取守護
+            const swCode = `// EV Life - LUXGEN n7 行駛日誌 PWA 離線快取守護
 const CACHE_NAME = 'ev-life-cache-v7'; 
 const ASSETS = [
   './',
