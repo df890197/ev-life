@@ -792,7 +792,7 @@ function doPost(e) {
 
                         <div>
                             <label class="text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5">行駛備註 / 旅程記錄 (選填)</label>
-                            <input type="text" id="inputNote" placeholder="例如：帶貓咪去散步 🐱🐾" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold">
+                            <input type="text" id="inputNote" placeholder="Lieutenant:帶貓咪去散步 🐱🐾" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold">
                         </div>
 
                         <div class="flex flex-col sm:flex-row gap-3 pt-2">
@@ -888,7 +888,7 @@ function doPost(e) {
         let records = [];
         let efficiencyChartInstance = null;
         let syncUrl = "";
-        let evName = "LUXGEN n原生";
+        let evName = "LUXGEN n⁷";
         let batteryCapacity = 57.7;
         let initialOdometer = 0;
         let activeConfirmCallback = null;
@@ -1059,8 +1059,6 @@ function doPost(e) {
 
         /* ----- 核心業務邏輯排版與細節修正 ----- */
 
-        // 🚀 搬移 adaptContainerBgToImage, handleLogoError, updateLogoPlaceholder 到頂部 <head>，以解決 onerror Race Condition
-        
         function saveLocalState(newRecords) {
             records = newRecords;
             const timestamp = Date.now();
@@ -1542,12 +1540,12 @@ function doPost(e) {
             };
         }
 
-        // 🚀 優化：編輯紀錄邏輯修正，將屬性重置移至最前，並以無條件強制填入舊費用數據，防止 handleChargeTypeChange 覆蓋
+        // 🚀 優化：編輯紀錄邏輯修正，先跑 handleChargeTypeChange 狀態重置，最後強制填寫 Cost
         function editRecord(id) {
             const rec = records.find(r => r.id === id);
             if (!rec) return;
 
-            // 1. 先填入非費用的一般欄位
+            // 1. 先帶入基本欄位
             document.getElementById('inputDate').value = rec.date;
             document.getElementById('inputChargeType').value = rec.chargeType;
             document.getElementById('inputDistance').value = rec.distance;
@@ -1555,10 +1553,11 @@ function doPost(e) {
             document.getElementById('inputEndSoc').value = rec.endSoc !== undefined ? rec.endSoc : '';
             document.getElementById('inputNote').value = rec.note || '';
 
-            // 2. 觸發充電類型切換邏輯，使其重繪 disabled、0 元等表單限制狀態
+            // 2. 優先設定編輯狀態，並執行充電類別切換邏輯
+            editingRecordId = id;
             handleChargeTypeChange();
 
-            // 3. 強制且精確地帶入上一次的真實費用數字，此時不會再被 handleChargeTypeChange 洗掉
+            // 3. 在所有屬性切換之後，強制並精確帶入此筆紀錄的實際費用，完美繞開 handleChargeTypeChange 內部的空白覆寫邏輯
             const costInput = document.getElementById('inputCost');
             if (costInput) {
                 costInput.value = (rec.cost !== undefined && rec.cost !== null) ? rec.cost : "0";
@@ -1566,7 +1565,6 @@ function doPost(e) {
 
             updateConvertedPowerHint();
 
-            editingRecordId = id;
             document.getElementById('formTitle').textContent = "編輯行駛日誌 ✏️";
             document.getElementById('submitBtnText').textContent = "儲存修改內容 💾";
             document.getElementById('cancelEditBtn').classList.remove('hidden');
@@ -1709,7 +1707,6 @@ function doPost(e) {
 
             displayRecords.forEach(rec => {
                 const distVal = parseFloat(rec.distance) || 0;
-                const powerVal = parseFloat(rec.power) || 0;
                 
                 const rowConsumedSoc = rec.consumedSocPercent !== undefined ? rec.consumedSocPercent : 0;
                 const rowConsumedPower = batteryCapacity * (rowConsumedSoc / 100);
@@ -2392,7 +2389,7 @@ function doPost(e) {
             URL.revokeObjectURL(a.href);
         }
 
-        // 🚀 優化: 將 PWA 下載清單中的 icons fallback Unsplash 特斯拉跑車圖示替換為您的本地自訂圖標
+        // 🚀 優化: 將 PWA 下載清單中的 icons 預設特斯拉跑車替換為本地的 icon-192.png
         function downloadManifest() {
             const manifestObj = {
                 "name": "EV Life - LUXGEN nTarget 行駛日誌",
@@ -2423,7 +2420,6 @@ function doPost(e) {
             showToast("成功下載 manifest.json！請上傳至與 index.html 同層資料夾中 🐾");
         }
 
-        // 🚀 優化 12: 補回先前不小心被 token 限額截斷的完整 PWA 離線快取守護腳本 (徹底解決 SyntaxError!)
         function downloadServiceWorker() {
             const swCode = `// EV Life - LUXGEN n⁷ 行駛日誌 PWA 離線快取守護
 const CACHE_NAME = 'ev-life-cache-v7'; 
