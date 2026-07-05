@@ -1,10 +1,11 @@
-// EV Life - LUXGEN n⁷ 行駛日誌 PWA 離線快取守護
+// Ev Life - LUXGEN n⁷ 行駛日誌 PWA 離線快取守護
 const CACHE_NAME = 'ev-life-cache-v7'; 
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './logo.png',
+  './splash.png',
   'https://cdn.tailwindcss.com',
   'https://cdn.jsdelivr.net/npm/chart.js'
 ];
@@ -16,7 +17,7 @@ self.addEventListener('install', event => {
       return Promise.allSettled(
         ASSETS.map(asset => {
           return cache.add(asset).catch(err => {
-            console.warn('[SW] 快取失敗或檔案不存在 (不影響 PWA 啟動):', asset, err);
+            console.warn('[SW] 快快取失敗或檔案不存在 (不影響 PWA 啟動):', asset, err);
           });
         })
       );
