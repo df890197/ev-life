@@ -1,4 +1,4 @@
-// Ev Life - LUXGEN n⁷ 行駛日誌 PWA 離線快取守護
+// Ev Life - LUXGEN n7 行駛日誌 PWA 離線快取守護
 const CACHE_NAME = 'ev-life-cache-v7'; 
 const ASSETS = [
   './',
