@@ -258,6 +258,18 @@
                 visibility: visible !important;
             }
         }
+
+        /* 🚀 關鍵修正：隱藏 Chrome/Edge 等瀏覽器原生的日曆圖標，使定位完美的自訂 SVG 🐾 浮現，不再重疊 */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            opacity: 0 !important;
+            cursor: pointer;
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 30; /* 覆蓋在 custom icon 之上以利點擊，但維持透明 */
+        }
     </style>
     
     <!-- 引入 Tailwind CSS 與 Chart.js -->
@@ -455,7 +467,7 @@
             -webkit-overflow-scrolling: touch;
         }
     </style>
-</head>
+</body>
 <body class="bg-[#fcfaf2] dark:bg-[#000000] text-slate-800 dark:text-slate-100 min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative">
 
     <!-- 🚀 優化 11: 頂級 RWD 自適應全螢幕啟動畫面，若有 splash.png 則 w-full h-full object-cover 滿版完美縮放，否則平滑降級為 RWD 🐾 與文字 -->
@@ -478,7 +490,7 @@
             <div class="flex items-center justify-between h-16 gap-x-2">
                 <div class="flex items-center space-x-1.5 sm:space-x-3 flex-shrink-0">
                     <div class="relative w-11 h-7 sm:w-14 sm:h-9 rounded-lg sm:rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border-2 border-slate-800 dark:border-slate-700 bg-white dark:bg-neutral-900 shadow-[1.5px_1.5px_0px_0px_#1e293b] dark:shadow-[1.5px_1.5px_0px_0px_#000000] sm:shadow-[2px_2px_0px_0px_#1e293b] sm:dark:shadow-[2px_2px_0px_0px_#000000] transition-all">
-                        <img id="navLogoImg" src="logo.png" alt="LUXGEN n⁷" class="w-full h-full object-contain p-0.5 scale-105 transition-all duration-300 dark:brightness-95" onload="adaptContainerBgToImage(this)" onerror="handleLogoError(this)">
+                        <img id="navLogoImg" src="logo.png" alt="LUXGEN n7" class="w-full h-full object-contain p-0.5 scale-105 transition-all duration-300 dark:brightness-95" onload="adaptContainerBgToImage(this)" onerror="handleLogoError(this)">
                     </div>
                     <span id="navEvBrandName" class="font-extrabold text-sm sm:text-lg tracking-wider whitespace-nowrap flex-shrink-0">
                         <span class="bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 via-teal-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:via-teal-600 dark:to-cuteBlue-300 font-extrabold">LUXGEN n⁷</span>
@@ -719,7 +731,6 @@ function doPost(e) {
     </div>
 
     <!-- 主內容區 -->
-    <!-- 🚀 佈局升級：將 max-w-7xl 升充至 max-w-[1600px] 以增加兩側實體內容的拉展空間，改善大螢幕美感，並賦予平板兩側更多彈性避免換行 -->
     <main id="mainAppContent" class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10 transition-opacity duration-500 hidden opacity-0">
         
         <!-- 全域 Toast -->
@@ -986,7 +997,7 @@ function doPost(e) {
         let records = [];
         let efficiencyChartInstance = null;
         let syncUrl = "";
-        let evName = "LUXGEN n⁷";
+        let evName = "LUXGEN n7";
         let batteryCapacity = 57.7;
         let initialOdometer = 0;
         let activeConfirmCallback = null;
@@ -1446,7 +1457,7 @@ function doPost(e) {
             }
 
             if (evNameInput) {
-                evName = evNameInput.value.trim().replace(/n[7|Target]+/g, "n⁷") || "LUXGEN n⁷";
+                evName = evNameInput.value.trim().replace(/n[7|Target]+/g, "n7") || "LUXGEN n⁷";
                 localStorage.setItem('ev_life_ev_name', evName);
             }
 
@@ -1615,7 +1626,7 @@ function doPost(e) {
                     
                     if (cloudConfigParsed) {
                         if (cloudConfigParsed.evName) {
-                            evName = cloudConfigParsed.evName.replace(/n[7|Target]+/g, "n⁷");
+                            evName = cloudConfigParsed.evName.replace(/n[7|Target]+/g, "n7");
                             localStorage.setItem('ev_life_ev_name', evName);
                         }
                         if (cloudConfigParsed.batteryCapacity) {
