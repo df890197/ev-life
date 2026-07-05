@@ -7,7 +7,7 @@
     
     <meta name="color-scheme" content="dark light">
     <meta name="theme-color" content="#fcfaf2" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#0b0f15" media="(prefers-color-scheme: dark)">
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <!-- 恢復 default，避免淺色模式下上方狀態列文字隱形 -->
@@ -17,33 +17,6 @@
     <link rel="apple-touch-icon" href="./icon-192.png">
     <link rel="manifest" href="./manifest.json">
 
-    <!-- ====================================================================================================== -->
-    <!-- 🚀 終極 iOS PWA 防閃白方案 (靜態 iPhone 滿版規格強迫綁定版) -->
-    <!-- 使用超輕量 Base64 1x1 像素拉伸圖，靜態精準命中 iOS launch screen 偵測，實現冷啟動純黑底，絕不閃白 -->
-    <!-- ====================================================================================================== -->
-    
-    <!-- 1. iOS Standalone 啟動畫面 - 深色模式 (純黑 #000000) 靜態命中 -->
-    <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAENSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)">
-    <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAENSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5Erggg==" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)">
-    <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAENSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)">
-    <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAENSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)">
-    <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAENSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)">
-    <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAENSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (prefers-color-scheme: dark)">
-    <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAENSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)">
-    <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAENSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: dark)">
-    <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAENSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (prefers-color-scheme: dark)">
-
-    <!-- 2. iOS Standalone 啟動畫面 - 淺色模式 (米白 #fcfaf2) 靜態命中 -->
-    <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAENSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5Erggg==" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)">
-    <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAENSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5Erggg==" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)">
-    <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAENSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5Erggg==" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)">
-    <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAENSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5Erggg==" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)">
-    <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAA(2013年)iVBORw0KGgoAAAENSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5Erggg==" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)">
-    <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAENSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5Erggg==" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (prefers-color-scheme: light)">
-    <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAENSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5Erggg==" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)">
-    <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAENSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5Erggg==" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (prefers-color-scheme: light)">
-    <link class="apple-touch-startup-image" href="data:image/png;base64,iVBORw0KGgoAAAENSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8v+NfPQAHeAK56u6Z0gAAAABJRU5Erggg==" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (prefers-color-scheme: light)">
-
     <style>
         /* 第一時間鎖定底色，杜絕渲染空窗期 */
         :root, html, body {
@@ -51,10 +24,10 @@
         }
         @media (prefers-color-scheme: dark) {
             :root, html, body {
-                background-color: #000000;
+                background-color: #0b0f15;
             }
         }
-        html.dark, html.dark body { background-color: #000000 !important; }
+        html.dark, html.dark body { background-color: #0b0f15 !important; }
         html:not(.dark), html:not(.dark) body { background-color: #fcfaf2 !important; }
 
         /* 🚨 關鍵防閃白：強行寫死首頁 Splash Screen 在 Tailwind 載入前的背景色 */
@@ -63,17 +36,29 @@
         }
         @media (prefers-color-scheme: dark) {
             #appSplashScreen {
-                background-color: #000000 !important;
+                background-color: #0b0f15 !important;
             }
         }
         html.dark #appSplashScreen {
-            background-color: #000000 !important;
+            background-color: #0b0f15 !important;
         }
         html:not(.dark) #appSplashScreen {
             background-color: #fcfaf2 !important;
         }
-    </style>
 
+        /* 🚀 關鍵修正：隱藏 Chrome/Edge 等瀏覽器原生的日曆圖標，使定位完美的自訂 SVG 🐾 浮現，不再重疊 */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            opacity: 0 !important;
+            cursor: pointer;
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 30; /* 覆蓋在 custom icon 之上以利點擊，但維持透明 */
+        }
+    </style>
+    
     <!-- 🚀 優化 3: Google Fonts 非阻塞載入 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -132,7 +117,7 @@
             imgElement.onerror = null;
             const isDark = document.documentElement.classList.contains('dark');
             if (isDark) {
-                imgElement.src = 'https://placehold.co/100x60/000000/14b8a6?text=n%E2%81%B7';
+                imgElement.src = 'https://placehold.co/100x60/0b0f15/2dd4bf?text=n%E2%81%B7';
             } else {
                 imgElement.src = 'https://placehold.co/100x60/ccfbf1/0d9488?text=n%E2%81%B7';
             }
@@ -143,7 +128,7 @@
             if (img && img.src.includes('placehold.co')) {
                 const isDark = document.documentElement.classList.contains('dark');
                 if (isDark) {
-                    img.src = 'https://placehold.co/100x60/000000/14b8a6?text=n%E2%81%B7';
+                    img.src = 'https://placehold.co/100x60/0b0f15/2dd4bf?text=n%E2%81%B7';
                 } else {
                     img.src = 'https://placehold.co/100x60/ccfbf1/0d9488?text=n%E2%81%B7';
                 }
@@ -181,14 +166,14 @@
                 var htmlElement = document.documentElement;
                 if (isDark) {
                     htmlElement.classList.add('dark');
-                    htmlElement.style.backgroundColor = '#000000';
+                    htmlElement.style.backgroundColor = '#0b0f15';
                 } else {
                     htmlElement.classList.remove('dark');
                     htmlElement.style.backgroundColor = '#fcfaf2';
                 }
 
                 // 🚀 修復 PWA 圖示與啟動畫面設定：App Icon 維持 192px，而專屬啟動畫面（512px 規格）指向專屬的 splash.png
-                var manifestColor = isDark ? '#000000' : '#fcfaf2';
+                var manifestColor = isDark ? '#0b0f15' : '#fcfaf2';
                 var dynamicManifest = {
                     "name": "Ev Life - LUXGEN n⁷ 行駛日誌",
                     "short_name": "Ev Life",
@@ -258,18 +243,6 @@
                 visibility: visible !important;
             }
         }
-
-        /* 🚀 關鍵修正：隱藏 Chrome/Edge 等瀏覽器原生的日曆圖標，使定位完美的自訂 SVG 🐾 浮現，不再重疊 */
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            opacity: 0 !important;
-            cursor: pointer;
-            position: absolute;
-            right: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 30; /* 覆蓋在 custom icon 之上以利點擊，但維持透明 */
-        }
     </style>
     
     <!-- 引入 Tailwind CSS 與 Chart.js -->
@@ -285,13 +258,17 @@
                         theme: {
                             extend: {
                                 colors: {
+                                    brandBg: '#0b0f15',       // 頂級科技感背景色
+                                    brandCard: '#121a24',     // 優質深藍灰卡片色
+                                    brandHeader: '#101720',   // Header 配色
+                                    brandBorder: '#263547',   // 邊框與分割線
                                     cuteMint: {
                                         50: '#f0fdf4',
                                         100: '#ccfbf1',
                                         200: '#99f6e4',
                                         300: '#5eead4',
-                                        400: '#2dd4bf', 
-                                        500: '#14b8a6',
+                                        400: '#2dd4bf',       // 主色 (微調至精準科技綠)
+                                        500: '#2dd4bf',       // 主色
                                         600: '#0d9488',
                                         700: '#115e59', 
                                     },
@@ -299,16 +276,16 @@
                                         50: '#f0f9ff',
                                         100: '#e0f2fe',
                                         200: '#bae6fd',
-                                        300: '#7dd3fc',
-                                        400: '#38bdf8', 
-                                        500: '#0ea5e9',
+                                        300: '#38bdf8',       // 次色 (微調至天空藍)
+                                        400: '#38bdf8',       // 次色
+                                        500: '#38bdf8',       // 次色
                                         600: '#0284c7',
                                     },
                                     cuteYellow: {
                                         50: '#fffbeb',
                                         100: '#fef3c7',
                                         200: '#fde68a',
-                                        500: '#f59e0b',
+                                        500: '#f59e0b',       // 強調色
                                     }
                                 }
                             }
@@ -355,15 +332,15 @@
             background-clip: padding-box;
         }
         .dark ::-webkit-scrollbar-thumb {
-            background: rgba(51, 65, 85, 0.6);
+            background: rgba(38, 53, 71, 0.6);
             border: 2px solid transparent;
             background-clip: padding-box;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #7dd3fc;
+            background: #38bdf8;
         }
         .dark ::-webkit-scrollbar-thumb:hover {
-            background: #475569;
+            background: #263547;
         }
 
         input[type="date"] {
@@ -399,9 +376,9 @@
             transition: all 0.15s ease-in-out;
         }
         .dark .rpg-card {
-            background: #000000;
-            border: 4px solid #1e293b;
-            box-shadow: 6px 6px 0px 0px #000000;
+            background: #121a24;
+            border: 4px solid #263547;
+            box-shadow: 6px 6px 0px 0px #263547;
         }
 
         .rpg-card:hover {
@@ -409,7 +386,7 @@
             box-shadow: 8px 8px 0px 0px #1e293b;
         }
         .dark .rpg-card:hover {
-            box-shadow: 8px 8px 0px 0px #000000;
+            box-shadow: 8px 8px 0px 0px #263547;
         }
 
         .rpg-btn-primary {
@@ -420,24 +397,24 @@
             transition: all 0.1s ease-in-out;
         }
         .dark .rpg-btn-primary {
-            background: #14b8a6;
-            border: 3px solid #1e293b;
-            color: #ffffff;
-            box-shadow: 4px 4px 0px 0px #000000;
+            background: #2dd4bf;
+            border: 3px solid #263547;
+            color: #f8fafc;
+            box-shadow: 4px 4px 0px 0px #0b0f15;
         }
         .rpg-btn-primary:hover {
             transform: translate(-1px, -1px);
             box-shadow: 5px 5px 0px 0px #1e293b;
         }
         .dark .rpg-btn-primary:hover {
-            box-shadow: 5px 5px 0px 0px #000000;
+            box-shadow: 5px 5px 0px 0px #0b0f15;
         }
         .rpg-btn-primary:active {
             transform: translate(3px, 3px);
             box-shadow: 1px 1px 0px 0px #1e293b;
         }
         .dark .rpg-btn-primary:active {
-            box-shadow: 1px 1px 0px 0px #000000;
+            box-shadow: 1px 1px 0px 0px #0b0f15;
         }
 
         .rpg-btn-secondary {
@@ -448,17 +425,17 @@
             transition: all 0.1s ease-in-out;
         }
         .dark .rpg-btn-secondary {
-            background: #1f2937;
-            border: 3px solid #1e293b;
-            color: #ffffff;
-            box-shadow: 4px 4px 0px 0px #000000;
+            background: #121a24;
+            border: 3px solid #263547;
+            color: #f8fafc;
+            box-shadow: 4px 4px 0px 0px #0b0f15;
         }
         .rpg-btn-secondary:active {
             transform: translate(3px, 3px);
             box-shadow: 1px 1px 0px 0px #1e293b;
         }
         .dark .rpg-btn-secondary:active {
-            box-shadow: 1px 1px 0px 0px #000000;
+            box-shadow: 1px 1px 0px 0px #0b0f15;
         }
 
         .scrollable-log-container {
@@ -467,15 +444,15 @@
             -webkit-overflow-scrolling: touch;
         }
     </style>
-</body>
-<body class="bg-[#fcfaf2] dark:bg-[#000000] text-slate-800 dark:text-slate-100 min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative">
+</head>
+<body class="bg-[#fcfaf2] dark:bg-[#0b0f15] text-slate-800 dark:text-[#f8fafc] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative">
 
     <!-- 🚀 優化 11: 頂級 RWD 自適應全螢幕啟動畫面，若有 splash.png 則 w-full h-full object-cover 滿版完美縮放，否則平滑降級為 RWD 🐾 與文字 -->
-    <div id="appSplashScreen" class="fixed inset-0 z-[9998] bg-[#fcfaf2] dark:bg-[#000000] flex flex-col items-center justify-center text-slate-800 dark:text-white transition-opacity duration-400">
+    <div id="appSplashScreen" class="fixed inset-0 z-[9998] bg-[#fcfaf2] dark:bg-[#0b0f15] flex flex-col items-center justify-center text-slate-800 dark:text-[#f8fafc] transition-opacity duration-400">
         <!-- 1. 預設的 🐾 Loading 備用容器 (電腦版常駐，手機版預設隱藏直到加載大圖失敗) -->
         <div id="splashFallbackContainer" class="absolute inset-0 flex flex-col items-center justify-center space-y-4 z-10">
             <span class="text-7xl md:text-8xl">🐾</span>
-            <h2 class="text-xl md:text-2xl font-black tracking-wider text-slate-800 dark:text-slate-200 mt-2">
+            <h2 class="text-xl md:text-2xl font-black tracking-wider text-slate-800 dark:text-[#f8fafc] mt-2">
                 Ev Life Loading...
             </h2>
         </div>
@@ -485,22 +462,22 @@
 
     <!-- 🚀 優化 5 & 6: 隱藏 DOM 主結構，等待 Boot 完成後才顯示 -->
     <!-- 🚀 佈局升級：將 max-w-7xl 升充至 max-w-[1600px] 讓大螢幕與平板兩側空間利用更完美 -->
-    <nav id="mainNav" class="ios-safe-nav bg-gradient-to-r from-[#fffdf5] to-[#fffefb] dark:from-neutral-950 dark:to-black border-b-4 border-[#1e293b] text-slate-800 dark:text-slate-100 sticky top-0 z-50 transition-all duration-500 shadow-md hidden opacity-0">
+    <nav id="mainNav" class="ios-safe-nav bg-gradient-to-r from-[#fffdf5] to-[#fffefb] dark:from-[#101720] dark:to-[#101720] border-b-4 border-[#1e293b] dark:border-[#263547] text-slate-800 dark:text-[#f8fafc] sticky top-0 z-50 transition-all duration-500 shadow-md hidden opacity-0">
         <div class="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16 gap-x-2">
                 <div class="flex items-center space-x-1.5 sm:space-x-3 flex-shrink-0">
-                    <div class="relative w-11 h-7 sm:w-14 sm:h-9 rounded-lg sm:rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border-2 border-slate-800 dark:border-slate-700 bg-white dark:bg-neutral-900 shadow-[1.5px_1.5px_0px_0px_#1e293b] dark:shadow-[1.5px_1.5px_0px_0px_#000000] sm:shadow-[2px_2px_0px_0px_#1e293b] sm:dark:shadow-[2px_2px_0px_0px_#000000] transition-all">
+                    <div class="relative w-11 h-7 sm:w-14 sm:h-9 rounded-lg sm:rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center border-2 border-slate-800 dark:border-[#263547] bg-white dark:bg-[#121a24] shadow-[1.5px_1.5px_0px_0px_#1e293b] dark:shadow-[1.5px_1.5px_0px_0px_#0b0f15] sm:shadow-[2px_2px_0px_0px_#1e293b] sm:dark:shadow-[2px_2px_0px_0px_#0b0f15] transition-all">
                         <img id="navLogoImg" src="logo.png" alt="LUXGEN n7" class="w-full h-full object-contain p-0.5 scale-105 transition-all duration-300 dark:brightness-95" onload="adaptContainerBgToImage(this)" onerror="handleLogoError(this)">
                     </div>
                     <span id="navEvBrandName" class="font-extrabold text-sm sm:text-lg tracking-wider whitespace-nowrap flex-shrink-0">
                         <span class="bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 via-teal-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:via-teal-600 dark:to-cuteBlue-300 font-extrabold">LUXGEN n⁷</span>
-                        <span class="text-slate-500 dark:text-slate-400 text-xs font-medium ml-1 hidden sm:inline"> の 純電之旅</span>
+                        <span class="text-slate-500 dark:text-[#94a3b8] text-xs font-medium ml-1 hidden sm:inline"> の 純電之旅</span>
                     </span>
                 </div>
                 
                 <div class="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
                     <!-- PWA 安裝按鈕 -->
-                    <button id="navInstallBtn" onclick="triggerPwaInstall()" class="rpg-btn-primary text-[10px] sm:text-xs px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl font-black bg-amber-400 dark:bg-amber-500 border-2 border-slate-800 text-slate-900 dark:text-slate-950 shadow-[2px_2px_0px_0px_#1e293b] hover:bg-amber-300 flex items-center space-x-1 whitespace-nowrap flex-shrink-0 hidden">
+                    <button id="navInstallBtn" onclick="triggerPwaInstall()" class="rpg-btn-primary text-[10px] sm:text-xs px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl font-black bg-amber-400 dark:bg-amber-500 border-2 border-slate-800 dark:border-[#263547] text-slate-900 dark:text-slate-950 shadow-[2px_2px_0px_0px_#1e293b] hover:bg-amber-300 flex items-center space-x-1 whitespace-nowrap flex-shrink-0 hidden">
                         <span>📲 安裝 App</span>
                     </button>
                     <button onclick="toggleTheme()" class="rpg-btn-secondary p-1 sm:p-1.5 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0" title="切換深/淺色主題">
@@ -529,21 +506,21 @@
 
     <!-- 系統設定 & 雲端同步 模態視窗 -->
     <div id="syncModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-[#fffdf9] dark:bg-black rounded-[2rem] shadow-2xl max-w-lg w-full mx-4 transform scale-95 transition-all duration-300 border-4 border-[#1e293b] overflow-hidden" id="syncModalContent">
+        <div class="bg-[#fffdf9] dark:bg-[#121a24] rounded-[2rem] shadow-2xl max-w-lg w-full mx-4 transform scale-95 transition-all duration-300 border-4 border-[#1e293b] dark:border-[#263547] overflow-hidden" id="syncModalContent">
             
-            <div class="flex items-center justify-between border-b-4 border-[#1e293b] p-5 bg-[#fffdf9] dark:bg-neutral-950">
-                <h3 class="text-base font-black text-slate-800 dark:text-slate-100 flex items-center space-x-2">
+            <div class="flex items-center justify-between border-b-4 border-[#1e293b] dark:border-[#263547] p-5 bg-[#fffdf9] dark:bg-[#101720]">
+                <h3 class="text-base font-black text-slate-800 dark:text-[#f8fafc] flex items-center space-x-2">
                     <svg class="w-5 h-5 text-cuteMint-500 animate-spin" style="animation-duration: 8s;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     <span>系統與雲端備份設定 🐾</span>
                 </h3>
-                <button onclick="toggleSyncModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl font-black transition-all">×</button>
+                <button onclick="toggleSyncModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-[#f8fafc] text-2xl font-black transition-all">×</button>
             </div>
 
-            <div class="flex border-b-4 border-[#1e293b] bg-slate-100 dark:bg-neutral-900">
-                <button onclick="switchSettingsTab('settings-tab-main')" id="btn-tab-main" class="flex-1 py-3 text-xs font-black border-r-4 border-[#1e293b] transition-all bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white">
+            <div class="flex border-b-4 border-[#1e293b] dark:border-[#263547] bg-slate-100 dark:bg-[#121a24]">
+                <button onclick="switchSettingsTab('settings-tab-main')" id="btn-tab-main" class="flex-1 py-3 text-xs font-black border-r-4 border-[#1e293b] dark:border-[#263547] transition-all bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white">
                     🛠️ 愛車與雲端
                 </button>
-                <button onclick="switchSettingsTab('settings-tab-pwa')" id="btn-tab-pwa" class="flex-1 py-3 text-xs font-black text-slate-500 dark:text-slate-400 transition-all bg-slate-50 dark:bg-neutral-900">
+                <button onclick="switchSettingsTab('settings-tab-pwa')" id="btn-tab-pwa" class="flex-1 py-3 text-xs font-black text-slate-500 dark:text-[#94a3b8] transition-all bg-slate-50 dark:bg-[#121a24]">
                     🐾 PWA 離線安裝
                 </button>
             </div>
@@ -551,41 +528,41 @@
             <div class="p-6 space-y-4 max-h-[65vh] overflow-y-auto bg-[#fffdf9] dark:bg-black">
                 <!-- 分頁一：主要設定與雲端 -->
                 <div id="settings-tab-main" class="space-y-4">
-                    <div class="bg-cuteBlue-50/50 dark:bg-black/60 rounded-2xl p-4 border-2 border-[#1e293b] space-y-3 shadow-sm">
-                        <span class="text-xs text-cuteBlue-600 dark:text-cuteBlue-400 font-extrabold block">🚗 愛車參數設定</span>
+                    <div class="bg-cuteBlue-50/50 dark:bg-[#101720]/60 rounded-2xl p-4 border-2 border-[#1e293b] dark:border-[#263547] space-y-3 shadow-sm">
+                        <span class="text-xs text-cuteBlue-600 dark:text-[#38bdf8] font-extrabold block">🚗 愛車參數設定</span>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
-                                <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">愛車名稱/型號</label>
-                                <input type="text" id="evNameInput" placeholder="例如：LUXGEN n⁷" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold">
+                                <label class="block text-[10px] font-bold text-slate-600 dark:text-[#94a3b8] mb-1.5">愛車名稱/型號</label>
+                                <input type="text" id="evNameInput" placeholder="例如：LUXGEN n7" class="w-full px-3 py-2 border-2 border-[#1e293b] dark:border-[#263547] rounded-xl text-xs focus:outline-none bg-white dark:bg-[#0b0f15] text-slate-800 dark:text-[#f8fafc] font-bold">
                             </div>
                             <div>
-                                <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">愛車電池容量 (kWh)</label>
-                                <input type="number" step="0.1" id="batteryCapacityInput" placeholder="例如：57.7" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-mono font-bold">
+                                <label class="block text-[10px] font-bold text-slate-600 dark:text-[#94a3b8] mb-1.5">愛車電池容量 (kWh)</label>
+                                <input type="number" step="0.1" id="batteryCapacityInput" placeholder="例如：57.7" class="w-full px-3 py-2 border-2 border-[#1e293b] dark:border-[#263547] rounded-xl text-xs focus:outline-none bg-white dark:bg-[#0b0f15] text-slate-800 dark:text-[#f8fafc] font-mono font-bold">
                             </div>
                             <div>
-                                <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">初始總里程 Odo (km)</label>
-                                <input type="number" step="0.1" id="initialOdometerInput" placeholder="例如：7115" class="w-full px-3 py-2 border-2 border-[#1e293b] rounded-xl text-xs focus:outline-none bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-mono font-bold">
+                                <label class="block text-[10px] font-bold text-slate-600 dark:text-[#94a3b8] mb-1.5">初始總里程 Odo (km)</label>
+                                <input type="number" step="0.1" id="initialOdometerInput" placeholder="例如：7115" class="w-full px-3 py-2 border-2 border-[#1e293b] dark:border-[#263547] rounded-xl text-xs focus:outline-none bg-white dark:bg-[#0b0f15] text-slate-800 dark:text-[#f8fafc] font-mono font-bold">
                             </div>
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5">Google Apps Script 網頁應用程式網址 (雙向同步)</label>
-                        <input type="url" id="syncUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3.5 py-2.5 border-2 border-[#1e293b] rounded-2xl text-xs focus:outline-none focus:ring-4 focus:ring-cuteMint-200/50 dark:focus:ring-cuteMint-900/20 bg-slate-50 dark:bg-black text-slate-800 dark:text-slate-100 transition-all font-mono">
+                        <label class="block text-xs font-bold text-slate-600 dark:text-[#94a3b8] mb-1.5">Google Apps Script 網頁應用程式網址 (雙向同步)</label>
+                        <input type="url" id="syncUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3.5 py-2.5 border-2 border-[#1e293b] dark:border-[#263547] rounded-2xl text-xs focus:outline-none focus:ring-4 focus:ring-cuteMint-200/50 dark:focus:ring-cuteMint-900/20 bg-slate-50 dark:bg-[#0b0f15] text-slate-800 dark:text-[#f8fafc] transition-all font-mono">
                     </div>
 
-                    <details class="group bg-slate-50 dark:bg-black rounded-2xl border-2 border-slate-800 dark:border-slate-800 p-3 transition-all">
-                        <summary class="text-xs font-black cursor-pointer flex items-center justify-between text-slate-700 dark:text-slate-300 select-none">
+                    <details class="group bg-slate-50 dark:bg-[#121a24] rounded-2xl border-2 border-slate-800 dark:border-[#263547] p-3 transition-all">
+                        <summary class="text-xs font-black cursor-pointer flex items-center justify-between text-slate-700 dark:text-[#94a3b8] select-none">
                             <span>🛠️ 檢視 Google Apps Script 部署教學</span>
                         </summary>
                         <div class="mt-3 space-y-2">
-                            <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                            <p class="text-[10px] text-slate-500 dark:text-[#94a3b8] leading-relaxed">
                                 1. 建立一個全新的「Google 試算表」。<br>
                                 2. 點擊頂部選單「擴充功能」 ➔「Apps Script」。<br>
                                 3. 清除所有預設程式碼，貼上以下內容後點擊上方「儲存（磁碟圖示））。
                             </p>
                             <div class="relative">
-                                <textarea readonly id="gasCodeText" class="w-full h-36 p-2 bg-slate-900 dark:bg-black text-slate-200 text-[10px] font-mono rounded-xl border border-slate-700 focus:outline-none scrollbar-thin resize-none">/* Google Apps Script for Ev Life Sync */
+                                <textarea readonly id="gasCodeText" class="w-full h-36 p-2 bg-slate-900 dark:bg-[#0b0f15] text-slate-200 text-[10px] font-mono rounded-xl border border-slate-700 dark:border-[#263547] focus:outline-none scrollbar-thin resize-none">/* Google Apps Script for Ev Life Sync */
 function doGet() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = sheet.getDataRange().getDisplayValues();
@@ -623,7 +600,7 @@ function doPost(e) {
 }</textarea>
                                 <button onclick="copyGasCode()" class="absolute right-2 bottom-2 bg-cuteMint-500 hover:bg-cuteMint-600 text-slate-900 text-[10px] px-2.5 py-1 rounded-lg font-black shadow-sm transition active:scale-95">複製程式碼</button>
                             </div>
-                            <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                            <p class="text-[10px] text-slate-500 dark:text-[#94a3b8] leading-relaxed">
                                 4. 點擊「新增部署」，類型選擇「網頁應用程式」，並設定：<br>
                                    &nbsp;&nbsp;&nbsp;- 專案負責人：【您自己】<br>
                                    &nbsp;&nbsp;&nbsp;- 誰有權限存取：【所有人】<br>
@@ -632,9 +609,9 @@ function doPost(e) {
                         </div>
                     </details>
 
-                    <div class="bg-cuteMint-50/50 dark:bg-cuteMint-950/10 rounded-2xl p-3 border-2 border-[#1e293b]">
-                        <span class="text-[10px] text-cuteMint-600 dark:text-cuteMint-300 font-extrabold block mb-1">🍭 雙向合併與配置同步</span>
-                        <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                    <div class="bg-cuteMint-50/50 dark:bg-cuteMint-950/10 rounded-2xl p-3 border-2 border-[#1e293b] dark:border-[#263547]">
+                        <span class="text-[10px] text-cuteMint-600 dark:text-[#2dd4bf] font-extrabold block mb-1">🍭 雙向合併與配置同步</span>
+                        <p class="text-[10px] text-slate-500 dark:text-[#94a3b8] leading-relaxed">
                             系統已全面升級！現在不只同步行駛日誌，連你的「愛車名稱、電池容量、初始里程」等車輛配置也會隨日誌一同儲存上雲、多端復原。
                         </p>
                     </div>
@@ -642,18 +619,18 @@ function doPost(e) {
 
                 <!-- 分頁二：PWA 離線安裝 -->
                 <div id="settings-tab-pwa" class="space-y-4 hidden">
-                    <div class="bg-cuteMint-50/40 dark:bg-neutral-950/40 p-4 rounded-2xl border-2 border-slate-800 space-y-2">
-                        <span class="text-xs text-cuteMint-600 dark:text-cuteMint-400 font-extrabold block">📲 甚麼是 PWA 離線安裝？</span>
-                        <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                    <div class="bg-cuteMint-50/40 dark:bg-neutral-950/40 p-4 rounded-2xl border-2 border-slate-800 dark:border-[#263547] space-y-2">
+                        <span class="text-xs text-cuteMint-600 dark:text-[#2dd4bf] font-extrabold block">📲 甚麼是 PWA 離線安裝？</span>
+                        <p class="text-[10px] text-slate-500 dark:text-[#94a3b8] leading-relaxed">
                             PWA 允許您將 Ev Life 行車記錄工具直接安裝至 iOS、Android、Windows 或 Mac 的桌面上，當作原生 App 快速啟用。即使在無網路環境中也能正常查看、新增日誌！
                         </p>
                     </div>
 
                     <div class="bg-amber-500/10 dark:bg-amber-500/5 p-4 rounded-2xl border-2 border-amber-500/30 text-xs space-y-2">
-                        <span class="font-black text-amber-600 dark:text-amber-400 flex items-center">
+                        <span class="font-black text-amber-600 dark:text-amber-500 flex items-center">
                             💡 重要！如何安裝成真正的 standalone App？
                         </span>
-                        <div class="space-y-1 text-[11px] leading-relaxed text-slate-600 dark:text-slate-400">
+                        <div class="space-y-1 text-[11px] leading-relaxed text-slate-600 dark:text-[#94a3b8]">
                             <p>🍏 <strong class="text-slate-900 dark:text-white">iOS 蘋果用戶 (iPhone / iPad)</strong>：</p>
                             <ul class="list-disc pl-4 space-y-0.5">
                                 <li>必須使用原生 <strong class="text-cuteMint-600">Safari 瀏覽器</strong> 開啟網址（不能用 Chrome 或是 Line 內建視窗）。</li>
@@ -668,8 +645,8 @@ function doPost(e) {
                         </div>
                     </div>
 
-                    <div class="bg-white dark:bg-black p-4 rounded-2xl border-2 border-slate-800 space-y-2.5 text-xs">
-                        <span class="font-black text-slate-700 dark:text-slate-300">🔍 PWA 系統環境診斷：</span>
+                    <div class="bg-white dark:bg-[#121a24] p-4 rounded-2xl border-2 border-slate-800 dark:border-[#263547] space-y-2.5 text-xs">
+                        <span class="font-black text-slate-700 dark:text-[#f8fafc]">🔍 PWA 系統環境診斷：</span>
                         <div class="space-y-1.5 font-bold font-mono text-[11px]" id="pwaDiagnosticList">
                             <div id="diag-https">🟢 正在載入診斷數據...</div>
                             <div id="diag-sw">⚪ Service Worker 未初始化</div>
@@ -681,9 +658,9 @@ function doPost(e) {
                         <span>📲 一鍵將本系統安裝至手機桌面</span>
                     </button>
 
-                    <div class="space-y-2 border-t-2 border-dashed border-[#1e293b] pt-3">
+                    <div class="space-y-2 border-t-2 border-dashed border-[#1e293b] dark:border-[#263547] pt-3">
                         <span class="text-[10px] text-slate-400 block font-bold">🛠️ 獨立部署與離線支援：</span>
-                        <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                        <p class="text-[10px] text-slate-500 dark:text-[#94a3b8] leading-relaxed">
                             PWA 需要三個檔案放在同一個主機目錄下：<code class="text-cuteMint-600 font-mono">index.html</code> (本網頁)、<code class="text-cuteMint-600 font-mono">manifest.json</code> 與 <code class="text-cuteMint-600 font-mono">sw.js</code>。請點擊下方按鈕，直接下載對應配置：
                         </p>
                         <div class="grid grid-cols-2 gap-3 pt-1">
@@ -697,7 +674,7 @@ function doPost(e) {
                     </div>
                 </div>
 
-                <div id="syncTimeInfo" class="text-xs text-slate-400 dark:text-slate-500 hidden">
+                <div id="syncTimeInfo" class="text-xs text-slate-400 dark:text-[#94a3b8] hidden">
                     上次同步時間：<span id="lastSyncTimeText" class="font-bold">無</span>
                 </div>
 
@@ -712,13 +689,13 @@ function doPost(e) {
 
     <!-- 自訂確認對話方塊 -->
     <div id="confirmModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[110] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-[#fffdf9] dark:bg-black rounded-[2rem] p-6 shadow-2xl max-w-md w-full mx-4 transform scale-95 transition-all duration-300 border-4 border-[#1e293b]" id="confirmModalContent">
-            <div class="border-b-2 border-[#1e293b] pb-3 mb-4">
-                <h3 id="confirmModalTitle" class="text-base font-black text-slate-800 dark:text-slate-100 flex items-center space-x-2">
+        <div class="bg-[#fffdf9] dark:bg-[#121a24] rounded-[2rem] p-6 shadow-2xl max-w-md w-full mx-4 transform scale-95 transition-all duration-300 border-4 border-[#1e293b] dark:border-[#263547]" id="confirmModalContent">
+            <div class="border-b-2 border-[#1e293b] dark:border-[#263547] pb-3 mb-4">
+                <h3 id="confirmModalTitle" class="text-base font-black text-slate-800 dark:text-[#f8fafc] flex items-center space-x-2">
                     確認動作
                 </h3>
             </div>
-            <p id="confirmModalMessage" class="text-xs font-bold text-slate-600 dark:text-slate-400 mb-6 leading-relaxed"></p>
+            <p id="confirmModalMessage" class="text-xs font-bold text-slate-600 dark:text-[#94a3b8] mb-6 leading-relaxed"></p>
             <div class="flex space-x-3">
                 <button onclick="closeConfirmModal()" class="flex-1 rpg-btn-secondary text-xs font-extrabold py-3 rounded-2xl">
                     取消 🐾
@@ -731,29 +708,30 @@ function doPost(e) {
     </div>
 
     <!-- 主內容區 -->
+    <!-- 🚀 佈局升級：將 max-w-7xl 升充至 max-w-[1600px] 以增加兩側實體內容的拉展空間，改善大螢幕美感，並賦予平板兩側更多彈性避免換行 -->
     <main id="mainAppContent" class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10 transition-opacity duration-500 hidden opacity-0">
         
         <!-- 全域 Toast -->
-        <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[120] transform translate-y-20 opacity-0 invisible pointer-events-none transition-all duration-300 bg-slate-900/95 dark:bg-slate-800/95 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border-2 border-[#1e293b] max-w-[90vw] whitespace-nowrap">
+        <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[120] transform translate-y-20 opacity-0 invisible pointer-events-none transition-all duration-300 bg-slate-900/95 dark:bg-[#121a24]/95 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border-2 border-[#1e293b] dark:border-[#263547] max-w-[90vw] whitespace-nowrap">
             <span id="toastIcon" class="text-cuteMint-300 text-sm">🐾</span>
             <span id="toastMessage" class="text-xs font-bold"></span>
         </div>
 
         <!-- 頂部 RPG HUD -->
-        <div class="flex flex-col justify-center items-center text-center gap-3 mb-6 bg-cuteMint-50/30 dark:bg-neutral-950/40 p-4 rounded-3xl border-2 border-slate-800 dark:border-slate-700 shadow-[3px_3px_0px_0px_#1e293b] dark:shadow-[3px_3px_0px_0px_#000000]">
+        <div class="flex flex-col justify-center items-center text-center gap-3 mb-6 bg-cuteMint-50/30 dark:bg-[#101720]/40 p-4 rounded-3xl border-2 border-slate-800 dark:border-[#263547] shadow-[3px_3px_0px_0px_#1e293b] dark:shadow-[3px_3px_0px_0px_#0b0f15]">
             <div class="text-center">
-                <h1 class="text-lg font-black tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:to-teal-600 text-center">
+                <h1 class="text-lg font-black tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 to-cuteBlue-600 dark:from-[#2dd4bf] dark:to-[#38bdf8] text-center">
                     ⚡ 行車數據 management
                 </h1>
-                <p class="text-xs text-slate-500 dark:text-slate-400 font-bold text-center">精準記錄每一段行駛與電能補給數據。</p>
+                <p class="text-xs text-slate-500 dark:text-[#94a3b8] font-bold text-center">精準記錄每一段行駛與電能補給數據。</p>
             </div>
-            <div class="flex items-center justify-center space-x-2 bg-white dark:bg-black py-1.5 px-3.5 rounded-2xl border-2 border-slate-800 dark:border-slate-700 shadow-[2px_2px_0px_0px_#1e293b] dark:shadow-[2px_2px_0px_0px_#000000] font-mono text-xs mx-auto">
+            <div class="flex items-center justify-center space-x-2 bg-white dark:bg-[#0b0f15] py-1.5 px-3.5 rounded-2xl border-2 border-slate-800 dark:border-[#263547] shadow-[2px_2px_0px_0px_#1e293b] dark:shadow-[2px_2px_0px_0px_#0b0f15] font-mono text-xs mx-auto">
                 <div class="relative flex h-2.5 w-2.5 flex-shrink-0">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 flex-shrink-0"></span>
                 </div>
-                <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">HUD Time:</span>
-                <span id="liveClockText" class="text-slate-800 dark:text-slate-200 font-black">2026-06-07 00:00:00</span>
+                <span class="text-[10px] text-slate-400 dark:text-[#94a3b8] font-bold uppercase tracking-wider">HUD Time:</span>
+                <span id="liveClockText" class="text-slate-800 dark:text-[#f8fafc] font-black">2026-06-07 00:00:00</span>
             </div>
         </div>
 
@@ -762,52 +740,52 @@ function doPost(e) {
             <!-- 累積總里程 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">行駛總里程 🚗</span>
-                    <span class="p-1.5 rounded-xl bg-teal-100/40 dark:bg-teal-950/20 text-teal-600 dark:text-teal-400 border-2 border-slate-800 dark:border-slate-700">
+                    <span class="text-xs font-bold text-slate-400 dark:text-[#94a3b8] tracking-wider">行駛總里程 🚗</span>
+                    <span class="p-1.5 rounded-xl bg-teal-100/40 dark:bg-[#263547]/40 text-teal-600 dark:text-[#2dd4bf] border-2 border-slate-800 dark:border-[#263547]">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
                     </span>
                 </div>
                 <div class="flex items-baseline mt-4">
-                    <span id="statTotalKm" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100 font-mono tracking-tight">0</span>
+                    <span id="statTotalKm" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-[#f8fafc] font-mono tracking-tight">0</span>
                     <span class="text-xs font-bold text-slate-400 ml-1">km</span>
                 </div>
-                <span id="statVehicleSub" class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 mt-2 font-bold">愛車 LUXGEN n⁷ 已陪伴您行駛了長遠路程 🐾</span>
+                <span id="statVehicleSub" class="text-[10px] text-cuteMint-600 dark:text-[#2dd4bf] mt-2 font-bold">愛車 LUXGEN n7 已陪伴您行駛了長遠路程 🐾</span>
             </div>
             <!-- 平均電耗 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">平均電耗 ⚡</span>
-                    <span class="p-1.5 rounded-xl bg-amber-100/40 dark:bg-amber-900/20 text-amber-500 border-2 border-slate-800 dark:border-slate-700">
+                    <span class="text-xs font-bold text-slate-400 dark:text-[#94a3b8] tracking-wider">平均電耗 ⚡</span>
+                    <span class="p-1.5 rounded-xl bg-amber-100/40 dark:bg-[#263547]/40 text-amber-500 border-2 border-slate-800 dark:border-[#263547]">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     </span>
                 </div>
                 <div class="flex items-baseline mt-4">
-                    <span id="statAvgEfficiency" class="text-2xl md:text-3xl font-black text-teal-600 dark:text-teal-400 font-mono tracking-tight">0.00</span>
-                    <span class="text-xs font-bold text-teal-600 dark:text-teal-400 ml-1">km/度</span>
+                    <span id="statAvgEfficiency" class="text-2xl md:text-3xl font-black text-teal-600 dark:text-[#2dd4bf] font-mono tracking-tight">0.00</span>
+                    <span class="text-xs font-bold text-teal-600 dark:text-[#2dd4bf] ml-1">km/度</span>
                 </div>
-                <span id="statWhKm" class="text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-mono">相當於 0 Wh/km</span>
+                <span id="statWhKm" class="text-[10px] text-slate-400 dark:text-[#94a3b8] mt-2 font-mono">相當於 0 Wh/km</span>
             </div>
             <!-- 累計補給花費 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">累計補給花費 👛</span>
-                    <span class="p-1.5 rounded-xl bg-cuteBlue-50 dark:bg-cuteBlue-600/20 text-cuteBlue-500 border-2 border-slate-800 dark:border-slate-700">
+                    <span class="text-xs font-bold text-slate-400 dark:text-[#94a3b8] tracking-wider">累計補給花費 👛</span>
+                    <span class="p-1.5 rounded-xl bg-cuteBlue-50 dark:bg-[#263547]/40 text-[#38bdf8] border-2 border-slate-800 dark:border-[#263547]">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path>
                         </svg>
                     </span>
                 </div>
                 <div class="flex items-baseline mt-4">
-                    <span id="statTotalCost" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100 font-mono tracking-tight">0</span>
+                    <span id="statTotalCost" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-[#f8fafc] font-mono tracking-tight">0</span>
                     <span class="text-xs font-bold text-slate-400 ml-1">元</span>
                 </div>
-                <span id="statTotalPower" class="text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-mono">累計充入 0.0 度電</span>
+                <span id="statTotalPower" class="text-[10px] text-slate-400 dark:text-[#94a3b8] mt-2 font-mono">累計充入 0.0 度電</span>
             </div>
             <!-- 每公里電費 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500 tracking-wider">每公里電費 🍩</span>
-                    <span class="p-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/20 text-indigo-400 border-2 border-slate-800 dark:border-slate-700">
+                    <span class="text-xs font-bold text-slate-400 dark:text-[#94a3b8] tracking-wider">每公里電費 🍩</span>
+                    <span class="p-1.5 rounded-xl bg-indigo-50 dark:bg-[#263547]/40 text-indigo-400 border-2 border-slate-800 dark:border-[#263547]">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="12" cy="12" r="10"></circle>
                             <circle cx="12" cy="12" r="3"></circle>
@@ -815,10 +793,10 @@ function doPost(e) {
                     </span>
                 </div>
                 <div class="flex items-baseline mt-4">
-                    <span id="statCostPerKm" class="text-2xl md:text-3xl font-black text-cuteMint-600 dark:text-cuteMint-400 font-mono tracking-tight">0.00</span>
-                    <span class="text-xs font-bold text-cuteMint-600 dark:text-cuteMint-400 ml-1">元/km</span>
+                    <span id="statCostPerKm" class="text-2xl md:text-3xl font-black text-cuteMint-600 dark:text-[#2dd4bf] font-mono tracking-tight">0.00</span>
+                    <span class="text-xs font-bold text-cuteMint-600 dark:text-[#2dd4bf] ml-1">元/km</span>
                 </div>
-                <span class="text-[10px] text-slate-400 dark:text-slate-500 mt-2">荷包精打細算中 🐾</span>
+                <span class="text-[10px] text-slate-400 dark:text-[#94a3b8] mt-2">荷包精打細算中 🐾</span>
             </div>
         </div>
 
@@ -827,25 +805,25 @@ function doPost(e) {
             <!-- 左側：記錄輸入與試算工具 -->
             <div class="lg:col-span-4 space-y-8">
                 <div class="rpg-card p-6 rounded-[2rem]">
-                    <div class="flex items-center justify-between mb-5 pb-3 border-b-2 border-slate-200 dark:border-slate-200">
-                        <h2 class="text-base font-black text-slate-800 dark:text-slate-100 flex items-center space-x-2">
-                            <span class="text-cuteMint-600 dark:text-cuteMint-400">
+                    <div class="flex items-center justify-between mb-5 pb-3 border-b-2 border-slate-200 dark:border-[#263547]">
+                        <h2 class="text-base font-black text-slate-800 dark:text-[#f8fafc] flex items-center space-x-2">
+                            <span class="text-cuteMint-600 dark:text-[#2dd4bf]">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                             </span>
                             <span id="formTitle">記錄本次旅程 🐾</span>
                         </h2>
-                        <span class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 font-black">QUEST LOG</span>
+                        <span class="text-[10px] text-cuteMint-600 dark:text-[#2dd4bf] font-black">QUEST LOG</span>
                     </div>
 
                     <form id="recordForm" onsubmit="addRecord(event)" class="space-y-4">
                         <!-- 🚀 響應式佈局：於平板 narrow 狀態下（lg:grid-cols-1）維持單欄完美防擠壓換行，xl 寬螢幕下啟用 2 欄 -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">
                             <div>
-                                <label class="text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5">出發/補給日期</label>
+                                <label class="text-xs font-black text-slate-600 dark:text-[#94a3b8] h-8 flex items-end mb-1.5">出發/補給日期</label>
                                 <div class="relative">
                                     <!-- 🚀 左右邊邊防護微調：防範 iOS Safari 原生日曆帶來的 "日" 換行，調整 pr-6 sm:pr-8 確保絕不擠壓 -->
-                                    <input type="date" id="inputDate" required class="w-full px-2.5 py-2.5 pr-6 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-xs sm:text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 relative z-10 font-bold transition-all">
-                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-800 dark:text-slate-200 z-20">
+                                    <input type="date" id="inputDate" required class="w-full px-2.5 py-2.5 pr-6 border-2 border-slate-800 dark:border-[#263547] rounded-2xl text-xs sm:text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-[#0b0f15] text-slate-800 dark:text-[#f8fafc] relative z-10 font-bold transition-all">
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-800 dark:text-[#f8fafc] z-20">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                         </svg>
@@ -853,14 +831,14 @@ function doPost(e) {
                                 </div>
                             </div>
                             <div>
-                                <label class="text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5">能源補給類型</label>
+                                <label class="text-xs font-black text-slate-600 dark:text-[#94a3b8] h-8 flex items-end mb-1.5">能源補給類型</label>
                                 <div class="relative">
-                                    <select id="inputChargeType" class="w-full pl-4 pr-10 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-xs sm:text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold cursor-pointer appearance-none -webkit-appearance-none">
+                                    <select id="inputChargeType" class="w-full pl-4 pr-10 py-2.5 border-2 border-slate-800 dark:border-[#263547] rounded-2xl text-xs sm:text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-[#0b0f15] text-slate-800 dark:text-[#f8fafc] font-bold cursor-pointer appearance-none -webkit-appearance-none">
                                         <option value="DC-快充" selected>⚡ 快速補給 (DC 快充)</option>
                                         <option value="AC-慢充">🔌 慢速補給 (AC 慢充)</option>
                                         <option value="未充電">🐾 純行駛記錄 (無補給)</option>
                                     </select>
-                                    <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-800 dark:text-slate-200 z-20">
+                                    <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-800 dark:text-[#f8fafc] z-20">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"></path>
                                         </svg>
@@ -872,31 +850,31 @@ function doPost(e) {
                         <!-- 🚀 響應式佈局：於平板 narrow 狀態下（lg:grid-cols-1）垂直排列釋放寬度，避免文字標籤極端擠壓，xl 下恢復 3 欄 -->
                         <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3 gap-4">
                             <div class="sm:col-span-1">
-                                <label class="text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5">行駛里程 (km)</label>
-                                <input type="number" step="0.1" id="inputDistance" required placeholder="120" inputmode="decimal" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold font-mono">
+                                <label class="text-xs font-black text-slate-600 dark:text-[#94a3b8] h-8 flex items-end mb-1.5">行駛里程 (km)</label>
+                                <input type="number" step="0.1" id="inputDistance" required placeholder="120" inputmode="decimal" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-[#263547] rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-[#0b0f15] text-slate-800 dark:text-[#f8fafc] font-bold font-mono">
                             </div>
                             <div>
-                                <label id="startSocLabel" class="text-[11px] sm:text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5 whitespace-nowrap">出發前 SOC (%)</label>
-                                <input type="number" step="1" min="0" max="100" id="inputStartSoc" required placeholder="20" inputmode="numeric" pattern="[0-9]*" oninput="updateConvertedPowerHint()" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold font-mono">
+                                <label id="startSocLabel" class="text-[11px] sm:text-xs font-black text-slate-600 dark:text-[#94a3b8] h-8 flex items-end mb-1.5 whitespace-nowrap">出發前 SOC (%)</label>
+                                <input type="number" step="1" min="0" max="100" id="inputStartSoc" required placeholder="20" inputmode="numeric" pattern="[0-9]*" oninput="updateConvertedPowerHint()" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-[#263547] rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-[#0b0f15] text-slate-800 dark:text-[#f8fafc] font-bold font-mono">
                             </div>
                             <div>
-                                <label id="endSocLabel" class="text-[11px] sm:text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5 whitespace-nowrap">抵達後 SOC (%)</label>
-                                <input type="number" step="1" min="0" max="100" id="inputEndSoc" required placeholder="80" inputmode="numeric" pattern="[0-9]*" oninput="updateConvertedPowerHint()" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-mono font-bold">
+                                <label id="endSocLabel" class="text-[11px] sm:text-xs font-black text-slate-600 dark:text-[#94a3b8] h-8 flex items-end mb-1.5 whitespace-nowrap">抵達後 SOC (%)</label>
+                                <input type="number" step="1" min="0" max="100" id="inputEndSoc" required placeholder="80" inputmode="numeric" pattern="[0-9]*" oninput="updateConvertedPowerHint()" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-[#263547] rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-[#0b0f15] text-slate-800 dark:text-[#f8fafc] font-mono font-bold">
                             </div>
                         </div>
 
                         <div class="text-right">
-                            <span id="powerHintText" class="text-[10px] text-cuteMint-700 dark:text-cuteMint-200 font-extrabold bg-cuteMint-100/50 dark:bg-black p-2.5 rounded-2xl inline-block border-2 border-slate-800 dark:border-slate-700">共消耗 0% 電量 (約等同於 0.00 度電)</span>
+                            <span id="powerHintText" class="text-[10px] text-cuteMint-700 dark:text-[#2dd4bf] font-extrabold bg-cuteMint-100/50 dark:bg-[#0b0f15] p-2.5 rounded-2xl inline-block border-2 border-slate-800 dark:border-[#263547]">共消耗 0% 電量 (約等同於 0.00 度電)</span>
                         </div>
 
                         <div>
-                            <label class="text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5">本次補給費用 (元) - 若無填 0</label>
-                            <input type="number" step="1" id="inputCost" required placeholder="0" inputmode="numeric" pattern="[0-9]*" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold font-mono">
+                            <label class="text-xs font-black text-slate-600 dark:text-[#94a3b8] h-8 flex items-end mb-1.5">本次補給費用 (元) - 若無填 0</label>
+                            <input type="number" step="1" id="inputCost" required placeholder="0" inputmode="numeric" pattern="[0-9]*" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-[#263547] rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-[#0b0f15] text-slate-800 dark:text-[#f8fafc] font-bold font-mono">
                         </div>
 
                         <div>
-                            <label class="text-xs font-black text-slate-600 dark:text-slate-400 h-8 flex items-end mb-1.5">行駛備註 / 旅程記錄 (選填)</label>
-                            <input type="text" id="inputNote" placeholder="例如：帶貓咪去散步 🐱🐾" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 font-bold">
+                            <label class="text-xs font-black text-slate-600 dark:text-[#94a3b8] h-8 flex items-end mb-1.5">行駛備註 / 旅程記錄 (選填)</label>
+                            <input type="text" id="inputNote" placeholder="例如：帶貓咪去散步 🐱🐾" class="w-full px-4 py-2.5 border-2 border-slate-800 dark:border-[#263547] rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-[#0b0f15] text-slate-800 dark:text-[#f8fafc] font-bold">
                         </div>
 
                         <div class="flex flex-col sm:flex-row gap-3 pt-2">
@@ -917,16 +895,16 @@ function doPost(e) {
                 <!-- 能耗與花費圖表 -->
                 <div class="rpg-card p-6 rounded-[2.5rem]">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
-                        <h2 class="text-base font-black text-slate-800 dark:text-slate-200 flex items-center space-x-2">
-                            <span class="text-cuteMint-600/80 dark:text-cuteMint-400">
+                        <h2 class="text-base font-black text-slate-800 dark:text-[#f8fafc] flex items-center space-x-2">
+                            <span class="text-cuteMint-600/80 dark:text-[#2dd4bf]">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                             </span>
                             <span>電耗與補給趨勢圖 📈⚡</span>
                         </h2>
-                        <div class="flex p-1 bg-slate-100 dark:bg-black rounded-xl border-2 border-slate-800 dark:border-slate-800 self-start sm:self-center font-bold">
-                            <button onclick="setChartFilter('all')" id="btnChartAll" class="px-2.5 py-1 text-[10px] rounded-lg transition-all border-2 border-slate-800 dark:border-slate-700 bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white shadow-[1px_1px_0px_0px_#1e293b] dark:shadow-[1px_1px_0px_0px_#000000]">全部</button>
-                            <button onclick="setChartFilter('efficiency')" id="btnChartEfficiency" class="px-2.5 py-1 text-[10px] rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-all ml-1">僅電耗 📈</button>
-                            <button onclick="setChartFilter('cost')" id="btnChartCost" class="px-2.5 py-1 text-[10px] rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-all ml-1">僅花費 👛</button>
+                        <div class="flex p-1 bg-slate-100 dark:bg-[#0b0f15] rounded-xl border-2 border-slate-800 dark:border-[#263547] self-start sm:self-center font-bold">
+                            <button onclick="setChartFilter('all')" id="btnChartAll" class="px-2.5 py-1 text-[10px] rounded-lg transition-all border-2 border-slate-800 dark:border-[#263547] bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white shadow-[1px_1px_0px_0px_#1e293b] dark:shadow-[1px_1px_0px_0px_#0b0f15]">全部</button>
+                            <button onclick="setChartFilter('efficiency')" id="btnChartEfficiency" class="px-2.5 py-1 text-[10px] rounded-lg text-slate-500 dark:text-[#94a3b8] hover:text-slate-900 dark:hover:text-slate-200 transition-all ml-1">僅電耗 📈</button>
+                            <button onclick="setChartFilter('cost')" id="btnChartCost" class="px-2.5 py-1 text-[10px] rounded-lg text-slate-500 dark:text-[#94a3b8] hover:text-slate-900 dark:hover:text-slate-200 transition-all ml-1">僅花費 👛</button>
                         </div>
                     </div>
                     <div class="h-64 relative">
@@ -936,15 +914,15 @@ function doPost(e) {
 
                 <!-- 歷史資料列表 -->
                 <div class="rpg-card p-6 rounded-[2.5rem]">
-                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b-2 border-slate-200 dark:border-slate-800 mb-4 gap-4">
-                        <h2 class="text-base font-black text-slate-800 dark:text-slate-200 flex items-center space-x-2">
-                            <span class="text-cuteMint-600 dark:text-cuteMint-400">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b-2 border-slate-200 dark:border-[#263547] mb-4 gap-4">
+                        <h2 class="text-base font-black text-slate-800 dark:text-[#f8fafc] flex items-center space-x-2">
+                            <span class="text-cuteMint-600 dark:text-[#2dd4bf]">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"></path></svg>
                             </span>
                             <span>我的行駛日誌</span>
                         </h2>
                         <!-- 🚀 圖示破圖修正：將 -1.Steady-1.858L 完整校正回標準數學座標向量以防在 Chrome/Safari 上破圖 -->
-                        <button onclick="clearAllData()" class="text-rose-600 hover:text-rose-500 dark:text-rose-400 dark:hover:text-rose-350 text-xs font-black transition-all self-start sm:self-center flex items-center space-x-1.5 p-2 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/20 border border-transparent hover:border-rose-100/30 dark:hover:border-rose-900/30">
+                        <button onclick="clearAllData()" class="text-rose-600 hover:text-rose-500 dark:text-rose-400 dark:hover:text-[#2dd4bf] text-xs font-black transition-all self-start sm:self-center flex items-center space-x-1.5 p-2 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/20 border border-transparent hover:border-rose-100/30 dark:hover:border-rose-900/30">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.895-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                             </svg>
@@ -954,22 +932,22 @@ function doPost(e) {
 
                     <div id="flatViewContainer" class="space-y-4">
                         <!-- 🚀 修復核心：移除 lg:overflow-x-hidden，使平板及較窄的 desktop/laptop 能橫向滑動表格，完美露出操作欄中的編輯與刪除按鈕！ -->
-                        <div id="desktopTableWrapper" class="hidden md:block overflow-x-auto max-h-[480px] rounded-[1.5rem] border-2 border-slate-800 dark:border-slate-700 scrollable-log-container mb-12">
-                            <table class="min-w-full divide-y divide-slate-800 dark:divide-slate-700 text-xs text-left table-auto">
-                                <thead class="bg-[#fffdf9] dark:bg-black text-cuteMint-700 dark:text-cuteMint-200 font-extrabold uppercase tracking-wider border-b-2 border-slate-800 dark:border-slate-700 sticky top-0 z-20">
+                        <div id="desktopTableWrapper" class="hidden md:block overflow-x-auto max-h-[480px] rounded-[1.5rem] border-2 border-slate-800 dark:border-[#263547] scrollable-log-container mb-12">
+                            <table class="min-w-full divide-y divide-slate-800 dark:divide-[#263547] text-xs text-left table-auto">
+                                <thead class="bg-[#fffdf9] dark:bg-[#101720] text-cuteMint-700 dark:text-cuteMint-200 font-extrabold uppercase tracking-wider border-b-2 border-slate-800 dark:border-[#263547] sticky top-0 z-20">
                                     <tr>
                                         <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">行駛日期</th>
                                         <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">補給類型</th>
                                         <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">里程 (km)</th>
                                         <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">起訖電量 (SOC)</th>
-                                        <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap text-cuteMint-600 dark:text-cuteMint-400">平均電耗</th>
+                                        <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap text-cuteMint-600 dark:text-[#2dd4bf]">平均電耗</th>
                                         <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">費用 (元)</th>
                                         <!-- 🚀 置中修正：為「行駛備註」表頭添加 text-center 類別 -->
                                         <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">行駛備註</th>
                                         <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">操作</th>
                                     </tr>
                                 </thead>
-                                <tbody id="recordTableBody" class="divide-y divide-cuteMint-100 dark:divide-slate-800/60 text-slate-800 dark:text-slate-100 font-bold">
+                                <tbody id="recordTableBody" class="divide-y divide-cuteMint-100 dark:divide-[#263547]/60 text-slate-800 dark:text-[#f8fafc] font-bold">
                                 </tbody>
                             </table>
                         </div>
@@ -978,7 +956,7 @@ function doPost(e) {
                         </div>
                     </div>
 
-                    <div id="noDataPlaceholder" class="hidden p-12 text-center text-slate-400 dark:text-slate-500">
+                    <div id="noDataPlaceholder" class="hidden p-12 text-center text-slate-400 dark:text-[#94a3b8]">
                         <svg class="w-12 h-12 mx-auto mb-3 text-cuteMint-200 dark:text-slate-700 animate-bounce" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                         <p class="text-xs font-black text-cuteMint-500">空空如也 🐾 快來左邊寫下第一筆吧！</p>
                     </div>
@@ -988,7 +966,7 @@ function doPost(e) {
     </main>
 
     <!-- 頁尾 -->
-    <footer id="mainFooter" class="bg-white dark:bg-black text-slate-400 dark:text-slate-500 text-center py-10 mt-16 border-t-4 border-slate-800 dark:border-slate-700 transition-opacity duration-500 relative z-10 hidden opacity-0">
+    <footer id="mainFooter" class="bg-white dark:bg-black text-slate-400 dark:text-[#94a3b8] text-center py-10 mt-16 border-t-4 border-slate-800 dark:border-[#263547] transition-opacity duration-500 relative z-10 hidden opacity-0">
         <p class="text-xs font-bold">Ev Life 電動車試算與電耗記錄工具 © 2026. 您的資料將 safe 地儲存在本地裝置瀏覽器中。</p>
     </footer>
 
@@ -1055,7 +1033,7 @@ function doPost(e) {
                 localStorage.setItem('ev_life_theme', 'light');
             } else {
                 htmlEl.classList.add('dark');
-                htmlEl.style.backgroundColor = '#000000';
+                htmlEl.style.backgroundColor = '#0b0f15';
                 localStorage.setItem('ev_life_theme', 'dark');
             }
             setupThemeIcons();
@@ -1120,10 +1098,10 @@ function doPost(e) {
             
             let rawEvName = localStorage.getItem('ev_life_ev_name') || "";
             if (!rawEvName) {
-                evName = "LUXGEN n⁷"; 
-                localStorage.setItem('ev_life_ev_name', "LUXGEN n⁷");
+                evName = "LUXGEN n7"; 
+                localStorage.setItem('ev_life_ev_name', "LUXGEN n7");
             } else {
-                evName = rawEvName.replace(/n[7|Target| dream]+/g, "n⁷");
+                evName = rawEvName.replace(/n[7|Target| dream]+/g, "n7");
             }
             const eNameInput = document.getElementById('evNameInput');
             if (eNameInput) {
@@ -1244,7 +1222,7 @@ function doPost(e) {
                 if (costInput) {
                     costInput.value = "0";
                     costInput.disabled = true;
-                    costInput.classList.add('opacity-45', 'cursor-not-allowed', 'bg-slate-100/40', 'dark:bg-slate-900/40');
+                    costInput.classList.add('opacity-45', 'cursor-not-allowed', 'bg-slate-100/40', 'dark:bg-[#121a24]/40');
                 }
                 if (startSocLabel) startSocLabel.textContent = "出發前電量 (%)";
                 if (endSocLabel) endSocLabel.textContent = "抵達後電量 (%)";
@@ -1254,7 +1232,7 @@ function doPost(e) {
                         costInput.value = "";
                     }
                     costInput.disabled = false;
-                    costInput.classList.remove('opacity-45', 'cursor-not-allowed', 'bg-slate-100/40', 'dark:bg-slate-900/40');
+                    costInput.classList.remove('opacity-45', 'cursor-not-allowed', 'bg-slate-100/40', 'dark:bg-[#121a24]/40');
                 }
                 if (startSocLabel) startSocLabel.textContent = "充電前電量 (%)";
                 if (endSocLabel) endSocLabel.textContent = "充電後電量 (%)";
@@ -1382,10 +1360,10 @@ function doPost(e) {
             toastMessage.textContent = message;
             toastIcon.textContent = isError ? "⚠️🐾" : "⚡(ˊᗜˋ*)";
             
-            toast.className = `fixed bottom-5 left-1/2 -translate-x-1/2 z-[120] transform translate-y-0 opacity-100 visible pointer-events-auto transition-all duration-300 bg-slate-900/95 dark:bg-slate-800/95 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border-2 border-[#1e293b] max-w-[90vw] whitespace-nowrap`;
+            toast.className = `fixed bottom-5 left-1/2 -translate-x-1/2 z-[120] transform translate-y-0 opacity-100 visible pointer-events-auto transition-all duration-300 bg-slate-900/95 dark:bg-[#121a24]/95 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border-2 border-[#1e293b] dark:border-[#263547] max-w-[90vw] whitespace-nowrap`;
             
             setTimeout(() => {
-                toast.className = `fixed bottom-5 left-1/2 -translate-x-1/2 z-[120] transform translate-y-20 opacity-0 invisible pointer-events-none transition-all duration-300 bg-slate-900/95 dark:bg-slate-800/95 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border-2 border-[#1e293b] max-w-[90vw] whitespace-nowrap`;
+                toast.className = `fixed bottom-5 left-1/2 -translate-x-1/2 z-[120] transform translate-y-20 opacity-0 invisible pointer-events-none transition-all duration-300 bg-slate-900/95 dark:bg-[#121a24]/95 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border-2 border-[#1e293b] dark:border-[#263547] max-w-[90vw] whitespace-nowrap`;
             }, 3000);
         }
 
@@ -1429,12 +1407,12 @@ function doPost(e) {
             if (tabId === 'settings-tab-main') {
                 if (mainTab) mainTab.classList.remove('hidden');
                 if (pwaTab) pwaTab.classList.add('hidden');
-                if (btnMain) btnMain.className = "flex-1 py-3 text-xs font-black border-r-4 border-[#1e293b] transition-all bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white";
-                if (btnPwa) btnPwa.className = "flex-1 py-3 text-xs font-black text-slate-500 dark:text-slate-400 transition-all bg-slate-50 dark:bg-neutral-900";
+                if (btnMain) btnMain.className = "flex-1 py-3 text-xs font-black border-r-4 border-[#1e293b] dark:border-[#263547] transition-all bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white";
+                if (btnPwa) btnPwa.className = "flex-1 py-3 text-xs font-black text-slate-500 dark:text-[#94a3b8] transition-all bg-slate-50 dark:bg-[#121a24]";
             } else {
                 if (mainTab) mainTab.classList.add('hidden');
                 if (pwaTab) pwaTab.classList.remove('hidden');
-                if (btnMain) btnMain.className = "flex-1 py-3 text-xs font-black border-r-4 border-[#1e293b] text-slate-500 dark:text-slate-400 transition-all bg-slate-50 dark:bg-neutral-900";
+                if (btnMain) btnMain.className = "flex-1 py-3 text-xs font-black border-r-4 border-[#1e293b] dark:border-[#263547] text-slate-500 dark:text-[#94a3b8] transition-all bg-slate-50 dark:bg-[#121a24]";
                 if (btnPwa) btnPwa.className = "flex-1 py-3 text-xs font-black transition-all bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white";
                 updatePwaDiagnostic();
             }
@@ -1457,7 +1435,7 @@ function doPost(e) {
             }
 
             if (evNameInput) {
-                evName = evNameInput.value.trim().replace(/n[7|Target]+/g, "n7") || "LUXGEN n⁷";
+                evName = evNameInput.value.trim().replace(/n[7|Target]+/g, "n7") || "LUXGEN n7";
                 localStorage.setItem('ev_life_ev_name', evName);
             }
 
@@ -1768,7 +1746,7 @@ function doPost(e) {
             if (costInput) {
                 costInput.value = '';
                 costInput.disabled = false;
-                costInput.classList.remove('opacity-45', 'cursor-not-allowed', 'bg-slate-100/40', 'dark:bg-slate-900/40');
+                costInput.classList.remove('opacity-45', 'cursor-not-allowed', 'bg-slate-100/40', 'dark:bg-[#121a24]/40');
             }
             if (noteInput) noteInput.value = '';
             
@@ -1779,7 +1757,7 @@ function doPost(e) {
         function renderDashboard() {
             const brandSpan = document.getElementById('navEvBrandName');
             if (brandSpan) {
-                brandSpan.innerHTML = `<span class="bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 via-teal-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:via-teal-600 dark:to-cuteBlue-300 font-extrabold">${evName}</span><span class="text-slate-500 dark:text-slate-400 text-xs font-medium ml-1 hidden sm:inline"> の 純電之旅</span>`;
+                brandSpan.innerHTML = `<span class="bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 via-teal-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:via-teal-600 dark:to-cuteBlue-300 font-extrabold">${evName}</span><span class="text-slate-500 dark:text-[#94a3b8] text-xs font-medium ml-1 hidden sm:inline"> の 純電之旅</span>`;
             }
 
             records.sort((a, b) => new Date(a.date) - new Date(b.date) || parseInt(a.id, 10) - parseInt(b.id, 10));
@@ -1902,14 +1880,14 @@ function doPost(e) {
                     socText = `
                         <div class="leading-tight text-center whitespace-nowrap">
                             <div>${startSocVal}% ➔ ${endSocVal}%</div>
-                            <div class="text-[10px] text-slate-400 dark:text-slate-500 font-mono font-normal">(${subActionWord} ${powerPercent}% | ${parseFloat(rec.power).toFixed(1)}度)</div>
+                            <div class="text-[10px] text-slate-400 dark:text-[#94a3b8] font-mono font-normal">(${subActionWord} ${powerPercent}% | ${parseFloat(rec.power).toFixed(1)}度)</div>
                         </div>
                     `;
                 } else {
                     socText = `
                         <div class="leading-tight text-center whitespace-nowrap">
                             <div>${powerPercent}%</div>
-                            <div class="text-[10px] text-slate-400 dark:text-slate-500 font-mono font-normal">(${parseFloat(rec.power).toFixed(1)}度)</div>
+                            <div class="text-[10px] text-slate-400 dark:text-[#94a3b8] font-mono font-normal">(${parseFloat(rec.power).toFixed(1)}度)</div>
                         </div>
                     `;
                 }
@@ -1917,35 +1895,35 @@ function doPost(e) {
                 const displayDate = rec.date && rec.date.includes('T') ? rec.date.split('T')[0] : (rec.date || '').split('T')[0];
 
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-cuteMint-50/20 dark:hover:bg-slate-800/40 transition border-b border-cuteMint-100/60 dark:border-slate-800/60";
+                tr.className = "hover:bg-cuteMint-50/20 dark:hover:bg-[#121a24]/60 transition border-b border-cuteMint-100/60 dark:border-[#263547]/60";
                 tr.innerHTML = `
-                    <td class="px-1 lg:px-2 py-3 text-center font-bold text-slate-800 dark:text-slate-200 whitespace-nowrap font-mono">${displayDate}</td>
+                    <td class="px-1 lg:px-2 py-3 text-center font-bold text-slate-800 dark:text-[#f8fafc] whitespace-nowrap font-mono">${displayDate}</td>
                     <td class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">
                         <span class="inline-block px-2 py-0.5 text-[10px] rounded-full font-black border tracking-wide uppercase whitespace-nowrap ${
                             rec.chargeType.includes('快充') ? 'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950/30 dark:border-amber-900/40 dark:text-amber-400' : 
-                            rec.chargeType.includes('慢充') ? 'bg-cuteMint-50 border-cuteMint-200 text-cuteMint-600 dark:bg-cuteMint-950/30 dark:border-cuteMint-900/40 dark:text-cuteMint-400' : 'bg-slate-100 border-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                            rec.chargeType.includes('慢充') ? 'bg-cuteMint-50 border-cuteMint-200 text-cuteMint-600 dark:bg-cuteMint-950/30 dark:border-cuteMint-900/40 dark:text-[#2dd4bf]' : 'bg-slate-100 border-slate-200 text-slate-600 dark:bg-[#263547] dark:text-[#94a3b8]'
                         }">
                             ${rec.chargeType}
                         </span>
                     </td>
-                    <td class="px-1 lg:px-2 py-3 text-center font-bold font-mono text-slate-800 dark:text-slate-100 whitespace-nowrap">${parseFloat(rec.distance)} KM</td>
-                    <td class="px-1 lg:px-2 py-3 text-center font-bold font-mono text-slate-800 dark:text-slate-100 whitespace-nowrap">${socText}</td>
-                    <td class="px-1 lg:px-2 py-3 text-center text-cuteMint-500 dark:text-cuteMint-400 font-bold font-mono whitespace-nowrap">
+                    <td class="px-1 lg:px-2 py-3 text-center font-bold font-mono text-slate-800 dark:text-[#f8fafc] whitespace-nowrap">${parseFloat(rec.distance)} KM</td>
+                    <td class="px-1 lg:px-2 py-3 text-center font-bold font-mono text-slate-800 dark:text-[#f8fafc] whitespace-nowrap">${socText}</td>
+                    <td class="px-1 lg:px-2 py-3 text-center text-cuteMint-500 dark:text-[#2dd4bf] font-bold font-mono whitespace-nowrap">
                         <div>${efficiency} km/度</div>
-                        <div class="text-[10px] text-slate-400 dark:text-slate-500 font-normal leading-normal whitespace-nowrap">
+                        <div class="text-[10px] text-slate-400 dark:text-[#94a3b8] font-normal leading-normal whitespace-nowrap">
                             (行駛消耗 ${rowConsumedSoc}% | ${rowConsumedPower.toFixed(1)}度)
                         </div>
                     </td>
-                    <td class="px-1 lg:px-2 py-3 text-center font-bold font-mono text-slate-800 dark:text-slate-100 whitespace-nowrap">${rec.cost} 元</td>
+                    <td class="px-1 lg:px-2 py-3 text-center font-bold font-mono text-slate-800 dark:text-[#f8fafc] whitespace-nowrap">${rec.cost} 元</td>
                     <!-- 🚀 置中修正：為備註內容單格 (td) 添加 text-center 類別 -->
-                    <td class="px-1 lg:px-2 py-3 max-w-[90px] lg:max-w-[110px] truncate text-slate-500 dark:text-slate-400 text-xs font-semibold text-center" title="${rec.note || ''}">${rec.note || '-'}</td>
+                    <td class="px-1 lg:px-2 py-3 max-w-[90px] lg:max-w-[110px] truncate text-slate-500 dark:text-[#94a3b8] text-xs font-semibold text-center" title="${rec.note || ''}">${rec.note || '-'}</td>
                     <td class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">
-                        <button class="edit-btn text-cuteMint-600 dark:text-cuteMint-400 bg-cuteMint-50 hover:bg-cuteMint-100 dark:bg-cuteMint-950/30 dark:hover:bg-cuteMint-950/60 p-1.5 rounded-2xl transition active:scale-95 border-2 border-cuteMint-100/60 dark:border-cuteMint-900/30 shadow-sm mr-1" title="編輯此筆">
+                        <button class="edit-btn text-cuteMint-600 dark:text-[#2dd4bf] bg-cuteMint-50 hover:bg-cuteMint-100 dark:bg-cuteMint-950/30 dark:hover:bg-cuteMint-950/60 p-1.5 rounded-2xl transition active:scale-95 border-2 border-cuteMint-100/60 dark:border-[#263547]/30 shadow-sm mr-1" title="編輯此筆">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                             </svg>
                         </button>
-                        <button class="delete-btn text-rose-500 dark:text-rose-400 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 p-1.5 rounded-2xl transition active:scale-95 border-2 border-rose-100/60 dark:border-rose-900/30 shadow-sm" title="刪除此筆">
+                        <button class="delete-btn text-rose-500 dark:text-rose-400 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 p-1.5 rounded-2xl transition active:scale-95 border-2 border-rose-100/60 dark:border-[#263547]/30 shadow-sm" title="刪除此筆">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.895-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                             </svg>
@@ -1970,29 +1948,29 @@ function doPost(e) {
                 
                 // 🚀 核心優化：響應式內邊距 (p-2 sm:p-3) + w-full text-center flex justify-center items-center 自適應天然置中對齊
                 card.innerHTML = `
-                    <div class="flex items-center justify-between pb-2.5 border-b-2 border-cuteMint-50/50 dark:border-slate-800/40 w-full min-w-0 gap-1.5">
+                    <div class="flex items-center justify-between pb-2.5 border-b-2 border-cuteMint-50/50 dark:border-[#263547]/40 w-full min-w-0 gap-1.5">
                         <div class="flex items-center space-x-1 sm:space-x-1.5 min-w-0 flex-nowrap">
-                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cuteMint-500 dark:text-cuteMint-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cuteMint-500 dark:text-[#2dd4bf] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                             </svg>
-                            <span class="text-[11px] sm:text-xs font-black text-slate-500 dark:text-slate-400 font-mono whitespace-nowrap flex-shrink-0 relative -top-[0.5px] leading-none">
+                            <span class="text-[11px] sm:text-xs font-black text-slate-500 dark:text-[#94a3b8] font-mono whitespace-nowrap flex-shrink-0 relative -top-[0.5px] leading-none">
                                 ${displayDate}
                             </span>
                             <span class="inline-flex items-center justify-center px-1.5 sm:px-2 py-0.5 text-[9px] rounded-lg font-black border tracking-wide uppercase whitespace-nowrap flex-shrink-0 relative -top-[0.5px] leading-none ${
                                 rec.chargeType.includes('快充') ? 'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950/30 dark:border-amber-900/40 dark:text-amber-400' : 
-                                rec.chargeType.includes('慢充') ? 'bg-cuteMint-50 border-cuteMint-200 text-cuteMint-700 dark:bg-cuteMint-950/30 dark:border-cuteMint-900/40 dark:text-cuteMint-400' : 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                                rec.chargeType.includes('慢充') ? 'bg-cuteMint-50 border-cuteMint-200 text-cuteMint-700 dark:bg-cuteMint-950/30 dark:border-cuteMint-900/40 dark:text-[#2dd4bf]' : 'bg-slate-200 text-slate-600 dark:bg-[#121a24] dark:text-[#94a3b8]'
                             }">
                                 ${rec.chargeType}
                             </span>
                         </div>
 
                         <div class="flex items-center space-x-1 sm:space-x-1.5 flex-shrink-0">
-                            <button class="edit-btn text-cuteMint-600 dark:text-cuteMint-400 bg-cuteMint-50 hover:bg-cuteMint-100 dark:bg-cuteMint-950/30 dark:hover:bg-cuteMint-950/60 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl transition active:scale-95 border-2 border-cuteMint-100/60 dark:border-cuteMint-900/30 shadow-sm flex items-center justify-center" title="編輯此筆">
+                            <button class="edit-btn text-cuteMint-600 dark:text-[#2dd4bf] bg-cuteMint-50 hover:bg-cuteMint-100 dark:bg-cuteMint-950/30 dark:hover:bg-cuteMint-950/60 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl transition active:scale-95 border-2 border-cuteMint-100/60 dark:border-[#263547]/30 shadow-sm flex items-center justify-center" title="編輯此筆">
                                 <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                 </svg>
                             </button>
-                            <button class="delete-btn text-rose-500 dark:text-rose-400 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl transition active:scale-95 border-2 border-rose-100/60 dark:border-rose-900/30 shadow-sm flex items-center justify-center" title="刪除此筆">
+                            <button class="delete-btn text-rose-500 dark:text-rose-400 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl transition active:scale-95 border-2 border-rose-100/60 dark:border-[#263547]/30 shadow-sm flex items-center justify-center" title="刪除此筆">
                                 <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.895-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                 </svg>
@@ -2002,56 +1980,56 @@ function doPost(e) {
                     
                     <div class="grid grid-cols-2 gap-2 sm:gap-2.5 pt-2">
                         <!-- 格子 1: 行駛里程 -->
-                        <div class="bg-slate-50 dark:bg-neutral-900/40 p-2 sm:p-3 rounded-[1.2rem] border border-slate-200/50 dark:border-neutral-800/80 flex flex-col justify-center items-center text-center overflow-hidden min-h-[104px] py-3.5">
-                            <span class="text-[10px] text-slate-400 dark:text-slate-500 font-black mb-1 whitespace-nowrap">行駛里程</span>
+                        <div class="bg-slate-50 dark:bg-[#121a24]/40 p-2 sm:p-3 rounded-[1.2rem] border border-slate-200/50 dark:border-[#263547]/80 flex flex-col justify-center items-center text-center overflow-hidden min-h-[104px] py-3.5">
+                            <span class="text-[10px] text-slate-400 dark:text-[#94a3b8] font-black mb-1 whitespace-nowrap">行駛里程</span>
                             <div class="text-center w-full my-0.5 whitespace-nowrap flex justify-center items-baseline gap-0.5">
-                                <span class="font-black text-slate-800 dark:text-slate-100 text-base sm:text-lg font-mono tracking-tight leading-none">${parseFloat(rec.distance)}</span>
-                                <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold leading-none">km</span>
+                                <span class="font-black text-slate-800 dark:text-[#f8fafc] text-base sm:text-lg font-mono tracking-tight leading-none">${parseFloat(rec.distance)}</span>
+                                <span class="text-[10px] text-slate-400 dark:text-[#94a3b8] font-bold leading-none">km</span>
                             </div>
-                            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold mt-1 whitespace-nowrap tracking-tight">
+                            <span class="text-[9px] text-slate-400 dark:text-[#94a3b8] font-bold mt-1 whitespace-nowrap tracking-tight">
                                 (累計 ${rec.rollingOdo.toFixed(1)} km)
                             </span>
                         </div>
                         
                         <!-- 格子 2: 電耗表現 -->
-                        <div class="bg-slate-50 dark:bg-neutral-900/40 p-2 sm:p-3 rounded-[1.2rem] border border-slate-200/50 dark:border-neutral-800/80 flex flex-col justify-center items-center text-center overflow-hidden min-h-[104px] py-3.5">
-                            <span class="text-[10px] text-slate-400 dark:text-slate-500 font-black mb-1 whitespace-nowrap">電耗表現</span>
+                        <div class="bg-slate-50 dark:bg-[#121a24]/40 p-2 sm:p-3 rounded-[1.2rem] border border-slate-200/50 dark:border-[#263547]/80 flex flex-col justify-center items-center text-center overflow-hidden min-h-[104px] py-3.5">
+                            <span class="text-[10px] text-slate-400 dark:text-[#94a3b8] font-black mb-1 whitespace-nowrap">電耗表現</span>
                             <div class="text-center w-full my-0.5 whitespace-nowrap flex justify-center items-baseline gap-0.5">
-                                <span class="font-black text-cuteMint-600 dark:text-cuteMint-400 text-base sm:text-lg font-mono tracking-tight leading-none">${efficiency}</span>
-                                <span class="text-[10px] text-cuteMint-600 dark:text-cuteMint-400 font-bold leading-none">km/度</span>
+                                <span class="font-black text-cuteMint-600 dark:text-[#2dd4bf] text-base sm:text-lg font-mono tracking-tight leading-none">${efficiency}</span>
+                                <span class="text-[10px] text-cuteMint-600 dark:text-[#2dd4bf] font-bold leading-none">km/度</span>
                             </div>
-                            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold mt-1 whitespace-nowrap tracking-tight">
+                            <span class="text-[9px] text-slate-400 dark:text-[#94a3b8] font-bold mt-1 whitespace-nowrap tracking-tight">
                                 (消耗 ${rowConsumedSoc}% | ${rowConsumedPower.toFixed(1)}度)
                             </span>
                         </div>
                         
                         <!-- 格子 3: 補給起訖 -->
-                        <div class="bg-slate-50 dark:bg-neutral-900/40 p-2 sm:p-3 rounded-[1.2rem] border border-slate-200/50 dark:border-neutral-800/80 flex flex-col justify-center items-center text-center overflow-hidden min-h-[104px] py-3.5">
-                            <span class="text-[10px] text-slate-400 dark:text-slate-500 font-black mb-1 whitespace-nowrap">補給起訖</span>
-                            <div class="whitespace-nowrap font-black text-sm sm:text-base text-slate-800 dark:text-slate-100 font-mono tracking-tight my-0.5 leading-none w-full flex justify-center items-center">
+                        <div class="bg-slate-50 dark:bg-[#121a24]/40 p-2 sm:p-3 rounded-[1.2rem] border border-slate-200/50 dark:border-[#263547]/80 flex flex-col justify-center items-center text-center overflow-hidden min-h-[104px] py-3.5">
+                            <span class="text-[10px] text-slate-400 dark:text-[#94a3b8] font-black mb-1 whitespace-nowrap">補給起訖</span>
+                            <div class="whitespace-nowrap font-black text-sm sm:text-base text-slate-800 dark:text-[#f8fafc] font-mono tracking-tight my-0.5 leading-none w-full flex justify-center items-center">
                                 ${mobileSocText}
                             </div>
-                            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold mt-1 whitespace-nowrap tracking-tight">
+                            <span class="text-[9px] text-slate-400 dark:text-[#94a3b8] font-bold mt-1 whitespace-nowrap tracking-tight">
                                 (${subActionWord} ${powerPercent}% | ${parseFloat(rec.power).toFixed(1)}度)
                             </span>
                         </div>
                         
                         <!-- 格子 4: 本次費用 -->
-                        <div class="bg-slate-50 dark:bg-neutral-900/40 p-2 sm:p-3 rounded-[1.2rem] border border-slate-200/50 dark:border-neutral-800/80 flex flex-col justify-center items-center text-center overflow-hidden min-h-[104px] py-3.5">
-                            <span class="text-[10px] text-slate-400 dark:text-slate-500 font-black mb-1 whitespace-nowrap">本次費用</span>
+                        <div class="bg-slate-50 dark:bg-[#121a24]/40 p-2 sm:p-3 rounded-[1.2rem] border border-slate-200/50 dark:border-[#263547]/80 flex flex-col justify-center items-center text-center overflow-hidden min-h-[104px] py-3.5">
+                            <span class="text-[10px] text-slate-400 dark:text-[#94a3b8] font-black mb-1 whitespace-nowrap">本次費用</span>
                             <div class="text-center w-full my-0.5 whitespace-nowrap flex justify-center items-baseline gap-0.5">
-                                <span class="font-black text-slate-800 dark:text-slate-100 text-base sm:text-lg font-mono tracking-tight leading-none">${rec.cost}</span>
-                                <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold leading-none">元</span>
+                                <span class="font-black text-slate-800 dark:text-[#f8fafc] text-base sm:text-lg font-mono tracking-tight leading-none">${rec.cost}</span>
+                                <span class="text-[10px] text-slate-400 dark:text-[#94a3b8] font-bold leading-none">元</span>
                             </div>
-                            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold mt-1 whitespace-nowrap tracking-tight">
+                            <span class="text-[9px] text-slate-400 dark:text-[#94a3b8] font-bold mt-1 whitespace-nowrap tracking-tight">
                                 (${tripCostPerKm} 元/km)
                             </span>
                         </div>
                     </div>
 
                     ${rec.note ? `
-                    <div class="border-t-2 border-cuteMint-50/50 dark:border-slate-800 pt-2.5 flex items-start space-x-1.5 text-xs text-slate-500 dark:text-slate-400">
-                        <svg class="w-4 h-4 text-cuteMint-300 dark:text-slate-600 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
+                    <div class="border-t-2 border-cuteMint-50/50 dark:border-[#263547] pt-2.5 flex items-start space-x-1.5 text-xs text-slate-500 dark:text-[#94a3b8]">
+                        <svg class="w-4 h-4 text-cuteMint-300 dark:text-[#263547] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
                         <span class="break-all font-bold">${rec.note}</span>
                     </div>
                     ` : ''}
@@ -2088,9 +2066,9 @@ function doPost(e) {
 
             if (statVehicleSub) {
                 if (initialOdometer > 0) {
-                    statVehicleSub.innerHTML = `初始里程 <span class="text-cuteMint-600 dark:text-cuteMint-400">${initialOdometer} km</span> + 本地已記錄 <span class="text-cuteMint-600 dark:text-cuteMint-400">${parseFloat(totalKm.toFixed(1))} km</span> 🐾`;
+                    statVehicleSub.innerHTML = `初始里程 <span class="text-cuteMint-600 dark:text-[#2dd4bf]">${initialOdometer} km</span> + 本地已記錄 <span class="text-cuteMint-600 dark:text-[#2dd4bf]">${parseFloat(totalKm.toFixed(1))} km</span> 🐾`;
                 } else {
-                    statVehicleSub.innerHTML = `愛車 <span class="text-cuteMint-600 dark:text-cuteMint-400">${evName}</span> 已陪伴您行駛了長遠路程 🐾`;
+                    statVehicleSub.innerHTML = `愛車 <span class="text-cuteMint-600 dark:text-[#2dd4bf]">${evName}</span> 已陪伴您行駛了長遠路程 🐾`;
                 }
             }
         }
@@ -2218,13 +2196,13 @@ function doPost(e) {
             
             [btnAll, btnEff, btnCost].forEach(btn => {
                 if (btn) {
-                    btn.className = "px-2.5 py-1 text-[10px] rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-all font-bold";
+                    btn.className = "px-2.5 py-1 text-[10px] rounded-lg text-slate-500 dark:text-[#94a3b8] hover:text-slate-900 dark:hover:text-slate-200 transition-all font-bold";
                 }
             });
             
             const activeBtn = document.getElementById(`btnChart${filter.charAt(0).toUpperCase() + filter.slice(1)}`);
             if (activeBtn) {
-                activeBtn.className = "px-2.5 py-1 text-[10px] rounded-lg transition-all border-2 border-slate-800 dark:border-slate-700 bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white shadow-[1px_1px_0px_0px_#1e293b] dark:shadow-[1px_1px_0px_0px_#000000] font-bold";
+                activeBtn.className = "px-2.5 py-1 text-[10px] rounded-lg transition-all border-2 border-slate-800 dark:border-[#263547] bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white shadow-[1px_1px_0px_0px_#1e293b] dark:shadow-[1px_1px_0px_0px_#0b0f15] font-bold";
             }
             
             updateCharts();
@@ -2247,7 +2225,7 @@ function doPost(e) {
             const ctx = canvasElement.getContext('2d');
             const isDarkMode = document.documentElement.classList.contains('dark');
             const labelTextColor = isDarkMode ? '#cbd5e1' : '#475569';
-            const gridColor = isDarkMode ? 'rgba(148, 163, 184, 0.08)' : 'rgba(71, 85, 105, 0.08)';
+            const gridColor = isDarkMode ? 'rgba(38, 53, 71, 0.4)' : 'rgba(71, 85, 105, 0.08)';
 
             const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
             const chartData = [...activeRecords].slice(-15);
@@ -2262,8 +2240,8 @@ function doPost(e) {
 
             const lineGradient = ctx.createLinearGradient(0, 0, 0, 300);
             if (isDarkMode) {
-                lineGradient.addColorStop(0, 'rgba(20, 184, 166, 0.25)');
-                lineGradient.addColorStop(1, 'rgba(20, 184, 166, 0)');
+                lineGradient.addColorStop(0, 'rgba(45, 212, 191, 0.25)');
+                lineGradient.addColorStop(1, 'rgba(45, 212, 191, 0)');
             } else {
                 lineGradient.addColorStop(0, 'rgba(20, 184, 166, 0.2)');
                 lineGradient.addColorStop(1, 'rgba(20, 184, 166, 0)');
@@ -2284,10 +2262,10 @@ function doPost(e) {
                 datasets.push({
                     label: '平均電耗 (km/度)',
                     data: efficiencies,
-                    borderColor: '#14b8a6',
+                    borderColor: '#2dd4bf',
                     backgroundColor: lineGradient,
                     borderWidth: 4,
-                    pointBackgroundColor: '#14b8a6',
+                    pointBackgroundColor: '#2dd4bf',
                     pointHoverRadius: 7,
                     pointRadius: 4,
                     tension: 0.4,
@@ -2301,11 +2279,11 @@ function doPost(e) {
                     title: {
                         display: true,
                         text: '電耗表現 (公里/度)',
-                        color: '#14b8a6',
+                        color: '#2dd4bf',
                         font: { weight: 'bold', size: 11, family: "'Noto Sans TC', sans-serif" }
                     },
                     ticks: {
-                        color: '#14b8a6',
+                        color: '#2dd4bf',
                         font: { family: "'JetBrains Mono', sans-serif", weight: 'bold' }
                     },
                     grid: {
@@ -2320,7 +2298,7 @@ function doPost(e) {
                     label: '補給費用 (元)',
                     type: 'bar',
                     data: costs,
-                    backgroundColor: isDarkMode ? 'rgba(14, 165, 233, 0.45)' : 'rgba(14, 165, 233, 0.25)',
+                    backgroundColor: isDarkMode ? 'rgba(56, 189, 248, 0.45)' : 'rgba(14, 165, 233, 0.25)',
                     borderColor: '#38bdf8',
                     borderWidth: 2,
                     borderRadius: 6,
@@ -2334,11 +2312,11 @@ function doPost(e) {
                     title: {
                         display: true,
                         text: '補給費用 (新台幣)',
-                        color: '#0ea5e9',
+                        color: '#38bdf8',
                         font: { weight: 'bold', size: 11, family: "'Noto Sans TC', sans-serif" }
                     },
                     ticks: {
-                        color: '#0ea5e9',
+                        color: '#38bdf8',
                         font: { family: "'JetBrains Mono', sans-serif", weight: 'bold' }
                     },
                     grid: {
@@ -2375,10 +2353,10 @@ function doPost(e) {
                             }
                         },
                         tooltip: {
-                            backgroundColor: isDarkMode ? '#1e293b' : '#fffdf9',
-                            titleColor: isDarkMode ? '#ffffff' : '#14b8a6',
+                            backgroundColor: isDarkMode ? '#121a24' : '#fffdf9',
+                            titleColor: isDarkMode ? '#f8fafc' : '#14b8a6',
                             bodyColor: isDarkMode ? '#cbd5e1' : '#475569',
-                            borderColor: '#ccfbf1',
+                            borderColor: isDarkMode ? '#263547' : '#ccfbf1',
                             borderWidth: 2,
                             borderRadius: 16,
                             padding: 12,
@@ -2564,8 +2542,8 @@ function doPost(e) {
                 "start_url": "./index.html",
                 "scope": "./",
                 "display": "standalone",
-                "background_color": "#1e293b",
-                "theme_color": "#1e293b",
+                "background_color": "#0b0f15",
+                "theme_color": "#0b0f15",
                 "orientation": "portrait-primary",
                 "icons": [
                     {
