@@ -990,6 +990,7 @@ function doPost(e) {
         let activeConfirmCallback = null;
         let editingRecordId = null;
         let currentChartFilter = 'all';
+        let currentMonthFilter = 'all'; // 🚀 新增：全域月份篩選狀態
         let deferredPrompt = null;
 
         // 🚀 新增：補回全域的即時時鐘更新
@@ -1771,6 +1772,9 @@ function doPost(e) {
 
             records.sort((a, b) => new Date(a.date) - new Date(b.date) || parseInt(a.id, 10) - parseInt(b.id, 10));
 
+            // 🚀 新增：動態生成月份篩選按鈕
+            renderMonthFilters();
+
             const tableBody = document.getElementById('recordTableBody');
             const mobileList = document.getElementById('recordMobileList');
             const placeholder = document.getElementById('noDataPlaceholder');
@@ -1788,6 +1792,15 @@ function doPost(e) {
                 !isNaN(parseFloat(r.distance))
             );
 
+            // 🚀 新增：根據目前選取的月份過濾資料
+            let filteredRecords = activeRecords;
+            if (currentMonthFilter !== 'all') {
+                filteredRecords = activeRecords.filter(rec => {
+                    const dateStr = rec.date && rec.date.includes('T') ? rec.date.split('T')[0] : (rec.date || '');
+                    return dateStr.startsWith(currentMonthFilter);
+                });
+            }
+
             if (activeRecords.length === 0) {
                 if (placeholder) placeholder.classList.remove('hidden');
                 if (flatViewContainer) flatViewContainer.classList.add('hidden');
@@ -1798,10 +1811,20 @@ function doPost(e) {
                 }
                 return;
             } else {
+                // 如果總資料不為空，但篩選後為空，也要處理顯示
+                if (filteredRecords.length === 0 && currentMonthFilter !== 'all') {
+                     if (tableBody) tableBody.innerHTML = '<tr><td colspan="8" class="text-center py-8 text-slate-500">這個月沒有紀錄喔 🐾</td></tr>';
+                     if (mobileList) mobileList.innerHTML = '<div class="text-center py-8 text-slate-500">這個月沒有紀錄喔 🐾</div>';
+                     updateStats(0, 0, 0, 0, 0);
+                     if (typeof Chart !== 'undefined') updateCharts();
+                     return;
+                }
+                
                 if (placeholder) placeholder.classList.add('hidden');
                 if (flatViewContainer) flatViewContainer.classList.remove('hidden');
             }
 
+            // 計算所有資料的消耗百分比 (為了跨月計算準確，必須用完整 activeRecords 算)
             for (let i = 0; i < activeRecords.length; i++) {
                 const rec = activeRecords[i];
                 let consumedSocPercent = 0;
@@ -1846,7 +1869,8 @@ function doPost(e) {
             let totalPower = 0;
             let totalPowerConsumedReal = 0; 
 
-            activeRecords.forEach(rec => {
+            // 🚀 核心：總計區塊只計算「篩選後的資料」
+            filteredRecords.forEach(rec => {
                 totalKm += parseFloat(rec.distance) || 0;
                 totalCost += parseFloat(rec.cost) || 0;
                 
@@ -1859,7 +1883,8 @@ function doPost(e) {
                 totalPowerConsumedReal += rowConsumedPower;
             });
 
-            const displayRecords = [...activeRecords].reverse();
+            // 🚀 列表顯示的也是「篩選後的資料」
+            const displayRecords = [...filteredRecords].reverse();
 
             displayRecords.forEach(rec => {
                 const distVal = parseFloat(rec.distance) || 0;
@@ -2050,11 +2075,89 @@ function doPost(e) {
             const avgEfficiency = totalPowerConsumedReal > 0 ? (totalKm / totalPowerConsumedReal) : 0;
             const costPerKm = totalKm > 0 ? (totalCost / totalKm) : 0;
 
-            updateStats(totalKm, avgEfficiency, totalCost, totalPower, costPerKm);
+            // 如果選了特定月份，不把 initialOdometer 加進去總里程，只顯示該月行駛里程
+            const odoBase = currentMonthFilter === 'all' ? initialOdometer : 0;
+            updateStats(totalKm, avgEfficiency, totalCost, totalPower, costPerKm, odoBase);
             if (typeof Chart !== 'undefined') updateCharts();
         }
 
-        function updateStats(totalKm, avgEfficiency, totalCost, totalPower, costPerKm) {
+        // 🚀 新增：渲染月份篩選器 UI
+        function renderMonthFilters() {
+            const chartHeader = document.querySelector('#efficiencyChart').closest('.rpg-card').querySelector('.flex-col.sm\\:flex-row');
+            if (!chartHeader) return;
+
+            // 找看看有沒有已經建好的容器，沒有就建一個
+            let filterContainer = document.getElementById('monthFilterContainer');
+            if (!filterContainer) {
+                filterContainer = document.createElement('div');
+                filterContainer.id = 'monthFilterContainer';
+                filterContainer.className = 'w-full flex overflow-x-auto pb-2 mb-4 gap-2 scrollbar-thin mt-4 sm:mt-0';
+                // 把它塞在標題跟圖表之間
+                chartHeader.parentNode.insertBefore(filterContainer, chartHeader.nextSibling);
+            }
+
+            // 收集所有出現過的月份
+            const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.date);
+            const months = new Set();
+            activeRecords.forEach(rec => {
+                const dateStr = rec.date.includes('T') ? rec.date.split('T')[0] : rec.date;
+                if (dateStr.length >= 7) {
+                    months.add(dateStr.substring(0, 7)); // 取 YYYY-MM
+                }
+            });
+
+            const sortedMonths = Array.from(months).sort().reverse(); // 由新到舊
+
+            let html = `
+                <button onclick="setMonthFilter('all')" class="flex-shrink-0 px-3 py-1.5 text-[11px] rounded-xl transition-all border-2 ${
+                    currentMonthFilter === 'all' 
+                    ? 'border-slate-800 dark:border-[#374151] bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white shadow-[1px_1px_0px_0px_#1e293b] font-black' 
+                    : 'border-transparent bg-slate-100 dark:bg-[#1f2937] text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 font-bold'
+                }">
+                    全部紀錄
+                </button>
+            `;
+
+            sortedMonths.forEach(m => {
+                const label = m.replace('-', '/');
+                html += `
+                    <button onclick="setMonthFilter('${m}')" class="flex-shrink-0 px-3 py-1.5 text-[11px] rounded-xl transition-all border-2 ${
+                        currentMonthFilter === m 
+                        ? 'border-slate-800 dark:border-[#374151] bg-cuteBlue-400 dark:bg-cuteBlue-600 text-slate-900 dark:text-white shadow-[1px_1px_0px_0px_#1e293b] font-black' 
+                        : 'border-transparent bg-slate-100 dark:bg-[#1f2937] text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 font-bold'
+                    }">
+                        ${label}
+                    </button>
+                `;
+            });
+
+            filterContainer.innerHTML = html;
+        }
+
+        // 🚀 新增：設定月份篩選狀態
+        function setMonthFilter(month) {
+            currentMonthFilter = month;
+            
+            // 強制將右上角的視圖切換下拉選單邏輯同步
+            const timeViewSelect = document.getElementById('chartTimeView');
+            if (timeViewSelect) {
+                if (month !== 'all') {
+                    // 如果選定特定月份，強制切換成「逐筆紀錄」看明細最適合
+                    timeViewSelect.value = 'raw';
+                    timeViewSelect.disabled = true; // 鎖定它，避免邏輯衝突
+                    timeViewSelect.classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    // 如果是全部，恢復成預設的單月統計，並解鎖
+                    timeViewSelect.value = 'monthly';
+                    timeViewSelect.disabled = false;
+                    timeViewSelect.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            }
+            
+            renderDashboard(); // 重新渲染整個儀表板 (包含清單和圖表)
+        }
+
+        function updateStats(totalKm, avgEfficiency, totalCost, totalPower, costPerKm, odoBaseOverride) {
             const statTotalKm = document.getElementById('statTotalKm');
             const statAvgEfficiency = document.getElementById('statAvgEfficiency');
             const statTotalCost = document.getElementById('statTotalCost');
@@ -2063,7 +2166,10 @@ function doPost(e) {
             const statTotalPower = document.getElementById('statTotalPower');
             const statVehicleSub = document.getElementById('statVehicleSub');
 
-            if (statTotalKm) statTotalKm.textContent = (totalKm + initialOdometer).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
+            // 🚀 使用傳入的基數 (如果是特定月份就只顯示該月里程)
+            const baseOdo = odoBaseOverride !== undefined ? odoBaseOverride : initialOdometer;
+            
+            if (statTotalKm) statTotalKm.textContent = (totalKm + baseOdo).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
             if (statAvgEfficiency) statAvgEfficiency.textContent = avgEfficiency.toFixed(2);
             if (statTotalCost) statTotalCost.textContent = totalCost.toLocaleString();
             if (statCostPerKm) statCostPerKm.textContent = costPerKm.toFixed(2);
@@ -2073,7 +2179,9 @@ function doPost(e) {
             if (statTotalPower) statTotalPower.textContent = `累計充入 ${totalPower.toFixed(1)} 度電`;
 
             if (statVehicleSub) {
-                if (initialOdometer > 0) {
+                if (currentMonthFilter !== 'all') {
+                     statVehicleSub.innerHTML = `<span class="text-cuteMint-600 dark:text-[#2dd4bf]">${currentMonthFilter.replace('-','/')}</span> 月份行駛里程 🐾`;
+                } else if (initialOdometer > 0) {
                     statVehicleSub.innerHTML = `初始里程 <span class="text-cuteMint-600 dark:text-[#2dd4bf]">${initialOdometer} km</span> + 本地已記錄 <span class="text-cuteMint-600 dark:text-[#2dd4bf]">${parseFloat(totalKm.toFixed(1))} km</span> 🐾`;
                 } else {
                     statVehicleSub.innerHTML = `愛車 <span class="text-cuteMint-600 dark:text-[#2dd4bf]">${evName}</span> 已陪伴您行駛了長遠路程 🐾`;
@@ -2235,10 +2343,18 @@ function doPost(e) {
             const labelTextColor = isDarkMode ? '#cbd5e1' : '#475569';
             const gridColor = isDarkMode ? 'rgba(156, 163, 175, 0.15)' : 'rgba(71, 85, 105, 0.08)';
 
+            // 🚀 修改：圖表資料來源改用篩選後的狀態
             const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
-            const chartData = [...activeRecords]; 
+            let chartData = [...activeRecords]; 
             
-            // 🚀 新增：判斷當前的圖表維度模式 (單月統計 vs 逐筆紀錄)
+            if (currentMonthFilter !== 'all') {
+                chartData = chartData.filter(rec => {
+                    const dateStr = rec.date && rec.date.includes('T') ? rec.date.split('T')[0] : (rec.date || '');
+                    return dateStr.startsWith(currentMonthFilter);
+                });
+            }
+
+            // 判斷當前的圖表維度模式 (單月統計 vs 逐筆紀錄)
             const timeViewSelect = document.getElementById('chartTimeView');
             const timeView = timeViewSelect ? timeViewSelect.value : 'monthly';
             
@@ -2246,8 +2362,8 @@ function doPost(e) {
             let efficiencies = [];
             let costs = [];
 
-            if (timeView === 'monthly') {
-                // 📊 模式一：單月統計 (聚合邏輯)
+            if (timeView === 'monthly' && currentMonthFilter === 'all') {
+                // 📊 模式一：單月統計 (聚合邏輯) - 只有在看「全部」的時候才聚合
                 const monthlyMap = {};
                 chartData.forEach(rec => {
                     const dateStr = rec.date && rec.date.includes('T') ? rec.date.split('T')[0] : (rec.date || '');
@@ -2280,8 +2396,11 @@ function doPost(e) {
                 costs = sortedMonths.map(m => monthlyMap[m].cost); // 該月總花費
                 
             } else {
-                // 🐾 模式二：逐筆紀錄 (原生邏輯)
-                labels = chartData.map(rec => rec.date && rec.date.includes('T') ? rec.date.split('T')[0].substring(5) : (rec.date || '').substring(5));
+                // 🐾 模式二：逐筆紀錄 (原生邏輯) - 如果選了特定月份，一定用逐筆看
+                labels = chartData.map(rec => {
+                    const d = rec.date && rec.date.includes('T') ? rec.date.split('T')[0] : (rec.date || '');
+                    return currentMonthFilter === 'all' ? d.substring(5) : d.substring(8); // 特定月份只顯示 DD 日期
+                });
                 
                 efficiencies = chartData.map(rec => {
                     const consumedSoc = rec.consumedSocPercent !== undefined ? rec.consumedSocPercent : 0;
