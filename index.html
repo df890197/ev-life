@@ -901,10 +901,18 @@ function doPost(e) {
                             </span>
                             <span>電耗與補給趨勢圖 📈⚡</span>
                         </h2>
-                        <div class="flex p-1 bg-slate-100 dark:bg-black rounded-xl border-2 border-slate-800 dark:border-[#374151] self-start sm:self-center font-bold">
-                            <button onclick="setChartFilter('all')" id="btnChartAll" class="px-2.5 py-1 text-[10px] rounded-lg transition-all border-2 border-slate-800 dark:border-[#374151] bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white shadow-[1px_1px_0px_0px_#1e293b] dark:shadow-[1px_1px_0px_0px_#000000]">全部</button>
-                            <button onclick="setChartFilter('efficiency')" id="btnChartEfficiency" class="px-2.5 py-1 text-[10px] rounded-lg text-slate-500 dark:text-[#94a3b8] hover:text-slate-900 dark:hover:text-slate-200 transition-all ml-1">僅電耗 📈</button>
-                            <button onclick="setChartFilter('cost')" id="btnChartCost" class="px-2.5 py-1 text-[10px] rounded-lg text-slate-500 dark:text-[#94a3b8] hover:text-slate-900 dark:hover:text-slate-200 transition-all ml-1">僅花費 👛</button>
+                        <div class="flex flex-wrap items-center gap-2 self-start sm:self-center">
+                            <!-- 🚀 新增：時間維度切換下拉選單 -->
+                            <select id="chartTimeView" onchange="updateCharts()" class="px-2.5 py-1.5 text-[10px] rounded-xl border-2 border-slate-800 dark:border-[#374151] bg-white dark:bg-[#1f2937] text-slate-800 dark:text-white font-bold focus:outline-none cursor-pointer shadow-[1px_1px_0px_0px_#1e293b] dark:shadow-[1px_1px_0px_0px_#000000]">
+                                <option value="monthly" selected>單月統計 📅</option>
+                                <option value="raw">逐筆紀錄 🐾</option>
+                            </select>
+
+                            <div class="flex p-1 bg-slate-100 dark:bg-black rounded-xl border-2 border-slate-800 dark:border-[#374151] font-bold">
+                                <button onclick="setChartFilter('all')" id="btnChartAll" class="px-2.5 py-1 text-[10px] rounded-lg transition-all border-2 border-slate-800 dark:border-[#374151] bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white shadow-[1px_1px_0px_0px_#1e293b] dark:shadow-[1px_1px_0px_0px_#000000]">全部</button>
+                                <button onclick="setChartFilter('efficiency')" id="btnChartEfficiency" class="px-2.5 py-1 text-[10px] rounded-lg text-slate-500 dark:text-[#94a3b8] hover:text-slate-900 dark:hover:text-slate-200 transition-all ml-1">僅電耗 📈</button>
+                                <button onclick="setChartFilter('cost')" id="btnChartCost" class="px-2.5 py-1 text-[10px] rounded-lg text-slate-500 dark:text-[#94a3b8] hover:text-slate-900 dark:hover:text-slate-200 transition-all ml-1">僅花費 👛</button>
+                            </div>
                         </div>
                     </div>
                     <div class="h-64 relative">
@@ -2228,19 +2236,61 @@ function doPost(e) {
             const gridColor = isDarkMode ? 'rgba(156, 163, 175, 0.15)' : 'rgba(71, 85, 105, 0.08)';
 
             const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
-            
-            // 🚀 修改前：const chartData = [...activeRecords].slice(-15);
-            // 🚀 修改後：移除了 `.slice(-15)`，現在圖表會讀取全部歷史紀錄
             const chartData = [...activeRecords]; 
             
-            const labels = chartData.map(rec => rec.date && rec.date.includes('T') ? rec.date.split('T')[0].substring(5) : (rec.date || '').substring(5));
+            // 🚀 新增：判斷當前的圖表維度模式 (單月統計 vs 逐筆紀錄)
+            const timeViewSelect = document.getElementById('chartTimeView');
+            const timeView = timeViewSelect ? timeViewSelect.value : 'monthly';
             
-            const efficiencies = chartData.map(rec => {
-                const consumedSoc = rec.consumedSocPercent !== undefined ? rec.consumedSocPercent : 0;
-                const rowConsumedPower = batteryCapacity * (consumedSoc / 100);
-                return rowConsumedPower > 0 ? parseFloat((rec.distance / rowConsumedPower).toFixed(2)) : 0;
-            });
-            const costs = chartData.map(rec => rec.cost);
+            let labels = [];
+            let efficiencies = [];
+            let costs = [];
+
+            if (timeView === 'monthly') {
+                // 📊 模式一：單月統計 (聚合邏輯)
+                const monthlyMap = {};
+                chartData.forEach(rec => {
+                    const dateStr = rec.date && rec.date.includes('T') ? rec.date.split('T')[0] : (rec.date || '');
+                    if (!dateStr || dateStr.length < 7) return;
+                    const month = dateStr.substring(0, 7); // 擷取 YYYY-MM
+                    
+                    if (!monthlyMap[month]) {
+                        monthlyMap[month] = { distance: 0, cost: 0, consumedPower: 0 };
+                    }
+                    
+                    monthlyMap[month].distance += (parseFloat(rec.distance) || 0);
+                    monthlyMap[month].cost += (parseFloat(rec.cost) || 0);
+                    
+                    // 計算單筆耗電度數
+                    const consumedSoc = rec.consumedSocPercent !== undefined ? rec.consumedSocPercent : 0;
+                    const rowConsumedPower = batteryCapacity * (consumedSoc / 100);
+                    monthlyMap[month].consumedPower += rowConsumedPower;
+                });
+
+                // 按月份排序並產生圖表數據
+                const sortedMonths = Object.keys(monthlyMap).sort();
+                labels = sortedMonths.map(m => m.replace('-', '/')); // 顯示為 2026/06
+                
+                efficiencies = sortedMonths.map(m => {
+                    const data = monthlyMap[m];
+                    // 月平均電耗 = 該月總里程 / 該月總消耗度數
+                    return data.consumedPower > 0 ? parseFloat((data.distance / data.consumedPower).toFixed(2)) : 0;
+                });
+                
+                costs = sortedMonths.map(m => monthlyMap[m].cost); // 該月總花費
+                
+            } else {
+                // 🐾 模式二：逐筆紀錄 (原生邏輯)
+                labels = chartData.map(rec => rec.date && rec.date.includes('T') ? rec.date.split('T')[0].substring(5) : (rec.date || '').substring(5));
+                
+                efficiencies = chartData.map(rec => {
+                    const consumedSoc = rec.consumedSocPercent !== undefined ? rec.consumedSocPercent : 0;
+                    const rowConsumedPower = batteryCapacity * (consumedSoc / 100);
+                    return rowConsumedPower > 0 ? parseFloat((rec.distance / rowConsumedPower).toFixed(2)) : 0;
+                });
+                
+                costs = chartData.map(rec => rec.cost);
+            }
 
             const datasets = [];
             const scalesConfig = {
