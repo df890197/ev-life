@@ -2228,7 +2228,11 @@ function doPost(e) {
             const gridColor = isDarkMode ? 'rgba(156, 163, 175, 0.15)' : 'rgba(71, 85, 105, 0.08)';
 
             const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
-            const chartData = [...activeRecords].slice(-15);
+            
+            // 🚀 修改前：const chartData = [...activeRecords].slice(-15);
+            // 🚀 修改後：移除了 `.slice(-15)`，現在圖表會讀取全部歷史紀錄
+            const chartData = [...activeRecords]; 
+            
             const labels = chartData.map(rec => rec.date && rec.date.includes('T') ? rec.date.split('T')[0].substring(5) : (rec.date || '').substring(5));
             
             const efficiencies = chartData.map(rec => {
