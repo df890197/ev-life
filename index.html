@@ -57,6 +57,15 @@
             height: 100%;
             z-index: 30; /* 覆蓋在 custom icon 之上以利點擊，但維持透明 */
         }
+
+        /* 🚀 優化：隱藏月份選擇器的原生滾動條，保持 App 般的美觀 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
     </style>
     
     <!-- 🚀 優化 3: Google Fonts 非阻塞載入 -->
@@ -1051,6 +1060,25 @@ function doPost(e) {
             renderDashboard();
         }
 
+        // 🚀 優化：智慧繼承上一趟的抵達 SOC，做為新旅程的預設出發 SOC
+        function autoFillStartSoc() {
+            // 只在「非編輯狀態」且「起始電量欄位為空」時才自動填入，避免干擾使用者操作
+            const startSocInput = document.getElementById('inputStartSoc');
+            if (!startSocInput || editingRecordId !== null || startSocInput.value !== '') return;
+
+            const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
+            if (activeRecords.length === 0) return;
+
+            // 找出最後一筆建立的紀錄 (依照日期與 ID 排序)
+            const sortedRecords = [...activeRecords].sort((a, b) => new Date(b.date) - new Date(a.date) || parseInt(b.id, 10) - parseInt(a.id, 10));
+            const lastRecord = sortedRecords[0];
+
+            if (lastRecord && lastRecord.endSoc !== undefined && !isNaN(lastRecord.endSoc)) {
+                startSocInput.value = lastRecord.endSoc;
+                updateConvertedPowerHint(); // 填入後更新試算提示
+            }
+        }
+
         // Phase 1: Boot UI 解鎖，讓出主執行緒避免白畫面卡死
         document.addEventListener('DOMContentLoaded', () => {
             requestAnimationFrame(() => {
@@ -1154,6 +1182,9 @@ function doPost(e) {
             }
             
             renderDashboard();
+            
+            // 🚀 核心：初始化時自動帶入上一趟結尾 SOC
+            autoFillStartSoc(); 
 
             if (window.matchMedia) {
                 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
@@ -1762,6 +1793,9 @@ function doPost(e) {
             
             document.getElementById('inputChargeType').value = "DC-快充";
             handleChargeTypeChange(); 
+            
+            // 🚀 優化：取消編輯時，若符合條件則自動帶入結尾 SOC 準備下一趟紀錄
+            autoFillStartSoc();
         }
 
         function renderDashboard() {
@@ -1886,6 +1920,22 @@ function doPost(e) {
             // 🚀 列表顯示的也是「篩選後的資料」
             const displayRecords = [...filteredRecords].reverse();
 
+            // 🚀 優化 2：尋找 MVP (當前列表中電耗表現最好的一筆)
+            let maxEfficiencyForMvp = 0;
+            let mvpRecordId = null;
+            displayRecords.forEach(rec => {
+                const rowConsumedSoc = rec.consumedSocPercent !== undefined ? rec.consumedSocPercent : 0;
+                const rowConsumedPower = batteryCapacity * (rowConsumedSoc / 100);
+                if (rowConsumedPower > 0) {
+                    const eff = parseFloat((rec.distance / rowConsumedPower).toFixed(2));
+                    // 我們只頒發給行駛超過 5km 且效率最高的那一筆，避免極端數值干擾
+                    if (eff > maxEfficiencyForMvp && rec.distance > 5) {
+                        maxEfficiencyForMvp = eff;
+                        mvpRecordId = rec.id;
+                    }
+                }
+            });
+
             displayRecords.forEach(rec => {
                 const distVal = parseFloat(rec.distance) || 0;
                 
@@ -1927,6 +1977,10 @@ function doPost(e) {
                 }
 
                 const displayDate = rec.date && rec.date.includes('T') ? rec.date.split('T')[0] : (rec.date || '').split('T')[0];
+                
+                // 判斷是否為 MVP
+                const isMVP = rec.id === mvpRecordId && maxEfficiencyForMvp > 0;
+                const mvpBadgeHtml = isMVP ? `<span class="inline-flex items-center ml-1.5 px-1.5 py-0.5 rounded border border-amber-300 dark:border-amber-500/50 bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 text-[9px] font-black shadow-sm" title="此列表中電耗表現最佳！">👑 黃金右腳</span>` : '';
 
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-cuteMint-50/20 dark:hover:bg-slate-800/40 transition border-b border-cuteMint-100/60 dark:border-slate-800/60";
@@ -1942,9 +1996,9 @@ function doPost(e) {
                     </td>
                     <td class="px-1 lg:px-2 py-3 text-center font-bold font-mono text-slate-800 dark:text-slate-100 whitespace-nowrap">${parseFloat(rec.distance)} KM</td>
                     <td class="px-1 lg:px-2 py-3 text-center font-bold font-mono text-slate-800 dark:text-slate-100 whitespace-nowrap">${socText}</td>
-                    <td class="px-1 lg:px-2 py-3 text-center text-cuteMint-500 dark:text-cuteMint-400 font-bold font-mono whitespace-nowrap">
-                        <div>${efficiency} km/度</div>
-                        <div class="text-[10px] text-slate-400 dark:text-slate-500 font-normal leading-normal whitespace-nowrap">
+                    <td class="px-1 lg:px-2 py-3 text-center text-cuteMint-500 dark:text-cuteMint-400 font-bold font-mono whitespace-nowrap relative">
+                        <div class="flex justify-center items-center">${efficiency} km/度 ${mvpBadgeHtml}</div>
+                        <div class="text-[10px] text-slate-400 dark:text-slate-500 font-normal leading-normal whitespace-nowrap mt-0.5">
                             (行駛消耗 ${rowConsumedSoc}% | ${rowConsumedPower.toFixed(1)}度)
                         </div>
                     </td>
@@ -2025,7 +2079,7 @@ function doPost(e) {
                         </div>
                         
                         <!-- 格子 2: 電耗表現 -->
-                        <div class="bg-slate-50 dark:bg-[#1f2937]/40 p-2 sm:p-3 rounded-[1.2rem] border border-slate-200/50 dark:border-slate-800 flex flex-col justify-center items-center text-center overflow-hidden min-h-[104px] py-3.5">
+                        <div class="bg-slate-50 dark:bg-[#1f2937]/40 p-2 sm:p-3 rounded-[1.2rem] border border-slate-200/50 dark:border-slate-800 flex flex-col justify-center items-center text-center overflow-hidden min-h-[104px] py-3.5 relative">
                             <span class="text-[10px] text-slate-400 dark:text-slate-500 font-black mb-1 whitespace-nowrap">電耗表現</span>
                             <div class="text-center w-full my-0.5 whitespace-nowrap flex justify-center items-baseline gap-0.5">
                                 <span class="font-black text-cuteMint-600 dark:text-[#2dd4bf] text-base sm:text-lg font-mono tracking-tight leading-none">${efficiency}</span>
@@ -2034,6 +2088,7 @@ function doPost(e) {
                             <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold mt-1 whitespace-nowrap tracking-tight">
                                 (消耗 ${rowConsumedSoc}% | ${rowConsumedPower.toFixed(1)}度)
                             </span>
+                            ${isMVP ? '<div class="absolute -top-1 -right-1 text-sm bg-amber-100 dark:bg-amber-900 border border-amber-300 dark:border-amber-700 rounded-full p-0.5 shadow-sm" title="黃金右腳！最佳電耗">👑</div>' : ''}
                         </div>
                         
                         <!-- 格子 3: 補給起訖 -->
@@ -2091,7 +2146,8 @@ function doPost(e) {
             if (!filterContainer) {
                 filterContainer = document.createElement('div');
                 filterContainer.id = 'monthFilterContainer';
-                filterContainer.className = 'w-full flex overflow-x-auto pb-2 mb-4 gap-2 scrollbar-thin mt-4 sm:mt-0';
+                // 🚀 套用我們前面加好的 .no-scrollbar 來隱藏原生捲軸，但保留觸控滑動的順暢體驗
+                filterContainer.className = 'w-full flex overflow-x-auto pb-2 mb-4 gap-2 no-scrollbar mt-4 sm:mt-0 scroll-smooth';
                 // 把它塞在標題跟圖表之間
                 chartHeader.parentNode.insertBefore(filterContainer, chartHeader.nextSibling);
             }
@@ -2253,6 +2309,8 @@ function doPost(e) {
                 const updatedRecords = [...records, newRecord];
                 saveLocalState(updatedRecords);
                 showToast("紀錄已寫在本機小本本囉！(•̀ᴗ•́)u ̑̑");
+                
+                // 新增完畢後清空特定表單並帶入結尾 SOC
                 cancelEdit(); 
             }
 
@@ -2574,7 +2632,6 @@ function doPost(e) {
         }
 
         // ==================== PWA 核心技術擴充腳本 ====================
-        //
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js', { scope: './' })
