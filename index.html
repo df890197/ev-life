@@ -1064,7 +1064,17 @@ function doPost(e) {
         function autoFillStartSoc() {
             // 只在「非編輯狀態」且「起始電量欄位為空」時才自動填入，避免干擾使用者操作
             const startSocInput = document.getElementById('inputStartSoc');
-            if (!startSocInput || editingRecordId !== null || startSocInput.value !== '') return;
+            const chargeTypeSelect = document.getElementById('inputChargeType');
+            
+            if (!startSocInput || !chargeTypeSelect || editingRecordId !== null) return;
+            
+            // 🚀 關鍵修復：只有在「未充電」模式（紀錄純行駛），也就是欄位為「出發前電量」時，才繼承上一趟的結束電量
+            // 如果是「充電」模式，欄位會是「充電前電量」，這個數字每次都會因為開了多遠而不同，絕對不能自動填寫！
+            if (chargeTypeSelect.value !== "未充電") {
+                return; 
+            }
+
+            if (startSocInput.value !== '') return;
 
             const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
             if (activeRecords.length === 0) return;
@@ -1256,6 +1266,7 @@ function doPost(e) {
             const costInput = document.getElementById('inputCost');
             const startSocLabel = document.getElementById('startSocLabel');
             const endSocLabel = document.getElementById('endSocLabel');
+            const startSocInput = document.getElementById('inputStartSoc');
             
             if (!chargeTypeSelect) return;
             
@@ -1267,6 +1278,9 @@ function doPost(e) {
                 }
                 if (startSocLabel) startSocLabel.textContent = "出發前電量 (%)";
                 if (endSocLabel) endSocLabel.textContent = "抵達後電量 (%)";
+                
+                // 🚀 當切換到「未充電」，代表要紀錄純行駛，此時嘗試自動帶入上一趟的抵達電量
+                if (editingRecordId === null) autoFillStartSoc();
             } else {
                 if (costInput) {
                     if (editingRecordId === null && costInput.value === "0") {
@@ -1277,6 +1291,20 @@ function doPost(e) {
                 }
                 if (startSocLabel) startSocLabel.textContent = "充電前電量 (%)";
                 if (endSocLabel) endSocLabel.textContent = "充電後電量 (%)";
+                
+                // 🚀 當切換到「充電」模式時，如果不是在編輯狀態，強迫清空「充電前電量」
+                // 讓車主自己填寫開到充電站時的真實剩餘電量，避免錯誤繼承上一次充飽的 100%
+                if (editingRecordId === null && startSocInput) {
+                    const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
+                    if (activeRecords.length > 0) {
+                        const sortedRecords = [...activeRecords].sort((a, b) => new Date(b.date) - new Date(a.date) || parseInt(b.id, 10) - parseInt(a.id, 10));
+                        const lastRecord = sortedRecords[0];
+                        // 避免誤清掉車主自己手打的數字，只在等於上一筆的結束電量（疑似被自動填入）時才把它清空
+                        if (lastRecord && startSocInput.value == lastRecord.endSoc) {
+                            startSocInput.value = '';
+                        }
+                    }
+                }
             }
             updateConvertedPowerHint();
         }
