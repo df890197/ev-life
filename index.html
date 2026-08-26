@@ -767,7 +767,9 @@ function doPost(e) {
                     <!-- 🚀 單位改用中灰色 -->
                     <span class="text-xs font-bold text-teal-600 dark:text-[#9ca3af] ml-1">km/度</span>
                 </div>
-                <span id="statWhKm" class="text-[10px] text-slate-400 dark:text-[#94a3b8] mt-2 font-mono">相當於 0 Wh/km</span>
+                <span id="statWhKm" class="text-[10px] text-slate-400 dark:text-[#94a3b8] mt-2 font-bold flex flex-col gap-0.5">
+                    <span>相當於 0 Wh/km</span>
+                </span>
             </div>
             <!-- 累計補給花費 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
@@ -785,7 +787,9 @@ function doPost(e) {
                     <!-- 🚀 單位改用中灰色 -->
                     <span class="text-xs font-bold text-slate-400 dark:text-[#9ca3af] ml-1">元</span>
                 </div>
-                <span id="statTotalPower" class="text-[10px] text-slate-400 dark:text-[#94a3b8] mt-2 font-mono">累計充入 0.0 度電</span>
+                <span id="statTotalPower" class="text-[10px] text-slate-400 dark:text-[#94a3b8] mt-2 font-bold flex flex-col gap-0.5">
+                    <span>累計充入 0.0 度電</span>
+                </span>
             </div>
             <!-- 每公里電費 -->
             <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
@@ -804,7 +808,9 @@ function doPost(e) {
                     <!-- 🚀 單位改用中灰色 -->
                     <span class="text-xs font-bold text-cuteMint-600 dark:text-[#9ca3af] ml-1">元/km</span>
                 </div>
-                <span class="text-[10px] text-slate-400 dark:text-[#94a3b8] mt-2">荷包精打細算中 🐾</span>
+                <span id="statChargeRatio" class="text-[10px] text-slate-400 dark:text-[#94a3b8] mt-2 font-bold flex flex-col gap-0.5">
+                    <span>荷包精打細算中 🐾</span>
+                </span>
             </div>
         </div>
 
@@ -1930,6 +1936,8 @@ function doPost(e) {
             let totalCost = 0;
             let totalPower = 0;
             let totalPowerConsumedReal = 0; 
+            let dcCount = 0;
+            let acCount = 0;
 
             // 🚀 核心：總計區塊只計算「篩選後的資料」
             filteredRecords.forEach(rec => {
@@ -1939,6 +1947,9 @@ function doPost(e) {
                 if (rec.chargeType !== "未充電") {
                     totalPower += parseFloat(rec.power) || 0;
                 }
+
+                if (rec.chargeType.includes("快充")) dcCount++;
+                if (rec.chargeType.includes("慢充")) acCount++;
 
                 const rowConsumedSoc = rec.consumedSocPercent !== undefined ? rec.consumedSocPercent : 0;
                 const rowConsumedPower = batteryCapacity * (rowConsumedSoc / 100);
@@ -2022,7 +2033,10 @@ function doPost(e) {
                             ${rec.chargeType}
                         </span>
                     </td>
-                    <td class="px-1 lg:px-2 py-3 text-center font-bold font-mono text-slate-800 dark:text-slate-100 whitespace-nowrap">${parseFloat(rec.distance)} KM</td>
+                    <td class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">
+                        <div class="font-bold font-mono text-slate-800 dark:text-slate-100">${parseFloat(rec.distance)} KM</div>
+                        <div class="text-[10px] text-slate-400 dark:text-slate-500 font-mono mt-0.5" title="儀表總里程 ODO">ODO: ${rec.rollingOdo.toFixed(0)}</div>
+                    </td>
                     <td class="px-1 lg:px-2 py-3 text-center font-bold font-mono text-slate-800 dark:text-slate-100 whitespace-nowrap">${socText}</td>
                     <td class="px-1 lg:px-2 py-3 text-center text-cuteMint-500 dark:text-cuteMint-400 font-bold font-mono whitespace-nowrap relative">
                         <div class="flex justify-center items-center">${efficiency} km/度 ${mvpBadgeHtml}</div>
@@ -2160,7 +2174,7 @@ function doPost(e) {
 
             // 如果選了特定月份，不把 initialOdometer 加進去總里程，只顯示該月行駛里程
             const odoBase = currentMonthFilter === 'all' ? initialOdometer : 0;
-            updateStats(totalKm, avgEfficiency, totalCost, totalPower, costPerKm, odoBase);
+            updateStats(totalKm, avgEfficiency, totalCost, totalPower, costPerKm, odoBase, dcCount, acCount);
             if (typeof Chart !== 'undefined') updateCharts();
         }
 
@@ -2241,7 +2255,7 @@ function doPost(e) {
             renderDashboard(); // 重新渲染整個儀表板 (包含清單和圖表)
         }
 
-        function updateStats(totalKm, avgEfficiency, totalCost, totalPower, costPerKm, odoBaseOverride) {
+        function updateStats(totalKm, avgEfficiency, totalCost, totalPower, costPerKm, odoBaseOverride, dcCount = 0, acCount = 0) {
             const statTotalKm = document.getElementById('statTotalKm');
             const statAvgEfficiency = document.getElementById('statAvgEfficiency');
             const statTotalCost = document.getElementById('statTotalCost');
@@ -2249,6 +2263,7 @@ function doPost(e) {
             const statWhKm = document.getElementById('statWhKm');
             const statTotalPower = document.getElementById('statTotalPower');
             const statVehicleSub = document.getElementById('statVehicleSub');
+            const statChargeRatio = document.getElementById('statChargeRatio');
 
             // 🚀 使用傳入的基數 (如果是特定月份就只顯示該月里程)
             const baseOdo = odoBaseOverride !== undefined ? odoBaseOverride : initialOdometer;
@@ -2259,8 +2274,34 @@ function doPost(e) {
             if (statCostPerKm) statCostPerKm.textContent = costPerKm.toFixed(2);
 
             const whKm = avgEfficiency > 0 ? Math.round(1000 / avgEfficiency) : 0;
-            if (statWhKm) statWhKm.textContent = `相當於約 ${whKm} Wh/km`;
-            if (statTotalPower) statTotalPower.textContent = `累計充入 ${totalPower.toFixed(1)} 度電`;
+            const estRange = avgEfficiency > 0 ? Math.round(batteryCapacity * avgEfficiency) : 0;
+            
+            // 計算省下的油錢 (假設油車 12km/L, 油價 $30/L -> 每公里約 $2.5 元)
+            const estimatedGasCost = totalKm * 2.5;
+            const gasSavings = Math.max(0, estimatedGasCost - totalCost);
+
+            if (statWhKm) {
+                statWhKm.innerHTML = `
+                    <span>相當於約 ${whKm} Wh/km</span>
+                    <span class="text-cuteMint-600 dark:text-[#2dd4bf] block mt-0.5 tracking-wide">滿電預估續航：${estRange} km 🎯</span>
+                `;
+            }
+            
+            if (statTotalPower) {
+                statTotalPower.innerHTML = `
+                    <span>累計充入 ${totalPower.toFixed(1)} 度電</span>
+                    <span class="text-amber-500 dark:text-amber-400 block mt-0.5 tracking-wide">相比油車省下 $${gasSavings.toLocaleString(undefined, {maximumFractionDigits:0})} 💰</span>
+                `;
+            }
+
+            if (statChargeRatio) {
+                const isDcTooHigh = dcCount > (acCount * 3) && dcCount > 5;
+                const ratioColor = isDcTooHigh ? 'text-rose-500 dark:text-rose-400' : 'text-cuteBlue-600 dark:text-[#38bdf8]';
+                statChargeRatio.innerHTML = `
+                    <span>荷包精打細算中 🐾</span>
+                    <span class="${ratioColor} block mt-0.5 tracking-wide">快充 ${dcCount} 次 / 慢充 ${acCount} 次</span>
+                `;
+            }
 
             if (statVehicleSub) {
                 if (currentMonthFilter !== 'all') {
