@@ -738,9 +738,9 @@ function doPost(e) {
         <!-- 頂部冒險裝備看板 (Quest Stats) -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <!-- 累積總里程 -->
-            <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
+            <div class="rpg-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-[#94a3b8] tracking-wider">行駛總里程 🚗</span>
+                    <span class="text-[11px] sm:text-xs font-bold text-slate-400 dark:text-[#94a3b8] tracking-wider flex items-center gap-1 whitespace-nowrap"><span>行駛總里程</span><span>🚗</span></span>
                     <span class="p-1.5 rounded-xl bg-teal-100/40 dark:bg-teal-950/20 text-teal-600 dark:text-[#2dd4bf] border-2 border-slate-800 dark:border-[#374151]">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
                     </span>
@@ -749,14 +749,14 @@ function doPost(e) {
                 <div class="flex items-baseline mt-4">
                     <span id="statTotalKm" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0</span>
                     <!-- 🚀 單位改用中灰色 -->
-                    <span class="text-xs font-bold text-slate-400 dark:text-[#9ca3af] ml-1">km</span>
+                    <span class="text-[10px] sm:text-xs font-bold text-slate-400 dark:text-[#9ca3af] ml-1">km</span>
                 </div>
-                <span id="statVehicleSub" class="text-[10px] text-cuteMint-600 dark:text-[#94a3b8] mt-2 font-bold">愛車 LUXGEN n⁷ 已陪伴您行駛了長遠路程 🐾</span>
+                <span id="statVehicleSub" class="text-[10px] text-cuteMint-600 dark:text-[#94a3b8] mt-2 font-bold leading-tight">愛車 LUXGEN n⁷ 已陪伴您行駛了長遠路程 🐾</span>
             </div>
             <!-- 平均電耗 -->
-            <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
+            <div class="rpg-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-[#94a3b8] tracking-wider">平均電耗 ⚡</span>
+                    <span class="text-[11px] sm:text-xs font-bold text-slate-400 dark:text-[#94a3b8] tracking-wider flex items-center gap-1 whitespace-nowrap"><span>平均電耗</span><span>⚡</span></span>
                     <span class="p-1.5 rounded-xl bg-amber-100/40 dark:bg-amber-900/20 text-amber-500 border-2 border-slate-800 dark:border-[#374151]">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     </span>
@@ -765,16 +765,16 @@ function doPost(e) {
                 <div class="flex items-baseline mt-4">
                     <span id="statAvgEfficiency" class="text-2xl md:text-3xl font-black text-teal-600 dark:text-white font-mono tracking-tight">0.00</span>
                     <!-- 🚀 單位改用中灰色 -->
-                    <span class="text-xs font-bold text-teal-600 dark:text-[#9ca3af] ml-1">km/度</span>
+                    <span class="text-[10px] sm:text-xs font-bold text-teal-600 dark:text-[#9ca3af] ml-1">km/度</span>
                 </div>
-                <span id="statWhKm" class="text-[10px] text-slate-400 dark:text-[#94a3b8] mt-2 font-bold flex flex-col gap-0.5">
+                <span id="statWhKm" class="text-[10px] text-slate-400 dark:text-[#94a3b8] mt-2 font-bold flex flex-col gap-1 leading-tight">
                     <span>相當於 0 Wh/km</span>
                 </span>
             </div>
             <!-- 累計補給花費 -->
-            <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
+            <div class="rpg-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-[#94a3b8] tracking-wider">累計補給花費 👛</span>
+                    <span class="text-[11px] sm:text-xs font-bold text-slate-400 dark:text-[#94a3b8] tracking-wider flex items-center gap-1 whitespace-nowrap"><span>累計補給花費</span><span>👛</span></span>
                     <span class="p-1.5 rounded-xl bg-cuteBlue-50 dark:bg-cuteBlue-600/20 text-cuteBlue-500 border-2 border-slate-800 dark:border-[#374151]">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path>
@@ -785,16 +785,16 @@ function doPost(e) {
                 <div class="flex items-baseline mt-4">
                     <span id="statTotalCost" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0</span>
                     <!-- 🚀 單位改用中灰色 -->
-                    <span class="text-xs font-bold text-slate-400 dark:text-[#9ca3af] ml-1">元</span>
+                    <span class="text-[10px] sm:text-xs font-bold text-slate-400 dark:text-[#9ca3af] ml-1">元</span>
                 </div>
-                <span id="statTotalPower" class="text-[10px] text-slate-400 dark:text-[#94a3b8] mt-2 font-bold flex flex-col gap-0.5">
+                <span id="statTotalPower" class="text-[10px] text-slate-400 dark:text-[#94a3b8] mt-2 font-bold flex flex-col gap-1 leading-tight">
                     <span>累計充入 0.0 度電</span>
                 </span>
             </div>
             <!-- 每公里電費 -->
-            <div class="rpg-card p-5 rounded-3xl flex flex-col justify-between group">
+            <div class="rpg-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 dark:text-[#94a3b8] tracking-wider">每公里電費 🍩</span>
+                    <span class="text-[11px] sm:text-xs font-bold text-slate-400 dark:text-[#94a3b8] tracking-wider flex items-center gap-1 whitespace-nowrap"><span>每公里電費</span><span>🍩</span></span>
                     <span class="p-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/20 text-indigo-400 border-2 border-slate-800 dark:border-[#374151]">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="12" cy="12" r="10"></circle>
@@ -806,9 +806,9 @@ function doPost(e) {
                 <div class="flex items-baseline mt-4">
                     <span id="statCostPerKm" class="text-2xl md:text-3xl font-black text-cuteMint-600 dark:text-white font-mono tracking-tight">0.00</span>
                     <!-- 🚀 單位改用中灰色 -->
-                    <span class="text-xs font-bold text-cuteMint-600 dark:text-[#9ca3af] ml-1">元/km</span>
+                    <span class="text-[10px] sm:text-xs font-bold text-cuteMint-600 dark:text-[#9ca3af] ml-1">元/km</span>
                 </div>
-                <span id="statChargeRatio" class="text-[10px] text-slate-400 dark:text-[#94a3b8] mt-2 font-bold flex flex-col gap-0.5">
+                <span id="statChargeRatio" class="text-[10px] text-slate-400 dark:text-[#94a3b8] mt-2 font-bold flex flex-col gap-1 leading-tight">
                     <span>荷包精打細算中 🐾</span>
                 </span>
             </div>
@@ -2282,17 +2282,18 @@ function doPost(e) {
             const estimatedGasCost = totalKm * 2.5;
             const gasSavings = Math.max(0, estimatedGasCost - totalCost);
 
+            // 🚀 防跑版修正：使用 flex, items-center, whitespace-nowrap 確保 Emoji 與文字緊密相連
             if (statWhKm) {
                 statWhKm.innerHTML = `
-                    <span>相當於約 ${whKm} Wh/km</span>
-                    <span class="text-cuteMint-600 dark:text-[#2dd4bf] block mt-0.5 tracking-wide">滿電預估續航：${estRange} km 🎯</span>
+                    <span class="block">相當於約 ${whKm} Wh/km</span>
+                    <span class="text-cuteMint-600 dark:text-[#2dd4bf] block tracking-wide flex items-center flex-wrap gap-x-1"><span>滿電預估續航：${estRange} km</span><span>🎯</span></span>
                 `;
             }
             
             if (statTotalPower) {
                 statTotalPower.innerHTML = `
-                    <span>累計充入 ${totalPower.toFixed(1)} 度電</span>
-                    <span class="text-amber-500 dark:text-amber-400 block mt-0.5 tracking-wide">相比油車省下 $${gasSavings.toLocaleString(undefined, {maximumFractionDigits:0})} 💰</span>
+                    <span class="block">累計充入 ${totalPower.toFixed(1)} 度電</span>
+                    <span class="text-amber-500 dark:text-amber-400 block tracking-wide flex items-center flex-wrap gap-x-1"><span>相比油車省下 $${gasSavings.toLocaleString(undefined, {maximumFractionDigits:0})}</span><span>💰</span></span>
                 `;
             }
 
@@ -2300,18 +2301,18 @@ function doPost(e) {
                 const isDcTooHigh = dcCount > (acCount * 3) && dcCount > 5;
                 const ratioColor = isDcTooHigh ? 'text-rose-500 dark:text-rose-400' : 'text-cuteBlue-600 dark:text-[#38bdf8]';
                 statChargeRatio.innerHTML = `
-                    <span>荷包精打細算中 🐾</span>
-                    <span class="${ratioColor} block mt-0.5 tracking-wide">快充 ${dcCount} 次 / 慢充 ${acCount} 次</span>
+                    <span class="block flex items-center gap-x-1"><span>荷包精打細算中</span><span>🐾</span></span>
+                    <span class="${ratioColor} block tracking-wide">快充 ${dcCount} 次 / 慢充 ${acCount} 次</span>
                 `;
             }
 
             if (statVehicleSub) {
                 if (currentMonthFilter !== 'all') {
-                     statVehicleSub.innerHTML = `<span class="text-cuteMint-600 dark:text-[#2dd4bf]">${currentMonthFilter.replace('-','/')}</span> 月份行駛里程 🐾`;
+                     statVehicleSub.innerHTML = `<span class="flex items-center gap-x-1 flex-wrap"><span><span class="text-cuteMint-600 dark:text-[#2dd4bf]">${currentMonthFilter.replace('-','/')}</span> 月份行駛里程</span><span>🐾</span></span>`;
                 } else if (initialOdometer > 0) {
-                    statVehicleSub.innerHTML = `初始里程 <span class="text-cuteMint-600 dark:text-[#2dd4bf]">${initialOdometer} km</span> + 本地已記錄 <span class="text-cuteMint-600 dark:text-[#2dd4bf]">${parseFloat(totalKm.toFixed(1))} km</span> 🐾`;
+                    statVehicleSub.innerHTML = `<span class="flex items-center gap-x-1 flex-wrap"><span>初始里程 <span class="text-cuteMint-600 dark:text-[#2dd4bf]">${initialOdometer} km</span> + 本地已記錄 <span class="text-cuteMint-600 dark:text-[#2dd4bf]">${parseFloat(totalKm.toFixed(1))} km</span></span><span>🐾</span></span>`;
                 } else {
-                    statVehicleSub.innerHTML = `愛車 <span class="text-cuteMint-600 dark:text-[#2dd4bf]">${evName}</span> 已陪伴您行駛了長遠路程 🐾`;
+                    statVehicleSub.innerHTML = `<span class="flex items-center gap-x-1 flex-wrap"><span>愛車 <span class="text-cuteMint-600 dark:text-[#2dd4bf]">${evName}</span> 已陪伴您行駛了長遠路程</span><span>🐾</span></span>`;
                 }
             }
         }
