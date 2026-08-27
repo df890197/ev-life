@@ -10,7 +10,6 @@
     <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)">
     
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <!-- 恢復 default，避免淺色模式下上方狀態列文字隱形 -->
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Ev Life">
     
@@ -19,32 +18,20 @@
 
     <style>
         /* 第一時間鎖定底色，杜絕渲染空窗期 */
-        :root, html, body {
-            background-color: #fcfaf2;
-        }
+        :root, html, body { background-color: #fcfaf2; }
         @media (prefers-color-scheme: dark) {
-            :root, html, body {
-                background-color: #111827;
-            }
+            :root, html, body { background-color: #111827; }
         }
         html.dark, html.dark body { background-color: #111827 !important; }
         html:not(.dark), html:not(.dark) body { background-color: #fcfaf2 !important; }
 
         /* 🚨 關鍵防閃白：強行寫死首頁 Splash Screen 在 Tailwind 載入前的背景色 */
-        #appSplashScreen {
-            background-color: #fcfaf2 !important;
-        }
+        #appSplashScreen { background-color: #fcfaf2 !important; }
         @media (prefers-color-scheme: dark) {
-            #appSplashScreen {
-                background-color: #111827 !important;
-            }
+            #appSplashScreen { background-color: #111827 !important; }
         }
-        html.dark #appSplashScreen {
-            background-color: #111827 !important;
-        }
-        html:not(.dark) #appSplashScreen {
-            background-color: #fcfaf2 !important;
-        }
+        html.dark #appSplashScreen { background-color: #111827 !important; }
+        html:not(.dark) #appSplashScreen { background-color: #fcfaf2 !important; }
 
         /* 🚀 關鍵修正：隱藏 Chrome/Edge 等瀏覽器原生的日曆圖標，使定位完美的自訂 SVG 🐾 浮現，不再重疊 */
         input[type="date"]::-webkit-calendar-picker-indicator {
@@ -55,25 +42,22 @@
             top: 0;
             width: 100%;
             height: 100%;
-            z-index: 30; /* 覆蓋在 custom icon 之上以利點擊，但維持透明 */
+            z-index: 30;
         }
 
         /* 🚀 優化：隱藏月份選擇器的原生滾動條，保持 App 般的美觀 */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
     </style>
     
-    <!-- 🚀 優化 3: Google Fonts 非阻塞載入 -->
+    <!-- Google Fonts 非阻塞載入 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght=300;400;500;600;700&family=Noto+Sans+TC:wght=300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
-    <!-- 🚀 解決 ReferenceError 問題：在最上方先宣告圖片相關的 onload 與 onerror 核心處理函式，避免因載入先後順序而產生 runtime 錯誤 -->
     <script>
         function adaptContainerBgToImage(img) {
             try {
@@ -81,8 +65,7 @@
                 if (img.src.includes('placehold.co')) return;
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
-                canvas.width = 10;
-                canvas.height = 10;
+                canvas.width = 10; canvas.height = 10;
                 ctx.drawImage(img, 0, 0, 10, 10);
                 const imgData = ctx.getImageData(0, 0, 10, 10).data;
                 
@@ -92,9 +75,7 @@
                         if (x === 0 || x === 9 || y === 0 || y === 9) {
                             const idx = (y * 10 + x) * 4;
                             if (imgData[idx+3] > 50) {
-                                r += imgData[idx];
-                                g += imgData[idx+1];
-                                b += imgData[idx+2];
+                                r += imgData[idx]; g += imgData[idx+1]; b += imgData[idx+2];
                                 count++;
                             }
                         }
@@ -102,9 +83,7 @@
                 }
 
                 if (count > 0) {
-                    r = Math.round(r / count);
-                    g = Math.round(g / count);
-                    b = Math.round(b / count);
+                    r = Math.round(r / count); g = Math.round(g / count); b = Math.round(b / count);
                     const parent = img.parentElement;
                     if (parent) {
                         parent.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
@@ -118,33 +97,24 @@
                     }
                 }
             } catch (e) {
-                console.warn("Same-origin pixel analysis completed with standard fallback.", e);
+                console.warn("Pixel analysis failed, using fallback.", e);
             }
         }
 
         function handleLogoError(imgElement) {
             imgElement.onerror = null;
             const isDark = document.documentElement.classList.contains('dark');
-            if (isDark) {
-                imgElement.src = 'https://placehold.co/100x60/111827/2dd4bf?text=n%E2%81%B7';
-            } else {
-                imgElement.src = 'https://placehold.co/100x60/ccfbf1/0d9488?text=n%E2%81%B7';
-            }
+            imgElement.src = isDark ? 'https://placehold.co/100x60/111827/2dd4bf?text=n%E2%81%B7' : 'https://placehold.co/100x60/ccfbf1/0d9488?text=n%E2%81%B7';
         }
 
         function updateLogoPlaceholder() {
             const img = document.getElementById('navLogoImg');
             if (img && img.src.includes('placehold.co')) {
                 const isDark = document.documentElement.classList.contains('dark');
-                if (isDark) {
-                    img.src = 'https://placehold.co/100x60/111827/2dd4bf?text=n%E2%81%B7';
-                } else {
-                    img.src = 'https://placehold.co/100x60/ccfbf1/0d9488?text=n%E2%81%B7';
-                }
+                img.src = isDark ? 'https://placehold.co/100x60/111827/2dd4bf?text=n%E2%81%B7' : 'https://placehold.co/100x60/ccfbf1/0d9488?text=n%E2%81%B7';
             }
         }
 
-        // 🚀 核心優化：啟動畫面非同步載入事件
         function onSplashImageLoad() {
             const img = document.getElementById('splashLogoImg');
             if (img) {
@@ -155,18 +125,13 @@
 
         function onSplashImageError() {
             const img = document.getElementById('splashLogoImg');
-            if (img) {
-                img.remove();
-            }
-            // 降級方案：圖片載入失敗，立刻在手機版上渲染 🐾 備用 Loading
+            if (img) img.remove();
             const fallback = document.getElementById('splashFallbackContainer');
-            if (fallback) {
-                fallback.classList.add('show-fallback');
-            }
+            if (fallback) fallback.classList.add('show-fallback');
         }
     </script>
 
-    <!-- 🚀 優化 1 & 9: 極簡 Boot Script (< 10ms)，引導系統迅速進入 dark mode 並動態加載本地 PWA 設定 -->
+    <!-- 極簡 Boot Script: 系統主題與 PWA 設定 -->
     <script>
         (function() {
             try {
@@ -181,7 +146,6 @@
                     htmlElement.style.backgroundColor = '#fcfaf2';
                 }
 
-                // 🚀 修復 PWA 圖示與啟動畫面設定：App Icon 維持 192px，而專屬啟動畫面（512px 規格）指向專屬的 splash.png
                 var manifestColor = isDark ? '#111827' : '#fcfaf2';
                 var dynamicManifest = {
                     "name": "Ev Life - LUXGEN n7 行駛日誌",
@@ -198,58 +162,92 @@
                 };
                 var encodedManifest = "data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dynamicManifest));
                 var existingManifest = document.querySelector('link[rel="manifest"]');
-                if (existingManifest) {
-                    existingManifest.href = encodedManifest;
-                }
+                if (existingManifest) existingManifest.href = encodedManifest;
             } catch (e) {}
         })();
     </script>
 
     <style>
-        .ios-safe-nav {
-            padding-top: env(safe-area-inset-top, 0px) !important;
-        }
+        .ios-safe-nav { padding-top: env(safe-area-inset-top, 0px) !important; }
+        html.app-loaded, html.app-loaded body { transition: opacity 0.4s ease-in-out; }
+        html.app-loaded { background-color: transparent !important; }
 
-        /* 載入完成後的背景平滑轉場 */
-        html.app-loaded, html.app-loaded body {
-            transition: opacity 0.4s ease-in-out;
-        }
-        /* 將行內樣式背景清除，交還給 Tailwind 控制 */
-        html.app-loaded {
-            background-color: transparent !important;
-        }
-
-        /* 🚀 啟動畫面 RWD 分流控制樣式 */
         @media (min-width: 768px) {
-            /* 電腦版：強制隱藏啟動大圖，直接並立即呈現 🐾 載入文字 */
-            #splashLogoImg {
-                display: none !important;
-            }
+            #splashLogoImg { display: none !important; }
             #splashFallbackContainer {
                 opacity: 1 !important;
                 visibility: visible !important;
             }
         }
         @media (max-width: 767px) {
-            /* 手機版：預設隱藏 🐾 載入文字，防止加載大圖時產生雙重閃爍 */
             #splashFallbackContainer {
-                opacity: 0;
-                visibility: hidden;
-                transition: opacity 0.3s ease-in-out;
+                opacity: 0; visibility: hidden; transition: opacity 0.3s ease-in-out;
             }
-            /* 手機版僅在 splash.png 載入失敗時才啟用備用 🐾 Loading */
             #splashFallbackContainer.show-fallback {
-                opacity: 1 !important;
-                visibility: visible !important;
+                opacity: 1 !important; visibility: visible !important;
             }
         }
+        
+        body { font-family: 'Fredoka', 'Noto Sans TC', sans-serif; touch-action: manipulation; -webkit-text-size-adjust: 100%; }
+        .font-mono { font-family: 'JetBrains Mono', 'Noto Sans TC', monospace; }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(186, 230, 253, 0.6); border-radius: 99px; border: 2px solid transparent; background-clip: padding-box;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.3); border: 2px solid transparent; background-clip: padding-box;
+        }
+        ::-webkit-scrollbar-thumb:hover { background: #38bdf8; }
+        .dark ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+
+        input[type="date"] {
+            position: relative; -webkit-appearance: none; appearance: none; display: block; min-height: 2.75rem; line-height: normal;
+        }
+        input[type="date"]::-webkit-date-and-time-value {
+            height: auto; min-height: 1.5em; text-align: left; margin: 0; padding: 0; width: 100%;
+        }
+        input[type="date"]::-webkit-datetime-edit { padding: 0; display: inline-flex; overflow: visible; }
+        .dark input, .dark select { color-scheme: dark; }
+
+        /* Custom UI Component Styles */
+        .rpg-card {
+            background: #ffffff; border: 4px solid #1e293b; box-shadow: 6px 6px 0px 0px #1e293b; transition: all 0.15s ease-in-out;
+        }
+        .dark .rpg-card {
+            background: #1f2937; border: 4px solid #374151; box-shadow: 6px 6px 0px 0px #111827;
+        }
+        .rpg-card:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0px 0px #1e293b; }
+        .dark .rpg-card:hover { background: #253043; box-shadow: 8px 8px 0px 0px #111827; }
+
+        .rpg-btn-primary {
+            background: #2dd4bf; border: 3px solid #1e293b; color: #1e293b; box-shadow: 4px 4px 0px 0px #1e293b; transition: all 0.1s ease-in-out;
+        }
+        .dark .rpg-btn-primary {
+            background: #2dd4bf; border: 3px solid #374151; color: #111827; box-shadow: 4px 4px 0px 0px #111827;
+        }
+        .rpg-btn-primary:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0px 0px #1e293b; }
+        .dark .rpg-btn-primary:hover { box-shadow: 5px 5px 0px 0px #111827; }
+        .rpg-btn-primary:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0px 0px #1e293b; }
+        .dark .rpg-btn-primary:active { box-shadow: 1px 1px 0px 0px #111827; }
+
+        .rpg-btn-secondary {
+            background: #f1f5f9; border: 3px solid #1e293b; color: #1e293b; box-shadow: 4px 4px 0px 0px #1e293b; transition: all 0.1s ease-in-out;
+        }
+        .dark .rpg-btn-secondary {
+            background: #1f2937; border: 3px solid #374151; color: #f8fafc; box-shadow: 4px 4px 0px 0px #111827;
+        }
+        .rpg-btn-secondary:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0px 0px #1e293b; }
+        .dark .rpg-btn-secondary:active { box-shadow: 1px 1px 0px 0px #111827; }
+
+        .scrollable-log-container { max-height: 480px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
     </style>
-    
-    <!-- 引入 Tailwind CSS 與 Chart.js -->
+
+    <!-- Tailwind CSS 與 Chart.js -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <script>
-        // 🚀 頂級優化：安全配置 Tailwind。當 cdn 尚未加載好時利用 setInterval 輪詢確保 tailwind 變數存在，杜絕 ReferenceError!
         (function() {
             function configureTailwind() {
                 if (typeof tailwind !== 'undefined') {
@@ -258,210 +256,37 @@
                         theme: {
                             extend: {
                                 colors: {
-                                    brandBg: '#111827',       // 頂級深藍灰
-                                    brandCard: '#1f2937',     // 科技感卡片底色
-                                    brandCardHover: '#253043',// 卡片 Hover
-                                    brandHeader: '#111827',   
-                                    brandBorder: '#374151',   // 科技感邊框
-                                    cuteMint: {
-                                        50: '#f0fdf4',
-                                        100: '#ccfbf1',
-                                        200: '#99f6e4',
-                                        300: '#5eead4',
-                                        400: '#2dd4bf',       // 亮麗青綠
-                                        500: '#2dd4bf',       
-                                        600: '#0d9488',
-                                        700: '#115e59', 
-                                    },
-                                    cuteBlue: {
-                                        50: '#f0f9ff',
-                                        100: '#e0f2fe',
-                                        200: '#bae6fd',
-                                        300: '#38bdf8',       // 科技藍
-                                        400: '#38bdf8',       
-                                        500: '#38bdf8',       
-                                        600: '#0284c7',
-                                    },
-                                    cuteYellow: {
-                                        50: '#fffbeb',
-                                        100: '#fef3c7',
-                                        200: '#fde68a',
-                                        500: '#f59e0b',       
-                                    }
+                                    brandBg: '#111827', brandCard: '#1f2937', brandCardHover: '#253043',
+                                    brandHeader: '#111827', brandBorder: '#374151',
+                                    cuteMint: { 50: '#f0fdf4', 100: '#ccfbf1', 200: '#99f6e4', 300: '#5eead4', 400: '#2dd4bf', 500: '#2dd4bf', 600: '#0d9488', 700: '#115e59' },
+                                    cuteBlue: { 50: '#f0f9ff', 100: '#e0f2fe', 200: '#bae6fd', 300: '#38bdf8', 400: '#38bdf8', 500: '#38bdf8', 600: '#0284c7' },
+                                    cuteYellow: { 50: '#fffbeb', 100: '#fef3c7', 200: '#fde68a', 500: '#f59e0b' }
                                 }
                             }
                         }
                     };
                 }
             }
-
-            if (typeof tailwind !== 'undefined') {
-                configureTailwind();
-            } else {
+            if (typeof tailwind !== 'undefined') configureTailwind();
+            else {
                 var tailwindPoll = setInterval(function() {
-                    if (typeof tailwind !== 'undefined') {
-                        configureTailwind();
-                        clearInterval(tailwindPoll);
-                    }
+                    if (typeof tailwind !== 'undefined') { configureTailwind(); clearInterval(tailwindPoll); }
                 }, 20);
-                setTimeout(function() { clearInterval(tailwindPoll); }, 5000); // 5秒超時防護
+                setTimeout(function() { clearInterval(tailwindPoll); }, 5000);
             }
         })();
     </script>
-    <style>
-        body {
-            font-family: 'Fredoka', 'Noto Sans TC', sans-serif;
-            touch-action: manipulation;
-            -webkit-text-size-adjust: 100%;
-        }
-        .font-mono {
-            font-family: 'JetBrains Mono', 'Noto Sans TC', monospace;
-        }
-
-        /* 自訂圓角滾動條 */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(186, 230, 253, 0.6);
-            border-radius: 99px;
-            border: 2px solid transparent;
-            background-clip: padding-box;
-        }
-        .dark ::-webkit-scrollbar-thumb {
-            background: rgba(156, 163, 175, 0.3);
-            border: 2px solid transparent;
-            background-clip: padding-box;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #38bdf8;
-        }
-        .dark ::-webkit-scrollbar-thumb:hover {
-            background: #4b5563;
-        }
-
-        input[type="date"] {
-            position: relative;
-            -webkit-appearance: none;
-            appearance: none;
-            display: block;
-            min-height: 2.75rem;
-            line-height: normal;
-        }
-        input[type="date"]::-webkit-date-and-time-value {
-            height: auto;
-            min-height: 1.5em;
-            text-align: left;
-            margin: 0;
-            padding: 0;
-            width: 100%;
-        }
-        input[type="date"]::-webkit-datetime-edit {
-            padding: 0;
-            display: inline-flex;
-            overflow: visible;
-        }
-        
-        .dark input, .dark select {
-            color-scheme: dark;
-        }
-
-        .rpg-card {
-            background: #ffffff;
-            border: 4px solid #1e293b;
-            box-shadow: 6px 6px 0px 0px #1e293b;
-            transition: all 0.15s ease-in-out;
-        }
-        .dark .rpg-card {
-            background: #1f2937;
-            border: 4px solid #374151;
-            box-shadow: 6px 6px 0px 0px #111827;
-        }
-
-        .rpg-card:hover {
-            transform: translate(-2px, -2px);
-            box-shadow: 8px 8px 0px 0px #1e293b;
-        }
-        .dark .rpg-card:hover {
-            background: #253043;
-            box-shadow: 8px 8px 0px 0px #111827;
-        }
-
-        .rpg-btn-primary {
-            background: #2dd4bf;
-            border: 3px solid #1e293b;
-            color: #1e293b;
-            box-shadow: 4px 4px 0px 0px #1e293b;
-            transition: all 0.1s ease-in-out;
-        }
-        .dark .rpg-btn-primary {
-            background: #2dd4bf;
-            border: 3px solid #374151;
-            color: #111827;
-            box-shadow: 4px 4px 0px 0px #111827;
-        }
-        .rpg-btn-primary:hover {
-            transform: translate(-1px, -1px);
-            box-shadow: 5px 5px 0px 0px #1e293b;
-        }
-        .dark .rpg-btn-primary:hover {
-            box-shadow: 5px 5px 0px 0px #111827;
-        }
-        .rpg-btn-primary:active {
-            transform: translate(3px, 3px);
-            box-shadow: 1px 1px 0px 0px #1e293b;
-        }
-        .dark .rpg-btn-primary:active {
-            box-shadow: 1px 1px 0px 0px #111827;
-        }
-
-        .rpg-btn-secondary {
-            background: #f1f5f9;
-            border: 3px solid #1e293b;
-            color: #1e293b;
-            box-shadow: 4px 4px 0px 0px #1e293b;
-            transition: all 0.1s ease-in-out;
-        }
-        .dark .rpg-btn-secondary {
-            background: #1f2937;
-            border: 3px solid #374151;
-            color: #f8fafc;
-            box-shadow: 4px 4px 0px 0px #111827;
-        }
-        .rpg-btn-secondary:active {
-            transform: translate(3px, 3px);
-            box-shadow: 1px 1px 0px 0px #1e293b;
-        }
-        .dark .rpg-btn-secondary:active {
-            box-shadow: 1px 1px 0px 0px #111827;
-        }
-
-        .scrollable-log-container {
-            max-height: 480px;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-    </style>
 </head>
 <body class="bg-[#fcfaf2] dark:bg-[#111827] text-slate-800 dark:text-[#f8fafc] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative">
 
     <div id="appSplashScreen" class="fixed inset-0 z-[9998] bg-[#fcfaf2] dark:bg-[#111827] flex flex-col items-center justify-center text-slate-800 dark:text-white transition-opacity duration-400">
-        <!-- 1. 預設的 🐾 Loading 備用容器 (電腦版常駐，手機版預設隱藏直到加載大圖失敗) -->
         <div id="splashFallbackContainer" class="absolute inset-0 flex flex-col items-center justify-center space-y-4 z-10">
             <span class="text-7xl md:text-8xl">🐾</span>
-            <h2 class="text-xl md:text-2xl font-black tracking-wider text-slate-800 dark:text-[#f8fafc] mt-2">
-                Ev Life Loading...
-            </h2>
+            <h2 class="text-xl md:text-2xl font-black tracking-wider text-slate-800 dark:text-[#f8fafc] mt-2">Ev Life Loading...</h2>
         </div>
-        <!-- 2. 全螢幕自適應 RWD 滿版啟動圖 (手機版專用)。object-cover 確保鋪滿不拉伸不變形 -->
         <img id="splashLogoImg" src="./splash.png" alt="Splash Screen" class="w-full h-full object-cover opacity-0 absolute inset-0 z-20 transition-opacity duration-300" onload="onSplashImageLoad()" onerror="onSplashImageError()">
     </div>
 
-    <!-- 🚀 佈局升級：將 max-w-7xl 升充至 max-w-[1600px] 讓大螢幕與平板兩側空間利用更完美 -->
     <nav id="mainNav" class="ios-safe-nav bg-gradient-to-r from-[#fffdf5] to-[#fffefb] dark:from-[#111827] dark:to-[#111827] border-b-4 border-[#1e293b] dark:border-[#374151] text-slate-800 dark:text-slate-100 sticky top-0 z-50 transition-all duration-500 shadow-md hidden opacity-0">
         <div class="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16 gap-x-2">
@@ -476,7 +301,6 @@
                 </div>
                 
                 <div class="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
-                    <!-- PWA 安裝按鈕 -->
                     <button id="navInstallBtn" onclick="triggerPwaInstall()" class="rpg-btn-primary text-[10px] sm:text-xs px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl font-black bg-amber-400 dark:bg-amber-500 border-2 border-slate-800 dark:border-[#374151] text-slate-900 dark:text-slate-950 shadow-[2px_2px_0px_0px_#1e293b] hover:bg-amber-300 flex items-center space-x-1 whitespace-nowrap flex-shrink-0 hidden">
                         <span>📲 安裝 App</span>
                     </button>
@@ -559,7 +383,7 @@
                             <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
                                 1. 建立一個全新的「Google 試算表」。<br>
                                 2. 點擊頂部選單「擴充功能」 ➔「Apps Script」。<br>
-                                3. 清除所有預設程式碼，貼上以下內容後點擊上方「儲存（磁碟圖示））。
+                                3. 清除所有預設程式碼，貼上以下內容後點擊上方「儲存」。
                             </p>
                             <div class="relative">
                                 <textarea readonly id="gasCodeText" class="w-full h-36 p-2 bg-slate-900 dark:bg-black text-slate-200 text-[10px] font-mono rounded-xl border border-slate-700 focus:outline-none scrollbar-thin resize-none">/* Google Apps Script for Ev Life Sync */
@@ -572,28 +396,22 @@ function doGet() {
   for (var i = 1; i < data.length; i++) {
     var row = data[i];
     var obj = {};
-    for (var j = 0; j < headers.length; j++) {
-      obj[headers[j]] = row[j];
-    }
+    for (var j = 0; j < headers.length; j++) { obj[headers[j]] = row[j]; }
     records.push(obj);
   }
   return ContentService.createTextOutput(JSON.stringify(records)).setMimeType(ContentService.MimeType.JSON);
 }
-
 function doPost(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   sheet.clear();
   var payload = JSON.parse(e.postData.contents);
   if (payload.length === 0) return ContentService.createTextOutput("Empty");
-  
   var headers = ["id", "date", "chargeType", "distance", "power", "cost", "note"];
   sheet.appendRow(headers);
   for (var i = 0; i < payload.length; i++) {
     var item = payload[i];
     var row = [];
-    for (var j = 0; j < headers.length; j++) {
-      row.push(item[headers[j]] || "");
-    }
+    for (var j = 0; j < headers.length; j++) { row.push(item[headers[j]] || ""); }
     sheet.appendRow(row);
   }
   return ContentService.createTextOutput("Success");
@@ -608,13 +426,6 @@ function doPost(e) {
                             </p>
                         </div>
                     </details>
-
-                    <div class="bg-cuteMint-50/50 dark:bg-cuteMint-950/10 rounded-2xl p-3 border-2 border-[#1e293b]">
-                        <span class="text-[10px] text-cuteMint-600 dark:text-cuteMint-300 font-extrabold block mb-1">🍭 雙向合併與配置同步</span>
-                        <p class="text-[10px] text-slate-500 dark:text-[#9ca3af] leading-relaxed">
-                            系統已全面升級！現在不只同步行駛日誌，連你的「愛車名稱、電池容量、初始里程」等車輛配置也會隨日誌一同儲存上雲、多端復原。
-                        </p>
-                    </div>
                 </div>
 
                 <!-- 分頁二：PWA 離線安裝 -->
@@ -622,29 +433,16 @@ function doPost(e) {
                     <div class="bg-cuteMint-50/40 dark:bg-neutral-950/40 p-4 rounded-2xl border-2 border-slate-800 space-y-2">
                         <span class="text-xs text-cuteMint-600 dark:text-cuteMint-400 font-extrabold block">📲 甚麼是 PWA 離線安裝？</span>
                         <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                            PWA 允許您將 Ev Life 行車記錄工具直接安裝至 iOS、Android、Windows 或 Mac 的桌面上，當作原生 App 快速啟用。即使在無網路環境中也能正常查看、新增日誌！
+                            PWA 允許您將 Ev Life 直接安裝至手機桌面，當作原生 App 快速啟用。即使在無網路環境中也能正常查看、新增日誌！
                         </p>
                     </div>
-
                     <div class="bg-amber-500/10 dark:bg-amber-500/5 p-4 rounded-2xl border-2 border-amber-500/30 text-xs space-y-2">
-                        <span class="font-black text-amber-600 dark:text-amber-400 flex items-center">
-                            💡 重要！如何安裝成真正的 standalone App？
-                        </span>
+                        <span class="font-black text-amber-600 dark:text-amber-400 flex items-center">💡 如何安裝？</span>
                         <div class="space-y-1 text-[11px] leading-relaxed text-slate-600 dark:text-slate-400">
-                            <p>🍏 <strong class="text-slate-900 dark:text-white">iOS 蘋果用戶 (iPhone / iPad)</strong>：</p>
-                            <ul class="list-disc pl-4 space-y-0.5">
-                                <li>必須使用原生 <strong class="text-cuteMint-600">Safari 瀏覽器</strong> 開啟網址（不能用 Chrome 或是 Line 內建視窗）。</li>
-                                <li>點擊 Safari 底部工具列的 <strong class="text-slate-900 dark:text-white">「分享」</strong> 按鈕（箭頭向上圖示）。</li>
-                                <li>向下捲動並選擇 <strong class="text-slate-900 dark:text-white">「加入主畫面」</strong>，點擊右上角新增。這時桌面上就會出現真正的 App，開啟時將沒有瀏覽器網址列！</li>
-                            </ul>
-                            <p class="pt-1.5">🤖 <strong class="text-slate-900 dark:text-white">Android 安卓用戶 / 電腦端</strong>：</p>
-                            <ul class="list-disc pl-4 space-y-0.5">
-                                <li>點擊本設定頁中的 <strong class="text-slate-900 dark:text-white">「一鍵將本系統安裝至手機桌面」</strong> 按鈕，或點擊瀏覽器網址列右側的 <strong class="text-slate-900 dark:text-white">「安裝」</strong> 圖標。</li>
-                                <li>安裝成功後，會在桌面與「應用程式清單」中找到 Ev Life.</li>
-                            </ul>
+                            <p>🍏 <strong>iOS (iPhone / iPad)</strong>：用 Safari 開啟，點擊「分享」>「加入主畫面」。</p>
+                            <p>🤖 <strong>Android / 電腦端</strong>：點擊下方按鈕或網址列右側的「安裝」圖標。</p>
                         </div>
                     </div>
-
                     <div class="bg-white dark:bg-black p-4 rounded-2xl border-2 border-slate-800 space-y-2.5 text-xs">
                         <span class="font-black text-slate-700 dark:text-slate-300">🔍 PWA 系統環境診斷：</span>
                         <div class="space-y-1.5 font-bold font-mono text-[11px]" id="pwaDiagnosticList">
@@ -653,23 +451,14 @@ function doPost(e) {
                             <div id="diag-network">🟢 在線模式 (連線正常)</div>
                         </div>
                     </div>
-
-                    <button id="pwaInstallBtn" onclick="triggerPwaInstall()" class="w-full rpg-btn-primary bg-amber-400 hover:bg-amber-300 dark:bg-amber-500 dark:hover:bg-amber-400 text-slate-900 text-xs font-black py-3.5 rounded-2xl transition-all hidden justify-center items-center space-x-2">
+                    <button id="pwaInstallBtn" onclick="triggerPwaInstall()" class="w-full rpg-btn-primary bg-amber-400 hover:bg-amber-300 text-slate-900 text-xs font-black py-3.5 rounded-2xl transition-all hidden justify-center items-center space-x-2">
                         <span>📲 一鍵將本系統安裝至手機桌面</span>
                     </button>
-
                     <div class="space-y-2 border-t-2 border-dashed border-[#1e293b] pt-3">
-                        <span class="text-[10px] text-slate-400 block font-bold">🛠️ 獨立部署與離線支援：</span>
-                        <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
-                            PWA 需要三個檔案放在同一個主機目錄下：<code class="text-cuteMint-600 font-mono">index.html</code> (本網頁)、<code class="text-cuteMint-600 font-mono">manifest.json</code> 與 <code class="text-cuteMint-600 font-mono">sw.js</code>。請點擊下方按鈕，直接下載對應配置：
-                        </p>
+                        <span class="text-[10px] text-slate-400 block font-bold">🛠️ 手動部署資源下載：</span>
                         <div class="grid grid-cols-2 gap-3 pt-1">
-                            <button onclick="downloadManifest()" class="rpg-btn-secondary py-2.5 text-[10px] font-black rounded-xl">
-                                💾 下載 manifest.json
-                            </button>
-                            <button onclick="downloadServiceWorker()" class="rpg-btn-secondary py-2.5 text-[10px] font-black rounded-xl">
-                                ⚙️ 下載 sw.js
-                            </button>
+                            <button onclick="downloadManifest()" class="rpg-btn-secondary py-2.5 text-[10px] font-black rounded-xl">💾 manifest.json</button>
+                            <button onclick="downloadServiceWorker()" class="rpg-btn-secondary py-2.5 text-[10px] font-black rounded-xl">⚙️ sw.js</button>
                         </div>
                     </div>
                 </div>
@@ -677,11 +466,8 @@ function doPost(e) {
                 <div id="syncTimeInfo" class="text-xs text-slate-400 dark:text-slate-500 hidden">
                     上次同步時間：<span id="lastSyncTimeText" class="font-bold">無</span>
                 </div>
-
                 <div class="flex space-x-3 pt-2">
-                    <button onclick="saveSyncSettings()" class="w-full rpg-btn-primary text-xs font-bold py-3 rounded-2xl transition-all">
-                        儲存全部設定並同步 🐾
-                    </button>
+                    <button onclick="saveSyncSettings()" class="w-full rpg-btn-primary text-xs font-bold py-3 rounded-2xl transition-all">儲存全部設定並同步 🐾</button>
                 </div>
             </div>
         </div>
@@ -691,24 +477,16 @@ function doPost(e) {
     <div id="confirmModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[110] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
         <div class="bg-[#fffdf9] dark:bg-black rounded-[2rem] p-6 shadow-2xl max-w-md w-full mx-4 transform scale-95 transition-all duration-300 border-4 border-[#1e293b]" id="confirmModalContent">
             <div class="border-b-2 border-[#1e293b] pb-3 mb-4">
-                <h3 id="confirmModalTitle" class="text-base font-black text-slate-800 dark:text-slate-100 flex items-center space-x-2">
-                    確認動作
-                </h3>
+                <h3 id="confirmModalTitle" class="text-base font-black text-slate-800 dark:text-slate-100 flex items-center space-x-2">確認動作</h3>
             </div>
             <p id="confirmModalMessage" class="text-xs font-bold text-slate-600 dark:text-slate-400 mb-6 leading-relaxed"></p>
             <div class="flex space-x-3">
-                <button onclick="closeConfirmModal()" class="flex-1 rpg-btn-secondary text-xs font-extrabold py-3 rounded-2xl">
-                    取消 🐾
-                </button>
-                <button id="confirmSuccessBtn" class="flex-1 rpg-btn-primary text-xs font-extrabold py-3 rounded-2xl">
-                    確認 ⚡
-                </button>
+                <button onclick="closeConfirmModal()" class="flex-1 rpg-btn-secondary text-xs font-extrabold py-3 rounded-2xl">取消 🐾</button>
+                <button id="confirmSuccessBtn" class="flex-1 rpg-btn-primary text-xs font-extrabold py-3 rounded-2xl">確認 ⚡</button>
             </div>
         </div>
     </div>
 
-    <!-- 主內容區 -->
-    <!-- 🚀 佈局升級：將 max-w-7xl 升充至 max-w-[1600px] 以增加兩側實體內容的拉展空間，改善大螢幕美感，並賦予平板兩側更多彈性避免換行 -->
     <main id="mainAppContent" class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10 transition-opacity duration-500 hidden opacity-0">
         
         <!-- 全域 Toast -->
@@ -720,9 +498,7 @@ function doPost(e) {
         <!-- 頂部 RPG HUD -->
         <div class="flex flex-col justify-center items-center text-center gap-3 mb-6 bg-cuteMint-50/30 dark:bg-neutral-950/40 p-4 rounded-3xl border-2 border-slate-800 dark:border-[#374151] shadow-[3px_3px_0px_0px_#1e293b] dark:shadow-[3px_3px_0px_0px_#000000]">
             <div class="text-center">
-                <h1 class="text-lg font-black tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:to-teal-600 text-center">
-                    ⚡ 行車數據 management
-                </h1>
+                <h1 class="text-lg font-black tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:to-teal-600 text-center">⚡ 行車數據 management</h1>
                 <p class="text-xs text-slate-500 dark:text-slate-400 font-bold text-center">精準記錄每一段行駛與電能補給數據。</p>
             </div>
             <div class="flex items-center justify-center space-x-2 bg-white dark:bg-black py-1.5 px-3.5 rounded-2xl border-2 border-slate-800 dark:border-[#374151] shadow-[2px_2px_0px_0px_#1e293b] dark:shadow-[2px_2px_0px_0px_#000000] font-mono text-xs mx-auto">
@@ -731,13 +507,12 @@ function doPost(e) {
                     <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 flex-shrink-0"></span>
                 </div>
                 <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">HUD Time:</span>
-                <span id="liveClockText" class="text-slate-800 dark:text-slate-200 font-black">2026-06-07 00:00:00</span>
+                <span id="liveClockText" class="text-slate-800 dark:text-slate-200 font-black">--:--:--</span>
             </div>
         </div>
 
         <!-- 頂部冒險裝備看板 (Quest Stats) -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <!-- 累積總里程 -->
             <div class="rpg-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] sm:text-xs font-bold text-slate-400 dark:text-[#94a3b8] tracking-wider flex items-center gap-1 whitespace-nowrap"><span>行駛總里程</span><span>🚗</span></span>
@@ -745,15 +520,12 @@ function doPost(e) {
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
                     </span>
                 </div>
-                <!-- 🚀 大數字用純白/極淺灰 -->
                 <div class="flex items-baseline mt-4">
                     <span id="statTotalKm" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0</span>
-                    <!-- 🚀 單位改用中灰色 -->
                     <span class="text-[10px] sm:text-xs font-bold text-slate-400 dark:text-[#9ca3af] ml-1">km</span>
                 </div>
-                <span id="statVehicleSub" class="text-[10px] text-cuteMint-600 dark:text-[#94a3b8] mt-2 font-bold leading-tight">愛車 LUXGEN n⁷ 已陪伴您行駛了長遠路程 🐾</span>
+                <span id="statVehicleSub" class="text-[10px] text-cuteMint-600 dark:text-[#94a3b8] mt-2 font-bold leading-tight">愛車已陪伴您行駛了長遠路程 🐾</span>
             </div>
-            <!-- 平均電耗 -->
             <div class="rpg-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] sm:text-xs font-bold text-slate-400 dark:text-[#94a3b8] tracking-wider flex items-center gap-1 whitespace-nowrap"><span>平均電耗</span><span>⚡</span></span>
@@ -761,60 +533,41 @@ function doPost(e) {
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     </span>
                 </div>
-                <!-- 🚀 大數字用純白/極淺灰 -->
                 <div class="flex items-baseline mt-4">
                     <span id="statAvgEfficiency" class="text-2xl md:text-3xl font-black text-teal-600 dark:text-white font-mono tracking-tight">0.00</span>
-                    <!-- 🚀 單位改用中灰色 -->
                     <span class="text-[10px] sm:text-xs font-bold text-teal-600 dark:text-[#9ca3af] ml-1">km/度</span>
                 </div>
-                <span id="statWhKm" class="text-[10px] text-slate-400 dark:text-[#94a3b8] mt-2 font-bold flex flex-col gap-1 leading-tight">
-                    <span>相當於 0 Wh/km</span>
-                </span>
+                <span id="statWhKm" class="text-[10px] text-slate-400 dark:text-[#94a3b8] mt-2 font-bold flex flex-col gap-1 leading-tight">相當於 0 Wh/km</span>
             </div>
-            <!-- 累計補給花費 -->
             <div class="rpg-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] sm:text-xs font-bold text-slate-400 dark:text-[#94a3b8] tracking-wider flex items-center gap-1 whitespace-nowrap"><span>累計補給花費</span><span>👛</span></span>
                     <span class="p-1.5 rounded-xl bg-cuteBlue-50 dark:bg-cuteBlue-600/20 text-cuteBlue-500 border-2 border-slate-800 dark:border-[#374151]">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path>
-                        </svg>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path></svg>
                     </span>
                 </div>
-                <!-- 🚀 大數字用純白/極淺灰 -->
                 <div class="flex items-baseline mt-4">
                     <span id="statTotalCost" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0</span>
-                    <!-- 🚀 單位改用中灰色 -->
                     <span class="text-[10px] sm:text-xs font-bold text-slate-400 dark:text-[#9ca3af] ml-1">元</span>
                 </div>
-                <span id="statTotalPower" class="text-[10px] text-slate-400 dark:text-[#94a3b8] mt-2 font-bold flex flex-col gap-1 leading-tight">
-                    <span>累計充入 0.0 度電</span>
-                </span>
+                <span id="statTotalPower" class="text-[10px] text-slate-400 dark:text-[#94a3b8] mt-2 font-bold flex flex-col gap-1 leading-tight">累計充入 0.0 度電</span>
             </div>
-            <!-- 每公里電費 -->
             <div class="rpg-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] sm:text-xs font-bold text-slate-400 dark:text-[#94a3b8] tracking-wider flex items-center gap-1 whitespace-nowrap"><span>每公里電費</span><span>🍩</span></span>
                     <span class="p-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/20 text-indigo-400 border-2 border-slate-800 dark:border-[#374151]">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <circle cx="12" cy="12" r="3"></circle>
-                        </svg>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
                     </span>
                 </div>
-                <!-- 🚀 大數字用純白/極淺灰 -->
                 <div class="flex items-baseline mt-4">
                     <span id="statCostPerKm" class="text-2xl md:text-3xl font-black text-cuteMint-600 dark:text-white font-mono tracking-tight">0.00</span>
-                    <!-- 🚀 單位改用中灰色 -->
                     <span class="text-[10px] sm:text-xs font-bold text-cuteMint-600 dark:text-[#9ca3af] ml-1">元/km</span>
                 </div>
-                <span id="statChargeRatio" class="text-[10px] text-slate-400 dark:text-[#94a3b8] mt-2 font-bold flex flex-col gap-1 leading-tight">
-                    <span>荷包精打細算中 🐾</span>
-                </span>
+                <span id="statChargeRatio" class="text-[10px] text-slate-400 dark:text-[#94a3b8] mt-2 font-bold flex flex-col gap-1 leading-tight">荷包精打細算中 🐾</span>
             </div>
         </div>
 
-        <!-- 主要內容雙欄排版 -->
+        <!-- 雙欄排版 -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <!-- 左側：記錄輸入與試算工具 -->
             <div class="lg:col-span-4 space-y-8">
@@ -830,17 +583,13 @@ function doPost(e) {
                     </div>
 
                     <form id="recordForm" onsubmit="addRecord(event)" class="space-y-4">
-                        <!-- 🚀 響應式佈局：於平板 narrow 狀態下（lg:grid-cols-1）維持單欄完美防擠壓換行，xl 寬螢幕下啟用 2 欄 -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">
                             <div>
                                 <label class="text-xs font-black text-slate-600 dark:text-[#94a3b8] h-8 flex items-end mb-1.5">出發/補給日期</label>
                                 <div class="relative">
-                                    <!-- 🚀 左右邊邊防護微調：防範 iOS Safari 原生日曆帶來的 "日" 換行，調整 pr-6 sm:pr-8 確保絕不擠壓 -->
                                     <input type="date" id="inputDate" required class="w-full px-2.5 py-2.5 pr-6 border-2 border-slate-800 dark:border-[#374151] rounded-2xl text-xs sm:text-sm focus:outline-none focus:ring-4 focus:ring-cuteMint-300 bg-white dark:bg-black text-slate-800 dark:text-slate-100 relative z-10 font-bold transition-all">
                                     <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-800 dark:text-slate-200 z-20">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                        </svg>
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                     </div>
                                 </div>
                             </div>
@@ -853,15 +602,12 @@ function doPost(e) {
                                         <option value="未充電">🐾 純行駛記錄 (無補給)</option>
                                     </select>
                                     <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-800 dark:text-slate-200 z-20">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"></path>
-                                        </svg>
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"></path></svg>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 🚀 響應式佈局：於平板 narrow 狀態下（lg:grid-cols-1）垂直排列釋放寬度，避免文字標籤極端擠壓，xl 下恢復 3 欄 -->
                         <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3 gap-4">
                             <div class="sm:col-span-1">
                                 <label class="text-xs font-black text-slate-600 dark:text-[#94a3b8] h-8 flex items-end mb-1.5">行駛里程 (km)</label>
@@ -892,7 +638,6 @@ function doPost(e) {
                         </div>
 
                         <div class="flex flex-col sm:flex-row gap-3 pt-2">
-                            <!-- 🚀 主要按鈕：保持青綠色（或亮藍色）作為唯一的焦點 -->
                             <button type="submit" class="flex-1 rpg-btn-primary text-sm font-extrabold py-3.5 rounded-2xl flex justify-center items-center space-x-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
                                 <span id="submitBtnText">記錄這趟旅程 ⚡</span>
@@ -907,7 +652,7 @@ function doPost(e) {
 
             <!-- 右側：圖表與歷史資料列表 -->
             <div class="lg:col-span-8 space-y-8">
-                <!-- 能耗與花費圖表 -->
+                <!-- 圖表區 -->
                 <div class="rpg-card p-6 rounded-[2.5rem]">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
                         <h2 class="text-base font-black text-slate-800 dark:text-[#f8fafc] flex items-center space-x-2">
@@ -917,12 +662,10 @@ function doPost(e) {
                             <span>電耗與補給趨勢圖 📈⚡</span>
                         </h2>
                         <div class="flex flex-wrap items-center gap-2 self-start sm:self-center">
-                            <!-- 🚀 新增：時間維度切換下拉選單 -->
                             <select id="chartTimeView" onchange="updateCharts()" class="px-2.5 py-1.5 text-[10px] rounded-xl border-2 border-slate-800 dark:border-[#374151] bg-white dark:bg-[#1f2937] text-slate-800 dark:text-white font-bold focus:outline-none cursor-pointer shadow-[1px_1px_0px_0px_#1e293b] dark:shadow-[1px_1px_0px_0px_#000000]">
                                 <option value="monthly" selected>單月統計 📅</option>
                                 <option value="raw">逐筆紀錄 🐾</option>
                             </select>
-
                             <div class="flex p-1 bg-slate-100 dark:bg-black rounded-xl border-2 border-slate-800 dark:border-[#374151] font-bold">
                                 <button onclick="setChartFilter('all')" id="btnChartAll" class="px-2.5 py-1 text-[10px] rounded-lg transition-all border-2 border-slate-800 dark:border-[#374151] bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white shadow-[1px_1px_0px_0px_#1e293b] dark:shadow-[1px_1px_0px_0px_#000000]">全部</button>
                                 <button onclick="setChartFilter('efficiency')" id="btnChartEfficiency" class="px-2.5 py-1 text-[10px] rounded-lg text-slate-500 dark:text-[#94a3b8] hover:text-slate-900 dark:hover:text-slate-200 transition-all ml-1">僅電耗 📈</button>
@@ -930,6 +673,8 @@ function doPost(e) {
                             </div>
                         </div>
                     </div>
+                    <!-- 月份篩選器容器 (動態注入) -->
+                    <div id="monthFilterContainer" class="w-full flex overflow-x-auto pb-2 mb-4 gap-2 no-scrollbar mt-4 sm:mt-0 scroll-smooth"></div>
                     <div class="h-64 relative">
                         <canvas id="efficiencyChart"></canvas>
                     </div>
@@ -944,17 +689,14 @@ function doPost(e) {
                             </span>
                             <span>我的行駛日誌</span>
                         </h2>
-                        <!-- 🚀 圖示破圖修正：將 -1.Steady-1.858L 完整校正回標準數學座標向量以防在 Chrome/Safari 上破圖 -->
                         <button onclick="clearAllData()" class="text-rose-600 hover:text-rose-500 dark:text-rose-400 dark:hover:text-rose-300 text-xs font-black transition-all self-start sm:self-center flex items-center space-x-1.5 p-2 rounded-xl hover:bg-rose-50 dark:hover:bg-[#1f2937]/50 border border-transparent hover:border-rose-100/30 dark:hover:border-rose-900/30">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.895-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                            </svg>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.895-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                             <span>清除全部日誌</span>
                         </button>
                     </div>
 
                     <div id="flatViewContainer" class="space-y-4">
-                        <!-- 🚀 修復核心：移除 lg:overflow-x-hidden，使平板及較窄的 desktop/laptop 能橫向滑動表格，完美露出操作欄中的編輯與刪除按鈕！ -->
+                        <!-- Desktop Table -->
                         <div id="desktopTableWrapper" class="hidden md:block overflow-x-auto max-h-[480px] rounded-[1.5rem] border-2 border-slate-800 dark:border-[#374151] scrollable-log-container mb-12">
                             <table class="min-w-full divide-y divide-slate-800 dark:divide-[#374151] text-xs text-left table-auto">
                                 <thead class="bg-[#fffdf9] dark:bg-[#111827] text-cuteMint-700 dark:text-[#94a3b8] font-extrabold uppercase tracking-wider border-b-2 border-slate-800 dark:border-[#374151] sticky top-0 z-20">
@@ -965,17 +707,19 @@ function doPost(e) {
                                         <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">起訖電量 (SOC)</th>
                                         <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap text-cuteMint-600 dark:text-cuteMint-400">平均電耗</th>
                                         <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">費用 (元)</th>
-                                        <!-- 🚀 置中修正：為「行駛備註」表頭添加 text-center 類別 -->
                                         <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">行駛備註</th>
                                         <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">操作</th>
                                     </tr>
                                 </thead>
                                 <tbody id="recordTableBody" class="divide-y divide-cuteMint-100 dark:divide-[#374151]/60 text-slate-800 dark:text-[#f8fafc] font-bold">
+                                    <!-- Rendered dynamically -->
                                 </tbody>
                             </table>
                         </div>
 
+                        <!-- Mobile Cards -->
                         <div id="recordMobileList" class="block md:hidden space-y-4 max-h-[480px] overflow-y-auto pb-12 pr-1.5 scrollable-log-container mb-12">
+                            <!-- Rendered dynamically -->
                         </div>
                     </div>
 
@@ -988,13 +732,10 @@ function doPost(e) {
         </div>
     </main>
 
-    <!-- 頁尾 -->
     <footer id="mainFooter" class="bg-white dark:bg-black text-slate-400 dark:text-slate-500 text-center py-10 mt-16 border-t-4 border-slate-800 dark:border-[#374151] transition-opacity duration-500 relative z-10 hidden opacity-0">
         <p class="text-xs font-bold">Ev Life 電動車試算與電耗記錄工具 © 2026. 您的資料將 safe 地儲存在本地裝置瀏覽器中。</p>
     </footer>
 
-    <!-- 🚀 優化 12: 非同步執行與邏輯分層 (Phased Boot) -->
-    <!-- -->
     <script>
         let records = [];
         let efficiencyChartInstance = null;
@@ -1005,10 +746,9 @@ function doPost(e) {
         let activeConfirmCallback = null;
         let editingRecordId = null;
         let currentChartFilter = 'all';
-        let currentMonthFilter = 'all'; // 🚀 新增：全域月份篩選狀態
+        let currentMonthFilter = 'all';
         let deferredPrompt = null;
 
-        // 🚀 新增：補回全域的即時時鐘更新
         function updateLiveClock() {
             const clockEl = document.getElementById('liveClockText');
             if (!clockEl) return;
@@ -1022,7 +762,6 @@ function doPost(e) {
             clockEl.textContent = `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
         }
 
-        // 🚀 新增：補回複製 GAS 代碼功能
         function copyGasCode() {
             const textArea = document.getElementById('gasCodeText');
             if (!textArea) return;
@@ -1035,7 +774,6 @@ function doPost(e) {
             }
         }
 
-        // 🚀 新增：補回復原全域佈景與圖示狀態同步邏輯
         function setupThemeIcons() {
             const isDark = document.documentElement.classList.contains('dark');
             const sunIcon = document.getElementById('themeSunIcon');
@@ -1066,59 +804,44 @@ function doPost(e) {
             renderDashboard();
         }
 
-        // 🚀 優化：智慧繼承上一趟的抵達 SOC，做為新旅程的預設出發 SOC
         function autoFillStartSoc() {
-            // 只在「非編輯狀態」且「起始電量欄位為空」時才自動填入，避免干擾使用者操作
             const startSocInput = document.getElementById('inputStartSoc');
             const chargeTypeSelect = document.getElementById('inputChargeType');
             
             if (!startSocInput || !chargeTypeSelect || editingRecordId !== null) return;
-            
-            // 🚀 關鍵修復：只有在「未充電」模式（紀錄純行駛），也就是欄位為「出發前電量」時，才繼承上一趟的結束電量
-            // 如果是「充電」模式，欄位會是「充電前電量」，這個數字每次都會因為開了多遠而不同，絕對不能自動填寫！
-            if (chargeTypeSelect.value !== "未充電") {
-                return; 
-            }
-
+            if (chargeTypeSelect.value !== "未充電") return; 
             if (startSocInput.value !== '') return;
 
             const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
             if (activeRecords.length === 0) return;
 
-            // 找出最後一筆建立的紀錄 (依照日期與 ID 排序)
             const sortedRecords = [...activeRecords].sort((a, b) => new Date(b.date) - new Date(a.date) || parseInt(b.id, 10) - parseInt(a.id, 10));
             const lastRecord = sortedRecords[0];
 
             if (lastRecord && lastRecord.endSoc !== undefined && !isNaN(lastRecord.endSoc)) {
                 startSocInput.value = lastRecord.endSoc;
-                updateConvertedPowerHint(); // 填入後更新試算提示
+                updateConvertedPowerHint();
             }
         }
 
-        // Phase 1: Boot UI 解鎖，讓出主執行緒避免白畫面卡死
         document.addEventListener('DOMContentLoaded', () => {
             requestAnimationFrame(() => {
                 const nav = document.getElementById('mainNav');
                 const main = document.getElementById('mainAppContent');
                 const footer = document.getElementById('mainFooter');
 
-                // 解除隱藏
                 if (nav) nav.classList.remove('hidden');
                 if (main) main.classList.remove('hidden');
                 if (footer) footer.classList.remove('hidden');
-
-                // 強制觸發瀏覽器重繪 (Reflow)
-                void document.body.offsetHeight;
-
-                // 淡入顯示主體
+                
+                void document.body.offsetHeight; // force reflow
+                
                 if (nav) nav.classList.remove('opacity-0');
                 if (main) main.classList.remove('opacity-0');
                 if (footer) footer.classList.remove('opacity-0');
 
-                // 啟動核心業務邏輯
                 initAppCore();
 
-                // 平滑隱藏 Splash Screen
                 const splash = document.getElementById('appSplashScreen');
                 if (splash) {
                     setTimeout(() => {
@@ -1129,64 +852,40 @@ function doPost(e) {
             });
         });
 
-        //        // Phase 2: Core Logic (純資料與事件綁定，無重度繪圖)
         function initAppCore() {
             setupThemeIcons();
             updateLiveClock();
             setInterval(updateLiveClock, 1000);
 
             const today = new Date();
-            const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const dd = String(today.getDate()).padStart(2, '0');
             const dateInput = document.getElementById('inputDate');
-            if (dateInput) {
-                dateInput.value = `${yyyy}-${mm}-${dd}`;
-            }
+            if (dateInput) dateInput.value = today.toISOString().split('T')[0];
             
             syncUrl = localStorage.getItem('ev_life_sync_url') || "";
-            const sUrlInput = document.getElementById('syncUrlInput');
-            if (sUrlInput) {
-                sUrlInput.value = syncUrl;
-            }
+            if (document.getElementById('syncUrlInput')) document.getElementById('syncUrlInput').value = syncUrl;
             
             let rawEvName = localStorage.getItem('ev_life_ev_name') || "";
-            if (!rawEvName) {
-                evName = "LUXGEN n7"; 
-                localStorage.setItem('ev_life_ev_name', "LUXGEN n7");
-            } else {
-                evName = rawEvName.replace(/n[7|Target| dream]+/g, "n7");
-            }
-            const eNameInput = document.getElementById('evNameInput');
-            if (eNameInput) {
-                eNameInput.value = evName;
-            }
+            evName = rawEvName ? rawEvName.replace(/n[7|Target| dream]+/g, "n7") : "LUXGEN n7";
+            if (!rawEvName) localStorage.setItem('ev_life_ev_name', evName);
+            if (document.getElementById('evNameInput')) document.getElementById('evNameInput').value = evName;
 
             batteryCapacity = parseFloat(localStorage.getItem('ev_life_battery_capacity')) || 57.7;
-            const bCapInput = document.getElementById('batteryCapacityInput');
-            if (bCapInput) {
-                bCapInput.value = batteryCapacity;
-            }
+            if (document.getElementById('batteryCapacityInput')) document.getElementById('batteryCapacityInput').value = batteryCapacity;
 
             initialOdometer = parseFloat(localStorage.getItem('ev_life_initial_odometer')) || 0;
-            const initOdoInput = document.getElementById('initialOdometerInput');
-            if (initOdoInput) {
-                initOdoInput.value = initialOdometer;
-            }
+            if (document.getElementById('initialOdometerInput')) document.getElementById('initialOdometerInput').value = initialOdometer;
             
             const chargeTypeSelect = document.getElementById('inputChargeType');
-            if (chargeTypeSelect) {
-                chargeTypeSelect.addEventListener('change', handleChargeTypeChange);
-            }
+            if (chargeTypeSelect) chargeTypeSelect.addEventListener('change', handleChargeTypeChange);
             handleChargeTypeChange(); 
 
             setupNumericRestrictions();
             updateSyncUiStatus();
+            setupDelegatedEvents(); // Call event delegation setup
 
             const localData = localStorage.getItem('ev_life_records');
             if (localData) {
-                const rawRecords = JSON.parse(localData);
-                records = rawRecords.map(rec => parseRecordSoc(rec));
+                records = JSON.parse(localData).map(rec => parseRecordSoc(rec));
             } else {
                 records = [];
                 localStorage.setItem('ev_life_records', JSON.stringify(records));
@@ -1198,18 +897,17 @@ function doPost(e) {
             }
             
             renderDashboard();
-            
-            // 🚀 核心：初始化時自動帶入上一趟結尾 SOC
             autoFillStartSoc(); 
 
             if (window.matchMedia) {
                 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
                     if (!localStorage.getItem('ev_life_theme')) {
                         const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                        const htmlEl = document.documentElement;
                         if (systemPrefersDark) {
-                            document.documentElement.classList.add('dark');
+                            htmlEl.classList.add('dark');
                         } else {
-                            document.documentElement.classList.remove('dark');
+                            htmlEl.classList.remove('dark');
                         }
                         setupThemeIcons();
                         if(typeof Chart !== 'undefined') updateCharts();
@@ -1222,16 +920,10 @@ function doPost(e) {
             
             const logoImg = document.getElementById('navLogoImg');
             if (logoImg) {
-                if (logoImg.complete) {
-                    adaptContainerBgToImage(logoImg);
-                } else {
-                    logoImg.addEventListener('load', function() {
-                        adaptContainerBgToImage(this);
-                    });
-                }
+                if (logoImg.complete) adaptContainerBgToImage(logoImg);
+                else logoImg.addEventListener('load', function() { adaptContainerBgToImage(this); });
             }
 
-            // Phase 3: 延遲執行 Chart 與 雲端同步 (讓出主線程)
             if ('requestIdleCallback' in window) {
                 requestIdleCallback(initDeferredTasks);
             } else {
@@ -1239,24 +931,36 @@ function doPost(e) {
             }
         }
 
-        // Phase 3: 耗能邏輯延遲載入
         function initDeferredTasks() {
             checkChartLoaded();
-            
-            if (syncUrl) {
-                setTimeout(() => {
-                    syncWithCloud(true); 
-                }, 1000);
-            }
+            if (syncUrl) setTimeout(() => syncWithCloud(true), 1000);
         }
 
-        // 遞迴檢查 Chart CDN 是否載入完畢
         function checkChartLoaded() {
-            if (typeof Chart !== 'undefined') {
-                updateCharts();
-            } else {
-                setTimeout(checkChartLoaded, 100);
-            }
+            if (typeof Chart !== 'undefined') updateCharts();
+            else setTimeout(checkChartLoaded, 100);
+        }
+
+        // 🚀 Event Delegation for Edit/Delete buttons to improve render performance
+        function setupDelegatedEvents() {
+            const handleActionClick = (e) => {
+                const editBtn = e.target.closest('.edit-btn');
+                const deleteBtn = e.target.closest('.delete-btn');
+                
+                if (editBtn) {
+                    const id = editBtn.getAttribute('data-id');
+                    if (id) editRecord(id);
+                } else if (deleteBtn) {
+                    const id = deleteBtn.getAttribute('data-id');
+                    if (id) confirmDeleteRecord(id);
+                }
+            };
+
+            const tbody = document.getElementById('recordTableBody');
+            if (tbody) tbody.addEventListener('click', handleActionClick);
+
+            const mList = document.getElementById('recordMobileList');
+            if (mList) mList.addEventListener('click', handleActionClick);
         }
 
         function saveLocalState(newRecords) {
@@ -1284,28 +988,21 @@ function doPost(e) {
                 }
                 if (startSocLabel) startSocLabel.textContent = "出發前電量 (%)";
                 if (endSocLabel) endSocLabel.textContent = "抵達後電量 (%)";
-                
-                // 🚀 當切換到「未充電」，代表要紀錄純行駛，此時嘗試自動帶入上一趟的抵達電量
                 if (editingRecordId === null) autoFillStartSoc();
             } else {
                 if (costInput) {
-                    if (editingRecordId === null && costInput.value === "0") {
-                        costInput.value = "";
-                    }
+                    if (editingRecordId === null && costInput.value === "0") costInput.value = "";
                     costInput.disabled = false;
                     costInput.classList.remove('opacity-45', 'cursor-not-allowed', 'bg-slate-100/40', 'dark:bg-slate-900/40');
                 }
                 if (startSocLabel) startSocLabel.textContent = "充電前電量 (%)";
                 if (endSocLabel) endSocLabel.textContent = "充電後電量 (%)";
                 
-                // 🚀 當切換到「充電」模式時，如果不是在編輯狀態，強迫清空「充電前電量」
-                // 讓車主自己填寫開到充電站時的真實剩餘電量，避免錯誤繼承上一次充飽的 100%
                 if (editingRecordId === null && startSocInput) {
                     const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
                     if (activeRecords.length > 0) {
                         const sortedRecords = [...activeRecords].sort((a, b) => new Date(b.date) - new Date(a.date) || parseInt(b.id, 10) - parseInt(a.id, 10));
                         const lastRecord = sortedRecords[0];
-                        // 避免誤清掉車主自己手打的數字，只在等於上一筆的結束電量（疑似被自動填入）時才把它清空
                         if (lastRecord && startSocInput.value == lastRecord.endSoc) {
                             startSocInput.value = '';
                         }
@@ -1322,22 +1019,17 @@ function doPost(e) {
             const costInput = document.getElementById('inputCost');
 
             const blockInvalidKeys = (e) => {
-                if (['e', 'E', '+', '-'].includes(e.key)) {
-                    e.preventDefault();
-                }
+                if (['e', 'E', '+', '-'].includes(e.key)) e.preventDefault();
             };
             
             if (distanceInput) {
                 distanceInput.addEventListener('keypress', blockInvalidKeys);
                 distanceInput.addEventListener('keypress', function(e) {
-                    if (e.key === '.' && this.value.includes('.')) {
-                        e.preventDefault();
-                    }
+                    if (e.key === '.' && this.value.includes('.')) e.preventDefault();
                 });
-                distanceInput.addEventListener('input', function() {
-                    updateConvertedPowerHint();
-                });
+                distanceInput.addEventListener('input', updateConvertedPowerHint);
             }
+            
             if (startSocInput) startSocInput.addEventListener('keypress', blockInvalidKeys);
             if (endSocInput) endSocInput.addEventListener('keypress', blockInvalidKeys);
             if (costInput)  costInput.addEventListener('keypress', blockInvalidKeys);
@@ -1355,9 +1047,7 @@ function doPost(e) {
             const restrictCost = function() {
                 this.value = this.value.replace(/[^0-9]/g, ''); 
                 let val = parseInt(this.value);
-                if (!isNaN(val)) {
-                    if (val < 0) this.value = '0';
-                }
+                if (!isNaN(val) && val < 0) this.value = '0';
             };
 
             if (startSocInput) startSocInput.addEventListener('input', restrictPercent);
@@ -1372,15 +1062,12 @@ function doPost(e) {
             
             document.getElementById('confirmModalTitle').textContent = title;
             document.getElementById('confirmModalMessage').textContent = message;
-            
             activeConfirmCallback = onConfirm;
 
             modal.classList.remove('hidden');
             setTimeout(() => {
                 modal.classList.remove('opacity-0');
-                modal.classList.add('opacity-100');
                 content.classList.remove('scale-95');
-                content.classList.add('scale-100');
             }, 10);
         }
 
@@ -1389,9 +1076,7 @@ function doPost(e) {
             const content = document.getElementById('confirmModalContent');
             if (!modal || !content) return;
             
-            modal.classList.remove('opacity-100');
             modal.classList.add('opacity-0');
-            content.classList.remove('scale-100');
             content.classList.add('scale-95');
             setTimeout(() => {
                 modal.classList.add('hidden');
@@ -1399,12 +1084,9 @@ function doPost(e) {
             }, 300);
         }
 
-        const confirmSuccessBtn = document.getElementById('confirmSuccessBtn');
-        if (confirmSuccessBtn) {
-            confirmSuccessBtn.onclick = function() {
-                if (activeConfirmCallback) {
-                    activeConfirmCallback();
-                }
+        if (document.getElementById('confirmSuccessBtn')) {
+            document.getElementById('confirmSuccessBtn').onclick = function() {
+                if (activeConfirmCallback) activeConfirmCallback();
                 closeConfirmModal();
             };
         }
@@ -1418,22 +1100,17 @@ function doPost(e) {
 
             const startSoc = parseFloat(startSocInput.value) || 0;
             const endSoc = parseFloat(endSocInput.value) || 0;
-            
-            let deltaSoc = Math.abs(endSoc - startSoc);
-            let actionText = (chargeType === "未充電") ? "消耗" : "補給";
-
+            const deltaSoc = Math.abs(endSoc - startSoc);
+            const actionText = (chargeType === "未充電") ? "消耗" : "補給";
             const calculatedKwh = batteryCapacity * (deltaSoc / 100);
             hintText.textContent = `共${actionText} ${deltaSoc.toFixed(0)}% 電量 (約等同於 ${calculatedKwh.toFixed(2)} 度電)`;
         }
 
         function showToast(message, isError = false) {
             const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toastMessage');
-            const toastIcon = document.getElementById('toastIcon');
-            if (!toast || !toastMessage || !toastIcon) return;
-            
-            toastMessage.textContent = message;
-            toastIcon.textContent = isError ? "⚠️🐾" : "⚡(ˊᗜˋ*)";
+            if (!toast) return;
+            document.getElementById('toastMessage').textContent = message;
+            document.getElementById('toastIcon').textContent = isError ? "⚠️🐾" : "⚡(ˊᗜˋ*)";
             
             toast.className = `fixed bottom-5 left-1/2 -translate-x-1/2 z-[120] transform translate-y-0 opacity-100 visible pointer-events-auto transition-all duration-300 bg-slate-900/95 dark:bg-[#1f2937]/95 text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border-2 border-[#1e293b] dark:border-[#374151] max-w-[90vw] whitespace-nowrap`;
             
@@ -1447,29 +1124,20 @@ function doPost(e) {
             const content = document.getElementById('syncModalContent');
             if (!modal || !content) return;
             if (modal.classList.contains('hidden')) {
-                const evNameInput = document.getElementById('evNameInput');
-                if (evNameInput) evNameInput.value = evName;
-                const batteryCapacityInput = document.getElementById('batteryCapacityInput');
-                if (batteryCapacityInput) batteryCapacityInput.value = batteryCapacity;
-                const initialOdometerInput = document.getElementById('initialOdometerInput');
-                if (initialOdometerInput) initialOdometerInput.value = initialOdometer;
+                if (document.getElementById('evNameInput')) document.getElementById('evNameInput').value = evName;
+                if (document.getElementById('batteryCapacityInput')) document.getElementById('batteryCapacityInput').value = batteryCapacity;
+                if (document.getElementById('initialOdometerInput')) document.getElementById('initialOdometerInput').value = initialOdometer;
 
                 modal.classList.remove('hidden');
                 switchSettingsTab('settings-tab-main');
                 setTimeout(() => {
                     modal.classList.remove('opacity-0');
-                    modal.classList.add('opacity-100');
                     content.classList.remove('scale-95');
-                    content.classList.add('scale-100');
                 }, 10);
             } else {
-                modal.classList.remove('opacity-100');
                 modal.classList.add('opacity-0');
-                content.classList.remove('scale-100');
                 content.classList.add('scale-95');
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-                }, 300);
+                setTimeout(() => modal.classList.add('hidden'), 300);
             }
         }
 
@@ -1494,182 +1162,105 @@ function doPost(e) {
         }
 
         function saveSyncSettings() {
-            const syncUrlInput = document.getElementById('syncUrlInput');
-            const evNameInput = document.getElementById('evNameInput');
-            const batteryCapacityInput = document.getElementById('batteryCapacityInput');
-            const initialOdometerInput = document.getElementById('initialOdometerInput');
-
-            if (syncUrlInput) {
-                const urlInput = syncUrlInput.value.trim();
-                if (urlInput && !urlInput.startsWith('https://script.google.com/')) {
-                    showToast("這看起來不像是正確的 Google Apps Script 網址 (๑•́ ₃ •̀๑)", true);
-                    return;
-                }
+            const urlInput = document.getElementById('syncUrlInput')?.value.trim();
+            if (urlInput && !urlInput.startsWith('https://script.google.com/')) {
+                showToast("這看起來不像是正確的 Google Apps Script 網址 (๑•́ ₃ •̀๑)", true);
+                return;
+            }
+            if (urlInput !== undefined) {
                 syncUrl = urlInput;
                 localStorage.setItem('ev_life_sync_url', syncUrl);
             }
 
-            if (evNameInput) {
-                evName = evNameInput.value.trim().replace(/n[7|Target]+/g, "n7") || "LUXGEN n7";
-                localStorage.setItem('ev_life_ev_name', evName);
-            }
+            const eName = document.getElementById('evNameInput')?.value.trim().replace(/n[7|Target]+/g, "n7");
+            if (eName) { evName = eName; localStorage.setItem('ev_life_ev_name', evName); }
 
-            if (batteryCapacityInput) {
-                const bCap = parseFloat(batteryCapacityInput.value);
-                if (!isNaN(bCap) && bCap > 0) {
-                    batteryCapacity = bCap;
-                    localStorage.setItem('ev_life_battery_capacity', bCap);
-                } else {
-                    showToast("請輸入有效的電池容量數值！", true);
-                    return;
-                }
-            }
-
-            if (initialOdometerInput) {
-                const initOdo = parseFloat(initialOdometerInput.value);
-                if (!isNaN(initOdo) && initOdo >= 0) {
-                    initialOdometer = initOdo;
-                    localStorage.setItem('ev_life_initial_odometer', initOdo);
-                } else {
-                    showToast("請輸入有效的初始里程！", true);
-                    return;
-                }
-            }
+            const bCap = parseFloat(document.getElementById('batteryCapacityInput')?.value);
+            if (!isNaN(bCap) && bCap > 0) { batteryCapacity = bCap; localStorage.setItem('ev_life_battery_capacity', bCap); }
+            
+            const initOdo = parseFloat(document.getElementById('initialOdometerInput')?.value);
+            if (!isNaN(initOdo) && initOdo >= 0) { initialOdometer = initOdo; localStorage.setItem('ev_life_initial_odometer', initOdo); }
             
             updateSyncUiStatus();
             toggleSyncModal();
             showToast("所有參數與雲端設定已儲存！🐾");
-            
             renderDashboard();
-
-            if (syncUrl) {
-                syncWithCloud();
-            }
+            if (syncUrl) syncWithCloud();
         }
 
         function updateSyncUiStatus() {
             const syncStatusDot = document.getElementById('syncStatusDot');
             const navSyncBtn = document.getElementById('navSyncBtn');
             const syncTimeInfo = document.getElementById('syncTimeInfo');
-            const lastSyncTimeText = document.getElementById('lastSyncTimeText');
             const lastSync = localStorage.getItem('ev_life_last_sync_time');
 
             if (syncUrl) {
                 if (syncStatusDot) syncStatusDot.className = "w-2 h-2 rounded-full bg-emerald-400";
-                if (navSyncBtn) {
-                    navSyncBtn.classList.remove('hidden');
-                    navSyncBtn.classList.add('flex');
-                }
+                if (navSyncBtn) { navSyncBtn.classList.remove('hidden'); navSyncBtn.classList.add('flex'); }
                 if (syncTimeInfo) syncTimeInfo.classList.remove('hidden');
-                if (lastSyncTimeText) lastSyncTimeText.textContent = lastSync ? lastSync : "尚未同步";
+                if (document.getElementById('lastSyncTimeText')) document.getElementById('lastSyncTimeText').textContent = lastSync || "尚未同步";
             } else {
                 if (syncStatusDot) syncStatusDot.className = "w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse mr-0.5";
-                if (navSyncBtn) {
-                    navSyncBtn.classList.remove('flex');
-                    navSyncBtn.classList.add('hidden');
-                }
+                if (navSyncBtn) { navSyncBtn.classList.add('hidden'); navSyncBtn.classList.remove('flex'); }
                 if (syncTimeInfo) syncTimeInfo.classList.add('hidden');
             }
         }
 
         async function syncWithCloud(isSilent = false) {
-            if (!syncUrl) {
-                if (!isSilent) showToast("請先設定您的雲端同步網址！", true);
-                return;
-            }
-
+            if (!syncUrl) { if (!isSilent) showToast("請先設定您的雲端同步網址！", true); return; }
+            
             const syncIcon = document.getElementById('navSyncIcon');
             if (syncIcon) syncIcon.classList.add('animate-spin');
-
             if (!isSilent) showToast("雲端同步中，請稍候 ₍ᐢ.ˬ.ᐢ₎...");
 
             try {
-                const getResponse = await fetch(syncUrl);
-                if (!getResponse.ok) throw new Error("取得雲端資料失敗");
+                const getRes = await fetch(syncUrl);
+                if (!getRes.ok) throw new Error("取得資料失敗");
                 
                 let cloudPayload = [];
                 try {
-                    const parsedJson = await getResponse.json();
-                    cloudPayload = Array.isArray(parsedJson) ? parsedJson : [];
-                } catch (e) {
-                    console.warn("解析雲端 JSON 格式失敗，採用空白陣列複寫處理", e);
-                    cloudPayload = [];
-                }
+                    const parsed = await getRes.json();
+                    cloudPayload = Array.isArray(parsed) ? parsed : [];
+                } catch (e) { cloudPayload = []; }
 
                 let cloudLastUpdated = 0;
-                const cloudRecords = [];
-                let cloudConfigParsed = null;
+                let cloudRecords = [];
+                let cloudConfig = null;
 
                 cloudPayload.forEach(item => {
-                    if (item && item.id === "SYSTEM_METADATA") {
-                        cloudLastUpdated = parseInt(item.note) || 0;
-                    } else if (item && item.id === "CONFIG_METADATA") {
-                        try {
-                            cloudConfigParsed = JSON.parse(item.note);
-                        } catch(err) {
-                            console.warn("解析雲端設定參數失敗", err);
-                        }
-                    } else if (item) {
-                        cloudRecords.push(parseRecordSoc(item));
+                    if (item && item.id === "SYSTEM_METADATA") cloudLastUpdated = parseInt(item.note) || 0;
+                    else if (item && item.id === "CONFIG_METADATA") {
+                        try { cloudConfig = JSON.parse(item.note); } catch(err) {}
                     }
+                    else if (item) cloudRecords.push(parseRecordSoc(item));
                 });
 
                 let localLastUpdated = parseInt(localStorage.getItem('ev_life_last_updated')) || 0;
-                const isLocallyCleared = localStorage.getItem('ev_life_cleared') === 'true';
+                const isCleared = localStorage.getItem('ev_life_cleared') === 'true';
 
-                if (localLastUpdated > cloudLastUpdated && records.length === 0 && cloudRecords.length > 0 && !isLocallyCleared) {
-                    console.warn("防呆機制觸發：偵測到本地為空且未點擊清空，強制改為下載雲端資料！");
-                    localLastUpdated = 0; 
+                if (localLastUpdated > cloudLastUpdated && records.length === 0 && cloudRecords.length > 0 && !isCleared) {
+                    localLastUpdated = 0; // Prevent accidental overwrite if locally empty
                 }
 
                 if (localLastUpdated > cloudLastUpdated) {
-                    const uploadPayload = records.map(rec => {
-                        let syncedNote = rec.note || '';
-                        if (rec.startSoc !== undefined && rec.endSoc !== undefined) {
-                            syncedNote = `[SOC:${rec.startSoc}-${rec.endSoc}] ${rec.note || ''}`.trim();
-                        }
-                        return {
-                            id: rec.id,
-                            date: rec.date,
-                            chargeType: rec.chargeType,
-                            distance: rec.distance,
-                            power: rec.power,
-                            cost: rec.cost,
-                            note: syncedNote
-                        };
-                    });
-
+                    const uploadPayload = records.map(rec => ({
+                        id: rec.id, date: rec.date, chargeType: rec.chargeType, distance: rec.distance, 
+                        power: rec.power, cost: rec.cost, 
+                        note: (rec.startSoc !== undefined && rec.endSoc !== undefined) ? `[SOC:${rec.startSoc}-${rec.endSoc}] ${rec.note || ''}`.trim() : (rec.note || '')
+                    }));
+                    
                     const configMeta = {
-                        id: "CONFIG_METADATA",
-                        date: "",
-                        chargeType: "",
-                        distance: 0,
-                        power: 0,
-                        cost: 0,
-                        note: JSON.stringify({
-                            evName: evName,
-                            batteryCapacity: batteryCapacity,
-                            initialOdometer: initialOdometer
-                        })
+                        id: "CONFIG_METADATA", date: "", chargeType: "", distance: 0, power: 0, cost: 0,
+                        note: JSON.stringify({ evName, batteryCapacity, initialOdometer })
                     };
 
-                    const uploadPayloadWithMeta = [
-                        ...uploadPayload,
-                        { id: "SYSTEM_METADATA", note: localLastUpdated.toString() },
-                        configMeta
-                    ];
-
                     await fetch(syncUrl, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(uploadPayloadWithMeta)
+                        method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify([...uploadPayload, { id: "SYSTEM_METADATA", note: localLastUpdated.toString() }, configMeta])
                     });
-
+                    
                     localStorage.setItem('ev_life_last_sync_time', new Date().toLocaleString());
-                    if (!isSilent) showToast(`同步成功！已將本地最新狀態送至雲端 ☁️`);
+                    if (!isSilent) showToast(`同步成功！已推播至雲端 ☁️`);
                 } else if (cloudLastUpdated > localLastUpdated) {
                     records = cloudRecords;
                     localStorage.setItem('ev_life_records', JSON.stringify(records));
@@ -1677,38 +1268,19 @@ function doPost(e) {
                     localStorage.setItem('ev_life_last_sync_time', new Date().toLocaleString());
                     localStorage.removeItem('ev_life_cleared'); 
                     
-                    if (cloudConfigParsed) {
-                        if (cloudConfigParsed.evName) {
-                            evName = cloudConfigParsed.evName.replace(/n[7|Target]+/g, "n7");
-                            localStorage.setItem('ev_life_ev_name', evName);
-                        }
-                        if (cloudConfigParsed.batteryCapacity) {
-                            batteryCapacity = parseFloat(cloudConfigParsed.batteryCapacity);
-                            localStorage.setItem('ev_life_battery_capacity', batteryCapacity.toString());
-                        }
-                        if (cloudConfigParsed.initialOdometer !== undefined) {
-                            initialOdometer = parseFloat(cloudConfigParsed.initialOdometer);
-                            localStorage.setItem('ev_life_initial_odometer', initialOdometer.toString());
-                        }
-                        
-                        const eNameInput = document.getElementById('evNameInput');
-                        if (eNameInput) eNameInput.value = evName;
-                        const bCapInput = document.getElementById('batteryCapacityInput');
-                        if (bCapInput) bCapInput.value = batteryCapacity;
-                        const initOdoInput = document.getElementById('initialOdometerInput');
-                        if (initOdoInput) initOdoInput.value = initialOdometer;
+                    if (cloudConfig) {
+                        if (cloudConfig.evName) { evName = cloudConfig.evName.replace(/n[7|Target]+/g, "n7"); localStorage.setItem('ev_life_ev_name', evName); }
+                        if (cloudConfig.batteryCapacity) { batteryCapacity = parseFloat(cloudConfig.batteryCapacity); localStorage.setItem('ev_life_battery_capacity', batteryCapacity); }
+                        if (cloudConfig.initialOdometer !== undefined) { initialOdometer = parseFloat(cloudConfig.initialOdometer); localStorage.setItem('ev_life_initial_odometer', initialOdometer); }
                     }
-                    
                     renderDashboard();
-                    if (!isSilent) showToast(`同步成功！已從雲端下載最新日誌與愛車設定參數 (${records.length} 筆)`);
+                    if (!isSilent) showToast(`同步成功！已下載雲端最新日誌 (${records.length} 筆)`);
                 } else {
                     localStorage.setItem('ev_life_last_sync_time', new Date().toLocaleString());
-                    if (!isSilent) showToast("同步完成！本機與雲端已經一致囉 ✿");
+                    if (!isSilent) showToast("同步完成！本機與雲端一致 ✿");
                 }
-
                 updateSyncUiStatus();
             } catch (error) {
-                console.error(error);
                 if (!isSilent) showToast("同步失敗，請檢查網址或網路 (๑•́ ₃ •̀๑)", true);
             } finally {
                 if (syncIcon) syncIcon.classList.remove('animate-spin');
@@ -1716,81 +1288,44 @@ function doPost(e) {
         }
 
         function parseRecordSoc(rec) {
-            let startSoc = rec.startSoc;
-            let endSoc = rec.endSoc;
-            let cleanNote = rec.note || '';
-            if (rec.note && typeof rec.note === 'string' && rec.note.startsWith('[SOC:')) {
+            let startSoc = rec.startSoc, endSoc = rec.endSoc, cleanNote = rec.note || '';
+            if (typeof rec.note === 'string' && rec.note.startsWith('[SOC:')) {
                 const match = rec.note.match(/^\[SOC:(\d+)-(\d+)\]\s*(.*)/);
-                if (match) {
-                    startSoc = parseInt(match[1], 10);
-                    endSoc = parseInt(match[2], 10);
-                    cleanNote = match[3];
-                }
+                if (match) { startSoc = parseInt(match[1], 10); endSoc = parseInt(match[2], 10); cleanNote = match[3]; }
             }
-            
-            let dateStr = '';
-            if (rec.date) {
-                const dStr = rec.date.toString().trim();
-                if (dStr.includes('T')) {
-                    const dateObj = new Date(dStr);
-                    if (!isNaN(dateObj.getTime())) {
-                        const yyyy = dateObj.getFullYear();
-                        const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
-                        const dd = String(dateObj.getDate()).padStart(2, '0');
-                        dateStr = `${yyyy}-${mm}-${dd}`;
-                    } else {
-                        dateStr = dStr.split('T')[0];
-                    }
-                } else {
-                    dateStr = dStr;
-                }
-            }
-            
+            let dateStr = rec.date ? (rec.date.includes('T') ? rec.date.split('T')[0] : rec.date) : '';
             return {
-                id: rec.id ? rec.id.toString() : Date.now().toString(),
-                date: dateStr,
-                chargeType: rec.chargeType ? rec.chargeType.toString() : 'DC-快充',
-                distance: rec.distance !== undefined ? parseFloat(rec.distance) : 0,
-                power: rec.power !== undefined ? parseFloat(rec.power) : 0,
+                id: rec.id?.toString() || Date.now().toString(),
+                date: dateStr, chargeType: rec.chargeType?.toString() || 'DC-快充',
+                distance: parseFloat(rec.distance) || 0, power: parseFloat(rec.power) || 0,
                 powerPercent: rec.powerPercent !== undefined ? parseInt(rec.powerPercent, 10) : (startSoc !== undefined && endSoc !== undefined ? Math.abs(endSoc - startSoc) : 0),
                 startSoc: startSoc !== undefined && !isNaN(startSoc) ? parseInt(startSoc, 10) : undefined,
                 endSoc: endSoc !== undefined && !isNaN(endSoc) ? parseInt(endSoc, 10) : undefined,
-                cost: (rec.cost !== undefined && rec.cost !== null && rec.cost !== "") ? parseInt(rec.cost, 10) : 0,
-                note: cleanNote
+                cost: rec.cost ? parseInt(rec.cost, 10) : 0, note: cleanNote
             };
         }
 
         function editRecord(id) {
             const rec = records.find(r => r.id === id);
             if (!rec) return;
-
-            // 1. 先填入非費用的一般欄位
+            
             document.getElementById('inputDate').value = rec.date;
             document.getElementById('inputDistance').value = rec.distance;
             document.getElementById('inputStartSoc').value = rec.startSoc !== undefined ? rec.startSoc : '';
             document.getElementById('inputEndSoc').value = rec.endSoc !== undefined ? rec.endSoc : '';
             document.getElementById('inputNote').value = rec.note || '';
-
-            // 🚀 重要修正：在變更類別與呼叫狀態重置前，必須先寫入 `inputChargeType` 的值
             document.getElementById('inputChargeType').value = rec.chargeType;
-
-            // 2. 優先設定編輯狀態，並執行充電類別切換邏輯
+            
             editingRecordId = id;
             handleChargeTypeChange();
-
-            // 3. 在所有屬性與 UI 狀態切換完畢之後，強制將金額覆寫填回費用欄位，完美避開 handleChargeTypeChange 內部的空白覆寫防呆邏輯
+            
             const costInput = document.getElementById('inputCost');
-            if (costInput) {
-                let parsedCost = parseInt(rec.cost, 10);
-                costInput.value = !isNaN(parsedCost) ? parsedCost : 0;
-            }
-
+            if (costInput) costInput.value = !isNaN(parseInt(rec.cost, 10)) ? parseInt(rec.cost, 10) : 0;
+            
             updateConvertedPowerHint();
-
             document.getElementById('formTitle').textContent = "編輯行駛日誌 ✏️";
             document.getElementById('submitBtnText').textContent = "儲存修改內容 💾";
             document.getElementById('cancelEditBtn').classList.remove('hidden');
-
             document.getElementById('recordForm').scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -1799,48 +1334,25 @@ function doPost(e) {
             document.getElementById('formTitle').textContent = "記錄本次旅程 🐾";
             document.getElementById('submitBtnText').textContent = "記錄這趟旅程 ⚡";
             document.getElementById('cancelEditBtn').classList.add('hidden');
-
-            const today = new Date();
-            const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const dd = String(today.getDate()).padStart(2, '0');
-            const dateInput = document.getElementById('inputDate');
-            if (dateInput) {
-                dateInput.value = `${yyyy}-${mm}-${dd}`;
-            }
             
-            const distanceInput = document.getElementById('inputDistance');
-            const startSocInput = document.getElementById('inputStartSoc');
-            const endSocInput = document.getElementById('inputEndSoc');
-            const costInput = document.getElementById('inputCost');
-            const noteInput = document.getElementById('inputNote');
-
-            if (distanceInput) distanceInput.value = '';
-            if (startSocInput) startSocInput.value = '';
-            if (endSocInput) endSocInput.value = '';
-            if (costInput) {
-                costInput.value = '';
-                costInput.disabled = false;
-                costInput.classList.remove('opacity-45', 'cursor-not-allowed', 'bg-slate-100/40', 'dark:bg-slate-900/40');
-            }
-            if (noteInput) noteInput.value = '';
+            document.getElementById('inputDate').value = new Date().toISOString().split('T')[0];
+            ['inputDistance', 'inputStartSoc', 'inputEndSoc', 'inputCost', 'inputNote'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            const costIn = document.getElementById('inputCost');
+            if(costIn) { costIn.disabled=false; costIn.classList.remove('opacity-45', 'cursor-not-allowed', 'bg-slate-100/40', 'dark:bg-slate-900/40'); }
             
             document.getElementById('inputChargeType').value = "DC-快充";
             handleChargeTypeChange(); 
-            
-            // 🚀 優化：取消編輯時，若符合條件則自動帶入結尾 SOC 準備下一趟紀錄
             autoFillStartSoc();
         }
 
         function renderDashboard() {
             const brandSpan = document.getElementById('navEvBrandName');
-            if (brandSpan) {
-                brandSpan.innerHTML = `<span class="bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 via-teal-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:via-teal-600 dark:to-cuteBlue-300 font-extrabold">${evName}</span><span class="text-slate-500 dark:text-slate-400 text-xs font-medium ml-1 hidden sm:inline"> の 純電之旅</span>`;
-            }
+            if (brandSpan) brandSpan.innerHTML = `<span class="bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 via-teal-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:via-teal-600 dark:to-cuteBlue-300 font-extrabold">${evName}</span><span class="text-slate-500 dark:text-slate-400 text-xs font-medium ml-1 hidden sm:inline"> の 純電之旅</span>`;
 
             records.sort((a, b) => new Date(a.date) - new Date(b.date) || parseInt(a.id, 10) - parseInt(b.id, 10));
-
-            // 🚀 新增：動態生成月份篩選按鈕
             renderMonthFilters();
 
             const tableBody = document.getElementById('recordTableBody');
@@ -1848,413 +1360,219 @@ function doPost(e) {
             const placeholder = document.getElementById('noDataPlaceholder');
             const flatViewContainer = document.getElementById('flatViewContainer');
 
-            if (tableBody) tableBody.innerHTML = '';
-            if (mobileList) mobileList.innerHTML = '';
-
-            const activeRecords = records.filter(r => 
-                r.id !== "SYSTEM_METADATA" && 
-                r.id !== "CONFIG_METADATA" && 
-                r.date && 
-                r.date.trim() !== "" && 
-                r.distance !== undefined &&
-                !isNaN(parseFloat(r.distance))
-            );
-
-            // 🚀 新增：根據目前選取的月份過濾資料
+            const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.date && r.distance !== undefined && !isNaN(parseFloat(r.distance)));
+            
             let filteredRecords = activeRecords;
             if (currentMonthFilter !== 'all') {
-                filteredRecords = activeRecords.filter(rec => {
-                    const dateStr = rec.date && rec.date.includes('T') ? rec.date.split('T')[0] : (rec.date || '');
-                    return dateStr.startsWith(currentMonthFilter);
-                });
+                filteredRecords = activeRecords.filter(rec => (rec.date.includes('T') ? rec.date.split('T')[0] : rec.date).startsWith(currentMonthFilter));
             }
 
             if (activeRecords.length === 0) {
                 if (placeholder) placeholder.classList.remove('hidden');
                 if (flatViewContainer) flatViewContainer.classList.add('hidden');
                 updateStats(0, 0, 0, 0, 0);
-                if (efficiencyChartInstance) {
-                    efficiencyChartInstance.destroy();
-                    efficiencyChartInstance = null;
-                }
+                updateCharts();
                 return;
             } else {
-                // 如果總資料不為空，但篩選後為空，也要處理顯示
                 if (filteredRecords.length === 0 && currentMonthFilter !== 'all') {
                      if (tableBody) tableBody.innerHTML = '<tr><td colspan="8" class="text-center py-8 text-slate-500">這個月沒有紀錄喔 🐾</td></tr>';
                      if (mobileList) mobileList.innerHTML = '<div class="text-center py-8 text-slate-500">這個月沒有紀錄喔 🐾</div>';
                      updateStats(0, 0, 0, 0, 0);
-                     if (typeof Chart !== 'undefined') updateCharts();
+                     updateCharts();
                      return;
                 }
-                
                 if (placeholder) placeholder.classList.add('hidden');
                 if (flatViewContainer) flatViewContainer.classList.remove('hidden');
             }
 
-            // 計算所有資料的消耗百分比 (為了跨月計算準確，必須用完整 activeRecords 算)
+            let rollingOdoAccumulator = initialOdometer;
             for (let i = 0; i < activeRecords.length; i++) {
                 const rec = activeRecords[i];
                 let consumedSocPercent = 0;
                 
                 if (i === 0) {
-                    if (rec.chargeType === "未充電") {
-                        consumedSocPercent = Math.max(0, rec.startSoc - rec.endSoc);
-                    } else {
-                        consumedSocPercent = Math.max(0, 100 - rec.startSoc);
-                    }
+                    consumedSocPercent = rec.chargeType === "未充電" ? Math.max(0, rec.startSoc - rec.endSoc) : Math.max(0, 100 - rec.startSoc);
                 } else {
                     const prevRec = activeRecords[i - 1];
-                    if (prevRec.endSoc !== undefined) {
-                        consumedSocPercent = prevRec.endSoc - rec.startSoc;
-                    } else {
-                        if (rec.chargeType === "未充電") {
-                            consumedSocPercent = rec.startSoc - rec.endSoc;
-                        } else {
-                            consumedSocPercent = 100 - rec.startSoc;
-                        }
-                    }
-
-                    if (consumedSocPercent < 0) {
-                        if (rec.chargeType === "未充電") {
-                            consumedSocPercent = Math.max(0, rec.startSoc - rec.endSoc);
-                        } else {
-                            consumedSocPercent = Math.max(0, 100 - rec.startSoc);
-                        }
-                    }
+                    if (prevRec.endSoc !== undefined) consumedSocPercent = prevRec.endSoc - rec.startSoc;
+                    else consumedSocPercent = rec.chargeType === "未充電" ? rec.startSoc - rec.endSoc : 100 - rec.startSoc;
+                    if (consumedSocPercent < 0) consumedSocPercent = rec.chargeType === "未充電" ? Math.max(0, rec.startSoc - rec.endSoc) : Math.max(0, 100 - rec.startSoc);
                 }
                 rec.consumedSocPercent = consumedSocPercent;
-            }
-
-            let rollingOdoAccumulator = initialOdometer;
-            activeRecords.forEach(rec => {
+                
                 rollingOdoAccumulator += parseFloat(rec.distance) || 0;
                 rec.rollingOdo = rollingOdoAccumulator;
-            });
+            }
 
-            let totalKm = 0;
-            let totalCost = 0;
-            let totalPower = 0;
-            let totalPowerConsumedReal = 0; 
-            let dcCount = 0;
-            let acCount = 0;
+            let totalKm = 0, totalCost = 0, totalPower = 0, totalPowerConsumedReal = 0, dcCount = 0, acCount = 0;
 
-            // 🚀 核心：總計區塊只計算「篩選後的資料」
             filteredRecords.forEach(rec => {
                 totalKm += parseFloat(rec.distance) || 0;
                 totalCost += parseFloat(rec.cost) || 0;
-                
-                if (rec.chargeType !== "未充電") {
-                    totalPower += parseFloat(rec.power) || 0;
-                }
-
+                if (rec.chargeType !== "未充電") totalPower += parseFloat(rec.power) || 0;
                 if (rec.chargeType.includes("快充")) dcCount++;
                 if (rec.chargeType.includes("慢充")) acCount++;
-
-                const rowConsumedSoc = rec.consumedSocPercent !== undefined ? rec.consumedSocPercent : 0;
-                const rowConsumedPower = batteryCapacity * (rowConsumedSoc / 100);
-                totalPowerConsumedReal += rowConsumedPower;
+                totalPowerConsumedReal += batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
             });
 
-            // 🚀 列表顯示的也是「篩選後的資料」
             const displayRecords = [...filteredRecords].reverse();
-
-            // 🚀 優化 2：尋找 MVP (當前列表中電耗表現最好的一筆)
-            let maxEfficiencyForMvp = 0;
-            let mvpRecordId = null;
+            let maxEff = 0, mvpId = null;
+            
             displayRecords.forEach(rec => {
-                const rowConsumedSoc = rec.consumedSocPercent !== undefined ? rec.consumedSocPercent : 0;
-                const rowConsumedPower = batteryCapacity * (rowConsumedSoc / 100);
-                if (rowConsumedPower > 0) {
-                    const eff = parseFloat((rec.distance / rowConsumedPower).toFixed(2));
-                    // 我們只頒發給行駛超過 5km 且效率最高的那一筆，避免極端數值干擾
-                    if (eff > maxEfficiencyForMvp && rec.distance > 5) {
-                        maxEfficiencyForMvp = eff;
-                        mvpRecordId = rec.id;
-                    }
+                const consumedPwr = batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
+                if (consumedPwr > 0) {
+                    const eff = parseFloat((rec.distance / consumedPwr).toFixed(2));
+                    if (eff > maxEff && rec.distance > 5) { maxEff = eff; mvpId = rec.id; }
                 }
             });
+
+            // 🚀 Optimization: Build HTML strings instead of multiple createElement calls
+            let tableHTML = '';
+            let mobileHTML = '';
 
             displayRecords.forEach(rec => {
                 const distVal = parseFloat(rec.distance) || 0;
-                
-                const rowConsumedSoc = rec.consumedSocPercent !== undefined ? rec.consumedSocPercent : 0;
+                const rowConsumedSoc = rec.consumedSocPercent || 0;
                 const rowConsumedPower = batteryCapacity * (rowConsumedSoc / 100);
                 const efficiency = rowConsumedPower > 0 ? (rec.distance / rowConsumedPower).toFixed(2) : "0.00";
+                const hasValidSoc = rec.startSoc !== undefined && rec.endSoc !== undefined;
                 
-                let startSocVal = parseFloat(rec.startSoc);
-                let endSocVal = parseFloat(rec.endSoc);
-                let hasValidSoc = rec.startSoc !== undefined && rec.endSoc !== undefined && !isNaN(startSocVal) && !isNaN(endSocVal);
-
                 let powerPercent = rec.powerPercent;
                 if (powerPercent === undefined || isNaN(powerPercent) || powerPercent === null) {
-                    if (hasValidSoc) {
-                        powerPercent = Math.abs(endSocVal - startSocVal);
-                    } else if (rec.power !== undefined && !isNaN(parseFloat(rec.power))) {
-                        powerPercent = Math.round((parseFloat(rec.power) / batteryCapacity) * 100);
-                    } else {
-                        powerPercent = 0;
-                    }
+                    powerPercent = hasValidSoc ? Math.abs(rec.endSoc - rec.startSoc) : (rec.power ? Math.round((parseFloat(rec.power)/batteryCapacity)*100) : 0);
                 }
                 
-                let socText = "";
-                let subActionWord = rec.chargeType === "未充電" ? "消耗" : "補給";
-                if (hasValidSoc) {
-                    socText = `
-                        <div class="leading-tight text-center whitespace-nowrap">
-                            <div>${startSocVal}% ➔ ${endSocVal}%</div>
-                            <div class="text-[10px] text-slate-400 dark:text-slate-500 font-mono font-normal">(${subActionWord} ${powerPercent}% | ${parseFloat(rec.power).toFixed(1)}度)</div>
-                        </div>
-                    `;
-                } else {
-                    socText = `
-                        <div class="leading-tight text-center whitespace-nowrap">
-                            <div>${powerPercent}%</div>
-                            <div class="text-[10px] text-slate-400 dark:text-slate-500 font-mono font-normal">(${parseFloat(rec.power).toFixed(1)}度)</div>
-                        </div>
-                    `;
-                }
-
-                const displayDate = rec.date && rec.date.includes('T') ? rec.date.split('T')[0] : (rec.date || '').split('T')[0];
+                const subActionWord = rec.chargeType === "未充電" ? "消耗" : "補給";
+                const socText = hasValidSoc 
+                    ? `<div class="leading-tight text-center whitespace-nowrap"><div>${rec.startSoc}% ➔ ${rec.endSoc}%</div><div class="text-[10px] text-slate-400 dark:text-slate-500 font-mono font-normal">(${subActionWord} ${powerPercent}% | ${parseFloat(rec.power).toFixed(1)}度)</div></div>`
+                    : `<div class="leading-tight text-center whitespace-nowrap"><div>${powerPercent}%</div><div class="text-[10px] text-slate-400 dark:text-slate-500 font-mono font-normal">(${parseFloat(rec.power).toFixed(1)}度)</div></div>`;
                 
-                // 判斷是否為 MVP
-                const isMVP = rec.id === mvpRecordId && maxEfficiencyForMvp > 0;
-                const mvpBadgeHtml = isMVP ? `<span class="inline-flex items-center ml-1.5 px-1.5 py-0.5 rounded border border-amber-300 dark:border-amber-500/50 bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 text-[9px] font-black shadow-sm" title="此列表中電耗表現最佳！">👑 黃金右腳</span>` : '';
+                const displayDate = rec.date.includes('T') ? rec.date.split('T')[0] : rec.date;
+                const isMVP = rec.id === mvpId && maxEff > 0;
+                const mvpBadge = isMVP ? `<span class="inline-flex items-center ml-1.5 px-1.5 py-0.5 rounded border border-amber-300 dark:border-amber-500/50 bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 text-[9px] font-black shadow-sm" title="此列表中電耗表現最佳！">👑 黃金右腳</span>` : '';
+                
+                const typeStyle = rec.chargeType.includes('快充') ? 'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950/30 dark:border-amber-900/40 dark:text-amber-400' : (rec.chargeType.includes('慢充') ? 'bg-cuteMint-50 border-cuteMint-200 text-cuteMint-600 dark:bg-cuteMint-950/30 dark:border-cuteMint-900/40 dark:text-cuteMint-400' : 'bg-slate-100 border-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400');
 
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-cuteMint-50/20 dark:hover:bg-slate-800/40 transition border-b border-cuteMint-100/60 dark:border-slate-800/60";
-                tr.innerHTML = `
-                    <td class="px-1 lg:px-2 py-3 text-center font-bold text-slate-800 dark:text-slate-200 whitespace-nowrap font-mono">${displayDate}</td>
-                    <td class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">
-                        <span class="inline-block px-2 py-0.5 text-[10px] rounded-full font-black border tracking-wide uppercase whitespace-nowrap ${
-                            rec.chargeType.includes('快充') ? 'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950/30 dark:border-amber-900/40 dark:text-amber-400' : 
-                            rec.chargeType.includes('慢充') ? 'bg-cuteMint-50 border-cuteMint-200 text-cuteMint-600 dark:bg-cuteMint-950/30 dark:border-cuteMint-900/40 dark:text-cuteMint-400' : 'bg-slate-100 border-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
-                        }">
-                            ${rec.chargeType}
-                        </span>
-                    </td>
-                    <td class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">
-                        <div class="font-bold font-mono text-slate-800 dark:text-slate-100">${parseFloat(rec.distance)} KM</div>
-                        <div class="text-[10px] text-slate-400 dark:text-slate-500 font-mono mt-0.5" title="儀表總里程 ODO">ODO: ${rec.rollingOdo.toFixed(0)}</div>
-                    </td>
-                    <td class="px-1 lg:px-2 py-3 text-center font-bold font-mono text-slate-800 dark:text-slate-100 whitespace-nowrap">${socText}</td>
-                    <td class="px-1 lg:px-2 py-3 text-center text-cuteMint-500 dark:text-cuteMint-400 font-bold font-mono whitespace-nowrap relative">
-                        <div class="flex justify-center items-center">${efficiency} km/度 ${mvpBadgeHtml}</div>
-                        <div class="text-[10px] text-slate-400 dark:text-slate-500 font-normal leading-normal whitespace-nowrap mt-0.5">
-                            (行駛消耗 ${rowConsumedSoc}% | ${rowConsumedPower.toFixed(1)}度)
-                        </div>
-                    </td>
-                    <td class="px-1 lg:px-2 py-3 text-center font-bold font-mono text-slate-800 dark:text-slate-100 whitespace-nowrap">${rec.cost} 元</td>
-                    <td class="px-1 lg:px-2 py-3 max-w-[90px] lg:max-w-[110px] truncate text-slate-500 dark:text-slate-400 text-xs font-semibold text-center font-bold" title="${rec.note || ''}">${rec.note || '-'}</td>
-                    <td class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">
-                        <button class="edit-btn text-cuteMint-600 dark:text-cuteMint-400 bg-cuteMint-50 hover:bg-cuteMint-100 dark:bg-cuteMint-950/30 dark:hover:bg-cuteMint-950/60 p-1.5 rounded-2xl transition active:scale-95 border-2 border-cuteMint-100/60 dark:border-cuteMint-900/30 shadow-sm mr-1" title="編輯此筆">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                            </svg>
-                        </button>
-                        <button class="delete-btn text-rose-500 dark:text-rose-400 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 p-1.5 rounded-2xl transition active:scale-95 border-2 border-rose-100/60 dark:border-rose-900/30 shadow-sm" title="刪除此筆">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.895-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                            </svg>
-                        </button>
-                    </td>
-                `;
-                tr.querySelector('.edit-btn').addEventListener('click', () => editRecord(rec.id));
-                tr.querySelector('.delete-btn').addEventListener('click', () => confirmDeleteRecord(rec.id));
-                if (tableBody) tableBody.appendChild(tr);
+                // Table Row
+                tableHTML += `
+                    <tr class="hover:bg-cuteMint-50/20 dark:hover:bg-slate-800/40 transition border-b border-cuteMint-100/60 dark:border-slate-800/60">
+                        <td class="px-1 lg:px-2 py-3 text-center font-bold text-slate-800 dark:text-slate-200 whitespace-nowrap font-mono">${displayDate}</td>
+                        <td class="px-1 lg:px-2 py-3 text-center whitespace-nowrap"><span class="inline-block px-2 py-0.5 text-[10px] rounded-full font-black border tracking-wide uppercase whitespace-nowrap ${typeStyle}">${rec.chargeType}</span></td>
+                        <td class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">
+                            <div class="font-bold font-mono text-slate-800 dark:text-slate-100">${distVal} KM</div>
+                            <div class="text-[10px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">ODO: ${rec.rollingOdo.toFixed(0)}</div>
+                        </td>
+                        <td class="px-1 lg:px-2 py-3 text-center font-bold font-mono text-slate-800 dark:text-slate-100 whitespace-nowrap">${socText}</td>
+                        <td class="px-1 lg:px-2 py-3 text-center text-cuteMint-500 dark:text-cuteMint-400 font-bold font-mono whitespace-nowrap relative">
+                            <div class="flex justify-center items-center">${efficiency} km/度 ${mvpBadge}</div>
+                            <div class="text-[10px] text-slate-400 dark:text-slate-500 font-normal mt-0.5">(行駛消耗 ${rowConsumedSoc}% | ${rowConsumedPower.toFixed(1)}度)</div>
+                        </td>
+                        <td class="px-1 lg:px-2 py-3 text-center font-bold font-mono text-slate-800 dark:text-slate-100 whitespace-nowrap">${rec.cost} 元</td>
+                        <td class="px-1 lg:px-2 py-3 max-w-[90px] lg:max-w-[110px] truncate text-slate-500 dark:text-slate-400 text-xs font-semibold text-center font-bold" title="${rec.note || ''}">${rec.note || '-'}</td>
+                        <td class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">
+                            <button class="edit-btn text-cuteMint-600 dark:text-cuteMint-400 bg-cuteMint-50 hover:bg-cuteMint-100 dark:bg-cuteMint-950/30 p-1.5 rounded-2xl border-2 border-cuteMint-100/60 dark:border-cuteMint-900/30 mr-1" data-id="${rec.id}"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                            <button class="delete-btn text-rose-500 dark:text-rose-400 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 p-1.5 rounded-2xl border-2 border-rose-100/60 dark:border-rose-900/30" data-id="${rec.id}"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.895-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                        </td>
+                    </tr>`;
 
-                let mobileSocText = "";
-                if (hasValidSoc) {
-                    mobileSocText = `${startSocVal}% ➔ ${endSocVal}%`;
-                } else {
-                    mobileSocText = `${powerPercent}%`;
-                }
-
+                // Mobile Card
+                const mobileSocText = hasValidSoc ? `${rec.startSoc}% ➔ ${rec.endSoc}%` : `${powerPercent}%`;
                 const tripCostPerKm = distVal > 0 ? (rec.cost / distVal).toFixed(2) : "0.00";
-
-                const card = document.createElement('div');
-                // 🚀 空間優化：減少外層卡片的 padding 與元素間距，讓整體更緊湊
-                card.className = "rpg-card p-3.5 sm:p-4 rounded-[1.5rem] flex flex-col gap-2.5 mr-1 mb-3"; 
+                const mvpIcon = isMVP ? '<div class="absolute -top-2.5 -right-2 text-[11px] bg-amber-100 dark:bg-amber-700 border-2 border-amber-300 dark:border-amber-500 rounded-full w-[24px] h-[24px] flex items-center justify-center shadow-md z-10">👑</div>' : '';
                 
-                card.innerHTML = `
-                    <div class="flex items-center justify-between pb-2 border-b border-cuteMint-100 dark:border-slate-700/60 w-full min-w-0 gap-1.5">
-                        <div class="flex items-center space-x-1 sm:space-x-1.5 min-w-0 flex-nowrap">
-                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cuteMint-500 dark:text-cuteMint-400 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                            <span class="text-[11px] sm:text-xs font-black text-slate-500 dark:text-slate-400 font-mono whitespace-nowrap flex-shrink-0 relative -top-[0.5px] leading-none">
-                                ${displayDate}
-                            </span>
-                            <span class="inline-flex items-center justify-center px-1.5 sm:px-2 py-0.5 text-[9px] rounded-lg font-black border tracking-wide uppercase whitespace-nowrap flex-shrink-0 relative -top-[0.5px] leading-none ${
-                                rec.chargeType.includes('快充') ? 'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950/30 dark:border-amber-900/40 dark:text-amber-400' : 
-                                rec.chargeType.includes('慢充') ? 'bg-cuteMint-50 border-cuteMint-200 text-cuteMint-700 dark:bg-cuteMint-950/30 dark:border-slate-800/40 dark:text-[#2dd4bf]' : 'bg-slate-200 text-slate-600 dark:bg-[#1f2937] dark:text-[#94a3b8]'
-                            }">
-                                ${rec.chargeType}
-                            </span>
-                        </div>
-
-                        <div class="flex items-center space-x-1 flex-shrink-0">
-                            <button class="edit-btn text-cuteMint-600 dark:text-cuteMint-400 bg-cuteMint-50 hover:bg-cuteMint-100 dark:bg-cuteMint-950/30 dark:hover:bg-cuteMint-950/60 p-1.5 rounded-xl transition active:scale-95 border border-cuteMint-200 dark:border-slate-700 shadow-sm flex items-center justify-center" title="編輯此筆">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                </svg>
-                            </button>
-                            <button class="delete-btn text-rose-500 dark:text-rose-400 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 p-1.5 rounded-xl transition active:scale-95 border border-rose-200 dark:border-slate-700 shadow-sm flex items-center justify-center" title="刪除此筆">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.895-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-2">
-                        <!-- 格子 1: 行駛里程 -->
-                        <!-- 🚀 空間優化：移除 min-h-[104px] 與多餘的 py，並將 margin 縮小 -->
-                        <div class="bg-slate-50 dark:bg-[#1f2937]/40 p-2 sm:p-2.5 rounded-xl border border-slate-200/60 dark:border-slate-700/80 flex flex-col justify-center items-center text-center">
-                            <span class="text-[10px] text-slate-400 dark:text-slate-500 font-black mb-0.5 whitespace-nowrap">行駛里程</span>
-                            <div class="text-center w-full flex justify-center items-baseline gap-0.5">
-                                <span class="font-black text-slate-800 dark:text-[#f8fafc] text-[15px] sm:text-base font-mono tracking-tight leading-none">${parseFloat(rec.distance)}</span>
-                                <span class="text-[9px] text-slate-400 dark:text-[#9ca3af] font-bold leading-none">km</span>
+                mobileHTML += `
+                    <div class="rpg-card p-3.5 sm:p-4 rounded-[1.5rem] flex flex-col gap-2.5 mr-1 mb-3">
+                        <div class="flex items-center justify-between pb-2 border-b border-cuteMint-100 dark:border-slate-700/60 w-full min-w-0 gap-1.5">
+                            <div class="flex items-center space-x-1 sm:space-x-1.5 min-w-0 flex-nowrap">
+                                <svg class="w-3.5 h-3.5 text-cuteMint-500 dark:text-cuteMint-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                <span class="text-[11px] font-black text-slate-500 dark:text-slate-400 font-mono whitespace-nowrap">${displayDate}</span>
+                                <span class="inline-flex px-1.5 py-0.5 text-[9px] rounded-lg font-black border uppercase ${typeStyle}">${rec.chargeType}</span>
                             </div>
-                            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold mt-0.5 whitespace-nowrap tracking-tight">
-                                (累計 ${rec.rollingOdo.toFixed(1)} km)
-                            </span>
-                        </div>
-                        
-                        <!-- 格子 2: 電耗表現 -->
-                        <!-- 🚀 破圖修復：移除 overflow-hidden 防止裁切，增加明確的寬高 w-[24px] h-[24px] 確保正圓 -->
-                        <div class="bg-slate-50 dark:bg-[#1f2937]/40 p-2 sm:p-2.5 rounded-xl border ${isMVP ? 'border-amber-300 dark:border-amber-600 shadow-[0_0_8px_rgba(251,191,36,0.15)]' : 'border-slate-200/60 dark:border-slate-700/80'} flex flex-col justify-center items-center text-center relative">
-                            ${isMVP ? '<div class="absolute -top-2.5 -right-2 text-[11px] bg-amber-100 dark:bg-amber-700 border-2 border-amber-300 dark:border-amber-500 rounded-full w-[24px] h-[24px] flex items-center justify-center shadow-md z-10" title="黃金右腳！最佳電耗">👑</div>' : ''}
-                            <span class="text-[10px] ${isMVP ? 'text-amber-600 dark:text-amber-500' : 'text-slate-400 dark:text-slate-500'} font-black mb-0.5 whitespace-nowrap">電耗表現</span>
-                            <div class="text-center w-full flex justify-center items-baseline gap-0.5">
-                                <span class="font-black ${isMVP ? 'text-amber-600 dark:text-amber-400' : 'text-cuteMint-600 dark:text-[#2dd4bf]'} text-[15px] sm:text-base font-mono tracking-tight leading-none">${efficiency}</span>
-                                <span class="text-[9px] ${isMVP ? 'text-amber-600 dark:text-amber-500' : 'text-cuteMint-600 dark:text-[#9ca3af]'} font-bold leading-none">km/度</span>
+                            <div class="flex items-center space-x-1 flex-shrink-0">
+                                <button class="edit-btn text-cuteMint-600 dark:text-cuteMint-400 bg-cuteMint-50 dark:bg-cuteMint-950/30 p-1.5 rounded-xl border border-cuteMint-200 dark:border-slate-700 flex items-center" data-id="${rec.id}"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                                <button class="delete-btn text-rose-500 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/30 p-1.5 rounded-xl border border-rose-200 dark:border-slate-700 flex items-center" data-id="${rec.id}"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.895-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                             </div>
-                            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold mt-0.5 whitespace-nowrap tracking-tight">
-                                (消耗 ${rowConsumedSoc}% | ${rowConsumedPower.toFixed(1)}度)
-                            </span>
                         </div>
-                        
-                        <!-- 格子 3: 補給起訖 -->
-                        <div class="bg-slate-50 dark:bg-[#1f2937]/40 p-2 sm:p-2.5 rounded-xl border border-slate-200/60 dark:border-slate-700/80 flex flex-col justify-center items-center text-center">
-                            <span class="text-[10px] text-slate-400 dark:text-slate-500 font-black mb-0.5 whitespace-nowrap">補給起訖</span>
-                            <div class="whitespace-nowrap font-black text-[13px] sm:text-sm text-slate-800 dark:text-[#f8fafc] font-mono tracking-tight leading-none w-full flex justify-center items-center">
-                                ${mobileSocText}
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="bg-slate-50 dark:bg-[#1f2937]/40 p-2 sm:p-2.5 rounded-xl border border-slate-200/60 dark:border-slate-700/80 flex flex-col justify-center items-center text-center">
+                                <span class="text-[10px] text-slate-400 font-black mb-0.5">行駛里程</span>
+                                <div class="flex items-baseline gap-0.5"><span class="font-black text-[15px] font-mono leading-none">${distVal}</span><span class="text-[9px] text-slate-400">km</span></div>
+                                <span class="text-[9px] text-slate-400 mt-0.5">(累計 ${rec.rollingOdo.toFixed(1)} km)</span>
                             </div>
-                            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold mt-0.5 whitespace-nowrap tracking-tight">
-                                (${subActionWord} ${powerPercent}% | ${parseFloat(rec.power).toFixed(1)}度)
-                            </span>
-                        </div>
-                        
-                        <!-- 格子 4: 本次費用 -->
-                        <div class="bg-slate-50 dark:bg-[#1f2937]/40 p-2 sm:p-2.5 rounded-xl border border-slate-200/60 dark:border-slate-700/80 flex flex-col justify-center items-center text-center">
-                            <span class="text-[10px] text-slate-400 dark:text-slate-500 font-black mb-0.5 whitespace-nowrap">本次費用</span>
-                            <div class="text-center w-full flex justify-center items-baseline gap-0.5">
-                                <span class="font-black text-slate-800 dark:text-[#f8fafc] text-[15px] sm:text-base font-mono tracking-tight leading-none">${rec.cost}</span>
-                                <span class="text-[9px] text-slate-400 dark:text-[#9ca3af] font-bold leading-none">元</span>
+                            <div class="bg-slate-50 dark:bg-[#1f2937]/40 p-2 sm:p-2.5 rounded-xl border ${isMVP ? 'border-amber-300 dark:border-amber-600' : 'border-slate-200/60 dark:border-slate-700/80'} flex flex-col justify-center items-center text-center relative">
+                                ${mvpIcon}
+                                <span class="text-[10px] ${isMVP?'text-amber-600':'text-slate-400'} font-black mb-0.5">電耗表現</span>
+                                <div class="flex items-baseline gap-0.5"><span class="font-black ${isMVP?'text-amber-600':'text-cuteMint-600 dark:text-[#2dd4bf]'} text-[15px] font-mono leading-none">${efficiency}</span><span class="text-[9px] ${isMVP?'text-amber-600':'text-cuteMint-600'}">km/度</span></div>
+                                <span class="text-[9px] text-slate-400 mt-0.5">(消耗 ${rowConsumedSoc}% | ${rowConsumedPower.toFixed(1)}度)</span>
                             </div>
-                            <span class="text-[9px] text-slate-400 dark:text-slate-500 font-bold mt-0.5 whitespace-nowrap tracking-tight">
-                                (${tripCostPerKm} 元/km)
-                            </span>
+                            <div class="bg-slate-50 dark:bg-[#1f2937]/40 p-2 sm:p-2.5 rounded-xl border border-slate-200/60 dark:border-slate-700/80 flex flex-col justify-center items-center text-center">
+                                <span class="text-[10px] text-slate-400 font-black mb-0.5">補給起訖</span>
+                                <div class="font-black text-[13px] font-mono leading-none">${mobileSocText}</div>
+                                <span class="text-[9px] text-slate-400 mt-0.5">(${subActionWord} ${powerPercent}% | ${parseFloat(rec.power).toFixed(1)}度)</span>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-[#1f2937]/40 p-2 sm:p-2.5 rounded-xl border border-slate-200/60 dark:border-slate-700/80 flex flex-col justify-center items-center text-center">
+                                <span class="text-[10px] text-slate-400 font-black mb-0.5">本次費用</span>
+                                <div class="flex items-baseline gap-0.5"><span class="font-black text-[15px] font-mono leading-none">${rec.cost}</span><span class="text-[9px] text-slate-400">元</span></div>
+                                <span class="text-[9px] text-slate-400 mt-0.5">(${tripCostPerKm} 元/km)</span>
+                            </div>
                         </div>
-                    </div>
-
-                    ${rec.note ? `
-                    <div class="border-t border-cuteMint-100 dark:border-slate-700/60 pt-2 flex items-start space-x-1.5 text-xs text-slate-500 dark:text-slate-400">
-                        <svg class="w-4 h-4 text-cuteMint-300 dark:text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
-                        <span class="break-all font-bold text-[11px] leading-tight">${rec.note}</span>
-                    </div>
-                    ` : ''}
-                `;
-                card.querySelector('.edit-btn').addEventListener('click', () => editRecord(rec.id));
-                card.querySelector('.delete-btn').addEventListener('click', () => confirmDeleteRecord(rec.id));
-                if (mobileList) mobileList.appendChild(card);
+                        ${rec.note ? `<div class="border-t border-cuteMint-100 dark:border-slate-700/60 pt-2 flex items-start space-x-1.5 text-xs text-slate-500"><svg class="w-4 h-4 text-cuteMint-300 dark:text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg><span class="break-all font-bold text-[11px]">${rec.note}</span></div>` : ''}
+                    </div>`;
             });
+
+            if (tableBody) tableBody.innerHTML = tableHTML;
+            if (mobileList) mobileList.innerHTML = mobileHTML;
 
             const avgEfficiency = totalPowerConsumedReal > 0 ? (totalKm / totalPowerConsumedReal) : 0;
             const costPerKm = totalKm > 0 ? (totalCost / totalKm) : 0;
-
-            // 如果選了特定月份，不把 initialOdometer 加進去總里程，只顯示該月行駛里程
             const odoBase = currentMonthFilter === 'all' ? initialOdometer : 0;
             updateStats(totalKm, avgEfficiency, totalCost, totalPower, costPerKm, odoBase, dcCount, acCount);
             if (typeof Chart !== 'undefined') updateCharts();
         }
 
-        // 🚀 新增：渲染月份篩選器 UI
         function renderMonthFilters() {
             const chartHeader = document.querySelector('#efficiencyChart').closest('.rpg-card').querySelector('.flex-col.sm\\:flex-row');
             if (!chartHeader) return;
 
-            // 找看看有沒有已經建好的容器，沒有就建一個
             let filterContainer = document.getElementById('monthFilterContainer');
             if (!filterContainer) {
                 filterContainer = document.createElement('div');
                 filterContainer.id = 'monthFilterContainer';
-                // 🚀 套用我們前面加好的 .no-scrollbar 來隱藏原生捲軸，但保留觸控滑動的順暢體驗
                 filterContainer.className = 'w-full flex overflow-x-auto pb-2 mb-4 gap-2 no-scrollbar mt-4 sm:mt-0 scroll-smooth';
-                // 把它塞在標題跟圖表之間
                 chartHeader.parentNode.insertBefore(filterContainer, chartHeader.nextSibling);
             }
 
-            // 收集所有出現過的月份
             const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.date);
             const months = new Set();
             activeRecords.forEach(rec => {
                 const dateStr = rec.date.includes('T') ? rec.date.split('T')[0] : rec.date;
-                if (dateStr.length >= 7) {
-                    months.add(dateStr.substring(0, 7)); // 取 YYYY-MM
-                }
+                if (dateStr.length >= 7) months.add(dateStr.substring(0, 7)); 
             });
 
-            const sortedMonths = Array.from(months).sort().reverse(); // 由新到舊
-
-            let html = `
-                <button onclick="setMonthFilter('all')" class="flex-shrink-0 px-3 py-1.5 text-[11px] rounded-xl transition-all border-2 ${
-                    currentMonthFilter === 'all' 
-                    ? 'border-slate-800 dark:border-[#374151] bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white shadow-[1px_1px_0px_0px_#1e293b] font-black' 
-                    : 'border-transparent bg-slate-100 dark:bg-[#1f2937] text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 font-bold'
-                }">
-                    全部紀錄
-                </button>
-            `;
+            const sortedMonths = Array.from(months).sort().reverse();
+            let html = `<button onclick="setMonthFilter('all')" class="flex-shrink-0 px-3 py-1.5 text-[11px] rounded-xl transition-all border-2 ${currentMonthFilter === 'all' ? 'border-slate-800 dark:border-[#374151] bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white font-black' : 'border-transparent bg-slate-100 dark:bg-[#1f2937] text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 font-bold'}">全部紀錄</button>`;
 
             sortedMonths.forEach(m => {
-                const label = m.replace('-', '/');
-                html += `
-                    <button onclick="setMonthFilter('${m}')" class="flex-shrink-0 px-3 py-1.5 text-[11px] rounded-xl transition-all border-2 ${
-                        currentMonthFilter === m 
-                        ? 'border-slate-800 dark:border-[#374151] bg-cuteBlue-400 dark:bg-cuteBlue-600 text-slate-900 dark:text-white shadow-[1px_1px_0px_0px_#1e293b] font-black' 
-                        : 'border-transparent bg-slate-100 dark:bg-[#1f2937] text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 font-bold'
-                    }">
-                        ${label}
-                    </button>
-                `;
+                html += `<button onclick="setMonthFilter('${m}')" class="flex-shrink-0 px-3 py-1.5 text-[11px] rounded-xl transition-all border-2 ${currentMonthFilter === m ? 'border-slate-800 dark:border-[#374151] bg-cuteBlue-400 dark:bg-cuteBlue-600 text-slate-900 dark:text-white font-black' : 'border-transparent bg-slate-100 dark:bg-[#1f2937] text-slate-500 hover:bg-slate-200 font-bold'}">${m.replace('-', '/')}</button>`;
             });
-
             filterContainer.innerHTML = html;
         }
 
-        // 🚀 新增：設定月份篩選狀態
         function setMonthFilter(month) {
             currentMonthFilter = month;
-            
-            // 強制將右上角的視圖切換下拉選單邏輯同步
             const timeViewSelect = document.getElementById('chartTimeView');
             if (timeViewSelect) {
                 if (month !== 'all') {
-                    // 如果選定特定月份，強制切換成「逐筆紀錄」看明細最適合
                     timeViewSelect.value = 'raw';
-                    timeViewSelect.disabled = true; // 鎖定它，避免邏輯衝突
+                    timeViewSelect.disabled = true;
                     timeViewSelect.classList.add('opacity-50', 'cursor-not-allowed');
                 } else {
-                    // 如果是全部，恢復成預設的單月統計，並解鎖
                     timeViewSelect.value = 'monthly';
                     timeViewSelect.disabled = false;
                     timeViewSelect.classList.remove('opacity-50', 'cursor-not-allowed');
                 }
             }
-            
-            renderDashboard(); // 重新渲染整個儀表板 (包含清單和圖表)
+            renderDashboard();
         }
 
         function updateStats(totalKm, avgEfficiency, totalCost, totalPower, costPerKm, odoBaseOverride, dcCount = 0, acCount = 0) {
@@ -2282,18 +1600,18 @@ function doPost(e) {
             const estimatedGasCost = totalKm * 2.5;
             const gasSavings = Math.max(0, estimatedGasCost - totalCost);
 
-            // 🚀 防跑版修正：使用 flex, items-center, whitespace-nowrap 確保 Emoji 與文字緊密相連
+            // 🚀 防跑版修正：移除 flex-wrap，強制文字和 Emoji 不換行 (whitespace-nowrap)，若超出則允許整個區塊自然排版，但優先保持 Emoji 跟隨文字
             if (statWhKm) {
                 statWhKm.innerHTML = `
                     <span class="block">相當於約 ${whKm} Wh/km</span>
-                    <span class="text-cuteMint-600 dark:text-[#2dd4bf] block tracking-wide flex items-center flex-wrap gap-x-1"><span>滿電預估續航：${estRange} km</span><span>🎯</span></span>
+                    <span class="text-cuteMint-600 dark:text-[#2dd4bf] block tracking-wide"><span class="whitespace-nowrap">滿電預估續航：${estRange} km 🎯</span></span>
                 `;
             }
             
             if (statTotalPower) {
                 statTotalPower.innerHTML = `
                     <span class="block">累計充入 ${totalPower.toFixed(1)} 度電</span>
-                    <span class="text-amber-500 dark:text-amber-400 block tracking-wide flex items-center flex-wrap gap-x-1"><span>相比油車省下 $${gasSavings.toLocaleString(undefined, {maximumFractionDigits:0})}</span><span>💰</span></span>
+                    <span class="text-amber-500 dark:text-amber-400 block tracking-wide"><span class="whitespace-nowrap">相比油車省下 $${gasSavings.toLocaleString(undefined, {maximumFractionDigits:0})} 💰</span></span>
                 `;
             }
 
@@ -2301,25 +1619,26 @@ function doPost(e) {
                 const isDcTooHigh = dcCount > (acCount * 3) && dcCount > 5;
                 const ratioColor = isDcTooHigh ? 'text-rose-500 dark:text-rose-400' : 'text-cuteBlue-600 dark:text-[#38bdf8]';
                 statChargeRatio.innerHTML = `
-                    <span class="block flex items-center gap-x-1"><span>荷包精打細算中</span><span>🐾</span></span>
+                    <span class="block"><span class="whitespace-nowrap">荷包精打細算中 🐾</span></span>
                     <span class="${ratioColor} block tracking-wide">快充 ${dcCount} 次 / 慢充 ${acCount} 次</span>
                 `;
             }
 
             if (statVehicleSub) {
+                // 🚀 修復破版：將 Emoji 與文字合併在同一個 span 中，避免 flex 造成的斷行
                 if (currentMonthFilter !== 'all') {
-                     statVehicleSub.innerHTML = `<span class="flex items-center gap-x-1 flex-wrap"><span><span class="text-cuteMint-600 dark:text-[#2dd4bf]">${currentMonthFilter.replace('-','/')}</span> 月份行駛里程</span><span>🐾</span></span>`;
+                     statVehicleSub.innerHTML = `<span class="block"><span class="text-cuteMint-600 dark:text-[#2dd4bf]">${currentMonthFilter.replace('-','/')}</span> 月份行駛里程 🐾</span>`;
                 } else if (initialOdometer > 0) {
-                    statVehicleSub.innerHTML = `<span class="flex items-center gap-x-1 flex-wrap"><span>初始里程 <span class="text-cuteMint-600 dark:text-[#2dd4bf]">${initialOdometer} km</span> + 本地已記錄 <span class="text-cuteMint-600 dark:text-[#2dd4bf]">${parseFloat(totalKm.toFixed(1))} km</span></span><span>🐾</span></span>`;
+                    // 如果文字太長，允許在 + 號處換行，但確保 🐾 跟著最後一段數字
+                    statVehicleSub.innerHTML = `<span class="block">初始里程 <span class="text-cuteMint-600 dark:text-[#2dd4bf]">${initialOdometer} km</span> +</span><span class="block"><span class="whitespace-nowrap">本地已記錄 <span class="text-cuteMint-600 dark:text-[#2dd4bf]">${parseFloat(totalKm.toFixed(1))} km</span> 🐾</span></span>`;
                 } else {
-                    statVehicleSub.innerHTML = `<span class="flex items-center gap-x-1 flex-wrap"><span>愛車 <span class="text-cuteMint-600 dark:text-[#2dd4bf]">${evName}</span> 已陪伴您行駛了長遠路程</span><span>🐾</span></span>`;
+                    statVehicleSub.innerHTML = `<span class="block">愛車 <span class="text-cuteMint-600 dark:text-[#2dd4bf]">${evName}</span> 已陪伴您行駛了長遠路程 🐾</span>`;
                 }
             }
         }
 
         async function addRecord(e) {
             e.preventDefault();
-
             const date = document.getElementById('inputDate').value;
             const chargeType = document.getElementById('inputChargeType').value;
             const distance = parseFloat(document.getElementById('inputDistance').value);
@@ -2328,129 +1647,61 @@ function doPost(e) {
             const cost = parseInt(document.getElementById('inputCost').value) || 0;
             const note = document.getElementById('inputNote').value.trim();
 
-            const isDistanceValid = (chargeType === "未充電") ? (distance > 0) : (distance >= 0);
-
-            if (!date || isNaN(distance) || isNaN(startSoc) || isNaN(endSoc) || !isDistanceValid || startSoc < 0 || endSoc < 0) {
-                showToast("請輸入有效的里程與能耗數值 (๑•́ ₃ •̀๑)", true);
-                return;
+            if (!date || isNaN(distance) || isNaN(startSoc) || isNaN(endSoc) || ((chargeType === "未充電") ? (distance > 0) : (distance >= 0)) === false || startSoc < 0 || endSoc < 0) {
+                showToast("請輸入有效的里程與能耗數值 (๑•́ ₃ •̀๑)", true); return;
             }
 
-            let powerPercent = 0;
-            if (chargeType === "未充電") {
-                powerPercent = startSoc - endSoc;
-            } else {
-                powerPercent = endSoc - startSoc;
-            }
-
-            powerPercent = Math.abs(powerPercent);
+            const powerPercent = Math.abs(chargeType === "未充電" ? startSoc - endSoc : endSoc - startSoc);
             const power = batteryCapacity * (powerPercent / 100);
 
             if (editingRecordId) {
                 const index = records.findIndex(r => r.id === editingRecordId);
                 if (index !== -1) {
-                    records[index] = {
-                        ...records[index],
-                        date,
-                        chargeType,
-                        distance,
-                        power: parseFloat(power.toFixed(3)),
-                        powerPercent: powerPercent,
-                        startSoc: startSoc,
-                        endSoc: endSoc,
-                        cost,
-                        note
-                    };
+                    records[index] = { ...records[index], date, chargeType, distance, power: parseFloat(power.toFixed(3)), powerPercent, startSoc, endSoc, cost, note };
                     saveLocalState(records);
                     showToast("日誌已成功儲存修改！✨");
                 }
                 cancelEdit();
             } else {
-                const newRecord = {
-                    id: Date.now().toString(),
-                    date,
-                    chargeType,
-                    distance,
-                    power: parseFloat(power.toFixed(3)),
-                    powerPercent: powerPercent,
-                    startSoc: startSoc,
-                    endSoc: endSoc,
-                    cost,
-                    note
-                };
-
-                const updatedRecords = [...records, newRecord];
-                saveLocalState(updatedRecords);
+                saveLocalState([...records, { id: Date.now().toString(), date, chargeType, distance, power: parseFloat(power.toFixed(3)), powerPercent, startSoc, endSoc, cost, note }]);
                 showToast("紀錄已寫在本機小本本囉！(•̀ᴗ•́)u ̑̑");
-                
-                // 新增完畢後清空特定表單並帶入結尾 SOC
                 cancelEdit(); 
             }
-
             renderDashboard();
-
-            if (syncUrl) {
-                syncWithCloud();
-            }
+            if (syncUrl) syncWithCloud();
         }
 
         function confirmDeleteRecord(id) {
             const target = records.find(rec => rec.id === id);
             if (!target) return;
-            
-            showConfirmModal(
-                "確認刪除此筆紀錄？", 
-                `您即將抹除： 日期「${target.date && target.date.includes('T') ? target.date.split('T')[0] : target.date}」的紀錄。刪除後也會同步清空雲端對應內容喔 🐾`, 
-                function() {
-                    const updated = records.filter(rec => rec.id !== id);
-                    if (updated.length === 0) {
-                        localStorage.setItem('ev_life_cleared', 'true'); // 刪到沒半筆時標記為清空
-                    }
-                    saveLocalState(updated);
-                    renderDashboard();
-                    showToast("記錄已順利擦除！✿");
-                    
-                    if (syncUrl) {
-                        syncWithCloud();
-                    }
-                }
-            );
+            showConfirmModal("確認刪除此筆紀錄？", `您即將抹除： 日期「${target.date.includes('T') ? target.date.split('T')[0] : target.date}」的紀錄。刪除後也會同步清空雲端對應內容喔 🐾`, function() {
+                const updated = records.filter(rec => rec.id !== id);
+                if (updated.length === 0) localStorage.setItem('ev_life_cleared', 'true');
+                saveLocalState(updated);
+                renderDashboard();
+                showToast("記錄已順利擦除！✿");
+                if (syncUrl) syncWithCloud();
+            });
         }
 
         function clearAllData() {
-            showConfirmModal(
-                "要把日誌全部清空嗎？", 
-                "這會永久抹除所有的里程與能耗記錄！如果有同步雲端，試算表的資料也將一併清空。建議先點擊右上方「匯出」下載備份喔 (⑅•ᴗ•⑅)", 
-                function() {
-                    localStorage.setItem('ev_life_cleared', 'true'); // 標記為明確清空
-                    saveLocalState([]);
-                    renderDashboard();
-                    showToast("歷史紀錄已成功清空 🐾", true);
-                    
-                    if (syncUrl) {
-                        syncWithCloud();
-                    }
-                }
-            );
+            showConfirmModal("要把日誌全部清空嗎？", "這會永久抹除所有的里程與能耗記錄！如果有同步雲端，試算表的資料也將一併清空。建議先點擊右上方「匯出」下載備份喔 (⑅•ᴗ•⑅)", function() {
+                localStorage.setItem('ev_life_cleared', 'true');
+                saveLocalState([]);
+                renderDashboard();
+                showToast("歷史紀錄已成功清空 🐾", true);
+                if (syncUrl) syncWithCloud();
+            });
         }
 
         function setChartFilter(filter) {
             currentChartFilter = filter;
-            
-            const btnAll = document.getElementById('btnChartAll');
-            const btnEff = document.getElementById('btnChartEfficiency');
-            const btnCost = document.getElementById('btnChartCost');
-            
-            [btnAll, btnEff, btnCost].forEach(btn => {
-                if (btn) {
-                    btn.className = "px-2.5 py-1 text-[10px] rounded-lg text-slate-500 dark:text-[#94a3b8] hover:text-slate-900 dark:hover:text-slate-200 transition-all font-bold";
-                }
+            ['btnChartAll', 'btnChartEfficiency', 'btnChartCost'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) btn.className = "px-2.5 py-1 text-[10px] rounded-lg text-slate-500 dark:text-[#94a3b8] hover:text-slate-900 dark:hover:text-slate-200 transition-all font-bold";
             });
-            
             const activeBtn = document.getElementById(`btnChart${filter.charAt(0).toUpperCase() + filter.slice(1)}`);
-            if (activeBtn) {
-                activeBtn.className = "px-2.5 py-1 text-[10px] rounded-lg transition-all border-2 border-slate-800 dark:border-[#263547] bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white shadow-[1px_1px_0px_0px_#1e293b] dark:shadow-[1px_1px_0px_0px_#0b0f15] font-bold";
-            }
-            
+            if (activeBtn) activeBtn.className = "px-2.5 py-1 text-[10px] rounded-lg transition-all border-2 border-slate-800 dark:border-[#263547] bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white shadow-[1px_1px_0px_0px_#1e293b] font-bold";
             updateCharts();
         }
 
@@ -2458,477 +1709,190 @@ function doPost(e) {
             const canvasElement = document.getElementById('efficiencyChart');
             if (!canvasElement || typeof Chart === 'undefined') return;
 
-            const existingChart = Chart.getChart(canvasElement);
-            if (existingChart) {
-                existingChart.destroy();
-            }
-
-            if (efficiencyChartInstance) {
-                efficiencyChartInstance.destroy();
-                efficiencyChartInstance = null;
-            }
-
-            const ctx = canvasElement.getContext('2d');
             const isDarkMode = document.documentElement.classList.contains('dark');
             const labelTextColor = isDarkMode ? '#cbd5e1' : '#475569';
             const gridColor = isDarkMode ? 'rgba(156, 163, 175, 0.15)' : 'rgba(71, 85, 105, 0.08)';
 
-            // 🚀 修改：圖表資料來源改用篩選後的狀態
-            const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
-            let chartData = [...activeRecords]; 
-            
+            let chartData = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
             if (currentMonthFilter !== 'all') {
-                chartData = chartData.filter(rec => {
-                    const dateStr = rec.date && rec.date.includes('T') ? rec.date.split('T')[0] : (rec.date || '');
-                    return dateStr.startsWith(currentMonthFilter);
-                });
+                chartData = chartData.filter(rec => (rec.date.includes('T') ? rec.date.split('T')[0] : rec.date).startsWith(currentMonthFilter));
             }
 
-            // 判斷當前的圖表維度模式 (單月統計 vs 逐筆紀錄)
-            const timeViewSelect = document.getElementById('chartTimeView');
-            const timeView = timeViewSelect ? timeViewSelect.value : 'monthly';
-            
-            let labels = [];
-            let efficiencies = [];
-            let costs = [];
+            const timeView = document.getElementById('chartTimeView')?.value || 'monthly';
+            let labels = [], efficiencies = [], costs = [];
 
             if (timeView === 'monthly' && currentMonthFilter === 'all') {
-                // 📊 模式一：單月統計 (聚合邏輯) - 只有在看「全部」的時候才聚合
                 const monthlyMap = {};
                 chartData.forEach(rec => {
-                    const dateStr = rec.date && rec.date.includes('T') ? rec.date.split('T')[0] : (rec.date || '');
+                    const dateStr = rec.date.includes('T') ? rec.date.split('T')[0] : rec.date;
                     if (!dateStr || dateStr.length < 7) return;
-                    const month = dateStr.substring(0, 7); // 擷取 YYYY-MM
-                    
-                    if (!monthlyMap[month]) {
-                        monthlyMap[month] = { distance: 0, cost: 0, consumedPower: 0 };
-                    }
-                    
+                    const month = dateStr.substring(0, 7);
+                    if (!monthlyMap[month]) monthlyMap[month] = { distance: 0, cost: 0, consumedPower: 0 };
                     monthlyMap[month].distance += (parseFloat(rec.distance) || 0);
                     monthlyMap[month].cost += (parseFloat(rec.cost) || 0);
-                    
-                    // 計算單筆耗電度數
-                    const consumedSoc = rec.consumedSocPercent !== undefined ? rec.consumedSocPercent : 0;
-                    const rowConsumedPower = batteryCapacity * (consumedSoc / 100);
-                    monthlyMap[month].consumedPower += rowConsumedPower;
+                    monthlyMap[month].consumedPower += batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
                 });
-
-                // 按月份排序並產生圖表數據
                 const sortedMonths = Object.keys(monthlyMap).sort();
-                labels = sortedMonths.map(m => m.replace('-', '/')); // 顯示為 2026/06
-                
-                efficiencies = sortedMonths.map(m => {
-                    const data = monthlyMap[m];
-                    // 月平均電耗 = 該月總里程 / 該月總消耗度數
-                    return data.consumedPower > 0 ? parseFloat((data.distance / data.consumedPower).toFixed(2)) : 0;
-                });
-                
-                costs = sortedMonths.map(m => monthlyMap[m].cost); // 該月總花費
-                
+                labels = sortedMonths.map(m => m.replace('-', '/'));
+                efficiencies = sortedMonths.map(m => monthlyMap[m].consumedPower > 0 ? parseFloat((monthlyMap[m].distance / monthlyMap[m].consumedPower).toFixed(2)) : 0);
+                costs = sortedMonths.map(m => monthlyMap[m].cost);
             } else {
-                // 🐾 模式二：逐筆紀錄 (原生邏輯) - 如果選了特定月份，一定用逐筆看
                 labels = chartData.map(rec => {
-                    const d = rec.date && rec.date.includes('T') ? rec.date.split('T')[0] : (rec.date || '');
-                    return currentMonthFilter === 'all' ? d.substring(5) : d.substring(8); // 特定月份只顯示 DD 日期
+                    const d = rec.date.includes('T') ? rec.date.split('T')[0] : rec.date;
+                    return currentMonthFilter === 'all' ? d.substring(5) : d.substring(8);
                 });
-                
                 efficiencies = chartData.map(rec => {
-                    const consumedSoc = rec.consumedSocPercent !== undefined ? rec.consumedSocPercent : 0;
-                    const rowConsumedPower = batteryCapacity * (consumedSoc / 100);
-                    return rowConsumedPower > 0 ? parseFloat((rec.distance / rowConsumedPower).toFixed(2)) : 0;
+                    const power = batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
+                    return power > 0 ? parseFloat((rec.distance / power).toFixed(2)) : 0;
                 });
-                
                 costs = chartData.map(rec => rec.cost);
             }
 
             const datasets = [];
-            const scalesConfig = {
-                x: {
-                    grid: { display: false },
-                    ticks: {
-                        color: labelTextColor,
-                        font: { family: "'JetBrains Mono', sans-serif", size: 10, weight: 'bold' }
-                    }
-                }
-            };
+            const scalesConfig = { x: { grid: { display: false }, ticks: { color: labelTextColor, font: { family: "'JetBrains Mono', sans-serif", size: 10, weight: 'bold' } } } };
 
             if (currentChartFilter === 'all' || currentChartFilter === 'efficiency') {
                 datasets.push({
-                    label: '平均電耗 (km/度)',
-                    data: efficiencies,
-                    borderColor: '#3B82F6', // 🚀 科技藍單一折線
-                    borderWidth: 4,
-                    pointBackgroundColor: '#3B82F6',
-                    pointHoverRadius: 7,
-                    pointRadius: 4,
-                    tension: 0.4,
-                    yAxisID: 'yEfficiency',
-                    fill: false // 🚀 拿掉填滿，極致透氣
+                    label: '平均電耗 (km/度)', data: efficiencies, borderColor: '#3B82F6', borderWidth: 4, pointBackgroundColor: '#3B82F6',
+                    pointHoverRadius: 7, pointRadius: 4, tension: 0.4, yAxisID: 'yEfficiency', fill: false
                 });
-
                 scalesConfig.yEfficiency = {
-                    type: 'linear',
-                    position: 'left',
-                    title: {
-                        display: true,
-                        text: '電耗表現 (公里/度)',
-                        color: '#3B82F6',
-                        font: { weight: 'bold', size: 11, family: "'Noto Sans TC', sans-serif" }
-                    },
-                    ticks: {
-                        color: '#3B82F6',
-                        font: { family: "'JetBrains Mono', sans-serif", weight: 'bold' }
-                    },
-                    grid: {
-                        color: gridColor,
-                        borderDash: [5, 5]
-                    }
+                    type: 'linear', position: 'left',
+                    title: { display: true, text: '電耗表現 (公里/度)', color: '#3B82F6', font: { weight: 'bold', size: 11, family: "'Noto Sans TC', sans-serif" } },
+                    ticks: { color: '#3B82F6', font: { family: "'JetBrains Mono', sans-serif", weight: 'bold' } },
+                    grid: { color: gridColor, borderDash: [5, 5] }
                 };
             }
 
             if (currentChartFilter === 'all' || currentChartFilter === 'cost') {
                 datasets.push({
-                    label: '補給費用 (元)',
-                    type: 'bar',
-                    data: costs,
-                    backgroundColor: isDarkMode ? 'rgba(246, 183, 60, 0.3)' : 'rgba(246, 183, 60, 0.25)',
-                    borderColor: '#f6b73c',
-                    borderWidth: 2,
-                    borderRadius: 6,
-                    yAxisID: 'yCost',
-                    barThickness: 14
+                    label: '補給費用 (元)', type: 'bar', data: costs, backgroundColor: isDarkMode ? 'rgba(246, 183, 60, 0.3)' : 'rgba(246, 183, 60, 0.25)',
+                    borderColor: '#f6b73c', borderWidth: 2, borderRadius: 6, yAxisID: 'yCost', barThickness: 14
                 });
-
                 scalesConfig.yCost = {
-                    type: 'linear',
-                    position: 'right',
-                    title: {
-                        display: true,
-                        text: '補給費用 (新台幣)',
-                        color: '#f6b73c',
-                        font: { weight: 'bold', size: 11, family: "'Noto Sans TC', sans-serif" }
-                    },
-                    ticks: {
-                        color: '#f6b73c',
-                        font: { family: "'JetBrains Mono', sans-serif", weight: 'bold' }
-                    },
-                    grid: {
-                        drawOnChartArea: false 
-                    }
+                    type: 'linear', position: 'right',
+                    title: { display: true, text: '補給費用 (新台幣)', color: '#f6b73c', font: { weight: 'bold', size: 11, family: "'Noto Sans TC', sans-serif" } },
+                    ticks: { color: '#f6b73c', font: { family: "'JetBrains Mono', sans-serif", weight: 'bold' } },
+                    grid: { drawOnChartArea: false }
                 };
             }
 
-            efficiencyChartInstance = new Chart(ctx, {
-                type: 'line', 
-                data: {
-                    labels: labels,
-                    datasets: datasets
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false,
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                color: labelTextColor,
-                                boxWidth: 10,
-                                boxHeight: 10,
-                                font: {
-                                    family: "'Noto Sans TC', sans-serif",
-                                    size: 11,
-                                    weight: 'bold'
-                                }
-                            }
+            // 🚀 Optimization: Update existing chart instead of destroying it
+            if (efficiencyChartInstance) {
+                efficiencyChartInstance.data.labels = labels;
+                efficiencyChartInstance.data.datasets = datasets;
+                efficiencyChartInstance.options.scales = scalesConfig;
+                // Update tooltip colors based on theme
+                efficiencyChartInstance.options.plugins.legend.labels.color = labelTextColor;
+                efficiencyChartInstance.options.plugins.tooltip.backgroundColor = isDarkMode ? '#1f2937' : '#fffdf9';
+                efficiencyChartInstance.options.plugins.tooltip.titleColor = isDarkMode ? '#f8fafc' : '#14b8a6';
+                efficiencyChartInstance.options.plugins.tooltip.bodyColor = isDarkMode ? '#cbd5e1' : '#475569';
+                efficiencyChartInstance.options.plugins.tooltip.borderColor = isDarkMode ? '#374151' : '#ccfbf1';
+                
+                efficiencyChartInstance.update();
+            } else {
+                const ctx = canvasElement.getContext('2d');
+                efficiencyChartInstance = new Chart(ctx, {
+                    type: 'line', 
+                    data: { labels: labels, datasets: datasets },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+                        plugins: {
+                            legend: { position: 'top', labels: { color: labelTextColor, boxWidth: 10, boxHeight: 10, font: { family: "'Noto Sans TC', sans-serif", size: 11, weight: 'bold' } } },
+                            tooltip: { backgroundColor: isDarkMode ? '#1f2937' : '#fffdf9', titleColor: isDarkMode ? '#f8fafc' : '#14b8a6', bodyColor: isDarkMode ? '#cbd5e1' : '#475569', borderColor: isDarkMode ? '#374151' : '#ccfbf1', borderWidth: 2, borderRadius: 16, padding: 12, boxPadding: 6, titleFont: { family: "'Noto Sans TC', sans-serif", weight: 'bold' }, bodyFont: { family: "'Noto Sans TC', sans-serif" } }
                         },
-                        tooltip: {
-                            backgroundColor: isDarkMode ? '#1f2937' : '#fffdf9',
-                            titleColor: isDarkMode ? '#f8fafc' : '#14b8a6',
-                            bodyColor: isDarkMode ? '#cbd5e1' : '#475569',
-                            borderColor: isDarkMode ? '#374151' : '#ccfbf1',
-                            borderWidth: 2,
-                            borderRadius: 16,
-                            padding: 12,
-                            boxPadding: 6,
-                            titleFont: {
-                                family: "'Noto Sans TC', sans-serif",
-                                weight: 'bold'
-                            },
-                            bodyFont: {
-                                family: "'Noto Sans TC', sans-serif"
-                            }
-                        }
-                    },
-                    scales: scalesConfig
-                }
-            });
+                        scales: scalesConfig
+                    }
+                });
+            }
         }
 
         function exportCSV() {
             const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
-            if (activeRecords.length === 0) {
-                showToast("無資料可匯出！", true);
-                return;
-            }
+            if (activeRecords.length === 0) { showToast("無資料可匯出！", true); return; }
 
             let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
             csvContent += "日期,補給類型,行駛里程(km),電量消耗(kWh),起始電量(%),結束電量(%),補給費用(元),備註\n";
 
             activeRecords.forEach(rec => {
-                const displayDate = rec.date && rec.date.includes('T') ? rec.date.split('T')[0] : (rec.date || '');
-                const row = [
-                    displayDate,
-                    rec.chargeType,
-                    rec.distance,
-                    rec.power,
-                    rec.startSoc !== undefined ? rec.startSoc : '',
-                    rec.endSoc !== undefined ? rec.endSoc : '',
-                    rec.cost,
-                    `"${(rec.note || '').replace(/"/g, '""')}"`
-                ].join(",");
-                csvContent += row + "\n";
+                csvContent += `${rec.date.includes('T') ? rec.date.split('T')[0] : rec.date},${rec.chargeType},${rec.distance},${rec.power},${rec.startSoc !== undefined ? rec.startSoc : ''},${rec.endSoc !== undefined ? rec.endSoc : ''},${rec.cost},"${(rec.note || '').replace(/"/g, '""')}"\n`;
             });
 
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
             link.setAttribute("download", `EV_Life_Record_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
             showToast("CSV 匯出成功！已開始下載");
         }
 
-        // ==================== PWA 核心技術擴充腳本 ====================
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js', { scope: './' })
-                    .then(reg => {
-                        console.log('Ev Life PWA Service Worker 註冊成功！範疇：', reg.scope);
-                        updatePwaDiagnostic();
-                    })
-                    .catch(err => {
-                        console.warn('Service Worker 註冊失敗，請確認 sw.js 已上傳至伺服器同目錄。錯誤訊息：', err);
-                        updatePwaDiagnostic();
-                    });
+                    .then(reg => { console.log('SW registered'); updatePwaDiagnostic(); })
+                    .catch(err => { console.warn('SW failed', err); updatePwaDiagnostic(); });
             });
         }
 
         window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            
-            const navInstallBtn = document.getElementById('navInstallBtn');
-            if (navInstallBtn) navInstallBtn.classList.remove('hidden');
-            
-            const pwaInstallBtn = document.getElementById('pwaInstallBtn');
-            if (pwaInstallBtn) {
-                pwaInstallBtn.classList.remove('hidden');
-                pwaInstallBtn.classList.add('flex');
-            }
+            e.preventDefault(); deferredPrompt = e;
+            const navBtn = document.getElementById('navInstallBtn'), pwaBtn = document.getElementById('pwaInstallBtn');
+            if (navBtn) navBtn.classList.remove('hidden');
+            if (pwaBtn) { pwaBtn.classList.remove('hidden'); pwaBtn.classList.add('flex'); }
             updatePwaDiagnostic();
         });
 
         function triggerPwaInstall() {
-            if (!deferredPrompt) {
-                showToast("當前裝置不支援或已安裝此應用程式。🐾");
-                return;
-            }
+            if (!deferredPrompt) { showToast("當前裝置不支援或已安裝。🐾"); return; }
             deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    showToast("謝謝您的安裝！Ev Life 已成功新增至您的主畫面 ⚡");
-                    hideInstallButtons();
-                } else {
-                    showToast("已取消安裝 🐾", true);
-                }
+            deferredPrompt.userChoice.then((res) => {
+                if (res.outcome === 'accepted') { showToast("謝謝安裝！"); hideInstallButtons(); } 
+                else showToast("已取消安裝 🐾", true);
                 deferredPrompt = null;
             });
         }
 
-        window.addEventListener('appinstalled', (evt) => {
-            showToast("🎉 恭喜！Ev Life 行駛日誌已成功建立到桌面！");
-            hideInstallButtons();
-            updatePwaDiagnostic();
-        });
+        window.addEventListener('appinstalled', () => { showToast("🎉 安裝成功！"); hideInstallButtons(); updatePwaDiagnostic(); });
 
         function hideInstallButtons() {
-            const navInstallBtn = document.getElementById('navInstallBtn');
-            if (navInstallBtn) navInstallBtn.classList.add('hidden');
-            const pwaInstallBtn = document.getElementById('pwaInstallBtn');
-            if (pwaInstallBtn) {
-                pwaInstallBtn.classList.add('hidden');
-                pwaInstallBtn.classList.remove('flex');
-            }
+            const navBtn = document.getElementById('navInstallBtn'), pwaBtn = document.getElementById('pwaInstallBtn');
+            if (navBtn) navBtn.classList.add('hidden');
+            if (pwaBtn) { pwaBtn.classList.add('hidden'); pwaBtn.classList.remove('flex'); }
         }
 
         function updatePwaDiagnostic() {
-            const diagHttps = document.getElementById('diag-https');
-            const diagSw = document.getElementById('diag-sw');
-            const diagNetwork = document.getElementById('diag-network');
-
             const isHttps = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-            const isLocalFile = window.location.protocol === 'file:';
-
-            if (diagHttps) {
-                if (isLocalFile) {
-                    diagHttps.innerHTML = '<span class="text-rose-500 font-extrabold">🔴 本機檔案模式 (file://)。瀏覽器不允許在此模式下啟動 Service Worker，請部署至 HTTPS 或利用 Live Server 進行測試！</span>';
-                } else {
-                    diagHttps.innerHTML = isHttps 
-                        ? '<span class="text-emerald-500 font-extrabold">🟢 安全傳輸環境 (HTTPS 或 localhost 符合 PWA 安裝規範)</span>'
-                        : '<span class="text-rose-500 font-extrabold">🔴 非安全連線 (PWA 需部署至 HTTPS 或 localhost 才能安裝)</span>';
-                }
-            }
-
+            const diagHttps = document.getElementById('diag-https'), diagSw = document.getElementById('diag-sw'), diagNetwork = document.getElementById('diag-network');
+            
+            if (diagHttps) diagHttps.innerHTML = window.location.protocol === 'file:' ? '<span class="text-rose-500 font-extrabold">🔴 本機檔案模式，不允許 SW</span>' : (isHttps ? '<span class="text-emerald-500 font-extrabold">🟢 安全傳輸環境</span>' : '<span class="text-rose-500 font-extrabold">🔴 非安全連線</span>');
+            
             if (diagSw) {
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.getRegistration().then(reg => {
-                        if (reg && reg.active) {
-                            diagSw.innerHTML = '<span class="text-emerald-500 font-extrabold">🟢 Service Worker 運行中 (已啟動離線快取守護)</span>';
-                        } else {
-                            diagSw.innerHTML = '<span class="text-amber-500 font-extrabold">閒置中 🟡 您的瀏覽器支援，但 sw.js 尚未安裝運作 (請上傳專案網頁中的 sw.js 檔案)</span>';
-                        }
-                    }).catch(() => {
-                        diagSw.innerHTML = '<span class="text-slate-400 font-extrabold">⚪ Service Worker 未就緒</span>';
-                    });
-                } else {
-                    diagSw.innerHTML = '<span class="text-rose-500 font-extrabold">🔴 您的瀏覽器不支援 Service Worker 技術</span>';
-                }
+                        diagSw.innerHTML = (reg && reg.active) ? '<span class="text-emerald-500 font-extrabold">🟢 SW 運行中</span>' : '<span class="text-amber-500 font-extrabold">🟡 SW 閒置中或未安裝</span>';
+                    }).catch(() => diagSw.innerHTML = '<span class="text-slate-400 font-extrabold">⚪ SW 未就緒</span>');
+                } else diagSw.innerHTML = '<span class="text-rose-500 font-extrabold">🔴 瀏覽器不支援 SW</span>';
             }
-
-            if (diagNetwork) {
-                diagNetwork.innerHTML = navigator.onLine
-                    ? '<span class="text-emerald-500 font-extrabold">🟢 在線模式 (連線正常)</span>'
-                    : '<span class="text-rose-500 font-extrabold">🔴 離線模式 (正由本地快取及 PWA 提供無網運作)</span>';
-            }
+            if (diagNetwork) diagNetwork.innerHTML = navigator.onLine ? '<span class="text-emerald-500 font-extrabold">🟢 在線模式</span>' : '<span class="text-rose-500 font-extrabold">🔴 離線模式</span>';
         }
 
-        window.addEventListener('online', () => {
-            updatePwaDiagnostic();
-            showToast("網路已恢復，已自動同步 ⚡");
-        });
-        window.addEventListener('offline', () => {
-            updatePwaDiagnostic();
-            showToast("網路已斷開，已無縫切換至「離線行車記錄」模式！🐾", true);
-        });
+        window.addEventListener('online', () => { updatePwaDiagnostic(); showToast("網路恢復 ⚡"); });
+        window.addEventListener('offline', () => { updatePwaDiagnostic(); showToast("離線模式！🐾", true); });
 
         function downloadBlobFile(content, fileName, contentType) {
             const a = document.createElement("a");
-            const file = new Blob([content], {type: contentType});
-            a.href = URL.createObjectURL(file);
-            a.download = fileName;
-            a.click();
-            URL.revokeObjectURL(a.href);
+            a.href = URL.createObjectURL(new Blob([content], {type: contentType}));
+            a.download = fileName; a.click(); URL.revokeObjectURL(a.href);
         }
 
-        // 🚀 同步 manifest 格式中的名稱命名保持 Ev Life 的一致性
         function downloadManifest() {
-            const manifestObj = {
-                "name": "Ev Life - LUXGEN n⁷ 行駛日誌",
-                "short_name": "Ev Life",
-                "description": "精準記錄每一段行駛與電能補給數據的行駛日誌工具。",
-                "start_url": "./index.html",
-                "scope": "./",
-                "display": "standalone",
-                "background_color": "#111827",
-                "theme_color": "#111827",
-                "orientation": "portrait-primary",
-                "icons": [
-                    {
-                        "src": "./icon-192.png",
-                        "sizes": "192x192",
-                        "type": "image/png",
-                        "purpose": "any"
-                    },
-                    {
-                        "src": "./splash.png",
-                        "sizes": "512x512",
-                        "type": "image/png",
-                        "purpose": "any"
-                    }
-                ]
-            };
-            downloadBlobFile(JSON.stringify(manifestObj, null, 2), "manifest.json", "application/json");
-            showToast("成功下載 manifest.json！請上傳至與 index.html 同層資料夾中 🐾");
+            const obj = { "name": "Ev Life - LUXGEN n⁷ 行駛日誌", "short_name": "Ev Life", "start_url": "./index.html", "display": "standalone", "background_color": "#111827", "theme_color": "#111827", "icons": [ { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png" }, { "src": "./splash.png", "sizes": "512x512", "type": "image/png" } ] };
+            downloadBlobFile(JSON.stringify(obj, null, 2), "manifest.json", "application/json");
         }
 
         function downloadServiceWorker() {
-            const swCode = `// Ev Life - LUXGEN n⁷ 行駛日誌 PWA 離線快取守護
-const CACHE_NAME = 'ev-life-cache-v7'; 
-const ASSETS = [
-  './',
-  './index.html',
-  './manifest.json',
-  './logo.png',
-  './splash.png',
-  'https://cdn.tailwindcss.com',
-  'https://cdn.jsdelivr.net/npm/chart.js'
-];
-
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      console.log('[SW] 正在建立快取寶箱...');
-      return Promise.allSettled(
-        ASSETS.map(asset => {
-          return cache.add(asset).catch(err => {
-            console.warn('[SW] 快快取失敗或檔案不存在 (不影響 PWA 啟動):', asset, err);
-          });
-        })
-      );
-    }).then(() => self.skipWaiting())
-  );
-});
-
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(keys => {
-      return Promise.all(
-        keys.map(key => {
-          if (key !== CACHE_NAME) {
-            console.log('[SW] 清理過時快取資源:', key);
-            return caches.delete(key);
-          }
-        })
-      );
-    }).then(() => self.clients.claim())
-  );
-});
-
-self.addEventListener('fetch', event => {
-  if (event.request.url.includes('script.google.com')) {
-    return;
-  }
-
-  event.respondWith(
-    caches.match(event.request).then(cachedResponse => {
-      if (cachedResponse) {
-        fetch(event.request).then(networkResponse => {
-          if (networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse));
-          }
-        }).catch(() => {});
-        return cachedResponse;
-      }
-      
-      return fetch(event.request).then(networkResponse => {
-        if (networkResponse.status === 200) {
-          return caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, networkResponse.clone());
-            return networkResponse;
-          });
-        }
-        return networkResponse;
-      }).catch(() => {});
-    })
-  );
-});`;
+            const swCode = `const CACHE='ev-cache-v8', ASSETS=['./','./index.html','./manifest.json','./logo.png','./splash.png']; self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()))); self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(k=>Promise.all(k.map(x=>x!==CACHE?caches.delete(x):0))).then(()=>self.clients.claim()))); self.addEventListener('fetch',e=>{if(e.request.url.includes('script.google.com'))return; e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(nr=>{if(nr.status===200)caches.open(CACHE).then(c=>c.put(e.request,nr.clone()));return nr;})))});\n`;
             downloadBlobFile(swCode, "sw.js", "application/javascript");
-            showToast("成功下載 sw.js！請上傳至與 index.html 同層資料夾中 🐾");
         }
     </script>
 </body>
