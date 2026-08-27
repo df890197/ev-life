@@ -211,35 +211,101 @@
         input[type="date"]::-webkit-datetime-edit { padding: 0; display: inline-flex; overflow: visible; }
         .dark input, .dark select { color-scheme: dark; }
 
-        /* Custom UI Component Styles */
+        /* 🚀 2026 Liquid Glass & Tech UI Component Styles */
         .rpg-card {
-            background: #ffffff; border: 4px solid #1e293b; box-shadow: 6px 6px 0px 0px #1e293b; transition: all 0.15s ease-in-out;
+            background: #ffffff;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
+        /* 亮色模式微光點綴 */
+        .rpg-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
         .dark .rpg-card {
-            background: #1f2937; border: 4px solid #374151; box-shadow: 6px 6px 0px 0px #111827;
+            background: linear-gradient(145deg, rgba(31, 41, 55, 0.7) 0%, rgba(17, 24, 39, 0.9) 100%);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top-color: rgba(255, 255, 255, 0.12); /* 頂部高光 */
+            box-shadow: 0 15px 35px -15px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
         }
-        .rpg-card:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0px 0px #1e293b; }
-        .dark .rpg-card:hover { background: #253043; box-shadow: 8px 8px 0px 0px #111827; }
+
+        .rpg-card:hover {
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+        }
+        .rpg-card:hover::before { opacity: 1; } /* 亮色模式 Hover 光澤 */
+
+        .dark .rpg-card:hover {
+            background: linear-gradient(145deg, rgba(37, 48, 67, 0.8) 0%, rgba(22, 30, 46, 0.95) 100%);
+            border-color: rgba(255, 255, 255, 0.15);
+            border-top-color: rgba(45, 212, 191, 0.3); /* Hover 時頂部泛出微弱青綠光 */
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 20px -5px rgba(45, 212, 191, 0.1), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+        }
 
         .rpg-btn-primary {
-            background: #2dd4bf; border: 3px solid #1e293b; color: #1e293b; box-shadow: 4px 4px 0px 0px #1e293b; transition: all 0.1s ease-in-out;
+            background: linear-gradient(135deg, #2dd4bf 0%, #0d9488 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            box-shadow: 0 4px 15px -3px rgba(13, 148, 136, 0.5);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
         .dark .rpg-btn-primary {
-            background: #2dd4bf; border: 3px solid #374151; color: #111827; box-shadow: 4px 4px 0px 0px #111827;
+            background: linear-gradient(135deg, #2dd4bf 0%, #0f766e 100%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            box-shadow: 0 6px 20px -5px rgba(45, 212, 191, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
-        .rpg-btn-primary:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0px 0px #1e293b; }
-        .dark .rpg-btn-primary:hover { box-shadow: 5px 5px 0px 0px #111827; }
-        .rpg-btn-primary:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0px 0px #1e293b; }
-        .dark .rpg-btn-primary:active { box-shadow: 1px 1px 0px 0px #111827; }
+        .rpg-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px -5px rgba(13, 148, 136, 0.6);
+            filter: brightness(1.1);
+        }
+        .dark .rpg-btn-primary:hover {
+            box-shadow: 0 8px 25px -5px rgba(45, 212, 191, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+        .rpg-btn-primary:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 10px -2px rgba(13, 148, 136, 0.5);
+        }
 
         .rpg-btn-secondary {
-            background: #f1f5f9; border: 3px solid #1e293b; color: #1e293b; box-shadow: 4px 4px 0px 0px #1e293b; transition: all 0.1s ease-in-out;
+            background: rgba(241, 245, 249, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            color: #475569;
+            box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
         }
         .dark .rpg-btn-secondary {
-            background: #1f2937; border: 3px solid #374151; color: #f8fafc; box-shadow: 4px 4px 0px 0px #111827;
+            background: rgba(31, 41, 55, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
+            box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.3);
         }
-        .rpg-btn-secondary:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0px 0px #1e293b; }
-        .dark .rpg-btn-secondary:active { box-shadow: 1px 1px 0px 0px #111827; }
+        .rpg-btn-secondary:hover {
+            background: rgba(226, 232, 240, 1);
+            color: #1e293b;
+        }
+        .dark .rpg-btn-secondary:hover {
+            background: rgba(55, 65, 81, 0.8);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #f8fafc;
+        }
+        .rpg-btn-secondary:active {
+            transform: translateY(1px);
+        }
 
         .scrollable-log-container { max-height: 480px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
     </style>
@@ -496,18 +562,24 @@ function doPost(e) {
         </div>
 
         <!-- 頂部 RPG HUD -->
-        <div class="flex flex-col justify-center items-center text-center gap-3 mb-6 bg-cuteMint-50/30 dark:bg-neutral-950/40 p-4 rounded-3xl border-2 border-slate-800 dark:border-[#374151] shadow-[3px_3px_0px_0px_#1e293b] dark:shadow-[3px_3px_0px_0px_#000000]">
-            <div class="text-center">
-                <h1 class="text-lg font-black tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-600 to-cuteBlue-600 dark:from-cuteMint-300 dark:to-teal-600 text-center">⚡ 行車數據 management</h1>
-                <p class="text-xs text-slate-500 dark:text-slate-400 font-bold text-center">精準記錄每一段行駛與電能補給數據。</p>
+        <div class="flex flex-col justify-center items-center text-center gap-3 mb-6 bg-white/50 dark:bg-neutral-900/30 p-6 rounded-[2.5rem] border border-slate-200/50 dark:border-white/5 backdrop-blur-xl shadow-lg dark:shadow-2xl relative overflow-hidden">
+            <!-- 科技感裝飾光暈 -->
+            <div class="absolute -top-24 -left-24 w-48 h-48 bg-cuteMint-400/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-cuteBlue-400/10 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="text-center relative z-10">
+                <h1 class="text-xl md:text-2xl font-black tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-cuteMint-500 via-teal-500 to-cuteBlue-500 dark:from-cuteMint-300 dark:via-teal-400 dark:to-cuteBlue-400 text-center drop-shadow-sm">
+                    ⚡ 行車數據 Management
+                </h1>
+                <p class="text-xs text-slate-500 dark:text-slate-400 font-bold text-center mt-1.5 tracking-wider">精準記錄每一段行駛與電能補給數據。</p>
             </div>
-            <div class="flex items-center justify-center space-x-2 bg-white dark:bg-black py-1.5 px-3.5 rounded-2xl border-2 border-slate-800 dark:border-[#374151] shadow-[2px_2px_0px_0px_#1e293b] dark:shadow-[2px_2px_0px_0px_#000000] font-mono text-xs mx-auto">
+            <div class="flex items-center justify-center space-x-2 bg-slate-100/80 dark:bg-black/40 backdrop-blur-md py-2 px-4 rounded-2xl border border-slate-200 dark:border-white/10 shadow-inner font-mono text-xs mx-auto relative z-10">
                 <div class="relative flex h-2.5 w-2.5 flex-shrink-0">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 flex-shrink-0"></span>
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cuteMint-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-cuteMint-500 flex-shrink-0 drop-shadow-[0_0_5px_rgba(45,212,191,0.8)]"></span>
                 </div>
                 <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">HUD Time:</span>
-                <span id="liveClockText" class="text-slate-800 dark:text-slate-200 font-black">--:--:--</span>
+                <span id="liveClockText" class="text-slate-700 dark:text-slate-200 font-black tracking-wider">--:--:--</span>
             </div>
         </div>
 
@@ -516,12 +588,12 @@ function doPost(e) {
             <div class="rpg-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] sm:text-xs font-bold text-slate-400 dark:text-[#94a3b8] tracking-wider flex items-center gap-1 whitespace-nowrap"><span>行駛總里程</span><span>🚗</span></span>
-                    <span class="p-1.5 rounded-xl bg-teal-100/40 dark:bg-teal-950/20 text-teal-600 dark:text-[#2dd4bf] border-2 border-slate-800 dark:border-[#374151]">
+                    <span class="p-1.5 rounded-xl bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/40 dark:to-teal-800/20 text-teal-600 dark:text-[#2dd4bf] border border-teal-200/50 dark:border-teal-700/30 shadow-sm">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
                     </span>
                 </div>
                 <div class="flex items-baseline mt-4">
-                    <span id="statTotalKm" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0</span>
+                    <span id="statTotalKm" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-white font-mono tracking-tight drop-shadow-sm">0</span>
                     <span class="text-[10px] sm:text-xs font-bold text-slate-400 dark:text-[#9ca3af] ml-1">km</span>
                 </div>
                 <span id="statVehicleSub" class="text-[10px] text-cuteMint-600 dark:text-[#94a3b8] mt-2 font-bold leading-tight">愛車已陪伴您行駛了長遠路程 🐾</span>
@@ -529,12 +601,12 @@ function doPost(e) {
             <div class="rpg-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] sm:text-xs font-bold text-slate-400 dark:text-[#94a3b8] tracking-wider flex items-center gap-1 whitespace-nowrap"><span>平均電耗</span><span>⚡</span></span>
-                    <span class="p-1.5 rounded-xl bg-amber-100/40 dark:bg-amber-900/20 text-amber-500 border-2 border-slate-800 dark:border-[#374151]">
+                    <span class="p-1.5 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/40 dark:to-amber-800/20 text-amber-500 border border-amber-200/50 dark:border-amber-700/30 shadow-sm">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     </span>
                 </div>
                 <div class="flex items-baseline mt-4">
-                    <span id="statAvgEfficiency" class="text-2xl md:text-3xl font-black text-teal-600 dark:text-white font-mono tracking-tight">0.00</span>
+                    <span id="statAvgEfficiency" class="text-2xl md:text-3xl font-black text-teal-600 dark:text-white font-mono tracking-tight drop-shadow-sm">0.00</span>
                     <span class="text-[10px] sm:text-xs font-bold text-teal-600 dark:text-[#9ca3af] ml-1">km/度</span>
                 </div>
                 <span id="statWhKm" class="text-[10px] text-slate-400 dark:text-[#94a3b8] mt-2 font-bold flex flex-col gap-1 leading-tight">相當於 0 Wh/km</span>
@@ -542,12 +614,12 @@ function doPost(e) {
             <div class="rpg-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] sm:text-xs font-bold text-slate-400 dark:text-[#94a3b8] tracking-wider flex items-center gap-1 whitespace-nowrap"><span>累計補給花費</span><span>👛</span></span>
-                    <span class="p-1.5 rounded-xl bg-cuteBlue-50 dark:bg-cuteBlue-600/20 text-cuteBlue-500 border-2 border-slate-800 dark:border-[#374151]">
+                    <span class="p-1.5 rounded-xl bg-gradient-to-br from-cuteBlue-50 to-cuteBlue-100 dark:from-cuteBlue-900/40 dark:to-cuteBlue-800/20 text-cuteBlue-500 border border-cuteBlue-200/50 dark:border-cuteBlue-700/30 shadow-sm">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path></svg>
                     </span>
                 </div>
                 <div class="flex items-baseline mt-4">
-                    <span id="statTotalCost" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0</span>
+                    <span id="statTotalCost" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-white font-mono tracking-tight drop-shadow-sm">0</span>
                     <span class="text-[10px] sm:text-xs font-bold text-slate-400 dark:text-[#9ca3af] ml-1">元</span>
                 </div>
                 <span id="statTotalPower" class="text-[10px] text-slate-400 dark:text-[#94a3b8] mt-2 font-bold flex flex-col gap-1 leading-tight">累計充入 0.0 度電</span>
@@ -555,13 +627,13 @@ function doPost(e) {
             <div class="rpg-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between group">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] sm:text-xs font-bold text-slate-400 dark:text-[#94a3b8] tracking-wider flex items-center gap-1 whitespace-nowrap"><span>每公里電費</span><span>🍩</span></span>
-                    <span class="p-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/20 text-indigo-400 border-2 border-slate-800 dark:border-[#374151]">
+                    <span class="p-1.5 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/40 dark:to-indigo-800/20 text-indigo-500 dark:text-indigo-400 border border-indigo-200/50 dark:border-indigo-700/30 shadow-sm">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
                     </span>
                 </div>
                 <div class="flex items-baseline mt-4">
-                    <span id="statCostPerKm" class="text-2xl md:text-3xl font-black text-cuteMint-600 dark:text-white font-mono tracking-tight">0.00</span>
-                    <span class="text-[10px] sm:text-xs font-bold text-cuteMint-600 dark:text-[#9ca3af] ml-1">元/km</span>
+                    <span id="statCostPerKm" class="text-2xl md:text-3xl font-black text-indigo-500 dark:text-white font-mono tracking-tight drop-shadow-sm">0.00</span>
+                    <span class="text-[10px] sm:text-xs font-bold text-indigo-500 dark:text-[#9ca3af] ml-1">元/km</span>
                 </div>
                 <span id="statChargeRatio" class="text-[10px] text-slate-400 dark:text-[#94a3b8] mt-2 font-bold flex flex-col gap-1 leading-tight">荷包精打細算中 🐾</span>
             </div>
@@ -662,12 +734,12 @@ function doPost(e) {
                             <span>電耗與補給趨勢圖 📈⚡</span>
                         </h2>
                         <div class="flex flex-wrap items-center gap-2 self-start sm:self-center">
-                            <select id="chartTimeView" onchange="updateCharts()" class="px-2.5 py-1.5 text-[10px] rounded-xl border-2 border-slate-800 dark:border-[#374151] bg-white dark:bg-[#1f2937] text-slate-800 dark:text-white font-bold focus:outline-none cursor-pointer shadow-[1px_1px_0px_0px_#1e293b] dark:shadow-[1px_1px_0px_0px_#000000]">
+                            <select id="chartTimeView" onchange="updateCharts()" class="px-2.5 py-1.5 text-[10px] rounded-xl border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-[#1f2937]/80 backdrop-blur-md text-slate-800 dark:text-white font-bold focus:outline-none cursor-pointer shadow-sm">
                                 <option value="monthly" selected>單月統計 📅</option>
                                 <option value="raw">逐筆紀錄 🐾</option>
                             </select>
-                            <div class="flex p-1 bg-slate-100 dark:bg-black rounded-xl border-2 border-slate-800 dark:border-[#374151] font-bold">
-                                <button onclick="setChartFilter('all')" id="btnChartAll" class="px-2.5 py-1 text-[10px] rounded-lg transition-all border-2 border-slate-800 dark:border-[#374151] bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white shadow-[1px_1px_0px_0px_#1e293b] dark:shadow-[1px_1px_0px_0px_#000000]">全部</button>
+                            <div class="flex p-1 bg-slate-100/80 dark:bg-black/40 backdrop-blur-md rounded-xl border border-slate-200 dark:border-white/10 font-bold shadow-inner">
+                                <button onclick="setChartFilter('all')" id="btnChartAll" class="px-2.5 py-1 text-[10px] rounded-lg transition-all border border-transparent bg-cuteMint-400 dark:bg-cuteMint-600/80 text-slate-900 dark:text-white shadow-sm font-bold">全部</button>
                                 <button onclick="setChartFilter('efficiency')" id="btnChartEfficiency" class="px-2.5 py-1 text-[10px] rounded-lg text-slate-500 dark:text-[#94a3b8] hover:text-slate-900 dark:hover:text-slate-200 transition-all ml-1">僅電耗 📈</button>
                                 <button onclick="setChartFilter('cost')" id="btnChartCost" class="px-2.5 py-1 text-[10px] rounded-lg text-slate-500 dark:text-[#94a3b8] hover:text-slate-900 dark:hover:text-slate-200 transition-all ml-1">僅花費 👛</button>
                             </div>
@@ -698,8 +770,8 @@ function doPost(e) {
                     <div id="flatViewContainer" class="space-y-4">
                         <!-- Desktop Table -->
                         <div id="desktopTableWrapper" class="hidden md:block overflow-x-auto max-h-[480px] rounded-[1.5rem] border-2 border-slate-800 dark:border-[#374151] scrollable-log-container mb-12">
-                            <table class="min-w-full divide-y divide-slate-800 dark:divide-[#374151] text-xs text-left table-auto">
-                                <thead class="bg-[#fffdf9] dark:bg-[#111827] text-cuteMint-700 dark:text-[#94a3b8] font-extrabold uppercase tracking-wider border-b-2 border-slate-800 dark:border-[#374151] sticky top-0 z-20">
+                            <table class="min-w-full divide-y divide-slate-200 dark:divide-white/5 text-xs text-left table-auto relative">
+                                <thead class="bg-slate-50/80 dark:bg-[#111827]/80 backdrop-blur-md text-slate-500 dark:text-[#94a3b8] font-extrabold uppercase tracking-wider border-b border-slate-200 dark:border-white/10 sticky top-0 z-20">
                                     <tr>
                                         <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">行駛日期</th>
                                         <th class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">補給類型</th>
@@ -1698,10 +1770,10 @@ function doPost(e) {
             currentChartFilter = filter;
             ['btnChartAll', 'btnChartEfficiency', 'btnChartCost'].forEach(id => {
                 const btn = document.getElementById(id);
-                if (btn) btn.className = "px-2.5 py-1 text-[10px] rounded-lg text-slate-500 dark:text-[#94a3b8] hover:text-slate-900 dark:hover:text-slate-200 transition-all font-bold";
+                if (btn) btn.className = "px-2.5 py-1 text-[10px] rounded-lg text-slate-500 dark:text-[#94a3b8] hover:text-slate-900 dark:hover:text-slate-200 transition-all font-bold border border-transparent";
             });
             const activeBtn = document.getElementById(`btnChart${filter.charAt(0).toUpperCase() + filter.slice(1)}`);
-            if (activeBtn) activeBtn.className = "px-2.5 py-1 text-[10px] rounded-lg transition-all border-2 border-slate-800 dark:border-[#263547] bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white shadow-[1px_1px_0px_0px_#1e293b] font-bold";
+            if (activeBtn) activeBtn.className = "px-2.5 py-1 text-[10px] rounded-lg transition-all border border-transparent bg-cuteMint-400 dark:bg-cuteMint-600/80 text-slate-900 dark:text-white shadow-sm font-bold";
             updateCharts();
         }
 
@@ -1710,8 +1782,12 @@ function doPost(e) {
             if (!canvasElement || typeof Chart === 'undefined') return;
 
             const isDarkMode = document.documentElement.classList.contains('dark');
-            const labelTextColor = isDarkMode ? '#cbd5e1' : '#475569';
-            const gridColor = isDarkMode ? 'rgba(156, 163, 175, 0.15)' : 'rgba(71, 85, 105, 0.08)';
+            const labelTextColor = isDarkMode ? '#9ca3af' : '#64748b'; // Tailwind gray-400 : slate-500
+            
+            // 🚀 Tech UI: 極度淡化的座標線，甚至隱藏
+            const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.03)';
+            const tooltipBg = isDarkMode ? 'rgba(17, 24, 39, 0.85)' : 'rgba(255, 255, 255, 0.9)';
+            const tooltipBorder = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)';
 
             let chartData = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
             if (currentMonthFilter !== 'all') {
@@ -1749,31 +1825,91 @@ function doPost(e) {
             }
 
             const datasets = [];
-            const scalesConfig = { x: { grid: { display: false }, ticks: { color: labelTextColor, font: { family: "'JetBrains Mono', sans-serif", size: 10, weight: 'bold' } } } };
+            // 🚀 Tech UI: 移除 X 軸網格線，簡化視覺
+            const scalesConfig = { 
+                x: { 
+                    grid: { display: false, drawBorder: false }, 
+                    ticks: { color: labelTextColor, font: { family: "'JetBrains Mono', sans-serif", size: 10, weight: '600' }, padding: 8 } 
+                } 
+            };
+
+            const ctx = canvasElement.getContext('2d');
 
             if (currentChartFilter === 'all' || currentChartFilter === 'efficiency') {
+                // 🚀 Tech UI: 漸層 Area Chart 填滿設定
+                let gradientFill;
+                if (ctx) {
+                    gradientFill = ctx.createLinearGradient(0, 0, 0, 250);
+                    gradientFill.addColorStop(0, isDarkMode ? 'rgba(45, 212, 191, 0.4)' : 'rgba(13, 148, 136, 0.2)'); // 頂部較濃的青綠
+                    gradientFill.addColorStop(1, isDarkMode ? 'rgba(45, 212, 191, 0.0)' : 'rgba(13, 148, 136, 0.0)'); // 底部透明
+                }
+
                 datasets.push({
-                    label: '平均電耗 (km/度)', data: efficiencies, borderColor: '#3B82F6', borderWidth: 4, pointBackgroundColor: '#3B82F6',
-                    pointHoverRadius: 7, pointRadius: 4, tension: 0.4, yAxisID: 'yEfficiency', fill: false
+                    label: '平均電耗 (km/度)', 
+                    data: efficiencies, 
+                    borderColor: isDarkMode ? '#2dd4bf' : '#0d9488', // 科技青綠
+                    borderWidth: 3, 
+                    pointBackgroundColor: isDarkMode ? '#1f2937' : '#ffffff', // 點點挖空效果
+                    pointBorderColor: isDarkMode ? '#2dd4bf' : '#0d9488',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 6, 
+                    pointHoverBackgroundColor: isDarkMode ? '#2dd4bf' : '#0d9488',
+                    pointHoverBorderColor: '#ffffff',
+                    pointHoverBorderWidth: 2,
+                    pointRadius: 3, 
+                    tension: 0.4, // 平滑曲線
+                    yAxisID: 'yEfficiency', 
+                    fill: true, // 🚀 開啟 Area 填滿
+                    backgroundColor: gradientFill
                 });
+
                 scalesConfig.yEfficiency = {
                     type: 'linear', position: 'left',
-                    title: { display: true, text: '電耗表現 (公里/度)', color: '#3B82F6', font: { weight: 'bold', size: 11, family: "'Noto Sans TC', sans-serif" } },
-                    ticks: { color: '#3B82F6', font: { family: "'JetBrains Mono', sans-serif", weight: 'bold' } },
-                    grid: { color: gridColor, borderDash: [5, 5] }
+                    title: { display: false }, // 隱藏標題讓畫面更乾淨
+                    ticks: { 
+                        color: isDarkMode ? '#2dd4bf' : '#0d9488', 
+                        font: { family: "'JetBrains Mono', sans-serif", weight: '600' },
+                        padding: 10,
+                        maxTicksLimit: 6
+                    },
+                    border: { display: false }, // 隱藏 Y 軸實線
+                    grid: { color: gridColor, drawBorder: false }
                 };
             }
 
             if (currentChartFilter === 'all' || currentChartFilter === 'cost') {
+                // 🚀 Tech UI: 帶有漸層的圓角 Bar Chart
+                let barGradient;
+                if (ctx) {
+                    barGradient = ctx.createLinearGradient(0, 0, 0, 200);
+                    barGradient.addColorStop(0, isDarkMode ? 'rgba(251, 191, 36, 0.8)' : 'rgba(245, 158, 11, 0.7)');
+                    barGradient.addColorStop(1, isDarkMode ? 'rgba(251, 191, 36, 0.2)' : 'rgba(245, 158, 11, 0.2)');
+                }
+
                 datasets.push({
-                    label: '補給費用 (元)', type: 'bar', data: costs, backgroundColor: isDarkMode ? 'rgba(246, 183, 60, 0.3)' : 'rgba(246, 183, 60, 0.25)',
-                    borderColor: '#f6b73c', borderWidth: 2, borderRadius: 6, yAxisID: 'yCost', barThickness: 14
+                    label: '補給費用 (元)', 
+                    type: 'bar', 
+                    data: costs, 
+                    backgroundColor: barGradient,
+                    borderColor: 'transparent',
+                    borderWidth: 0, 
+                    borderRadius: 4, // 柱狀圖圓角
+                    yAxisID: 'yCost', 
+                    barThickness: 12,
+                    hoverBackgroundColor: isDarkMode ? 'rgba(251, 191, 36, 1)' : 'rgba(245, 158, 11, 1)'
                 });
+
                 scalesConfig.yCost = {
                     type: 'linear', position: 'right',
-                    title: { display: true, text: '補給費用 (新台幣)', color: '#f6b73c', font: { weight: 'bold', size: 11, family: "'Noto Sans TC', sans-serif" } },
-                    ticks: { color: '#f6b73c', font: { family: "'JetBrains Mono', sans-serif", weight: 'bold' } },
-                    grid: { drawOnChartArea: false }
+                    title: { display: false },
+                    ticks: { 
+                        color: isDarkMode ? '#fbbf24' : '#f59e0b', 
+                        font: { family: "'JetBrains Mono', sans-serif", weight: '600' },
+                        padding: 10,
+                        maxTicksLimit: 6
+                    },
+                    border: { display: false },
+                    grid: { display: false, drawBorder: false } // 完全隱藏右側網格
                 };
             }
 
@@ -1782,24 +1918,43 @@ function doPost(e) {
                 efficiencyChartInstance.data.labels = labels;
                 efficiencyChartInstance.data.datasets = datasets;
                 efficiencyChartInstance.options.scales = scalesConfig;
+                
                 // Update tooltip colors based on theme
                 efficiencyChartInstance.options.plugins.legend.labels.color = labelTextColor;
-                efficiencyChartInstance.options.plugins.tooltip.backgroundColor = isDarkMode ? '#1f2937' : '#fffdf9';
-                efficiencyChartInstance.options.plugins.tooltip.titleColor = isDarkMode ? '#f8fafc' : '#14b8a6';
+                efficiencyChartInstance.options.plugins.tooltip.backgroundColor = tooltipBg;
+                efficiencyChartInstance.options.plugins.tooltip.titleColor = isDarkMode ? '#f8fafc' : '#1e293b';
                 efficiencyChartInstance.options.plugins.tooltip.bodyColor = isDarkMode ? '#cbd5e1' : '#475569';
-                efficiencyChartInstance.options.plugins.tooltip.borderColor = isDarkMode ? '#374151' : '#ccfbf1';
+                efficiencyChartInstance.options.plugins.tooltip.borderColor = tooltipBorder;
                 
                 efficiencyChartInstance.update();
             } else {
-                const ctx = canvasElement.getContext('2d');
                 efficiencyChartInstance = new Chart(ctx, {
                     type: 'line', 
                     data: { labels: labels, datasets: datasets },
                     options: {
-                        responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+                        responsive: true, maintainAspectRatio: false, 
+                        interaction: { mode: 'index', intersect: false }, // 🚀 Hover 時顯示同一 X 軸的所有數據
                         plugins: {
-                            legend: { position: 'top', labels: { color: labelTextColor, boxWidth: 10, boxHeight: 10, font: { family: "'Noto Sans TC', sans-serif", size: 11, weight: 'bold' } } },
-                            tooltip: { backgroundColor: isDarkMode ? '#1f2937' : '#fffdf9', titleColor: isDarkMode ? '#f8fafc' : '#14b8a6', bodyColor: isDarkMode ? '#cbd5e1' : '#475569', borderColor: isDarkMode ? '#374151' : '#ccfbf1', borderWidth: 2, borderRadius: 16, padding: 12, boxPadding: 6, titleFont: { family: "'Noto Sans TC', sans-serif", weight: 'bold' }, bodyFont: { family: "'Noto Sans TC', sans-serif" } }
+                            legend: { 
+                                position: 'top', align: 'end',
+                                labels: { 
+                                    color: labelTextColor, boxWidth: 8, boxHeight: 8, usePointStyle: true,
+                                    font: { family: "'Noto Sans TC', sans-serif", size: 11, weight: '600' } 
+                                } 
+                            },
+                            tooltip: { 
+                                backgroundColor: tooltipBg, 
+                                titleColor: isDarkMode ? '#f8fafc' : '#1e293b', 
+                                bodyColor: isDarkMode ? '#cbd5e1' : '#475569', 
+                                borderColor: tooltipBorder, 
+                                borderWidth: 1, 
+                                borderRadius: 12, 
+                                padding: 12, 
+                                boxPadding: 6, 
+                                backdropFilter: 'blur(8px)', // 🚀 Tooltip 毛玻璃
+                                titleFont: { family: "'Noto Sans TC', sans-serif", weight: 'bold', size: 13 }, 
+                                bodyFont: { family: "'Noto Sans TC', sans-serif", weight: '500', size: 12 } 
+                            }
                         },
                         scales: scalesConfig
                     }
