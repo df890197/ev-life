@@ -471,13 +471,14 @@ function doPost(e) {
   var payload = JSON.parse(e.postData.contents);
   if (payload.length === 0) return ContentService.createTextOutput("Empty");
   var headers = ["id", "date", "chargeType", "distance", "power", "cost", "note"];
-  sheet.appendRow(headers);
+  var out = [headers];
   for (var i = 0; i < payload.length; i++) {
     var item = payload[i];
     var row = [];
     for (var j = 0; j < headers.length; j++) { row.push(item[headers[j]] || ""); }
-    sheet.appendRow(row);
+    out.push(row);
   }
+  sheet.getRange(1, 1, out.length, headers.length).setValues(out);
   return ContentService.createTextOutput("Success");
 }</textarea>
                                 <button onclick="copyGasCode()" class="absolute right-2 bottom-2 bg-cuteMint-500 hover:bg-cuteMint-600 text-slate-900 text-[10px] px-2.5 py-1 rounded-lg font-black shadow-sm transition active:scale-95">複製程式碼</button>
