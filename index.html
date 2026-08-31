@@ -1273,7 +1273,6 @@ function doPost(e) {
         }
 
         function forceDownload() {
-            closeConfirmModal();
             if (!syncUrl) { showToast("請先設定您的雲端同步網址！", true); return; }
             showConfirmModal("確認以「試算表」為主？", "這將從雲端試算表下載資料，並「完全覆蓋」您裝置上的記錄。若您在試算表還原了版本，請使用此選項。確定要繼續嗎？", function() {
                 syncWithCloud('download');
@@ -1281,7 +1280,6 @@ function doPost(e) {
         }
 
         function forceUpload() {
-            closeConfirmModal();
             if (!syncUrl) { showToast("請先設定您的雲端同步網址！", true); return; }
             showConfirmModal("確認以「本機」為主？", "這將把您裝置上的記錄上傳，並「完全覆蓋」雲端試算表內的資料。確定要繼續嗎？", function() {
                 syncWithCloud('upload');
