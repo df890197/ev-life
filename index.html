@@ -56,7 +56,8 @@
     <!-- Google Fonts 非阻塞載入 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght=300;400;500;600;700&family=Noto+Sans+TC:wght=300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <!-- 🚀 優化：確保載入所有需要的字重，包含 Fredoka, Noto Sans TC, 和 JetBrains Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
     <script>
         function adaptContainerBgToImage(img) {
@@ -187,18 +188,16 @@
             }
         }
         
-        /* 🚀 關鍵字體優化：加入完整系統字體堆疊，並優化渲染引擎，確保 Android/iOS 呈現一致的平滑高質感 */
+        /* 🚀 關鍵字體優化：移除自訂的 body font-family，改由 Tailwind 的設定統一接管，確保各平台優先權一致 */
         body { 
-            font-family: 'Fredoka', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
             text-rendering: optimizeLegibility;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             touch-action: manipulation; 
             -webkit-text-size-adjust: 100%; 
         }
-        .font-mono { 
-            font-family: 'JetBrains Mono', 'Noto Sans TC', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 
-        }
+        /* 移除這行，改用 Tailwind config */
+        /* .font-mono { font-family: 'JetBrains Mono', 'Noto Sans TC', monospace; } */
 
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -329,6 +328,11 @@
                         darkMode: 'class',
                         theme: {
                             extend: {
+                                // 🚀 關鍵修改：覆蓋 Tailwind 預設的字體族，強制將 Fredoka 和 Noto Sans TC 放在最前面
+                                fontFamily: {
+                                    sans: ['Fredoka', '"Noto Sans TC"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'],
+                                    mono: ['"JetBrains Mono"', '"Noto Sans TC"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', '"Liberation Mono"', '"Courier New"', 'monospace'],
+                                },
                                 colors: {
                                     brandBg: '#111827', brandCard: '#1f2937', brandCardHover: '#253043',
                                     brandHeader: '#111827', brandBorder: '#374151',
@@ -351,7 +355,8 @@
         })();
     </script>
 </head>
-<body class="bg-[#fcfaf2] dark:bg-[#111827] text-slate-800 dark:text-[#f8fafc] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative">
+<!-- 🚀 確保 body 套用了 font-sans 類別 -->
+<body class="font-sans bg-[#fcfaf2] dark:bg-[#111827] text-slate-800 dark:text-[#f8fafc] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative">
 
     <div id="appSplashScreen" class="fixed inset-0 z-[9998] bg-[#fcfaf2] dark:bg-[#111827] flex flex-col items-center justify-center text-slate-800 dark:text-white transition-opacity duration-400">
         <div id="splashFallbackContainer" class="absolute inset-0 flex flex-col items-center justify-center space-y-4 z-10">
