@@ -1419,7 +1419,32 @@ function doPost(e) {
                 const match = rec.note.match(/^\[SOC:(\d+)-(\d+)\]\s*(.*)/);
                 if (match) { startSoc = parseInt(match[1], 10); endSoc = parseInt(match[2], 10); cleanNote = match[3]; }
             }
-            let dateStr = rec.date ? (rec.date.includes('T') ? rec.date.split('T')[0] : rec.date) : '';
+            
+            // 🚀 Fix: 解決跨時區與 Google Apps Script 傳回的 ISO 格式導致日期差一天的問題
+            let dateStr = rec.date || '';
+            if (typeof dateStr === 'string') {
+                if (dateStr.includes('T')) {
+                    const d = new Date(dateStr);
+                    if (!isNaN(d.getTime())) {
+                        const yyyy = d.getFullYear();
+                        const mm = String(d.getMonth() + 1).padStart(2, '0');
+                        const dd = String(d.getDate()).padStart(2, '0');
+                        dateStr = `${yyyy}-${mm}-${dd}`;
+                    } else {
+                        dateStr = dateStr.split('T')[0];
+                    }
+                } else if (!dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                    // 若試算表傳回 2026/8/31 或其他非標準格式，自動補0為 YYYY-MM-DD
+                    const d = new Date(dateStr);
+                    if (!isNaN(d.getTime())) {
+                        const yyyy = d.getFullYear();
+                        const mm = String(d.getMonth() + 1).padStart(2, '0');
+                        const dd = String(d.getDate()).padStart(2, '0');
+                        dateStr = `${yyyy}-${mm}-${dd}`;
+                    }
+                }
+            }
+
             return {
                 id: rec.id?.toString() || Date.now().toString(),
                 date: dateStr, chargeType: rec.chargeType?.toString() || 'DC-快充',
