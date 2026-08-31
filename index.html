@@ -131,7 +131,6 @@
         }
     </script>
 
-    <!-- 極簡 Boot Script: 系統主題與 PWA 設定 -->
     <script>
         (function() {
             try {
@@ -235,7 +234,7 @@
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-top-color: rgba(255, 255, 255, 0.12); /* 頂部高光 */
+            border-top-color: rgba(255, 255, 255, 0.12);
             box-shadow: 0 15px 35px -15px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
         }
 
@@ -243,12 +242,12 @@
             transform: translateY(-4px) scale(1.01);
             box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
         }
-        .rpg-card:hover::before { opacity: 1; } /* 亮色模式 Hover 光澤 */
+        .rpg-card:hover::before { opacity: 1; }
 
         .dark .rpg-card:hover {
             background: linear-gradient(145deg, rgba(37, 48, 67, 0.8) 0%, rgba(22, 30, 46, 0.95) 100%);
             border-color: rgba(255, 255, 255, 0.15);
-            border-top-color: rgba(45, 212, 191, 0.3); /* Hover 時頂部泛出微弱青綠光 */
+            border-top-color: rgba(45, 212, 191, 0.3);
             box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 20px -5px rgba(45, 212, 191, 0.1), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
         }
 
@@ -310,7 +309,6 @@
         .scrollable-log-container { max-height: 480px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
     </style>
 
-    <!-- Tailwind CSS 與 Chart.js -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <script>
@@ -374,7 +372,7 @@
                         <svg id="themeSunIcon" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500 hidden" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.46 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path></svg>
                         <svg id="themeMoonIcon" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-500 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
                     </button>
-                    <button id="navSyncBtn" onclick="syncWithCloud()" class="rpg-btn-primary text-[10px] sm:text-xs px-2 sm:px-3.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl font-bold flex items-center space-x-1 whitespace-nowrap flex-shrink-0 hidden">
+                    <button id="navSyncBtn" onclick="syncWithCloud('auto')" class="rpg-btn-primary text-[10px] sm:text-xs px-2 sm:px-3.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl font-bold flex items-center space-x-1 whitespace-nowrap flex-shrink-0 hidden">
                         <svg id="navSyncIcon" class="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M20 4v5h-5M4 20v-5h5M4 12A8 8 0 0 1 18 6.13L20 9M20 12a8 8 0 0 1-14 5.87L4 15"></path>
                         </svg>
@@ -396,9 +394,9 @@
 
     <!-- 系統設定 & 雲端同步 模態視窗 -->
     <div id="syncModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-[#fffdf9] dark:bg-[#1f2937] rounded-[2rem] shadow-2xl max-w-lg w-full mx-4 transform scale-95 transition-all duration-300 border-4 border-[#1e293b] dark:border-[#374151] overflow-hidden" id="syncModalContent">
+        <div class="bg-[#fffdf9] dark:bg-[#1f2937] rounded-[2rem] shadow-2xl max-w-lg w-full mx-4 transform scale-95 transition-all duration-300 border-4 border-[#1e293b] dark:border-[#374151] overflow-hidden flex flex-col max-h-[90vh]" id="syncModalContent">
             
-            <div class="flex items-center justify-between border-b-4 border-[#1e293b] dark:border-[#374151] p-5 bg-[#fffdf9] dark:bg-[#111827]">
+            <div class="flex flex-shrink-0 items-center justify-between border-b-4 border-[#1e293b] dark:border-[#374151] p-5 bg-[#fffdf9] dark:bg-[#111827]">
                 <h3 class="text-base font-black text-slate-800 dark:text-[#f8fafc] flex items-center space-x-2">
                     <svg class="w-5 h-5 text-cuteMint-500 animate-spin" style="animation-duration: 8s;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     <span>系統與雲端備份設定 🐾</span>
@@ -406,7 +404,7 @@
                 <button onclick="toggleSyncModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-[#f8fafc] text-2xl font-black transition-all">×</button>
             </div>
 
-            <div class="flex border-b-4 border-[#1e293b] dark:border-[#374151] bg-slate-100 dark:bg-[#1f2937]">
+            <div class="flex flex-shrink-0 border-b-4 border-[#1e293b] dark:border-[#374151] bg-slate-100 dark:bg-[#1f2937]">
                 <button onclick="switchSettingsTab('settings-tab-main')" id="btn-tab-main" class="flex-1 py-3 text-xs font-black border-r-4 border-[#1e293b] dark:border-[#374151] transition-all bg-cuteMint-400 dark:bg-cuteMint-600 text-slate-900 dark:text-white">
                     🛠️ 愛車與雲端
                 </button>
@@ -415,7 +413,7 @@
                 </button>
             </div>
             
-            <div class="p-6 space-y-4 max-h-[65vh] overflow-y-auto bg-[#fffdf9] dark:bg-black">
+            <div class="p-6 space-y-4 overflow-y-auto flex-1 bg-[#fffdf9] dark:bg-black">
                 <!-- 分頁一：主要設定與雲端 -->
                 <div id="settings-tab-main" class="space-y-4">
                     <div class="bg-cuteBlue-50/50 dark:bg-black/60 rounded-2xl p-4 border-2 border-[#1e293b] dark:border-[#374151] space-y-3 shadow-sm">
@@ -492,6 +490,28 @@ function doPost(e) {
                             </p>
                         </div>
                     </details>
+                    
+                    <div id="syncTimeInfo" class="text-xs text-slate-400 dark:text-slate-500 hidden">
+                        上次同步時間：<span id="lastSyncTimeText" class="font-bold">無</span>
+                    </div>
+
+                    <!-- 🚀 關鍵改動：提供以雲端/本機為主的獨立操作按鈕 -->
+                    <div class="space-y-3 pt-4 border-t-2 border-slate-200 dark:border-slate-800">
+                        <span class="text-xs text-slate-500 font-extrabold block">☁️ 雲端同步操作</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <button onclick="syncWithCloud('auto')" class="rpg-btn-primary bg-emerald-500 hover:bg-emerald-400 dark:bg-emerald-600 border-none text-white text-xs font-bold py-2.5 rounded-2xl flex items-center justify-center space-x-1 shadow-md transition-all">
+                                <span>🔄</span><span>智慧同步</span>
+                            </button>
+                            <button onclick="forceDownload()" class="rpg-btn-secondary bg-cuteBlue-50 hover:bg-cuteBlue-100 dark:bg-cuteBlue-950/40 text-cuteBlue-700 dark:text-cuteBlue-400 border border-cuteBlue-200 dark:border-cuteBlue-800 text-[11px] font-extrabold py-2.5 rounded-2xl flex items-center justify-center space-x-1 transition-all" title="強制下載雲端資料並覆蓋本機紀錄">
+                                <span>⬇️</span><span>以試算表為主</span>
+                            </button>
+                            <button onclick="forceUpload()" class="rpg-btn-secondary bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800 text-[11px] font-extrabold py-2.5 rounded-2xl flex items-center justify-center space-x-1 transition-all" title="強制上傳本機資料並覆蓋雲端紀錄">
+                                <span>⬆️</span><span>以本機為主</span>
+                            </button>
+                        </div>
+                        <button onclick="saveSyncSettingsOnly()" class="w-full rpg-btn-secondary text-xs font-bold py-3 rounded-2xl transition-all shadow-sm">💾 僅儲存系統參數設定 (不同步)</button>
+                    </div>
+
                 </div>
 
                 <!-- 分頁二：PWA 離線安裝 -->
@@ -527,13 +547,6 @@ function doPost(e) {
                             <button onclick="downloadServiceWorker()" class="rpg-btn-secondary py-2.5 text-[10px] font-black rounded-xl">⚙️ sw.js</button>
                         </div>
                     </div>
-                </div>
-
-                <div id="syncTimeInfo" class="text-xs text-slate-400 dark:text-slate-500 hidden">
-                    上次同步時間：<span id="lastSyncTimeText" class="font-bold">無</span>
-                </div>
-                <div class="flex space-x-3 pt-2">
-                    <button onclick="saveSyncSettings()" class="w-full rpg-btn-primary text-xs font-bold py-3 rounded-2xl transition-all">儲存全部設定並同步 🐾</button>
                 </div>
             </div>
         </div>
@@ -953,7 +966,7 @@ function doPost(e) {
 
             setupNumericRestrictions();
             updateSyncUiStatus();
-            setupDelegatedEvents(); // Call event delegation setup
+            setupDelegatedEvents();
 
             const localData = localStorage.getItem('ev_life_records');
             if (localData) {
@@ -1005,7 +1018,7 @@ function doPost(e) {
 
         function initDeferredTasks() {
             checkChartLoaded();
-            if (syncUrl) setTimeout(() => syncWithCloud(true), 1000);
+            if (syncUrl) setTimeout(() => syncWithCloud('auto', true), 1000);
         }
 
         function checkChartLoaded() {
@@ -1233,7 +1246,7 @@ function doPost(e) {
             }
         }
 
-        function saveSyncSettings() {
+        function saveSyncSettingsOnly() {
             const urlInput = document.getElementById('syncUrlInput')?.value.trim();
             if (urlInput && !urlInput.startsWith('https://script.google.com/')) {
                 showToast("這看起來不像是正確的 Google Apps Script 網址 (๑•́ ₃ •̀๑)", true);
@@ -1255,9 +1268,24 @@ function doPost(e) {
             
             updateSyncUiStatus();
             toggleSyncModal();
-            showToast("所有參數與雲端設定已儲存！🐾");
+            showToast("系統參數與雲端設定已儲存！🐾");
             renderDashboard();
-            if (syncUrl) syncWithCloud();
+        }
+
+        function forceDownload() {
+            closeConfirmModal();
+            if (!syncUrl) { showToast("請先設定您的雲端同步網址！", true); return; }
+            showConfirmModal("確認以「試算表」為主？", "這將從雲端試算表下載資料，並「完全覆蓋」您裝置上的記錄。若您在試算表還原了版本，請使用此選項。確定要繼續嗎？", function() {
+                syncWithCloud('download');
+            });
+        }
+
+        function forceUpload() {
+            closeConfirmModal();
+            if (!syncUrl) { showToast("請先設定您的雲端同步網址！", true); return; }
+            showConfirmModal("確認以「本機」為主？", "這將把您裝置上的記錄上傳，並「完全覆蓋」雲端試算表內的資料。確定要繼續嗎？", function() {
+                syncWithCloud('upload');
+            });
         }
 
         function updateSyncUiStatus() {
@@ -1278,7 +1306,7 @@ function doPost(e) {
             }
         }
 
-        async function syncWithCloud(isSilent = false) {
+        async function syncWithCloud(mode = 'auto', isSilent = false) {
             if (!syncUrl) { if (!isSilent) showToast("請先設定您的雲端同步網址！", true); return; }
             
             const syncIcon = document.getElementById('navSyncIcon');
@@ -1310,11 +1338,31 @@ function doPost(e) {
                 let localLastUpdated = parseInt(localStorage.getItem('ev_life_last_updated')) || 0;
                 const isCleared = localStorage.getItem('ev_life_cleared') === 'true';
 
-                if (localLastUpdated > cloudLastUpdated && records.length === 0 && cloudRecords.length > 0 && !isCleared) {
-                    localLastUpdated = 0; // Prevent accidental overwrite if locally empty
+                let shouldUpload = false;
+                let shouldDownload = false;
+
+                if (mode === 'upload') {
+                    shouldUpload = true;
+                } else if (mode === 'download') {
+                    shouldDownload = true;
+                } else {
+                    // Auto mode
+                    if (localLastUpdated > cloudLastUpdated && records.length === 0 && cloudRecords.length > 0 && !isCleared) {
+                        localLastUpdated = 0; // Prevent accidental overwrite if locally empty
+                    }
+                    if (localLastUpdated > cloudLastUpdated) {
+                        shouldUpload = true;
+                    } else if (cloudLastUpdated > localLastUpdated) {
+                        shouldDownload = true;
+                    }
                 }
 
-                if (localLastUpdated > cloudLastUpdated) {
+                if (shouldUpload) {
+                    if (mode === 'upload') {
+                        localLastUpdated = Date.now();
+                        localStorage.setItem('ev_life_last_updated', localLastUpdated.toString());
+                    }
+
                     const uploadPayload = records.map(rec => ({
                         id: rec.id, date: rec.date, chargeType: rec.chargeType, distance: rec.distance, 
                         power: rec.power, cost: rec.cost, 
@@ -1333,10 +1381,14 @@ function doPost(e) {
                     
                     localStorage.setItem('ev_life_last_sync_time', new Date().toLocaleString());
                     if (!isSilent) showToast(`同步成功！已推播至雲端 ☁️`);
-                } else if (cloudLastUpdated > localLastUpdated) {
+                } else if (shouldDownload) {
                     records = cloudRecords;
                     localStorage.setItem('ev_life_records', JSON.stringify(records));
-                    localStorage.setItem('ev_life_last_updated', cloudLastUpdated);
+                    
+                    // 🚀 關鍵修復：下載後，強制將本機時間設為最新。
+                    // 防止「雲端還原舊資料」導致本機時間跟著變舊，進而在下次新增資料時誤判為「本機最新」，再度覆蓋雲端。
+                    localStorage.setItem('ev_life_last_updated', Date.now().toString()); 
+                    
                     localStorage.setItem('ev_life_last_sync_time', new Date().toLocaleString());
                     localStorage.removeItem('ev_life_cleared'); 
                     
@@ -1346,12 +1398,16 @@ function doPost(e) {
                         if (cloudConfig.initialOdometer !== undefined) { initialOdometer = parseFloat(cloudConfig.initialOdometer); localStorage.setItem('ev_life_initial_odometer', initialOdometer); }
                     }
                     renderDashboard();
-                    if (!isSilent) showToast(`同步成功！已下載雲端最新日誌 (${records.length} 筆)`);
+                    if (!isSilent) showToast(`同步成功！已從雲端下載並覆蓋本機 (${records.length} 筆) 📥`);
                 } else {
                     localStorage.setItem('ev_life_last_sync_time', new Date().toLocaleString());
                     if (!isSilent) showToast("同步完成！本機與雲端一致 ✿");
                 }
+                
                 updateSyncUiStatus();
+                if (mode === 'download' || mode === 'upload') {
+                    toggleSyncModal();
+                }
             } catch (error) {
                 if (!isSilent) showToast("同步失敗，請檢查網址或網路 (๑•́ ₃ •̀๑)", true);
             } finally {
@@ -1498,7 +1554,6 @@ function doPost(e) {
                 }
             });
 
-            // 🚀 Optimization: Build HTML strings instead of multiple createElement calls
             let tableHTML = '';
             let mobileHTML = '';
 
@@ -1550,7 +1605,7 @@ function doPost(e) {
                 // Mobile Card
                 const mobileSocText = hasValidSoc ? `${rec.startSoc}% ➔ ${rec.endSoc}%` : `${powerPercent}%`;
                 const tripCostPerKm = distVal > 0 ? (rec.cost / distVal).toFixed(2) : "0.00";
-                const mvpIcon = isMVP ? '<div class="absolute -top-2.5 -right-2 text-[11px] bg-amber-100 dark:bg-amber-700 border-2 border-amber-300 dark:border-amber-500 rounded-full w-[24px] h-[24px] flex items-center justify-center shadow-md z-10">👑</div>' : '';
+                const mvpIcon = isMVP ? '<div class="absolute -top-2.5 -right-2 text-[11px] bg-amber-100 dark:bg-amber-700 border-2 border-amber-300 dark:border-amber-50 rounded-full w-[24px] h-[24px] flex items-center justify-center shadow-md z-10">👑</div>' : '';
                 
                 mobileHTML += `
                     <div class="rpg-card p-3.5 sm:p-4 rounded-[1.5rem] flex flex-col gap-2.5 mr-1 mb-3">
@@ -1657,7 +1712,6 @@ function doPost(e) {
             const statVehicleSub = document.getElementById('statVehicleSub');
             const statChargeRatio = document.getElementById('statChargeRatio');
 
-            // 🚀 使用傳入的基數 (如果是特定月份就只顯示該月里程)
             const baseOdo = odoBaseOverride !== undefined ? odoBaseOverride : initialOdometer;
             
             if (statTotalKm) statTotalKm.textContent = (totalKm + baseOdo).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
@@ -1668,11 +1722,9 @@ function doPost(e) {
             const whKm = avgEfficiency > 0 ? Math.round(1000 / avgEfficiency) : 0;
             const estRange = avgEfficiency > 0 ? Math.round(batteryCapacity * avgEfficiency) : 0;
             
-            // 計算省下的油錢 (假設油車 12km/L, 油價 $30/L -> 每公里約 $2.5 元)
             const estimatedGasCost = totalKm * 2.5;
             const gasSavings = Math.max(0, estimatedGasCost - totalCost);
 
-            // 🚀 防跑版修正：移除 flex-wrap，強制文字和 Emoji 不換行 (whitespace-nowrap)，若超出則允許整個區塊自然排版，但優先保持 Emoji 跟隨文字
             if (statWhKm) {
                 statWhKm.innerHTML = `
                     <span class="block">相當於約 ${whKm} Wh/km</span>
@@ -1697,11 +1749,9 @@ function doPost(e) {
             }
 
             if (statVehicleSub) {
-                // 🚀 修復破版：將 Emoji 與文字合併在同一個 span 中，避免 flex 造成的斷行
                 if (currentMonthFilter !== 'all') {
                      statVehicleSub.innerHTML = `<span class="block"><span class="text-cuteMint-600 dark:text-[#2dd4bf]">${currentMonthFilter.replace('-','/')}</span> 月份行駛里程 🐾</span>`;
                 } else if (initialOdometer > 0) {
-                    // 如果文字太長，允許在 + 號處換行，但確保 🐾 跟著最後一段數字
                     statVehicleSub.innerHTML = `<span class="block">初始里程 <span class="text-cuteMint-600 dark:text-[#2dd4bf]">${initialOdometer} km</span> +</span><span class="block"><span class="whitespace-nowrap">本地已記錄 <span class="text-cuteMint-600 dark:text-[#2dd4bf]">${parseFloat(totalKm.toFixed(1))} km</span> 🐾</span></span>`;
                 } else {
                     statVehicleSub.innerHTML = `<span class="block">愛車 <span class="text-cuteMint-600 dark:text-[#2dd4bf]">${evName}</span> 已陪伴您行駛了長遠路程 🐾</span>`;
@@ -1740,7 +1790,7 @@ function doPost(e) {
                 cancelEdit(); 
             }
             renderDashboard();
-            if (syncUrl) syncWithCloud();
+            if (syncUrl) syncWithCloud('auto');
         }
 
         function confirmDeleteRecord(id) {
@@ -1752,7 +1802,7 @@ function doPost(e) {
                 saveLocalState(updated);
                 renderDashboard();
                 showToast("記錄已順利擦除！✿");
-                if (syncUrl) syncWithCloud();
+                if (syncUrl) syncWithCloud('auto');
             });
         }
 
@@ -1762,7 +1812,7 @@ function doPost(e) {
                 saveLocalState([]);
                 renderDashboard();
                 showToast("歷史紀錄已成功清空 🐾", true);
-                if (syncUrl) syncWithCloud();
+                if (syncUrl) syncWithCloud('auto');
             });
         }
 
@@ -1782,9 +1832,7 @@ function doPost(e) {
             if (!canvasElement || typeof Chart === 'undefined') return;
 
             const isDarkMode = document.documentElement.classList.contains('dark');
-            const labelTextColor = isDarkMode ? '#9ca3af' : '#64748b'; // Tailwind gray-400 : slate-500
-            
-            // 🚀 Tech UI: 極度淡化的座標線，甚至隱藏
+            const labelTextColor = isDarkMode ? '#9ca3af' : '#64748b'; 
             const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.03)';
             const tooltipBg = isDarkMode ? 'rgba(17, 24, 39, 0.85)' : 'rgba(255, 255, 255, 0.9)';
             const tooltipBorder = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)';
@@ -1825,7 +1873,6 @@ function doPost(e) {
             }
 
             const datasets = [];
-            // 🚀 Tech UI: 移除 X 軸網格線，簡化視覺
             const scalesConfig = { 
                 x: { 
                     grid: { display: false, drawBorder: false }, 
@@ -1836,20 +1883,19 @@ function doPost(e) {
             const ctx = canvasElement.getContext('2d');
 
             if (currentChartFilter === 'all' || currentChartFilter === 'efficiency') {
-                // 🚀 Tech UI: 漸層 Area Chart 填滿設定
                 let gradientFill;
                 if (ctx) {
                     gradientFill = ctx.createLinearGradient(0, 0, 0, 250);
-                    gradientFill.addColorStop(0, isDarkMode ? 'rgba(45, 212, 191, 0.4)' : 'rgba(13, 148, 136, 0.2)'); // 頂部較濃的青綠
-                    gradientFill.addColorStop(1, isDarkMode ? 'rgba(45, 212, 191, 0.0)' : 'rgba(13, 148, 136, 0.0)'); // 底部透明
+                    gradientFill.addColorStop(0, isDarkMode ? 'rgba(45, 212, 191, 0.4)' : 'rgba(13, 148, 136, 0.2)'); 
+                    gradientFill.addColorStop(1, isDarkMode ? 'rgba(45, 212, 191, 0.0)' : 'rgba(13, 148, 136, 0.0)'); 
                 }
 
                 datasets.push({
                     label: '平均電耗 (km/度)', 
                     data: efficiencies, 
-                    borderColor: isDarkMode ? '#2dd4bf' : '#0d9488', // 科技青綠
+                    borderColor: isDarkMode ? '#2dd4bf' : '#0d9488', 
                     borderWidth: 3, 
-                    pointBackgroundColor: isDarkMode ? '#1f2937' : '#ffffff', // 點點挖空效果
+                    pointBackgroundColor: isDarkMode ? '#1f2937' : '#ffffff', 
                     pointBorderColor: isDarkMode ? '#2dd4bf' : '#0d9488',
                     pointBorderWidth: 2,
                     pointHoverRadius: 6, 
@@ -1857,28 +1903,27 @@ function doPost(e) {
                     pointHoverBorderColor: '#ffffff',
                     pointHoverBorderWidth: 2,
                     pointRadius: 3, 
-                    tension: 0.4, // 平滑曲線
+                    tension: 0.4, 
                     yAxisID: 'yEfficiency', 
-                    fill: true, // 🚀 開啟 Area 填滿
+                    fill: true, 
                     backgroundColor: gradientFill
                 });
 
                 scalesConfig.yEfficiency = {
                     type: 'linear', position: 'left',
-                    title: { display: false }, // 隱藏標題讓畫面更乾淨
+                    title: { display: false }, 
                     ticks: { 
                         color: isDarkMode ? '#2dd4bf' : '#0d9488', 
                         font: { family: "'JetBrains Mono', sans-serif", weight: '600' },
                         padding: 10,
                         maxTicksLimit: 6
                     },
-                    border: { display: false }, // 隱藏 Y 軸實線
+                    border: { display: false }, 
                     grid: { color: gridColor, drawBorder: false }
                 };
             }
 
             if (currentChartFilter === 'all' || currentChartFilter === 'cost') {
-                // 🚀 Tech UI: 帶有漸層的圓角 Bar Chart
                 let barGradient;
                 if (ctx) {
                     barGradient = ctx.createLinearGradient(0, 0, 0, 200);
@@ -1893,7 +1938,7 @@ function doPost(e) {
                     backgroundColor: barGradient,
                     borderColor: 'transparent',
                     borderWidth: 0, 
-                    borderRadius: 4, // 柱狀圖圓角
+                    borderRadius: 4, 
                     yAxisID: 'yCost', 
                     barThickness: 12,
                     hoverBackgroundColor: isDarkMode ? 'rgba(251, 191, 36, 1)' : 'rgba(245, 158, 11, 1)'
@@ -1909,17 +1954,15 @@ function doPost(e) {
                         maxTicksLimit: 6
                     },
                     border: { display: false },
-                    grid: { display: false, drawBorder: false } // 完全隱藏右側網格
+                    grid: { display: false, drawBorder: false } 
                 };
             }
 
-            // 🚀 Optimization: Update existing chart instead of destroying it
             if (efficiencyChartInstance) {
                 efficiencyChartInstance.data.labels = labels;
                 efficiencyChartInstance.data.datasets = datasets;
                 efficiencyChartInstance.options.scales = scalesConfig;
                 
-                // Update tooltip colors based on theme
                 efficiencyChartInstance.options.plugins.legend.labels.color = labelTextColor;
                 efficiencyChartInstance.options.plugins.tooltip.backgroundColor = tooltipBg;
                 efficiencyChartInstance.options.plugins.tooltip.titleColor = isDarkMode ? '#f8fafc' : '#1e293b';
@@ -1933,7 +1976,7 @@ function doPost(e) {
                     data: { labels: labels, datasets: datasets },
                     options: {
                         responsive: true, maintainAspectRatio: false, 
-                        interaction: { mode: 'index', intersect: false }, // 🚀 Hover 時顯示同一 X 軸的所有數據
+                        interaction: { mode: 'index', intersect: false }, 
                         plugins: {
                             legend: { 
                                 position: 'top', align: 'end',
@@ -1951,7 +1994,7 @@ function doPost(e) {
                                 borderRadius: 12, 
                                 padding: 12, 
                                 boxPadding: 6, 
-                                backdropFilter: 'blur(8px)', // 🚀 Tooltip 毛玻璃
+                                backdropFilter: 'blur(8px)', 
                                 titleFont: { family: "'Noto Sans TC', sans-serif", weight: 'bold', size: 13 }, 
                                 bodyFont: { family: "'Noto Sans TC', sans-serif", weight: '500', size: 12 } 
                             }
