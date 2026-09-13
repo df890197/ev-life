@@ -443,7 +443,7 @@
                                 <input type="number" step="0.1" id="batteryCapacityInput" placeholder="例如：57.7" class="w-full px-3 py-2 border-2 border-[#1e293b] dark:border-[#374151] rounded-xl text-xs focus:outline-none bg-white dark:bg-black text-slate-800 dark:text-[#f8fafc] font-mono font-bold">
                             </div>
                             <div>
-                                <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">初始總里程 Odo (km)</label>
+                                <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5">初始總里程 (km)</label>
                                 <input type="number" step="0.1" id="initialOdometerInput" placeholder="例如：7115" class="w-full px-3 py-2 border-2 border-[#1e293b] dark:border-[#374151] rounded-xl text-xs focus:outline-none bg-white dark:bg-black text-slate-800 dark:text-[#f8fafc] font-mono font-bold">
                             </div>
                         </div>
@@ -1626,7 +1626,7 @@ function doPost(e) {
                         <td class="px-1 lg:px-2 py-3 text-center whitespace-nowrap"><span class="inline-block px-2 py-0.5 text-[10px] rounded-full font-black border tracking-wide uppercase whitespace-nowrap ${typeStyle}">${rec.chargeType}</span></td>
                         <td class="px-1 lg:px-2 py-3 text-center whitespace-nowrap">
                             <div class="font-bold font-mono text-slate-800 dark:text-slate-100">${distVal} KM</div>
-                            <div class="text-[10px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">ODO: ${rec.rollingOdo.toFixed(0)}</div>
+                            <div class="text-[10px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">總里程: ${rec.rollingOdo.toFixed(0)}</div>
                         </td>
                         <td class="px-1 lg:px-2 py-3 text-center font-bold font-mono text-slate-800 dark:text-slate-100 whitespace-nowrap">${socText}</td>
                         <td class="px-1 lg:px-2 py-3 text-center text-cuteMint-500 dark:text-cuteMint-400 font-bold font-mono whitespace-nowrap relative">
