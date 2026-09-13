@@ -27,7 +27,18 @@
         html.dark #appSplashScreen { background-color: #111827 !important; }
         html:not(.dark) #appSplashScreen { background-color: #fcfaf2 !important; }
 
-        input[type="date"] { position: relative; }
+        /* 🚀 修正 iOS 日期輸入框文字超出邊緣的問題 */
+        input[type="date"] { 
+            position: relative; 
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        /* 重置 iOS 內部 Shadow DOM 的預設邊距 */
+        input[type="date"]::-webkit-date-and-time-value {
+            margin: 0;
+            padding: 0;
+            text-align: left;
+        }
         input[type="date"]::-webkit-calendar-picker-indicator {
             opacity: 0 !important; cursor: pointer; position: absolute; right: 0; top: 0; width: 100%; height: 100%; z-index: 30;
         }
@@ -64,7 +75,6 @@
             box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1), inset 0 1px 2px rgba(255, 255, 255, 0.8);
         }
         .dark .ios-27-glass {
-            /* 調整為更清透的藍灰色，增強質感與對比 */
             background: rgba(30, 41, 59, 0.7); 
             backdrop-filter: blur(24px) saturate(200%);
             -webkit-backdrop-filter: blur(24px) saturate(200%);
@@ -73,14 +83,11 @@
             box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.15);
         }
 
-        /* 解決 iOS 底部過多空白的核心定位類別 */
         .floating-nav {
-            /* 壓縮 50% 的安全區域，讓導航列往下沉，大幅減少留白，但不阻礙 Home 橫條 */
             bottom: calc(env(safe-area-inset-bottom, 0px) * 0.5 + 8px) !important;
             margin-bottom: 0 !important;
         }
 
-        /* 底部導航選中狀態 */
         .tab-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .tab-btn.active { color: #0d9488; font-weight: 900; transform: translateY(-2px); }
         .dark .tab-btn.active { color: #2dd4bf; }
@@ -98,7 +105,7 @@
         .rpg-btn-primary { background: linear-gradient(135deg, #2dd4bf 0%, #0d9488 100%); border: 1px solid rgba(255, 255, 255, 0.2); color: #ffffff; box-shadow: 0 4px 15px -3px rgba(13, 148, 136, 0.5); }
         .dark .rpg-btn-primary { background: linear-gradient(135deg, #2dd4bf 0%, #0f766e 100%); border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 6px 20px -5px rgba(45, 212, 191, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2); }
         
-        .hero-image-container { position: relative; width: 100%; padding-top: 56.25%; /* 16:9 比例 */ border-radius: 2rem; overflow: hidden; }
+        .hero-image-container { position: relative; width: 100%; padding-top: 56.25%; border-radius: 2rem; overflow: hidden; }
         .hero-image-container img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
     </style>
 
@@ -129,7 +136,6 @@
         <img id="splashLogoImg" src="./splash.png" alt="Splash Screen" class="w-full h-full object-cover opacity-0 absolute inset-0 z-20 transition-opacity duration-300">
     </div>
 
-    <!-- 🚀 立即套用自訂啟動畫面設定 (避免閃爍 FOUC) -->
     <script>
         (function(){
             try {
@@ -145,29 +151,25 @@
                 if(splashImg && imgEl && fallbackEl) {
                     imgEl.src = splashImg;
                     imgEl.classList.remove('opacity-0', 'object-cover');
-                    imgEl.classList.add('object-contain', 'p-8'); // 改用 contain 避免截斷自訂Logo
+                    imgEl.classList.add('object-contain', 'p-8');
                     fallbackEl.style.display = 'none';
                 }
             } catch(e) {}
         })();
     </script>
 
-    <!-- 頂部膠囊導航列 (Top Pill Bar) -->
     <header class="sticky top-0 z-40 bg-[#fcfaf2]/90 dark:bg-[#111827]/90 backdrop-blur-xl pt-[env(safe-area-inset-top)] border-b border-transparent transition-all">
         <div class="flex items-center justify-between px-4 py-3 max-w-4xl mx-auto">
-            <!-- 總覽按鈕 -->
             <button onclick="switchTab('home')" class="flex items-center gap-2 bg-white dark:bg-slate-800 px-4 py-2 rounded-full shadow-sm border border-slate-200 dark:border-slate-700 text-[11px] font-black tracking-wider transition active:scale-95">
-                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M4 4h4v4H4V4zm6 0h4v4h-4V4zm6 0h4v4h-4V4zM4 10h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4z"/></svg>
+                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M4 4h4v4H4V4zm6 0h4v4h-4V4zm6 0h4v4h-4V4zM4 10h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4z"/></svg>
                 總覽
             </button>
 
-            <!-- 車輛選擇膠囊 -->
             <div class="flex items-center gap-2 bg-slate-900 dark:bg-slate-800 px-1.5 py-1.5 pr-5 rounded-full shadow-md cursor-pointer transition active:scale-95" onclick="toggleSyncModal()">
                 <div class="bg-amber-500 text-slate-900 px-2.5 py-1 rounded-full text-[10px] font-black">純電</div>
                 <span id="topEvName" class="text-white text-xs font-bold font-mono tracking-wide">LUXGEN n7</span>
             </div>
 
-            <!-- 主題切換按鈕 -->
             <button onclick="toggleTheme()" class="w-9 h-9 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-sm border border-slate-200 dark:border-slate-700 transition active:scale-95">
                 <svg id="themeSunIcon" class="w-4 h-4 text-amber-500 hidden" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.46 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path></svg>
                 <svg id="themeMoonIcon" class="w-4 h-4 text-indigo-400 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
@@ -177,25 +179,20 @@
 
     <main class="max-w-4xl mx-auto pb-32 pt-2">
         
-        <!-- 🔹 Tab 1: 首頁 (Home) -->
         <div id="view-home" class="view-section active px-4">
-            <!-- 英雄區 (可上傳照片) -->
             <div class="hero-image-container mb-6 shadow-sm border border-slate-200 dark:border-slate-800 bg-slate-200 dark:bg-slate-800 group">
                 <img id="heroImageDisplay" src="https://placehold.co/800x450/1e293b/2dd4bf?text=EV+Life" alt="EV" class="transition duration-500 group-hover:scale-105">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                 <div class="absolute bottom-5 left-6 right-6 flex justify-between items-end">
                     <h1 id="heroEvName" class="text-white text-3xl font-black tracking-widest drop-shadow-md">LUXGEN n7</h1>
                 </div>
-                <!-- 上傳相片按鈕 -->
                 <button onclick="document.getElementById('heroImageUpload').click()" class="absolute top-4 right-4 w-10 h-10 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white transition active:scale-95 shadow-lg border border-white/20">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 </button>
                 <input type="file" id="heroImageUpload" class="hidden" accept="image/*" onchange="handleHeroImageUpload(event)">
             </div>
 
-            <!-- 數據網格 (Stats Grid) -->
             <div class="grid grid-cols-2 gap-4">
-                <!-- 1. 總里程 -->
                 <div class="rpg-card bg-[#fffaf0] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-center text-left">
                     <div class="text-amber-500 mb-2">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
@@ -207,7 +204,6 @@
                     <div class="text-[11px] font-bold text-slate-500 mt-0.5">總行駛里程</div>
                 </div>
 
-                <!-- 2. 平均電耗 -->
                 <div class="rpg-card bg-[#f0fdfa] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-center text-left">
                     <div class="text-teal-500 mb-2">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
@@ -219,7 +215,6 @@
                     <div class="text-[11px] font-bold text-slate-500 mt-0.5">平均電耗</div>
                 </div>
 
-                <!-- 3. 能源總成本 & 每公里電費 -->
                 <div class="rpg-card bg-[#f0f9ff] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-center text-left">
                     <div class="text-sky-500 mb-2 flex justify-between items-start">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path></svg>
@@ -238,7 +233,6 @@
                     <div class="text-[11px] font-bold text-slate-500 mt-0.5">能源總成本</div>
                 </div>
 
-                <!-- 4. 保養維修 -->
                 <div class="rpg-card bg-[#faf5ff] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-center text-left">
                     <div class="text-fuchsia-500 mb-2">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -252,7 +246,6 @@
             </div>
         </div>
 
-        <!-- 🔹 Tab 2: 新增/編輯紀錄 (Add/Edit) -->
         <div id="view-add" class="view-section px-4">
             <div class="rpg-card bg-white dark:bg-[#1e293b] p-6 rounded-[2rem]">
                 <div class="flex items-center justify-between mb-5 pb-3 border-b border-slate-100 dark:border-slate-700">
@@ -266,7 +259,8 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">日期</label>
-                            <input type="date" id="inputDate" required class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold text-left focus:outline-none focus:border-amber-400 transition-colors">
+                            <!-- 🚀 新增 appearance-none 類別以修正 iOS -->
+                            <input type="date" id="inputDate" required class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold text-left focus:outline-none focus:border-amber-400 transition-colors appearance-none block">
                         </div>
                         <div>
                             <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">紀錄類型</label>
@@ -313,7 +307,7 @@
                         <button type="submit" class="flex-1 rpg-btn-primary text-sm font-black py-4 rounded-2xl">
                             <span id="submitBtnText">儲存紀錄</span>
                         </button>
-                        <button type="button" id="cancelEditBtn" onclick="cancelEdit()" class="hidden rpg-btn-secondary text-sm font-bold py-4 px-6 rounded-2xl">
+                        <button type="button" id="cancelEditBtn" onclick="cancelEdit()" class="hidden rpg-btn-secondary text-sm font-bold py-4 px-6 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-500">
                             取消
                         </button>
                     </div>
@@ -321,7 +315,6 @@
             </div>
         </div>
 
-        <!-- 🔹 Tab 3: 紀錄列表 (Records) -->
         <div id="view-records" class="view-section px-4">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-black">歷史紀錄</h2>
@@ -340,7 +333,6 @@
             </div>
         </div>
 
-        <!-- 🔹 Tab 4: 分析圖表 (Analysis) -->
         <div id="view-analysis" class="view-section px-4">
             <div class="rpg-card bg-white dark:bg-[#1e293b] p-5 sm:p-6 rounded-[2rem]">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
@@ -349,7 +341,6 @@
                         趨勢分析
                     </h2>
                     
-                    <!-- 🚀 整合後的右上角控制器群組 -->
                     <div class="flex flex-wrap items-center gap-2 self-start sm:self-auto">
                         <div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
                             <button onclick="setChartFilter('all')" id="btnChartAll" class="px-3 py-1.5 text-[10px] rounded-lg bg-white dark:bg-slate-600 shadow text-slate-900 dark:text-white font-bold transition-all">全部</button>
@@ -364,12 +355,10 @@
                     </div>
                 </div>
 
-                <!-- 🚀 移除旁邊的選單，現在這裡只保留月份過濾器，給予 100% 寬度 -->
                 <div class="flex items-center w-full mb-4">
                     <div id="monthFilterContainer_analysis" class="flex overflow-x-auto gap-2 no-scrollbar pb-1 flex-1 items-center"></div>
                 </div>
                 
-                <!-- 動態區間總里程統計卡片 -->
                 <div class="flex justify-between items-center mb-4 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-700/50 transition-all">
                     <div class="flex items-center gap-2">
                         <div class="bg-amber-100 dark:bg-amber-900/30 text-amber-500 p-1.5 rounded-lg shadow-sm">
@@ -391,8 +380,6 @@
 
     </main>
 
-    <!-- 🚀 iOS 27 懸浮玻璃底部導航列 -->
-    <!-- 修復：移除 pb-[env...]，新增 floating-nav 修正定位，圓角加深 -->
     <nav class="fixed left-4 right-4 z-50 rounded-[2rem] ios-27-glass px-2 floating-nav">
         <div class="flex justify-around items-center h-16 max-w-md mx-auto relative">
             <button onclick="switchTab('home')" id="tab-home" class="tab-btn active flex flex-col items-center gap-1 w-14 text-slate-500 dark:text-slate-400 transition-colors">
@@ -405,7 +392,6 @@
                 <span class="text-[9px] font-bold tracking-wider">紀錄</span>
             </button>
             
-            <!-- 中央懸浮新增按鈕 -->
             <div class="relative flex justify-center w-16 -mt-8">
                 <button onclick="switchTab('add')" id="tab-add" class="w-14 h-14 bg-slate-900 dark:bg-amber-500 text-white dark:text-slate-900 rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.2)] dark:shadow-[0_8px_20px_rgba(251,191,36,0.3)] border-[3px] border-white/80 dark:border-slate-800/80 transition transform active:scale-90">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
@@ -425,13 +411,11 @@
         </div>
     </nav>
 
-    <!-- 全域 Toast -->
     <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-[120] transform -translate-y-10 opacity-0 invisible pointer-events-none transition-all duration-300 bg-slate-900/95 dark:bg-[#1e293b]/95 text-white px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 text-xs font-bold whitespace-nowrap border border-white/10">
         <span id="toastIcon">🐾</span>
         <span id="toastMessage"></span>
     </div>
 
-    <!-- 系統設定 & 雲端同步 模態視窗 -->
     <div id="syncModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-end sm:items-center justify-center hidden opacity-0 transition-opacity duration-300">
         <div class="bg-white dark:bg-[#0f172a] sm:rounded-[2rem] rounded-t-[2rem] shadow-2xl w-full sm:max-w-lg transform translate-y-full sm:translate-y-0 sm:scale-95 transition-all duration-300 border-t sm:border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[85vh]" id="syncModalContent">
             <div class="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-[#1e293b]">
@@ -443,7 +427,6 @@
                 <button onclick="switchSettingsTab('settings-tab-pwa')" id="btn-tab-pwa" class="flex-1 py-3 text-xs font-black text-slate-500 dark:text-[#94a3b8] transition-all bg-slate-100 dark:bg-[#0f172a]">🐾 PWA 離線安裝</button>
             </div>
             <div class="p-6 space-y-4 overflow-y-auto flex-1">
-                <!-- 分頁一：主要設定與雲端 -->
                 <div id="settings-tab-main" class="space-y-4">
                     <div class="bg-slate-50 dark:bg-[#1e293b] p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
                         <span class="text-xs font-black text-slate-500 dark:text-slate-400">🚗 愛車參數設定</span>
@@ -463,7 +446,6 @@
                         </div>
                     </div>
                     
-                    <!-- 新增：自訂啟動畫面 -->
                     <div class="bg-slate-50 dark:bg-[#1e293b] p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
                         <span class="text-xs font-black text-slate-500 dark:text-slate-400">🎨 啟動畫面設定</span>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -495,12 +477,11 @@
                     </div>
                     <div class="grid grid-cols-2 gap-3 pt-2">
                         <button onclick="syncWithCloud('auto')" class="col-span-2 rpg-btn-primary text-sm font-black py-3 rounded-2xl flex justify-center items-center gap-1">🔄 智慧同步</button>
-                        <button onclick="forceDownload()" class="rpg-btn-secondary text-xs font-bold py-3 rounded-2xl">⬇️ 下載覆蓋本機</button>
-                        <button onclick="forceUpload()" class="rpg-btn-secondary text-xs font-bold py-3 rounded-2xl">⬆️ 上傳覆蓋雲端</button>
+                        <button onclick="forceDownload()" class="rpg-btn-secondary text-xs font-bold py-3 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">⬇️ 下載覆蓋本機</button>
+                        <button onclick="forceUpload()" class="rpg-btn-secondary text-xs font-bold py-3 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">⬆️ 上傳覆蓋雲端</button>
                     </div>
                     <button onclick="saveSyncSettingsOnly()" class="w-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-white text-xs font-bold py-3 rounded-2xl transition active:scale-95">💾 僅儲存設定 (不同步)</button>
                 </div>
-                <!-- 分頁二：PWA 離線安裝 -->
                 <div id="settings-tab-pwa" class="space-y-4 hidden">
                     <div class="bg-amber-50 dark:bg-amber-900/10 p-4 rounded-2xl border border-amber-200 dark:border-amber-900/50 space-y-2">
                         <span class="text-xs text-amber-700 dark:text-amber-500 font-extrabold block">📲 甚麼是 PWA 離線安裝？</span>
@@ -515,7 +496,6 @@
                         </div>
                     </div>
 
-                    <!-- 🚀 新增：PWA 核心檔案下載區塊 -->
                     <div class="bg-slate-50 dark:bg-[#1e293b] p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3">
                         <span class="font-black text-slate-700 dark:text-slate-300 text-xs block">📦 PWA 核心檔案產生器</span>
                         <p class="text-[10px] text-slate-500 leading-relaxed">請下載這兩份檔案，並與您的 index.html 放在同一個資料夾層級，即可啟用完整的桌面/主畫面離線安裝功能。</p>
@@ -542,7 +522,7 @@
             <h3 id="confirmModalTitle" class="text-base font-black mb-2">確認動作</h3>
             <p id="confirmModalMessage" class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-6 leading-relaxed"></p>
             <div class="flex space-x-3">
-                <button onclick="closeConfirmModal()" class="flex-1 rpg-btn-secondary text-xs font-bold py-3 rounded-2xl">取消</button>
+                <button onclick="closeConfirmModal()" class="flex-1 rpg-btn-secondary text-xs font-bold py-3 rounded-2xl border border-slate-200 dark:border-slate-700">取消</button>
                 <button id="confirmSuccessBtn" class="flex-1 bg-rose-500 text-white text-xs font-bold py-3 rounded-2xl shadow-md transition active:scale-95">確認執行</button>
             </div>
         </div>
@@ -561,7 +541,6 @@
         let currentMonthFilter = 'all';
         let deferredPrompt = null;
 
-        // --- APP UI 切換邏輯 (Tab Switching) ---
         function switchTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             const activeBtn = document.getElementById('tab-' + tabId);
@@ -602,7 +581,6 @@
             }
         });
 
-        // --- 🚀 自訂照片上傳壓縮邏輯 ---
         function handleHeroImageUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -611,7 +589,7 @@
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 800; // 壓縮最大寬度
+                    const MAX_WIDTH = 800;
                     let width = img.width, height = img.height;
                     
                     if (width > MAX_WIDTH) {
@@ -639,7 +617,6 @@
         function initAppCore() {
             setupThemeIcons();
             
-            // 載入自訂照片
             const customImg = localStorage.getItem('ev_life_hero_image');
             if (customImg) document.getElementById('heroImageDisplay').src = customImg;
 
@@ -657,7 +634,6 @@
             initialOdometer = parseFloat(localStorage.getItem('ev_life_initial_odometer')) || 0;
             if (document.getElementById('initialOdometerInput')) document.getElementById('initialOdometerInput').value = initialOdometer;
             
-            // 初始化啟動畫面設定UI
             const splashBg = localStorage.getItem('ev_life_splash_color');
             const colorInput = document.getElementById('splashColorInput');
             if (colorInput) {
@@ -696,7 +672,6 @@
             setupDelegatedEvents();
         }
 
-        // --- STREAMING_CHUNK:Processing forms and stats... ---
         function saveLocalState(newRecords) {
             records = newRecords;
             localStorage.setItem('ev_life_records', JSON.stringify(records));
@@ -760,7 +735,6 @@
             updateConvertedPowerHint();
         }
 
-        // --- 🚀 自訂啟動畫面邏輯 ---
         function handleSplashImageUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -769,7 +743,7 @@
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 600; // 啟動畫面圖標不需過大
+                    const MAX_WIDTH = 600;
                     let width = img.width, height = img.height;
                     
                     if (width > MAX_WIDTH) {
@@ -1024,8 +998,6 @@
             }
         }
 
-        // --- STREAMING_CHUNK:Finalizing Scripts and Analytics... ---
-        // --- Chart.js 分析圖表 ---
         function setChartFilter(filter) {
             currentChartFilter = filter;
             ['btnChartAll', 'btnChartEfficiency', 'btnChartCost'].forEach(id => {
@@ -1045,13 +1017,11 @@
             const labelColor = isDarkMode ? '#9ca3af' : '#64748b'; 
             const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.03)';
             
-            // 排除保養紀錄
             let chartData = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.chargeType !== '維修保養');
             if (currentMonthFilter !== 'all') {
                 chartData = chartData.filter(rec => rec.date.startsWith(currentMonthFilter));
             }
 
-            // 🚀 新增：計算並更新該區間(月份)的總里程
             let periodTotalKm = 0;
             chartData.forEach(rec => { periodTotalKm += (parseFloat(rec.distance) || 0); });
             const analysisKmEl = document.getElementById('analysisTotalKm');
@@ -1185,7 +1155,7 @@
             document.getElementById('recordForm').reset();
             document.getElementById('inputDate').value = new Date().toISOString().split('T')[0];
             selectChargeType('DC-快充'); 
-            switchTab('records'); // 取消後自動切換回紀錄列表
+            switchTab('records');
         }
 
         function confirmDeleteRecord(id) {
@@ -1331,7 +1301,6 @@
         function forceDownload() { showConfirmModal("以「試算表」為主？", "將下載雲端資料並「覆蓋」本機記錄。", function() { syncWithCloud('download'); }); }
         function forceUpload() { showConfirmModal("以「本機」為主？", "將上傳本機資料並「覆蓋」雲端記錄。", function() { syncWithCloud('upload'); }); }
         
-        // --- 🚀 新增：PWA 檔案動態生成與下載邏輯 ---
         function generateManifestContent() {
             return JSON.stringify({
                 "name": "Ev Life - 純電之旅",
