@@ -16,29 +16,174 @@
     <link rel="apple-touch-icon" href="./icon-192.png">
     <link rel="manifest" href="./manifest.json">
 
-    <!-- Google Fonts: 保留 Fredoka, Noto Sans TC, 以及 Roboto Mono 作為非蘋陣營的斜線0備用 -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-
     <style>
-        /* 第一時間鎖定底色，防閃白，並設定 iOS 彈性滾動邊緣顏色 */
-        :root, html, body { background-color: #f6f7f9; overscroll-behavior-y: none; -webkit-tap-highlight-color: transparent; }
-        @media (prefers-color-scheme: dark) { :root, html, body { background-color: #0f172a; } }
+        /* 第一時間鎖定底色，杜絕渲染空窗期 */
+        :root, html, body { background-color: #f6f7f9; }
+        @media (prefers-color-scheme: dark) {
+            :root, html, body { background-color: #0f172a; }
+        }
         html.dark, html.dark body { background-color: #0f172a !important; }
         html:not(.dark), html:not(.dark) body { background-color: #f6f7f9 !important; }
 
         #appSplashScreen { background-color: #f6f7f9 !important; }
-        @media (prefers-color-scheme: dark) { #appSplashScreen { background-color: #0f172a !important; } }
+        @media (prefers-color-scheme: dark) {
+            #appSplashScreen { background-color: #0f172a !important; }
+        }
         html.dark #appSplashScreen { background-color: #0f172a !important; }
         html:not(.dark) #appSplashScreen { background-color: #f6f7f9 !important; }
 
-        body { text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; touch-action: manipulation; }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            opacity: 0 !important;
+            cursor: pointer;
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 30;
+        }
 
-        /* 隱藏預設日曆 icon 與滾動條 */
-        input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0 !important; cursor: pointer; position: absolute; right: 0; top: 0; width: 100%; height: 100%; z-index: 30; }
-        ::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+    
+    <!-- Google Fonts 非阻塞載入 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+
+    <script>
+        function adaptContainerBgToImage(img) {
+            try {
+                if (!img.complete) return;
+                if (img.src.includes('placehold.co')) return;
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = 10; canvas.height = 10;
+                ctx.drawImage(img, 0, 0, 10, 10);
+                const imgData = ctx.getImageData(0, 0, 10, 10).data;
+                
+                let r = 0, g = 0, b = 0, count = 0;
+                for (let x = 0; x < 10; x++) {
+                    for (let y = 0; y < 10; y++) {
+                        if (x === 0 || x === 9 || y === 0 || y === 9) {
+                            const idx = (y * 10 + x) * 4;
+                            if (imgData[idx+3] > 50) {
+                                r += imgData[idx]; g += imgData[idx+1]; b += imgData[idx+2];
+                                count++;
+                            }
+                        }
+                    }
+                }
+
+                if (count > 0) {
+                    r = Math.round(r / count); g = Math.round(g / count); b = Math.round(b / count);
+                    const parent = img.parentElement;
+                    if (parent) {
+                        parent.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+                        const isDark = document.documentElement.classList.contains('dark');
+                        const borderFactor = isDark ? 1.2 : 0.8;
+                        const br = Math.min(255, Math.max(0, Math.round(r * borderFactor)));
+                        const bg = Math.min(255, Math.max(0, Math.round(g * borderFactor)));
+                        const bb = Math.min(255, Math.max(0, Math.round(b * borderFactor)));
+                        parent.style.borderColor = `rgb(${br}, ${bg}, ${bb})`;
+                        parent.classList.remove('bg-white', 'dark:bg-black', 'bg-[#7dd3fc]', 'dark:bg-neutral-900', 'border-slate-800', 'dark:border-slate-700');
+                    }
+                }
+            } catch (e) {
+                console.warn("Pixel analysis failed, using fallback.", e);
+            }
+        }
+
+        function handleLogoError(imgElement) {
+            imgElement.onerror = null;
+            const isDark = document.documentElement.classList.contains('dark');
+            imgElement.src = isDark ? 'https://placehold.co/100x60/111827/2dd4bf?text=n%E2%81%B7' : 'https://placehold.co/100x60/ccfbf1/0d9488?text=n%E2%81%B7';
+        }
+
+        function onSplashImageLoad() {
+            const img = document.getElementById('splashLogoImg');
+            if (img) {
+                img.classList.remove('opacity-0');
+                img.classList.add('opacity-100');
+            }
+        }
+
+        function onSplashImageError() {
+            const img = document.getElementById('splashLogoImg');
+            if (img) img.remove();
+            const fallback = document.getElementById('splashFallbackContainer');
+            if (fallback) fallback.classList.add('show-fallback');
+        }
+    </script>
+
+    <script>
+        (function() {
+            try {
+                var theme = localStorage.getItem('ev_life_theme');
+                var isDark = theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                var htmlElement = document.documentElement;
+                if (isDark) {
+                    htmlElement.classList.add('dark');
+                    htmlElement.style.backgroundColor = '#0f172a';
+                } else {
+                    htmlElement.classList.remove('dark');
+                    htmlElement.style.backgroundColor = '#f6f7f9';
+                }
+
+                var manifestColor = isDark ? '#0f172a' : '#f6f7f9';
+                var dynamicManifest = {
+                    "name": "Ev Life - LUXGEN n7 APP",
+                    "short_name": "Ev Life",
+                    "start_url": "./index.html",
+                    "display": "standalone",
+                    "background_color": manifestColor,
+                    "theme_color": manifestColor,
+                    "orientation": "portrait-primary",
+                    "icons": [
+                        {"src": "./icon-192.png", "sizes": "192x192", "type": "image/png"},
+                        {"src": "./splash.png", "sizes": "512x512", "type": "image/png"}
+                    ]
+                };
+                var encodedManifest = "data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dynamicManifest));
+                var existingManifest = document.querySelector('link[rel="manifest"]');
+                if (existingManifest) existingManifest.href = encodedManifest;
+            } catch (e) {}
+        })();
+    </script>
+
+    <style>
+        .ios-safe-nav { padding-top: env(safe-area-inset-top, 0px) !important; }
+        
+        body { 
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            touch-action: manipulation; 
+            -webkit-text-size-adjust: 100%; 
+            overscroll-behavior-y: none;
+        }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; display: none; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(186, 230, 253, 0.6); border-radius: 99px; border: 2px solid transparent; background-clip: padding-box;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.3); border: 2px solid transparent; background-clip: padding-box;
+        }
+
+        input[type="date"] {
+            position: relative; -webkit-appearance: none; appearance: none; display: block; min-height: 2.75rem; line-height: normal;
+        }
+        input[type="date"]::-webkit-date-and-time-value {
+            height: auto; min-height: 1.5em; text-align: left; margin: 0; padding: 0; width: 100%;
+        }
+        input[type="date"]::-webkit-datetime-edit { padding: 0; display: inline-flex; overflow: visible; }
+        .dark input, .dark select { color-scheme: dark; }
 
         /* 參考圖片風格：柔和奶油色數據卡片 */
         .app-stat-card {
@@ -55,7 +200,8 @@
         /* 底部毛玻璃導航列 */
         .glass-tab-bar {
             background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-top: 1px solid rgba(0, 0, 0, 0.05);
         }
         .dark .glass-tab-bar {
@@ -63,7 +209,7 @@
             border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* 分頁切換動畫 */
+        /* Tab 切換動畫 */
         .view-section { display: none; opacity: 0; transition: opacity 0.3s ease; }
         .view-section.active { display: block; opacity: 1; animation: fadeIn 0.3s ease forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -71,57 +217,53 @@
         /* 底部導航選中狀態 */
         .tab-btn.active { color: #1e293b; font-weight: 900; }
         .dark .tab-btn.active { color: #f8fafc; }
-        
-        .ios-safe-nav { padding-top: env(safe-area-inset-top, 0px) !important; }
-        input[type="date"] { position: relative; -webkit-appearance: none; appearance: none; display: block; min-height: 2.75rem; line-height: normal; }
-        input[type="date"]::-webkit-date-and-time-value { height: auto; min-height: 1.5em; text-align: left; margin: 0; padding: 0; width: 100%; }
-        .dark input, .dark select { color-scheme: dark; }
     </style>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Fredoka', '"Noto Sans TC"', 'system-ui', 'sans-serif'],
-                        // 🚀 優先使用蘋果 SF Mono，非蘋裝置降級為 Roboto Mono，完美支援斜線0
-                        mono: ['"SF Mono"', 'SFMono-Regular', '"Roboto Mono"', 'ui-monospace', '"Noto Sans TC"', 'monospace'],
-                    },
-                    colors: {
-                        cuteMint: { 50: '#f0fdf4', 100: '#ccfbf1', 400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488' },
-                    }
+        (function() {
+            function configureTailwind() {
+                if (typeof tailwind !== 'undefined') {
+                    tailwind.config = {
+                        darkMode: 'class',
+                        theme: {
+                            extend: {
+                                fontFamily: {
+                                    sans: ['Fredoka', '"Noto Sans TC"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'],
+                                    // 🚀 優先使用蘋果 SF Mono，若沒有 (如 Android/Windows) 則無縫接軌使用自帶斜線 0 的 Roboto Mono
+                                    mono: ['"SF Mono"', 'SFMono-Regular', '"Roboto Mono"', 'ui-monospace', '"Noto Sans TC"', 'monospace'],
+                                },
+                                colors: {
+                                    cuteMint: { 50: '#f0fdf4', 100: '#ccfbf1', 400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488' },
+                                }
+                            }
+                        }
+                    };
                 }
             }
-        };
-
-        // Splash 畫面控制
-        function onSplashImageLoad() {
-            const img = document.getElementById('splashLogoImg');
-            if (img) { img.classList.remove('opacity-0'); img.classList.add('opacity-100'); }
-        }
-        function onSplashImageError() {
-            const img = document.getElementById('splashLogoImg');
-            if (img) img.remove();
-            const fallback = document.getElementById('splashFallbackContainer');
-            if (fallback) fallback.classList.add('show-fallback');
-        }
+            if (typeof tailwind !== 'undefined') configureTailwind();
+            else {
+                var tailwindPoll = setInterval(function() {
+                    if (typeof tailwind !== 'undefined') { configureTailwind(); clearInterval(tailwindPoll); }
+                }, 20);
+                setTimeout(function() { clearInterval(tailwindPoll); }, 5000);
+            }
+        })();
     </script>
 </head>
-<body class="font-sans text-slate-800 dark:text-slate-100 min-h-screen relative slashed-zero select-none">
+<body class="font-sans bg-[#f6f7f9] dark:bg-[#0f172a] text-slate-800 dark:text-[#f8fafc] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative slashed-zero">
 
-    <div id="appSplashScreen" class="fixed inset-0 z-[9998] flex flex-col items-center justify-center transition-opacity duration-400">
+    <div id="appSplashScreen" class="fixed inset-0 z-[9998] bg-[#f6f7f9] dark:bg-[#0f172a] flex flex-col items-center justify-center text-slate-800 dark:text-white transition-opacity duration-400">
         <div id="splashFallbackContainer" class="absolute inset-0 flex flex-col items-center justify-center space-y-4 z-10">
-            <span class="text-7xl">🐾</span>
-            <h2 class="text-xl font-black tracking-wider mt-2">Ev Life APP...</h2>
+            <span class="text-7xl md:text-8xl">🐾</span>
+            <h2 class="text-xl md:text-2xl font-black tracking-wider text-slate-800 dark:text-[#f8fafc] mt-2">Ev Life Loading...</h2>
         </div>
-        <img id="splashLogoImg" src="./splash.png" alt="Splash" class="w-full h-full object-cover opacity-0 absolute inset-0 z-20 transition-opacity duration-300" onload="onSplashImageLoad()" onerror="onSplashImageError()">
+        <img id="splashLogoImg" src="./splash.png" alt="Splash Screen" class="w-full h-full object-cover opacity-0 absolute inset-0 z-20 transition-opacity duration-300" onload="onSplashImageLoad()" onerror="onSplashImageError()">
     </div>
 
     <!-- 頂部膠囊導航列 (Top Pill Bar) -->
-    <header class="sticky top-0 z-40 bg-[#f6f7f9]/90 dark:bg-[#0f172a]/90 backdrop-blur-xl ios-safe-nav border-b border-transparent transition-all">
+    <header class="sticky top-0 z-40 bg-[#f6f7f9]/90 dark:bg-[#0f172a]/90 backdrop-blur-xl pt-[env(safe-area-inset-top)] border-b border-transparent transition-all">
         <div class="flex items-center justify-between px-4 py-3 max-w-4xl mx-auto">
             <!-- 總覽按鈕 -->
             <button onclick="switchTab('home')" class="flex items-center gap-2 bg-white dark:bg-slate-800 px-4 py-2 rounded-full shadow-[0_2px_10px_rgba(0,0,0,0.03)] dark:shadow-none border border-slate-100 dark:border-slate-700 text-[11px] font-black tracking-wider transition active:scale-95">
@@ -143,7 +285,7 @@
         </div>
     </header>
 
-    <!-- 主內容區 (Main Content) - 使用 Tabs 切換 -->
+    <!-- 主內容區 (Main Content) -->
     <main class="max-w-4xl mx-auto pb-28 pt-2">
         
         <!-- 🔹 Tab 1: 首頁 (Home) -->
@@ -157,6 +299,9 @@
                 <div class="absolute bottom-4 left-6">
                     <h1 id="heroEvName" class="text-white text-2xl sm:text-3xl font-black tracking-widest drop-shadow-md">LUXGEN n7</h1>
                 </div>
+                <button class="absolute top-4 right-4 w-8 h-8 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center text-white transition active:scale-95" onclick="triggerPwaInstall()">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                </button>
             </div>
 
             <!-- 數據網格 (Stats Grid - 參考圖片風格) -->
@@ -170,7 +315,7 @@
                         <span id="statTotalKm" class="text-xl sm:text-2xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0</span>
                         <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400">km</span>
                     </div>
-                    <div class="text-[11px] font-bold text-slate-400 mt-1">總里程</div>
+                    <div class="text-[11px] font-bold text-slate-400 mt-1">當前總里程</div>
                 </div>
 
                 <!-- 2. 平均電耗 -->
@@ -243,17 +388,17 @@
                             <input type="number" step="0.1" id="inputDistance" required placeholder="120" inputmode="decimal" class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-mono font-bold focus:outline-none focus:border-amber-400 transition-colors">
                         </div>
                         <div>
-                            <label id="startSocLabel" class="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">出發前 SOC (%)</label>
+                            <label id="startSocLabel" class="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block whitespace-nowrap">出發前 SOC (%)</label>
                             <input type="number" step="1" min="0" max="100" id="inputStartSoc" required placeholder="20" inputmode="numeric" oninput="updateConvertedPowerHint()" class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-mono font-bold focus:outline-none focus:border-amber-400 transition-colors">
                         </div>
                         <div>
-                            <label id="endSocLabel" class="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">抵達後 SOC (%)</label>
+                            <label id="endSocLabel" class="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block whitespace-nowrap">抵達後 SOC (%)</label>
                             <input type="number" step="1" min="0" max="100" id="inputEndSoc" required placeholder="80" inputmode="numeric" oninput="updateConvertedPowerHint()" class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-mono font-bold focus:outline-none focus:border-amber-400 transition-colors">
                         </div>
                     </div>
 
                     <div class="text-right">
-                        <span id="powerHintText" class="text-[10px] text-amber-600 dark:text-amber-400 font-bold bg-amber-50 dark:bg-amber-900/30 px-3 py-1.5 rounded-full inline-block border border-amber-200 dark:border-amber-700/50">共消耗 0% 電量 (約 0.00 度)</span>
+                        <span id="powerHintText" class="text-[10px] text-amber-600 dark:text-amber-400 font-bold bg-amber-50 dark:bg-amber-900/30 px-3 py-1.5 rounded-full inline-block border border-amber-200 dark:border-amber-800">共消耗 0% 電量 (約 0.00 度)</span>
                     </div>
 
                     <div>
@@ -280,20 +425,22 @@
 
         <!-- 🔹 Tab 3: 紀錄列表 (Records) -->
         <div id="view-records" class="view-section px-4">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-black">歷史紀錄</h2>
-                <div class="flex gap-2">
-                    <button onclick="exportCSV()" class="text-[10px] text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-full font-bold shadow-sm border border-slate-200 dark:border-slate-700 transition active:scale-95">匯出 CSV</button>
-                    <button onclick="clearAllData()" class="text-[10px] text-rose-500 bg-rose-50 dark:bg-rose-900/30 px-3 py-1.5 rounded-full font-bold transition active:scale-95">清空</button>
-                </div>
+            <div class="flex items-center justify-between mb-2">
+                <h2 class="text-lg font-black flex items-center gap-2">
+                    <span class="text-xl">📜</span>歷史紀錄
+                </h2>
+                <button onclick="clearAllData()" class="text-[10px] text-rose-500 bg-rose-50 dark:bg-rose-900/30 px-3 py-1.5 rounded-full font-bold transition active:scale-95 border border-rose-100 dark:border-rose-800">清空全部</button>
             </div>
+            
+            <!-- 🚀 紀錄列表專屬月份切換 -->
+            <div id="monthFilterContainer_records" class="flex overflow-x-auto gap-2 no-scrollbar mb-4 pb-2"></div>
             
             <div id="noDataPlaceholder" class="hidden text-center py-16 text-slate-400">
                 <div class="text-4xl mb-2">📭</div>
                 <p class="text-xs font-bold">空空如也，快去新增第一筆紀錄吧！</p>
             </div>
 
-            <!-- 手機版卡片列表 -->
+            <!-- 手機版卡片列表 (取代 Table) -->
             <div id="recordMobileList" class="space-y-4 pb-4">
                 <!-- Javascript 動態渲染 -->
             </div>
@@ -302,20 +449,28 @@
         <!-- 🔹 Tab 4: 分析圖表 (Analysis) -->
         <div id="view-analysis" class="view-section px-4">
             <div class="bg-white dark:bg-[#1e293b] p-5 sm:p-6 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-800">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
                     <h2 class="text-base font-black flex items-center gap-2">
                         <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 w-7 h-7 rounded-full flex items-center justify-center text-xs">📊</span>
                         趨勢分析
                     </h2>
                     
-                    <div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl self-start">
+                    <div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl self-start sm:self-center shadow-inner">
                         <button onclick="setChartFilter('all')" id="btnChartAll" class="px-3 py-1.5 text-[10px] rounded-lg bg-white dark:bg-slate-600 shadow text-slate-900 dark:text-white font-bold transition-all">全部</button>
                         <button onclick="setChartFilter('efficiency')" id="btnChartEfficiency" class="px-3 py-1.5 text-[10px] rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold transition-all">電耗</button>
                         <button onclick="setChartFilter('cost')" id="btnChartCost" class="px-3 py-1.5 text-[10px] rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold transition-all">花費</button>
                     </div>
                 </div>
 
-                <div id="monthFilterContainer" class="flex overflow-x-auto gap-2 no-scrollbar mb-4 pb-1"></div>
+                <div class="flex justify-between items-center mb-4">
+                    <!-- 🚀 分析圖表專屬月份切換 -->
+                    <div id="monthFilterContainer_analysis" class="flex overflow-x-auto gap-2 no-scrollbar pb-1 flex-1 pr-2"></div>
+                    <!-- 🚀 單月統計 vs 每天逐筆切換器 -->
+                    <select id="chartTimeView" onchange="updateCharts()" class="px-2 py-1.5 text-[11px] rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-bold focus:outline-none cursor-pointer shadow-sm flex-shrink-0">
+                        <option value="monthly" selected>單月加總</option>
+                        <option value="raw">每天逐筆</option>
+                    </select>
+                </div>
                 
                 <div class="h-64 relative w-full">
                     <canvas id="efficiencyChart"></canvas>
@@ -328,112 +483,122 @@
     <!-- 底部原生感導航列 (Bottom Tab Bar) -->
     <nav class="fixed bottom-0 inset-x-0 z-50 glass-tab-bar pb-[env(safe-area-inset-bottom)]">
         <div class="flex justify-around items-center h-16 max-w-md mx-auto px-2 relative">
-            <!-- 首頁 -->
             <button onclick="switchTab('home')" id="tab-home" class="tab-btn active flex flex-col items-center gap-1 w-14 text-slate-400 transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                 <span class="text-[9px] font-bold">首頁</span>
             </button>
-            
-            <!-- 紀錄 -->
             <button onclick="switchTab('records')" id="tab-records" class="tab-btn flex flex-col items-center gap-1 w-14 text-slate-400 transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                 <span class="text-[9px] font-bold">紀錄</span>
             </button>
             
-            <!-- 中央懸浮新增按鈕 (FAB) -->
             <div class="relative -top-5 flex justify-center w-16">
                 <button onclick="switchTab('add')" id="tab-add" class="w-14 h-14 bg-slate-900 dark:bg-amber-500 text-white dark:text-slate-900 rounded-full flex items-center justify-center shadow-lg border-4 border-[#f6f7f9] dark:border-[#0f172a] transition transform active:scale-95">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
                 </button>
             </div>
             
-            <!-- 分析 -->
             <button onclick="switchTab('analysis')" id="tab-analysis" class="tab-btn flex flex-col items-center gap-1 w-14 text-slate-400 transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
                 <span class="text-[9px] font-bold">分析</span>
             </button>
-            
-            <!-- 設定 -->
             <button onclick="toggleSyncModal()" class="tab-btn flex flex-col items-center gap-1 w-14 text-slate-400 transition-colors relative">
-                <span id="syncStatusDot" class="absolute top-0 right-3 w-2 h-2 rounded-full bg-rose-500 animate-pulse hidden"></span>
+                <!-- 🚀 紅點優化：點擊過一次即消失 -->
+                <span id="syncStatusDot" class="absolute top-0 right-3 w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse hidden"></span>
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 <span class="text-[9px] font-bold">設定</span>
             </button>
         </div>
     </nav>
 
-    <!-- 全域 Toast 通知 -->
-    <div id="toast" class="fixed top-[env(safe-area-inset-top,20px)] left-1/2 -translate-x-1/2 z-[120] transform -translate-y-10 opacity-0 invisible pointer-events-none transition-all duration-300 bg-slate-900/95 dark:bg-amber-500 text-white dark:text-slate-900 px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 text-xs font-bold whitespace-nowrap mt-16">
+    <!-- 全域 Toast -->
+    <div id="toast" class="fixed top-16 left-1/2 -translate-x-1/2 z-[120] transform -translate-y-10 opacity-0 invisible pointer-events-none transition-all duration-300 bg-slate-900/95 dark:bg-[#1e293b]/95 text-white px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 text-xs font-bold whitespace-nowrap">
         <span id="toastIcon">🐾</span>
         <span id="toastMessage"></span>
     </div>
 
-    <!-- 系統設定 & 雲端同步 & PWA 下載 模態視窗 -->
+    <!-- 系統設定 & 雲端同步 模態視窗 -->
     <div id="syncModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-end sm:items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-white dark:bg-[#0f172a] sm:rounded-[2rem] rounded-t-[2rem] shadow-2xl w-full sm:max-w-lg transform translate-y-full sm:translate-y-0 sm:scale-95 transition-all duration-300 border-t sm:border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[90vh]" id="syncModalContent">
+        <div class="bg-white dark:bg-[#0f172a] sm:rounded-[2rem] rounded-t-[2rem] shadow-2xl w-full sm:max-w-lg transform translate-y-full sm:translate-y-0 sm:scale-95 transition-all duration-300 border-t sm:border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[85vh]" id="syncModalContent">
             
             <div class="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-[#1e293b]">
-                <h3 class="text-base font-black flex items-center gap-2">⚙️ 系統設定</h3>
-                <button onclick="toggleSyncModal()" class="w-8 h-8 bg-slate-200 dark:bg-slate-700 rounded-full flex justify-center items-center font-bold text-slate-500 dark:text-slate-300 active:scale-95 transition">✕</button>
+                <h3 class="text-base font-black flex items-center gap-2">⚙️ 設定與雲端備份</h3>
+                <button onclick="toggleSyncModal()" class="w-8 h-8 bg-slate-200 dark:bg-slate-700 rounded-full flex justify-center items-center font-bold text-slate-500 dark:text-slate-300">✕</button>
             </div>
             
-            <div class="p-6 space-y-5 overflow-y-auto flex-1">
-                
-                <!-- 愛車參數設定 -->
-                <div class="bg-slate-50 dark:bg-[#1e293b] p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
-                    <span class="text-xs font-black text-slate-500 dark:text-slate-400">🚗 愛車參數設定</span>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="text-[10px] font-bold text-slate-400 block mb-1">車輛名稱</label>
-                            <input type="text" id="evNameInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold focus:outline-none focus:border-amber-400 transition-colors">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-slate-400 block mb-1">電池容量 (kWh)</label>
-                            <input type="number" step="0.1" id="batteryCapacityInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold focus:outline-none focus:border-amber-400 transition-colors">
-                        </div>
-                        <div class="sm:col-span-2">
-                            <label class="text-[10px] font-bold text-slate-400 block mb-1">初始總里程 (km)</label>
-                            <input type="number" step="0.1" id="initialOdometerInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold focus:outline-none focus:border-amber-400 transition-colors">
+            <div class="flex flex-shrink-0 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#1e293b]">
+                <button onclick="switchSettingsTab('settings-tab-main')" id="btn-tab-main" class="flex-1 py-3 text-xs font-black border-r border-slate-200 dark:border-slate-700 transition-all bg-amber-400 dark:bg-amber-500 text-slate-900 shadow-sm">
+                    🛠️ 愛車與雲端
+                </button>
+                <button onclick="switchSettingsTab('settings-tab-pwa')" id="btn-tab-pwa" class="flex-1 py-3 text-xs font-black text-slate-500 dark:text-[#94a3b8] transition-all bg-slate-100 dark:bg-[#0f172a]">
+                    🐾 PWA 離線安裝
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-4 overflow-y-auto flex-1">
+                <!-- 分頁一：主要設定與雲端 -->
+                <div id="settings-tab-main" class="space-y-4">
+                    <div class="bg-slate-50 dark:bg-[#1e293b] p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+                        <span class="text-xs font-black text-slate-500 dark:text-slate-400">🚗 愛車參數設定</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-400 block mb-1">車輛名稱</label>
+                                <input type="text" id="evNameInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold focus:outline-none focus:border-amber-400">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-400 block mb-1">電池容量 (kWh)</label>
+                                <input type="number" step="0.1" id="batteryCapacityInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold focus:outline-none focus:border-amber-400">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="text-[10px] font-bold text-slate-400 block mb-1">初始總里程 (km)</label>
+                                <input type="number" step="0.1" id="initialOdometerInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold focus:outline-none focus:border-amber-400">
+                            </div>
                         </div>
                     </div>
+
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-1.5">雲端同步網址 (Google Apps Script)</label>
+                        <input type="url" id="syncUrlInput" placeholder="https://script.google.com/macros/..." class="w-full px-4 py-3 bg-slate-50 dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-mono focus:outline-none focus:border-amber-400">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 pt-2">
+                        <button onclick="syncWithCloud('auto')" class="col-span-2 bg-slate-900 dark:bg-amber-500 text-white dark:text-slate-900 text-sm font-black py-3 rounded-2xl shadow-md transition active:scale-95 flex justify-center items-center gap-1">
+                            <svg id="navSyncIcon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 4v5h-5M4 20v-5h5M4 12A8 8 0 0 1 18 6.13L20 9M20 12a8 8 0 0 1-14 5.87L4 15"></path></svg>
+                            智慧同步
+                        </button>
+                        <button onclick="forceDownload()" class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold py-3 rounded-2xl border border-slate-200 dark:border-slate-700 transition active:scale-95">⬇️ 下載覆蓋本機</button>
+                        <button onclick="forceUpload()" class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold py-3 rounded-2xl border border-slate-200 dark:border-slate-700 transition active:scale-95">⬆️ 上傳覆蓋雲端</button>
+                    </div>
+                    <button onclick="saveSyncSettingsOnly()" class="w-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-white text-xs font-bold py-3 rounded-2xl transition active:scale-95">💾 僅儲存設定 (不同步)</button>
                 </div>
 
-                <!-- Google Apps Script 雲端同步 -->
-                <div>
-                    <label class="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-1.5">雲端同步網址 (Google Apps Script)</label>
-                    <input type="url" id="syncUrlInput" placeholder="https://script.google.com/macros/..." class="w-full px-4 py-3 bg-slate-50 dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-mono focus:outline-none focus:border-amber-400 transition-colors">
-                </div>
-
-                <div class="grid grid-cols-2 gap-3 pt-1">
-                    <button onclick="syncWithCloud('auto')" class="col-span-2 bg-slate-900 dark:bg-amber-500 text-white dark:text-slate-900 text-sm font-black py-3 rounded-2xl shadow-md transition active:scale-95 flex justify-center gap-1">
-                        <svg id="navSyncIcon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 4v5h-5M4 20v-5h5M4 12A8 8 0 0 1 18 6.13L20 9M20 12a8 8 0 0 1-14 5.87L4 15"></path></svg>
-                        智慧同步
+                <!-- 分頁二：PWA 離線安裝 -->
+                <div id="settings-tab-pwa" class="space-y-4 hidden">
+                    <div class="bg-amber-50 dark:bg-amber-900/10 p-4 rounded-2xl border border-amber-200 dark:border-amber-900/50 space-y-2">
+                        <span class="text-xs text-amber-700 dark:text-amber-500 font-extrabold block">📲 甚麼是 PWA 離線安裝？</span>
+                        <p class="text-[10px] text-slate-600 dark:text-slate-400 leading-relaxed">
+                            PWA 允許您將 Ev Life 直接安裝至手機桌面，當作原生 App 快速啟用。即使在無網路環境中也能正常查看、新增日誌！
+                        </p>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-[#1e293b] p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2.5 text-xs">
+                        <span class="font-black text-slate-700 dark:text-slate-300">🔍 PWA 系統環境診斷：</span>
+                        <div class="space-y-1.5 font-bold font-mono text-[11px]" id="pwaDiagnosticList">
+                            <div id="diag-https">🟢 正在載入診斷數據...</div>
+                            <div id="diag-sw">⚪ Service Worker 未初始化</div>
+                            <div id="diag-network">🟢 在線模式 (連線正常)</div>
+                        </div>
+                    </div>
+                    <button id="pwaInstallBtn" onclick="triggerPwaInstall()" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-900 text-xs font-black py-3.5 rounded-2xl transition-all hidden justify-center items-center space-x-2 shadow-sm">
+                        <span>📲 一鍵將本系統安裝至手機桌面</span>
                     </button>
-                    <button onclick="forceDownload()" class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold py-3 rounded-2xl border border-slate-200 dark:border-slate-700 transition active:scale-95">⬇️ 雲端覆蓋本機</button>
-                    <button onclick="forceUpload()" class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold py-3 rounded-2xl border border-slate-200 dark:border-slate-700 transition active:scale-95">⬆️ 本機覆蓋雲端</button>
-                </div>
-                
-                <button onclick="saveSyncSettingsOnly()" class="w-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-white text-xs font-bold py-3 rounded-2xl transition active:scale-95">💾 僅儲存系統設定 (不同步)</button>
-
-                <!-- PWA 安裝與下載區塊 -->
-                <div class="mt-6 pt-5 border-t border-slate-200 dark:border-slate-700">
-                    <span class="text-xs font-black text-slate-500 dark:text-slate-400 block mb-3">📲 PWA 離線安裝與資源下載</span>
-                    <div id="pwaDiagnosticList" class="text-[10px] space-y-1 font-mono mb-4 bg-slate-50 dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 p-3 rounded-xl">
-                        <div id="diag-https">🟢 載入中...</div>
-                        <div id="diag-sw">⚪ 載入中...</div>
-                        <div id="diag-network">🟢 載入中...</div>
-                    </div>
-                    
-                    <button id="pwaInstallBtn" onclick="triggerPwaInstall()" class="hidden w-full bg-amber-400 text-slate-900 text-xs font-black py-3 rounded-2xl mb-3 shadow-md transition active:scale-95 justify-center items-center gap-1">
-                        安裝 APP 到主畫面
-                    </button>
-                    
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="downloadManifest()" class="bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-[10px] font-bold py-2 rounded-xl transition active:scale-95">💾 manifest.json</button>
-                        <button onclick="downloadServiceWorker()" class="bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-[10px] font-bold py-2 rounded-xl transition active:scale-95">⚙️ sw.js</button>
+                    <div class="space-y-2 border-t border-slate-200 dark:border-slate-700 pt-3">
+                        <span class="text-[10px] text-slate-400 block font-bold">🛠️ 手動部署資源下載：</span>
+                        <div class="grid grid-cols-2 gap-3 pt-1">
+                            <button onclick="downloadManifest()" class="bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 py-2.5 text-[10px] font-black rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm transition active:scale-95">💾 manifest.json</button>
+                            <button onclick="downloadServiceWorker()" class="bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 py-2.5 text-[10px] font-black rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm transition active:scale-95">⚙️ sw.js</button>
+                        </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -451,9 +616,6 @@
     </div>
 
     <script>
-        // ==========================================
-        // 核心狀態變數
-        // ==========================================
         let records = [];
         let efficiencyChartInstance = null;
         let syncUrl = "";
@@ -466,37 +628,24 @@
         let currentMonthFilter = 'all';
         let deferredPrompt = null;
 
-        // ==========================================
-        // APP UI 切換邏輯 (Tab Switching)
-        // ==========================================
+        // --- APP UI 切換邏輯 (Tab Switching) ---
         function switchTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             const activeBtn = document.getElementById('tab-' + tabId);
-            if (activeBtn && tabId !== 'add') activeBtn.classList.add('active');
+            if (activeBtn && tabId !== 'add') activeBtn.classList.add('active'); 
 
-            document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active'));
+            document.querySelectorAll('.view-section').forEach(view => {
+                view.classList.remove('active');
+            });
             document.getElementById('view-' + tabId).classList.add('active');
 
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
-            if(tabId === 'analysis' && typeof Chart !== 'undefined') updateCharts();
+            if(tabId === 'analysis') {
+                if (typeof Chart !== 'undefined') updateCharts();
+            }
         }
 
-        function showToast(message, isError = false) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastMessage').textContent = message;
-            document.getElementById('toastIcon').textContent = isError ? "⚠️" : "🐾";
-            
-            toast.className = `fixed top-[env(safe-area-inset-top,20px)] left-1/2 -translate-x-1/2 z-[120] transform translate-y-0 opacity-100 visible pointer-events-auto transition-all duration-300 bg-slate-900/95 dark:bg-amber-500 text-white dark:text-slate-900 px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 text-xs font-bold whitespace-nowrap mt-16`;
-            
-            setTimeout(() => {
-                toast.className = `fixed top-[env(safe-area-inset-top,20px)] left-1/2 -translate-x-1/2 z-[120] transform -translate-y-10 opacity-0 invisible pointer-events-none transition-all duration-300 bg-slate-900/95 dark:bg-amber-500 text-white dark:text-slate-900 px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 text-xs font-bold whitespace-nowrap mt-16`;
-            }, 2500);
-        }
-
-        // ==========================================
-        // 初始化與設定
-        // ==========================================
         function setupThemeIcons() {
             const isDark = document.documentElement.classList.contains('dark');
             document.getElementById('themeSunIcon').style.display = isDark ? 'block' : 'none';
@@ -506,9 +655,11 @@
         function toggleTheme() {
             const htmlEl = document.documentElement;
             if (htmlEl.classList.contains('dark')) {
-                htmlEl.classList.remove('dark'); localStorage.setItem('ev_life_theme', 'light');
+                htmlEl.classList.remove('dark');
+                localStorage.setItem('ev_life_theme', 'light');
             } else {
-                htmlEl.classList.add('dark'); localStorage.setItem('ev_life_theme', 'dark');
+                htmlEl.classList.add('dark');
+                localStorage.setItem('ev_life_theme', 'dark');
             }
             setupThemeIcons();
             if (typeof Chart !== 'undefined') updateCharts();
@@ -516,8 +667,6 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             initAppCore();
-            const splash = document.getElementById('appSplashScreen');
-            if (splash) setTimeout(() => { splash.classList.add('opacity-0'); setTimeout(() => splash.remove(), 400); }, 100);
         });
 
         function initAppCore() {
@@ -548,24 +697,20 @@
             updatePwaDiagnostic();
 
             const localData = localStorage.getItem('ev_life_records');
-            if (localData) { records = JSON.parse(localData).map(rec => parseRecordSoc(rec)); }
-            else { localStorage.setItem('ev_life_records', JSON.stringify(records)); }
-
-            let lastUpdated = parseInt(localStorage.getItem('ev_life_last_updated')) || 0;
-            if (records.length > 0 && lastUpdated === 0) localStorage.setItem('ev_life_last_updated', Date.now());
+            if (localData) {
+                records = JSON.parse(localData).map(rec => parseRecordSoc(rec));
+            }
 
             renderDashboard();
             autoFillStartSoc(); 
             
-            if ('requestIdleCallback' in window) requestIdleCallback(() => { if (typeof Chart !== 'undefined') updateCharts(); if (syncUrl) syncWithCloud('auto', true); });
-            else setTimeout(() => { if (typeof Chart !== 'undefined') updateCharts(); if (syncUrl) syncWithCloud('auto', true); }, 500);
+            if ('requestIdleCallback' in window) requestIdleCallback(() => { if (typeof Chart !== 'undefined') updateCharts(); });
+            else setTimeout(() => { if (typeof Chart !== 'undefined') updateCharts(); }, 200);
 
             setupDelegatedEvents();
         }
 
-        // ==========================================
-        // 資料處理核心邏輯
-        // ==========================================
+        // --- 核心邏輯 ---
         function saveLocalState(newRecords) {
             records = newRecords;
             const timestamp = Date.now();
@@ -581,24 +726,12 @@
                 costInput.value = "0"; costInput.disabled = true; costInput.classList.add('opacity-40');
                 document.getElementById('startSocLabel').textContent = "出發前 SOC (%)";
                 document.getElementById('endSocLabel').textContent = "抵達後 SOC (%)";
-                // 只有「純行駛」才自動帶入上一次的 endSoc
                 if (editingRecordId === null) autoFillStartSoc();
             } else {
                 if (editingRecordId === null && costInput.value === "0") costInput.value = "";
                 costInput.disabled = false; costInput.classList.remove('opacity-40');
                 document.getElementById('startSocLabel').textContent = "充電前 SOC (%)";
                 document.getElementById('endSocLabel').textContent = "充電後 SOC (%)";
-                
-                // 若從「純行駛」切回「充電」，且起點電量等於上次結束電量，則清空 (避免自動帶入)
-                if (editingRecordId === null) {
-                    const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
-                    if (activeRecords.length > 0) {
-                        const lastRecord = [...activeRecords].sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-                        if (lastRecord && document.getElementById('inputStartSoc').value == lastRecord.endSoc) {
-                            document.getElementById('inputStartSoc').value = '';
-                        }
-                    }
-                }
             }
             updateConvertedPowerHint();
         }
@@ -610,61 +743,91 @@
             const hint = document.getElementById('powerHintText');
             const delta = Math.abs(end - start);
             const kwh = batteryCapacity * (delta / 100);
-            hint.textContent = `共${type === "未充電" ? "消耗" : "補給"} ${delta.toFixed(0)}% 電量 (約 ${kwh.toFixed(2)} 度)`;
+            hint.textContent = `共${type === "未充電" ? "消耗" : "補給"} ${delta}% 電量 (約 ${kwh.toFixed(2)} 度)`;
         }
 
+        // 🚀 精準修正：只有選純行駛才會帶入
         function autoFillStartSoc() {
-            // 只有「未充電」才執行自動帶入，若輸入框有值也不覆蓋
-            if (document.getElementById('inputChargeType').value !== "未充電" || editingRecordId !== null || document.getElementById('inputStartSoc').value !== '') return;
+            const startSocInput = document.getElementById('inputStartSoc');
+            const chargeTypeSelect = document.getElementById('inputChargeType');
+            
+            if (!startSocInput || !chargeTypeSelect || editingRecordId !== null) return;
+            if (chargeTypeSelect.value !== "未充電") return; // 確保只有未充電才會填
+            if (startSocInput.value !== '') return;
+
             const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
             if (activeRecords.length === 0) return;
-            const lastRecord = [...activeRecords].sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-            if (lastRecord && lastRecord.endSoc !== undefined) {
-                document.getElementById('inputStartSoc').value = lastRecord.endSoc;
+
+            // 確保拿到的是日期最新的那筆紀錄
+            const sortedRecords = [...activeRecords].sort((a, b) => new Date(b.date) - new Date(a.date) || parseInt(b.id, 10) - parseInt(a.id, 10));
+            const lastRecord = sortedRecords[0];
+
+            if (lastRecord && lastRecord.endSoc !== undefined && !isNaN(lastRecord.endSoc)) {
+                startSocInput.value = lastRecord.endSoc;
                 updateConvertedPowerHint();
             }
         }
 
-        function setupNumericRestrictions() {
-            const blockKey = e => { if(['e','E','+','-'].includes(e.key)) e.preventDefault(); };
-            const restrictPercent = function() {
-                this.value = this.value.replace(/[^0-9]/g, ''); 
-                let val = parseInt(this.value);
-                if (!isNaN(val)) { if (val > 100) this.value = '100'; if (val < 0) this.value = '0'; }
-                updateConvertedPowerHint();
-            };
-            const restrictCost = function() {
-                this.value = this.value.replace(/[^0-9]/g, ''); 
-                let val = parseInt(this.value);
-                if (!isNaN(val) && val < 0) this.value = '0';
-            };
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = message;
+            toast.className = `fixed top-[70px] left-1/2 -translate-x-1/2 z-[120] transform translate-y-0 opacity-100 visible pointer-events-auto transition-all duration-300 bg-slate-900/95 dark:bg-amber-500 text-white dark:text-slate-900 px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 text-xs font-bold whitespace-nowrap`;
+            setTimeout(() => {
+                toast.className = `fixed top-[70px] left-1/2 -translate-x-1/2 z-[120] transform -translate-y-10 opacity-0 invisible pointer-events-none transition-all duration-300 bg-slate-900/95 dark:bg-amber-500 text-white dark:text-slate-900 px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 text-xs font-bold whitespace-nowrap`;
+            }, 2500);
+        }
 
-            const dist = document.getElementById('inputDistance');
-            if (dist) {
-                dist.addEventListener('keypress', blockKey);
-                dist.addEventListener('keypress', function(e) { if (e.key === '.' && this.value.includes('.')) e.preventDefault(); });
-                dist.addEventListener('input', updateConvertedPowerHint);
-            }
-            
-            ['inputStartSoc', 'inputEndSoc'].forEach(id => {
-                const el = document.getElementById(id);
-                if(el) { el.addEventListener('keypress', blockKey); el.addEventListener('input', restrictPercent); }
+        // --- 渲染畫面與月份過濾器 ---
+        function renderMonthFilters() {
+            const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.date);
+            const months = new Set();
+            activeRecords.forEach(rec => {
+                const dateStr = rec.date.includes('T') ? rec.date.split('T')[0] : rec.date;
+                if (dateStr.length >= 7) months.add(dateStr.substring(0, 7)); 
             });
 
-            const cost = document.getElementById('inputCost');
-            if(cost) { cost.addEventListener('keypress', blockKey); cost.addEventListener('input', restrictCost); }
+            const sortedMonths = Array.from(months).sort().reverse();
+            
+            const activeClass = "border-amber-400 bg-amber-400 text-slate-900 shadow-sm";
+            const inactiveClass = "border-slate-200 dark:border-slate-700 bg-white dark:bg-[#1e293b] text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800";
+
+            let html = `<button onclick="setMonthFilter('all')" class="flex-shrink-0 px-4 py-1.5 text-[11px] rounded-full transition-all border ${currentMonthFilter === 'all' ? activeClass : inactiveClass} font-black">全部紀錄</button>`;
+
+            sortedMonths.forEach(m => {
+                html += `<button onclick="setMonthFilter('${m}')" class="flex-shrink-0 px-4 py-1.5 text-[11px] rounded-full transition-all border ${currentMonthFilter === m ? activeClass : inactiveClass} font-black">${m.replace('-', '/')}</button>`;
+            });
+
+            const cRec = document.getElementById('monthFilterContainer_records');
+            const cAna = document.getElementById('monthFilterContainer_analysis');
+            if (cRec) cRec.innerHTML = html;
+            if (cAna) cAna.innerHTML = html;
         }
 
-        // ==========================================
-        // 渲染資料 (Render Dashboard & Records)
-        // ==========================================
+        function setMonthFilter(month) {
+            currentMonthFilter = month;
+            const timeViewSelect = document.getElementById('chartTimeView');
+            if (timeViewSelect) {
+                if (month !== 'all') {
+                    timeViewSelect.value = 'raw';
+                    timeViewSelect.disabled = true;
+                    timeViewSelect.classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    timeViewSelect.value = 'monthly';
+                    timeViewSelect.disabled = false;
+                    timeViewSelect.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            }
+            renderDashboard();
+            if(typeof Chart !== 'undefined') updateCharts();
+        }
+
         function renderDashboard() {
             const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.date);
             activeRecords.sort((a, b) => new Date(a.date) - new Date(b.date) || parseInt(a.id, 10) - parseInt(b.id, 10));
             
             let filteredRecords = activeRecords;
             if (currentMonthFilter !== 'all') {
-                filteredRecords = activeRecords.filter(rec => (rec.date.includes('T') ? rec.date.split('T')[0] : rec.date).startsWith(currentMonthFilter));
+                filteredRecords = activeRecords.filter(rec => rec.date.startsWith(currentMonthFilter));
             }
 
             renderMonthFilters();
@@ -675,14 +838,13 @@
             if (filteredRecords.length === 0) {
                 mobileList.innerHTML = '';
                 placeholder.classList.remove('hidden');
-                updateStats(0, 0, 0, 0, currentMonthFilter === 'all' ? initialOdometer : 0);
-                if(typeof Chart !== 'undefined') updateCharts();
+                updateStats(0, 0, 0, 0, 0);
                 return;
             } else {
                 placeholder.classList.add('hidden');
             }
 
-            // 計算 ODO 與消耗
+            // 計算 ODO
             let rollingOdo = initialOdometer;
             activeRecords.forEach((rec, i) => {
                 let consumedSoc = 0;
@@ -690,7 +852,7 @@
                 else {
                     const prev = activeRecords[i - 1];
                     consumedSoc = prev.endSoc !== undefined ? prev.endSoc - rec.startSoc : (rec.chargeType === "未充電" ? rec.startSoc - rec.endSoc : 100 - rec.startSoc);
-                    if (consumedSoc < 0) consumedSoc = rec.chargeType === "未充電" ? Math.max(0, rec.startSoc - rec.endSoc) : Math.max(0, 100 - rec.startSoc);
+                    if (consumedSoc < 0) consumedSoc = Math.max(0, rec.startSoc - rec.endSoc);
                 }
                 rec.consumedSocPercent = consumedSoc;
                 rollingOdo += parseFloat(rec.distance) || 0;
@@ -704,9 +866,11 @@
                 totalPowerReal += batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
             });
 
-            // 尋找最佳 MVP 勳章 (最高電耗)
+            // 尋找黃金右腳 MVP
+            const displayRecords = [...filteredRecords].reverse();
             let maxEff = 0, mvpId = null;
-            filteredRecords.forEach(rec => {
+            
+            displayRecords.forEach(rec => {
                 const consumedPwr = batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
                 if (consumedPwr > 0) {
                     const eff = parseFloat((rec.distance / consumedPwr).toFixed(2));
@@ -715,42 +879,50 @@
             });
 
             let html = '';
-            [...filteredRecords].reverse().forEach(rec => {
+            displayRecords.forEach(rec => {
                 const dist = parseFloat(rec.distance) || 0;
                 const pwr = batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
                 const eff = pwr > 0 ? (dist / pwr).toFixed(2) : "0.00";
-                
-                let pPercent = rec.powerPercent;
-                if (pPercent === undefined || isNaN(pPercent) || pPercent === null) {
-                    pPercent = (rec.startSoc !== undefined && rec.endSoc !== undefined) ? Math.abs(rec.endSoc - rec.startSoc) : 0;
-                }
-                
                 const typeStyle = rec.chargeType.includes('快充') ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400' : (rec.chargeType.includes('慢充') ? 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-400' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400');
-                const displayDate = rec.date.includes('T') ? rec.date.split('T')[0] : rec.date;
+                
+                // 🚀 黃金右腳判斷與樣式
                 const isMVP = rec.id === mvpId && maxEff > 0;
-                const mvpIcon = isMVP ? '<div class="absolute -top-1.5 -right-1.5 text-[10px] bg-amber-100 dark:bg-amber-700 border border-amber-300 dark:border-amber-500 rounded-full w-[20px] h-[20px] flex items-center justify-center shadow-md z-10" title="此列表中最神右腳">👑</div>' : '';
-
-                // 修改這行：加強防止換行，字型微調
-                const socText = (rec.startSoc !== undefined && rec.endSoc !== undefined) ? `${rec.startSoc}%➔${rec.endSoc}%` : `${pPercent}%`;
+                const mvpBadge = isMVP ? `<span class="inline-flex items-center ml-1 px-1.5 py-0.5 rounded border border-amber-400 bg-amber-100 text-amber-700 text-[10px] font-black shadow-sm">👑 黃金右腳</span>` : '';
+                const cardClass = isMVP 
+                    ? "bg-gradient-to-br from-amber-50 to-white dark:from-amber-950/40 dark:to-[#1e293b] p-4 rounded-[1.5rem] shadow-md border-2 border-amber-400 dark:border-amber-500 relative"
+                    : "bg-white dark:bg-[#1e293b] p-4 rounded-[1.5rem] shadow-sm border border-slate-100 dark:border-slate-800 relative";
 
                 html += `
-                <div class="bg-white dark:bg-[#1e293b] p-4 rounded-[1.5rem] shadow-sm border border-slate-100 dark:border-slate-800 relative">
-                    ${mvpIcon}
-                    <div class="flex justify-between items-center mb-3">
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs font-black font-mono">${displayDate}</span>
+                <div class="${cardClass}">
+                    <div class="flex justify-between items-center mb-3 border-b border-slate-50 dark:border-slate-800/50 pb-2">
+                        <div class="flex items-center flex-wrap gap-2">
+                            <span class="text-xs font-black font-mono">${rec.date}</span>
                             <span class="px-2 py-0.5 rounded-md text-[10px] font-black ${typeStyle}">${rec.chargeType.split('-')[1] || rec.chargeType}</span>
+                            ${mvpBadge}
                         </div>
                         <div class="flex gap-2">
-                            <button class="edit-btn text-slate-400 hover:text-amber-500 transition p-1" data-id="${rec.id}"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
-                            <button class="delete-btn text-slate-400 hover:text-rose-500 transition p-1" data-id="${rec.id}"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.895-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                            <button class="edit-btn text-slate-400 hover:text-amber-500 transition" data-id="${rec.id}"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                            <button class="delete-btn text-slate-400 hover:text-rose-500 transition" data-id="${rec.id}"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.895-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                         </div>
                     </div>
-                    <div class="grid grid-cols-4 gap-1 sm:gap-2 text-center divide-x divide-slate-100 dark:divide-slate-800">
-                        <div><div class="text-[10px] text-slate-400 font-bold mb-1">里程</div><div class="font-mono font-black text-sm">${dist}</div></div>
-                        <div><div class="text-[10px] text-slate-400 font-bold mb-1">電耗</div><div class="font-mono font-black text-sm text-teal-500">${eff}</div></div>
-                        <div class="col-span-1 px-0.5"><div class="text-[10px] text-slate-400 font-bold mb-1">電量</div><div class="font-mono font-black text-[11px] sm:text-xs mt-0.5 whitespace-nowrap tracking-tighter">${socText}</div></div>
-                        <div><div class="text-[10px] text-slate-400 font-bold mb-1">花費</div><div class="font-mono font-black text-sm">$${rec.cost}</div></div>
+                    <!-- 🚀 安卓排版優化：防換行 Flexbox -->
+                    <div class="flex justify-between items-center text-center divide-x divide-slate-100 dark:divide-slate-800">
+                        <div class="flex-1 px-1">
+                            <div class="text-[10px] text-slate-400 font-bold mb-1">里程</div>
+                            <div class="font-mono font-black text-[13px]">${dist}</div>
+                        </div>
+                        <div class="flex-1 px-1">
+                            <div class="text-[10px] text-slate-400 font-bold mb-1">電耗</div>
+                            <div class="font-mono font-black text-[13px] ${isMVP ? 'text-amber-600 dark:text-amber-400' : 'text-teal-500'}">${eff}</div>
+                        </div>
+                        <div class="flex-[1.5] px-1">
+                            <div class="text-[10px] text-slate-400 font-bold mb-1">電量</div>
+                            <div class="font-mono font-black text-[11px] sm:text-[13px] mt-0.5 whitespace-nowrap tracking-tighter">${rec.startSoc}%➔${rec.endSoc}%</div>
+                        </div>
+                        <div class="flex-1 px-1">
+                            <div class="text-[10px] text-slate-400 font-bold mb-1">花費</div>
+                            <div class="font-mono font-black text-[13px]">$${rec.cost}</div>
+                        </div>
                     </div>
                     ${rec.note ? `<div class="mt-3 pt-2 border-t border-slate-50 dark:border-slate-800 text-[11px] text-slate-500 font-bold">📝 ${rec.note}</div>` : ''}
                 </div>`;
@@ -760,7 +932,6 @@
             const avgEff = totalPowerReal > 0 ? (totalKm / totalPowerReal) : 0;
             const costPerKm = totalKm > 0 ? (totalCost / totalKm) : 0;
             updateStats(totalKm, avgEff, totalCost, costPerKm, currentMonthFilter === 'all' ? initialOdometer : 0);
-            if(typeof Chart !== 'undefined') updateCharts();
         }
 
         function updateStats(km, eff, cost, cpk, baseOdo) {
@@ -770,40 +941,101 @@
             document.getElementById('statCostPerKm').textContent = cpk.toFixed(2);
         }
 
-        function renderMonthFilters() {
-            let container = document.getElementById('monthFilterContainer');
-            if (!container) return;
-
-            const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.date);
-            const months = new Set();
-            activeRecords.forEach(rec => {
-                const d = rec.date.includes('T') ? rec.date.split('T')[0] : rec.date;
-                if (d.length >= 7) months.add(d.substring(0, 7)); 
+        // --- Chart.js 分析圖表 ---
+        function setChartFilter(filter) {
+            currentChartFilter = filter;
+            ['btnChartAll', 'btnChartEfficiency', 'btnChartCost'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) btn.className = "px-3 py-1.5 text-[10px] rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold transition-all bg-transparent";
             });
-
-            const sortedMonths = Array.from(months).sort().reverse();
-            let html = `<button onclick="setMonthFilter('all')" class="flex-shrink-0 px-3 py-1.5 text-[11px] rounded-xl transition-all border-2 ${currentMonthFilter === 'all' ? 'border-amber-400 bg-amber-400 text-slate-900 font-black shadow-sm' : 'border-transparent bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 font-bold'}">全部紀錄</button>`;
-
-            sortedMonths.forEach(m => {
-                html += `<button onclick="setMonthFilter('${m}')" class="flex-shrink-0 px-3 py-1.5 text-[11px] rounded-xl transition-all border-2 ${currentMonthFilter === m ? 'border-indigo-400 bg-indigo-500 text-white font-black shadow-sm' : 'border-transparent bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 font-bold'}">${m.replace('-', '/')}</button>`;
-            });
-            container.innerHTML = html;
+            const activeBtn = document.getElementById(`btnChart${filter.charAt(0).toUpperCase() + filter.slice(1)}`);
+            if (activeBtn) activeBtn.className = "px-3 py-1.5 text-[10px] rounded-lg bg-white dark:bg-slate-600 shadow text-slate-900 dark:text-white font-bold transition-all";
+            updateCharts();
         }
 
-        function setMonthFilter(month) { currentMonthFilter = month; renderDashboard(); }
+        function updateCharts() {
+            const canvasElement = document.getElementById('efficiencyChart');
+            if (!canvasElement || typeof Chart === 'undefined') return;
 
-        // ==========================================
-        // 表單操作 (CRUD)
-        // ==========================================
-        function setupDelegatedEvents() {
-            document.getElementById('recordMobileList').addEventListener('click', (e) => {
-                const editBtn = e.target.closest('.edit-btn');
-                const delBtn = e.target.closest('.delete-btn');
-                if (editBtn) editRecord(editBtn.getAttribute('data-id'));
-                else if (delBtn) confirmDeleteRecord(delBtn.getAttribute('data-id'));
-            });
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            const labelColor = isDarkMode ? '#9ca3af' : '#64748b'; 
+            const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.03)';
+            const tooltipBg = isDarkMode ? 'rgba(15, 23, 42, 0.9)' : 'rgba(255, 255, 255, 0.95)';
+            const tooltipBorder = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)';
+
+            let chartData = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
+            if (currentMonthFilter !== 'all') {
+                chartData = chartData.filter(rec => rec.date.startsWith(currentMonthFilter));
+            }
+
+            const timeView = document.getElementById('chartTimeView')?.value || 'monthly';
+            let labels = [], efficiencies = [], costs = [];
+
+            if (timeView === 'monthly' && currentMonthFilter === 'all') {
+                const monthlyMap = {};
+                chartData.forEach(rec => {
+                    if (!rec.date || rec.date.length < 7) return;
+                    const month = rec.date.substring(0, 7);
+                    if (!monthlyMap[month]) monthlyMap[month] = { distance: 0, cost: 0, consumedPower: 0 };
+                    monthlyMap[month].distance += (parseFloat(rec.distance) || 0);
+                    monthlyMap[month].cost += (parseFloat(rec.cost) || 0);
+                    monthlyMap[month].consumedPower += batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
+                });
+                const sortedMonths = Object.keys(monthlyMap).sort();
+                labels = sortedMonths.map(m => m.replace('-', '/'));
+                efficiencies = sortedMonths.map(m => monthlyMap[m].consumedPower > 0 ? parseFloat((monthlyMap[m].distance / monthlyMap[m].consumedPower).toFixed(2)) : 0);
+                costs = sortedMonths.map(m => monthlyMap[m].cost);
+            } else {
+                labels = chartData.map(rec => currentMonthFilter === 'all' ? rec.date.substring(5) : rec.date.substring(8));
+                efficiencies = chartData.map(rec => {
+                    const power = batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
+                    return power > 0 ? parseFloat((rec.distance / power).toFixed(2)) : 0;
+                });
+                costs = chartData.map(rec => rec.cost);
+            }
+
+            const datasets = [];
+            const scalesConfig = { x: { grid: { display: false, drawBorder: false }, ticks: { color: labelColor, font: { family: "'SF Mono', SFMono-Regular, sans-serif", size: 10, weight: '600' } } } };
+            const ctx = canvasElement.getContext('2d');
+
+            if (currentChartFilter === 'all' || currentChartFilter === 'efficiency') {
+                let gradient = ctx.createLinearGradient(0, 0, 0, 250);
+                gradient.addColorStop(0, isDarkMode ? 'rgba(45, 212, 191, 0.4)' : 'rgba(20, 184, 166, 0.2)'); 
+                gradient.addColorStop(1, 'rgba(45, 212, 191, 0.0)'); 
+                datasets.push({
+                    label: '平均電耗 (km/度)', data: efficiencies, borderColor: isDarkMode ? '#2dd4bf' : '#0d9488', borderWidth: 3, 
+                    pointBackgroundColor: isDarkMode ? '#1e293b' : '#ffffff', pointBorderColor: isDarkMode ? '#2dd4bf' : '#0d9488', pointBorderWidth: 2, pointRadius: 3, 
+                    tension: 0.4, yAxisID: 'yEfficiency', fill: true, backgroundColor: gradient
+                });
+                scalesConfig.yEfficiency = { type: 'linear', position: 'left', title: {display: false}, ticks: { color: isDarkMode ? '#2dd4bf' : '#0d9488', font: { family: "'SF Mono', SFMono-Regular, sans-serif", weight: '600' }, maxTicksLimit: 6 }, border: { display: false }, grid: { color: gridColor } };
+            }
+
+            if (currentChartFilter === 'all' || currentChartFilter === 'cost') {
+                let barGrad = ctx.createLinearGradient(0, 0, 0, 200);
+                barGrad.addColorStop(0, isDarkMode ? 'rgba(251, 191, 36, 0.8)' : 'rgba(245, 158, 11, 0.7)');
+                barGrad.addColorStop(1, isDarkMode ? 'rgba(251, 191, 36, 0.2)' : 'rgba(245, 158, 11, 0.2)');
+                datasets.push({ label: '補給費用 (元)', type: 'bar', data: costs, backgroundColor: barGrad, borderRadius: 4, yAxisID: 'yCost', barThickness: 12 });
+                scalesConfig.yCost = { type: 'linear', position: 'right', title: {display: false}, ticks: { color: isDarkMode ? '#fbbf24' : '#f59e0b', font: { family: "'SF Mono', SFMono-Regular, sans-serif", weight: '600' }, maxTicksLimit: 6 }, border: { display: false }, grid: { display: false } };
+            }
+
+            if (efficiencyChartInstance) {
+                efficiencyChartInstance.data.labels = labels; efficiencyChartInstance.data.datasets = datasets; efficiencyChartInstance.options.scales = scalesConfig;
+                efficiencyChartInstance.options.plugins.legend.labels.color = labelColor; efficiencyChartInstance.options.plugins.tooltip.backgroundColor = tooltipBg; efficiencyChartInstance.options.plugins.tooltip.titleColor = isDarkMode ? '#f8fafc' : '#1e293b'; efficiencyChartInstance.options.plugins.tooltip.bodyColor = isDarkMode ? '#cbd5e1' : '#475569'; efficiencyChartInstance.options.plugins.tooltip.borderColor = tooltipBorder;
+                efficiencyChartInstance.update();
+            } else {
+                efficiencyChartInstance = new Chart(ctx, {
+                    type: 'line', data: { labels: labels, datasets: datasets },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, 
+                        plugins: { legend: { position: 'top', align: 'end', labels: { color: labelColor, boxWidth: 8, boxHeight: 8, usePointStyle: true, font: { family: "'Noto Sans TC', sans-serif", size: 11, weight: '600' } } },
+                        tooltip: { backgroundColor: tooltipBg, titleColor: isDarkMode ? '#f8fafc' : '#1e293b', bodyColor: isDarkMode ? '#cbd5e1' : '#475569', borderColor: tooltipBorder, borderWidth: 1, borderRadius: 12, padding: 12, backdropFilter: 'blur(8px)', titleFont: { family: "'Noto Sans TC', sans-serif", weight: 'bold', size: 13 }, bodyFont: { family: "'Noto Sans TC', sans-serif", weight: '500', size: 12 } } },
+                        scales: scalesConfig
+                    }
+                });
+            }
         }
 
+        // --- 表單操作 ---
         async function addRecord(e) {
             e.preventDefault();
             const date = document.getElementById('inputDate').value;
@@ -814,26 +1046,24 @@
             const cost = parseInt(document.getElementById('inputCost').value) || 0;
             const note = document.getElementById('inputNote').value.trim();
 
-            if (!date || isNaN(distance) || isNaN(startSoc) || isNaN(endSoc) || ((chargeType === "未充電") ? (distance > 0) : (distance >= 0)) === false || startSoc < 0 || endSoc < 0) {
-                showToast("請輸入有效的里程與能耗數值", true); return;
+            if (!date || isNaN(distance) || isNaN(startSoc) || isNaN(endSoc)) {
+                showToast("請填寫完整數值！"); return;
             }
 
-            const powerPercent = Math.abs(chargeType === "未充電" ? startSoc - endSoc : endSoc - startSoc);
+            const powerPercent = Math.abs(startSoc - endSoc);
             const power = batteryCapacity * (powerPercent / 100);
 
             if (editingRecordId) {
-                const index = records.findIndex(r => r.id === editingRecordId);
-                if (index !== -1) {
-                    records[index] = { ...records[index], date, chargeType, distance, power: parseFloat(power.toFixed(3)), powerPercent, startSoc, endSoc, cost, note };
-                    saveLocalState(records);
-                    showToast("修改成功！✨");
-                }
-                cancelEdit();
+                const idx = records.findIndex(r => r.id === editingRecordId);
+                if (idx > -1) records[idx] = { ...records[idx], date, chargeType, distance, power: parseFloat(power.toFixed(3)), powerPercent, startSoc, endSoc, cost, note };
+                saveLocalState(records);
+                showToast("修改成功！✨");
             } else {
                 saveLocalState([...records, { id: Date.now().toString(), date, chargeType, distance, power: parseFloat(power.toFixed(3)), powerPercent, startSoc, endSoc, cost, note }]);
                 showToast("新增成功！🚗");
-                cancelEdit(); 
             }
+            
+            cancelEdit();
             renderDashboard();
             switchTab('records'); 
             if (syncUrl) syncWithCloud('auto', true);
@@ -843,78 +1073,59 @@
             const rec = records.find(r => r.id === id);
             if (!rec) return;
             
-            document.getElementById('inputDate').value = rec.date.includes('T') ? rec.date.split('T')[0] : rec.date;
+            document.getElementById('inputDate').value = rec.date;
             document.getElementById('inputDistance').value = rec.distance;
-            document.getElementById('inputStartSoc').value = rec.startSoc !== undefined ? rec.startSoc : '';
-            document.getElementById('inputEndSoc').value = rec.endSoc !== undefined ? rec.endSoc : '';
+            document.getElementById('inputStartSoc').value = rec.startSoc;
+            document.getElementById('inputEndSoc').value = rec.endSoc;
             document.getElementById('inputNote').value = rec.note || '';
             document.getElementById('inputChargeType').value = rec.chargeType;
+            document.getElementById('inputCost').value = rec.cost || 0;
             
             editingRecordId = id;
             handleChargeTypeChange();
             
-            document.getElementById('inputCost').value = !isNaN(parseInt(rec.cost, 10)) ? parseInt(rec.cost, 10) : 0;
-            updateConvertedPowerHint();
-            
             document.getElementById('formTitle').textContent = "編輯紀錄";
-            document.getElementById('submitBtnText').textContent = "儲存修改";
             document.getElementById('cancelEditBtn').classList.remove('hidden');
-            switchTab('add');
+            switchTab('add'); 
         }
 
         function cancelEdit() {
             editingRecordId = null;
             document.getElementById('formTitle').textContent = "記錄本次旅程";
-            document.getElementById('submitBtnText').textContent = "儲存紀錄";
             document.getElementById('cancelEditBtn').classList.add('hidden');
-            
+            document.getElementById('recordForm').reset();
             document.getElementById('inputDate').value = new Date().toISOString().split('T')[0];
-            ['inputDistance', 'inputStartSoc', 'inputEndSoc', 'inputCost', 'inputNote'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.value = '';
-            });
-            const costIn = document.getElementById('inputCost');
-            if(costIn) { costIn.disabled=false; costIn.classList.remove('opacity-40'); }
-            
-            document.getElementById('inputChargeType').value = "DC-快充";
             handleChargeTypeChange(); 
-            autoFillStartSoc();
         }
 
         function confirmDeleteRecord(id) {
-            const target = records.find(rec => rec.id === id);
-            if (!target) return;
-            showConfirmModal("確認刪除", `您即將刪除 ${target.date.includes('T') ? target.date.split('T')[0] : target.date} 的紀錄，刪除後將同步更新雲端。`, function() {
+            showConfirmModal("確認刪除", "刪除後無法復原，是否繼續？", function() {
                 const updated = records.filter(rec => rec.id !== id);
-                if (updated.length === 0) localStorage.setItem('ev_life_cleared', 'true');
+                if(updated.length === 0) localStorage.setItem('ev_life_cleared', 'true');
                 saveLocalState(updated);
                 renderDashboard();
                 showToast("已刪除！🗑️");
-                if (syncUrl) syncWithCloud('auto', true);
             });
         }
 
         function clearAllData() {
-            showConfirmModal("清空全部紀錄", "警告：這將徹底抹除裝置與雲端上所有的里程與能耗記錄！建議先匯出備份。", function() {
+            showConfirmModal("清空全部紀錄", "警告：這將徹底刪除裝置上所有數據！", function() {
                 localStorage.setItem('ev_life_cleared', 'true');
                 saveLocalState([]);
                 renderDashboard();
-                showToast("歷史紀錄已清空 🐾");
-                if (syncUrl) syncWithCloud('auto');
+                showToast("紀錄已清空");
             });
         }
 
-        // ==========================================
-        // 模態框與設定
-        // ==========================================
+        // --- 設定與同步模態框 ---
         function toggleSyncModal() {
+            // 🚀 紅點優化：一旦點開過，就標記為已讀並隱藏
+            localStorage.setItem('ev_life_sync_dismissed', 'true');
+            updateSyncUiStatus();
+
             const modal = document.getElementById('syncModal');
             const content = document.getElementById('syncModalContent');
             if (modal.classList.contains('hidden')) {
-                document.getElementById('evNameInput').value = evName;
-                document.getElementById('batteryCapacityInput').value = batteryCapacity;
-                document.getElementById('initialOdometerInput').value = initialOdometer;
-                
                 modal.classList.remove('hidden');
                 setTimeout(() => {
                     modal.classList.remove('opacity-0');
@@ -947,42 +1158,102 @@
                 content.classList.remove('scale-95');
             }, 10);
         }
-        
-        function saveSyncSettingsOnly() {
-            const urlInput = document.getElementById('syncUrlInput').value.trim();
-            if (urlInput && !urlInput.startsWith('https://script.google.com/')) {
-                showToast("請輸入正確的 GAS 網址", true); return;
-            }
-            syncUrl = urlInput; localStorage.setItem('ev_life_sync_url', syncUrl);
+        document.getElementById('confirmSuccessBtn').onclick = () => { if(activeConfirmCallback) activeConfirmCallback(); closeConfirmModal(); };
 
-            evName = document.getElementById('evNameInput').value.trim() || "LUXGEN n7";
+        // --- 雜項輔助函式 ---
+        function setupDelegatedEvents() {
+            document.getElementById('recordMobileList').addEventListener('click', (e) => {
+                const editBtn = e.target.closest('.edit-btn');
+                const delBtn = e.target.closest('.delete-btn');
+                if (editBtn) editRecord(editBtn.getAttribute('data-id'));
+                else if (delBtn) confirmDeleteRecord(delBtn.getAttribute('data-id'));
+            });
+        }
+
+        function parseRecordSoc(rec) {
+            let startSoc = rec.startSoc, endSoc = rec.endSoc, cleanNote = rec.note || '';
+            if (typeof rec.note === 'string' && rec.note.startsWith('[SOC:')) {
+                const match = rec.note.match(/^\[SOC:(\d+)-(\d+)\]\s*(.*)/);
+                if (match) { startSoc = parseInt(match[1], 10); endSoc = parseInt(match[2], 10); cleanNote = match[3]; }
+            }
+            return {
+                id: rec.id?.toString() || Date.now().toString(),
+                date: rec.date?.split('T')[0] || '',
+                chargeType: rec.chargeType || 'DC-快充',
+                distance: parseFloat(rec.distance) || 0,
+                power: parseFloat(rec.power) || 0,
+                startSoc: startSoc !== undefined ? parseInt(startSoc) : 0,
+                endSoc: endSoc !== undefined ? parseInt(endSoc) : 0,
+                cost: parseInt(rec.cost) || 0,
+                note: cleanNote
+            };
+        }
+
+        function setupNumericRestrictions() {
+            const blockKey = e => { if(['e','E','+','-'].includes(e.key)) e.preventDefault(); };
+            ['inputDistance', 'inputStartSoc', 'inputEndSoc', 'inputCost'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) {
+                    el.addEventListener('keypress', blockKey);
+                    if(id !== 'inputDistance') el.addEventListener('input', function() { this.value = this.value.replace(/[^0-9]/g, ''); });
+                }
+            });
+        }
+
+        function switchSettingsTab(tabId) {
+            const mainTab = document.getElementById('settings-tab-main');
+            const pwaTab = document.getElementById('settings-tab-pwa');
+            const btnMain = document.getElementById('btn-tab-main');
+            const btnPwa = document.getElementById('btn-tab-pwa');
+
+            if (tabId === 'settings-tab-main') {
+                if (mainTab) mainTab.classList.remove('hidden');
+                if (pwaTab) pwaTab.classList.add('hidden');
+                if (btnMain) btnMain.className = "flex-1 py-3 text-xs font-black border-r border-slate-200 dark:border-slate-700 transition-all bg-amber-400 dark:bg-amber-500 text-slate-900 shadow-sm";
+                if (btnPwa) btnPwa.className = "flex-1 py-3 text-xs font-black text-slate-500 dark:text-[#94a3b8] transition-all bg-slate-100 dark:bg-[#0f172a]";
+            } else {
+                if (mainTab) mainTab.classList.add('hidden');
+                if (pwaTab) pwaTab.classList.remove('hidden');
+                if (btnMain) btnMain.className = "flex-1 py-3 text-xs font-black border-r border-slate-200 dark:border-slate-700 text-slate-500 dark:text-[#94a3b8] transition-all bg-slate-100 dark:bg-[#0f172a]";
+                if (btnPwa) btnPwa.className = "flex-1 py-3 text-xs font-black transition-all bg-amber-400 dark:bg-amber-500 text-slate-900 shadow-sm";
+                updatePwaDiagnostic();
+            }
+        }
+
+        function saveSyncSettingsOnly() {
+            evName = document.getElementById('evNameInput').value || "LUXGEN n7";
             localStorage.setItem('ev_life_ev_name', evName);
             document.getElementById('topEvName').textContent = evName;
             document.getElementById('heroEvName').textContent = evName;
-
+            
             batteryCapacity = parseFloat(document.getElementById('batteryCapacityInput').value) || 57.7;
             localStorage.setItem('ev_life_battery_capacity', batteryCapacity);
             
             initialOdometer = parseFloat(document.getElementById('initialOdometerInput').value) || 0;
             localStorage.setItem('ev_life_initial_odometer', initialOdometer);
-            
+
+            syncUrl = document.getElementById('syncUrlInput').value.trim();
+            localStorage.setItem('ev_life_sync_url', syncUrl);
+
             updateSyncUiStatus();
             toggleSyncModal();
             renderDashboard();
-            showToast("系統設定已儲存！💾");
+            showToast("設定已儲存");
         }
 
         function updateSyncUiStatus() {
             const dot = document.getElementById('syncStatusDot');
-            if (syncUrl) dot.classList.remove('hidden'); else dot.classList.add('hidden');
+            // 🚀 紅點優化：只有沒設定網址且沒點開過設定時，才會顯示紅點
+            if (!syncUrl && !localStorage.getItem('ev_life_sync_dismissed')) {
+                if(dot) dot.classList.remove('hidden');
+            } else {
+                if(dot) dot.classList.add('hidden');
+            }
         }
 
-        // ==========================================
-        // Google Apps Script 雲端同步
-        // ==========================================
+        // --- PWA 與 雲端 (從先前的腳本帶入) ---
         async function syncWithCloud(mode = 'auto', isSilent = false) {
             if (!syncUrl) { if (!isSilent) showToast("請先設定雲端同步網址！", true); return; }
-            
             const syncIcon = document.getElementById('navSyncIcon');
             if (syncIcon) syncIcon.classList.add('animate-spin');
             if (!isSilent) showToast("雲端同步中...");
@@ -990,9 +1261,8 @@
             try {
                 const getRes = await fetch(syncUrl);
                 if (!getRes.ok) throw new Error("取得資料失敗");
-                
-                let cloudPayload = [];
-                try { cloudPayload = await getRes.json(); if(!Array.isArray(cloudPayload)) cloudPayload = []; } catch (e) { cloudPayload = []; }
+                let cloudPayload = await getRes.json();
+                if(!Array.isArray(cloudPayload)) cloudPayload = [];
 
                 let cloudLastUpdated = 0, cloudRecords = [], cloudConfig = null;
                 cloudPayload.forEach(item => {
@@ -1002,13 +1272,12 @@
                 });
 
                 let localLastUpdated = parseInt(localStorage.getItem('ev_life_last_updated')) || 0;
-                const isCleared = localStorage.getItem('ev_life_cleared') === 'true';
-
                 let shouldUpload = false, shouldDownload = false;
+
                 if (mode === 'upload') shouldUpload = true;
                 else if (mode === 'download') shouldDownload = true;
                 else {
-                    if (localLastUpdated > cloudLastUpdated && records.length === 0 && cloudRecords.length > 0 && !isCleared) localLastUpdated = 0;
+                    if (localLastUpdated > cloudLastUpdated && records.length === 0 && cloudRecords.length > 0) localLastUpdated = 0;
                     if (localLastUpdated > cloudLastUpdated) shouldUpload = true;
                     else if (cloudLastUpdated > localLastUpdated) shouldDownload = true;
                 }
@@ -1022,184 +1291,32 @@
                     const configMeta = { id: "CONFIG_METADATA", date: "", chargeType: "", distance: 0, power: 0, cost: 0, note: JSON.stringify({ evName, batteryCapacity, initialOdometer }) };
                     
                     await fetch(syncUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify([...uploadPayload, { id: "SYSTEM_METADATA", note: localLastUpdated.toString() }, configMeta]) });
-                    
-                    localStorage.setItem('ev_life_last_sync_time', new Date().toLocaleString());
-                    if (!isSilent) showToast(`同步成功！已上傳至雲端 ☁️`);
+                    if (!isSilent) showToast(`同步成功！已推播至雲端`);
                 } else if (shouldDownload) {
                     records = cloudRecords;
                     localStorage.setItem('ev_life_records', JSON.stringify(records));
                     localStorage.setItem('ev_life_last_updated', Date.now().toString()); 
-                    localStorage.setItem('ev_life_last_sync_time', new Date().toLocaleString());
-                    localStorage.removeItem('ev_life_cleared'); 
-                    
                     if (cloudConfig) {
                         if (cloudConfig.evName) { evName = cloudConfig.evName; localStorage.setItem('ev_life_ev_name', evName); document.getElementById('topEvName').textContent = evName; document.getElementById('heroEvName').textContent = evName;}
                         if (cloudConfig.batteryCapacity) { batteryCapacity = parseFloat(cloudConfig.batteryCapacity); localStorage.setItem('ev_life_battery_capacity', batteryCapacity); }
                         if (cloudConfig.initialOdometer !== undefined) { initialOdometer = parseFloat(cloudConfig.initialOdometer); localStorage.setItem('ev_life_initial_odometer', initialOdometer); }
                     }
                     renderDashboard();
-                    if (!isSilent) showToast(`同步成功！已下載覆蓋本機 📥`);
+                    if (!isSilent) showToast(`已從雲端下載覆蓋本機 📥`);
                 } else {
-                    localStorage.setItem('ev_life_last_sync_time', new Date().toLocaleString());
-                    if (!isSilent) showToast("同步完成！資料一致 ✿");
+                    if (!isSilent) showToast("本機與雲端資料一致 ✿");
                 }
-                
                 updateSyncUiStatus();
                 if (mode === 'download' || mode === 'upload') toggleSyncModal();
             } catch (error) {
-                if (!isSilent) showToast("同步失敗，請檢查網址", true);
+                if (!isSilent) showToast("同步失敗，請檢查網路");
             } finally {
                 if (syncIcon) syncIcon.classList.remove('animate-spin');
             }
         }
+
         function forceDownload() { showConfirmModal("以「試算表」為主？", "將下載雲端資料並「覆蓋」本機記錄。", function() { syncWithCloud('download'); }); }
         function forceUpload() { showConfirmModal("以「本機」為主？", "將上傳本機資料並「覆蓋」雲端記錄。", function() { syncWithCloud('upload'); }); }
-        function parseRecordSoc(rec) {
-            let startSoc = rec.startSoc, endSoc = rec.endSoc, cleanNote = rec.note || '';
-            if (typeof rec.note === 'string' && rec.note.startsWith('[SOC:')) { const match = rec.note.match(/^\[SOC:(\d+)-(\d+)\]\s*(.*)/); if (match) { startSoc = parseInt(match[1], 10); endSoc = parseInt(match[2], 10); cleanNote = match[3]; } }
-            let dateStr = rec.date || '';
-            if (typeof dateStr === 'string') {
-                if (dateStr.includes('T')) { const d = new Date(dateStr); if (!isNaN(d.getTime())) { dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; } else { dateStr = dateStr.split('T')[0]; } }
-                else if (!dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) { const d = new Date(dateStr); if (!isNaN(d.getTime())) { dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; } }
-            }
-            return { id: rec.id?.toString() || Date.now().toString(), date: dateStr, chargeType: rec.chargeType?.toString() || 'DC-快充', distance: parseFloat(rec.distance) || 0, power: parseFloat(rec.power) || 0, powerPercent: rec.powerPercent !== undefined ? parseInt(rec.powerPercent, 10) : (startSoc !== undefined && endSoc !== undefined ? Math.abs(endSoc - startSoc) : 0), startSoc: startSoc !== undefined && !isNaN(startSoc) ? parseInt(startSoc, 10) : undefined, endSoc: endSoc !== undefined && !isNaN(endSoc) ? parseInt(endSoc, 10) : undefined, cost: rec.cost ? parseInt(rec.cost, 10) : 0, note: cleanNote };
-        }
-
-        // ==========================================
-        // 分析圖表 (Chart.js)
-        // ==========================================
-        function setChartFilter(filter) {
-            currentChartFilter = filter;
-            ['btnChartAll', 'btnChartEfficiency', 'btnChartCost'].forEach(id => {
-                const btn = document.getElementById(id);
-                if (btn) btn.className = "px-3 py-1.5 text-[10px] rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold transition-all bg-transparent";
-            });
-            const activeBtn = document.getElementById(`btnChart${filter.charAt(0).toUpperCase() + filter.slice(1)}`);
-            if (activeBtn) activeBtn.className = "px-3 py-1.5 text-[10px] rounded-lg bg-white dark:bg-slate-600 shadow text-slate-900 dark:text-white font-bold transition-all";
-            updateCharts();
-        }
-
-        function updateCharts() {
-            const canvasElement = document.getElementById('efficiencyChart');
-            if (!canvasElement || typeof Chart === 'undefined') return;
-
-            const isDarkMode = document.documentElement.classList.contains('dark');
-            const labelColor = isDarkMode ? '#9ca3af' : '#64748b'; 
-            const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.03)';
-            const tooltipBg = isDarkMode ? 'rgba(15, 23, 42, 0.9)' : 'rgba(255, 255, 255, 0.95)';
-            const tooltipBorder = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)';
-
-            let chartData = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
-            if (currentMonthFilter !== 'all') chartData = chartData.filter(rec => (rec.date.includes('T') ? rec.date.split('T')[0] : rec.date).startsWith(currentMonthFilter));
-
-            let labels = [], efficiencies = [], costs = [];
-            const monthlyMap = {};
-            chartData.forEach(rec => {
-                const dateStr = rec.date.includes('T') ? rec.date.split('T')[0] : rec.date;
-                if (!dateStr || dateStr.length < 7) return;
-                const month = dateStr.substring(0, 7);
-                if (!monthlyMap[month]) monthlyMap[month] = { distance: 0, cost: 0, consumedPower: 0 };
-                monthlyMap[month].distance += (parseFloat(rec.distance) || 0);
-                monthlyMap[month].cost += (parseFloat(rec.cost) || 0);
-                monthlyMap[month].consumedPower += batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
-            });
-            const sortedMonths = Object.keys(monthlyMap).sort();
-            labels = sortedMonths.map(m => m.replace('-', '/'));
-            efficiencies = sortedMonths.map(m => monthlyMap[m].consumedPower > 0 ? parseFloat((monthlyMap[m].distance / monthlyMap[m].consumedPower).toFixed(2)) : 0);
-            costs = sortedMonths.map(m => monthlyMap[m].cost);
-
-            const datasets = [];
-            const scalesConfig = { x: { grid: { display: false, drawBorder: false }, ticks: { color: labelColor, font: { family: "'SF Mono', SFMono-Regular, 'Roboto Mono', ui-monospace, sans-serif", size: 10, weight: '600' } } } };
-            const ctx = canvasElement.getContext('2d');
-
-            if (currentChartFilter === 'all' || currentChartFilter === 'efficiency') {
-                let gradient = ctx.createLinearGradient(0, 0, 0, 250);
-                gradient.addColorStop(0, isDarkMode ? 'rgba(45, 212, 191, 0.4)' : 'rgba(20, 184, 166, 0.2)'); 
-                gradient.addColorStop(1, 'rgba(45, 212, 191, 0.0)'); 
-                datasets.push({
-                    label: '平均電耗 (km/度)', data: efficiencies, borderColor: isDarkMode ? '#2dd4bf' : '#0d9488', borderWidth: 3, 
-                    pointBackgroundColor: isDarkMode ? '#1e293b' : '#ffffff', pointBorderColor: isDarkMode ? '#2dd4bf' : '#0d9488', pointBorderWidth: 2, pointRadius: 3, 
-                    tension: 0.4, yAxisID: 'yEfficiency', fill: true, backgroundColor: gradient
-                });
-                scalesConfig.yEfficiency = { type: 'linear', position: 'left', ticks: { color: isDarkMode ? '#2dd4bf' : '#0d9488', font: { family: "'SF Mono', SFMono-Regular, sans-serif", weight: '600' }, maxTicksLimit: 6 }, border: { display: false }, grid: { color: gridColor } };
-            }
-
-            if (currentChartFilter === 'all' || currentChartFilter === 'cost') {
-                let barGrad = ctx.createLinearGradient(0, 0, 0, 200);
-                barGrad.addColorStop(0, isDarkMode ? 'rgba(251, 191, 36, 0.8)' : 'rgba(245, 158, 11, 0.7)');
-                barGrad.addColorStop(1, isDarkMode ? 'rgba(251, 191, 36, 0.2)' : 'rgba(245, 158, 11, 0.2)');
-                datasets.push({ label: '補給費用 (元)', type: 'bar', data: costs, backgroundColor: barGrad, borderRadius: 4, yAxisID: 'yCost', barThickness: 12 });
-                scalesConfig.yCost = { type: 'linear', position: 'right', ticks: { color: isDarkMode ? '#fbbf24' : '#f59e0b', font: { family: "'SF Mono', SFMono-Regular, sans-serif", weight: '600' }, maxTicksLimit: 6 }, border: { display: false }, grid: { display: false } };
-            }
-
-            if (efficiencyChartInstance) {
-                efficiencyChartInstance.data.labels = labels; efficiencyChartInstance.data.datasets = datasets; efficiencyChartInstance.options.scales = scalesConfig;
-                efficiencyChartInstance.options.plugins.legend.labels.color = labelColor; efficiencyChartInstance.options.plugins.tooltip.backgroundColor = tooltipBg; efficiencyChartInstance.options.plugins.tooltip.titleColor = isDarkMode ? '#f8fafc' : '#1e293b'; efficiencyChartInstance.options.plugins.tooltip.bodyColor = isDarkMode ? '#cbd5e1' : '#475569'; efficiencyChartInstance.options.plugins.tooltip.borderColor = tooltipBorder;
-                efficiencyChartInstance.update();
-            } else {
-                efficiencyChartInstance = new Chart(ctx, {
-                    type: 'line', data: { labels: labels, datasets: datasets },
-                    options: {
-                        responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, 
-                        plugins: { legend: { position: 'top', align: 'end', labels: { color: labelColor, boxWidth: 8, boxHeight: 8, usePointStyle: true, font: { family: "'Noto Sans TC', sans-serif", size: 11, weight: '600' } } },
-                        tooltip: { backgroundColor: tooltipBg, titleColor: isDarkMode ? '#f8fafc' : '#1e293b', bodyColor: isDarkMode ? '#cbd5e1' : '#475569', borderColor: tooltipBorder, borderWidth: 1, borderRadius: 12, padding: 12, backdropFilter: 'blur(8px)', titleFont: { family: "'Noto Sans TC', sans-serif", weight: 'bold', size: 13 }, bodyFont: { family: "'Noto Sans TC', sans-serif", weight: '500', size: 12 } } },
-                        scales: scalesConfig
-                    }
-                });
-            }
-        }
-
-        // ==========================================
-        // PWA 與系統工具
-        // ==========================================
-        function exportCSV() {
-            const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
-            if (activeRecords.length === 0) { showToast("無資料可匯出！", true); return; }
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFF日期,補給類型,行駛里程(km),電量消耗(kWh),起始電量(%),結束電量(%),補給費用(元),備註\n";
-            activeRecords.forEach(rec => { csvContent += `${rec.date.includes('T') ? rec.date.split('T')[0] : rec.date},${rec.chargeType},${rec.distance},${rec.power},${rec.startSoc !== undefined ? rec.startSoc : ''},${rec.endSoc !== undefined ? rec.endSoc : ''},${rec.cost},"${(rec.note || '').replace(/"/g, '""')}"\n`; });
-            const link = document.createElement("a"); link.setAttribute("href", encodeURI(csvContent)); link.setAttribute("download", `EV_Life_Record_${new Date().toISOString().slice(0,10)}.csv`); document.body.appendChild(link); link.click(); document.body.removeChild(link);
-            showToast("CSV 匯出成功！");
-        }
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js', { scope: './' }).then(reg => updatePwaDiagnostic()).catch(err => updatePwaDiagnostic());
-            });
-        }
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); deferredPrompt = e;
-            const pwaBtn = document.getElementById('pwaInstallBtn');
-            if (pwaBtn) { pwaBtn.classList.remove('hidden'); pwaBtn.classList.add('flex'); }
-            updatePwaDiagnostic();
-        });
-
-        function triggerPwaInstall() {
-            if (!deferredPrompt) { showToast("目前裝置不支援或已安裝APP🐾"); return; }
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((res) => {
-                if (res.outcome === 'accepted') { showToast("感謝安裝！🎉"); document.getElementById('pwaInstallBtn').classList.add('hidden'); } 
-                else showToast("已取消安裝", true);
-                deferredPrompt = null;
-            });
-        }
-
-        window.addEventListener('appinstalled', () => { showToast("安裝成功！🎉"); document.getElementById('pwaInstallBtn').classList.add('hidden'); updatePwaDiagnostic(); });
-
-        function updatePwaDiagnostic() {
-            const isHttps = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-            const diagHttps = document.getElementById('diag-https'), diagSw = document.getElementById('diag-sw'), diagNetwork = document.getElementById('diag-network');
-            if (diagHttps) diagHttps.innerHTML = window.location.protocol === 'file:' ? '🔴 本機檔案，不允許 SW' : (isHttps ? '🟢 安全連線' : '🔴 非安全連線');
-            if (diagSw) {
-                if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.getRegistration().then(reg => { diagSw.innerHTML = (reg && reg.active) ? '🟢 離線引擎運行中' : '🟡 引擎未安裝'; }).catch(() => diagSw.innerHTML = '⚪ 引擎未就緒');
-                } else diagSw.innerHTML = '🔴 瀏覽器不支援';
-            }
-            if (diagNetwork) diagNetwork.innerHTML = navigator.onLine ? '🟢 網路連線正常' : '🔴 離線模式';
-        }
-
-        window.addEventListener('online', () => { updatePwaDiagnostic(); showToast("網路恢復連線 ⚡"); });
-        window.addEventListener('offline', () => { updatePwaDiagnostic(); showToast("進入離線模式 🐾", true); });
 
         function downloadBlobFile(content, fileName, contentType) {
             const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([content], {type: contentType})); a.download = fileName; a.click(); URL.revokeObjectURL(a.href);
@@ -1211,9 +1328,23 @@
         }
 
         function downloadServiceWorker() {
-            const swCode = `const CACHE='ev-cache-v9', ASSETS=['./','./index.html','./manifest.json','./logo.png','./splash.png']; self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()))); self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(k=>Promise.all(k.map(x=>x!==CACHE?caches.delete(x):0))).then(()=>self.clients.claim()))); self.addEventListener('fetch',e=>{if(e.request.url.includes('script.google.com'))return; e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(nr=>{if(nr.status===200)caches.open(CACHE).then(c=>c.put(e.request,nr.clone()));return nr;})))});\n`;
+            const swCode = `const CACHE='ev-cache-v10', ASSETS=['./','./index.html','./manifest.json','./logo.png','./splash.png']; self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()))); self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(k=>Promise.all(k.map(x=>x!==CACHE?caches.delete(x):0))).then(()=>self.clients.claim()))); self.addEventListener('fetch',e=>{if(e.request.url.includes('script.google.com'))return; e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(nr=>{if(nr.status===200)caches.open(CACHE).then(c=>c.put(e.request,nr.clone()));return nr;})))});\n`;
             downloadBlobFile(swCode, "sw.js", "application/javascript");
         }
+
+        if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js', { scope: './' }).then(() => updatePwaDiagnostic()).catch(() => updatePwaDiagnostic()); }); }
+        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; const pwaBtn = document.getElementById('pwaInstallBtn'); if (pwaBtn) { pwaBtn.classList.remove('hidden'); pwaBtn.classList.add('flex'); } updatePwaDiagnostic(); });
+        function triggerPwaInstall() { if (!deferredPrompt) { showToast("裝置不支援或已安裝。🐾"); return; } deferredPrompt.prompt(); deferredPrompt.userChoice.then((res) => { if (res.outcome === 'accepted') { showToast("感謝安裝！🎉"); document.getElementById('pwaInstallBtn').classList.add('hidden'); } deferredPrompt = null; }); }
+        window.addEventListener('appinstalled', () => { showToast("安裝成功！🎉"); document.getElementById('pwaInstallBtn').classList.add('hidden'); updatePwaDiagnostic(); });
+        function updatePwaDiagnostic() {
+            const isHttps = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const dH = document.getElementById('diag-https'), dS = document.getElementById('diag-sw'), dN = document.getElementById('diag-network');
+            if(dH) dH.innerHTML = window.location.protocol === 'file:' ? '🔴 本機檔案不允許' : (isHttps ? '🟢 安全連線' : '🔴 非安全連線');
+            if(dS) { if ('serviceWorker' in navigator) { navigator.serviceWorker.getRegistration().then(r => { dS.innerHTML = (r && r.active) ? '🟢 引擎運行中' : '🟡 未安裝'; }).catch(() => dS.innerHTML = '⚪ 引擎未就緒'); } else dS.innerHTML = '🔴 不支援'; }
+            if(dN) dN.innerHTML = navigator.onLine ? '🟢 網路正常' : '🔴 離線模式';
+        }
+        window.addEventListener('online', () => { updatePwaDiagnostic(); });
+        window.addEventListener('offline', () => { updatePwaDiagnostic(); });
     </script>
 </body>
 </html>
