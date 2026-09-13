@@ -74,8 +74,8 @@
 
         /* 解決 iOS 底部過多空白的核心定位類別 */
         .floating-nav {
-            /* 基礎距離加上安全區域，確保完美懸浮 */
-            bottom: calc(env(safe-area-inset-bottom, 0px) + 1.25rem) !important;
+            /* 基礎距離加上安全區域，確保完美懸浮，調低距離以節省空間 */
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 0.5rem) !important;
         }
 
         /* 底部導航選中狀態 */
@@ -194,12 +194,19 @@
                     <div class="text-[11px] font-bold text-slate-500 mt-0.5">平均電耗</div>
                 </div>
 
-                <!-- 3. 能源總成本 -->
+                <!-- 3. 能源總成本 & 每公里電費 -->
                 <div class="rpg-card bg-[#f0f9ff] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-center text-left">
-                    <div class="text-sky-500 mb-2">
+                    <div class="text-sky-500 mb-2 flex justify-between items-start">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path></svg>
+                        <div class="text-right">
+                            <div class="text-[10px] font-bold text-slate-400">每公里</div>
+                            <div class="flex items-baseline gap-0.5 justify-end">
+                                <span class="text-[9px] text-sky-500">$</span>
+                                <span id="statCostPerKm" class="text-sm font-black text-sky-500 font-mono">0.00</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex items-baseline gap-1">
+                    <div class="flex items-baseline gap-1 mt-1">
                         <span class="text-[11px] font-bold text-slate-500">$</span>
                         <span id="statTotalCost" class="text-2xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0</span>
                     </div>
@@ -238,13 +245,13 @@
                         </div>
                         <div>
                             <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">紀錄類型</label>
-                            <select id="inputChargeType" class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors appearance-none">
-                                <option value="DC-快充" selected>⚡ 快充 (DC)</option>
-                                <option value="AC-慢充">🔌 慢充 (AC)</option>
-                                <option value="未充電">🐾 純行駛 (無充電)</option>
-                                <!-- 🚀 新增保養維修選項 -->
-                                <option value="維修保養">🔧 維修與保養</option>
-                            </select>
+                            <input type="hidden" id="inputChargeType" value="DC-快充">
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button" onclick="selectChargeType('DC-快充')" id="btnType-DC-快充" class="charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#0f172a] text-slate-400 font-bold rounded-xl py-2 text-[11px] transition-all">⚡ 快充 (DC)</button>
+                                <button type="button" onclick="selectChargeType('AC-慢充')" id="btnType-AC-慢充" class="charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#0f172a] text-slate-400 font-bold rounded-xl py-2 text-[11px] transition-all">🔌 慢充 (AC)</button>
+                                <button type="button" onclick="selectChargeType('未充電')" id="btnType-未充電" class="charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#0f172a] text-slate-400 font-bold rounded-xl py-2 text-[11px] transition-all">🐾 純行駛</button>
+                                <button type="button" onclick="selectChargeType('維修保養')" id="btnType-維修保養" class="charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#0f172a] text-slate-400 font-bold rounded-xl py-2 text-[11px] transition-all">🔧 維修保養</button>
+                            </div>
                         </div>
                     </div>
 
@@ -567,30 +574,48 @@
             const today = new Date();
             if(document.getElementById('inputDate')) document.getElementById('inputDate').value = today.toISOString().split('T')[0];
 
-            document.getElementById('inputChargeType').addEventListener('change', handleChargeTypeChange);
-            handleChargeTypeChange(); 
+            selectChargeType('DC-快充'); 
 
             setupNumericRestrictions();
             updateSyncUiStatus();
+            
             updatePwaDiagnostic();
-
             const localData = localStorage.getItem('ev_life_records');
             if (localData) records = JSON.parse(localData).map(rec => parseRecordSoc(rec));
-
+            
             renderDashboard();
-            autoFillStartSoc(); 
+            autoFillStartSoc();
             
             if ('requestIdleCallback' in window) requestIdleCallback(() => { if (typeof Chart !== 'undefined') updateCharts(); });
             else setTimeout(() => { if (typeof Chart !== 'undefined') updateCharts(); }, 200);
-
+            
             setupDelegatedEvents();
         }
 
-        // --- STREAMING_CHUNK:Processing Data and Lists... ---
+        // --- STREAMING_CHUNK:Processing forms and stats... ---
         function saveLocalState(newRecords) {
             records = newRecords;
             localStorage.setItem('ev_life_records', JSON.stringify(records));
             localStorage.setItem('ev_life_last_updated', Date.now());
+        }
+
+        function selectChargeType(type) {
+            const input = document.getElementById('inputChargeType');
+            if(input) input.value = type;
+            
+            document.querySelectorAll('.charge-type-btn').forEach(btn => {
+                btn.className = "charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#0f172a] text-slate-400 font-bold rounded-xl py-2 text-[11px] transition-all";
+            });
+            
+            const activeBtn = document.getElementById('btnType-' + type);
+            if (activeBtn) {
+                let activeClass = "border-amber-400 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 font-black shadow-sm";
+                if(type === 'AC-慢充') activeClass = "border-teal-400 bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 font-black shadow-sm";
+                if(type === '未充電') activeClass = "border-slate-400 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-black shadow-sm";
+                if(type === '維修保養') activeClass = "border-fuchsia-400 bg-fuchsia-50 dark:bg-fuchsia-900/20 text-fuchsia-600 dark:text-fuchsia-400 font-black shadow-sm";
+                activeBtn.className = `charge-type-btn border-2 rounded-xl py-2 text-[11px] transition-all ${activeClass}`;
+            }
+            handleChargeTypeChange();
         }
 
         function handleChargeTypeChange() {
@@ -829,14 +854,20 @@
             mobileList.innerHTML = html;
 
             const avgEff = totalPowerReal > 0 ? (totalKm / totalPowerReal) : 0;
-            updateStats(totalKm, avgEff, totalCost, totalMaintCost, currentMonthFilter === 'all' ? initialOdometer : 0);
+            const costPerKm = totalKm > 0 ? (totalCost / totalKm) : 0;
+            updateStats(totalKm, avgEff, totalCost, totalMaintCost, currentMonthFilter === 'all' ? initialOdometer : 0, costPerKm);
         }
 
-        function updateStats(km, eff, cost, maintCost, baseOdo) {
+        function updateStats(km, eff, cost, maintCost, baseOdo, costPerKm = 0) {
             document.getElementById('statTotalKm').textContent = (km + baseOdo).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
             document.getElementById('statAvgEfficiency').textContent = eff.toFixed(2);
             document.getElementById('statTotalCost').textContent = cost.toLocaleString();
             document.getElementById('statMaintCost').textContent = maintCost.toLocaleString();
+            
+            const costPerKmEl = document.getElementById('statCostPerKm');
+            if (costPerKmEl) {
+                costPerKmEl.textContent = costPerKm.toFixed(2);
+            }
         }
 
         // --- STREAMING_CHUNK:Finalizing Scripts and Analytics... ---
@@ -968,8 +999,7 @@
             if (!rec) return;
             
             document.getElementById('inputDate').value = rec.date;
-            document.getElementById('inputChargeType').value = rec.chargeType;
-            handleChargeTypeChange();
+            selectChargeType(rec.chargeType);
             
             if (rec.chargeType !== '維修保養') {
                 document.getElementById('inputDistance').value = rec.distance;
@@ -991,7 +1021,7 @@
             document.getElementById('cancelEditBtn').classList.add('hidden');
             document.getElementById('recordForm').reset();
             document.getElementById('inputDate').value = new Date().toISOString().split('T')[0];
-            handleChargeTypeChange(); 
+            selectChargeType('DC-快充'); 
         }
 
         function confirmDeleteRecord(id) {
