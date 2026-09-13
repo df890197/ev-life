@@ -136,6 +136,7 @@
         <img id="splashLogoImg" src="./splash.png" alt="Splash Screen" class="w-full h-full object-cover opacity-0 absolute inset-0 z-20 transition-opacity duration-300">
     </div>
 
+    <!-- 🚀 立即套用自訂啟動畫面設定 -->
     <script>
         (function(){
             try {
@@ -158,18 +159,22 @@
         })();
     </script>
 
+    <!-- 頂部膠囊導航列 (Top Pill Bar) -->
     <header class="sticky top-0 z-40 bg-[#fcfaf2]/90 dark:bg-[#111827]/90 backdrop-blur-xl pt-[env(safe-area-inset-top)] border-b border-transparent transition-all">
         <div class="flex items-center justify-between px-4 py-3 max-w-4xl mx-auto">
+            <!-- 總覽按鈕 -->
             <button onclick="switchTab('home')" class="flex items-center gap-2 bg-white dark:bg-slate-800 px-4 py-2 rounded-full shadow-sm border border-slate-200 dark:border-slate-700 text-[11px] font-black tracking-wider transition active:scale-95">
                 <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M4 4h4v4H4V4zm6 0h4v4h-4V4zm6 0h4v4h-4V4zM4 10h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4z"/></svg>
                 總覽
             </button>
 
+            <!-- 車輛選擇膠囊 -->
             <div class="flex items-center gap-2 bg-slate-900 dark:bg-slate-800 px-1.5 py-1.5 pr-5 rounded-full shadow-md cursor-pointer transition active:scale-95" onclick="toggleSyncModal()">
                 <div class="bg-amber-500 text-slate-900 px-2.5 py-1 rounded-full text-[10px] font-black">純電</div>
                 <span id="topEvName" class="text-white text-xs font-bold font-mono tracking-wide">LUXGEN n7</span>
             </div>
 
+            <!-- 主題切換按鈕 -->
             <button onclick="toggleTheme()" class="w-9 h-9 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-sm border border-slate-200 dark:border-slate-700 transition active:scale-95">
                 <svg id="themeSunIcon" class="w-4 h-4 text-amber-500 hidden" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.46 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path></svg>
                 <svg id="themeMoonIcon" class="w-4 h-4 text-indigo-400 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
@@ -179,21 +184,25 @@
 
     <main class="max-w-4xl mx-auto pb-32 pt-2">
         
+        <!-- 🔹 Tab 1: 首頁 (Home) -->
         <div id="view-home" class="view-section active px-4">
+            <!-- 英雄區 (可上傳照片) -->
             <div class="hero-image-container mb-6 shadow-sm border border-slate-200 dark:border-slate-800 bg-slate-200 dark:bg-slate-800 group">
                 <img id="heroImageDisplay" src="https://placehold.co/800x450/1e293b/2dd4bf?text=EV+Life" alt="EV" class="transition duration-500 group-hover:scale-105">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                 <div class="absolute bottom-5 left-6 right-6 flex justify-between items-end">
                     <h1 id="heroEvName" class="text-white text-3xl font-black tracking-widest drop-shadow-md">LUXGEN n7</h1>
                 </div>
+                <!-- 上傳相片按鈕 -->
                 <button onclick="document.getElementById('heroImageUpload').click()" class="absolute top-4 right-4 w-10 h-10 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white transition active:scale-95 shadow-lg border border-white/20">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 </button>
                 <input type="file" id="heroImageUpload" class="hidden" accept="image/*" onchange="handleHeroImageUpload(event)">
             </div>
 
+            <!-- 數據網格 (Stats Grid) -->
             <div class="grid grid-cols-2 gap-4">
-                <!-- 🚀 1. 總里程：統一改用 flex-col justify-between h-full 保證對齊 -->
+                <!-- 1. 總里程：統一改用 flex-col justify-between h-full 保證對齊 -->
                 <div class="rpg-card bg-[#fffaf0] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
                     <div class="text-amber-500 mb-2 flex items-start justify-between">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
@@ -207,7 +216,7 @@
                     </div>
                 </div>
 
-                <!-- 🚀 2. 平均電耗 -->
+                <!-- 2. 平均電耗 -->
                 <div class="rpg-card bg-[#f0fdfa] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
                     <div class="text-teal-500 mb-2 flex items-start justify-between">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
@@ -221,7 +230,7 @@
                     </div>
                 </div>
 
-                <!-- 🚀 3. 能源總成本 & 每公里電費 -->
+                <!-- 3. 能源總成本 & 每公里電費 -->
                 <div class="rpg-card bg-[#f0f9ff] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
                     <div class="text-sky-500 mb-2 flex justify-between items-start">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path></svg>
@@ -242,7 +251,7 @@
                     </div>
                 </div>
 
-                <!-- 🚀 4. 保養維修：調整排版強制底面對齊 -->
+                <!-- 4. 保養維修：調整排版強制底面對齊 -->
                 <div class="rpg-card bg-[#faf5ff] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
                     <div class="text-fuchsia-500 mb-2 flex items-start justify-between">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -258,6 +267,7 @@
             </div>
         </div>
 
+        <!-- 🔹 Tab 2: 新增/編輯紀錄 (Add/Edit) -->
         <div id="view-add" class="view-section px-4">
             <div class="rpg-card bg-white dark:bg-[#1e293b] p-6 rounded-[2rem]">
                 <div class="flex items-center justify-between mb-5 pb-3 border-b border-slate-100 dark:border-slate-700">
@@ -326,6 +336,7 @@
             </div>
         </div>
 
+        <!-- 🔹 Tab 3: 紀錄列表 (Records) -->
         <div id="view-records" class="view-section px-4">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-black">歷史紀錄</h2>
@@ -344,6 +355,7 @@
             </div>
         </div>
 
+        <!-- 🔹 Tab 4: 分析圖表 (Analysis) -->
         <div id="view-analysis" class="view-section px-4">
             <div class="rpg-card bg-white dark:bg-[#1e293b] p-5 sm:p-6 rounded-[2rem]">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
@@ -370,16 +382,49 @@
                     <div id="monthFilterContainer_analysis" class="flex overflow-x-auto gap-2 no-scrollbar pb-1 flex-1 items-center"></div>
                 </div>
                 
-                <div class="flex justify-between items-center mb-4 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-700/50 transition-all">
-                    <div class="flex items-center gap-2">
-                        <div class="bg-amber-100 dark:bg-amber-900/30 text-amber-500 p-1.5 rounded-lg shadow-sm">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+                <!-- 🚀 動態區間統計卡片：總里程、當月/區間總花費、每公里花費 -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                    <!-- 1. 區間里程 -->
+                    <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700/50 transition-all">
+                        <div class="flex items-center gap-2">
+                            <div class="bg-amber-100 dark:bg-amber-900/30 text-amber-500 p-1.5 rounded-lg shadow-sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+                            </div>
+                            <span id="analysisSummaryLabel" class="text-xs font-bold text-slate-600 dark:text-slate-400">區間總里程</span>
                         </div>
-                        <span id="analysisSummaryLabel" class="text-xs font-bold text-slate-600 dark:text-slate-400">區間總里程</span>
+                        <div class="flex items-baseline gap-1">
+                            <span id="analysisTotalKm" class="text-lg font-black font-mono text-slate-800 dark:text-white">0</span>
+                            <span class="text-[10px] font-bold text-slate-500">km</span>
+                        </div>
                     </div>
-                    <div class="flex items-baseline gap-1">
-                        <span id="analysisTotalKm" class="text-xl font-black font-mono text-slate-800 dark:text-white">0</span>
-                        <span class="text-[10px] font-bold text-slate-500">km</span>
+
+                    <!-- 2. 區間/當月花費 (包含充電補給與保養) -->
+                    <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700/50 transition-all">
+                        <div class="flex items-center gap-2">
+                            <div class="bg-rose-100 dark:bg-rose-900/30 text-rose-500 p-1.5 rounded-lg shadow-sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                            <span id="analysisCostLabel" class="text-xs font-bold text-slate-600 dark:text-slate-400">當月花費</span>
+                        </div>
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-[10px] font-bold text-slate-400">$</span>
+                            <span id="analysisTotalCost" class="text-lg font-black font-mono text-slate-800 dark:text-white">0</span>
+                        </div>
+                    </div>
+
+                    <!-- 3. 區間/當月每公里花費 -->
+                    <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700/50 transition-all">
+                        <div class="flex items-center gap-2">
+                            <div class="bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 p-1.5 rounded-lg shadow-sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                            </div>
+                            <span class="text-xs font-bold text-slate-600 dark:text-slate-400">每公里成本</span>
+                        </div>
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-[10px] font-bold text-teal-600 dark:text-teal-400">$</span>
+                            <span id="analysisCostPerKm" class="text-lg font-black font-mono text-teal-600 dark:text-teal-400">0.00</span>
+                            <span class="text-[10px] font-bold text-slate-400">/km</span>
+                        </div>
                     </div>
                 </div>
 
@@ -391,6 +436,7 @@
 
     </main>
 
+    <!-- 🚀 iOS 27 懸浮玻璃底部導航列 -->
     <nav class="fixed left-4 right-4 z-50 rounded-[2rem] ios-27-glass px-2 floating-nav">
         <div class="flex justify-around items-center h-16 max-w-md mx-auto relative">
             <button onclick="switchTab('home')" id="tab-home" class="tab-btn active flex flex-col items-center gap-1 w-14 text-slate-500 dark:text-slate-400 transition-colors">
@@ -422,11 +468,13 @@
         </div>
     </nav>
 
+    <!-- 全域 Toast -->
     <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-[120] transform -translate-y-10 opacity-0 invisible pointer-events-none transition-all duration-300 bg-slate-900/95 dark:bg-[#1e293b]/95 text-white px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 text-xs font-bold whitespace-nowrap border border-white/10">
         <span id="toastIcon">🐾</span>
         <span id="toastMessage"></span>
     </div>
 
+    <!-- 系統設定 & 雲端同步 模態視窗 -->
     <div id="syncModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-end sm:items-center justify-center hidden opacity-0 transition-opacity duration-300">
         <div class="bg-white dark:bg-[#0f172a] sm:rounded-[2rem] rounded-t-[2rem] shadow-2xl w-full sm:max-w-lg transform translate-y-full sm:translate-y-0 sm:scale-95 transition-all duration-300 border-t sm:border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[85vh]" id="syncModalContent">
             <div class="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-[#1e293b]">
@@ -438,6 +486,7 @@
                 <button onclick="switchSettingsTab('settings-tab-pwa')" id="btn-tab-pwa" class="flex-1 py-3 text-xs font-black text-slate-500 dark:text-[#94a3b8] transition-all bg-slate-100 dark:bg-[#0f172a]">🐾 PWA 離線安裝</button>
             </div>
             <div class="p-6 space-y-4 overflow-y-auto flex-1">
+                <!-- 分頁一：主要設定與雲端 -->
                 <div id="settings-tab-main" class="space-y-4">
                     <div class="bg-slate-50 dark:bg-[#1e293b] p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
                         <span class="text-xs font-black text-slate-500 dark:text-slate-400">🚗 愛車參數設定</span>
@@ -493,6 +542,7 @@
                     </div>
                     <button onclick="saveSyncSettingsOnly()" class="w-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-white text-xs font-bold py-3 rounded-2xl transition active:scale-95">💾 僅儲存設定 (不同步)</button>
                 </div>
+                <!-- 分頁二：PWA 離線安裝 -->
                 <div id="settings-tab-pwa" class="space-y-4 hidden">
                     <div class="bg-amber-50 dark:bg-amber-900/10 p-4 rounded-2xl border border-amber-200 dark:border-amber-900/50 space-y-2">
                         <span class="text-xs text-amber-700 dark:text-amber-500 font-extrabold block">📲 甚麼是 PWA 離線安裝？</span>
@@ -1027,17 +1077,39 @@
             const labelColor = isDarkMode ? '#9ca3af' : '#64748b'; 
             const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.03)';
             
+            // 排除保養紀錄用於繪製電耗折線與能源費用柱狀圖
             let chartData = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.chargeType !== '維修保養');
             if (currentMonthFilter !== 'all') {
                 chartData = chartData.filter(rec => rec.date.startsWith(currentMonthFilter));
             }
 
+            // 🚀 計算當月/區間的總里程、總花費與每公里費用
             let periodTotalKm = 0;
-            chartData.forEach(rec => { periodTotalKm += (parseFloat(rec.distance) || 0); });
+            let periodTotalCost = 0;
+
+            // 納入當前篩選區間內的所有紀錄（包含充電與維修保養）
+            const allPeriodRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && (currentMonthFilter === 'all' || (r.date && r.date.startsWith(currentMonthFilter))));
+            allPeriodRecords.forEach(rec => {
+                if (rec.chargeType !== '維修保養') {
+                    periodTotalKm += (parseFloat(rec.distance) || 0);
+                }
+                periodTotalCost += (parseFloat(rec.cost) || 0);
+            });
+
+            const periodCostPerKm = periodTotalKm > 0 ? (periodTotalCost / periodTotalKm) : 0;
+
             const analysisKmEl = document.getElementById('analysisTotalKm');
             const analysisLabelEl = document.getElementById('analysisSummaryLabel');
+            const analysisCostEl = document.getElementById('analysisTotalCost');
+            const analysisCostLabelEl = document.getElementById('analysisCostLabel');
+            const analysisCostPerKmEl = document.getElementById('analysisCostPerKm');
+
             if (analysisKmEl) analysisKmEl.textContent = periodTotalKm.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
             if (analysisLabelEl) analysisLabelEl.textContent = currentMonthFilter === 'all' ? '全部累積里程' : `${currentMonthFilter.replace('-', '/')} 總里程`;
+            if (analysisCostEl) analysisCostEl.textContent = periodTotalCost.toLocaleString();
+            if (analysisCostLabelEl) analysisCostLabelEl.textContent = currentMonthFilter === 'all' ? '歷史總花費' : `${currentMonthFilter.replace('-', '/')} 總花費`;
+            if (analysisCostPerKmEl) analysisCostPerKmEl.textContent = periodCostPerKm.toFixed(2);
+
 
             const timeView = document.getElementById('chartTimeView')?.value || 'monthly';
             let labels = [], efficiencies = [], costs = [];
@@ -1376,3 +1448,4 @@ self.addEventListener('fetch', event => {
     </script>
 </body>
 </html>
+```eof
