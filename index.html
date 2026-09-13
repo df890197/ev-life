@@ -732,7 +732,7 @@
             
             setupDelegatedEvents();
 
-            // 🚀 新增：啟動時自動觸發雲端同步，強制下載雲端資料覆蓋本機 (因為要跨裝置以雲端為主)
+            // 🚀 啟動時自動觸發雲端同步，強制下載雲端資料覆蓋本機 (因為要跨裝置以雲端為主)
             if (syncUrl) {
                 setTimeout(() => {
                     // mode: 'download' 強制抓雲端資料, isSilent: false 會顯示 Toast 提示
@@ -1384,7 +1384,15 @@
                     }
                     renderDashboard(); if (!isSilent) showToast(`已從雲端下載覆蓋本機 📥`);
                 } else { if (!isSilent) showToast("本機與雲端資料一致 ✿"); }
-                updateSyncUiStatus(); if (mode === 'download' || mode === 'upload') toggleSyncModal();
+                
+                updateSyncUiStatus(); 
+                
+                // 🚀 修正：只有在設定視窗「處於開啟狀態」時，才呼叫 toggleSyncModal() 把它關閉
+                const syncModalEl = document.getElementById('syncModal');
+                if ((mode === 'download' || mode === 'upload') && syncModalEl && !syncModalEl.classList.contains('hidden')) {
+                    toggleSyncModal();
+                }
+                
             } catch (error) { if (!isSilent) showToast("同步失敗，請檢查網路", true); }
         }
 
