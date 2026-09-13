@@ -74,8 +74,9 @@
 
         /* 解決 iOS 底部過多空白的核心定位類別 */
         .floating-nav {
-            /* 基礎距離加上安全區域，確保完美懸浮，調低距離以節省空間 */
-            bottom: calc(env(safe-area-inset-bottom, 0px) + 0.5rem) !important;
+            /* 壓縮 50% 的安全區域，讓導航列往下沉，大幅減少留白，但不阻礙 Home 橫條 */
+            bottom: calc(env(safe-area-inset-bottom, 0px) * 0.5 + 8px) !important;
+            margin-bottom: 0 !important;
         }
 
         /* 底部導航選中狀態 */
@@ -347,19 +348,21 @@
                         趨勢分析
                     </h2>
                     
-                    <div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl self-start">
-                        <button onclick="setChartFilter('all')" id="btnChartAll" class="px-3 py-1.5 text-[10px] rounded-lg bg-white dark:bg-slate-600 shadow text-slate-900 dark:text-white font-bold transition-all">全部</button>
-                        <button onclick="setChartFilter('efficiency')" id="btnChartEfficiency" class="px-3 py-1.5 text-[10px] rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold transition-all">電耗</button>
-                        <button onclick="setChartFilter('cost')" id="btnChartCost" class="px-3 py-1.5 text-[10px] rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold transition-all">花費</button>
+                    <div class="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+                        <div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+                            <button onclick="setChartFilter('all')" id="btnChartAll" class="px-3 py-1.5 text-[10px] rounded-lg bg-white dark:bg-slate-600 shadow text-slate-900 dark:text-white font-bold transition-all">全部</button>
+                            <button onclick="setChartFilter('efficiency')" id="btnChartEfficiency" class="px-3 py-1.5 text-[10px] rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold transition-all">電耗</button>
+                            <button onclick="setChartFilter('cost')" id="btnChartCost" class="px-3 py-1.5 text-[10px] rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold transition-all">花費</button>
+                        </div>
+                        <select id="chartTimeView" onchange="updateCharts()" class="px-2 py-1.5 text-[11px] rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-bold focus:outline-none cursor-pointer shadow-sm flex-shrink-0">
+                            <option value="monthly" selected>單月加總</option>
+                            <option value="raw">每天逐筆</option>
+                        </select>
                     </div>
                 </div>
 
-                <div class="flex justify-between items-center mb-4">
-                    <div id="monthFilterContainer_analysis" class="flex overflow-x-auto gap-2 no-scrollbar pb-1 flex-1 pr-2"></div>
-                    <select id="chartTimeView" onchange="updateCharts()" class="px-2 py-1.5 text-[11px] rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-bold focus:outline-none cursor-pointer shadow-sm flex-shrink-0">
-                        <option value="monthly" selected>單月加總</option>
-                        <option value="raw">每天逐筆</option>
-                    </select>
+                <div class="mb-4">
+                    <div id="monthFilterContainer_analysis" class="flex overflow-x-auto gap-2 no-scrollbar pb-1"></div>
                 </div>
                 
                 <div class="h-64 relative w-full">
