@@ -344,15 +344,27 @@
             <div class="rpg-card bg-white dark:bg-[#1e293b] p-5 sm:p-6 rounded-[2rem]">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
                     <h2 class="text-base font-black flex items-center gap-2">
-                <div class="flex justify-between items-center mb-4">
-                    <div id="monthFilterContainer_analysis" class="flex overflow-x-auto gap-2 no-scrollbar pb-1 flex-1 pr-2 items-center"></div>
+                        <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 w-7 h-7 rounded-full flex items-center justify-center text-xs">📊</span>
+                        趨勢分析
+                    </h2>
+                    
+                    <div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl self-start">
+                        <button onclick="setChartFilter('all')" id="btnChartAll" class="px-3 py-1.5 text-[10px] rounded-lg bg-white dark:bg-slate-600 shadow text-slate-900 dark:text-white font-bold transition-all">全部</button>
+                        <button onclick="setChartFilter('efficiency')" id="btnChartEfficiency" class="px-3 py-1.5 text-[10px] rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold transition-all">電耗</button>
+                        <button onclick="setChartFilter('cost')" id="btnChartCost" class="px-3 py-1.5 text-[10px] rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold transition-all">花費</button>
+                    </div>
+                </div>
+
+                <!-- 🚀 修正排版：月份按鈕與下拉選單的並排處理 -->
+                <div class="flex items-center gap-2 mb-4 w-full">
+                    <div id="monthFilterContainer_analysis" class="flex overflow-x-auto gap-2 no-scrollbar pb-1 flex-1 items-center"></div>
                     <select id="chartTimeView" onchange="updateCharts()" class="px-2 py-1.5 text-[11px] rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-bold focus:outline-none cursor-pointer shadow-sm flex-shrink-0">
                         <option value="monthly" selected>單月加總</option>
                         <option value="raw">每天逐筆</option>
                     </select>
                 </div>
                 
-                <!-- 🚀 新增：動態區間總里程統計卡片 -->
+                <!-- 動態區間總里程統計卡片 -->
                 <div class="flex justify-between items-center mb-4 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-700/50 transition-all">
                     <div class="flex items-center gap-2">
                         <div class="bg-amber-100 dark:bg-amber-900/30 text-amber-500 p-1.5 rounded-lg shadow-sm">
@@ -366,7 +378,7 @@
                     </div>
                 </div>
 
-                <div class="h-64 relative w-full">
+                <div class="h-64 relative w-full mt-2">
                     <canvas id="efficiencyChart"></canvas>
                 </div>
             </div>
