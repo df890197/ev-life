@@ -50,7 +50,6 @@
         }
     </style>
     
-    <!-- Google Fonts 非阻塞載入 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -254,7 +253,8 @@
 </head>
 <body class="font-sans bg-[#f6f7f9] dark:bg-[#0f172a] text-slate-800 dark:text-[#f8fafc] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative slashed-zero">
 
-    <div id="appSplashScreen" class="fixed inset-0 z-[9998] bg-[#f6f7f9] dark:bg-[#0f172a] flex flex-col items-center justify-center text-slate-800 dark:text-white transition-opacity duration-400">
+    <!-- 🚀 關鍵修復：確保 Loader 能被移除 -->
+    <div id="appSplashScreen" class="fixed inset-0 z-[9998] bg-[#f6f7f9] dark:bg-[#0f172a] flex flex-col items-center justify-center text-slate-800 dark:text-white transition-opacity duration-300">
         <div id="splashFallbackContainer" class="absolute inset-0 flex flex-col items-center justify-center space-y-4 z-10">
             <span class="text-7xl md:text-8xl">🐾</span>
             <h2 class="text-xl md:text-2xl font-black tracking-wider text-slate-800 dark:text-[#f8fafc] mt-2">Ev Life Loading...</h2>
@@ -285,7 +285,6 @@
         </div>
     </header>
 
-    <!-- 主內容區 (Main Content) -->
     <main class="max-w-4xl mx-auto pb-28 pt-2">
         
         <!-- 🔹 Tab 1: 首頁 (Home) -->
@@ -665,8 +664,21 @@
             if (typeof Chart !== 'undefined') updateCharts();
         }
 
+        // 🚀 關鍵修復：解決一直卡在 Ev Life Loading 的問題
         document.addEventListener('DOMContentLoaded', () => {
             initAppCore();
+            
+            // 移除 Loading 動畫畫面
+            const splash = document.getElementById('appSplashScreen');
+            if (splash) {
+                setTimeout(() => {
+                    splash.classList.add('opacity-0');
+                    setTimeout(() => {
+                        splash.style.display = 'none';
+                        splash.remove();
+                    }, 400); // 等待淡出動畫結束
+                }, 600); // 確保畫面渲染完畢後才淡出
+            }
         });
 
         function initAppCore() {
@@ -732,6 +744,11 @@
                 costInput.disabled = false; costInput.classList.remove('opacity-40');
                 document.getElementById('startSocLabel').textContent = "充電前 SOC (%)";
                 document.getElementById('endSocLabel').textContent = "充電後 SOC (%)";
+                
+                // 🚀 關鍵修復：切換回充電時，自動清空自動帶入的數字
+                if (editingRecordId === null) {
+                    document.getElementById('inputStartSoc').value = '';
+                }
             }
             updateConvertedPowerHint();
         }
@@ -758,7 +775,7 @@
             const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
             if (activeRecords.length === 0) return;
 
-            // 確保拿到的是日期最新的那筆紀錄
+            // 確保拿到的是日期最新的那筆紀錄 (陣列最前面的是最新)
             const sortedRecords = [...activeRecords].sort((a, b) => new Date(b.date) - new Date(a.date) || parseInt(b.id, 10) - parseInt(a.id, 10));
             const lastRecord = sortedRecords[0];
 
@@ -812,7 +829,7 @@
                     timeViewSelect.disabled = true;
                     timeViewSelect.classList.add('opacity-50', 'cursor-not-allowed');
                 } else {
-                    timeViewSelect.value = 'monthly';
+                    timeViewSelect.value = 'monthly'; // 恢復預設
                     timeViewSelect.disabled = false;
                     timeViewSelect.classList.remove('opacity-50', 'cursor-not-allowed');
                 }
@@ -866,7 +883,7 @@
                 totalPowerReal += batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
             });
 
-            // 尋找黃金右腳 MVP
+            // 🚀 黃金右腳判斷
             const displayRecords = [...filteredRecords].reverse();
             let maxEff = 0, mvpId = null;
             
@@ -885,11 +902,11 @@
                 const eff = pwr > 0 ? (dist / pwr).toFixed(2) : "0.00";
                 const typeStyle = rec.chargeType.includes('快充') ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400' : (rec.chargeType.includes('慢充') ? 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-400' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400');
                 
-                // 🚀 黃金右腳判斷與樣式
+                // 🚀 黃金右腳樣式增強 (黃色粗框)
                 const isMVP = rec.id === mvpId && maxEff > 0;
                 const mvpBadge = isMVP ? `<span class="inline-flex items-center ml-1 px-1.5 py-0.5 rounded border border-amber-400 bg-amber-100 text-amber-700 text-[10px] font-black shadow-sm">👑 黃金右腳</span>` : '';
                 const cardClass = isMVP 
-                    ? "bg-gradient-to-br from-amber-50 to-white dark:from-amber-950/40 dark:to-[#1e293b] p-4 rounded-[1.5rem] shadow-md border-2 border-amber-400 dark:border-amber-500 relative"
+                    ? "bg-gradient-to-br from-amber-50 to-white dark:from-amber-950/40 dark:to-[#1e293b] p-4 rounded-[1.5rem] shadow-md border-2 border-amber-400 dark:border-amber-500 relative shadow-[0_0_15px_rgba(251,191,36,0.3)] dark:shadow-[0_0_15px_rgba(251,191,36,0.2)]"
                     : "bg-white dark:bg-[#1e293b] p-4 rounded-[1.5rem] shadow-sm border border-slate-100 dark:border-slate-800 relative";
 
                 html += `
@@ -905,7 +922,7 @@
                             <button class="delete-btn text-slate-400 hover:text-rose-500 transition" data-id="${rec.id}"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.895-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                         </div>
                     </div>
-                    <!-- 🚀 安卓排版優化：防換行 Flexbox -->
+                    <!-- 🚀 安卓排版優化：防換行 whitespace-nowrap -->
                     <div class="flex justify-between items-center text-center divide-x divide-slate-100 dark:divide-slate-800">
                         <div class="flex-1 px-1">
                             <div class="text-[10px] text-slate-400 font-bold mb-1">里程</div>
@@ -1119,7 +1136,7 @@
 
         // --- 設定與同步模態框 ---
         function toggleSyncModal() {
-            // 🚀 紅點優化：一旦點開過，就標記為已讀並隱藏
+            // 🚀 紅點優化：點擊過一次即消失
             localStorage.setItem('ev_life_sync_dismissed', 'true');
             updateSyncUiStatus();
 
@@ -1251,7 +1268,7 @@
             }
         }
 
-        // --- PWA 與 雲端 (從先前的腳本帶入) ---
+        // --- PWA 與 雲端 ---
         async function syncWithCloud(mode = 'auto', isSilent = false) {
             if (!syncUrl) { if (!isSilent) showToast("請先設定雲端同步網址！", true); return; }
             const syncIcon = document.getElementById('navSyncIcon');
