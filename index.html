@@ -66,7 +66,7 @@
         .ios-safe-nav { padding-top: env(safe-area-inset-top, 0px) !important; }
         body { text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; touch-action: manipulation; -webkit-text-size-adjust: 100%; }
 
-        /* 🚀 iOS 27 超現實毛玻璃懸浮導航列 (Liquid Glass 修復版) */
+        /* 🚀 iOS 27 超現實毛玻璃懸浮導航列 */
         .ios-27-glass {
             background: rgba(255, 255, 255, 0.65);
             backdrop-filter: blur(24px) saturate(200%);
@@ -193,29 +193,36 @@
             </div>
 
             <div class="grid grid-cols-2 gap-4">
-                <div class="rpg-card bg-[#fffaf0] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-center text-left">
-                    <div class="text-amber-500 mb-2">
+                <!-- 🚀 1. 總里程：統一改用 flex-col justify-between h-full 保證對齊 -->
+                <div class="rpg-card bg-[#fffaf0] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
+                    <div class="text-amber-500 mb-2 flex items-start justify-between">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
                     </div>
-                    <div class="flex items-baseline gap-1">
-                        <span id="statTotalKm" class="text-2xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0</span>
-                        <span class="text-[11px] font-bold text-slate-500">km</span>
+                    <div>
+                        <div class="flex items-baseline gap-1 mt-1">
+                            <span id="statTotalKm" class="text-2xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0</span>
+                            <span class="text-[11px] font-bold text-slate-500">km</span>
+                        </div>
+                        <div class="text-[11px] font-bold text-slate-500 mt-0.5">總行駛里程</div>
                     </div>
-                    <div class="text-[11px] font-bold text-slate-500 mt-0.5">總行駛里程</div>
                 </div>
 
-                <div class="rpg-card bg-[#f0fdfa] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-center text-left">
-                    <div class="text-teal-500 mb-2">
+                <!-- 🚀 2. 平均電耗 -->
+                <div class="rpg-card bg-[#f0fdfa] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
+                    <div class="text-teal-500 mb-2 flex items-start justify-between">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     </div>
-                    <div class="flex items-baseline gap-1">
-                        <span id="statAvgEfficiency" class="text-2xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0.00</span>
-                        <span class="text-[11px] font-bold text-slate-500">km/度</span>
+                    <div>
+                        <div class="flex items-baseline gap-1 mt-1">
+                            <span id="statAvgEfficiency" class="text-2xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0.00</span>
+                            <span class="text-[11px] font-bold text-slate-500">km/度</span>
+                        </div>
+                        <div class="text-[11px] font-bold text-slate-500 mt-0.5">平均電耗</div>
                     </div>
-                    <div class="text-[11px] font-bold text-slate-500 mt-0.5">平均電耗</div>
                 </div>
 
-                <div class="rpg-card bg-[#f0f9ff] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-center text-left">
+                <!-- 🚀 3. 能源總成本 & 每公里電費 -->
+                <div class="rpg-card bg-[#f0f9ff] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
                     <div class="text-sky-500 mb-2 flex justify-between items-start">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path></svg>
                         <div class="text-right">
@@ -226,22 +233,27 @@
                             </div>
                         </div>
                     </div>
-                    <div class="flex items-baseline gap-1 mt-1">
-                        <span class="text-[11px] font-bold text-slate-500">$</span>
-                        <span id="statTotalCost" class="text-2xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0</span>
+                    <div>
+                        <div class="flex items-baseline gap-1 mt-1">
+                            <span class="text-[11px] font-bold text-slate-500">$</span>
+                            <span id="statTotalCost" class="text-2xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0</span>
+                        </div>
+                        <div class="text-[11px] font-bold text-slate-500 mt-0.5">能源總成本</div>
                     </div>
-                    <div class="text-[11px] font-bold text-slate-500 mt-0.5">能源總成本</div>
                 </div>
 
-                <div class="rpg-card bg-[#faf5ff] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-center text-left">
-                    <div class="text-fuchsia-500 mb-2">
+                <!-- 🚀 4. 保養維修：調整排版強制底面對齊 -->
+                <div class="rpg-card bg-[#faf5ff] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
+                    <div class="text-fuchsia-500 mb-2 flex items-start justify-between">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     </div>
-                    <div class="flex items-baseline gap-1">
-                        <span class="text-[11px] font-bold text-slate-500">$</span>
-                        <span id="statMaintCost" class="text-2xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0</span>
+                    <div>
+                        <div class="flex items-baseline gap-1 mt-1">
+                            <span class="text-[11px] font-bold text-slate-500">$</span>
+                            <span id="statMaintCost" class="text-2xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0</span>
+                        </div>
+                        <div class="text-[11px] font-bold text-slate-500 mt-0.5">保養維修費</div>
                     </div>
-                    <div class="text-[11px] font-bold text-slate-500 mt-0.5">保養維修費</div>
                 </div>
             </div>
         </div>
@@ -259,7 +271,6 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">日期</label>
-                            <!-- 🚀 新增 appearance-none 類別以修正 iOS -->
                             <input type="date" id="inputDate" required class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold text-left focus:outline-none focus:border-amber-400 transition-colors appearance-none block">
                         </div>
                         <div>
@@ -873,24 +884,7 @@
             const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.date);
             activeRecords.sort((a, b) => new Date(a.date) - new Date(b.date) || parseInt(a.id, 10) - parseInt(b.id, 10));
             
-            let filteredRecords = activeRecords;
-            if (currentMonthFilter !== 'all') {
-                filteredRecords = activeRecords.filter(rec => rec.date.startsWith(currentMonthFilter));
-            }
-
             renderMonthFilters();
-
-            const mobileList = document.getElementById('recordMobileList');
-            const placeholder = document.getElementById('noDataPlaceholder');
-
-            if (filteredRecords.length === 0) {
-                mobileList.innerHTML = '';
-                placeholder.classList.remove('hidden');
-                updateStats(0, 0, 0, 0, 0);
-                return;
-            } else {
-                placeholder.classList.add('hidden');
-            }
 
             let rollingOdo = initialOdometer;
             const driveRecords = activeRecords.filter(r => r.chargeType !== '維修保養');
@@ -908,17 +902,37 @@
                 rec.rollingOdo = rollingOdo;
             });
 
-            let totalKm = 0, totalCost = 0, totalPowerReal = 0, totalMaintCost = 0;
-            
-            filteredRecords.forEach(rec => {
+            // 🌟 獨立計算：首頁的總覽數據永遠以「所有歷史紀錄」計算，不再受到月份過濾器影響
+            let globalKm = 0, globalCost = 0, globalPowerReal = 0, globalMaintCost = 0;
+            activeRecords.forEach(rec => {
                 if (rec.chargeType === '維修保養') {
-                    totalMaintCost += parseFloat(rec.cost) || 0;
+                    globalMaintCost += parseFloat(rec.cost) || 0;
                 } else {
-                    totalKm += parseFloat(rec.distance) || 0;
-                    totalCost += parseFloat(rec.cost) || 0;
-                    totalPowerReal += batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
+                    globalKm += parseFloat(rec.distance) || 0;
+                    globalCost += parseFloat(rec.cost) || 0;
+                    globalPowerReal += batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
                 }
             });
+            const globalAvgEff = globalPowerReal > 0 ? (globalKm / globalPowerReal) : 0;
+            const globalCostPerKm = globalKm > 0 ? (globalCost / globalKm) : 0;
+            updateStats(globalKm, globalAvgEff, globalCost, globalMaintCost, initialOdometer, globalCostPerKm);
+
+            // 🌟 月份過濾只會影響下方渲染的「歷史紀錄列表」
+            let filteredRecords = activeRecords;
+            if (currentMonthFilter !== 'all') {
+                filteredRecords = activeRecords.filter(rec => rec.date.startsWith(currentMonthFilter));
+            }
+
+            const mobileList = document.getElementById('recordMobileList');
+            const placeholder = document.getElementById('noDataPlaceholder');
+
+            if (filteredRecords.length === 0) {
+                mobileList.innerHTML = '';
+                placeholder.classList.remove('hidden');
+                return;
+            } else {
+                placeholder.classList.add('hidden');
+            }
 
             const displayRecords = [...filteredRecords].reverse();
             let maxEff = 0, mvpId = null;
@@ -980,10 +994,6 @@
                 </div>`;
             });
             mobileList.innerHTML = html;
-
-            const avgEff = totalPowerReal > 0 ? (totalKm / totalPowerReal) : 0;
-            const costPerKm = totalKm > 0 ? (totalCost / totalKm) : 0;
-            updateStats(totalKm, avgEff, totalCost, totalMaintCost, currentMonthFilter === 'all' ? initialOdometer : 0, costPerKm);
         }
 
         function updateStats(km, eff, cost, maintCost, baseOdo, costPerKm = 0) {
