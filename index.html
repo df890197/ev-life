@@ -127,6 +127,29 @@
         <img id="splashLogoImg" src="./splash.png" alt="Splash Screen" class="w-full h-full object-cover opacity-0 absolute inset-0 z-20 transition-opacity duration-300">
     </div>
 
+    <!-- 🚀 立即套用自訂啟動畫面設定 (避免閃爍 FOUC) -->
+    <script>
+        (function(){
+            try {
+                const splashBg = localStorage.getItem('ev_life_splash_color');
+                const splashImg = localStorage.getItem('ev_life_splash_image');
+                const splashDiv = document.getElementById('appSplashScreen');
+                const imgEl = document.getElementById('splashLogoImg');
+                const fallbackEl = document.getElementById('splashFallbackContainer');
+                
+                if(splashBg && splashDiv) {
+                    splashDiv.style.setProperty('background-color', splashBg, 'important');
+                }
+                if(splashImg && imgEl && fallbackEl) {
+                    imgEl.src = splashImg;
+                    imgEl.classList.remove('opacity-0', 'object-cover');
+                    imgEl.classList.add('object-contain', 'p-8'); // 改用 contain 避免截斷自訂Logo
+                    fallbackEl.style.display = 'none';
+                }
+            } catch(e) {}
+        })();
+    </script>
+
     <!-- 頂部膠囊導航列 (Top Pill Bar) -->
     <header class="sticky top-0 z-40 bg-[#fcfaf2]/90 dark:bg-[#111827]/90 backdrop-blur-xl pt-[env(safe-area-inset-top)] border-b border-transparent transition-all">
         <div class="flex items-center justify-between px-4 py-3 max-w-4xl mx-auto">
@@ -418,6 +441,33 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- 新增：自訂啟動畫面 -->
+                    <div class="bg-slate-50 dark:bg-[#1e293b] p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+                        <span class="text-xs font-black text-slate-500 dark:text-slate-400">🎨 啟動畫面設定</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-400 block mb-1">自訂圖片 (選填)</label>
+                                <button type="button" onclick="document.getElementById('splashImageUpload').click()" class="w-full px-3 py-2.5 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-[11px] font-bold focus:outline-none flex items-center justify-center gap-2 transition active:scale-95">
+                                    🖼️ 上傳圖片
+                                </button>
+                                <input type="file" id="splashImageUpload" class="hidden" accept="image/*" onchange="handleSplashImageUpload(event)">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-400 block mb-1">自訂底色 (選填)</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="color" id="splashColorInput" class="w-10 h-9 p-0 border-0 rounded cursor-pointer bg-transparent">
+                                    <button type="button" onclick="clearSplashColor()" class="flex-1 py-2.5 bg-rose-50 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400 border border-rose-100 dark:border-rose-900/50 rounded-xl text-[11px] font-bold transition active:scale-95">清除還原</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="splashPreviewContainer" class="hidden mt-2 pt-3 border-t border-slate-200 dark:border-slate-700 text-center relative">
+                            <span class="text-[10px] text-slate-400 font-bold mb-2 block">目前圖片預覽</span>
+                            <img id="splashPreviewImg" src="" class="max-h-24 mx-auto rounded-lg object-contain shadow-sm bg-black/5 dark:bg-white/5">
+                            <button type="button" onclick="clearSplashImage()" class="absolute top-2 right-0 w-6 h-6 bg-rose-500 text-white rounded-full flex items-center justify-center shadow text-xs font-bold transition active:scale-90">✕</button>
+                        </div>
+                    </div>
+
                     <div>
                         <label class="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-1.5">雲端同步網址 (Google Apps Script)</label>
                         <input type="url" id="syncUrlInput" placeholder="https://script.google.com/macros/..." class="w-full px-4 py-3 bg-slate-50 dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-mono focus:outline-none">
@@ -571,6 +621,24 @@
             initialOdometer = parseFloat(localStorage.getItem('ev_life_initial_odometer')) || 0;
             if (document.getElementById('initialOdometerInput')) document.getElementById('initialOdometerInput').value = initialOdometer;
             
+            // 初始化啟動畫面設定UI
+            const splashBg = localStorage.getItem('ev_life_splash_color');
+            const colorInput = document.getElementById('splashColorInput');
+            if (colorInput) {
+                if(splashBg) colorInput.value = splashBg;
+                else colorInput.value = document.documentElement.classList.contains('dark') ? '#111827' : '#fcfaf2';
+                
+                colorInput.addEventListener('change', function(e) {
+                    localStorage.setItem('ev_life_splash_color', e.target.value);
+                    showToast('自訂底色已儲存！下次重啟生效 🎨');
+                });
+            }
+            const splashImg = localStorage.getItem('ev_life_splash_image');
+            if (splashImg && document.getElementById('splashPreviewImg')) {
+                document.getElementById('splashPreviewImg').src = splashImg;
+                document.getElementById('splashPreviewContainer').classList.remove('hidden');
+            }
+
             const today = new Date();
             if(document.getElementById('inputDate')) document.getElementById('inputDate').value = today.toISOString().split('T')[0];
 
@@ -615,11 +683,7 @@
                 if(type === '維修保養') activeClass = "border-fuchsia-400 bg-fuchsia-50 dark:bg-fuchsia-900/20 text-fuchsia-600 dark:text-fuchsia-400 font-black shadow-sm";
                 activeBtn.className = `charge-type-btn border-2 rounded-xl py-2 text-[11px] transition-all ${activeClass}`;
             }
-            handleChargeTypeChange();
-        }
 
-        function handleChargeTypeChange() {
-            const type = document.getElementById('inputChargeType').value;
             const distInput = document.getElementById('inputDistance');
             const startSocInput = document.getElementById('inputStartSoc');
             const endSocInput = document.getElementById('inputEndSoc');
@@ -628,20 +692,21 @@
             const driveArea = document.getElementById('driveInputsArea');
             const hintContainer = document.getElementById('powerHintContainer');
 
+            if (!distInput) return;
+
             if (type === "維修保養") {
-                driveArea.classList.add('hidden');
-                hintContainer.classList.add('hidden');
+                if(driveArea) driveArea.classList.add('hidden');
+                if(hintContainer) hintContainer.classList.add('hidden');
                 distInput.required = false; startSocInput.required = false; endSocInput.required = false;
                 
-                costLabel.textContent = "保養/維修費用 (元)";
+                if(costLabel) costLabel.textContent = "保養/維修費用 (元)";
                 costInput.disabled = false; costInput.classList.remove('opacity-40');
                 if (editingRecordId === null && costInput.value === "0") costInput.value = "";
-                
             } else {
-                driveArea.classList.remove('hidden');
-                hintContainer.classList.remove('hidden');
+                if(driveArea) driveArea.classList.remove('hidden');
+                if(hintContainer) hintContainer.classList.remove('hidden');
                 distInput.required = true; startSocInput.required = true; endSocInput.required = true;
-                costLabel.textContent = "本次花費 (元) - 無則填 0";
+                if(costLabel) costLabel.textContent = "本次花費 (元) - 無則填 0";
 
                 if (type === "未充電") {
                     costInput.value = "0"; costInput.disabled = true; costInput.classList.add('opacity-40');
@@ -659,13 +724,66 @@
             updateConvertedPowerHint();
         }
 
+        // --- 🚀 自訂啟動畫面邏輯 ---
+        function handleSplashImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 600; // 啟動畫面圖標不需過大
+                    let width = img.width, height = img.height;
+                    
+                    if (width > MAX_WIDTH) {
+                        height = Math.round((height * MAX_WIDTH) / width);
+                        width = MAX_WIDTH;
+                    }
+                    canvas.width = width; canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                    try {
+                        localStorage.setItem('ev_life_splash_image', dataUrl);
+                        document.getElementById('splashPreviewImg').src = dataUrl;
+                        document.getElementById('splashPreviewContainer').classList.remove('hidden');
+                        showToast('啟動圖片已儲存！下次重啟生效 🚀');
+                    } catch (err) {
+                        showToast('圖片檔案太大，請嘗試其他照片。', true);
+                    }
+                }
+                img.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+
+        function clearSplashImage() {
+            localStorage.removeItem('ev_life_splash_image');
+            document.getElementById('splashPreviewContainer').classList.add('hidden');
+            document.getElementById('splashImageUpload').value = '';
+            showToast('已移除自訂啟動圖片 🗑️');
+        }
+
+        function clearSplashColor() {
+            localStorage.removeItem('ev_life_splash_color');
+            const isDark = document.documentElement.classList.contains('dark');
+            document.getElementById('splashColorInput').value = isDark ? '#111827' : '#fcfaf2';
+            showToast('已恢復預設底色，下次重啟生效 🎨');
+        }
+
         function updateConvertedPowerHint() {
-            const type = document.getElementById('inputChargeType').value;
+            const typeInput = document.getElementById('inputChargeType');
+            if (!typeInput) return;
+            const type = typeInput.value;
             if (type === "維修保養") return;
 
             const start = parseFloat(document.getElementById('inputStartSoc').value) || 0;
             const end = parseFloat(document.getElementById('inputEndSoc').value) || 0;
             const hint = document.getElementById('powerHintText');
+            if (!hint) return;
+            
             const delta = Math.abs(end - start);
             const kwh = batteryCapacity * (delta / 100);
             hint.textContent = `共${type === "未充電" ? "消耗" : "補給"} ${delta}% 電量 (約 ${kwh.toFixed(2)} 度)`;
