@@ -1,1 +1,23 @@
-const CACHE='ev-cache-v10', ASSETS=['./','./index.html','./manifest.json','./logo.png','./splash.png']; self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()))); self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(k=>Promise.all(k.map(x=>x!==CACHE?caches.delete(x):0))).then(()=>self.clients.claim()))); self.addEventListener('fetch',e=>{if(e.request.url.includes('script.google.com'))return; e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(nr=>{if(nr.status===200)caches.open(CACHE).then(c=>c.put(e.request,nr.clone()));return nr;})))});
+const CACHE_NAME = 'ev-life-cache-v1';
+const ASSETS_TO_CACHE = [
+    './',
+    './index.html',
+    './manifest.json',
+    './splash.png'
+];
+
+self.addEventListener('install', event => {
+    event.waitUntil(
+        caches.open(CACHE_NAME).then(cache => {
+            return cache.addAll(ASSETS_TO_CACHE);
+        })
+    );
+});
+
+self.addEventListener('fetch', event => {
+    event.respondWith(
+        caches.match(event.request).then(response => {
+            return response || fetch(event.request);
+        })
+    );
+});
