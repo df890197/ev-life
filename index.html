@@ -53,10 +53,10 @@
         }
     </style>
     
-    <!-- Google Fonts 非阻塞載入：移除 JetBrains Mono，僅保留 Fredoka 與 Noto Sans TC -->
+    <!-- Google Fonts 非阻塞載入：加入 Roboto Mono 作為 Android/Windows 的斜線0備用字型 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
     <script>
         function adaptContainerBgToImage(img) {
@@ -326,8 +326,8 @@
                             extend: {
                                 fontFamily: {
                                     sans: ['Fredoka', '"Noto Sans TC"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'],
-                                    // 🚀 強制優先使用 SF Mono 與原生 ui-monospace
-                                    mono: ['"SF Mono"', 'SFMono-Regular', 'ui-monospace', '"Noto Sans TC"', 'Menlo', 'Monaco', 'Consolas', '"Liberation Mono"', '"Courier New"', 'monospace'],
+                                    // 🚀 優先使用蘋果 SF Mono，若沒有 (如 Android/Windows) 則無縫接軌使用自帶斜線 0 的 Roboto Mono
+                                    mono: ['"SF Mono"', 'SFMono-Regular', '"Roboto Mono"', 'ui-monospace', '"Noto Sans TC"', 'monospace'],
                                 },
                                 colors: {
                                     brandBg: '#111827', brandCard: '#1f2937', brandCardHover: '#253043',
@@ -351,7 +351,7 @@
         })();
     </script>
 </head>
-<!-- 🚀 在 body 加上 slashed-zero 強制顯示斜線 0 -->
+<!-- 🚀 在 body 加上 slashed-zero 強制在支援的字型 (如 SF Mono) 上顯示斜線 0 -->
 <body class="font-sans bg-[#fcfaf2] dark:bg-[#111827] text-slate-800 dark:text-[#f8fafc] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative slashed-zero">
 
     <div id="appSplashScreen" class="fixed inset-0 z-[9998] bg-[#fcfaf2] dark:bg-[#111827] flex flex-col items-center justify-center text-slate-800 dark:text-white transition-opacity duration-400">
@@ -1909,7 +1909,7 @@ function doPost(e) {
             const scalesConfig = { 
                 x: { 
                     grid: { display: false, drawBorder: false }, 
-                    ticks: { color: labelTextColor, font: { family: "'SF Mono', SFMono-Regular, ui-monospace, sans-serif", size: 10, weight: '600' }, padding: 8 } 
+                    ticks: { color: labelTextColor, font: { family: "'SF Mono', SFMono-Regular, 'Roboto Mono', ui-monospace, sans-serif", size: 10, weight: '600' }, padding: 8 } 
                 } 
             };
 
@@ -1947,7 +1947,7 @@ function doPost(e) {
                     title: { display: false }, 
                     ticks: { 
                         color: isDarkMode ? '#2dd4bf' : '#0d9488', 
-                        font: { family: "'SF Mono', SFMono-Regular, ui-monospace, sans-serif", weight: '600' },
+                        font: { family: "'SF Mono', SFMono-Regular, 'Roboto Mono', ui-monospace, sans-serif", weight: '600' },
                         padding: 10,
                         maxTicksLimit: 6
                     },
@@ -1982,7 +1982,7 @@ function doPost(e) {
                     title: { display: false },
                     ticks: { 
                         color: isDarkMode ? '#fbbf24' : '#f59e0b', 
-                        font: { family: "'SF Mono', SFMono-Regular, ui-monospace, sans-serif", weight: '600' },
+                        font: { family: "'SF Mono', SFMono-Regular, 'Roboto Mono', ui-monospace, sans-serif", weight: '600' },
                         padding: 10,
                         maxTicksLimit: 6
                     },
