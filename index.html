@@ -54,18 +54,28 @@
         .ios-safe-nav { padding-top: env(safe-area-inset-top, 0px) !important; }
         body { text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; touch-action: manipulation; -webkit-text-size-adjust: 100%; }
 
-        /* 🚀 iOS 27 超現實毛玻璃懸浮導航列 */
+        /* 🚀 iOS 27 超現實毛玻璃懸浮導航列 (Liquid Glass 修復版) */
         .ios-27-glass {
-            background: rgba(255, 255, 255, 0.45);
-            backdrop-filter: blur(40px) saturate(200%);
-            -webkit-backdrop-filter: blur(40px) saturate(200%);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(24px) saturate(200%);
+            -webkit-backdrop-filter: blur(24px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1), inset 0 1px 2px rgba(255, 255, 255, 0.8);
         }
         .dark .ios-27-glass {
-            background: rgba(15, 23, 42, 0.55);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            /* 調整為更清透的藍灰色，增強質感與對比 */
+            background: rgba(30, 41, 59, 0.7); 
+            backdrop-filter: blur(24px) saturate(200%);
+            -webkit-backdrop-filter: blur(24px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-top-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.15);
+        }
+
+        /* 解決 iOS 底部過多空白的核心定位類別 */
+        .floating-nav {
+            /* 基礎距離加上安全區域，確保完美懸浮 */
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 1.25rem) !important;
         }
 
         /* 底部導航選中狀態 */
@@ -331,7 +341,8 @@
     </main>
 
     <!-- 🚀 iOS 27 懸浮玻璃底部導航列 -->
-    <nav class="fixed bottom-4 left-4 right-4 z-50 rounded-3xl ios-27-glass pb-[env(safe-area-inset-bottom)] px-2">
+    <!-- 修復：移除 pb-[env...]，新增 floating-nav 修正定位，圓角加深 -->
+    <nav class="fixed left-4 right-4 z-50 rounded-[2rem] ios-27-glass px-2 floating-nav">
         <div class="flex justify-around items-center h-16 max-w-md mx-auto relative">
             <button onclick="switchTab('home')" id="tab-home" class="tab-btn active flex flex-col items-center gap-1 w-14 text-slate-500 dark:text-slate-400 transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
@@ -575,7 +586,7 @@
             setupDelegatedEvents();
         }
 
-        // --- STREAMING_CHUNK:Processing forms and stats... ---
+        // --- STREAMING_CHUNK:Processing Data and Lists... ---
         function saveLocalState(newRecords) {
             records = newRecords;
             localStorage.setItem('ev_life_records', JSON.stringify(records));
@@ -593,7 +604,6 @@
             const hintContainer = document.getElementById('powerHintContainer');
 
             if (type === "維修保養") {
-                // 🚀 維修保養模式：隱藏行車數據輸入框
                 driveArea.classList.add('hidden');
                 hintContainer.classList.add('hidden');
                 distInput.required = false; startSocInput.required = false; endSocInput.required = false;
@@ -603,7 +613,6 @@
                 if (editingRecordId === null && costInput.value === "0") costInput.value = "";
                 
             } else {
-                // 回復正常模式
                 driveArea.classList.remove('hidden');
                 hintContainer.classList.remove('hidden');
                 distInput.required = true; startSocInput.required = true; endSocInput.required = true;
@@ -669,7 +678,6 @@
             }, 2500);
         }
 
-        // --- STREAMING_CHUNK:Rendering Dashboard and Lists... ---
         function renderMonthFilters() {
             const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.date);
             const months = new Set();
@@ -732,7 +740,6 @@
             }
 
             let rollingOdo = initialOdometer;
-            // 只有非保養紀錄才計算 SOC 與 里程
             const driveRecords = activeRecords.filter(r => r.chargeType !== '維修保養');
             
             driveRecords.forEach((rec, i) => {
@@ -760,7 +767,6 @@
                 }
             });
 
-            // 🚀 黃金右腳判斷
             const displayRecords = [...filteredRecords].reverse();
             let maxEff = 0, mvpId = null;
             
@@ -833,6 +839,7 @@
             document.getElementById('statMaintCost').textContent = maintCost.toLocaleString();
         }
 
+        // --- STREAMING_CHUNK:Finalizing Scripts and Analytics... ---
         // --- Chart.js 分析圖表 ---
         function setChartFilter(filter) {
             currentChartFilter = filter;
@@ -853,7 +860,6 @@
             const labelColor = isDarkMode ? '#9ca3af' : '#64748b'; 
             const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.03)';
             
-            // 排除保養紀錄
             let chartData = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.chargeType !== '維修保養');
             if (currentMonthFilter !== 'all') {
                 chartData = chartData.filter(rec => rec.date.startsWith(currentMonthFilter));
@@ -924,7 +930,6 @@
             }
         }
 
-        // --- STREAMING_CHUNK:Finalizing Interactions and Sync... ---
         async function addRecord(e) {
             e.preventDefault();
             const date = document.getElementById('inputDate').value;
