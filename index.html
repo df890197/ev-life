@@ -601,6 +601,17 @@
         let currentChartFilter = 'all';
         let currentMonthFilter = 'all';
         let deferredPrompt = null;
+        
+        // 🚀 新增：提示訊息的計時器變數
+        let toastTimeout = null;
+
+        // 🚀 新增：取得本地時區的 YYYY-MM-DD
+        function getLocalDateString() {
+            const d = new Date();
+            const offset = d.getTimezoneOffset();
+            d.setMinutes(d.getMinutes() - offset);
+            return d.toISOString().split('T')[0];
+        }
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -712,8 +723,10 @@
                 document.getElementById('splashPreviewContainer').classList.remove('hidden');
             }
 
-            const today = new Date();
-            if(document.getElementById('inputDate')) document.getElementById('inputDate').value = today.toISOString().split('T')[0];
+            // 🚀 修正：改用自訂函式取得本地時間
+            if(document.getElementById('inputDate')) {
+                document.getElementById('inputDate').value = getLocalDateString();
+            }
 
             selectChargeType('DC-快充'); 
 
@@ -732,10 +745,9 @@
             
             setupDelegatedEvents();
 
-            // 🚀 啟動時自動觸發雲端同步，強制下載雲端資料覆蓋本機 (因為要跨裝置以雲端為主)
+            // 啟動時自動觸發雲端同步，強制下載雲端資料覆蓋本機
             if (syncUrl) {
                 setTimeout(() => {
-                    // mode: 'download' 強制抓雲端資料, isSilent: false 會顯示 Toast 提示
                     syncWithCloud('download', false);
                 }, 800);
             }
@@ -888,16 +900,20 @@
             }
         }
 
-        function showToast(message, isError=false) {
+        // 🚀 修正：加入 clearTimeout 避免提示訊息過早消失
+        function showToast(message, isError=false, duration=2500) {
             const toast = document.getElementById('toast');
             document.getElementById('toastMessage').textContent = message;
             document.getElementById('toastIcon').textContent = isError ? "⚠️" : "🐾";
             toast.className = `fixed top-[70px] left-1/2 -translate-x-1/2 z-[120] transform translate-y-0 opacity-100 visible pointer-events-auto transition-all duration-300 ${isError?'bg-rose-500':'bg-slate-900/95 dark:bg-amber-500'} text-white ${isError?'':'dark:text-slate-900'} px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 text-xs font-bold whitespace-nowrap`;
-            setTimeout(() => {
+            
+            if (toastTimeout) clearTimeout(toastTimeout);
+            
+            toastTimeout = setTimeout(() => {
                 toast.classList.replace('translate-y-0', '-translate-y-10');
                 toast.classList.replace('opacity-100', 'opacity-0');
                 toast.classList.add('invisible', 'pointer-events-none');
-            }, 2500);
+            }, duration);
         }
 
         function renderMonthFilters() {
@@ -960,7 +976,6 @@
                 rec.rollingOdo = rollingOdo;
             });
 
-            // 🌟 獨立計算：首頁的總覽數據永遠以「所有歷史紀錄」計算，不再受到月份過濾器影響
             let globalKm = 0, globalCost = 0, globalPowerReal = 0, globalMaintCost = 0;
             activeRecords.forEach(rec => {
                 if (rec.chargeType === '維修保養') {
@@ -975,7 +990,6 @@
             const globalCostPerKm = globalKm > 0 ? (globalCost / globalKm) : 0;
             updateStats(globalKm, globalAvgEff, globalCost, globalMaintCost, initialOdometer, globalCostPerKm);
 
-            // 🌟 月份過濾只會影響下方渲染的「歷史紀錄列表」
             let filteredRecords = activeRecords;
             if (currentMonthFilter !== 'all') {
                 filteredRecords = activeRecords.filter(rec => rec.date.startsWith(currentMonthFilter));
@@ -1238,12 +1252,13 @@
             switchTab('add'); 
         }
 
+        // 🚀 修正：改用自訂函式取得本地時間
         function cancelEdit() {
             editingRecordId = null;
             document.getElementById('formTitle').textContent = "記錄本次旅程";
             document.getElementById('cancelEditBtn').classList.add('hidden');
             document.getElementById('recordForm').reset();
-            document.getElementById('inputDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('inputDate').value = getLocalDateString();
             selectChargeType('DC-快充'); 
             switchTab('records');
         }
@@ -1387,7 +1402,6 @@
                 
                 updateSyncUiStatus(); 
                 
-                // 🚀 修正：只有在設定視窗「處於開啟狀態」時，才呼叫 toggleSyncModal() 把它關閉
                 const syncModalEl = document.getElementById('syncModal');
                 if ((mode === 'download' || mode === 'upload') && syncModalEl && !syncModalEl.classList.contains('hidden')) {
                     toggleSyncModal();
@@ -1464,4 +1478,3 @@ self.addEventListener('fetch', event => {
     </script>
 </body>
 </html>
-```eof
