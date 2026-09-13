@@ -27,6 +27,7 @@
         html.dark #appSplashScreen { background-color: #111827 !important; }
         html:not(.dark) #appSplashScreen { background-color: #fcfaf2 !important; }
 
+        input[type="date"] { position: relative; }
         input[type="date"]::-webkit-calendar-picker-indicator {
             opacity: 0 !important; cursor: pointer; position: absolute; right: 0; top: 0; width: 100%; height: 100%; z-index: 30;
         }
@@ -348,20 +349,24 @@
                         趨勢分析
                     </h2>
                     
-                    <div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl self-start">
-                        <button onclick="setChartFilter('all')" id="btnChartAll" class="px-3 py-1.5 text-[10px] rounded-lg bg-white dark:bg-slate-600 shadow text-slate-900 dark:text-white font-bold transition-all">全部</button>
-                        <button onclick="setChartFilter('efficiency')" id="btnChartEfficiency" class="px-3 py-1.5 text-[10px] rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold transition-all">電耗</button>
-                        <button onclick="setChartFilter('cost')" id="btnChartCost" class="px-3 py-1.5 text-[10px] rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold transition-all">花費</button>
+                    <!-- 🚀 整合後的右上角控制器群組 -->
+                    <div class="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+                        <div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+                            <button onclick="setChartFilter('all')" id="btnChartAll" class="px-3 py-1.5 text-[10px] rounded-lg bg-white dark:bg-slate-600 shadow text-slate-900 dark:text-white font-bold transition-all">全部</button>
+                            <button onclick="setChartFilter('efficiency')" id="btnChartEfficiency" class="px-3 py-1.5 text-[10px] rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold transition-all">電耗</button>
+                            <button onclick="setChartFilter('cost')" id="btnChartCost" class="px-3 py-1.5 text-[10px] rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold transition-all">花費</button>
+                        </div>
+                        
+                        <select id="chartTimeView" onchange="updateCharts()" class="px-3 py-1.5 text-[11px] h-[34px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-bold focus:outline-none cursor-pointer shadow-sm flex-shrink-0">
+                            <option value="monthly" selected>單月加總</option>
+                            <option value="raw">每天逐筆</option>
+                        </select>
                     </div>
                 </div>
 
-                <!-- 🚀 修正排版：月份按鈕與下拉選單的並排處理 -->
-                <div class="flex items-center gap-2 mb-4 w-full">
+                <!-- 🚀 移除旁邊的選單，現在這裡只保留月份過濾器，給予 100% 寬度 -->
+                <div class="flex items-center w-full mb-4">
                     <div id="monthFilterContainer_analysis" class="flex overflow-x-auto gap-2 no-scrollbar pb-1 flex-1 items-center"></div>
-                    <select id="chartTimeView" onchange="updateCharts()" class="px-2 py-1.5 text-[11px] rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-bold focus:outline-none cursor-pointer shadow-sm flex-shrink-0">
-                        <option value="monthly" selected>單月加總</option>
-                        <option value="raw">每天逐筆</option>
-                    </select>
                 </div>
                 
                 <!-- 動態區間總里程統計卡片 -->
