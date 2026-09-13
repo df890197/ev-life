@@ -731,6 +731,14 @@
             else setTimeout(() => { if (typeof Chart !== 'undefined') updateCharts(); }, 200);
             
             setupDelegatedEvents();
+
+            // 🚀 新增：啟動時自動觸發雲端同步，強制下載雲端資料覆蓋本機 (因為要跨裝置以雲端為主)
+            if (syncUrl) {
+                setTimeout(() => {
+                    // mode: 'download' 強制抓雲端資料, isSilent: false 會顯示 Toast 提示
+                    syncWithCloud('download', false);
+                }, 800);
+            }
         }
 
         function saveLocalState(newRecords) {
@@ -1206,7 +1214,7 @@
             }
             
             cancelEdit(); renderDashboard(); switchTab('records'); 
-            if (syncUrl) syncWithCloud('auto', true);
+            if (syncUrl) syncWithCloud('upload', true); // 新增或修改資料後，強制上傳到雲端
         }
 
         function editRecord(id) {
@@ -1245,7 +1253,7 @@
                 const updated = records.filter(rec => rec.id !== id);
                 if(updated.length === 0) localStorage.setItem('ev_life_cleared', 'true');
                 saveLocalState(updated); renderDashboard(); showToast("已刪除！🗑️");
-                if (syncUrl) syncWithCloud('auto', true);
+                if (syncUrl) syncWithCloud('upload', true); // 刪除資料後，強制上傳到雲端
             });
         }
 
@@ -1253,7 +1261,7 @@
             showConfirmModal("清空全部紀錄", "警告：這將徹底刪除裝置上所有數據！", function() {
                 localStorage.setItem('ev_life_cleared', 'true');
                 saveLocalState([]); renderDashboard(); showToast("紀錄已清空");
-                if (syncUrl) syncWithCloud('auto', true);
+                if (syncUrl) syncWithCloud('upload', true); // 清空資料後，強制上傳到雲端
             });
         }
 
