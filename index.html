@@ -269,7 +269,7 @@
                         </div>
                         <div>
                             <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">紀錄類型</label>
-                            <select id="inputChargeType" class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors appearance-none">
+                            <input type="hidden" id="inputChargeType" value="DC-快充">
                             <div class="grid grid-cols-2 gap-2">
                                 <button type="button" onclick="selectChargeType('DC-快充')" id="btnType-DC-快充" class="charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#0f172a] text-slate-400 font-bold rounded-xl py-2 text-[11px] transition-all">⚡ 快充 (DC)</button>
                                 <button type="button" onclick="selectChargeType('AC-慢充')" id="btnType-AC-慢充" class="charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#0f172a] text-slate-400 font-bold rounded-xl py-2 text-[11px] transition-all">🔌 慢充 (AC)</button>
@@ -344,27 +344,28 @@
             <div class="rpg-card bg-white dark:bg-[#1e293b] p-5 sm:p-6 rounded-[2rem]">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
                     <h2 class="text-base font-black flex items-center gap-2">
-                        <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 w-7 h-7 rounded-full flex items-center justify-center text-xs">📊</span>
-                        趨勢分析
-                    </h2>
-                    
-                    <div class="flex flex-wrap items-center gap-2 self-start sm:self-auto">
-                        <div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
-                            <button onclick="setChartFilter('all')" id="btnChartAll" class="px-3 py-1.5 text-[10px] rounded-lg bg-white dark:bg-slate-600 shadow text-slate-900 dark:text-white font-bold transition-all">全部</button>
-                            <button onclick="setChartFilter('efficiency')" id="btnChartEfficiency" class="px-3 py-1.5 text-[10px] rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold transition-all">電耗</button>
-                            <button onclick="setChartFilter('cost')" id="btnChartCost" class="px-3 py-1.5 text-[10px] rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold transition-all">花費</button>
+                <div class="flex justify-between items-center mb-4">
+                    <div id="monthFilterContainer_analysis" class="flex overflow-x-auto gap-2 no-scrollbar pb-1 flex-1 pr-2 items-center"></div>
+                    <select id="chartTimeView" onchange="updateCharts()" class="px-2 py-1.5 text-[11px] rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-bold focus:outline-none cursor-pointer shadow-sm flex-shrink-0">
+                        <option value="monthly" selected>單月加總</option>
+                        <option value="raw">每天逐筆</option>
+                    </select>
+                </div>
+                
+                <!-- 🚀 新增：動態區間總里程統計卡片 -->
+                <div class="flex justify-between items-center mb-4 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-700/50 transition-all">
+                    <div class="flex items-center gap-2">
+                        <div class="bg-amber-100 dark:bg-amber-900/30 text-amber-500 p-1.5 rounded-lg shadow-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
                         </div>
-                        <select id="chartTimeView" onchange="updateCharts()" class="px-2 py-1.5 text-[11px] rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-bold focus:outline-none cursor-pointer shadow-sm flex-shrink-0">
-                            <option value="monthly" selected>單月加總</option>
-                            <option value="raw">每天逐筆</option>
-                        </select>
+                        <span id="analysisSummaryLabel" class="text-xs font-bold text-slate-600 dark:text-slate-400">區間總里程</span>
+                    </div>
+                    <div class="flex items-baseline gap-1">
+                        <span id="analysisTotalKm" class="text-xl font-black font-mono text-slate-800 dark:text-white">0</span>
+                        <span class="text-[10px] font-bold text-slate-500">km</span>
                     </div>
                 </div>
 
-                <div class="mb-4">
-                    <div id="monthFilterContainer_analysis" class="flex overflow-x-auto gap-2 no-scrollbar pb-1"></div>
-                </div>
-                
                 <div class="h-64 relative w-full">
                     <canvas id="efficiencyChart"></canvas>
                 </div>
@@ -496,6 +497,21 @@
                             <div id="diag-network">🟢 在線模式</div>
                         </div>
                     </div>
+
+                    <!-- 🚀 新增：PWA 核心檔案下載區塊 -->
+                    <div class="bg-slate-50 dark:bg-[#1e293b] p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3">
+                        <span class="font-black text-slate-700 dark:text-slate-300 text-xs block">📦 PWA 核心檔案產生器</span>
+                        <p class="text-[10px] text-slate-500 leading-relaxed">請下載這兩份檔案，並與您的 index.html 放在同一個資料夾層級，即可啟用完整的桌面/主畫面離線安裝功能。</p>
+                        <div class="grid grid-cols-2 gap-3 pt-1">
+                            <button onclick="downloadFile('manifest.json', generateManifestContent())" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-[11px] font-bold py-2.5 rounded-xl shadow-sm transition active:scale-95 flex items-center justify-center gap-1.5">
+                                📄 manifest
+                            </button>
+                            <button onclick="downloadFile('sw.js', generateSWContent())" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-[11px] font-bold py-2.5 rounded-xl shadow-sm transition active:scale-95 flex items-center justify-center gap-1.5">
+                                ⚙️ sw.js
+                            </button>
+                        </div>
+                    </div>
+
                     <button id="pwaInstallBtn" onclick="triggerPwaInstall()" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-900 text-xs font-black py-3.5 rounded-2xl transition-all hidden justify-center items-center shadow-sm">
                         📲 一鍵安裝至手機桌面
                     </button>
@@ -1012,10 +1028,19 @@
             const labelColor = isDarkMode ? '#9ca3af' : '#64748b'; 
             const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.03)';
             
+            // 排除保養紀錄
             let chartData = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.chargeType !== '維修保養');
             if (currentMonthFilter !== 'all') {
                 chartData = chartData.filter(rec => rec.date.startsWith(currentMonthFilter));
             }
+
+            // 🚀 新增：計算並更新該區間(月份)的總里程
+            let periodTotalKm = 0;
+            chartData.forEach(rec => { periodTotalKm += (parseFloat(rec.distance) || 0); });
+            const analysisKmEl = document.getElementById('analysisTotalKm');
+            const analysisLabelEl = document.getElementById('analysisSummaryLabel');
+            if (analysisKmEl) analysisKmEl.textContent = periodTotalKm.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
+            if (analysisLabelEl) analysisLabelEl.textContent = currentMonthFilter === 'all' ? '全部累積里程' : `${currentMonthFilter.replace('-', '/')} 總里程`;
 
             const timeView = document.getElementById('chartTimeView')?.value || 'monthly';
             let labels = [], efficiencies = [], costs = [];
@@ -1142,7 +1167,7 @@
             document.getElementById('cancelEditBtn').classList.add('hidden');
             document.getElementById('recordForm').reset();
             document.getElementById('inputDate').value = new Date().toISOString().split('T')[0];
-            handleChargeTypeChange(); 
+            selectChargeType('DC-快充'); 
             switchTab('records'); // 取消後自動切換回紀錄列表
         }
 
@@ -1288,6 +1313,62 @@
 
         function forceDownload() { showConfirmModal("以「試算表」為主？", "將下載雲端資料並「覆蓋」本機記錄。", function() { syncWithCloud('download'); }); }
         function forceUpload() { showConfirmModal("以「本機」為主？", "將上傳本機資料並「覆蓋」雲端記錄。", function() { syncWithCloud('upload'); }); }
+        
+        // --- 🚀 新增：PWA 檔案動態生成與下載邏輯 ---
+        function generateManifestContent() {
+            return JSON.stringify({
+                "name": "Ev Life - 純電之旅",
+                "short_name": "Ev Life",
+                "start_url": "./index.html",
+                "display": "standalone",
+                "background_color": "#111827",
+                "theme_color": "#0d9488",
+                "icons": [
+                    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+                    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+                ]
+            }, null, 4);
+        }
+
+        function generateSWContent() {
+            return `const CACHE_NAME = 'ev-life-cache-v1';
+const ASSETS_TO_CACHE = [
+    './',
+    './index.html',
+    './manifest.json',
+    './splash.png'
+];
+
+self.addEventListener('install', event => {
+    event.waitUntil(
+        caches.open(CACHE_NAME).then(cache => {
+            return cache.addAll(ASSETS_TO_CACHE);
+        })
+    );
+});
+
+self.addEventListener('fetch', event => {
+    event.respondWith(
+        caches.match(event.request).then(response => {
+            return response || fetch(event.request);
+        })
+    );
+});`;
+        }
+
+        function downloadFile(filename, content) {
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast(`已下載 ${filename} 📥`);
+        }
+
         function triggerPwaInstall() { if (!deferredPrompt) { showToast("裝置不支援或已安裝。🐾"); return; } deferredPrompt.prompt(); deferredPrompt.userChoice.then((res) => { if (res.outcome === 'accepted') { showToast("感謝安裝！🎉"); document.getElementById('pwaInstallBtn').classList.add('hidden'); } deferredPrompt = null; }); }
         function updatePwaDiagnostic() {
             const isHttps = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
