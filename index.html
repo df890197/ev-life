@@ -64,21 +64,22 @@
         .ios-safe-nav { padding-top: env(safe-area-inset-top, 0px) !important; }
         body { text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; touch-action: manipulation; -webkit-text-size-adjust: 100%; }
 
-        /* 🚀 iOS 26 Liquid Glass - 極限透光度 (幾乎全透，僅留折射與邊框) */
+        /* 🚀 iOS 26 Liquid Glass 外層：全透背景，強化光學折射模糊 */
         .ios-27-glass {
-            background: rgba(255, 255, 255, 0.01); /* 極端降低底色 */
-            backdrop-filter: blur(24px) saturate(180%);
-            -webkit-backdrop-filter: blur(24px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.35);
-            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+            background: transparent; 
+            backdrop-filter: blur(35px) saturate(250%);
+            -webkit-backdrop-filter: blur(35px) saturate(250%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-top: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.6);
         }
         .dark .ios-27-glass {
-            background: rgba(0, 0, 0, 0.02); 
-            backdrop-filter: blur(24px) saturate(180%);
-            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            background: rgba(0, 0, 0, 0.05); 
+            backdrop-filter: blur(35px) saturate(200%);
+            -webkit-backdrop-filter: blur(35px) saturate(200%);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-top-color: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 15px 45px -10px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 15px 45px -10px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.15);
         }
 
         .floating-nav {
@@ -86,28 +87,35 @@
             margin-bottom: 0 !important;
         }
 
-        /* 🚀 Liquid Indicator - 配合外部極致透光 */
+        /* 🚀 Liquid Indicator：多層內陰影打造真實玻璃厚度邊緣 */
         .liquid-indicator {
             position: absolute;
             height: 52px;
             border-radius: 26px;
-            background: rgba(255, 255, 255, 0.05); 
-            backdrop-filter: blur(12px) saturate(150%) brightness(1.1);
-            -webkit-backdrop-filter: blur(12px) saturate(150%) brightness(1.1);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.7);
-            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+            background: transparent; /* 抽乾底色 */
+            backdrop-filter: blur(15px) saturate(180%) brightness(1.2);
+            -webkit-backdrop-filter: blur(15px) saturate(180%) brightness(1.2);
+            /* 多層疊加產生玻璃光澤與立體透鏡感 */
+            box-shadow: 
+                inset 0 0 0 1px rgba(255, 255, 255, 0.5),   /* 銳利白邊 */
+                inset 0 4px 10px rgba(255, 255, 255, 0.4),  /* 頂部體積反光 */
+                inset 0 -4px 10px rgba(255, 255, 255, 0.1), /* 底部微光 */
+                0 4px 12px rgba(0, 0, 0, 0.1);              /* 浮雕陰影 */
+            /* 蘋果風格物理果凍彈性過渡 */
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
             z-index: 0;
             pointer-events: none; 
-            will-change: transform;
+            will-change: transform, width;
         }
         .dark .liquid-indicator {
-            background: rgba(255, 255, 255, 0.01);
-            backdrop-filter: blur(12px) saturate(150%) brightness(1.15);
-            -webkit-backdrop-filter: blur(12px) saturate(150%) brightness(1.15);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-top-color: rgba(255, 255, 255, 0.25);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+            background: transparent;
+            backdrop-filter: blur(15px) saturate(150%) brightness(1.3);
+            -webkit-backdrop-filter: blur(15px) saturate(150%) brightness(1.3);
+            box-shadow: 
+                inset 0 0 0 1.5px rgba(255, 255, 255, 0.15),
+                inset 0 4px 15px rgba(255, 255, 255, 0.1),
+                inset 0 -4px 10px rgba(0, 0, 0, 0.3),
+                0 6px 15px rgba(0, 0, 0, 0.4);
         }
 
         .tab-btn { 
@@ -675,7 +683,7 @@
             }
         });
 
-        // 🚀 初始化 Liquid Glass 的手勢拖曳功能
+        // 🚀 初始化 Liquid Glass 的果凍拉伸拖曳功能
         function initLiquidDrag() {
             const navContainer = document.getElementById('nav-container');
             const indicator = document.getElementById('liquid-indicator');
@@ -686,17 +694,18 @@
             let moved = false;
             let startX = 0;
             let initialTranslate = 0;
-            let currentTranslate = 0;
+            let initialWidth = 0;
 
             function handleDragStart(e) {
                 if (e.target.closest('#add-btn-wrapper')) return;
                 
                 isDragging = true;
                 moved = false;
-                indicator.style.transition = 'none'; 
+                indicator.style.transition = 'none'; // 移除動畫以實現黏滯跟隨
                 
                 const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
                 startX = clientX;
+                initialWidth = indicator.offsetWidth;
                 
                 const transform = indicator.style.transform;
                 const match = transform.match(/translate\(([-\d.]+)px/);
@@ -713,21 +722,37 @@
                     moved = true;
                     if(e.cancelable) e.preventDefault(); 
                     
-                    let targetX = initialTranslate + deltaX;
-                    targetX = Math.max(0, Math.min(targetX, navContainer.offsetWidth - indicator.offsetWidth));
+                    // 🚀 果凍拉伸演算法 (Liquid Stretch Algorithm)
+                    let stretch = Math.abs(deltaX) * 0.65; // 延展係數
+                    let move = deltaX * 0.4; // 中心位移係數
                     
+                    let targetX = initialTranslate + move;
+                    // 如果向左滑，基準點要往左移，才能向右延展
+                    if (deltaX < 0) {
+                        targetX = initialTranslate + move - stretch;
+                    }
+                    
+                    let targetWidth = initialWidth + stretch;
+                    
+                    // 限制最大寬度避免破圖
+                    targetWidth = Math.min(targetWidth, 120);
+                    
+                    indicator.style.width = `${targetWidth}px`;
                     indicator.style.transform = `translate(${targetX}px, -50%)`;
-                    currentTranslate = targetX;
                 }
             }
 
             function handleDragEnd(e) {
                 if (!isDragging) return;
                 isDragging = false;
-                indicator.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease';
+                // 恢復彈性動畫，使用 Apple Spring 參數
+                indicator.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease';
                 
                 if (moved) {
+                    const match = indicator.style.transform.match(/translate\(([-\d.]+)px/);
+                    const currentTranslate = match ? parseFloat(match[1]) : 0;
                     const indicatorCenter = currentTranslate + indicator.offsetWidth / 2;
+                    
                     let nearestTab = null;
                     let minDistance = Infinity;
                     
