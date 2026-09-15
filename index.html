@@ -64,22 +64,22 @@
         .ios-safe-nav { padding-top: env(safe-area-inset-top, 0px) !important; }
         body { text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; touch-action: manipulation; -webkit-text-size-adjust: 100%; }
 
-        /* 🚀 iOS 26 Liquid Glass 外層：極致全透背景，降低白霧感 */
+        /* 🚀 絕對透水膜 (Absolute Clear Water) - 挑戰極限 98% 穿透率 */
         .ios-27-glass {
             background: transparent; 
-            backdrop-filter: blur(20px) saturate(150%);
-            -webkit-backdrop-filter: blur(20px) saturate(150%);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-top: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(2px) saturate(105%); /* 極低模糊，徹底消除霧感 */
+            -webkit-backdrop-filter: blur(2px) saturate(105%);
+            border: 1px solid rgba(255, 255, 255, 0.05); /* 極微弱的邊緣反光 */
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.02), inset 0 1px 0px rgba(255, 255, 255, 0.05);
         }
         .dark .ios-27-glass {
-            background: transparent; /* 暗黑模式也完全抽乾底色 */
-            backdrop-filter: blur(20px) saturate(150%);
-            -webkit-backdrop-filter: blur(20px) saturate(150%);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-top: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 15px 45px -10px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+            background: transparent; 
+            backdrop-filter: blur(2px) saturate(105%);
+            -webkit-backdrop-filter: blur(2px) saturate(105%);
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 30px -10px rgba(0, 0, 0, 0.1), inset 0 1px 0px rgba(255, 255, 255, 0.01);
         }
 
         .floating-nav {
@@ -87,59 +87,55 @@
             margin-bottom: 0 !important;
         }
 
-        /* 🚀 Liquid Indicator：果凍膠囊 */
+        /* 🚀 Liquid Indicator：果凍膠囊 (極透明水滴感) */
         .liquid-indicator {
             position: absolute;
             height: 52px;
             border-radius: 26px;
             background: transparent;
-            backdrop-filter: blur(15px) saturate(180%) brightness(1.2);
-            -webkit-backdrop-filter: blur(15px) saturate(180%) brightness(1.2);
+            backdrop-filter: blur(4px) saturate(110%) brightness(1.05); /* 只比底板多一點點厚度感 */
+            -webkit-backdrop-filter: blur(4px) saturate(110%) brightness(1.05);
             box-shadow: 
-                inset 0 0 0 1px rgba(255, 255, 255, 0.5),   
-                inset 0 4px 10px rgba(255, 255, 255, 0.4),  
-                inset 0 -4px 10px rgba(255, 255, 255, 0.1), 
-                0 4px 12px rgba(0, 0, 0, 0.1);              
+                inset 0 0 0 1px rgba(255, 255, 255, 0.15),   
+                inset 0 2px 5px rgba(255, 255, 255, 0.1),  
+                0 2px 8px rgba(0, 0, 0, 0.02);              
             transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.4s ease, backdrop-filter 0.4s ease;
-            z-index: 5; /* 確保蓋在按鈕上方產生折射 */
+            z-index: 5; 
             pointer-events: none; 
             will-change: transform, width;
         }
         .dark .liquid-indicator {
             background: transparent;
-            backdrop-filter: blur(15px) saturate(150%) brightness(1.3);
-            -webkit-backdrop-filter: blur(15px) saturate(150%) brightness(1.3);
+            backdrop-filter: blur(4px) saturate(110%) brightness(1.05);
+            -webkit-backdrop-filter: blur(4px) saturate(110%) brightness(1.05);
             box-shadow: 
-                inset 0 0 0 1.5px rgba(255, 255, 255, 0.15),
-                inset 0 4px 15px rgba(255, 255, 255, 0.1),
-                inset 0 -4px 10px rgba(0, 0, 0, 0.3),
-                0 6px 15px rgba(0, 0, 0, 0.4);
+                inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 2px 8px rgba(255, 255, 255, 0.02),
+                0 4px 10px rgba(0, 0, 0, 0.1);
         }
         
-        /* 🚀 拖曳放大時的光學變化：加入高對比度 (contrast) 強化文字扭曲感 */
+        /* 🚀 拖曳放大時的光學變化：維持高透視 */
         .liquid-indicator.dragging {
-            backdrop-filter: blur(20px) contrast(110%) saturate(220%) brightness(1.4);
-            -webkit-backdrop-filter: blur(20px) contrast(110%) saturate(220%) brightness(1.4);
+            backdrop-filter: blur(8px) contrast(105%) saturate(120%) brightness(1.1);
+            -webkit-backdrop-filter: blur(8px) contrast(105%) saturate(120%) brightness(1.1);
             box-shadow: 
-                inset 0 0 0 1px rgba(255, 255, 255, 0.7),   
-                inset 0 6px 18px rgba(255, 255, 255, 0.6),  
-                inset 0 -4px 10px rgba(255, 255, 255, 0.2), 
-                0 8px 20px rgba(0, 0, 0, 0.15);             
+                inset 0 0 0 1px rgba(255, 255, 255, 0.25),   
+                inset 0 4px 12px rgba(255, 255, 255, 0.15),  
+                0 6px 15px rgba(0, 0, 0, 0.05);             
         }
         .dark .liquid-indicator.dragging {
-            backdrop-filter: blur(20px) contrast(120%) saturate(200%) brightness(1.5);
-            -webkit-backdrop-filter: blur(20px) contrast(120%) saturate(200%) brightness(1.5);
+            backdrop-filter: blur(8px) contrast(105%) saturate(120%) brightness(1.1);
+            -webkit-backdrop-filter: blur(8px) contrast(105%) saturate(120%) brightness(1.1);
             box-shadow: 
-                inset 0 0 0 1.5px rgba(255, 255, 255, 0.25),
-                inset 0 6px 20px rgba(255, 255, 255, 0.2),
-                inset 0 -4px 10px rgba(0, 0, 0, 0.4),
-                0 10px 25px rgba(0, 0, 0, 0.5);
+                inset 0 0 0 1px rgba(255, 255, 255, 0.1),
+                inset 0 4px 12px rgba(255, 255, 255, 0.05),
+                0 8px 20px rgba(0, 0, 0, 0.2);
         }
 
         /* 🚀 圖示按鈕設定 */
         .tab-btn { 
             position: relative; 
-            z-index: 2; /* 在玻璃底下 */
+            z-index: 2; 
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); 
             will-change: transform, opacity;
         }
@@ -147,22 +143,22 @@
             color: #0d9488; 
             font-weight: 900; 
             transform: translateY(-2px) scale(1.1); 
-            z-index: 10; /* 選中時浮出水面 */
+            z-index: 10; 
         }
         .dark .tab-btn.active { color: #2dd4bf; }
 
-        /* 🚀 蘋果最新 Spatial 空間過場：強對焦、深度回彈與極致平滑 */
+        /* 🚀 蘋果最新 visionOS 空間流體浮現 (Spatial Material Reveal) */
         .view-section { display: none; opacity: 0; }
         .view-section.active { 
             display: block; 
             opacity: 1; 
-            /* 採用 Apple Core Animation 經典彈簧曲線 */
-            animation: appleSpatialPop 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; 
-            transform-origin: center top;
+            /* 採用極高初速、極緩減速的超現代指數曲線 */
+            animation: visionSpatialReveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+            transform-origin: center bottom;
             will-change: transform, opacity, filter;
         }
-        @keyframes appleSpatialPop { 
-            0% { opacity: 0; transform: translateY(16px) scale(0.92); filter: blur(12px); } 
+        @keyframes visionSpatialReveal { 
+            0% { opacity: 0; transform: translateY(40px) scale(0.9); filter: blur(15px); } 
             100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); } 
         }
 
