@@ -64,21 +64,21 @@
         .ios-safe-nav { padding-top: env(safe-area-inset-top, 0px) !important; }
         body { text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; touch-action: manipulation; -webkit-text-size-adjust: 100%; }
 
-        /* 🚀 iOS 26 Liquid Glass 超高透光導航列 (降低背景透明度) */
+        /* 🚀 iOS 26 Liquid Glass - 極限透光度 (幾乎全透，僅留折射與邊框) */
         .ios-27-glass {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(30px) saturate(200%);
-            -webkit-backdrop-filter: blur(30px) saturate(200%);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1), inset 0 1px 2px rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.01); /* 極端降低底色 */
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.5);
         }
         .dark .ios-27-glass {
-            background: rgba(15, 15, 15, 0.12); 
-            backdrop-filter: blur(30px) saturate(200%);
-            -webkit-backdrop-filter: blur(30px) saturate(200%);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-top-color: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 15px 45px -10px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.15);
+            background: rgba(0, 0, 0, 0.02); 
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-top-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 15px 45px -10px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.1);
         }
 
         .floating-nav {
@@ -86,29 +86,28 @@
             margin-bottom: 0 !important;
         }
 
-        /* 🚀 Liquid Indicator (滑動的液態玻璃背景) */
+        /* 🚀 Liquid Indicator - 配合外部極致透光 */
         .liquid-indicator {
             position: absolute;
             height: 52px;
             border-radius: 26px;
-            /* 模擬內部玻璃折射厚度 */
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.1) 100%);
-            backdrop-filter: blur(12px) saturate(180%) brightness(1.1);
-            -webkit-backdrop-filter: blur(12px) saturate(180%) brightness(1.1);
-            border: 1px solid rgba(255, 255, 255, 0.7);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(255, 255, 255, 1);
-            /* 蘋果風格果凍彈性過渡 */
-            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+            background: rgba(255, 255, 255, 0.05); 
+            backdrop-filter: blur(12px) saturate(150%) brightness(1.1);
+            -webkit-backdrop-filter: blur(12px) saturate(150%) brightness(1.1);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.7);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
             z-index: 0;
-            pointer-events: none;
+            pointer-events: none; 
+            will-change: transform;
         }
         .dark .liquid-indicator {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.02) 100%);
-            backdrop-filter: blur(12px) saturate(150%) brightness(1.2);
-            -webkit-backdrop-filter: blur(12px) saturate(150%) brightness(1.2);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-top-color: rgba(255, 255, 255, 0.4);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.01);
+            backdrop-filter: blur(12px) saturate(150%) brightness(1.15);
+            -webkit-backdrop-filter: blur(12px) saturate(150%) brightness(1.15);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-top-color: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.15);
         }
 
         .tab-btn { 
@@ -194,8 +193,8 @@
                 總覽
             </button>
 
-            <!-- 車輛選擇膠囊 -->
-            <div class="flex items-center gap-2 bg-slate-900/90 dark:bg-slate-800/90 backdrop-blur-md px-1.5 py-1.5 pr-5 rounded-full shadow-md cursor-pointer transition active:scale-95" onclick="toggleSyncModal()">
+            <!-- 車輛選擇膠囊 (點擊改為切換到設定頁) -->
+            <div class="flex items-center gap-2 bg-slate-900/90 dark:bg-slate-800/90 backdrop-blur-md px-1.5 py-1.5 pr-5 rounded-full shadow-md cursor-pointer transition active:scale-95" onclick="switchTab('settings')">
                 <div class="bg-amber-500 text-slate-900 px-2.5 py-1 rounded-full text-[10px] font-black">純電</div>
                 <span id="topEvName" class="text-white text-xs font-bold font-mono tracking-wide">LUXGEN n7</span>
             </div>
@@ -452,6 +451,109 @@
             </div>
         </div>
 
+        <!-- 🚀 🔹 Tab 5: 獨立設定頁面 (Settings) -->
+        <div id="view-settings" class="view-section px-4 pb-10">
+            <div class="rpg-card bg-white dark:bg-[#1e293b] rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col">
+                <div class="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-[#1e293b]">
+                    <h3 class="text-base font-black flex items-center gap-2">⚙️ 設定與雲端備份</h3>
+                </div>
+                <div class="flex flex-shrink-0 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#1e293b]">
+                    <button onclick="switchSettingsTab('settings-tab-main')" id="btn-tab-main" class="flex-1 py-3 text-xs font-black border-r border-slate-200 dark:border-slate-700 transition-all bg-amber-400 dark:bg-amber-500 text-slate-900 shadow-sm">🛠️ 愛車與雲端</button>
+                    <button onclick="switchSettingsTab('settings-tab-pwa')" id="btn-tab-pwa" class="flex-1 py-3 text-xs font-black text-slate-500 dark:text-[#94a3b8] transition-all bg-slate-100 dark:bg-[#0f172a]">🐾 PWA 離線安裝</button>
+                </div>
+                <div class="p-6 space-y-4">
+                    <!-- 分頁一：主要設定與雲端 -->
+                    <div id="settings-tab-main" class="space-y-4">
+                        <div class="bg-slate-50 dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+                            <span class="text-xs font-black text-slate-500 dark:text-slate-400">🚗 愛車參數設定</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-400 block mb-1">車輛名稱</label>
+                                    <input type="text" id="evNameInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-400 block mb-1">電池容量 (kWh)</label>
+                                    <input type="number" step="0.1" id="batteryCapacityInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold focus:outline-none">
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label class="text-[10px] font-bold text-slate-400 block mb-1">初始總里程 (km)</label>
+                                    <input type="number" step="0.1" id="initialOdometerInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold focus:outline-none">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-slate-50 dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+                            <span class="text-xs font-black text-slate-500 dark:text-slate-400">🎨 啟動畫面設定</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-400 block mb-1">自訂圖片 (選填)</label>
+                                    <button type="button" onclick="document.getElementById('splashImageUpload').click()" class="w-full px-3 py-2.5 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-[11px] font-bold focus:outline-none flex items-center justify-center gap-2 transition active:scale-95">
+                                        🖼️ 上傳圖片
+                                    </button>
+                                    <input type="file" id="splashImageUpload" class="hidden" accept="image/*" onchange="handleSplashImageUpload(event)">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-400 block mb-1">自訂底色 (選填)</label>
+                                    <div class="flex items-center gap-2">
+                                        <input type="color" id="splashColorInput" class="w-10 h-9 p-0 border-0 rounded cursor-pointer bg-transparent">
+                                        <button type="button" onclick="clearSplashColor()" class="flex-1 py-2.5 bg-rose-50 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400 border border-rose-100 dark:border-rose-900/50 rounded-xl text-[11px] font-bold transition active:scale-95">清除還原</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="splashPreviewContainer" class="hidden mt-2 pt-3 border-t border-slate-200 dark:border-slate-700 text-center relative">
+                                <span class="text-[10px] text-slate-400 font-bold mb-2 block">目前圖片預覽</span>
+                                <img id="splashPreviewImg" src="" class="max-h-24 mx-auto rounded-lg object-contain shadow-sm bg-black/5 dark:bg-white/5">
+                                <button type="button" onclick="clearSplashImage()" class="absolute top-2 right-0 w-6 h-6 bg-rose-500 text-white rounded-full flex items-center justify-center shadow text-xs font-bold transition active:scale-90">✕</button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">雲端同步網址 (Google Apps Script)</label>
+                            <input type="url" id="syncUrlInput" placeholder="https://script.google.com/macros/..." class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-mono focus:outline-none">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 pt-2">
+                            <button onclick="syncWithCloud('auto')" class="col-span-2 rpg-btn-primary text-sm font-black py-3 rounded-2xl flex justify-center items-center gap-1">🔄 智慧同步</button>
+                            <button onclick="forceDownload()" class="rpg-btn-secondary text-xs font-bold py-3 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">⬇️ 下載覆蓋本機</button>
+                            <button onclick="forceUpload()" class="rpg-btn-secondary text-xs font-bold py-3 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">⬆️ 上傳覆蓋雲端</button>
+                        </div>
+                        <button onclick="saveSyncSettingsOnly()" class="w-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-white text-xs font-bold py-3 rounded-2xl transition active:scale-95">💾 僅儲存設定</button>
+                    </div>
+                    <!-- 分頁二：PWA 離線安裝 -->
+                    <div id="settings-tab-pwa" class="space-y-4 hidden">
+                        <div class="bg-amber-50 dark:bg-amber-900/10 p-4 rounded-2xl border border-amber-200 dark:border-amber-900/50 space-y-2">
+                            <span class="text-xs text-amber-700 dark:text-amber-500 font-extrabold block">📲 甚麼是 PWA 離線安裝？</span>
+                            <p class="text-[10px] text-slate-600 dark:text-slate-400 leading-relaxed">允許您將 Ev Life 安裝至桌面，當作原生 App 快速啟用。無網路也能正常查看日誌！</p>
+                        </div>
+                        <div class="bg-slate-50 dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2.5 text-xs">
+                            <span class="font-black text-slate-700 dark:text-slate-300">🔍 PWA 系統環境診斷：</span>
+                            <div class="space-y-1.5 font-bold font-mono text-[11px]" id="pwaDiagnosticList">
+                                <div id="diag-https">🟢 正在載入診斷數據...</div>
+                                <div id="diag-sw">⚪ Service Worker 未初始化</div>
+                                <div id="diag-network">🟢 在線模式</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3">
+                            <span class="font-black text-slate-700 dark:text-slate-300 text-xs block">📦 PWA 核心檔案產生器</span>
+                            <p class="text-[10px] text-slate-500 leading-relaxed">請下載這兩份檔案，並與您的 index.html 放在同一個資料夾層級，即可啟用完整的桌面/主畫面離線安裝功能。</p>
+                            <div class="grid grid-cols-2 gap-3 pt-1">
+                                <button onclick="downloadFile('manifest.json', generateManifestContent())" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-[11px] font-bold py-2.5 rounded-xl shadow-sm transition active:scale-95 flex items-center justify-center gap-1.5">
+                                    📄 manifest
+                                </button>
+                                <button onclick="downloadFile('sw.js', generateSWContent())" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-[11px] font-bold py-2.5 rounded-xl shadow-sm transition active:scale-95 flex items-center justify-center gap-1.5">
+                                    ⚙️ sw.js
+                                </button>
+                            </div>
+                        </div>
+
+                        <button id="pwaInstallBtn" onclick="triggerPwaInstall()" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-900 text-xs font-black py-3.5 rounded-2xl transition-all hidden justify-center items-center shadow-sm">
+                            📲 一鍵安裝至手機桌面
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <!-- 🚀 iOS 27 懸浮玻璃底部導航列 -->
@@ -471,7 +573,7 @@
                 <span class="text-[9px] font-bold tracking-wider">紀錄</span>
             </button>
             
-            <div class="relative flex justify-center w-16 -mt-8 z-20">
+            <div class="relative flex justify-center w-16 -mt-8 z-20" id="add-btn-wrapper">
                 <button onclick="switchTab('add')" id="tab-add" class="w-14 h-14 bg-slate-900 dark:bg-amber-500 text-white dark:text-slate-900 rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.2)] dark:shadow-[0_8px_20px_rgba(251,191,36,0.3)] border-[3px] border-white/80 dark:border-slate-800/80 transition transform active:scale-90">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
                 </button>
@@ -482,7 +584,8 @@
                 <span class="text-[9px] font-bold tracking-wider">分析</span>
             </button>
             
-            <button onclick="toggleSyncModal()" id="tab-settings" class="tab-btn flex flex-col items-center gap-1 w-14 text-slate-500 dark:text-slate-400 transition-colors relative">
+            <!-- 🚀 修改為呼叫 switchTab('settings') -->
+            <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn flex flex-col items-center gap-1 w-14 text-slate-500 dark:text-slate-400 transition-colors relative">
                 <span id="syncStatusDot" class="absolute top-0 right-3 w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse hidden"></span>
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 <span class="text-[9px] font-bold tracking-wider">設定</span>
@@ -496,110 +599,7 @@
         <span id="toastMessage"></span>
     </div>
 
-    <!-- 系統設定 & 雲端同步 模態視窗 -->
-    <div id="syncModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-end sm:items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-white dark:bg-[#0f172a] sm:rounded-[2rem] rounded-t-[2rem] shadow-2xl w-full sm:max-w-lg transform translate-y-full sm:translate-y-0 sm:scale-95 transition-all duration-300 border-t sm:border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[85vh]" id="syncModalContent">
-            <div class="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-[#1e293b]">
-                <h3 class="text-base font-black flex items-center gap-2">⚙️ 設定與雲端備份</h3>
-                <button onclick="toggleSyncModal()" class="w-8 h-8 bg-slate-200 dark:bg-slate-700 rounded-full flex justify-center items-center font-bold text-slate-500 dark:text-slate-300">✕</button>
-            </div>
-            <div class="flex flex-shrink-0 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#1e293b]">
-                <button onclick="switchSettingsTab('settings-tab-main')" id="btn-tab-main" class="flex-1 py-3 text-xs font-black border-r border-slate-200 dark:border-slate-700 transition-all bg-amber-400 dark:bg-amber-500 text-slate-900 shadow-sm">🛠️ 愛車與雲端</button>
-                <button onclick="switchSettingsTab('settings-tab-pwa')" id="btn-tab-pwa" class="flex-1 py-3 text-xs font-black text-slate-500 dark:text-[#94a3b8] transition-all bg-slate-100 dark:bg-[#0f172a]">🐾 PWA 離線安裝</button>
-            </div>
-            <div class="p-6 space-y-4 overflow-y-auto flex-1">
-                <!-- 分頁一：主要設定與雲端 -->
-                <div id="settings-tab-main" class="space-y-4">
-                    <div class="bg-slate-50 dark:bg-[#1e293b] p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
-                        <span class="text-xs font-black text-slate-500 dark:text-slate-400">🚗 愛車參數設定</span>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="text-[10px] font-bold text-slate-400 block mb-1">車輛名稱</label>
-                                <input type="text" id="evNameInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold focus:outline-none">
-                            </div>
-                            <div>
-                                <label class="text-[10px] font-bold text-slate-400 block mb-1">電池容量 (kWh)</label>
-                                <input type="number" step="0.1" id="batteryCapacityInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold focus:outline-none">
-                            </div>
-                            <div class="sm:col-span-2">
-                                <label class="text-[10px] font-bold text-slate-400 block mb-1">初始總里程 (km)</label>
-                                <input type="number" step="0.1" id="initialOdometerInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold focus:outline-none">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-slate-50 dark:bg-[#1e293b] p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
-                        <span class="text-xs font-black text-slate-500 dark:text-slate-400">🎨 啟動畫面設定</span>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="text-[10px] font-bold text-slate-400 block mb-1">自訂圖片 (選填)</label>
-                                <button type="button" onclick="document.getElementById('splashImageUpload').click()" class="w-full px-3 py-2.5 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-[11px] font-bold focus:outline-none flex items-center justify-center gap-2 transition active:scale-95">
-                                    🖼️ 上傳圖片
-                                </button>
-                                <input type="file" id="splashImageUpload" class="hidden" accept="image/*" onchange="handleSplashImageUpload(event)">
-                            </div>
-                            <div>
-                                <label class="text-[10px] font-bold text-slate-400 block mb-1">自訂底色 (選填)</label>
-                                <div class="flex items-center gap-2">
-                                    <input type="color" id="splashColorInput" class="w-10 h-9 p-0 border-0 rounded cursor-pointer bg-transparent">
-                                    <button type="button" onclick="clearSplashColor()" class="flex-1 py-2.5 bg-rose-50 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400 border border-rose-100 dark:border-rose-900/50 rounded-xl text-[11px] font-bold transition active:scale-95">清除還原</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="splashPreviewContainer" class="hidden mt-2 pt-3 border-t border-slate-200 dark:border-slate-700 text-center relative">
-                            <span class="text-[10px] text-slate-400 font-bold mb-2 block">目前圖片預覽</span>
-                            <img id="splashPreviewImg" src="" class="max-h-24 mx-auto rounded-lg object-contain shadow-sm bg-black/5 dark:bg-white/5">
-                            <button type="button" onclick="clearSplashImage()" class="absolute top-2 right-0 w-6 h-6 bg-rose-500 text-white rounded-full flex items-center justify-center shadow text-xs font-bold transition active:scale-90">✕</button>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-1.5">雲端同步網址 (Google Apps Script)</label>
-                        <input type="url" id="syncUrlInput" placeholder="https://script.google.com/macros/..." class="w-full px-4 py-3 bg-slate-50 dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-mono focus:outline-none">
-                    </div>
-                    <div class="grid grid-cols-2 gap-3 pt-2">
-                        <button onclick="syncWithCloud('auto')" class="col-span-2 rpg-btn-primary text-sm font-black py-3 rounded-2xl flex justify-center items-center gap-1">🔄 智慧同步</button>
-                        <button onclick="forceDownload()" class="rpg-btn-secondary text-xs font-bold py-3 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">⬇️ 下載覆蓋本機</button>
-                        <button onclick="forceUpload()" class="rpg-btn-secondary text-xs font-bold py-3 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">⬆️ 上傳覆蓋雲端</button>
-                    </div>
-                    <button onclick="saveSyncSettingsOnly()" class="w-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-white text-xs font-bold py-3 rounded-2xl transition active:scale-95">💾 僅儲存設定 (不同步)</button>
-                </div>
-                <!-- 分頁二：PWA 離線安裝 -->
-                <div id="settings-tab-pwa" class="space-y-4 hidden">
-                    <div class="bg-amber-50 dark:bg-amber-900/10 p-4 rounded-2xl border border-amber-200 dark:border-amber-900/50 space-y-2">
-                        <span class="text-xs text-amber-700 dark:text-amber-500 font-extrabold block">📲 甚麼是 PWA 離線安裝？</span>
-                        <p class="text-[10px] text-slate-600 dark:text-slate-400 leading-relaxed">允許您將 Ev Life 安裝至桌面，當作原生 App 快速啟用。無網路也能正常查看日誌！</p>
-                    </div>
-                    <div class="bg-slate-50 dark:bg-[#1e293b] p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2.5 text-xs">
-                        <span class="font-black text-slate-700 dark:text-slate-300">🔍 PWA 系統環境診斷：</span>
-                        <div class="space-y-1.5 font-bold font-mono text-[11px]" id="pwaDiagnosticList">
-                            <div id="diag-https">🟢 正在載入診斷數據...</div>
-                            <div id="diag-sw">⚪ Service Worker 未初始化</div>
-                            <div id="diag-network">🟢 在線模式</div>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-50 dark:bg-[#1e293b] p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3">
-                        <span class="font-black text-slate-700 dark:text-slate-300 text-xs block">📦 PWA 核心檔案產生器</span>
-                        <p class="text-[10px] text-slate-500 leading-relaxed">請下載這兩份檔案，並與您的 index.html 放在同一個資料夾層級，即可啟用完整的桌面/主畫面離線安裝功能。</p>
-                        <div class="grid grid-cols-2 gap-3 pt-1">
-                            <button onclick="downloadFile('manifest.json', generateManifestContent())" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-[11px] font-bold py-2.5 rounded-xl shadow-sm transition active:scale-95 flex items-center justify-center gap-1.5">
-                                📄 manifest
-                            </button>
-                            <button onclick="downloadFile('sw.js', generateSWContent())" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-[11px] font-bold py-2.5 rounded-xl shadow-sm transition active:scale-95 flex items-center justify-center gap-1.5">
-                                ⚙️ sw.js
-                            </button>
-                        </div>
-                    </div>
-
-                    <button id="pwaInstallBtn" onclick="triggerPwaInstall()" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-900 text-xs font-black py-3.5 rounded-2xl transition-all hidden justify-center items-center shadow-sm">
-                        📲 一鍵安裝至手機桌面
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <!-- 確認動作 Modal -->
     <div id="confirmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[110] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
         <div class="bg-white dark:bg-[#1e293b] rounded-[2rem] p-6 shadow-2xl max-w-sm w-full mx-4 transform scale-95 transition-all duration-300 border border-slate-100 dark:border-slate-700" id="confirmModalContent">
             <h3 id="confirmModalTitle" class="text-base font-black mb-2">確認動作</h3>
@@ -640,7 +640,6 @@
             if (btn && indicator && tabId !== 'add') {
                 indicator.style.opacity = '1';
                 indicator.style.width = `${btn.offsetWidth}px`;
-                // 精確計算並覆蓋絕對定位位移
                 indicator.style.transform = `translate(${btn.offsetLeft}px, -50%)`;
             } else if (tabId === 'add') {
                 if (indicator) indicator.style.opacity = '0';
@@ -652,19 +651,22 @@
             const activeBtn = document.getElementById('tab-' + tabId);
             if (activeBtn && tabId !== 'add') activeBtn.classList.add('active'); 
 
-            // 觸發指示器滑動
             updateLiquidIndicator(tabId);
 
-            if (tabId !== 'settings') {
-                document.querySelectorAll('.view-section').forEach(view => { view.classList.remove('active'); });
-                const view = document.getElementById('view-' + tabId);
-                if (view) view.classList.add('active');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                if(tabId === 'analysis') { if (typeof Chart !== 'undefined') updateCharts(); }
+            document.querySelectorAll('.view-section').forEach(view => { view.classList.remove('active'); });
+            const view = document.getElementById('view-' + tabId);
+            if (view) view.classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            if(tabId === 'analysis') { if (typeof Chart !== 'undefined') updateCharts(); }
+            
+            // 🚀 若切換到設定頁，隱藏紅點提醒
+            if (tabId === 'settings') {
+                localStorage.setItem('ev_life_sync_dismissed', 'true');
+                updateSyncUiStatus();
             }
         }
 
-        // 確保視窗縮放時指示器不跑版
         window.addEventListener('resize', () => {
             const activeBtn = document.querySelector('.tab-btn.active');
             if (activeBtn) {
@@ -672,6 +674,94 @@
                 updateLiquidIndicator(tabId);
             }
         });
+
+        // 🚀 初始化 Liquid Glass 的手勢拖曳功能
+        function initLiquidDrag() {
+            const navContainer = document.getElementById('nav-container');
+            const indicator = document.getElementById('liquid-indicator');
+            const tabs = Array.from(navContainer.querySelectorAll('.tab-btn'));
+            const validTabs = tabs.filter(t => t.id !== 'tab-add');
+            
+            let isDragging = false;
+            let moved = false;
+            let startX = 0;
+            let initialTranslate = 0;
+            let currentTranslate = 0;
+
+            function handleDragStart(e) {
+                if (e.target.closest('#add-btn-wrapper')) return;
+                
+                isDragging = true;
+                moved = false;
+                indicator.style.transition = 'none'; 
+                
+                const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+                startX = clientX;
+                
+                const transform = indicator.style.transform;
+                const match = transform.match(/translate\(([-\d.]+)px/);
+                initialTranslate = match ? parseFloat(match[1]) : 0;
+            }
+
+            function handleDragMove(e) {
+                if (!isDragging) return;
+                
+                const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+                const deltaX = clientX - startX;
+                
+                if (Math.abs(deltaX) > 3) { 
+                    moved = true;
+                    if(e.cancelable) e.preventDefault(); 
+                    
+                    let targetX = initialTranslate + deltaX;
+                    targetX = Math.max(0, Math.min(targetX, navContainer.offsetWidth - indicator.offsetWidth));
+                    
+                    indicator.style.transform = `translate(${targetX}px, -50%)`;
+                    currentTranslate = targetX;
+                }
+            }
+
+            function handleDragEnd(e) {
+                if (!isDragging) return;
+                isDragging = false;
+                indicator.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease';
+                
+                if (moved) {
+                    const indicatorCenter = currentTranslate + indicator.offsetWidth / 2;
+                    let nearestTab = null;
+                    let minDistance = Infinity;
+                    
+                    validTabs.forEach(tab => {
+                        const tabCenter = tab.offsetLeft + tab.offsetWidth / 2;
+                        const distance = Math.abs(tabCenter - indicatorCenter);
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            nearestTab = tab;
+                        }
+                    });
+                    
+                    if (nearestTab) {
+                        const tabId = nearestTab.id.replace('tab-', '');
+                        switchTab(tabId);
+                    } else {
+                        const activeTab = document.querySelector('.tab-btn.active');
+                        if(activeTab) updateLiquidIndicator(activeTab.id.replace('tab-', ''));
+                    }
+                } else {
+                    const activeTab = document.querySelector('.tab-btn.active');
+                    if(activeTab && activeTab.id !== 'tab-add') {
+                         updateLiquidIndicator(activeTab.id.replace('tab-', ''));
+                    }
+                }
+            }
+
+            navContainer.addEventListener('touchstart', handleDragStart, {passive: false});
+            navContainer.addEventListener('touchmove', handleDragMove, {passive: false});
+            navContainer.addEventListener('touchend', handleDragEnd);
+            navContainer.addEventListener('mousedown', handleDragStart);
+            document.addEventListener('mousemove', handleDragMove, {passive: false});
+            document.addEventListener('mouseup', handleDragEnd);
+        }
 
         function setupThemeIcons() {
             const isDark = document.documentElement.classList.contains('dark');
@@ -737,8 +827,8 @@
         function initAppCore() {
             setupThemeIcons();
             
-            // 初始化滑動指示器 (首頁)
             setTimeout(() => { updateLiquidIndicator('home'); }, 100);
+            initLiquidDrag();
 
             const customImg = localStorage.getItem('ev_life_hero_image');
             if (customImg) document.getElementById('heroImageDisplay').src = customImg;
@@ -1324,26 +1414,6 @@
             });
         }
 
-        function toggleSyncModal() {
-            // 在開啟 modal 時給個稍微不同的反饋
-            updateLiquidIndicator('settings');
-            
-            localStorage.setItem('ev_life_sync_dismissed', 'true'); updateSyncUiStatus();
-            const modal = document.getElementById('syncModal'), content = document.getElementById('syncModalContent');
-            if (modal.classList.contains('hidden')) {
-                modal.classList.remove('hidden'); setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('translate-y-full', 'sm:scale-95'); }, 10);
-            } else {
-                modal.classList.add('opacity-0'); content.classList.add('translate-y-full', 'sm:scale-95'); setTimeout(() => modal.classList.add('hidden'), 300);
-                
-                // 關閉 Modal 後讓指示器歸位回原本活躍的 tab
-                const activeView = document.querySelector('.view-section.active');
-                if (activeView) {
-                    const tabId = activeView.id.replace('view-', '');
-                    updateLiquidIndicator(tabId);
-                }
-            }
-        }
-
         function closeConfirmModal() {
             const modal = document.getElementById('confirmModal'), content = document.getElementById('confirmModalContent');
             modal.classList.add('opacity-0'); content.classList.add('scale-95'); setTimeout(() => modal.classList.add('hidden'), 300);
@@ -1409,7 +1479,7 @@
             initialOdometer = parseFloat(document.getElementById('initialOdometerInput').value) || 0; localStorage.setItem('ev_life_initial_odometer', initialOdometer);
             syncUrl = document.getElementById('syncUrlInput').value.trim(); localStorage.setItem('ev_life_sync_url', syncUrl);
 
-            updateSyncUiStatus(); toggleSyncModal(); renderDashboard(); showToast("設定已儲存");
+            updateSyncUiStatus(); switchTab('home'); renderDashboard(); showToast("設定已儲存");
         }
 
         function updateSyncUiStatus() {
@@ -1455,11 +1525,6 @@
                 } else { if (!isSilent) showToast("本機與雲端資料一致 ✿"); }
                 
                 updateSyncUiStatus(); 
-                
-                const syncModalEl = document.getElementById('syncModal');
-                if ((mode === 'download' || mode === 'upload') && syncModalEl && !syncModalEl.classList.contains('hidden')) {
-                    toggleSyncModal();
-                }
                 
             } catch (error) { if (!isSilent) showToast("同步失敗，請檢查網路", true); }
         }
