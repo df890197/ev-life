@@ -27,13 +27,11 @@
         html.dark #appSplashScreen { background-color: #111827 !important; }
         html:not(.dark) #appSplashScreen { background-color: #fcfaf2 !important; }
 
-        /* 🚀 修正 iOS 日期輸入框文字超出邊緣的問題 */
         input[type="date"] { 
             position: relative; 
             -webkit-appearance: none;
             appearance: none;
         }
-        /* 重置 iOS 內部 Shadow DOM 的預設邊距 */
         input[type="date"]::-webkit-date-and-time-value {
             margin: 0;
             padding: 0;
@@ -66,21 +64,21 @@
         .ios-safe-nav { padding-top: env(safe-area-inset-top, 0px) !important; }
         body { text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; touch-action: manipulation; -webkit-text-size-adjust: 100%; }
 
-        /* 🚀 替換為照片中的相機浮水印風格 (高透光液態毛玻璃) */
+        /* 🚀 iOS 26 Liquid Glass 超高透光導航列 (降低背景透明度) */
         .ios-27-glass {
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(20px) saturate(150%);
-            -webkit-backdrop-filter: blur(20px) saturate(150%);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(30px) saturate(200%);
+            -webkit-backdrop-filter: blur(30px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1), inset 0 1px 2px rgba(255, 255, 255, 0.6);
         }
         .dark .ios-27-glass {
-            background: rgba(15, 15, 15, 0.5); 
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            background: rgba(15, 15, 15, 0.12); 
+            backdrop-filter: blur(30px) saturate(200%);
+            -webkit-backdrop-filter: blur(30px) saturate(200%);
             border: 1px solid rgba(255, 255, 255, 0.15);
-            border-top-color: rgba(255, 255, 255, 0.25);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border-top-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 15px 45px -10px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.15);
         }
 
         .floating-nav {
@@ -88,7 +86,35 @@
             margin-bottom: 0 !important;
         }
 
-        .tab-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        /* 🚀 Liquid Indicator (滑動的液態玻璃背景) */
+        .liquid-indicator {
+            position: absolute;
+            height: 52px;
+            border-radius: 26px;
+            /* 模擬內部玻璃折射厚度 */
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(12px) saturate(180%) brightness(1.1);
+            -webkit-backdrop-filter: blur(12px) saturate(180%) brightness(1.1);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(255, 255, 255, 1);
+            /* 蘋果風格果凍彈性過渡 */
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .dark .liquid-indicator {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.02) 100%);
+            backdrop-filter: blur(12px) saturate(150%) brightness(1.2);
+            -webkit-backdrop-filter: blur(12px) saturate(150%) brightness(1.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-top-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+        }
+
+        .tab-btn { 
+            position: relative; z-index: 10; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
         .tab-btn.active { color: #0d9488; font-weight: 900; transform: translateY(-2px); }
         .dark .tab-btn.active { color: #2dd4bf; }
 
@@ -160,22 +186,22 @@
     </script>
 
     <!-- 頂部膠囊導航列 (Top Pill Bar) -->
-    <header class="sticky top-0 z-40 bg-[#fcfaf2]/90 dark:bg-[#111827]/90 backdrop-blur-xl pt-[env(safe-area-inset-top)] border-b border-transparent transition-all">
+    <header class="sticky top-0 z-40 bg-[#fcfaf2]/80 dark:bg-[#111827]/80 backdrop-blur-xl pt-[env(safe-area-inset-top)] border-b border-transparent transition-all">
         <div class="flex items-center justify-between px-4 py-3 max-w-4xl mx-auto">
             <!-- 總覽按鈕 -->
-            <button onclick="switchTab('home')" class="flex items-center gap-2 bg-white dark:bg-slate-800 px-4 py-2 rounded-full shadow-sm border border-slate-200 dark:border-slate-700 text-[11px] font-black tracking-wider transition active:scale-95">
+            <button onclick="switchTab('home')" class="flex items-center gap-2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md px-4 py-2 rounded-full shadow-sm border border-slate-200 dark:border-slate-700 text-[11px] font-black tracking-wider transition active:scale-95">
                 <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M4 4h4v4H4V4zm6 0h4v4h-4V4zm6 0h4v4h-4V4zM4 10h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4z"/></svg>
                 總覽
             </button>
 
             <!-- 車輛選擇膠囊 -->
-            <div class="flex items-center gap-2 bg-slate-900 dark:bg-slate-800 px-1.5 py-1.5 pr-5 rounded-full shadow-md cursor-pointer transition active:scale-95" onclick="toggleSyncModal()">
+            <div class="flex items-center gap-2 bg-slate-900/90 dark:bg-slate-800/90 backdrop-blur-md px-1.5 py-1.5 pr-5 rounded-full shadow-md cursor-pointer transition active:scale-95" onclick="toggleSyncModal()">
                 <div class="bg-amber-500 text-slate-900 px-2.5 py-1 rounded-full text-[10px] font-black">純電</div>
                 <span id="topEvName" class="text-white text-xs font-bold font-mono tracking-wide">LUXGEN n7</span>
             </div>
 
             <!-- 主題切換按鈕 -->
-            <button onclick="toggleTheme()" class="w-9 h-9 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-sm border border-slate-200 dark:border-slate-700 transition active:scale-95">
+            <button onclick="toggleTheme()" class="w-9 h-9 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm border border-slate-200 dark:border-slate-700 transition active:scale-95">
                 <svg id="themeSunIcon" class="w-4 h-4 text-amber-500 hidden" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.46 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path></svg>
                 <svg id="themeMoonIcon" class="w-4 h-4 text-indigo-400 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
             </button>
@@ -202,7 +228,6 @@
 
             <!-- 數據網格 (Stats Grid) -->
             <div class="grid grid-cols-2 gap-4">
-                <!-- 1. 總里程：統一改用 flex-col justify-between h-full 保證對齊 -->
                 <div class="rpg-card bg-[#fffaf0] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
                     <div class="text-amber-500 mb-2 flex items-start justify-between">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
@@ -216,7 +241,6 @@
                     </div>
                 </div>
 
-                <!-- 2. 平均電耗 -->
                 <div class="rpg-card bg-[#f0fdfa] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
                     <div class="text-teal-500 mb-2 flex items-start justify-between">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
@@ -230,7 +254,6 @@
                     </div>
                 </div>
 
-                <!-- 3. 能源總成本 & 每公里電費 -->
                 <div class="rpg-card bg-[#f0f9ff] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
                     <div class="text-sky-500 mb-2 flex justify-between items-start">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path></svg>
@@ -251,7 +274,6 @@
                     </div>
                 </div>
 
-                <!-- 4. 保養維修：調整排版強制底面對齊 -->
                 <div class="rpg-card bg-[#faf5ff] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
                     <div class="text-fuchsia-500 mb-2 flex items-start justify-between">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -382,9 +404,7 @@
                     <div id="monthFilterContainer_analysis" class="flex overflow-x-auto gap-2 no-scrollbar pb-1 flex-1 items-center"></div>
                 </div>
                 
-                <!-- 🚀 動態區間統計卡片：總里程、當月/區間總花費、每公里花費 -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-                    <!-- 1. 區間里程 -->
                     <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700/50 transition-all">
                         <div class="flex items-center gap-2">
                             <div class="bg-amber-100 dark:bg-amber-900/30 text-amber-500 p-1.5 rounded-lg shadow-sm">
@@ -398,7 +418,6 @@
                         </div>
                     </div>
 
-                    <!-- 2. 區間/當月花費 (包含充電補給與保養) -->
                     <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700/50 transition-all">
                         <div class="flex items-center gap-2">
                             <div class="bg-rose-100 dark:bg-rose-900/30 text-rose-500 p-1.5 rounded-lg shadow-sm">
@@ -412,7 +431,6 @@
                         </div>
                     </div>
 
-                    <!-- 3. 區間/當月每公里花費 -->
                     <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700/50 transition-all">
                         <div class="flex items-center gap-2">
                             <div class="bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 p-1.5 rounded-lg shadow-sm">
@@ -438,7 +456,11 @@
 
     <!-- 🚀 iOS 27 懸浮玻璃底部導航列 -->
     <nav class="fixed left-4 right-4 z-50 rounded-[2rem] ios-27-glass px-2 floating-nav">
-        <div class="flex justify-around items-center h-16 max-w-md mx-auto relative">
+        <div class="flex justify-around items-center h-16 max-w-md mx-auto relative" id="nav-container">
+            
+            <!-- 🚀 關鍵元件：滑動液態玻璃背景 -->
+            <div id="liquid-indicator" class="liquid-indicator opacity-0 absolute top-1/2 -translate-y-1/2 left-0 w-14"></div>
+
             <button onclick="switchTab('home')" id="tab-home" class="tab-btn active flex flex-col items-center gap-1 w-14 text-slate-500 dark:text-slate-400 transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                 <span class="text-[9px] font-bold tracking-wider">首頁</span>
@@ -449,7 +471,7 @@
                 <span class="text-[9px] font-bold tracking-wider">紀錄</span>
             </button>
             
-            <div class="relative flex justify-center w-16 -mt-8">
+            <div class="relative flex justify-center w-16 -mt-8 z-20">
                 <button onclick="switchTab('add')" id="tab-add" class="w-14 h-14 bg-slate-900 dark:bg-amber-500 text-white dark:text-slate-900 rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.2)] dark:shadow-[0_8px_20px_rgba(251,191,36,0.3)] border-[3px] border-white/80 dark:border-slate-800/80 transition transform active:scale-90">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
                 </button>
@@ -460,7 +482,7 @@
                 <span class="text-[9px] font-bold tracking-wider">分析</span>
             </button>
             
-            <button onclick="toggleSyncModal()" class="tab-btn flex flex-col items-center gap-1 w-14 text-slate-500 dark:text-slate-400 transition-colors relative">
+            <button onclick="toggleSyncModal()" id="tab-settings" class="tab-btn flex flex-col items-center gap-1 w-14 text-slate-500 dark:text-slate-400 transition-colors relative">
                 <span id="syncStatusDot" class="absolute top-0 right-3 w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse hidden"></span>
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 <span class="text-[9px] font-bold tracking-wider">設定</span>
@@ -602,10 +624,8 @@
         let currentMonthFilter = 'all';
         let deferredPrompt = null;
         
-        // 🚀 新增：提示訊息的計時器變數
         let toastTimeout = null;
 
-        // 🚀 新增：取得本地時區的 YYYY-MM-DD
         function getLocalDateString() {
             const d = new Date();
             const offset = d.getTimezoneOffset();
@@ -613,17 +633,45 @@
             return d.toISOString().split('T')[0];
         }
 
+        // 🚀 動態更新果凍滑動指示器
+        function updateLiquidIndicator(tabId) {
+            const btn = document.getElementById('tab-' + tabId);
+            const indicator = document.getElementById('liquid-indicator');
+            if (btn && indicator && tabId !== 'add') {
+                indicator.style.opacity = '1';
+                indicator.style.width = `${btn.offsetWidth}px`;
+                // 精確計算並覆蓋絕對定位位移
+                indicator.style.transform = `translate(${btn.offsetLeft}px, -50%)`;
+            } else if (tabId === 'add') {
+                if (indicator) indicator.style.opacity = '0';
+            }
+        }
+
         function switchTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             const activeBtn = document.getElementById('tab-' + tabId);
             if (activeBtn && tabId !== 'add') activeBtn.classList.add('active'); 
 
-            document.querySelectorAll('.view-section').forEach(view => { view.classList.remove('active'); });
-            document.getElementById('view-' + tabId).classList.add('active');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // 觸發指示器滑動
+            updateLiquidIndicator(tabId);
 
-            if(tabId === 'analysis') { if (typeof Chart !== 'undefined') updateCharts(); }
+            if (tabId !== 'settings') {
+                document.querySelectorAll('.view-section').forEach(view => { view.classList.remove('active'); });
+                const view = document.getElementById('view-' + tabId);
+                if (view) view.classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                if(tabId === 'analysis') { if (typeof Chart !== 'undefined') updateCharts(); }
+            }
         }
+
+        // 確保視窗縮放時指示器不跑版
+        window.addEventListener('resize', () => {
+            const activeBtn = document.querySelector('.tab-btn.active');
+            if (activeBtn) {
+                const tabId = activeBtn.id.replace('tab-', '');
+                updateLiquidIndicator(tabId);
+            }
+        });
 
         function setupThemeIcons() {
             const isDark = document.documentElement.classList.contains('dark');
@@ -689,6 +737,9 @@
         function initAppCore() {
             setupThemeIcons();
             
+            // 初始化滑動指示器 (首頁)
+            setTimeout(() => { updateLiquidIndicator('home'); }, 100);
+
             const customImg = localStorage.getItem('ev_life_hero_image');
             if (customImg) document.getElementById('heroImageDisplay').src = customImg;
 
@@ -723,7 +774,6 @@
                 document.getElementById('splashPreviewContainer').classList.remove('hidden');
             }
 
-            // 🚀 修正：改用自訂函式取得本地時間
             if(document.getElementById('inputDate')) {
                 document.getElementById('inputDate').value = getLocalDateString();
             }
@@ -745,7 +795,6 @@
             
             setupDelegatedEvents();
 
-            // 啟動時自動觸發雲端同步，強制下載雲端資料覆蓋本機
             if (syncUrl) {
                 setTimeout(() => {
                     syncWithCloud('download', false);
@@ -900,7 +949,6 @@
             }
         }
 
-        // 🚀 修正：加入 clearTimeout 避免提示訊息過早消失
         function showToast(message, isError=false, duration=2500) {
             const toast = document.getElementById('toast');
             document.getElementById('toastMessage').textContent = message;
@@ -1099,17 +1147,14 @@
             const labelColor = isDarkMode ? '#9ca3af' : '#64748b'; 
             const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.03)';
             
-            // 排除保養紀錄用於繪製電耗折線與能源費用柱狀圖
             let chartData = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.chargeType !== '維修保養');
             if (currentMonthFilter !== 'all') {
                 chartData = chartData.filter(rec => rec.date.startsWith(currentMonthFilter));
             }
 
-            // 🚀 計算當月/區間的總里程、總花費與每公里費用
             let periodTotalKm = 0;
             let periodTotalCost = 0;
 
-            // 納入當前篩選區間內的所有紀錄（包含充電與維修保養）
             const allPeriodRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && (currentMonthFilter === 'all' || (r.date && r.date.startsWith(currentMonthFilter))));
             allPeriodRecords.forEach(rec => {
                 if (rec.chargeType !== '維修保養') {
@@ -1228,7 +1273,7 @@
             }
             
             cancelEdit(); renderDashboard(); switchTab('records'); 
-            if (syncUrl) syncWithCloud('upload', true); // 新增或修改資料後，強制上傳到雲端
+            if (syncUrl) syncWithCloud('upload', true); 
         }
 
         function editRecord(id) {
@@ -1252,7 +1297,6 @@
             switchTab('add'); 
         }
 
-        // 🚀 修正：改用自訂函式取得本地時間
         function cancelEdit() {
             editingRecordId = null;
             document.getElementById('formTitle').textContent = "記錄本次旅程";
@@ -1268,7 +1312,7 @@
                 const updated = records.filter(rec => rec.id !== id);
                 if(updated.length === 0) localStorage.setItem('ev_life_cleared', 'true');
                 saveLocalState(updated); renderDashboard(); showToast("已刪除！🗑️");
-                if (syncUrl) syncWithCloud('upload', true); // 刪除資料後，強制上傳到雲端
+                if (syncUrl) syncWithCloud('upload', true);
             });
         }
 
@@ -1276,17 +1320,27 @@
             showConfirmModal("清空全部紀錄", "警告：這將徹底刪除裝置上所有數據！", function() {
                 localStorage.setItem('ev_life_cleared', 'true');
                 saveLocalState([]); renderDashboard(); showToast("紀錄已清空");
-                if (syncUrl) syncWithCloud('upload', true); // 清空資料後，強制上傳到雲端
+                if (syncUrl) syncWithCloud('upload', true);
             });
         }
 
         function toggleSyncModal() {
+            // 在開啟 modal 時給個稍微不同的反饋
+            updateLiquidIndicator('settings');
+            
             localStorage.setItem('ev_life_sync_dismissed', 'true'); updateSyncUiStatus();
             const modal = document.getElementById('syncModal'), content = document.getElementById('syncModalContent');
             if (modal.classList.contains('hidden')) {
                 modal.classList.remove('hidden'); setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('translate-y-full', 'sm:scale-95'); }, 10);
             } else {
                 modal.classList.add('opacity-0'); content.classList.add('translate-y-full', 'sm:scale-95'); setTimeout(() => modal.classList.add('hidden'), 300);
+                
+                // 關閉 Modal 後讓指示器歸位回原本活躍的 tab
+                const activeView = document.querySelector('.view-section.active');
+                if (activeView) {
+                    const tabId = activeView.id.replace('view-', '');
+                    updateLiquidIndicator(tabId);
+                }
             }
         }
 
