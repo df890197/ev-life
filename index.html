@@ -82,8 +82,9 @@
             box-shadow: 0 8px 30px -10px rgba(0, 0, 0, 0.1), inset 0 1px 0px rgba(255, 255, 255, 0.01);
         }
 
+        /* 🚀 修正：透過降低 bottom 數值抵銷失去陰影帶來的「上浮感錯覺」 */
         .floating-nav {
-            bottom: calc(env(safe-area-inset-bottom, 0px) * 0.5 + 8px) !important;
+            bottom: calc(env(safe-area-inset-bottom, 0px) * 0.5 + 2px) !important;
             margin-bottom: 0 !important;
         }
 
@@ -713,7 +714,7 @@
             }
         });
 
-        // 🚀 初始化 Liquid Glass 的果凍拉伸與光學透鏡效應 (Optical Magnification)
+        // 🚀 初始化 Liquid Glass 的果凍拉伸拖曳功能
         function initLiquidDrag() {
             const navContainer = document.getElementById('nav-container');
             const indicator = document.getElementById('liquid-indicator');
