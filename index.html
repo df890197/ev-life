@@ -722,23 +722,29 @@
                     moved = true;
                     if(e.cancelable) e.preventDefault(); 
                     
-                    // 🚀 果凍拉伸演算法 (Liquid Stretch Algorithm)
-                    let stretch = Math.abs(deltaX) * 0.65; // 延展係數
-                    let move = deltaX * 0.4; // 中心位移係數
+                    // 🚀 果凍拉伸演算法優化：完全跟手 1:1
+                    let stretch = Math.min(Math.abs(deltaX) * 0.5, 60); // 限制最大拉伸量，避免變形過度
+                    let targetX;
                     
-                    let targetX = initialTranslate + move;
-                    // 如果向左滑，基準點要往左移，才能向右延展
-                    if (deltaX < 0) {
-                        targetX = initialTranslate + move - stretch;
+                    if (deltaX > 0) {
+                        // 向右拖曳：右側前緣緊跟手指，左側稍慢形成拉伸
+                        targetX = initialTranslate + deltaX - stretch;
+                    } else {
+                        // 向左拖曳：左側前緣緊跟手指，右側稍慢形成拉伸
+                        targetX = initialTranslate + deltaX;
                     }
                     
                     let targetWidth = initialWidth + stretch;
                     
-                    // 限制最大寬度避免破圖
-                    targetWidth = Math.min(targetWidth, 120);
+                    // 邊界防護：確保不超出導航列容器
+                    let maxTranslate = navContainer.offsetWidth - targetWidth;
+                    targetX = Math.max(0, Math.min(targetX, maxTranslate));
                     
                     indicator.style.width = `${targetWidth}px`;
                     indicator.style.transform = `translate(${targetX}px, -50%)`;
+                    
+                    // 更新當前位置狀態供 touchend 計算
+                    indicator.dataset.currentX = targetX;
                 }
             }
 
@@ -749,8 +755,7 @@
                 indicator.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease';
                 
                 if (moved) {
-                    const match = indicator.style.transform.match(/translate\(([-\d.]+)px/);
-                    const currentTranslate = match ? parseFloat(match[1]) : 0;
+                    const currentTranslate = parseFloat(indicator.dataset.currentX || initialTranslate);
                     const indicatorCenter = currentTranslate + indicator.offsetWidth / 2;
                     
                     let nearestTab = null;
