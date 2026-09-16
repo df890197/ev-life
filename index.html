@@ -33,9 +33,7 @@
             appearance: none;
         }
         input[type="date"]::-webkit-date-and-time-value {
-            margin: 0;
-            padding: 0;
-            text-align: left;
+            margin: 0; padding: 0; text-align: left;
         }
         input[type="date"]::-webkit-calendar-picker-indicator {
             opacity: 0 !important; cursor: pointer; position: absolute; right: 0; top: 0; width: 100%; height: 100%; z-index: 30;
@@ -43,6 +41,21 @@
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* 隱藏預設 input[type=range] 的軌道與按鈕外觀 */
+        input[type=range] {
+            -webkit-appearance: none; width: 100%; background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px; width: 20px; border-radius: 50%; background: #ffffff; border: 2px solid currentColor;
+            cursor: pointer; margin-top: -8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: transform 0.1s;
+        }
+        input[type=range]::-webkit-slider-thumb:active { transform: scale(1.2); }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 6px; cursor: pointer; background: #e2e8f0; border-radius: 99px;
+        }
+        .dark input[type=range]::-webkit-slider-runnable-track { background: #334155; }
     </style>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -64,20 +77,14 @@
         .ios-safe-nav { padding-top: env(safe-area-inset-top, 0px) !important; }
         body { text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; touch-action: manipulation; -webkit-text-size-adjust: 100%; }
 
-        /* 🚀 絕對透水膜 + 晶透邊緣 (Crystal Clear Edges) */
         .ios-27-glass {
             background: transparent; 
             backdrop-filter: blur(4px) saturate(110%);
             -webkit-backdrop-filter: blur(4px) saturate(110%);
-            /* 強化邊界反光，明確勾勒出膠囊形狀 */
             border: 1px solid rgba(255, 255, 255, 0.4); 
             border-top: 1px solid rgba(255, 255, 255, 0.8);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            /* 多重內圈高光，打造真實玻璃厚度 */
-            box-shadow: 
-                0 10px 30px -5px rgba(0, 0, 0, 0.08), 
-                inset 0 1px 3px rgba(255, 255, 255, 0.6), 
-                inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), inset 0 1px 3px rgba(255, 255, 255, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.15);
         }
         .dark .ios-27-glass {
             background: transparent; 
@@ -86,88 +93,49 @@
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-top: 1px solid rgba(255, 255, 255, 0.4);
             border-bottom: 1px solid rgba(255, 255, 255, 0.02);
-            box-shadow: 
-                0 15px 40px -10px rgba(0, 0, 0, 0.5), 
-                inset 0 1px 2px rgba(255, 255, 255, 0.25), 
-                inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+            box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
         }
 
-        .floating-nav {
-            bottom: calc(env(safe-area-inset-bottom, 0px) * 0.5 + 2px) !important;
-            margin-bottom: 0 !important;
-        }
+        .floating-nav { bottom: calc(env(safe-area-inset-bottom, 0px) * 0.5 + 2px) !important; margin-bottom: 0 !important; }
 
-        /* 🚀 Liquid Indicator：果凍膠囊 (實體透鏡感，提升辨識度) */
         .liquid-indicator {
-            position: absolute;
-            height: 52px;
-            border-radius: 26px;
-            background: rgba(255, 255, 255, 0.15); /* 增加一點點實體白底提升辨識度 */
-            backdrop-filter: blur(16px) saturate(180%) brightness(1.15); /* 提升折射模糊度，與清水底板形成對比 */
+            position: absolute; height: 52px; border-radius: 26px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
             -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15);
-            box-shadow: 
-                inset 0 0 0 1px rgba(255, 255, 255, 0.6),   /* 強化銳利白邊 */
-                inset 0 4px 10px rgba(255, 255, 255, 0.5),  /* 強化頂部體積反光 */
-                0 4px 12px rgba(0, 0, 0, 0.08);              
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), inset 0 4px 10px rgba(255, 255, 255, 0.5), 0 4px 12px rgba(0, 0, 0, 0.08);             
             transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.4s ease, backdrop-filter 0.4s ease;
-            z-index: 5; 
-            pointer-events: none; 
-            will-change: transform, width;
+            z-index: 5; pointer-events: none; will-change: transform, width;
         }
         .dark .liquid-indicator {
-            background: rgba(255, 255, 255, 0.08); /* 增加微光底色 */
+            background: rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(16px) saturate(150%) brightness(1.2);
             -webkit-backdrop-filter: blur(16px) saturate(150%) brightness(1.2);
-            box-shadow: 
-                inset 0 0 0 1px rgba(255, 255, 255, 0.25),
-                inset 0 4px 15px rgba(255, 255, 255, 0.15),
-                0 6px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25), inset 0 4px 15px rgba(255, 255, 255, 0.15), 0 6px 15px rgba(0, 0, 0, 0.2);
         }
         
-        /* 🚀 拖曳放大時的光學變化：維持高透視並強化高光 */
         .liquid-indicator.dragging {
             background: rgba(255, 255, 255, 0.25);
             backdrop-filter: blur(24px) contrast(110%) saturate(180%) brightness(1.2);
             -webkit-backdrop-filter: blur(24px) contrast(110%) saturate(180%) brightness(1.2);
-            box-shadow: 
-                inset 0 0 0 1px rgba(255, 255, 255, 0.8),   
-                inset 0 6px 18px rgba(255, 255, 255, 0.7),  
-                0 8px 20px rgba(0, 0, 0, 0.12);             
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8), inset 0 6px 18px rgba(255, 255, 255, 0.7), 0 8px 20px rgba(0, 0, 0, 0.12);             
         }
         .dark .liquid-indicator.dragging {
             background: rgba(255, 255, 255, 0.12);
             backdrop-filter: blur(24px) contrast(110%) saturate(180%) brightness(1.3);
             -webkit-backdrop-filter: blur(24px) contrast(110%) saturate(180%) brightness(1.3);
-            box-shadow: 
-                inset 0 0 0 1px rgba(255, 255, 255, 0.35),
-                inset 0 6px 20px rgba(255, 255, 255, 0.25),
-                0 10px 25px rgba(0, 0, 0, 0.3);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35), inset 0 6px 20px rgba(255, 255, 255, 0.25), 0 10px 25px rgba(0, 0, 0, 0.3);
         }
 
-        /* 🚀 圖示按鈕設定 */
-        .tab-btn { 
-            position: relative; 
-            z-index: 2; 
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); 
-            will-change: transform, opacity;
-        }
-        .tab-btn.active { 
-            color: #0d9488; 
-            font-weight: 900; 
-            transform: translateY(-2px) scale(1.1); 
-            z-index: 10; 
-        }
+        .tab-btn { position: relative; z-index: 2; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); will-change: transform, opacity; }
+        .tab-btn.active { color: #0d9488; font-weight: 900; transform: translateY(-2px) scale(1.1); z-index: 10; }
         .dark .tab-btn.active { color: #2dd4bf; }
 
-        /* 🚀 蘋果最新 visionOS 空間流體浮現 (Spatial Material Reveal) */
         .view-section { display: none; opacity: 0; }
         .view-section.active { 
-            display: block; 
-            opacity: 1; 
-            /* 採用極高初速、極緩減速的超現代指數曲線 */
+            display: block; opacity: 1; 
             animation: visionSpatialReveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
-            transform-origin: center bottom;
-            will-change: transform, opacity, filter;
+            transform-origin: center bottom; will-change: transform, opacity, filter;
         }
         @keyframes visionSpatialReveal { 
             0% { opacity: 0; transform: translateY(40px) scale(0.9); filter: blur(15px); } 
@@ -187,6 +155,7 @@
         .hero-image-container img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
     </style>
 
+    <!-- ⚠️ 效能提示：在正式上線的生產環境中，建議透過 Tailwind CLI 將 CSS 編譯為靜態檔案，取代 Play CDN 提升載入速度 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <script>
@@ -224,14 +193,9 @@
                 const imgEl = document.getElementById('splashLogoImg');
                 const fallbackEl = document.getElementById('splashFallbackContainer');
                 
-                if(splashBg && splashDiv) {
-                    splashDiv.style.setProperty('background-color', splashBg, 'important');
-                }
+                if(splashBg && splashDiv) { splashDiv.style.setProperty('background-color', splashBg, 'important'); }
                 if(splashImg && imgEl && fallbackEl) {
-                    imgEl.src = splashImg;
-                    imgEl.classList.remove('opacity-0', 'object-cover');
-                    imgEl.classList.add('object-contain', 'p-8');
-                    fallbackEl.style.display = 'none';
+                    imgEl.src = splashImg; imgEl.classList.remove('opacity-0', 'object-cover'); imgEl.classList.add('object-contain', 'p-8'); fallbackEl.style.display = 'none';
                 }
             } catch(e) {}
         })();
@@ -264,80 +228,164 @@
         
         <!-- 🔹 Tab 1: 首頁 (Home) -->
         <div id="view-home" class="view-section active px-4">
-            <!-- 英雄區 (可上傳照片) -->
-            <div class="hero-image-container mb-6 shadow-sm border border-slate-200 dark:border-slate-800 bg-slate-200 dark:bg-slate-800 group">
-                <img id="heroImageDisplay" src="https://placehold.co/800x450/1e293b/2dd4bf?text=EV+Life" alt="EV" class="transition duration-500 group-hover:scale-105">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                <div class="absolute bottom-5 left-6 right-6 flex justify-between items-end">
-                    <h1 id="heroEvName" class="text-white text-3xl font-black tracking-widest drop-shadow-md">LUXGEN n7</h1>
+            
+            <!-- ✨ 首次啟動導覽 (Onboarding) -->
+            <div id="onboardingCard" class="hidden mb-6 rpg-card bg-gradient-to-br from-teal-50 to-white dark:from-teal-900/30 dark:to-slate-800 p-6 rounded-[2rem] shadow-sm border border-teal-100 dark:border-teal-800/50">
+                <div class="text-center mb-5">
+                    <span class="text-5xl block mb-3">🌱</span>
+                    <h2 class="text-lg font-black text-slate-800 dark:text-white">歡迎加入純電新生活！</h2>
+                    <p class="text-xs font-bold text-slate-500 mt-2 leading-relaxed">看來您還沒有任何紀錄。只要完成以下簡單步驟，就能開始掌握您的愛車數據：</p>
                 </div>
-                <!-- 上傳相片按鈕 -->
-                <button onclick="document.getElementById('heroImageUpload').click()" class="absolute top-4 right-4 w-10 h-10 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white transition active:scale-95 shadow-lg border border-white/20">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                </button>
-                <input type="file" id="heroImageUpload" class="hidden" accept="image/*" onchange="handleHeroImageUpload(event)">
+                <div class="space-y-3">
+                    <div class="flex items-center gap-3 bg-white/60 dark:bg-slate-900/40 p-3 rounded-2xl border border-white/50 dark:border-white/5">
+                        <div class="bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 w-8 h-8 rounded-full flex items-center justify-center font-black flex-shrink-0 shadow-sm">1</div>
+                        <div class="text-xs font-bold text-slate-600 dark:text-slate-300">前往 <button onclick="switchTab('settings')" class="text-amber-600 dark:text-amber-400 underline underline-offset-2">設定頁面</button>，確認愛車的電池容量與初始里程。</div>
+                    </div>
+                    <div class="flex items-center gap-3 bg-white/60 dark:bg-slate-900/40 p-3 rounded-2xl border border-white/50 dark:border-white/5">
+                        <div class="bg-teal-100 dark:bg-teal-900/40 text-teal-600 dark:text-teal-400 w-8 h-8 rounded-full flex items-center justify-center font-black flex-shrink-0 shadow-sm">2</div>
+                        <div class="text-xs font-bold text-slate-600 dark:text-slate-300">點擊下方中央的 <button onclick="switchTab('add')" class="text-teal-600 dark:text-teal-400 underline underline-offset-2">＋按鈕</button>，新增您的第一筆充電或行駛紀錄。</div>
+                    </div>
+                    <div class="flex items-center gap-3 bg-white/60 dark:bg-slate-900/40 p-3 rounded-2xl border border-white/50 dark:border-white/5">
+                        <div class="bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 w-8 h-8 rounded-full flex items-center justify-center font-black flex-shrink-0 shadow-sm">3</div>
+                        <div class="text-xs font-bold text-slate-600 dark:text-slate-300">體驗強大的圖表分析與自動保養提醒功能！</div>
+                    </div>
+                </div>
             </div>
 
-            <!-- 數據網格 (Stats Grid) -->
-            <div class="grid grid-cols-2 gap-4">
-                <div class="rpg-card bg-[#fffaf0] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
-                    <div class="text-amber-500 mb-2 flex items-start justify-between">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+            <!-- 主數據區塊 (有資料時顯示) -->
+            <div id="homeStatsContainer">
+                <!-- 英雄區 (可上傳照片) -->
+                <div class="hero-image-container mb-6 shadow-sm border border-slate-200 dark:border-slate-800 bg-slate-200 dark:bg-slate-800 group">
+                    <img id="heroImageDisplay" src="https://placehold.co/800x450/1e293b/2dd4bf?text=EV+Life" alt="EV" class="transition duration-500 group-hover:scale-105">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-5 left-6 right-6 flex justify-between items-end">
+                        <h1 id="heroEvName" class="text-white text-3xl font-black tracking-widest drop-shadow-md">LUXGEN n7</h1>
                     </div>
-                    <div>
-                        <div class="flex items-baseline gap-1 mt-1">
-                            <span id="statTotalKm" class="text-2xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0</span>
-                            <span class="text-[11px] font-bold text-slate-500">km</span>
-                        </div>
-                        <div class="text-[11px] font-bold text-slate-500 mt-0.5">總行駛里程</div>
-                    </div>
+                    <button onclick="document.getElementById('heroImageUpload').click()" class="absolute top-4 right-4 w-10 h-10 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white transition active:scale-95 shadow-lg border border-white/20">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    </button>
+                    <input type="file" id="heroImageUpload" class="hidden" accept="image/*" onchange="handleHeroImageUpload(event)">
                 </div>
 
-                <div class="rpg-card bg-[#f0fdfa] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
-                    <div class="text-teal-500 mb-2 flex items-start justify-between">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                    </div>
-                    <div>
-                        <div class="flex items-baseline gap-1 mt-1">
-                            <span id="statAvgEfficiency" class="text-2xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0.00</span>
-                            <span class="text-[11px] font-bold text-slate-500">km/度</span>
+                <!-- 數據網格 (Stats Grid) -->
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="rpg-card bg-[#fffaf0] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
+                        <div class="text-amber-500 mb-2 flex items-start justify-between">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
                         </div>
-                        <div class="text-[11px] font-bold text-slate-500 mt-0.5">平均電耗</div>
+                        <div>
+                            <div class="flex items-baseline gap-1 mt-1">
+                                <span id="statTotalKm" class="text-2xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0</span>
+                                <span class="text-[11px] font-bold text-slate-500">km</span>
+                            </div>
+                            <div class="text-[11px] font-bold text-slate-500 mt-0.5">總行駛里程</div>
+                        </div>
                     </div>
-                </div>
 
-                <div class="rpg-card bg-[#f0f9ff] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
-                    <div class="text-sky-500 mb-2 flex justify-between items-start">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path></svg>
-                        <div class="text-right">
-                            <div class="text-[10px] font-bold text-slate-400">每公里</div>
-                            <div class="flex items-baseline gap-0.5 justify-end">
-                                <span class="text-[9px] text-sky-500">$</span>
-                                <span id="statCostPerKm" class="text-sm font-black text-sky-500 font-mono">0.00</span>
+                    <div class="rpg-card bg-[#f0fdfa] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
+                        <div class="text-teal-500 mb-2 flex items-start justify-between">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        </div>
+                        <div>
+                            <div class="flex items-baseline gap-1 mt-1">
+                                <span id="statAvgEfficiency" class="text-2xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0.00</span>
+                                <span class="text-[11px] font-bold text-slate-500">km/度</span>
+                            </div>
+                            <div class="text-[11px] font-bold text-slate-500 mt-0.5">平均電耗</div>
+                        </div>
+                    </div>
+
+                    <div class="rpg-card bg-[#f0f9ff] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
+                        <div class="text-sky-500 mb-2 flex justify-between items-start">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path></svg>
+                            <div class="text-right">
+                                <div class="text-[10px] font-bold text-slate-400">每公里</div>
+                                <div class="flex items-baseline gap-0.5 justify-end">
+                                    <span class="text-[9px] text-sky-500">$</span>
+                                    <span id="statCostPerKm" class="text-sm font-black text-sky-500 font-mono">0.00</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div>
-                        <div class="flex items-baseline gap-1 mt-1">
-                            <span class="text-[11px] font-bold text-slate-500">$</span>
-                            <span id="statTotalCost" class="text-2xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0</span>
+                        <div>
+                            <div class="flex items-baseline gap-1 mt-1">
+                                <span class="text-[11px] font-bold text-slate-500">$</span>
+                                <span id="statTotalCost" class="text-2xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0</span>
+                            </div>
+                            <div class="text-[11px] font-bold text-slate-500 mt-0.5">能源總成本</div>
                         </div>
-                        <div class="text-[11px] font-bold text-slate-500 mt-0.5">能源總成本</div>
+                    </div>
+
+                    <div class="rpg-card bg-[#faf5ff] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
+                        <div class="text-fuchsia-500 mb-2 flex items-start justify-between">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        </div>
+                        <div>
+                            <div class="flex items-baseline gap-1 mt-1">
+                                <span class="text-[11px] font-bold text-slate-500">$</span>
+                                <span id="statMaintCost" class="text-2xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0</span>
+                            </div>
+                            <div class="text-[11px] font-bold text-slate-500 mt-0.5">保養維修費</div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="rpg-card bg-[#faf5ff] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
-                    <div class="text-fuchsia-500 mb-2 flex items-start justify-between">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                    </div>
-                    <div>
-                        <div class="flex items-baseline gap-1 mt-1">
-                            <span class="text-[11px] font-bold text-slate-500">$</span>
-                            <span id="statMaintCost" class="text-2xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0</span>
+                <!-- 🏆 燃油省下費用 & 黃金右腳 -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <!-- 燃油對比卡片 -->
+                    <div class="rpg-card bg-gradient-to-br from-green-50 to-white dark:from-green-900/20 dark:to-slate-800 p-5 rounded-[1.5rem] border border-green-100 dark:border-green-800/50">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 w-7 h-7 rounded-full flex items-center justify-center text-xs">🌳</span>
+                            <span class="text-xs font-black text-slate-600 dark:text-slate-300">與燃油車相比，您已省下</span>
                         </div>
-                        <div class="text-[11px] font-bold text-slate-500 mt-0.5">保養維修費</div>
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-sm font-bold text-green-500">$</span>
+                            <span id="statFuelSavings" class="text-3xl font-black text-green-500 font-mono tracking-tight shadow-sm drop-shadow-sm">0</span>
+                        </div>
+                        <div class="text-[10px] text-slate-400 font-bold mt-1.5 flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            基準: <span id="savingsBaseText">15 km/L, 30 $/L</span>
+                        </div>
+                    </div>
+
+                    <!-- 黃金右腳卡片 -->
+                    <div id="mvpCard" class="rpg-card hidden bg-gradient-to-br from-amber-50 to-white dark:from-amber-900/20 dark:to-slate-800 p-5 rounded-[1.5rem] border border-amber-100 dark:border-amber-800/50 relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 opacity-10 dark:opacity-5 text-8xl transform rotate-12 pointer-events-none">👑</div>
+                        <div class="flex items-center gap-2 mb-2 relative z-10">
+                            <span class="bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 w-7 h-7 rounded-full flex items-center justify-center text-xs shadow-sm">👑</span>
+                            <span class="text-xs font-black text-slate-600 dark:text-slate-300">本期黃金右腳紀錄</span>
+                        </div>
+                        <div class="flex items-baseline gap-1 relative z-10">
+                            <span id="statMvpEfficiency" class="text-3xl font-black text-amber-500 font-mono tracking-tight drop-shadow-sm">0.00</span>
+                            <span class="text-xs font-bold text-amber-500/80">km/度</span>
+                        </div>
+                        <div class="text-[10px] text-slate-400 font-bold mt-1.5 flex justify-between items-center relative z-10">
+                            <span>日期: <span id="statMvpDate" class="font-mono">無</span></span>
+                            <span>里程: <span id="statMvpDist" class="font-mono text-slate-500 dark:text-slate-300">0</span> km</span>
+                        </div>
                     </div>
                 </div>
+
+                <!-- 🔧 保養進度條 -->
+                <div class="rpg-card bg-white dark:bg-slate-800 p-5 rounded-[1.5rem] mb-2 border border-slate-100 dark:border-slate-700">
+                    <div class="flex justify-between items-end mb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 w-7 h-7 rounded-full flex items-center justify-center text-xs">🔧</span>
+                            <div>
+                                <h3 class="text-xs font-black text-slate-700 dark:text-slate-200">定期保養進度</h3>
+                                <div class="text-[10px] text-slate-400 font-bold mt-0.5">預設每 <span id="maintIntervalText">20000</span> km 檢查</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span id="maintRemainingText" class="text-sm font-black font-mono text-indigo-500">0</span>
+                            <span class="text-[10px] text-slate-500 font-bold">km 剩餘</span>
+                        </div>
+                    </div>
+                    <!-- 進度條本體 -->
+                    <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden flex">
+                        <div id="maintProgressBar" class="bg-indigo-500 h-2.5 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -369,23 +417,53 @@
                         </div>
                     </div>
 
-                    <div id="driveInputsArea" class="grid grid-cols-1 sm:grid-cols-3 gap-4 transition-all duration-300 overflow-hidden">
-                        <div class="sm:col-span-1">
+                    <div id="driveInputsArea" class="space-y-4 transition-all duration-300 overflow-hidden">
+                        
+                        <!-- 站點標籤選擇區 -->
+                        <div id="tagInputArea">
+                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">站點 / 標籤 (選填)</label>
+                            <div class="flex overflow-x-auto gap-2 pb-2 no-scrollbar mb-1">
+                                <button type="button" onclick="setTag('U-POWER')" class="flex-shrink-0 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold border border-slate-200 dark:border-slate-700 active:scale-95 transition-transform">⚡ U-POWER</button>
+                                <button type="button" onclick="setTag('EVOASIS')" class="flex-shrink-0 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold border border-slate-200 dark:border-slate-700 active:scale-95 transition-transform">⚡ EVOASIS</button>
+                                <button type="button" onclick="setTag('特爾電力')" class="flex-shrink-0 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold border border-slate-200 dark:border-slate-700 active:scale-95 transition-transform">⚡ 特爾電力</button>
+                                <button type="button" onclick="setTag('iCHARGING')" class="flex-shrink-0 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold border border-slate-200 dark:border-slate-700 active:scale-95 transition-transform">⚡ iCHARGING</button>
+                                <button type="button" onclick="setTag('TAIL')" class="flex-shrink-0 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold border border-slate-200 dark:border-slate-700 active:scale-95 transition-transform">⚡ TAIL</button>
+                                <button type="button" onclick="setTag('住家慢充')" class="flex-shrink-0 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold border border-slate-200 dark:border-slate-700 active:scale-95 transition-transform">🏠 住家慢充</button>
+                                <button type="button" onclick="setTag('Tesla')" class="flex-shrink-0 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold border border-slate-200 dark:border-slate-700 active:scale-95 transition-transform">🔋 Tesla</button>
+                            </div>
+                            <input type="text" id="inputTag" placeholder="或手動輸入站點名稱..." class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
+                        </div>
+
+                        <div>
                             <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">行駛里程 (km)</label>
                             <input type="number" step="0.1" id="inputDistance" required placeholder="120" inputmode="decimal" class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-mono font-bold focus:outline-none focus:border-amber-400 transition-colors">
                         </div>
-                        <div>
-                            <label id="startSocLabel" class="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">出發前 SOC (%)</label>
-                            <input type="number" step="1" min="0" max="100" id="inputStartSoc" required placeholder="20" inputmode="numeric" oninput="updateConvertedPowerHint()" class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-mono font-bold focus:outline-none focus:border-amber-400 transition-colors">
+                        
+                        <!-- 🎚️ 雙滑桿區域 (SOC) -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-900/30 p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
+                            <div>
+                                <div class="flex justify-between items-center mb-1.5">
+                                    <label id="startSocLabel" class="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400">出發前 SOC (%)</label>
+                                    <input type="number" step="1" min="0" max="100" id="inputStartSocNum" required placeholder="20" inputmode="numeric" class="w-16 px-2 py-1 bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono font-black text-center focus:outline-none focus:border-amber-400 transition-colors">
+                                </div>
+                                <div class="py-2">
+                                    <input type="range" min="0" max="100" id="sliderStartSoc" class="accent-amber-500 dark:accent-amber-400">
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-center mb-1.5">
+                                    <label id="endSocLabel" class="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400">抵達後 SOC (%)</label>
+                                    <input type="number" step="1" min="0" max="100" id="inputEndSocNum" required placeholder="80" inputmode="numeric" class="w-16 px-2 py-1 bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono font-black text-center focus:outline-none focus:border-teal-400 transition-colors">
+                                </div>
+                                <div class="py-2">
+                                    <input type="range" min="0" max="100" id="sliderEndSoc" class="accent-teal-500 dark:accent-teal-400">
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label id="endSocLabel" class="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">抵達後 SOC (%)</label>
-                            <input type="number" step="1" min="0" max="100" id="inputEndSoc" required placeholder="80" inputmode="numeric" oninput="updateConvertedPowerHint()" class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-mono font-bold focus:outline-none focus:border-amber-400 transition-colors">
-                        </div>
-                    </div>
 
-                    <div class="text-right" id="powerHintContainer">
-                        <span id="powerHintText" class="text-[10px] text-amber-600 dark:text-amber-400 font-bold bg-amber-50 dark:bg-amber-900/30 px-3 py-1.5 rounded-full inline-block">共消耗 0% 電量 (約 0.00 度)</span>
+                        <div class="text-right" id="powerHintContainer">
+                            <span id="powerHintText" class="text-[10px] text-amber-600 dark:text-amber-400 font-bold bg-amber-50 dark:bg-amber-900/30 px-3 py-1.5 rounded-full inline-block">共消耗 0% 電量 (約 0.00 度)</span>
+                        </div>
                     </div>
 
                     <div>
@@ -399,7 +477,7 @@
                     </div>
 
                     <div class="flex gap-3 pt-4">
-                        <button type="submit" class="flex-1 rpg-btn-primary text-sm font-black py-4 rounded-2xl">
+                        <button type="submit" class="flex-1 rpg-btn-primary text-sm font-black py-4 rounded-2xl shadow-md">
                             <span id="submitBtnText">儲存紀錄</span>
                         </button>
                         <button type="button" id="cancelEditBtn" onclick="cancelEdit()" class="hidden rpg-btn-secondary text-sm font-bold py-4 px-6 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-500">
@@ -419,9 +497,9 @@
             
             <div id="monthFilterContainer" class="flex overflow-x-auto gap-2 no-scrollbar mb-4 pb-2"></div>
             
-            <div id="noDataPlaceholder" class="hidden text-center py-16 text-slate-400">
+            <div id="noDataPlaceholder" class="hidden text-center py-16 text-slate-400 bg-white/50 dark:bg-slate-800/50 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700">
                 <div class="text-4xl mb-2">📭</div>
-                <p class="text-xs font-bold">空空如也，快去新增第一筆紀錄吧！</p>
+                <p class="text-xs font-bold">目前區間尚無紀錄喔！</p>
             </div>
 
             <div id="recordMobileList" class="space-y-4 pb-4">
@@ -498,8 +576,20 @@
                     </div>
                 </div>
 
+                <!-- 折線圖與長條圖區 -->
                 <div class="h-64 relative w-full mt-2">
                     <canvas id="efficiencyChart"></canvas>
+                </div>
+                
+                <!-- 🍩 圓餅圖區：花費分佈 -->
+                <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
+                    <h3 class="text-sm font-black text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2">
+                        <span class="bg-rose-100 dark:bg-rose-900/30 text-rose-500 w-6 h-6 rounded-full flex items-center justify-center text-[10px]">🍩</span>
+                        花費分佈比例
+                    </h3>
+                    <div class="h-56 relative w-full flex justify-center">
+                        <canvas id="costDistributionChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -528,9 +618,28 @@
                                     <label class="text-[10px] font-bold text-slate-400 block mb-1">電池容量 (kWh)</label>
                                     <input type="number" step="0.1" id="batteryCapacityInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold focus:outline-none">
                                 </div>
-                                <div class="sm:col-span-2">
+                                <div>
                                     <label class="text-[10px] font-bold text-slate-400 block mb-1">初始總里程 (km)</label>
                                     <input type="number" step="0.1" id="initialOdometerInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-400 block mb-1">保養提醒間距 (km)</label>
+                                    <input type="number" step="1000" id="maintIntervalInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold focus:outline-none" placeholder="20000">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 🛢️ 燃油省下對比設定 -->
+                        <div class="bg-slate-50 dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+                            <span class="text-xs font-black text-slate-500 dark:text-slate-400 flex items-center gap-1">⛽ 燃油對比基準 (計算省下費用)</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-400 block mb-1">對比油車油耗 (km/L)</label>
+                                    <input type="number" step="0.1" id="iceEfficiencyInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold focus:outline-none" placeholder="15.0">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-400 block mb-1">平均汽油單價 (元/L)</label>
+                                    <input type="number" step="0.1" id="gasPriceInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold focus:outline-none" placeholder="30.0">
                                 </div>
                             </div>
                         </div>
@@ -565,11 +674,11 @@
                             <input type="url" id="syncUrlInput" placeholder="https://script.google.com/macros/..." class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-mono focus:outline-none">
                         </div>
                         <div class="grid grid-cols-2 gap-3 pt-2">
-                            <button onclick="syncWithCloud('auto')" class="col-span-2 rpg-btn-primary text-sm font-black py-3 rounded-2xl flex justify-center items-center gap-1">🔄 智慧同步</button>
+                            <button onclick="syncWithCloud('auto')" class="col-span-2 rpg-btn-primary text-sm font-black py-3 rounded-2xl flex justify-center items-center gap-1 shadow-md">🔄 智慧同步</button>
                             <button onclick="forceDownload()" class="rpg-btn-secondary text-xs font-bold py-3 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">⬇️ 下載覆蓋本機</button>
                             <button onclick="forceUpload()" class="rpg-btn-secondary text-xs font-bold py-3 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">⬆️ 上傳覆蓋雲端</button>
                         </div>
-                        <button onclick="saveSyncSettingsOnly()" class="w-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-white text-xs font-bold py-3 rounded-2xl transition active:scale-95">💾 僅儲存設定</button>
+                        <button onclick="saveSyncSettingsOnly()" class="w-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-white text-xs font-bold py-3 rounded-2xl transition active:scale-95 shadow-sm mt-2">💾 僅儲存設定</button>
                     </div>
                     <!-- 分頁二：PWA 離線安裝 -->
                     <div id="settings-tab-pwa" class="space-y-4 hidden">
@@ -657,26 +766,41 @@
             <h3 id="confirmModalTitle" class="text-base font-black mb-2">確認動作</h3>
             <p id="confirmModalMessage" class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-6 leading-relaxed"></p>
             <div class="flex space-x-3">
-                <button onclick="closeConfirmModal()" class="flex-1 rpg-btn-secondary text-xs font-bold py-3 rounded-2xl border border-slate-200 dark:border-slate-700">取消</button>
+                <button onclick="closeConfirmModal()" class="flex-1 rpg-btn-secondary text-xs font-bold py-3 rounded-2xl border border-slate-200 dark:border-slate-700 transition active:scale-95">取消</button>
                 <button id="confirmSuccessBtn" class="flex-1 bg-rose-500 text-white text-xs font-bold py-3 rounded-2xl shadow-md transition active:scale-95">確認執行</button>
             </div>
         </div>
     </div>
 
     <script>
-        let records = [];
+        // 🚀 狀態集中管理 (State Management)
+        const AppState = {
+            records: [],
+            evName: "LUXGEN n7",
+            batteryCapacity: 57.7,
+            initialOdometer: 0,
+            maintInterval: 20000,
+            iceEfficiency: 15.0,
+            gasPrice: 30.0,
+            syncUrl: "",
+            editingRecordId: null,
+            currentChartFilter: 'all',
+            currentMonthFilter: 'all'
+        };
+
         let efficiencyChartInstance = null;
-        let syncUrl = "";
-        let evName = "LUXGEN n7";
-        let batteryCapacity = 57.7;
-        let initialOdometer = 0;
+        let costDistributionChartInstance = null;
         let activeConfirmCallback = null;
-        let editingRecordId = null;
-        let currentChartFilter = 'all';
-        let currentMonthFilter = 'all';
         let deferredPrompt = null;
-        
         let toastTimeout = null;
+
+        // 🛡️ XSS 防禦輔助函式
+        function escapeHTML(str) {
+            if (typeof str !== 'string') return '';
+            return str.replace(/[&<>'"]/g, tag => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+            }[tag] || tag));
+        }
 
         function getLocalDateString() {
             const d = new Date();
@@ -685,6 +809,127 @@
             return d.toISOString().split('T')[0];
         }
 
+        // --- Utilities ---
+        function showToast(message, isError=false, duration=2500) {
+            const toast = document.getElementById('toast');
+            if (!toast) return;
+            document.getElementById('toastMessage').textContent = message;
+            document.getElementById('toastIcon').textContent = isError ? "⚠️" : "🐾";
+            toast.className = `fixed top-[70px] left-1/2 -translate-x-1/2 z-[120] transform translate-y-0 opacity-100 visible pointer-events-auto transition-all duration-300 ${isError?'bg-rose-500':'bg-slate-900/95 dark:bg-amber-500'} text-white ${isError?'':'dark:text-slate-900'} px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 text-xs font-bold whitespace-nowrap border border-white/10`;
+            
+            if (toastTimeout) clearTimeout(toastTimeout);
+            
+            toastTimeout = setTimeout(() => {
+                toast.classList.replace('translate-y-0', '-translate-y-10');
+                toast.classList.replace('opacity-100', 'opacity-0');
+                toast.classList.add('invisible', 'pointer-events-none');
+            }, duration);
+        }
+
+        function setupThemeIcons() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const sunIcon = document.getElementById('themeSunIcon');
+            const moonIcon = document.getElementById('themeMoonIcon');
+            if (sunIcon) sunIcon.style.display = isDark ? 'block' : 'none';
+            if (moonIcon) moonIcon.style.display = isDark ? 'none' : 'block';
+        }
+
+        function toggleTheme() {
+            const htmlEl = document.documentElement;
+            if (htmlEl.classList.contains('dark')) {
+                htmlEl.classList.remove('dark'); localStorage.setItem('ev_life_theme', 'light');
+            } else {
+                htmlEl.classList.add('dark'); localStorage.setItem('ev_life_theme', 'dark');
+            }
+            setupThemeIcons();
+            if (typeof Chart !== 'undefined' && typeof updateCharts === 'function') updateCharts();
+        }
+
+        function handleHeroImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 800;
+                    let width = img.width, height = img.height;
+                    if (width > MAX_WIDTH) {
+                        height = Math.round((height * MAX_WIDTH) / width);
+                        width = MAX_WIDTH;
+                    }
+                    canvas.width = width; canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                    try {
+                        localStorage.setItem('ev_life_hero_image', dataUrl);
+                        const display = document.getElementById('heroImageDisplay');
+                        if (display) display.src = dataUrl;
+                        showToast('已更新愛車相片！🚗');
+                    } catch (err) {
+                        showToast('相片檔案太大，請嘗試其他照片。', true);
+                    }
+                }
+                img.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+
+        function handleSplashImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 600;
+                    let width = img.width, height = img.height;
+                    if (width > MAX_WIDTH) {
+                        height = Math.round((height * MAX_WIDTH) / width);
+                        width = MAX_WIDTH;
+                    }
+                    canvas.width = width; canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                    try {
+                        localStorage.setItem('ev_life_splash_image', dataUrl);
+                        const previewImg = document.getElementById('splashPreviewImg');
+                        const previewContainer = document.getElementById('splashPreviewContainer');
+                        if (previewImg) previewImg.src = dataUrl;
+                        if (previewContainer) previewContainer.classList.remove('hidden');
+                        showToast('啟動圖片已儲存！下次重啟生效 🚀');
+                    } catch (err) {
+                        showToast('圖片檔案太大，請嘗試其他照片。', true);
+                    }
+                }
+                img.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+
+        function clearSplashImage() {
+            localStorage.removeItem('ev_life_splash_image');
+            const previewContainer = document.getElementById('splashPreviewContainer');
+            const uploadInput = document.getElementById('splashImageUpload');
+            if (previewContainer) previewContainer.classList.add('hidden');
+            if (uploadInput) uploadInput.value = '';
+            showToast('已移除自訂啟動圖片 🗑️');
+        }
+
+        function clearSplashColor() {
+            localStorage.removeItem('ev_life_splash_color');
+            const isDark = document.documentElement.classList.contains('dark');
+            const colorInput = document.getElementById('splashColorInput');
+            if (colorInput) colorInput.value = isDark ? '#111827' : '#fcfaf2';
+            showToast('已恢復預設底色，下次重啟生效 🎨');
+        }
+
+        // --- UI & Interaction ---
+        
         function updateLiquidIndicator(tabId) {
             const btn = document.getElementById('tab-' + tabId);
             const indicator = document.getElementById('liquid-indicator');
@@ -719,45 +964,26 @@
 
         window.addEventListener('resize', () => {
             const activeBtn = document.querySelector('.tab-btn.active');
-            if (activeBtn) {
-                const tabId = activeBtn.id.replace('tab-', '');
-                updateLiquidIndicator(tabId);
-            }
+            if (activeBtn) updateLiquidIndicator(activeBtn.id.replace('tab-', ''));
         });
 
-        // 🚀 初始化 Liquid Glass 的果凍拉伸拖曳功能
         function initLiquidDrag() {
             const navContainer = document.getElementById('nav-container');
             const indicator = document.getElementById('liquid-indicator');
             const tabs = Array.from(navContainer.querySelectorAll('.tab-btn'));
             const validTabs = tabs.filter(t => t.id !== 'tab-add');
             
-            let isDragging = false;
-            let moved = false;
-            let startX = 0;
-            let initialTranslate = 0;
-            let initialWidth = 0;
+            let isDragging = false, moved = false, startX = 0, initialTranslate = 0, initialWidth = 0;
 
             function handleDragStart(e) {
                 if (e.target.closest('#add-btn-wrapper')) return;
-                
-                isDragging = true;
-                moved = false;
-                
-                // 1. 讓所有圖示沉入水底並縮小，取消 CSS 動畫過渡改由 JS 接管
-                tabs.forEach(btn => {
-                    btn.classList.remove('active');
-                    btn.style.transition = 'transform 0.1s ease-out, opacity 0.2s ease-out';
-                });
-
-                // 2. 指示器套用 Dragging 光學濾鏡
+                isDragging = true; moved = false;
+                tabs.forEach(btn => { btn.classList.remove('active'); btn.style.transition = 'transform 0.1s ease-out, opacity 0.2s ease-out'; });
                 indicator.classList.add('dragging');
                 indicator.style.transition = 'box-shadow 0.3s ease, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease';
                 
                 const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-                startX = clientX;
-                initialWidth = indicator.offsetWidth;
-                
+                startX = clientX; initialWidth = indicator.offsetWidth;
                 const transform = indicator.style.transform;
                 const match = transform.match(/translate\(([-\d.]+)px/);
                 initialTranslate = match ? parseFloat(match[1]) : 0;
@@ -765,45 +991,28 @@
 
             function handleDragMove(e) {
                 if (!isDragging) return;
-                
                 const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
                 const deltaX = clientX - startX;
                 
                 if (Math.abs(deltaX) > 2) { 
-                    moved = true;
-                    if(e.cancelable) e.preventDefault(); 
-                    
-                    // 🚀 果凍拉伸與位移計算
+                    moved = true; if(e.cancelable) e.preventDefault(); 
                     let stretch = Math.min(Math.abs(deltaX) * 0.55, 65); 
                     let targetX = deltaX > 0 ? (initialTranslate + deltaX - stretch) : (initialTranslate + deltaX);
                     let targetWidth = initialWidth + stretch;
-                    
                     let maxTranslate = navContainer.offsetWidth - targetWidth;
                     targetX = Math.max(0, Math.min(targetX, maxTranslate));
                     
-                    indicator.style.width = `${targetWidth}px`;
-                    indicator.style.transform = `translate(${targetX}px, -50%)`;
-                    indicator.dataset.currentX = targetX;
+                    indicator.style.width = `${targetWidth}px`; indicator.style.transform = `translate(${targetX}px, -50%)`; indicator.dataset.currentX = targetX;
 
-                    // 🚀 動態透鏡演算法 (Dynamic Lens Algorithm)
                     const indicatorCenter = targetX + targetWidth / 2;
-                    
                     validTabs.forEach(tab => {
                         const tabCenter = tab.offsetLeft + tab.offsetWidth / 2;
                         const distance = Math.abs(tabCenter - indicatorCenter);
-                        const effectRadius = 45; // 影響半徑
-                        
+                        const effectRadius = 45; 
                         if (distance < effectRadius) {
-                            // 越靠近玻璃中心，底下的圖示放大倍數越高 (最高達 1.35x)
                             const scale = 1 + 0.35 * (1 - distance / effectRadius);
-                            // 利用 JS 動態縮放按鈕，配合玻璃層的 blur 產生極致的光學折射感
-                            tab.style.transform = `scale(${scale})`;
-                            tab.style.opacity = '1';
-                        } else {
-                            // 不在玻璃範圍內的圖示稍微變暗，襯托玻璃亮度
-                            tab.style.transform = `scale(1)`;
-                            tab.style.opacity = '0.5';
-                        }
+                            tab.style.transform = `scale(${scale})`; tab.style.opacity = '1';
+                        } else { tab.style.transform = `scale(1)`; tab.style.opacity = '0.5'; }
                     });
                 }
             }
@@ -811,169 +1020,95 @@
             function handleDragEnd(e) {
                 if (!isDragging) return;
                 isDragging = false;
-                
                 indicator.classList.remove('dragging');
                 indicator.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.4s ease, backdrop-filter 0.4s ease, -webkit-backdrop-filter 0.4s ease';
-                
-                // 清除所有圖示的 JS 透鏡縮放設定，將動畫控制權交還給原生的 CSS (:active)
-                validTabs.forEach(tab => {
-                    tab.style.transition = '';
-                    tab.style.transform = '';
-                    tab.style.opacity = '';
-                });
+                validTabs.forEach(tab => { tab.style.transition = ''; tab.style.transform = ''; tab.style.opacity = ''; });
                 
                 if (moved) {
                     const currentTranslate = parseFloat(indicator.dataset.currentX || initialTranslate);
                     const indicatorCenter = currentTranslate + indicator.offsetWidth / 2;
-                    
-                    let nearestTab = null;
-                    let minDistance = Infinity;
+                    let nearestTab = null, minDistance = Infinity;
                     
                     validTabs.forEach(tab => {
                         const tabCenter = tab.offsetLeft + tab.offsetWidth / 2;
                         const distance = Math.abs(tabCenter - indicatorCenter);
-                        if (distance < minDistance) {
-                            minDistance = distance;
-                            nearestTab = tab;
-                        }
+                        if (distance < minDistance) { minDistance = distance; nearestTab = tab; }
                     });
-                    
-                    if (nearestTab) {
-                        const tabId = nearestTab.id.replace('tab-', '');
-                        switchTab(tabId);
-                    } else {
-                        const activeTab = document.querySelector('.tab-btn.active');
-                        if(activeTab) updateLiquidIndicator(activeTab.id.replace('tab-', ''));
-                    }
+                    if (nearestTab) { switchTab(nearestTab.id.replace('tab-', '')); } 
+                    else { const activeTab = document.querySelector('.tab-btn.active'); if(activeTab) updateLiquidIndicator(activeTab.id.replace('tab-', '')); }
                 } else {
                     const activeTab = document.querySelector('.tab-btn.active');
-                    if(activeTab && activeTab.id !== 'tab-add') {
-                         updateLiquidIndicator(activeTab.id.replace('tab-', ''));
-                    }
+                    if(activeTab && activeTab.id !== 'tab-add') { updateLiquidIndicator(activeTab.id.replace('tab-', '')); }
                 }
             }
 
-            navContainer.addEventListener('touchstart', handleDragStart, {passive: false});
-            navContainer.addEventListener('touchmove', handleDragMove, {passive: false});
-            navContainer.addEventListener('touchend', handleDragEnd);
-            navContainer.addEventListener('mousedown', handleDragStart);
-            document.addEventListener('mousemove', handleDragMove, {passive: false});
-            document.addEventListener('mouseup', handleDragEnd);
+            navContainer.addEventListener('touchstart', handleDragStart, {passive: false}); navContainer.addEventListener('touchmove', handleDragMove, {passive: false}); navContainer.addEventListener('touchend', handleDragEnd);
+            navContainer.addEventListener('mousedown', handleDragStart); document.addEventListener('mousemove', handleDragMove, {passive: false}); document.addEventListener('mouseup', handleDragEnd);
         }
 
-        function setupThemeIcons() {
-            const isDark = document.documentElement.classList.contains('dark');
-            document.getElementById('themeSunIcon').style.display = isDark ? 'block' : 'none';
-            document.getElementById('themeMoonIcon').style.display = isDark ? 'none' : 'block';
-        }
-
-        function toggleTheme() {
-            const htmlEl = document.documentElement;
-            if (htmlEl.classList.contains('dark')) {
-                htmlEl.classList.remove('dark'); localStorage.setItem('ev_life_theme', 'light');
-            } else {
-                htmlEl.classList.add('dark'); localStorage.setItem('ev_life_theme', 'dark');
-            }
-            setupThemeIcons();
-            if (typeof Chart !== 'undefined') updateCharts();
-        }
+        // --- Initialization ---
 
         document.addEventListener('DOMContentLoaded', () => {
             initAppCore();
             const splash = document.getElementById('appSplashScreen');
-            if (splash) {
-                setTimeout(() => {
-                    splash.classList.add('opacity-0');
-                    setTimeout(() => splash.remove(), 400);
-                }, 400);
-            }
+            if (splash) { setTimeout(() => { splash.classList.add('opacity-0'); setTimeout(() => splash.remove(), 400); }, 400); }
         });
-
-        function handleHeroImageUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 800;
-                    let width = img.width, height = img.height;
-                    
-                    if (width > MAX_WIDTH) {
-                        height = Math.round((height * MAX_WIDTH) / width);
-                        width = MAX_WIDTH;
-                    }
-                    canvas.width = width; canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-                    try {
-                        localStorage.setItem('ev_life_hero_image', dataUrl);
-                        document.getElementById('heroImageDisplay').src = dataUrl;
-                        showToast('已更新愛車相片！🚗');
-                    } catch (err) {
-                        showToast('相片檔案太大，請嘗試其他照片。', true);
-                    }
-                }
-                img.src = e.target.result;
-            }
-            reader.readAsDataURL(file);
-        }
 
         function initAppCore() {
             setupThemeIcons();
-            
             setTimeout(() => { updateLiquidIndicator('home'); }, 100);
             initLiquidDrag();
 
+            // Load Customizations
             const customImg = localStorage.getItem('ev_life_hero_image');
             if (customImg) document.getElementById('heroImageDisplay').src = customImg;
 
-            syncUrl = localStorage.getItem('ev_life_sync_url') || "";
-            if (document.getElementById('syncUrlInput')) document.getElementById('syncUrlInput').value = syncUrl;
+            // Load AppState
+            AppState.syncUrl = localStorage.getItem('ev_life_sync_url') || "";
+            if (document.getElementById('syncUrlInput')) document.getElementById('syncUrlInput').value = AppState.syncUrl;
             
-            evName = localStorage.getItem('ev_life_ev_name') || "LUXGEN n7";
-            document.getElementById('topEvName').textContent = evName;
-            document.getElementById('heroEvName').textContent = evName;
-            if (document.getElementById('evNameInput')) document.getElementById('evNameInput').value = evName;
+            AppState.evName = localStorage.getItem('ev_life_ev_name') || "LUXGEN n7";
+            document.getElementById('topEvName').textContent = AppState.evName; document.getElementById('heroEvName').textContent = AppState.evName;
+            if (document.getElementById('evNameInput')) document.getElementById('evNameInput').value = AppState.evName;
 
-            batteryCapacity = parseFloat(localStorage.getItem('ev_life_battery_capacity')) || 57.7;
-            if (document.getElementById('batteryCapacityInput')) document.getElementById('batteryCapacityInput').value = batteryCapacity;
+            AppState.batteryCapacity = parseFloat(localStorage.getItem('ev_life_battery_capacity')) || 57.7;
+            if (document.getElementById('batteryCapacityInput')) document.getElementById('batteryCapacityInput').value = AppState.batteryCapacity;
 
-            initialOdometer = parseFloat(localStorage.getItem('ev_life_initial_odometer')) || 0;
-            if (document.getElementById('initialOdometerInput')) document.getElementById('initialOdometerInput').value = initialOdometer;
+            AppState.initialOdometer = parseFloat(localStorage.getItem('ev_life_initial_odometer')) || 0;
+            if (document.getElementById('initialOdometerInput')) document.getElementById('initialOdometerInput').value = AppState.initialOdometer;
             
+            AppState.maintInterval = parseInt(localStorage.getItem('ev_life_maint_interval')) || 20000;
+            if (document.getElementById('maintIntervalInput')) document.getElementById('maintIntervalInput').value = AppState.maintInterval;
+            
+            AppState.iceEfficiency = parseFloat(localStorage.getItem('ev_life_ice_efficiency')) || 15.0;
+            if (document.getElementById('iceEfficiencyInput')) document.getElementById('iceEfficiencyInput').value = AppState.iceEfficiency;
+            
+            AppState.gasPrice = parseFloat(localStorage.getItem('ev_life_gas_price')) || 30.0;
+            if (document.getElementById('gasPriceInput')) document.getElementById('gasPriceInput').value = AppState.gasPrice;
+            
+            // Splash Configs
             const splashBg = localStorage.getItem('ev_life_splash_color');
             const colorInput = document.getElementById('splashColorInput');
             if (colorInput) {
                 if(splashBg) colorInput.value = splashBg;
                 else colorInput.value = document.documentElement.classList.contains('dark') ? '#111827' : '#fcfaf2';
-                
-                colorInput.addEventListener('change', function(e) {
-                    localStorage.setItem('ev_life_splash_color', e.target.value);
-                    showToast('自訂底色已儲存！下次重啟生效 🎨');
-                });
+                colorInput.addEventListener('change', function(e) { localStorage.setItem('ev_life_splash_color', e.target.value); showToast('自訂底色已儲存！下次重啟生效 🎨'); });
             }
             const splashImg = localStorage.getItem('ev_life_splash_image');
             if (splashImg && document.getElementById('splashPreviewImg')) {
-                document.getElementById('splashPreviewImg').src = splashImg;
-                document.getElementById('splashPreviewContainer').classList.remove('hidden');
+                document.getElementById('splashPreviewImg').src = splashImg; document.getElementById('splashPreviewContainer').classList.remove('hidden');
             }
 
-            if(document.getElementById('inputDate')) {
-                document.getElementById('inputDate').value = getLocalDateString();
-            }
-
-            selectChargeType('DC-快充'); 
-
-            setupNumericRestrictions();
-            updateSyncUiStatus();
+            if(document.getElementById('inputDate')) document.getElementById('inputDate').value = getLocalDateString();
             
+            setupNumericRestrictions();
+            setupSocSliders();
+            selectChargeType('DC-快充'); 
+            updateSyncUiStatus();
             updatePwaDiagnostic();
+            
             const localData = localStorage.getItem('ev_life_records');
-            if (localData) records = JSON.parse(localData).map(rec => parseRecordSoc(rec));
+            if (localData) AppState.records = JSON.parse(localData).map(rec => parseRecordSoc(rec));
             
             renderDashboard();
             autoFillStartSoc();
@@ -983,17 +1118,36 @@
             
             setupDelegatedEvents();
 
-            if (syncUrl) {
-                setTimeout(() => {
-                    syncWithCloud('download', false);
-                }, 800);
-            }
+            if (AppState.syncUrl) { setTimeout(() => { syncWithCloud('download', false); }, 800); }
         }
 
         function saveLocalState(newRecords) {
-            records = newRecords;
-            localStorage.setItem('ev_life_records', JSON.stringify(records));
+            AppState.records = newRecords;
+            localStorage.setItem('ev_life_records', JSON.stringify(AppState.records));
             localStorage.setItem('ev_life_last_updated', Date.now());
+        }
+
+        function setTag(tagName) {
+            const inputTag = document.getElementById('inputTag');
+            if(inputTag) inputTag.value = tagName;
+        }
+        
+        function setupSocSliders() {
+            const startNum = document.getElementById('inputStartSocNum'), startSlider = document.getElementById('sliderStartSoc');
+            const endNum = document.getElementById('inputEndSocNum'), endSlider = document.getElementById('sliderEndSoc');
+            
+            function sync(source, target) { 
+                target.value = source.value; updateConvertedPowerHint(); 
+            }
+            
+            if(startNum && startSlider) {
+                startNum.addEventListener('input', () => sync(startNum, startSlider));
+                startSlider.addEventListener('input', () => sync(startSlider, startNum));
+            }
+            if(endNum && endSlider) {
+                endNum.addEventListener('input', () => sync(endNum, endSlider));
+                endSlider.addEventListener('input', () => sync(endSlider, endNum));
+            }
         }
 
         function selectChargeType(type) {
@@ -1014,12 +1168,13 @@
             }
 
             const distInput = document.getElementById('inputDistance');
-            const startSocInput = document.getElementById('inputStartSoc');
-            const endSocInput = document.getElementById('inputEndSoc');
+            const startSocInput = document.getElementById('inputStartSocNum');
+            const endSocInput = document.getElementById('inputEndSocNum');
             const costInput = document.getElementById('inputCost');
             const costLabel = document.getElementById('costLabel');
             const driveArea = document.getElementById('driveInputsArea');
             const hintContainer = document.getElementById('powerHintContainer');
+            const tagArea = document.getElementById('tagInputArea');
 
             if (!distInput) return;
 
@@ -1027,78 +1182,31 @@
                 if(driveArea) driveArea.classList.add('hidden');
                 if(hintContainer) hintContainer.classList.add('hidden');
                 distInput.required = false; startSocInput.required = false; endSocInput.required = false;
+                if(tagArea) tagArea.classList.add('hidden');
                 
                 if(costLabel) costLabel.textContent = "保養/維修費用 (元)";
                 costInput.disabled = false; costInput.classList.remove('opacity-40');
-                if (editingRecordId === null && costInput.value === "0") costInput.value = "";
+                if (AppState.editingRecordId === null && costInput.value === "0") costInput.value = "";
             } else {
                 if(driveArea) driveArea.classList.remove('hidden');
                 if(hintContainer) hintContainer.classList.remove('hidden');
                 distInput.required = true; startSocInput.required = true; endSocInput.required = true;
+                if(tagArea) tagArea.classList.remove('hidden');
                 if(costLabel) costLabel.textContent = "本次花費 (元) - 無則填 0";
 
                 if (type === "未充電") {
                     costInput.value = "0"; costInput.disabled = true; costInput.classList.add('opacity-40');
                     document.getElementById('startSocLabel').textContent = "出發前 SOC (%)";
                     document.getElementById('endSocLabel').textContent = "抵達後 SOC (%)";
-                    if (editingRecordId === null) autoFillStartSoc();
+                    if (AppState.editingRecordId === null) autoFillStartSoc();
                 } else {
-                    if (editingRecordId === null && costInput.value === "0") costInput.value = "";
+                    if (AppState.editingRecordId === null && costInput.value === "0") costInput.value = "";
                     costInput.disabled = false; costInput.classList.remove('opacity-40');
                     document.getElementById('startSocLabel').textContent = "充電前 SOC (%)";
                     document.getElementById('endSocLabel').textContent = "充電後 SOC (%)";
-                    if (editingRecordId === null) startSocInput.value = '';
                 }
             }
             updateConvertedPowerHint();
-        }
-
-        function handleSplashImageUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 600;
-                    let width = img.width, height = img.height;
-                    
-                    if (width > MAX_WIDTH) {
-                        height = Math.round((height * MAX_WIDTH) / width);
-                        width = MAX_WIDTH;
-                    }
-                    canvas.width = width; canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-                    try {
-                        localStorage.setItem('ev_life_splash_image', dataUrl);
-                        document.getElementById('splashPreviewImg').src = dataUrl;
-                        document.getElementById('splashPreviewContainer').classList.remove('hidden');
-                        showToast('啟提圖片已儲存！下次重啟生效 🚀');
-                    } catch (err) {
-                        showToast('圖片檔案太大，請嘗試其他照片。', true);
-                    }
-                }
-                img.src = e.target.result;
-            }
-            reader.readAsDataURL(file);
-        }
-
-        function clearSplashImage() {
-            localStorage.removeItem('ev_life_splash_image');
-            document.getElementById('splashPreviewContainer').classList.add('hidden');
-            document.getElementById('splashImageUpload').value = '';
-            showToast('已移除自訂啟動圖片 🗑️');
-        }
-
-        function clearSplashColor() {
-            localStorage.removeItem('ev_life_splash_color');
-            const isDark = document.documentElement.classList.contains('dark');
-            document.getElementById('splashColorInput').value = isDark ? '#111827' : '#fcfaf2';
-            showToast('已恢復預設底色，下次重啟生效 🎨');
         }
 
         function updateConvertedPowerHint() {
@@ -1107,53 +1215,40 @@
             const type = typeInput.value;
             if (type === "維修保養") return;
 
-            const start = parseFloat(document.getElementById('inputStartSoc').value) || 0;
-            const end = parseFloat(document.getElementById('inputEndSoc').value) || 0;
+            const start = parseFloat(document.getElementById('inputStartSocNum').value) || 0;
+            const end = parseFloat(document.getElementById('inputEndSocNum').value) || 0;
             const hint = document.getElementById('powerHintText');
             if (!hint) return;
             
             const delta = Math.abs(end - start);
-            const kwh = batteryCapacity * (delta / 100);
+            const kwh = AppState.batteryCapacity * (delta / 100);
             hint.textContent = `共${type === "未充電" ? "消耗" : "補給"} ${delta}% 電量 (約 ${kwh.toFixed(2)} 度)`;
         }
 
         function autoFillStartSoc() {
-            const startSocInput = document.getElementById('inputStartSoc');
+            const startSocNum = document.getElementById('inputStartSocNum');
+            const startSocSlider = document.getElementById('sliderStartSoc');
             const chargeTypeSelect = document.getElementById('inputChargeType');
             
-            if (!startSocInput || !chargeTypeSelect || editingRecordId !== null) return;
+            if (!startSocNum || !chargeTypeSelect || AppState.editingRecordId !== null) return;
             if (chargeTypeSelect.value !== "未充電") return;
-            if (startSocInput.value !== '') return;
+            if (startSocNum.value !== '') return;
 
-            const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.chargeType !== '維修保養');
+            const activeRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.chargeType !== '維修保養');
             if (activeRecords.length === 0) return;
 
             const sortedRecords = [...activeRecords].sort((a, b) => new Date(b.date) - new Date(a.date) || parseInt(b.id, 10) - parseInt(a.id, 10));
             const lastRecord = sortedRecords[0];
 
             if (lastRecord && lastRecord.endSoc !== undefined && !isNaN(lastRecord.endSoc)) {
-                startSocInput.value = lastRecord.endSoc;
+                startSocNum.value = lastRecord.endSoc;
+                if(startSocSlider) startSocSlider.value = lastRecord.endSoc;
                 updateConvertedPowerHint();
             }
         }
 
-        function showToast(message, isError=false, duration=2500) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastMessage').textContent = message;
-            document.getElementById('toastIcon').textContent = isError ? "⚠️" : "🐾";
-            toast.className = `fixed top-[70px] left-1/2 -translate-x-1/2 z-[120] transform translate-y-0 opacity-100 visible pointer-events-auto transition-all duration-300 ${isError?'bg-rose-500':'bg-slate-900/95 dark:bg-amber-500'} text-white ${isError?'':'dark:text-slate-900'} px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 text-xs font-bold whitespace-nowrap`;
-            
-            if (toastTimeout) clearTimeout(toastTimeout);
-            
-            toastTimeout = setTimeout(() => {
-                toast.classList.replace('translate-y-0', '-translate-y-10');
-                toast.classList.replace('opacity-100', 'opacity-0');
-                toast.classList.add('invisible', 'pointer-events-none');
-            }, duration);
-        }
-
         function renderMonthFilters() {
-            const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.date);
+            const activeRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.date);
             const months = new Set();
             activeRecords.forEach(rec => {
                 const dateStr = rec.date.includes('T') ? rec.date.split('T')[0] : rec.date;
@@ -1164,39 +1259,26 @@
             const activeClass = "border-amber-400 bg-amber-400 text-slate-900 shadow-sm";
             const inactiveClass = "border-slate-200 dark:border-slate-700 bg-white dark:bg-[#1e293b] text-slate-500";
 
-            let html = `<button onclick="setMonthFilter('all')" class="flex-shrink-0 px-4 py-1.5 text-[11px] rounded-full transition-all border ${currentMonthFilter === 'all' ? activeClass : inactiveClass} font-black">全部</button>`;
-
-            sortedMonths.forEach(m => {
-                html += `<button onclick="setMonthFilter('${m}')" class="flex-shrink-0 px-4 py-1.5 text-[11px] rounded-full transition-all border ${currentMonthFilter === m ? activeClass : inactiveClass} font-black">${m.replace('-', '/')}</button>`;
-            });
+            let html = `<button onclick="setMonthFilter('all')" class="flex-shrink-0 px-4 py-1.5 text-[11px] rounded-full transition-all border ${AppState.currentMonthFilter === 'all' ? activeClass : inactiveClass} font-black">全部</button>`;
+            sortedMonths.forEach(m => { html += `<button onclick="setMonthFilter('${m}')" class="flex-shrink-0 px-4 py-1.5 text-[11px] rounded-full transition-all border ${AppState.currentMonthFilter === m ? activeClass : inactiveClass} font-black">${m.replace('-', '/')}</button>`; });
 
             const cRec = document.getElementById('monthFilterContainer');
             const cAna = document.getElementById('monthFilterContainer_analysis');
-            if (cRec) cRec.innerHTML = html;
-            if (cAna) cAna.innerHTML = html;
+            if (cRec) cRec.innerHTML = html; if (cAna) cAna.innerHTML = html;
         }
 
         function setMonthFilter(month) {
-            currentMonthFilter = month;
+            AppState.currentMonthFilter = month;
             const timeViewSelect = document.getElementById('chartTimeView');
             if (timeViewSelect) {
-                if (month !== 'all') {
-                    timeViewSelect.value = 'raw'; timeViewSelect.disabled = true; timeViewSelect.classList.add('opacity-50');
-                } else {
-                    timeViewSelect.value = 'monthly'; timeViewSelect.disabled = false; timeViewSelect.classList.remove('opacity-50');
-                }
+                if (month !== 'all') { timeViewSelect.value = 'raw'; timeViewSelect.disabled = true; timeViewSelect.classList.add('opacity-50'); } 
+                else { timeViewSelect.value = 'monthly'; timeViewSelect.disabled = false; timeViewSelect.classList.remove('opacity-50'); }
             }
-            renderDashboard();
-            if(typeof Chart !== 'undefined') updateCharts();
+            renderDashboard(); if(typeof Chart !== 'undefined') updateCharts();
         }
-
-        function renderDashboard() {
-            const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.date);
-            activeRecords.sort((a, b) => new Date(a.date) - new Date(b.date) || parseInt(a.id, 10) - parseInt(b.id, 10));
-            
-            renderMonthFilters();
-
-            let rollingOdo = initialOdometer;
+        
+        function calculateRecordStats(activeRecords) {
+            let rollingOdo = AppState.initialOdometer;
             const driveRecords = activeRecords.filter(r => r.chargeType !== '維修保養');
             
             driveRecords.forEach((rec, i) => {
@@ -1212,23 +1294,51 @@
                 rec.rollingOdo = rollingOdo;
             });
 
-            let globalKm = 0, globalCost = 0, globalPowerReal = 0, globalMaintCost = 0;
+            let globalKm = 0, globalCost = 0, globalPowerReal = 0, globalMaintCost = 0, totalEnergyCost = 0;
             activeRecords.forEach(rec => {
                 if (rec.chargeType === '維修保養') {
                     globalMaintCost += parseFloat(rec.cost) || 0;
                 } else {
                     globalKm += parseFloat(rec.distance) || 0;
                     globalCost += parseFloat(rec.cost) || 0;
-                    globalPowerReal += batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
+                    totalEnergyCost += parseFloat(rec.cost) || 0; 
+                    globalPowerReal += AppState.batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
                 }
             });
             const globalAvgEff = globalPowerReal > 0 ? (globalKm / globalPowerReal) : 0;
             const globalCostPerKm = globalKm > 0 ? (globalCost / globalKm) : 0;
-            updateStats(globalKm, globalAvgEff, globalCost, globalMaintCost, initialOdometer, globalCostPerKm);
+            
+            // 燃油省下計算
+            const hypotheticalGasCost = (globalKm / AppState.iceEfficiency) * AppState.gasPrice;
+            const fuelSavings = Math.max(0, hypotheticalGasCost - totalEnergyCost);
+
+            // 保養進度計算
+            const currentTotalKm = AppState.initialOdometer + globalKm;
+            const maintInterval = AppState.maintInterval || 20000;
+            const remainingToNext = maintInterval - (currentTotalKm % maintInterval);
+            const maintProgressPercent = ((maintInterval - remainingToNext) / maintInterval) * 100;
+
+            updateStats(globalKm, globalAvgEff, globalCost, globalMaintCost, AppState.initialOdometer, globalCostPerKm, fuelSavings, remainingToNext, maintProgressPercent);
+        }
+
+        function renderDashboard() {
+            const activeRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.date);
+            activeRecords.sort((a, b) => new Date(a.date) - new Date(b.date) || parseInt(a.id, 10) - parseInt(b.id, 10));
+            
+            renderMonthFilters();
+            calculateRecordStats(activeRecords);
+
+            // 處理首次啟動導覽
+            const obCard = document.getElementById('onboardingCard'), statsCont = document.getElementById('homeStatsContainer');
+            if (activeRecords.length === 0) {
+                if(obCard) obCard.classList.remove('hidden'); if(statsCont) statsCont.classList.add('hidden');
+            } else {
+                if(obCard) obCard.classList.add('hidden'); if(statsCont) statsCont.classList.remove('hidden');
+            }
 
             let filteredRecords = activeRecords;
-            if (currentMonthFilter !== 'all') {
-                filteredRecords = activeRecords.filter(rec => rec.date.startsWith(currentMonthFilter));
+            if (AppState.currentMonthFilter !== 'all') {
+                filteredRecords = activeRecords.filter(rec => rec.date.startsWith(AppState.currentMonthFilter));
             }
 
             const mobileList = document.getElementById('recordMobileList');
@@ -1237,28 +1347,43 @@
             if (filteredRecords.length === 0) {
                 mobileList.innerHTML = '';
                 placeholder.classList.remove('hidden');
+                
+                // Hide MVP if no records in current filter
+                const mvpCard = document.getElementById('mvpCard');
+                if(mvpCard) mvpCard.classList.add('hidden');
                 return;
             } else {
                 placeholder.classList.add('hidden');
             }
 
             const displayRecords = [...filteredRecords].reverse();
-            let maxEff = 0, mvpId = null;
+            let maxEff = 0, mvpRec = null;
             
             displayRecords.forEach(rec => {
                 if(rec.chargeType === '維修保養') return;
-                const consumedPwr = batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
+                const consumedPwr = AppState.batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
                 if (consumedPwr > 0) {
                     const eff = parseFloat((rec.distance / consumedPwr).toFixed(2));
-                    if (eff > maxEff && rec.distance > 5) { maxEff = eff; mvpId = rec.id; }
+                    if (eff > maxEff && rec.distance > 5) { maxEff = eff; mvpRec = rec; }
                 }
             });
 
-            let html = '';
-            displayRecords.forEach(rec => {
+            // 更新首頁 MVP 徽章
+            const mvpCard = document.getElementById('mvpCard');
+            if (mvpRec && maxEff > 0) {
+                if(mvpCard) mvpCard.classList.remove('hidden');
+                document.getElementById('statMvpEfficiency').textContent = maxEff.toFixed(2);
+                document.getElementById('statMvpDate').textContent = escapeHTML(mvpRec.date);
+                document.getElementById('statMvpDist').textContent = escapeHTML(mvpRec.distance.toString());
+            } else {
+                if(mvpCard) mvpCard.classList.add('hidden');
+            }
+
+            // DOM Batch Rendering
+            const html = displayRecords.map(rec => {
                 const isMaint = rec.chargeType === '維修保養';
                 const dist = parseFloat(rec.distance) || 0;
-                const pwr = batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
+                const pwr = AppState.batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
                 const eff = pwr > 0 ? (dist / pwr).toFixed(2) : "0.00";
                 
                 let typeStyle = 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400';
@@ -1266,23 +1391,32 @@
                 if (rec.chargeType.includes('慢充')) typeStyle = 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-400';
                 if (isMaint) typeStyle = 'bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-900/40 dark:text-fuchsia-400';
                 
-                const isMVP = rec.id === mvpId && maxEff > 0;
+                const isMVP = (mvpRec && rec.id === mvpRec.id && maxEff > 0);
                 const mvpBadge = isMVP ? `<span class="inline-flex items-center ml-1 px-1.5 py-0.5 rounded border border-amber-400 bg-amber-100 text-amber-700 text-[10px] font-black shadow-sm">👑 黃金右腳</span>` : '';
                 const cardClass = isMVP 
                     ? "bg-gradient-to-br from-amber-50 to-white dark:from-amber-950/40 dark:to-[#1e293b] p-4 rounded-[1.5rem] shadow-md border-2 border-amber-400 dark:border-amber-500 relative shadow-[0_0_15px_rgba(251,191,36,0.3)]"
                     : "bg-white dark:bg-[#1e293b] p-4 rounded-[1.5rem] shadow-sm border border-slate-100 dark:border-slate-800 relative";
+                
+                const safeNote = escapeHTML(rec.note);
+                const safeDate = escapeHTML(rec.date);
+                const safeId = escapeHTML(rec.id);
+                const safeChargeType = escapeHTML(rec.chargeType.split('-')[1] || rec.chargeType);
+                const safeTag = escapeHTML(rec.tag || '');
 
-                html += `
+                const tagHtml = safeTag ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-black border border-slate-200 dark:border-slate-700 text-slate-500">${safeTag}</span>` : '';
+
+                return `
                 <div class="${cardClass}">
                     <div class="flex justify-between items-center mb-3 border-b border-slate-50 dark:border-slate-800/50 pb-2">
                         <div class="flex items-center flex-wrap gap-2">
-                            <span class="text-xs font-black font-mono">${rec.date}</span>
-                            <span class="px-2 py-0.5 rounded-md text-[10px] font-black ${typeStyle}">${rec.chargeType.split('-')[1] || rec.chargeType}</span>
+                            <span class="text-xs font-black font-mono">${safeDate}</span>
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-black ${typeStyle}">${safeChargeType}</span>
+                            ${tagHtml}
                             ${mvpBadge}
                         </div>
                         <div class="flex gap-2">
-                            <button class="edit-btn text-slate-400 hover:text-amber-500 transition" data-id="${rec.id}"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
-                            <button class="delete-btn text-slate-400 hover:text-rose-500 transition" data-id="${rec.id}"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.895-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                            <button class="edit-btn text-slate-400 hover:text-amber-500 transition" data-id="${safeId}"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                            <button class="delete-btn text-slate-400 hover:text-rose-500 transition" data-id="${safeId}"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.895-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                         </div>
                     </div>
                     ${!isMaint ? `
@@ -1298,26 +1432,51 @@
                         <div class="flex-1 px-1"><div class="text-[10px] text-slate-400 font-bold mb-1">保養花費</div><div class="font-mono font-black text-[14px] text-fuchsia-600 dark:text-fuchsia-400">$${rec.cost}</div></div>
                     </div>
                     `}
-                    ${rec.note ? `<div class="mt-3 pt-2 border-t border-slate-50 dark:border-slate-800 text-[11px] text-slate-500 font-bold leading-relaxed">📝 ${rec.note}</div>` : ''}
+                    ${safeNote ? `<div class="mt-3 pt-2 border-t border-slate-50 dark:border-slate-800 text-[11px] text-slate-500 font-bold leading-relaxed">📝 ${safeNote}</div>` : ''}
                 </div>`;
-            });
+            }).join(''); 
+
             mobileList.innerHTML = html;
         }
 
-        function updateStats(km, eff, cost, maintCost, baseOdo, costPerKm = 0) {
+        function updateStats(km, eff, cost, maintCost, baseOdo, costPerKm, fuelSavings, maintRemain, maintProg) {
             document.getElementById('statTotalKm').textContent = (km + baseOdo).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
             document.getElementById('statAvgEfficiency').textContent = eff.toFixed(2);
             document.getElementById('statTotalCost').textContent = cost.toLocaleString();
             document.getElementById('statMaintCost').textContent = maintCost.toLocaleString();
             
             const costPerKmEl = document.getElementById('statCostPerKm');
-            if (costPerKmEl) {
-                costPerKmEl.textContent = costPerKm.toFixed(2);
+            if (costPerKmEl) costPerKmEl.textContent = costPerKm.toFixed(2);
+
+            const savingsEl = document.getElementById('statFuelSavings');
+            if (savingsEl) {
+                savingsEl.textContent = Math.round(fuelSavings).toLocaleString();
+                document.getElementById('savingsBaseText').textContent = `${AppState.iceEfficiency} km/L, ${AppState.gasPrice} $/L`;
+            }
+
+            const maintRemEl = document.getElementById('maintRemainingText');
+            const maintProgEl = document.getElementById('maintProgressBar');
+            if(maintRemEl) {
+                maintRemEl.textContent = Math.round(maintRemain).toLocaleString();
+                document.getElementById('maintIntervalText').textContent = AppState.maintInterval;
+                maintProgEl.style.width = `${Math.min(100, maintProg)}%`;
+                
+                // Color alert
+                if (maintRemain < 1000) {
+                    maintRemEl.className = "text-sm font-black font-mono text-rose-500";
+                    maintProgEl.className = "bg-rose-500 h-2.5 rounded-full transition-all duration-1000 ease-out";
+                } else if (maintRemain < 3000) {
+                    maintRemEl.className = "text-sm font-black font-mono text-amber-500";
+                    maintProgEl.className = "bg-amber-500 h-2.5 rounded-full transition-all duration-1000 ease-out";
+                } else {
+                    maintRemEl.className = "text-sm font-black font-mono text-indigo-500";
+                    maintProgEl.className = "bg-indigo-500 h-2.5 rounded-full transition-all duration-1000 ease-out";
+                }
             }
         }
 
         function setChartFilter(filter) {
-            currentChartFilter = filter;
+            AppState.currentChartFilter = filter;
             ['btnChartAll', 'btnChartEfficiency', 'btnChartCost'].forEach(id => {
                 const btn = document.getElementById(id);
                 if (btn) btn.className = "px-3 py-1.5 text-[10px] rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold transition-all bg-transparent";
@@ -1329,28 +1488,28 @@
 
         function updateCharts() {
             const canvasElement = document.getElementById('efficiencyChart');
+            const doughnutElement = document.getElementById('costDistributionChart');
             if (!canvasElement || typeof Chart === 'undefined') return;
 
             const isDarkMode = document.documentElement.classList.contains('dark');
             const labelColor = isDarkMode ? '#9ca3af' : '#64748b'; 
             const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.03)';
             
-            let chartData = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.chargeType !== '維修保養');
-            if (currentMonthFilter !== 'all') {
-                chartData = chartData.filter(rec => rec.date.startsWith(currentMonthFilter));
+            let chartData = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.chargeType !== '維修保養');
+            let doughnutData = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
+            
+            if (AppState.currentMonthFilter !== 'all') {
+                chartData = chartData.filter(rec => rec.date.startsWith(AppState.currentMonthFilter));
+                doughnutData = doughnutData.filter(rec => rec.date.startsWith(AppState.currentMonthFilter));
             }
 
-            let periodTotalKm = 0;
-            let periodTotalCost = 0;
-
-            const allPeriodRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && (currentMonthFilter === 'all' || (r.date && r.date.startsWith(currentMonthFilter))));
+            // 1. Line / Bar Chart (Trend)
+            let periodTotalKm = 0; let periodTotalCost = 0;
+            const allPeriodRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && (AppState.currentMonthFilter === 'all' || (r.date && r.date.startsWith(AppState.currentMonthFilter))));
             allPeriodRecords.forEach(rec => {
-                if (rec.chargeType !== '維修保養') {
-                    periodTotalKm += (parseFloat(rec.distance) || 0);
-                }
+                if (rec.chargeType !== '維修保養') periodTotalKm += (parseFloat(rec.distance) || 0);
                 periodTotalCost += (parseFloat(rec.cost) || 0);
             });
-
             const periodCostPerKm = periodTotalKm > 0 ? (periodTotalCost / periodTotalKm) : 0;
 
             const analysisKmEl = document.getElementById('analysisTotalKm');
@@ -1360,16 +1519,15 @@
             const analysisCostPerKmEl = document.getElementById('analysisCostPerKm');
 
             if (analysisKmEl) analysisKmEl.textContent = periodTotalKm.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
-            if (analysisLabelEl) analysisLabelEl.textContent = currentMonthFilter === 'all' ? '全部累積里程' : `${currentMonthFilter.replace('-', '/')} 總里程`;
+            if (analysisLabelEl) analysisLabelEl.textContent = AppState.currentMonthFilter === 'all' ? '全部累積里程' : `${AppState.currentMonthFilter.replace('-', '/')} 總里程`;
             if (analysisCostEl) analysisCostEl.textContent = periodTotalCost.toLocaleString();
-            if (analysisCostLabelEl) analysisCostLabelEl.textContent = currentMonthFilter === 'all' ? '歷史總花費' : `${currentMonthFilter.replace('-', '/')} 總花費`;
+            if (analysisCostLabelEl) analysisCostLabelEl.textContent = AppState.currentMonthFilter === 'all' ? '歷史總花費' : `${AppState.currentMonthFilter.replace('-', '/')} 總花費`;
             if (analysisCostPerKmEl) analysisCostPerKmEl.textContent = periodCostPerKm.toFixed(2);
-
 
             const timeView = document.getElementById('chartTimeView')?.value || 'monthly';
             let labels = [], efficiencies = [], costs = [];
 
-            if (timeView === 'monthly' && currentMonthFilter === 'all') {
+            if (timeView === 'monthly' && AppState.currentMonthFilter === 'all') {
                 const monthlyMap = {};
                 chartData.forEach(rec => {
                     if (!rec.date || rec.date.length < 7) return;
@@ -1377,16 +1535,16 @@
                     if (!monthlyMap[month]) monthlyMap[month] = { distance: 0, cost: 0, consumedPower: 0 };
                     monthlyMap[month].distance += (parseFloat(rec.distance) || 0);
                     monthlyMap[month].cost += (parseFloat(rec.cost) || 0);
-                    monthlyMap[month].consumedPower += batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
+                    monthlyMap[month].consumedPower += AppState.batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
                 });
                 const sortedMonths = Object.keys(monthlyMap).sort();
                 labels = sortedMonths.map(m => m.replace('-', '/'));
                 efficiencies = sortedMonths.map(m => monthlyMap[m].consumedPower > 0 ? parseFloat((monthlyMap[m].distance / monthlyMap[m].consumedPower).toFixed(2)) : 0);
                 costs = sortedMonths.map(m => monthlyMap[m].cost);
             } else {
-                labels = chartData.map(rec => currentMonthFilter === 'all' ? rec.date.substring(5) : rec.date.substring(8));
+                labels = chartData.map(rec => AppState.currentMonthFilter === 'all' ? rec.date.substring(5) : rec.date.substring(8));
                 efficiencies = chartData.map(rec => {
-                    const power = batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
+                    const power = AppState.batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
                     return power > 0 ? parseFloat((rec.distance / power).toFixed(2)) : 0;
                 });
                 costs = chartData.map(rec => rec.cost);
@@ -1396,7 +1554,7 @@
             const scalesConfig = { x: { grid: { display: false }, ticks: { color: labelColor, font: { family: "'SF Mono', SFMono-Regular, ui-monospace, sans-serif", size: 10 } } } };
             const ctx = canvasElement.getContext('2d');
 
-            if (currentChartFilter === 'all' || currentChartFilter === 'efficiency') {
+            if (AppState.currentChartFilter === 'all' || AppState.currentChartFilter === 'efficiency') {
                 let gradient = ctx.createLinearGradient(0, 0, 0, 250);
                 gradient.addColorStop(0, isDarkMode ? 'rgba(45, 212, 191, 0.4)' : 'rgba(20, 184, 166, 0.2)'); 
                 gradient.addColorStop(1, 'rgba(45, 212, 191, 0.0)'); 
@@ -1408,7 +1566,7 @@
                 scalesConfig.yEfficiency = { type: 'linear', position: 'left', title: {display: false}, ticks: { color: isDarkMode ? '#2dd4bf' : '#0d9488', maxTicksLimit: 6 }, border: { display: false }, grid: { color: gridColor } };
             }
 
-            if (currentChartFilter === 'all' || currentChartFilter === 'cost') {
+            if (AppState.currentChartFilter === 'all' || AppState.currentChartFilter === 'cost') {
                 let barGrad = ctx.createLinearGradient(0, 0, 0, 200);
                 barGrad.addColorStop(0, isDarkMode ? 'rgba(251, 191, 36, 0.8)' : 'rgba(245, 158, 11, 0.7)');
                 barGrad.addColorStop(1, isDarkMode ? 'rgba(251, 191, 36, 0.2)' : 'rgba(245, 158, 11, 0.2)');
@@ -1429,6 +1587,45 @@
                     }
                 });
             }
+
+            // 2. Doughnut Chart (Cost Distribution)
+            if (doughnutElement) {
+                const pieCtx = doughnutElement.getContext('2d');
+                let dcCost = 0, acCost = 0, maintCost = 0;
+                doughnutData.forEach(rec => {
+                    const cost = parseFloat(rec.cost) || 0;
+                    if(rec.chargeType.includes('快充')) dcCost += cost;
+                    else if(rec.chargeType.includes('慢充')) acCost += cost;
+                    else if(rec.chargeType === '維修保養') maintCost += cost;
+                });
+
+                const pieData = {
+                    labels: ['DC 快充', 'AC 慢充', '保養維修'],
+                    datasets: [{
+                        data: [dcCost, acCost, maintCost],
+                        backgroundColor: [
+                            isDarkMode ? '#fbbf24' : '#f59e0b', // Amber
+                            isDarkMode ? '#2dd4bf' : '#14b8a6', // Teal
+                            isDarkMode ? '#e879f9' : '#d946ef'  // Fuchsia
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                };
+
+                if(costDistributionChartInstance) {
+                    costDistributionChartInstance.data = pieData;
+                    costDistributionChartInstance.update();
+                } else {
+                    costDistributionChartInstance = new Chart(pieCtx, {
+                        type: 'doughnut', data: pieData,
+                        options: {
+                            responsive: true, maintainAspectRatio: false, cutout: '70%',
+                            plugins: { legend: { position: 'right', labels: { color: labelColor, usePointStyle: true, padding: 20 } } }
+                        }
+                    });
+                }
+            }
         }
 
         async function addRecord(e) {
@@ -1437,35 +1634,36 @@
             const chargeType = document.getElementById('inputChargeType').value;
             const cost = parseInt(document.getElementById('inputCost').value) || 0;
             const note = document.getElementById('inputNote').value.trim();
+            const tag = document.getElementById('inputTag') ? document.getElementById('inputTag').value.trim() : '';
             
             let distance = 0, startSoc = 0, endSoc = 0, powerPercent = 0, power = 0;
 
             if (chargeType !== '維修保養') {
                 distance = parseFloat(document.getElementById('inputDistance').value);
-                startSoc = parseFloat(document.getElementById('inputStartSoc').value);
-                endSoc = parseFloat(document.getElementById('inputEndSoc').value);
+                startSoc = parseFloat(document.getElementById('inputStartSocNum').value);
+                endSoc = parseFloat(document.getElementById('inputEndSocNum').value);
                 if (!date || isNaN(distance) || isNaN(startSoc) || isNaN(endSoc)) { showToast("請填寫完整數值！", true); return; }
                 powerPercent = Math.abs(startSoc - endSoc);
-                power = batteryCapacity * (powerPercent / 100);
+                power = AppState.batteryCapacity * (powerPercent / 100);
             } else {
                 if (!date || isNaN(cost)) { showToast("請填寫維修保養日期與花費！", true); return; }
             }
 
-            if (editingRecordId) {
-                const idx = records.findIndex(r => r.id === editingRecordId);
-                if (idx > -1) records[idx] = { ...records[idx], date, chargeType, distance, power: parseFloat(power.toFixed(3)), powerPercent, startSoc, endSoc, cost, note };
-                saveLocalState(records); showToast("修改成功！✨");
+            if (AppState.editingRecordId) {
+                const idx = AppState.records.findIndex(r => r.id === AppState.editingRecordId);
+                if (idx > -1) AppState.records[idx] = { ...AppState.records[idx], date, chargeType, distance, power: parseFloat(power.toFixed(3)), powerPercent, startSoc, endSoc, cost, note, tag };
+                saveLocalState(AppState.records); showToast("修改成功！✨");
             } else {
-                saveLocalState([...records, { id: Date.now().toString(), date, chargeType, distance, power: parseFloat(power.toFixed(3)), powerPercent, startSoc, endSoc, cost, note }]);
+                saveLocalState([...AppState.records, { id: Date.now().toString(), date, chargeType, distance, power: parseFloat(power.toFixed(3)), powerPercent, startSoc, endSoc, cost, note, tag }]);
                 showToast("新增成功！🚗");
             }
             
             cancelEdit(); renderDashboard(); switchTab('records'); 
-            if (syncUrl) syncWithCloud('upload', true); 
+            if (AppState.syncUrl) syncWithCloud('upload', true); 
         }
 
         function editRecord(id) {
-            const rec = records.find(r => r.id === id);
+            const rec = AppState.records.find(r => r.id === id);
             if (!rec) return;
             
             document.getElementById('inputDate').value = rec.date;
@@ -1473,34 +1671,39 @@
             
             if (rec.chargeType !== '維修保養') {
                 document.getElementById('inputDistance').value = rec.distance;
-                document.getElementById('inputStartSoc').value = rec.startSoc;
-                document.getElementById('inputEndSoc').value = rec.endSoc;
+                document.getElementById('inputStartSocNum').value = rec.startSoc;
+                document.getElementById('sliderStartSoc').value = rec.startSoc;
+                document.getElementById('inputEndSocNum').value = rec.endSoc;
+                document.getElementById('sliderEndSoc').value = rec.endSoc;
+                if(document.getElementById('inputTag')) document.getElementById('inputTag').value = rec.tag || '';
             }
             document.getElementById('inputCost').value = rec.cost || 0;
             document.getElementById('inputNote').value = rec.note || '';
             
-            editingRecordId = id;
+            AppState.editingRecordId = id;
             document.getElementById('formTitle').textContent = "編輯紀錄";
             document.getElementById('cancelEditBtn').classList.remove('hidden');
             switchTab('add'); 
         }
 
         function cancelEdit() {
-            editingRecordId = null;
+            AppState.editingRecordId = null;
             document.getElementById('formTitle').textContent = "記錄本次旅程";
             document.getElementById('cancelEditBtn').classList.add('hidden');
             document.getElementById('recordForm').reset();
             document.getElementById('inputDate').value = getLocalDateString();
+            if(document.getElementById('sliderStartSoc')) document.getElementById('sliderStartSoc').value = 20;
+            if(document.getElementById('sliderEndSoc')) document.getElementById('sliderEndSoc').value = 80;
             selectChargeType('DC-快充'); 
             switchTab('records');
         }
 
         function confirmDeleteRecord(id) {
             showConfirmModal("確認刪除", "刪除後無法復原，是否繼續？", function() {
-                const updated = records.filter(rec => rec.id !== id);
+                const updated = AppState.records.filter(rec => rec.id !== id);
                 if(updated.length === 0) localStorage.setItem('ev_life_cleared', 'true');
                 saveLocalState(updated); renderDashboard(); showToast("已刪除！🗑️");
-                if (syncUrl) syncWithCloud('upload', true);
+                if (AppState.syncUrl) syncWithCloud('upload', true);
             });
         }
 
@@ -1508,7 +1711,7 @@
             showConfirmModal("清空全部紀錄", "警告：這將徹底刪除裝置上所有數據！", function() {
                 localStorage.setItem('ev_life_cleared', 'true');
                 saveLocalState([]); renderDashboard(); showToast("紀錄已清空");
-                if (syncUrl) syncWithCloud('upload', true);
+                if (AppState.syncUrl) syncWithCloud('upload', true);
             });
         }
 
@@ -1534,6 +1737,7 @@
 
         function parseRecordSoc(rec) {
             let startSoc = rec.startSoc, endSoc = rec.endSoc, cleanNote = rec.note || '';
+            // Backward compatibility for old notes
             if (typeof rec.note === 'string' && rec.note.startsWith('[SOC:')) {
                 const match = rec.note.match(/^\[SOC:(\d+)-(\d+)\]\s*(.*)/);
                 if (match) { startSoc = parseInt(match[1], 10); endSoc = parseInt(match[2], 10); cleanNote = match[3]; }
@@ -1541,13 +1745,13 @@
             return {
                 id: rec.id?.toString() || Date.now().toString(), date: rec.date?.split('T')[0] || '', chargeType: rec.chargeType || 'DC-快充',
                 distance: parseFloat(rec.distance) || 0, power: parseFloat(rec.power) || 0, startSoc: startSoc !== undefined ? parseInt(startSoc) : 0,
-                endSoc: endSoc !== undefined ? parseInt(endSoc) : 0, cost: parseInt(rec.cost) || 0, note: cleanNote
+                endSoc: endSoc !== undefined ? parseInt(endSoc) : 0, cost: parseInt(rec.cost) || 0, note: cleanNote, tag: rec.tag || ''
             };
         }
 
         function setupNumericRestrictions() {
             const blockKey = e => { if(['e','E','+','-'].includes(e.key)) e.preventDefault(); };
-            ['inputDistance', 'inputStartSoc', 'inputEndSoc', 'inputCost'].forEach(id => {
+            ['inputDistance', 'inputStartSocNum', 'inputEndSocNum', 'inputCost'].forEach(id => {
                 const el = document.getElementById(id);
                 if(el) { el.addEventListener('keypress', blockKey); if(id !== 'inputDistance') el.addEventListener('input', function() { this.value = this.value.replace(/[^0-9]/g, ''); }); }
             });
@@ -1569,27 +1773,31 @@
         }
 
         function saveSyncSettingsOnly() {
-            evName = document.getElementById('evNameInput').value || "LUXGEN n7";
-            localStorage.setItem('ev_life_ev_name', evName);
-            document.getElementById('topEvName').textContent = evName; document.getElementById('heroEvName').textContent = evName;
+            AppState.evName = document.getElementById('evNameInput').value || "LUXGEN n7"; localStorage.setItem('ev_life_ev_name', AppState.evName);
+            document.getElementById('topEvName').textContent = AppState.evName; document.getElementById('heroEvName').textContent = AppState.evName;
             
-            batteryCapacity = parseFloat(document.getElementById('batteryCapacityInput').value) || 57.7; localStorage.setItem('ev_life_battery_capacity', batteryCapacity);
-            initialOdometer = parseFloat(document.getElementById('initialOdometerInput').value) || 0; localStorage.setItem('ev_life_initial_odometer', initialOdometer);
-            syncUrl = document.getElementById('syncUrlInput').value.trim(); localStorage.setItem('ev_life_sync_url', syncUrl);
+            AppState.batteryCapacity = parseFloat(document.getElementById('batteryCapacityInput').value) || 57.7; localStorage.setItem('ev_life_battery_capacity', AppState.batteryCapacity);
+            AppState.initialOdometer = parseFloat(document.getElementById('initialOdometerInput').value) || 0; localStorage.setItem('ev_life_initial_odometer', AppState.initialOdometer);
+            
+            AppState.maintInterval = parseInt(document.getElementById('maintIntervalInput').value) || 20000; localStorage.setItem('ev_life_maint_interval', AppState.maintInterval);
+            AppState.iceEfficiency = parseFloat(document.getElementById('iceEfficiencyInput').value) || 15.0; localStorage.setItem('ev_life_ice_efficiency', AppState.iceEfficiency);
+            AppState.gasPrice = parseFloat(document.getElementById('gasPriceInput').value) || 30.0; localStorage.setItem('ev_life_gas_price', AppState.gasPrice);
+            
+            AppState.syncUrl = document.getElementById('syncUrlInput').value.trim(); localStorage.setItem('ev_life_sync_url', AppState.syncUrl);
 
             updateSyncUiStatus(); switchTab('home'); renderDashboard(); showToast("設定已儲存");
         }
 
         function updateSyncUiStatus() {
             const dot = document.getElementById('syncStatusDot');
-            if (!syncUrl && !localStorage.getItem('ev_life_sync_dismissed')) { if(dot) dot.classList.remove('hidden'); } else { if(dot) dot.classList.add('hidden'); }
+            if (!AppState.syncUrl && !localStorage.getItem('ev_life_sync_dismissed')) { if(dot) dot.classList.remove('hidden'); } else { if(dot) dot.classList.add('hidden'); }
         }
 
         async function syncWithCloud(mode = 'auto', isSilent = false) {
-            if (!syncUrl) { if (!isSilent) showToast("請先設定雲端同步網址！", true); return; }
+            if (!AppState.syncUrl) { if (!isSilent) showToast("請先設定雲端同步網址！", true); return; }
             if (!isSilent) showToast("雲端同步中...");
             try {
-                const getRes = await fetch(syncUrl); if (!getRes.ok) throw new Error("取得資料失敗");
+                const getRes = await fetch(AppState.syncUrl); if (!getRes.ok) throw new Error("取得資料失敗");
                 let cloudPayload = await getRes.json(); if(!Array.isArray(cloudPayload)) cloudPayload = [];
                 let cloudLastUpdated = 0, cloudRecords = [], cloudConfig = null;
                 cloudPayload.forEach(item => {
@@ -1602,22 +1810,41 @@
 
                 if (mode === 'upload') shouldUpload = true; else if (mode === 'download') shouldDownload = true;
                 else {
-                    if (localLastUpdated > cloudLastUpdated && records.length === 0 && cloudRecords.length > 0) localLastUpdated = 0;
+                    if (localLastUpdated > cloudLastUpdated && AppState.records.length === 0 && cloudRecords.length > 0) localLastUpdated = 0;
                     if (localLastUpdated > cloudLastUpdated) shouldUpload = true; else if (cloudLastUpdated > localLastUpdated) shouldDownload = true;
                 }
 
                 if (shouldUpload) {
                     if (mode === 'upload') { localLastUpdated = Date.now(); localStorage.setItem('ev_life_last_updated', localLastUpdated.toString()); }
-                    const uploadPayload = records.map(rec => ({ id: rec.id, date: rec.date, chargeType: rec.chargeType, distance: rec.distance, power: rec.power, cost: rec.cost, note: (rec.startSoc !== undefined && rec.endSoc !== undefined) ? `[SOC:${rec.startSoc}-${rec.endSoc}] ${rec.note || ''}`.trim() : (rec.note || '') }));
-                    const configMeta = { id: "CONFIG_METADATA", date: "", chargeType: "", distance: 0, power: 0, cost: 0, note: JSON.stringify({ evName, batteryCapacity, initialOdometer }) };
-                    await fetch(syncUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify([...uploadPayload, { id: "SYSTEM_METADATA", note: localLastUpdated.toString() }, configMeta]) });
+                    // 為了向下相容 GAS 的格式，如果 GAS 端還沒更新 tag，可以用 note 包裝，但我們這裡加上 tag 欄位
+                    const uploadPayload = AppState.records.map(rec => ({ 
+                        id: rec.id, date: rec.date, chargeType: rec.chargeType, distance: rec.distance, power: rec.power, cost: rec.cost, 
+                        note: (rec.startSoc !== undefined && rec.endSoc !== undefined) ? `[SOC:${rec.startSoc}-${rec.endSoc}] ${rec.note || ''}`.trim() : (rec.note || ''),
+                        tag: rec.tag || '' // 如果遠端 sheet 有欄位就能存
+                    }));
+                    
+                    const configMeta = { 
+                        id: "CONFIG_METADATA", date: "", chargeType: "", distance: 0, power: 0, cost: 0, 
+                        note: JSON.stringify({ 
+                            evName: AppState.evName, batteryCapacity: AppState.batteryCapacity, initialOdometer: AppState.initialOdometer,
+                            maintInterval: AppState.maintInterval, iceEfficiency: AppState.iceEfficiency, gasPrice: AppState.gasPrice
+                        }) 
+                    };
+                    await fetch(AppState.syncUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify([...uploadPayload, { id: "SYSTEM_METADATA", note: localLastUpdated.toString() }, configMeta]) });
                     if (!isSilent) showToast(`同步成功！已推播至雲端`);
                 } else if (shouldDownload) {
-                    records = cloudRecords; localStorage.setItem('ev_life_records', JSON.stringify(records)); localStorage.setItem('ev_life_last_updated', Date.now().toString()); 
+                    AppState.records = cloudRecords; localStorage.setItem('ev_life_records', JSON.stringify(AppState.records)); localStorage.setItem('ev_life_last_updated', Date.now().toString()); 
                     if (cloudConfig) {
-                        if (cloudConfig.evName) { evName = cloudConfig.evName; localStorage.setItem('ev_life_ev_name', evName); document.getElementById('topEvName').textContent = evName; document.getElementById('heroEvName').textContent = evName;}
-                        if (cloudConfig.batteryCapacity) { batteryCapacity = parseFloat(cloudConfig.batteryCapacity); localStorage.setItem('ev_life_battery_capacity', batteryCapacity); }
-                        if (cloudConfig.initialOdometer !== undefined) { initialOdometer = parseFloat(cloudConfig.initialOdometer); localStorage.setItem('ev_life_initial_odometer', initialOdometer); }
+                        if (cloudConfig.evName) { AppState.evName = cloudConfig.evName; localStorage.setItem('ev_life_ev_name', AppState.evName); document.getElementById('topEvName').textContent = AppState.evName; document.getElementById('heroEvName').textContent = AppState.evName;}
+                        if (cloudConfig.batteryCapacity) { AppState.batteryCapacity = parseFloat(cloudConfig.batteryCapacity); localStorage.setItem('ev_life_battery_capacity', AppState.batteryCapacity); }
+                        if (cloudConfig.initialOdometer !== undefined) { AppState.initialOdometer = parseFloat(cloudConfig.initialOdometer); localStorage.setItem('ev_life_initial_odometer', AppState.initialOdometer); }
+                        if (cloudConfig.maintInterval) { AppState.maintInterval = parseInt(cloudConfig.maintInterval); localStorage.setItem('ev_life_maint_interval', AppState.maintInterval); }
+                        if (cloudConfig.iceEfficiency) { AppState.iceEfficiency = parseFloat(cloudConfig.iceEfficiency); localStorage.setItem('ev_life_ice_efficiency', AppState.iceEfficiency); }
+                        if (cloudConfig.gasPrice) { AppState.gasPrice = parseFloat(cloudConfig.gasPrice); localStorage.setItem('ev_life_gas_price', AppState.gasPrice); }
+                        
+                        if (document.getElementById('maintIntervalInput')) document.getElementById('maintIntervalInput').value = AppState.maintInterval;
+                        if (document.getElementById('iceEfficiencyInput')) document.getElementById('iceEfficiencyInput').value = AppState.iceEfficiency;
+                        if (document.getElementById('gasPriceInput')) document.getElementById('gasPriceInput').value = AppState.gasPrice;
                     }
                     renderDashboard(); if (!isSilent) showToast(`已從雲端下載覆蓋本機 📥`);
                 } else { if (!isSilent) showToast("本機與雲端資料一致 ✿"); }
@@ -1674,14 +1901,8 @@ self.addEventListener('fetch', event => {
         function downloadFile(filename, content) {
             const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            showToast(`已下載 ${filename} 📥`);
+            const a = document.createElement('a'); a.href = url; a.download = filename;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); showToast(`已下載 ${filename} 📥`);
         }
 
         function triggerPwaInstall() { if (!deferredPrompt) { showToast("裝置不支援或已安裝。🐾"); return; } deferredPrompt.prompt(); deferredPrompt.userChoice.then((res) => { if (res.outcome === 'accepted') { showToast("感謝安裝！🎉"); document.getElementById('pwaInstallBtn').classList.add('hidden'); } deferredPrompt = null; }); }
