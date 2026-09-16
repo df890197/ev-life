@@ -1752,11 +1752,32 @@
                 const match = rec.note.match(/^\[SOC:(\d+)-(\d+)\]\s*(.*)/);
                 if (match) { startSoc = parseInt(match[1], 10); endSoc = parseInt(match[2], 10); cleanNote = match[3]; }
             }
-            return {
+<comment-tag id="1">            return {
                 id: rec.id?.toString() || Date.now().toString(), date: rec.date?.split('T')[0] || '', chargeType: rec.chargeType || 'DC-快充',
                 distance: parseFloat(rec.distance) || 0, power: parseFloat(rec.power) || 0, startSoc: startSoc !== undefined ? parseInt(startSoc) : 0,
                 endSoc: endSoc !== undefined ? parseInt(endSoc) : 0, cost: parseInt(rec.cost) || 0, note: cleanNote, tag: rec.tag || ''
-            };
+            };</comment-tag id="1" text="這個問題通常是因為 Google Apps Script (雲端試算表) 在同步時，會將日期轉換為 UTC 標準時間 (例如：台灣時間 10/25 00:00 會變成 UTC 的 10/24 16:00)。原本的程式碼 `.split('T')[0]` 直接切斷字串，導致直接取到前一天的日期。每一次上傳再下載，日期就會往前倒退一天。
+
+我們需要在解析資料時，將這個 UTC 時間轉換回您手機的本地時區，這樣日期就會恢復正常了！" type="suggestion">
+            // 處理雲端同步可能產生的時區偏移問題 (將 UTC 轉回本地時區 YYYY-MM-DD)
+            let finalDate = rec.date || '';
+            if (finalDate.includes('T')) {
+                const d = new Date(finalDate);
+                if (!isNaN(d.getTime())) {
+                    const yyyy = d.getFullYear();
+                    const mm = String(d.getMonth() + 1).padStart(2, '0');
+                    const dd = String(d.getDate()).padStart(2, '0');
+                    finalDate = `${yyyy}-${mm}-${dd}`;
+                } else {
+                    finalDate = finalDate.split('T')[0];
+                }
+            }
+
+            return {
+                id: rec.id?.toString() || Date.now().toString(), date: finalDate, chargeType: rec.chargeType || 'DC-快充',
+                distance: parseFloat(rec.distance) || 0, power: parseFloat(rec.power) || 0, startSoc: startSoc !== undefined ? parseInt(startSoc) : 0,
+                endSoc: endSoc !== undefined ? parseInt(endSoc) : 0, cost: parseInt(rec.cost) || 0, note: cleanNote, tag: rec.tag || ''
+            };</comment-tag>
         }
 
         function setupNumericRestrictions() {
@@ -1926,3 +1947,5 @@
     </script>
 </body>
 </html>
+```eof
+*建議已新增*
