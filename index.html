@@ -681,15 +681,19 @@
                         </div>
 
                         <div>
-                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">雲端同步網址 (Google Apps Script)</label>
-                            <input type="url" id="syncUrlInput" placeholder="https://script.google.com/macros/..." class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-mono focus:outline-none">
+                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block flex justify-between">
+                                <span>雲端同步網址 (Google Apps Script)</span>
+                                <span>🔑</span>
+                            </label>
+                            <input type="url" id="syncUrlInput" placeholder="https://script.google.com/macros/..." class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-t-2xl text-xs font-mono focus:outline-none">
+                            <input type="password" id="syncTokenInput" placeholder="API Token (例如: MY_SECRET_EV_TOKEN_2026)" class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 border-t-0 dark:border-slate-700 rounded-b-2xl text-xs font-mono focus:outline-none">
                         </div>
                         <div class="grid grid-cols-2 gap-3 pt-2">
                             <button onclick="syncWithCloud('auto')" class="col-span-2 rpg-btn-primary text-sm font-black py-3 rounded-2xl flex justify-center items-center gap-1 shadow-md">🔄 智慧同步</button>
                             <button onclick="forceDownload()" class="rpg-btn-secondary text-xs font-bold py-3 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">⬇️ 下載覆蓋本機</button>
                             <button onclick="forceUpload()" class="rpg-btn-secondary text-xs font-bold py-3 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">⬆️ 上傳覆蓋雲端</button>
                         </div>
-                        <button onclick="saveSyncSettingsOnly()" class="w-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-white text-xs font-bold py-3 rounded-2xl transition active:scale-95 shadow-sm mt-2">💾 僅儲存設定</button>
+                        <button onclick="saveSyncSettingsOnly()" class="w-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-white text-xs font-bold py-3 rounded-2xl transition active:scale-95 shadow-sm mt-2">💾 儲存設定</button>
                     </div>
                     <!-- 分頁二：PWA 離線安裝 -->
                     <div id="settings-tab-pwa" class="space-y-4 hidden">
@@ -795,6 +799,7 @@
             iceEfficiency: 15.0,
             gasPrice: 30.0,
             syncUrl: "",
+            syncToken: "",
             editingRecordId: null,
             currentChartFilter: 'all',
             currentMonthFilter: 'all'
@@ -1080,6 +1085,9 @@
             // Load AppState
             AppState.syncUrl = localStorage.getItem('ev_life_sync_url') || "";
             if (document.getElementById('syncUrlInput')) document.getElementById('syncUrlInput').value = AppState.syncUrl;
+
+            AppState.syncToken = localStorage.getItem('ev_life_sync_token') || "";
+            if (document.getElementById('syncTokenInput')) document.getElementById('syncTokenInput').value = AppState.syncToken;
             
             AppState.evName = localStorage.getItem('ev_life_ev_name') || "LUXGEN n7";
             document.getElementById('topEvName').textContent = AppState.evName; document.getElementById('heroEvName').textContent = AppState.evName;
@@ -1832,8 +1840,17 @@
             AppState.gasPrice = parseFloat(document.getElementById('gasPriceInput').value) || 30.0; localStorage.setItem('ev_life_gas_price', AppState.gasPrice);
             
             AppState.syncUrl = document.getElementById('syncUrlInput').value.trim(); localStorage.setItem('ev_life_sync_url', AppState.syncUrl);
+            AppState.syncToken = document.getElementById('syncTokenInput').value.trim(); localStorage.setItem('ev_life_sync_token', AppState.syncToken);
 
-            updateSyncUiStatus(); switchTab('home'); renderDashboard(); showToast("設定已儲存");
+            updateSyncUiStatus(); switchTab('home'); renderDashboard(); 
+            
+            // 觸發雲端同步，讓保養日期與其他設定能自動上傳
+            if (AppState.syncUrl) {
+                showToast("設定已儲存，同步雲端中...");
+                syncWithCloud('upload', true);
+            } else {
+                showToast("設定已儲存");
+            }
         }
 
         function updateSyncUiStatus() {
@@ -1845,8 +1862,24 @@
             if (!AppState.syncUrl) { if (!isSilent) showToast("請先設定雲端同步網址！", true); return; }
             if (!isSilent) showToast("雲端同步中...");
             try {
-                const getRes = await fetch(AppState.syncUrl); if (!getRes.ok) throw new Error("取得資料失敗");
-                let cloudPayload = await getRes.json(); if(!Array.isArray(cloudPayload)) cloudPayload = [];
+                // 提案 1: GET 請求帶上 Token
+                let urlWithToken = AppState.syncUrl;
+                if (AppState.syncToken) {
+                    const separator = urlWithToken.includes('?') ? '&' : '?';
+                    urlWithToken += `${separator}token=${encodeURIComponent(AppState.syncToken)}`;
+                }
+
+                const getRes = await fetch(urlWithToken); 
+                if (!getRes.ok) throw new Error("取得資料失敗");
+                
+                let cloudPayload = await getRes.json();
+                
+                // 檢查是否因為未授權而回傳錯誤
+                if (cloudPayload.error) {
+                    throw new Error(cloudPayload.error === "Unauthorized" ? "API Token 錯誤，拒絕存取" : cloudPayload.error);
+                }
+
+                if(!Array.isArray(cloudPayload)) cloudPayload = [];
                 let cloudLastUpdated = 0, cloudRecords = [], cloudConfig = null;
                 cloudPayload.forEach(item => {
                     if (item && item.id === "SYSTEM_METADATA") cloudLastUpdated = parseInt(item.note) || 0;
@@ -1865,7 +1898,7 @@
                 if (shouldUpload) {
                     if (mode === 'upload') { localLastUpdated = Date.now(); localStorage.setItem('ev_life_last_updated', localLastUpdated.toString()); }
                     // 為了向下相容 GAS 的格式，如果 GAS 端還沒更新 tag，可以用 note 包裝，但我們這裡加上 tag 欄位
-                    const uploadPayload = AppState.records.map(rec => ({ 
+                    const uploadRecords = AppState.records.map(rec => ({ 
                         id: rec.id, date: rec.date, chargeType: rec.chargeType, distance: rec.distance, power: rec.power, cost: rec.cost, 
                         note: (rec.startSoc !== undefined && rec.endSoc !== undefined) ? `[SOC:${rec.startSoc}-${rec.endSoc}] ${rec.note || ''}`.trim() : (rec.note || ''),
                         tag: rec.tag || '' // 如果遠端 sheet 有欄位就能存
@@ -1878,8 +1911,25 @@
                             maintInterval: AppState.maintInterval, nextMaintDate: AppState.nextMaintDate, iceEfficiency: AppState.iceEfficiency, gasPrice: AppState.gasPrice
                         }) 
                     };
-                    await fetch(AppState.syncUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify([...uploadPayload, { id: "SYSTEM_METADATA", note: localLastUpdated.toString() }, configMeta]) });
+                    
+                    // 提案 1 & 2: 將要上傳的資料打包成 { token: "...", records: [...] } 格式
+                    const payloadToPost = {
+                        token: AppState.syncToken,
+                        records: [...uploadRecords, { id: "SYSTEM_METADATA", note: localLastUpdated.toString() }, configMeta]
+                    };
+
+                    const postRes = await fetch(AppState.syncUrl, { 
+                        method: 'POST', 
+                        // 注意：因為使用 no-cors，前端無法讀取回應，但資料仍會送出
+                        // 如果需要精確處理錯誤（如 Token 錯誤），建議在 GAS 端設定正確的 CORS Header，並移除 no-cors
+                        mode: 'no-cors', 
+                        headers: { 'Content-Type': 'application/json' }, 
+                        body: JSON.stringify(payloadToPost) 
+                    });
+
+                    // 備註：在 'no-cors' 模式下，我們無法檢查 postRes 的內容，只能假設請求已送出
                     if (!isSilent) showToast(`同步成功！已推播至雲端`);
+
                 } else if (shouldDownload) {
                     AppState.records = cloudRecords; localStorage.setItem('ev_life_records', JSON.stringify(AppState.records)); localStorage.setItem('ev_life_last_updated', Date.now().toString()); 
                     if (cloudConfig) {
@@ -1901,7 +1951,13 @@
                 
                 updateSyncUiStatus(); 
                 
-            } catch (error) { if (!isSilent) showToast("同步失敗，請檢查網路", true); }
+            } catch (error) { 
+                console.error("Sync Error:", error);
+                if (!isSilent) {
+                    // 若有特定錯誤訊息則顯示
+                    showToast(error.message || "同步失敗，請檢查網路或設定", true); 
+                }
+            }
         }
 
         function forceDownload() { showConfirmModal("以「試算表」為主？", "將下載雲端資料並「覆蓋」本機記錄。", function() { syncWithCloud('download'); }); }
