@@ -381,8 +381,15 @@
                         </div>
                     </div>
                     <!-- 進度條本體 -->
-                    <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden flex">
+                    <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden flex mb-3">
                         <div id="maintProgressBar" class="bg-indigo-500 h-2.5 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+                    </div>
+                    <!-- 日期倒數提醒 -->
+                    <div id="maintDateAlertContainer" class="hidden mt-2 pt-2 border-t border-slate-100 dark:border-slate-700">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400">預計保養日期: <span id="maintTargetDateStr" class="font-mono text-slate-700 dark:text-slate-300"></span></span>
+                            <span id="maintDaysRemainingBadge" class="text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm"></span>
+                        </div>
                     </div>
                 </div>
 
@@ -626,6 +633,10 @@
                                     <label class="text-[10px] font-bold text-slate-400 block mb-1">保養提醒間距 (km)</label>
                                     <input type="number" step="1000" id="maintIntervalInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold focus:outline-none" placeholder="20000">
                                 </div>
+                                <div class="sm:col-span-2">
+                                    <label class="text-[10px] font-bold text-slate-400 block mb-1">預計下次保養日期 (選填)</label>
+                                    <input type="date" id="nextMaintDateInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-left focus:outline-none appearance-none block">
+                                </div>
                             </div>
                         </div>
 
@@ -780,6 +791,7 @@
             batteryCapacity: 57.7,
             initialOdometer: 0,
             maintInterval: 20000,
+            nextMaintDate: "", 
             iceEfficiency: 15.0,
             gasPrice: 30.0,
             syncUrl: "",
@@ -924,8 +936,10 @@
             localStorage.removeItem('ev_life_splash_color');
             const isDark = document.documentElement.classList.contains('dark');
             const colorInput = document.getElementById('splashColorInput');
-            if (colorInput) colorInput.value = isDark ? '#111827' : '#fcfaf2';
-            showToast('已恢復預設底色，下次重啟生效 🎨');
+            if (colorInput) {
+                colorInput.value = isDark ? '#111827' : '#fcfaf2';
+                showToast('已恢復預設底色，下次重啟生效 🎨');
+            }
         }
 
         // --- UI & Interaction ---
@@ -1080,6 +1094,9 @@
             AppState.maintInterval = parseInt(localStorage.getItem('ev_life_maint_interval')) || 20000;
             if (document.getElementById('maintIntervalInput')) document.getElementById('maintIntervalInput').value = AppState.maintInterval;
             
+            AppState.nextMaintDate = localStorage.getItem('ev_life_next_maint_date') || "";
+            if (document.getElementById('nextMaintDateInput')) document.getElementById('nextMaintDateInput').value = AppState.nextMaintDate;
+
             AppState.iceEfficiency = parseFloat(localStorage.getItem('ev_life_ice_efficiency')) || 15.0;
             if (document.getElementById('iceEfficiencyInput')) document.getElementById('iceEfficiencyInput').value = AppState.iceEfficiency;
             
@@ -1473,6 +1490,34 @@
                     maintProgEl.className = "bg-indigo-500 h-2.5 rounded-full transition-all duration-1000 ease-out";
                 }
             }
+
+            // 更新預計保養日期倒數
+            const dateAlertCont = document.getElementById('maintDateAlertContainer');
+            if (AppState.nextMaintDate && dateAlertCont) {
+                dateAlertCont.classList.remove('hidden');
+                document.getElementById('maintTargetDateStr').textContent = AppState.nextMaintDate.replace(/-/g, '/');
+                
+                const targetDate = new Date(AppState.nextMaintDate);
+                const today = new Date();
+                // Reset time to compare only dates
+                today.setHours(0,0,0,0);
+                const diffTime = targetDate - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                
+                const badge = document.getElementById('maintDaysRemainingBadge');
+                if (diffDays < 0) {
+                    badge.textContent = `已逾期 ${Math.abs(diffDays)} 天`;
+                    badge.className = "text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm bg-rose-100 text-rose-600 dark:bg-rose-900/50 dark:text-rose-400 border border-rose-200 dark:border-rose-800";
+                } else if (diffDays <= 30) {
+                    badge.textContent = `剩餘 ${diffDays} 天`;
+                    badge.className = "text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-400 border border-amber-200 dark:border-amber-800";
+                } else {
+                    badge.textContent = `剩餘 ${diffDays} 天`;
+                    badge.className = "text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700";
+                }
+            } else if (dateAlertCont) {
+                dateAlertCont.classList.add('hidden');
+            }
         }
 
         function setChartFilter(filter) {
@@ -1780,6 +1825,9 @@
             AppState.initialOdometer = parseFloat(document.getElementById('initialOdometerInput').value) || 0; localStorage.setItem('ev_life_initial_odometer', AppState.initialOdometer);
             
             AppState.maintInterval = parseInt(document.getElementById('maintIntervalInput').value) || 20000; localStorage.setItem('ev_life_maint_interval', AppState.maintInterval);
+            
+            AppState.nextMaintDate = document.getElementById('nextMaintDateInput').value; localStorage.setItem('ev_life_next_maint_date', AppState.nextMaintDate);
+
             AppState.iceEfficiency = parseFloat(document.getElementById('iceEfficiencyInput').value) || 15.0; localStorage.setItem('ev_life_ice_efficiency', AppState.iceEfficiency);
             AppState.gasPrice = parseFloat(document.getElementById('gasPriceInput').value) || 30.0; localStorage.setItem('ev_life_gas_price', AppState.gasPrice);
             
@@ -1827,7 +1875,7 @@
                         id: "CONFIG_METADATA", date: "", chargeType: "", distance: 0, power: 0, cost: 0, 
                         note: JSON.stringify({ 
                             evName: AppState.evName, batteryCapacity: AppState.batteryCapacity, initialOdometer: AppState.initialOdometer,
-                            maintInterval: AppState.maintInterval, iceEfficiency: AppState.iceEfficiency, gasPrice: AppState.gasPrice
+                            maintInterval: AppState.maintInterval, nextMaintDate: AppState.nextMaintDate, iceEfficiency: AppState.iceEfficiency, gasPrice: AppState.gasPrice
                         }) 
                     };
                     await fetch(AppState.syncUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify([...uploadPayload, { id: "SYSTEM_METADATA", note: localLastUpdated.toString() }, configMeta]) });
@@ -1839,10 +1887,12 @@
                         if (cloudConfig.batteryCapacity) { AppState.batteryCapacity = parseFloat(cloudConfig.batteryCapacity); localStorage.setItem('ev_life_battery_capacity', AppState.batteryCapacity); }
                         if (cloudConfig.initialOdometer !== undefined) { AppState.initialOdometer = parseFloat(cloudConfig.initialOdometer); localStorage.setItem('ev_life_initial_odometer', AppState.initialOdometer); }
                         if (cloudConfig.maintInterval) { AppState.maintInterval = parseInt(cloudConfig.maintInterval); localStorage.setItem('ev_life_maint_interval', AppState.maintInterval); }
+                        if (cloudConfig.nextMaintDate !== undefined) { AppState.nextMaintDate = cloudConfig.nextMaintDate; localStorage.setItem('ev_life_next_maint_date', AppState.nextMaintDate); }
                         if (cloudConfig.iceEfficiency) { AppState.iceEfficiency = parseFloat(cloudConfig.iceEfficiency); localStorage.setItem('ev_life_ice_efficiency', AppState.iceEfficiency); }
                         if (cloudConfig.gasPrice) { AppState.gasPrice = parseFloat(cloudConfig.gasPrice); localStorage.setItem('ev_life_gas_price', AppState.gasPrice); }
                         
                         if (document.getElementById('maintIntervalInput')) document.getElementById('maintIntervalInput').value = AppState.maintInterval;
+                        if (document.getElementById('nextMaintDateInput')) document.getElementById('nextMaintDateInput').value = AppState.nextMaintDate;
                         if (document.getElementById('iceEfficiencyInput')) document.getElementById('iceEfficiencyInput').value = AppState.iceEfficiency;
                         if (document.getElementById('gasPriceInput')) document.getElementById('gasPriceInput').value = AppState.gasPrice;
                     }
