@@ -155,7 +155,6 @@
         .hero-image-container img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
     </style>
 
-    <!-- ⚠️ 效能提示：在正式上線的生產環境中，建議透過 Tailwind CLI 將 CSS 編譯為靜態檔案，取代 Play CDN 提升載入速度 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <script>
@@ -183,7 +182,6 @@
         <img id="splashLogoImg" src="./splash.png" alt="Splash Screen" class="w-full h-full object-cover opacity-0 absolute inset-0 z-20 transition-opacity duration-300">
     </div>
 
-    <!-- 🚀 立即套用自訂啟動畫面設定 -->
     <script>
         (function(){
             try {
@@ -201,22 +199,18 @@
         })();
     </script>
 
-    <!-- 頂部膠囊導航列 (Top Pill Bar) -->
     <header class="sticky top-0 z-40 bg-[#fcfaf2]/80 dark:bg-[#111827]/80 backdrop-blur-xl pt-[env(safe-area-inset-top)] border-b border-transparent transition-all">
         <div class="flex items-center justify-between px-4 py-3 max-w-4xl mx-auto">
-            <!-- 總覽按鈕 -->
             <button onclick="switchTab('home')" class="flex items-center gap-2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md px-4 py-2 rounded-full shadow-sm border border-slate-200 dark:border-slate-700 text-[11px] font-black tracking-wider transition active:scale-95">
                 <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M4 4h4v4H4V4zm6 0h4v4h-4V4zm6 0h4v4h-4V4zM4 10h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4z"/></svg>
                 總覽
             </button>
 
-            <!-- 車輛選擇膠囊 (點擊改為切換到設定頁) -->
             <div class="flex items-center gap-2 bg-slate-900/90 dark:bg-slate-800/90 backdrop-blur-md px-1.5 py-1.5 pr-5 rounded-full shadow-md cursor-pointer transition active:scale-95" onclick="switchTab('settings')">
                 <div class="bg-amber-500 text-slate-900 px-2.5 py-1 rounded-full text-[10px] font-black">純電</div>
                 <span id="topEvName" class="text-white text-xs font-bold font-mono tracking-wide">LUXGEN n7</span>
             </div>
 
-            <!-- 主題切換按鈕 -->
             <button onclick="toggleTheme()" class="w-9 h-9 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm border border-slate-200 dark:border-slate-700 transition active:scale-95">
                 <svg id="themeSunIcon" class="w-4 h-4 text-amber-500 hidden" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.46 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path></svg>
                 <svg id="themeMoonIcon" class="w-4 h-4 text-indigo-400 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
@@ -229,7 +223,7 @@
         <!-- 🔹 Tab 1: 首頁 (Home) -->
         <div id="view-home" class="view-section active px-4">
             
-            <!-- ✨ 首次啟動導覽 (Onboarding) -->
+            <!-- ✨ 首次啟動導覽 -->
             <div id="onboardingCard" class="hidden mb-6 rpg-card bg-gradient-to-br from-teal-50 to-white dark:from-teal-900/30 dark:to-slate-800 p-6 rounded-[2rem] shadow-sm border border-teal-100 dark:border-teal-800/50">
                 <div class="text-center mb-5">
                     <span class="text-5xl block mb-3">🌱</span>
@@ -252,9 +246,8 @@
                 </div>
             </div>
 
-            <!-- 主數據區塊 (有資料時顯示) -->
+            <!-- 主數據區塊 -->
             <div id="homeStatsContainer">
-                <!-- 英雄區 (可上傳照片) -->
                 <div class="hero-image-container mb-6 shadow-sm border border-slate-200 dark:border-slate-800 bg-slate-200 dark:bg-slate-800 group">
                     <img id="heroImageDisplay" src="https://placehold.co/800x450/1e293b/2dd4bf?text=EV+Life" alt="EV" class="transition duration-500 group-hover:scale-105">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
@@ -267,7 +260,7 @@
                     <input type="file" id="heroImageUpload" class="hidden" accept="image/*" onchange="handleHeroImageUpload(event)">
                 </div>
 
-                <!-- 數據網格 (Stats Grid) -->
+                <!-- 數據網格 -->
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div class="rpg-card bg-[#fffaf0] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
                         <div class="text-amber-500 mb-2 flex items-start justify-between">
@@ -331,7 +324,6 @@
 
                 <!-- 🏆 燃油省下費用 & 黃金右腳 -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                    <!-- 燃油對比卡片 -->
                     <div class="rpg-card bg-gradient-to-br from-green-50 to-white dark:from-green-900/20 dark:to-slate-800 p-5 rounded-[1.5rem] border border-green-100 dark:border-green-800/50">
                         <div class="flex items-center gap-2 mb-2">
                             <span class="bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 w-7 h-7 rounded-full flex items-center justify-center text-xs">🌳</span>
@@ -347,7 +339,6 @@
                         </div>
                     </div>
 
-                    <!-- 黃金右腳卡片 -->
                     <div id="mvpCard" class="rpg-card hidden bg-gradient-to-br from-amber-50 to-white dark:from-amber-900/20 dark:to-slate-800 p-5 rounded-[1.5rem] border border-amber-100 dark:border-amber-800/50 relative overflow-hidden">
                         <div class="absolute -right-4 -top-4 opacity-10 dark:opacity-5 text-8xl transform rotate-12 pointer-events-none">👑</div>
                         <div class="flex items-center gap-2 mb-2 relative z-10">
@@ -380,11 +371,9 @@
                             <span class="text-[10px] text-slate-500 font-bold">km 剩餘</span>
                         </div>
                     </div>
-                    <!-- 進度條本體 -->
                     <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden flex mb-3">
                         <div id="maintProgressBar" class="bg-indigo-500 h-2.5 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
                     </div>
-                    <!-- 日期倒數提醒 -->
                     <div id="maintDateAlertContainer" class="hidden mt-2 pt-2 border-t border-slate-100 dark:border-slate-700">
                         <div class="flex items-center justify-between">
                             <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400">預計保養日期: <span id="maintTargetDateStr" class="font-mono text-slate-700 dark:text-slate-300"></span></span>
@@ -426,7 +415,6 @@
 
                     <div id="driveInputsArea" class="space-y-4 transition-all duration-300 overflow-hidden">
                         
-                        <!-- 站點標籤選擇區 -->
                         <div id="tagInputArea">
                             <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">站點 / 標籤 (選填)</label>
                             <div class="flex overflow-x-auto gap-2 pb-2 no-scrollbar mb-1">
@@ -446,7 +434,6 @@
                             <input type="number" step="0.1" id="inputDistance" required placeholder="120" inputmode="decimal" class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-mono font-bold focus:outline-none focus:border-amber-400 transition-colors">
                         </div>
                         
-                        <!-- 🎚️ 雙滑桿區域 (SOC) -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-900/30 p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
                             <div>
                                 <div class="flex justify-between items-center mb-1.5">
@@ -509,9 +496,7 @@
                 <p class="text-xs font-bold">目前區間尚無紀錄喔！</p>
             </div>
 
-            <div id="recordMobileList" class="space-y-4 pb-4">
-                <!-- Javascript 動態渲染 -->
-            </div>
+            <div id="recordMobileList" class="space-y-4 pb-4"></div>
         </div>
 
         <!-- 🔹 Tab 4: 分析圖表 (Analysis) -->
@@ -583,12 +568,10 @@
                     </div>
                 </div>
 
-                <!-- 折線圖與長條圖區 -->
                 <div class="h-64 relative w-full mt-2">
                     <canvas id="efficiencyChart"></canvas>
                 </div>
                 
-                <!-- 🍩 圓餅圖區：花費分佈 -->
                 <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
                     <h3 class="text-sm font-black text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2">
                         <span class="bg-rose-100 dark:bg-rose-900/30 text-rose-500 w-6 h-6 rounded-full flex items-center justify-center text-[10px]">🍩</span>
@@ -612,7 +595,6 @@
                     <button onclick="switchSettingsTab('settings-tab-pwa')" id="btn-tab-pwa" class="flex-1 py-3 text-xs font-black text-slate-500 dark:text-[#94a3b8] transition-all bg-slate-100 dark:bg-[#0f172a]">🐾 PWA 離線安裝</button>
                 </div>
                 <div class="p-6 space-y-4">
-                    <!-- 分頁一：主要設定與雲端 -->
                     <div id="settings-tab-main" class="space-y-4">
                         <div class="bg-slate-50 dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
                             <span class="text-xs font-black text-slate-500 dark:text-slate-400">🚗 愛車參數設定</span>
@@ -640,7 +622,6 @@
                             </div>
                         </div>
 
-                        <!-- 🛢️ 燃油省下對比設定 -->
                         <div class="bg-slate-50 dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
                             <span class="text-xs font-black text-slate-500 dark:text-slate-400 flex items-center gap-1">⛽ 燃油對比基準 (計算省下費用)</span>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -695,7 +676,7 @@
                         </div>
                         <button onclick="saveSyncSettingsOnly()" class="w-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-white text-xs font-bold py-3 rounded-2xl transition active:scale-95 shadow-sm mt-2">💾 儲存設定</button>
                     </div>
-                    <!-- 分頁二：PWA 離線安裝 -->
+                    
                     <div id="settings-tab-pwa" class="space-y-4 hidden">
                         <div class="bg-amber-50 dark:bg-amber-900/10 p-4 rounded-2xl border border-amber-200 dark:border-amber-900/50 space-y-2">
                             <span class="text-xs text-amber-700 dark:text-amber-500 font-extrabold block">📲 甚麼是 PWA 離線安裝？</span>
@@ -733,11 +714,9 @@
 
     </main>
 
-    <!-- 🚀 iOS 27 懸浮玻璃底部導航列 -->
     <nav class="fixed left-4 right-4 z-50 rounded-[2rem] ios-27-glass px-2 floating-nav">
         <div class="flex justify-around items-center h-16 max-w-md mx-auto relative" id="nav-container">
             
-            <!-- 🚀 關鍵元件：滑動液態玻璃背景 -->
             <div id="liquid-indicator" class="liquid-indicator opacity-0 absolute top-1/2 -translate-y-1/2 left-0 w-14"></div>
 
             <button onclick="switchTab('home')" id="tab-home" class="tab-btn active flex flex-col items-center gap-1 w-14 text-slate-500 dark:text-slate-400">
@@ -788,7 +767,6 @@
     </div>
 
     <script>
-        // 🚀 狀態集中管理 (State Management)
         const AppState = {
             records: [],
             evName: "LUXGEN n7",
@@ -811,7 +789,6 @@
         let deferredPrompt = null;
         let toastTimeout = null;
 
-        // 🛡️ XSS 防禦輔助函式
         function escapeHTML(str) {
             if (typeof str !== 'string') return '';
             return str.replace(/[&<>'"]/g, tag => ({
@@ -826,7 +803,6 @@
             return d.toISOString().split('T')[0];
         }
 
-        // --- Utilities ---
         function showToast(message, isError=false, duration=2500) {
             const toast = document.getElementById('toast');
             if (!toast) return;
@@ -946,8 +922,6 @@
                 showToast('已恢復預設底色，下次重啟生效 🎨');
             }
         }
-
-        // --- UI & Interaction ---
         
         function updateLiquidIndicator(tabId) {
             const btn = document.getElementById('tab-' + tabId);
@@ -1064,8 +1038,6 @@
             navContainer.addEventListener('touchstart', handleDragStart, {passive: false}); navContainer.addEventListener('touchmove', handleDragMove, {passive: false}); navContainer.addEventListener('touchend', handleDragEnd);
             navContainer.addEventListener('mousedown', handleDragStart); document.addEventListener('mousemove', handleDragMove, {passive: false}); document.addEventListener('mouseup', handleDragEnd);
         }
-
-        // --- Initialization ---
 
         document.addEventListener('DOMContentLoaded', () => {
             initAppCore();
@@ -1353,7 +1325,6 @@
             renderMonthFilters();
             calculateRecordStats(activeRecords);
 
-            // 處理首次啟動導覽
             const obCard = document.getElementById('onboardingCard'), statsCont = document.getElementById('homeStatsContainer');
             if (activeRecords.length === 0) {
                 if(obCard) obCard.classList.remove('hidden'); if(statsCont) statsCont.classList.add('hidden');
@@ -1373,7 +1344,6 @@
                 mobileList.innerHTML = '';
                 placeholder.classList.remove('hidden');
                 
-                // Hide MVP if no records in current filter
                 const mvpCard = document.getElementById('mvpCard');
                 if(mvpCard) mvpCard.classList.add('hidden');
                 return;
@@ -1486,7 +1456,6 @@
                 document.getElementById('maintIntervalText').textContent = AppState.maintInterval;
                 maintProgEl.style.width = `${Math.min(100, maintProg)}%`;
                 
-                // Color alert
                 if (maintRemain < 1000) {
                     maintRemEl.className = "text-sm font-black font-mono text-rose-500";
                     maintProgEl.className = "bg-rose-500 h-2.5 rounded-full transition-all duration-1000 ease-out";
@@ -1499,7 +1468,6 @@
                 }
             }
 
-            // 更新預計保養日期倒數
             const dateAlertCont = document.getElementById('maintDateAlertContainer');
             if (AppState.nextMaintDate && dateAlertCont) {
                 dateAlertCont.classList.remove('hidden');
@@ -1507,7 +1475,6 @@
                 
                 const targetDate = new Date(AppState.nextMaintDate);
                 const today = new Date();
-                // Reset time to compare only dates
                 today.setHours(0,0,0,0);
                 const diffTime = targetDate - today;
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
@@ -1556,7 +1523,6 @@
                 doughnutData = doughnutData.filter(rec => rec.date.startsWith(AppState.currentMonthFilter));
             }
 
-            // 1. Line / Bar Chart (Trend)
             let periodTotalKm = 0; let periodTotalCost = 0;
             const allPeriodRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && (AppState.currentMonthFilter === 'all' || (r.date && r.date.startsWith(AppState.currentMonthFilter))));
             allPeriodRecords.forEach(rec => {
@@ -1641,7 +1607,6 @@
                 });
             }
 
-            // 2. Doughnut Chart (Cost Distribution)
             if (doughnutElement) {
                 const pieCtx = doughnutElement.getContext('2d');
                 let dcCost = 0, acCost = 0, maintCost = 0;
@@ -1657,9 +1622,9 @@
                     datasets: [{
                         data: [dcCost, acCost, maintCost],
                         backgroundColor: [
-                            isDarkMode ? '#fbbf24' : '#f59e0b', // Amber
-                            isDarkMode ? '#2dd4bf' : '#14b8a6', // Teal
-                            isDarkMode ? '#e879f9' : '#d946ef'  // Fuchsia
+                            isDarkMode ? '#fbbf24' : '#f59e0b', 
+                            isDarkMode ? '#2dd4bf' : '#14b8a6', 
+                            isDarkMode ? '#e879f9' : '#d946ef'  
                         ],
                         borderWidth: 0,
                         hoverOffset: 4
@@ -1790,7 +1755,6 @@
 
         function parseRecordSoc(rec) {
             let startSoc = rec.startSoc, endSoc = rec.endSoc, cleanNote = rec.note || '';
-            // Backward compatibility for old notes
             if (typeof rec.note === 'string' && rec.note.startsWith('[SOC:')) {
                 const match = rec.note.match(/^\[SOC:(\d+)-(\d+)\]\s*(.*)/);
                 if (match) { startSoc = parseInt(match[1], 10); endSoc = parseInt(match[2], 10); cleanNote = match[3]; }
@@ -1833,7 +1797,6 @@
             AppState.initialOdometer = parseFloat(document.getElementById('initialOdometerInput').value) || 0; localStorage.setItem('ev_life_initial_odometer', AppState.initialOdometer);
             
             AppState.maintInterval = parseInt(document.getElementById('maintIntervalInput').value) || 20000; localStorage.setItem('ev_life_maint_interval', AppState.maintInterval);
-            
             AppState.nextMaintDate = document.getElementById('nextMaintDateInput').value; localStorage.setItem('ev_life_next_maint_date', AppState.nextMaintDate);
 
             AppState.iceEfficiency = parseFloat(document.getElementById('iceEfficiencyInput').value) || 15.0; localStorage.setItem('ev_life_ice_efficiency', AppState.iceEfficiency);
@@ -1844,7 +1807,6 @@
 
             updateSyncUiStatus(); switchTab('home'); renderDashboard(); 
             
-            // 觸發雲端同步，讓保養日期與其他設定能自動上傳
             if (AppState.syncUrl) {
                 showToast("設定已儲存，同步雲端中...");
                 syncWithCloud('upload', true);
@@ -1862,7 +1824,7 @@
             if (!AppState.syncUrl) { if (!isSilent) showToast("請先設定雲端同步網址！", true); return; }
             if (!isSilent) showToast("雲端同步中...");
             try {
-                // 提案 1: GET 請求帶上 Token
+                // GET 請求帶上 Token
                 let urlWithToken = AppState.syncUrl;
                 if (AppState.syncToken) {
                     const separator = urlWithToken.includes('?') ? '&' : '?';
@@ -1897,11 +1859,10 @@
 
                 if (shouldUpload) {
                     if (mode === 'upload') { localLastUpdated = Date.now(); localStorage.setItem('ev_life_last_updated', localLastUpdated.toString()); }
-                    // 為了向下相容 GAS 的格式，如果 GAS 端還沒更新 tag，可以用 note 包裝，但我們這裡加上 tag 欄位
                     const uploadRecords = AppState.records.map(rec => ({ 
                         id: rec.id, date: rec.date, chargeType: rec.chargeType, distance: rec.distance, power: rec.power, cost: rec.cost, 
                         note: (rec.startSoc !== undefined && rec.endSoc !== undefined) ? `[SOC:${rec.startSoc}-${rec.endSoc}] ${rec.note || ''}`.trim() : (rec.note || ''),
-                        tag: rec.tag || '' // 如果遠端 sheet 有欄位就能存
+                        tag: rec.tag || '' 
                     }));
                     
                     const configMeta = { 
@@ -1912,22 +1873,24 @@
                         }) 
                     };
                     
-                    // 提案 1 & 2: 將要上傳的資料打包成 { token: "...", records: [...] } 格式
                     const payloadToPost = {
                         token: AppState.syncToken,
                         records: [...uploadRecords, { id: "SYSTEM_METADATA", note: localLastUpdated.toString() }, configMeta]
                     };
 
+                    // 使用 text/plain 來避免 Google Apps Script 的 CORS Preflight (OPTIONS) 錯誤
                     const postRes = await fetch(AppState.syncUrl, { 
                         method: 'POST', 
-                        // 注意：因為使用 no-cors，前端無法讀取回應，但資料仍會送出
-                        // 如果需要精確處理錯誤（如 Token 錯誤），建議在 GAS 端設定正確的 CORS Header，並移除 no-cors
-                        mode: 'no-cors', 
-                        headers: { 'Content-Type': 'application/json' }, 
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
                         body: JSON.stringify(payloadToPost) 
                     });
 
-                    // 備註：在 'no-cors' 模式下，我們無法檢查 postRes 的內容，只能假設請求已送出
+                    // 若不用 no-cors，我們就可以讀取伺服器回傳的成功/失敗訊息！
+                    const postResult = await postRes.json();
+                    if (postResult.error) {
+                         throw new Error(postResult.error === "Unauthorized" ? "API Token 錯誤，上傳遭拒絕" : postResult.error);
+                    }
+
                     if (!isSilent) showToast(`同步成功！已推播至雲端`);
 
                 } else if (shouldDownload) {
@@ -1954,7 +1917,6 @@
             } catch (error) { 
                 console.error("Sync Error:", error);
                 if (!isSilent) {
-                    // 若有特定錯誤訊息則顯示
                     showToast(error.message || "同步失敗，請檢查網路或設定", true); 
                 }
             }
@@ -1980,28 +1942,9 @@
 
         function generateSWContent() {
             return `const CACHE_NAME = 'ev-life-cache-v1';
-const ASSETS_TO_CACHE = [
-    './',
-    './index.html',
-    './manifest.json',
-    './splash.png'
-];
-
-self.addEventListener('install', event => {
-    event.waitUntil(
-        caches.open(CACHE_NAME).then(cache => {
-            return cache.addAll(ASSETS_TO_CACHE);
-        })
-    );
-});
-
-self.addEventListener('fetch', event => {
-    event.respondWith(
-        caches.match(event.request).then(response => {
-            return response || fetch(event.request);
-        })
-    );
-});`;
+const ASSETS_TO_CACHE = ['./', './index.html', './manifest.json', './splash.png'];
+self.addEventListener('install', event => { event.waitUntil(caches.open(CACHE_NAME).then(cache => { return cache.addAll(ASSETS_TO_CACHE); })); });
+self.addEventListener('fetch', event => { event.respondWith(caches.match(event.request).then(response => { return response || fetch(event.request); })); });`;
         }
 
         function downloadFile(filename, content) {
