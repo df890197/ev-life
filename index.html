@@ -999,9 +999,16 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            initAppCore();
-            const splash = document.getElementById('appSplashScreen');
-            if (splash) { setTimeout(() => { splash.classList.add('opacity-0'); setTimeout(() => splash.remove(), 400); }, 400); }
+            try {
+                initAppCore();
+            } catch (err) {
+                console.error("App initialization error:", err);
+                showToast("部分啟動資料異常，已安全載入", true);
+            } finally {
+                // 強制移除 SplashScreen，確保任何情況下都不會卡在 Loading 畫面
+                const splash = document.getElementById('appSplashScreen');
+                if (splash) { setTimeout(() => { splash.classList.add('opacity-0'); setTimeout(() => splash.remove(), 400); }, 400); }
+            }
         });
 
         function initAppCore() {
@@ -1059,8 +1066,14 @@
             updateSyncUiStatus();
             updatePwaDiagnostic();
             
-            const localData = localStorage.getItem('ev_life_records');
-            if (localData) AppState.records = JSON.parse(localData).map(rec => parseRecordSoc(rec));
+            try {
+                const localData = localStorage.getItem('ev_life_records');
+                if (localData) AppState.records = JSON.parse(localData).map(rec => parseRecordSoc(rec));
+            } catch (err) {
+                console.error("Local data parsing error:", err);
+                AppState.records = [];
+                showToast("本機資料解析異常，已重置狀態", true);
+            }
             
             renderDashboard();
             autoFillStartSoc();
@@ -1660,17 +1673,24 @@
                 if (!date || isNaN(cost)) { showToast("請填寫日期與花費！", true); return; }
             }
 
-            if (AppState.editingRecordId) {
+            const isEditing = !!AppState.editingRecordId;
+
+            if (isEditing) {
                 const idx = AppState.records.findIndex(r => r.id === AppState.editingRecordId);
                 if (idx > -1) AppState.records[idx] = { ...AppState.records[idx], date, chargeType, distance, power: parseFloat(power.toFixed(3)), powerPercent, startSoc, endSoc, cost, note, tag };
-                saveLocalState(AppState.records); showToast("修改成功！✨");
+                saveLocalState(AppState.records); 
             } else {
                 saveLocalState([...AppState.records, { id: Date.now().toString(), date, chargeType, distance, power: parseFloat(power.toFixed(3)), powerPercent, startSoc, endSoc, cost, note, tag }]);
-                showToast("新增成功！🚗");
             }
             
             cancelEdit(); renderDashboard(); switchTab('records'); 
-            if (AppState.syncUrl) syncWithCloud('upload', true); 
+            
+            if (AppState.syncUrl) {
+                // 將靜默模式改為 false，顯示同步進度
+                syncWithCloud('upload', false);
+            } else {
+                showToast(isEditing ? "修改成功！✨" : "新增成功！🚗");
+            }
         }
 
         function editRecord(id) {
@@ -1712,16 +1732,24 @@
             showConfirmModal("確認刪除", "刪除後無法復原，是否繼續？", function() {
                 const updated = AppState.records.filter(rec => rec.id !== id);
                 if(updated.length === 0) localStorage.setItem('ev_life_cleared', 'true');
-                saveLocalState(updated); renderDashboard(); showToast("已刪除！🗑️");
-                if (AppState.syncUrl) syncWithCloud('upload', true);
+                saveLocalState(updated); renderDashboard(); 
+                if (AppState.syncUrl) {
+                    syncWithCloud('upload', false);
+                } else {
+                    showToast("已刪除！🗑️");
+                }
             });
         }
 
         function clearAllData() {
             showConfirmModal("清空全部紀錄", "警告：這將徹底刪除裝置上所有數據！", function() {
                 localStorage.setItem('ev_life_cleared', 'true');
-                saveLocalState([]); renderDashboard(); showToast("紀錄已清空");
-                if (AppState.syncUrl) syncWithCloud('upload', true);
+                saveLocalState([]); renderDashboard(); 
+                if (AppState.syncUrl) {
+                    syncWithCloud('upload', false);
+                } else {
+                    showToast("紀錄已清空 🗑️");
+                }
             });
         }
 
@@ -1811,7 +1839,7 @@
             AppState.syncToken = document.getElementById('syncTokenInput').value.trim(); localStorage.setItem('ev_life_sync_token', AppState.syncToken);
 
             updateSyncUiStatus(); switchTab('home'); renderDashboard(); 
-            if (AppState.syncUrl) { showToast("設定已儲存，同步雲端中..."); syncWithCloud('upload', true); } else { showToast("設定已儲存"); }
+            if (AppState.syncUrl) { syncWithCloud('upload', false); } else { showToast("設定已儲存 💾"); }
         }
 
         function updateSyncUiStatus() {
@@ -1821,7 +1849,7 @@
 
         async function syncWithCloud(mode = 'auto', isSilent = false) {
             if (!AppState.syncUrl) { if (!isSilent) showToast("請先設定雲端同步網址！", true); return; }
-            if (!isSilent) showToast("雲端同步中...");
+            if (!isSilent) showToast("雲端同步中... 🔄");
             try {
                 let urlWithToken = AppState.syncUrl;
                 if (AppState.syncToken) { const separator = urlWithToken.includes('?') ? '&' : '?'; urlWithToken += `${separator}token=${encodeURIComponent(AppState.syncToken)}`; }
@@ -1860,7 +1888,7 @@
                     const postRes = await fetch(AppState.syncUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payloadToPost) });
                     const postResult = await postRes.json();
                     if (postResult.error) throw new Error(postResult.error === "Unauthorized" ? "API Token 錯誤，上傳遭拒絕" : postResult.error);
-                    if (!isSilent) showToast(`同步成功！已推播至雲端`);
+                    if (!isSilent) showToast(`同步成功！已推播至雲端 ☁️`);
                 } else if (shouldDownload) {
                     AppState.records = cloudRecords; localStorage.setItem('ev_life_records', JSON.stringify(AppState.records)); localStorage.setItem('ev_life_last_updated', Date.now().toString()); 
                     if (cloudConfig) {
