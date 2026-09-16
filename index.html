@@ -84,7 +84,6 @@
         .hero-image-container img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
     </style>
 
-    <!-- 在生產環境中，建議使用 Tailwind CLI 預先編譯 CSS，避免瀏覽器在執行時因解析 cdn.tailwindcss.com 而造成卡頓 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <script>
@@ -1752,23 +1751,19 @@
                 const match = rec.note.match(/^\[SOC:(\d+)-(\d+)\]\s*(.*)/);
                 if (match) { startSoc = parseInt(match[1], 10); endSoc = parseInt(match[2], 10); cleanNote = match[3]; }
             }
-<comment-tag id="1">            return {
-                id: rec.id?.toString() || Date.now().toString(), date: rec.date?.split('T')[0] || '', chargeType: rec.chargeType || 'DC-快充',
-                distance: parseFloat(rec.distance) || 0, power: parseFloat(rec.power) || 0, startSoc: startSoc !== undefined ? parseInt(startSoc) : 0,
-                endSoc: endSoc !== undefined ? parseInt(endSoc) : 0, cost: parseInt(rec.cost) || 0, note: cleanNote, tag: rec.tag || ''
-            };</comment-tag id="1" text="這個問題通常是因為 Google Apps Script (雲端試算表) 在同步時，會將日期轉換為 UTC 標準時間 (例如：台灣時間 10/25 00:00 會變成 UTC 的 10/24 16:00)。原本的程式碼 `.split('T')[0]` 直接切斷字串，導致直接取到前一天的日期。每一次上傳再下載，日期就會往前倒退一天。
 
-我們需要在解析資料時，將這個 UTC 時間轉換回您手機的本地時區，這樣日期就會恢復正常了！" type="suggestion">
             // 處理雲端同步可能產生的時區偏移問題 (將 UTC 轉回本地時區 YYYY-MM-DD)
             let finalDate = rec.date || '';
             if (finalDate.includes('T')) {
                 const d = new Date(finalDate);
+                // 確認這是一個有效日期
                 if (!isNaN(d.getTime())) {
                     const yyyy = d.getFullYear();
                     const mm = String(d.getMonth() + 1).padStart(2, '0');
                     const dd = String(d.getDate()).padStart(2, '0');
                     finalDate = `${yyyy}-${mm}-${dd}`;
                 } else {
+                    // 如果解析失敗，退回使用單純的字串切割
                     finalDate = finalDate.split('T')[0];
                 }
             }
@@ -1777,7 +1772,7 @@
                 id: rec.id?.toString() || Date.now().toString(), date: finalDate, chargeType: rec.chargeType || 'DC-快充',
                 distance: parseFloat(rec.distance) || 0, power: parseFloat(rec.power) || 0, startSoc: startSoc !== undefined ? parseInt(startSoc) : 0,
                 endSoc: endSoc !== undefined ? parseInt(endSoc) : 0, cost: parseInt(rec.cost) || 0, note: cleanNote, tag: rec.tag || ''
-            };</comment-tag>
+            };
         }
 
         function setupNumericRestrictions() {
@@ -1884,7 +1879,17 @@
                     renderDashboard(); if (!isSilent) showToast(`已從雲端下載覆蓋本機 📥`);
                 } else { if (!isSilent) showToast("本機與雲端資料一致 ✿"); }
                 updateSyncUiStatus(); 
-            } catch (error) { console.error("Sync Error:", error); if (!isSilent) { showToast(error.message || "同步失敗，請檢查網路或設定", true); } }
+            } catch (error) { 
+                console.error("Sync Error:", error); 
+                if (!isSilent) { 
+                    let msg = error.message || "同步失敗，請檢查網路或設定";
+                    // 針對 Failed to fetch 提供更明確的建議
+                    if (msg === "Failed to fetch" || msg.includes("NetworkError")) {
+                        msg = "連線失敗！請確認 GAS 已發佈為「所有人」，且 URL 結尾為 /exec";
+                    }
+                    showToast(msg, true); 
+                } 
+            }
         }
 
         function forceDownload() { showConfirmModal("以「試算表」為主？", "將下載雲端資料並「覆蓋」本機記錄。", function() { syncWithCloud('download'); }); }
@@ -1947,5 +1952,3 @@
     </script>
 </body>
 </html>
-```eof
-*建議已新增*
