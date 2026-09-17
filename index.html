@@ -366,20 +366,26 @@
                         
                         <div id="tagInputArea">
                             <div class="flex justify-between items-end mb-1.5">
-                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 block">站點位置 (選填)</label>
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 block">站點與地區 (選填)</label>
                                 <button type="button" onclick="autoLocateAndWeather()" class="text-[10px] bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-400 px-2.5 py-1 rounded-lg shadow-sm font-bold active:scale-95 transition-transform flex items-center gap-1">
                                     📍 自動定位與天氣
                                 </button>
                             </div>
                             
-                            <div class="grid grid-cols-2 gap-2 mb-2">
-                                <div class="relative">
+                            <!-- 站點獨立一行 (滿版)，地區與溫度放在第二行 -->
+                            <div class="relative mb-2">
+                                <div class="absolute left-3 top-1/2 -translate-y-1/2 text-xs">⚡</div>
+                                <input type="text" id="inputTag" placeholder="站點名稱 (例:U-POWER 中壢青埔站)" class="w-full pl-8 pr-3 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-2 mb-2">
+                                <div class="relative col-span-2">
                                     <div class="absolute left-3 top-1/2 -translate-y-1/2 text-xs">📍</div>
-                                    <input type="text" id="inputDistrict" placeholder="地區 (例:中壢區)" class="w-full pl-8 pr-3 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
+                                    <input type="text" id="inputDistrict" placeholder="地區 (例:桃園市中壢區)" class="w-full pl-8 pr-3 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
                                 </div>
-                                <div class="relative">
-                                    <div class="absolute left-3 top-1/2 -translate-y-1/2 text-xs">⚡</div>
-                                    <input type="text" id="inputTag" placeholder="站點 (例:U-POWER)" class="w-full pl-8 pr-3 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
+                                <div class="relative col-span-1">
+                                    <input type="number" step="0.1" id="inputTemperature" placeholder="氣溫" class="w-full pl-3 pr-7 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-mono font-bold focus:outline-none focus:border-sky-400 transition-colors">
+                                    <div class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">°C</div>
                                 </div>
                             </div>
 
@@ -390,11 +396,6 @@
                                 <button type="button" onclick="setTag('TAIL')" class="flex-shrink-0 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold border border-slate-200 dark:border-slate-700 active:scale-95 transition-transform">⚡ TAIL</button>
                                 <button type="button" onclick="setTag('住家慢充')" class="flex-shrink-0 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold border border-slate-200 dark:border-slate-700 active:scale-95 transition-transform">🏠 住家慢充</button>
                                 <button type="button" onclick="setTag('Tesla')" class="flex-shrink-0 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold border border-slate-200 dark:border-slate-700 active:scale-95 transition-transform">🔋 Tesla</button>
-                            </div>
-                            
-                            <div class="relative">
-                                <input type="number" step="0.1" id="inputTemperature" placeholder="氣溫 (選填)" class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-mono font-bold focus:outline-none focus:border-sky-400 transition-colors">
-                                <div class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">°C</div>
                             </div>
                         </div>
 
@@ -944,11 +945,10 @@
             if (DOM.inputDate) DOM.inputDate.value = getLocalDateString();
         }
 
-        // 全新改良版：具備排隊系統的 Toast
-        window.showToast = function(message, isError=false, duration=2500) {
+        // 具備排隊系統的 Toast
+        window.showToast = function(message, isError=false, duration=2200) {
             const toastEl = DOM.toast;
             if (!toastEl) return;
-            
             toastQueue.push({message, isError, duration});
             processToastQueue();
         }
@@ -969,22 +969,19 @@
             const baseClasses = `fixed top-[70px] left-1/2 -translate-x-1/2 z-[120] transform transition-all duration-300 text-white px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 text-xs font-bold whitespace-nowrap border border-white/10`;
             const colorClasses = isError ? 'bg-rose-500' : 'bg-slate-900/95 dark:bg-amber-500 dark:text-slate-900';
 
-            // 進場動畫
             toastEl.className = `${baseClasses} ${colorClasses} translate-y-0 opacity-100 visible pointer-events-auto`;
             
             setTimeout(() => {
-                // 退場動畫
                 toastEl.classList.replace('translate-y-0', '-translate-y-10');
                 toastEl.classList.replace('opacity-100', 'opacity-0');
                 
                 setTimeout(() => {
                     toastEl.classList.add('invisible', 'pointer-events-none');
                     isToastShowing = false;
-                    // 如果還有排隊的訊息，稍微等待一下再拉出下一條
                     if (toastQueue.length > 0) {
                         setTimeout(processToastQueue, 150);
                     }
-                }, 300); // 等待退場的 CSS 動畫跑完
+                }, 300);
             }, duration);
         }
 
@@ -1232,7 +1229,7 @@
                 
                 tempNearbyStations.sort((a, b) => a.distanceKm - b.distanceKm);
 
-                // 2. 反向地理編碼：獲取當前行政區 (如：桃園市中壢區)
+                // 2. 反向地理編碼：獲取當前行政區並智慧過濾「里、村、鄰」
                 tempCurrentDistrict = "";
                 try {
                     const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=14&addressdetails=1&accept-language=zh-TW`, {
@@ -1240,9 +1237,27 @@
                     });
                     const geoData = await geoRes.json();
                     if (geoData && geoData.address) {
-                        const city = geoData.address.city || geoData.address.county || "";
-                        const district = geoData.address.suburb || geoData.address.town || geoData.address.district || "";
-                        tempCurrentDistrict = `${city}${district}`.trim();
+                        const ad = geoData.address;
+                        let city = ad.city || ad.county || ad.state || "";
+                        let dist = "";
+                        
+                        // 將所有回傳的地名轉成陣列，精確找出「區」、「鄉」、「鎮」
+                        const vals = Object.values(ad);
+                        const exactDist = vals.find(v => typeof v === 'string' && (v.endsWith('區') || v.endsWith('鄉') || v.endsWith('鎮')));
+                        
+                        if (exactDist) {
+                            dist = exactDist;
+                        } else {
+                            dist = ad.town || ad.city_district || ad.suburb || ad.district || "";
+                            if (dist.endsWith('里') || dist.endsWith('村') || dist.endsWith('鄰')) dist = "";
+                        }
+                        
+                        // 避免類似「桃園市桃園區」變成「桃園市桃園市桃園區」的重複情況
+                        if (dist && dist.startsWith(city)) {
+                            tempCurrentDistrict = dist;
+                        } else {
+                            tempCurrentDistrict = `${city}${dist}`.trim();
+                        }
                     }
                 } catch (e) {
                     console.warn("反向地理編碼失敗", e);
@@ -1251,18 +1266,19 @@
                 // 3. 判斷多站點還是單站點
                 if (tempNearbyStations.length > 1) {
                     // 有多個站點 -> 彈出清單供使用者選擇
+                    if (tempCurrentDistrict) showToast(`📍 已定位地區：${tempCurrentDistrict}`, false, 1500);
                     openStationModal(tempNearbyStations, tempCurrentDistrict);
                 } else if (tempNearbyStations.length === 1) {
                     // 剛好只有一個站點 -> 直接帶入
                     const single = tempNearbyStations[0];
                     if (DOM.inputDistrict) DOM.inputDistrict.value = tempCurrentDistrict;
                     if (DOM.inputTag) DOM.inputTag.value = single.name;
-                    showToast(`已帶入附近站點 (${single.distanceM}m)`, false, 2000);
+                    showToast(tempCurrentDistrict ? `已帶入地區與站點 📍` : `已帶入附近站點 ⚡`, false, 2000);
                 } else {
                     // 附近沒有充電站 -> 直接帶入行政區或提示
                     if (tempCurrentDistrict) {
                         if (DOM.inputDistrict) DOM.inputDistrict.value = tempCurrentDistrict;
-                        showToast(`已帶入地區: ${tempCurrentDistrict}`, false, 2000);
+                        showToast(`📍 已帶入地區：${tempCurrentDistrict}`, false, 2000);
                     } else {
                         showToast("附近 3km 內無內建站點", false, 2000);
                     }
@@ -1274,7 +1290,7 @@
                     const data = await res.json();
                     if (data && data.current_weather && document.getElementById('inputTemperature')) {
                         document.getElementById('inputTemperature').value = data.current_weather.temperature;
-                        showToast(`已帶入氣溫: ${data.current_weather.temperature}°C ☁️`, false, 2000);
+                        showToast(`已帶入氣溫：${data.current_weather.temperature}°C ☁️`, false, 2000);
                     }
                 } catch (error) {
                     console.warn("天氣 API 呼叫失敗", error);
@@ -1635,6 +1651,7 @@
                 const districtHtml = safeDistrict ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-black border border-slate-200 dark:border-slate-700 text-slate-500 bg-white dark:bg-slate-800 shadow-sm">📍 ${safeDistrict}</span>` : '';
                 const tagHtml = safeTag ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-black border border-slate-200 dark:border-slate-700 text-slate-500 bg-white dark:bg-slate-800 shadow-sm">⚡ ${safeTag}</span>` : '';
                 
+                // 溫度標籤加上防呆：只有在有值的情況下才顯示
                 const tempHtml = (rec.temp !== undefined && rec.temp !== null && rec.temp !== '') ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-black border border-sky-200 bg-sky-50 text-sky-600 dark:border-sky-800 dark:bg-sky-900/40 dark:text-sky-400 shadow-sm">${rec.temp}°C</span>` : '';
 
                 return `
@@ -2090,7 +2107,7 @@
 
         window.syncWithCloud = async function(mode = 'auto', isSilent = false) {
             if (!AppState.syncUrl) { if (!isSilent) showToast("請先設定雲端同步網址！", true); return; }
-            if (!isSilent) showToast("雲端同步中... 🔄");
+            if (!isSilent) showToast("雲端同步中... 🔄", false, 1500);
             try {
                 let urlWithToken = AppState.syncUrl;
                 if (AppState.syncToken) { const separator = urlWithToken.includes('?') ? '&' : '?'; urlWithToken += `${separator}token=${encodeURIComponent(AppState.syncToken)}`; }
