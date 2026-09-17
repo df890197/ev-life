@@ -352,12 +352,12 @@
                             <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">紀錄類型</label>
                             <input type="hidden" id="inputChargeType" value="DC-快充">
                             <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                                <button type="button" onclick="selectChargeType('DC-快充')" id="btnType-DC-快充" class="charge-type-btn border-2 border-amber-400 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 font-black shadow-sm rounded-xl py-2 text-[11px] transition-all">⚡ 快充</button>
-                                <button type="button" onclick="selectChargeType('AC-慢充')" id="btnType-AC-慢充" class="charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#0f172a] text-slate-400 font-bold rounded-xl py-2 text-[11px] transition-all">🔌 慢充</button>
-                                <button type="button" onclick="selectChargeType('未充電')" id="btnType-未充電" class="charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#0f172a] text-slate-400 font-bold rounded-xl py-2 text-[11px] transition-all">🐾 行駛</button>
-                                <button type="button" onclick="selectChargeType('停車費')" id="btnType-停車費" class="charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#0f172a] text-slate-400 font-bold rounded-xl py-2 text-[11px] transition-all">🅿️ 停車費</button>
-                                <button type="button" onclick="selectChargeType('通行費')" id="btnType-通行費" class="charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#0f172a] text-slate-400 font-bold rounded-xl py-2 text-[11px] transition-all">🛣️ 通行費</button>
-                                <button type="button" onclick="selectChargeType('維修保養')" id="btnType-維修保養" class="charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#0f172a] text-slate-400 font-bold rounded-xl py-2 text-[11px] transition-all">🔧 保養</button>
+                                <button type="button" onclick="selectChargeType('DC-快充')" id="btnType-DC-快充" class="charge-type-btn border-2 border-amber-400 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 font-black shadow-sm rounded-xl py-2 text-[11px] transition-all flex items-center justify-center"><span class="mr-1 text-[13px] leading-none flex items-center">⚡</span><span class="mt-[1px]">快充</span></button>
+                                <button type="button" onclick="selectChargeType('AC-慢充')" id="btnType-AC-慢充" class="charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#0f172a] text-slate-400 font-bold rounded-xl py-2 text-[11px] transition-all flex items-center justify-center"><span class="mr-1 text-[13px] leading-none flex items-center">🔌</span><span class="mt-[1px]">慢充</span></button>
+                                <button type="button" onclick="selectChargeType('未充電')" id="btnType-未充電" class="charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#0f172a] text-slate-400 font-bold rounded-xl py-2 text-[11px] transition-all flex items-center justify-center"><span class="mr-1 text-[13px] leading-none flex items-center">🐾</span><span class="mt-[1px]">行駛</span></button>
+                                <button type="button" onclick="selectChargeType('停車費')" id="btnType-停車費" class="charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#0f172a] text-slate-400 font-bold rounded-xl py-2 text-[11px] transition-all flex items-center justify-center"><span class="mr-1 text-[13px] leading-none flex items-center">🅿️</span><span class="mt-[1px]">停車費</span></button>
+                                <button type="button" onclick="selectChargeType('通行費')" id="btnType-通行費" class="charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#0f172a] text-slate-400 font-bold rounded-xl py-2 text-[11px] transition-all flex items-center justify-center"><span class="mr-1 text-[13px] leading-none flex items-center">🛣️</span><span class="mt-[1px]">通行費</span></button>
+                                <button type="button" onclick="selectChargeType('維修保養')" id="btnType-維修保養" class="charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#0f172a] text-slate-400 font-bold rounded-xl py-2 text-[11px] transition-all flex items-center justify-center"><span class="mr-1 text-[13px] leading-none flex items-center">🔧</span><span class="mt-[1px]">保養</span></button>
                             </div>
                         </div>
                     </div>
@@ -372,12 +372,13 @@
                                 </button>
                             </div>
                             
-                            <!-- 站點獨立一行 (滿版)，地區與溫度放在第二行 -->
+                            <!-- 滿版的站點名稱 -->
                             <div class="relative mb-2">
                                 <div class="absolute left-3 top-1/2 -translate-y-1/2 text-xs">⚡</div>
                                 <input type="text" id="inputTag" placeholder="站點名稱 (例:U-POWER 中壢青埔站)" class="w-full pl-8 pr-3 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
                             </div>
 
+                            <!-- 地區佔 2/3，氣溫佔 1/3 -->
                             <div class="grid grid-cols-3 gap-2 mb-2">
                                 <div class="relative col-span-2">
                                     <div class="absolute left-3 top-1/2 -translate-y-1/2 text-xs">📍</div>
@@ -528,7 +529,7 @@
                             <div class="bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 p-1.5 rounded-lg shadow-sm">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                             </div>
-                            <span class="text-xs font-bold text-slate-600 dark:text-slate-400">每公里成本</span>
+                            <span class="text-xs font-bold text-slate-600 dark:text-slate-400">每公里電費</span>
                         </div>
                         <div class="flex items-baseline gap-1">
                             <span class="text-[10px] font-bold text-teal-600 dark:text-teal-400">$</span>
@@ -787,14 +788,12 @@
             get CO2_SAVED_PER_KM() { return this.CO2_ICE_PER_KM - this.CO2_EV_PER_KM; }
         };
 
-        // 常用充電站清單（可持續擴充經緯度）
         const CHARGE_STATIONS = [
             { name: "U-POWER 桃園經國站", lat: 25.029, lng: 121.294 },
             { name: "U-POWER 中壢青埔站", lat: 25.009, lng: 121.214 },
             { name: "EVOASIS 桃園中壢站", lat: 24.965, lng: 121.224 },
             { name: "EVOASIS 台北信義站", lat: 25.033, lng: 121.564 },
             { name: "特爾電力 桃園機場站", lat: 25.077, lng: 121.232 },
-            // 國道服務區常有多品牌充電站範例：
             { name: "特爾電力 國一湖口服務區南向", lat: 24.871, lng: 121.011 },
             { name: "iCharging 國一湖口服務區南向", lat: 24.870, lng: 121.010 },
             { name: "U-POWER 關西服務區", lat: 24.802, lng: 121.178 }
@@ -816,7 +815,6 @@
         let deferredPrompt = null;
         let chartRenderTimer = null; 
 
-        // 訊息佇列系統 (Queue)
         let toastQueue = [];
         let isToastShowing = false;
 
@@ -897,7 +895,7 @@
                         const parsed = parseFloat(val);
                         AppState[stateKey] = !isNaN(parsed) ? parsed : defaultValue;
                     } else {
-                        AppState[stateKey] = val; // String values just get assigned directly
+                        AppState[stateKey] = val;
                     }
                 } else {
                     AppState[stateKey] = defaultValue;
@@ -945,7 +943,6 @@
             if (DOM.inputDate) DOM.inputDate.value = getLocalDateString();
         }
 
-        // 具備排隊系統的 Toast
         window.showToast = function(message, isError=false, duration=2200) {
             const toastEl = DOM.toast;
             if (!toastEl) return;
@@ -1196,7 +1193,6 @@
             if(DOM.inputTag) DOM.inputTag.value = tagName;
         }
 
-        // ====== 升級版：GPS 自動定位、行政區辨識、多站點選擇與天氣 API ======
         let tempNearbyStations = [];
         let tempCurrentDistrict = "";
 
@@ -1212,7 +1208,6 @@
                 const lat = position.coords.latitude;
                 const lng = position.coords.longitude;
                 
-                // 1. 搜尋半徑 3 公里內的所有充電站並依距離排序
                 const SEARCH_RADIUS_KM = 3.0;
                 tempNearbyStations = [];
                 
@@ -1229,7 +1224,6 @@
                 
                 tempNearbyStations.sort((a, b) => a.distanceKm - b.distanceKm);
 
-                // 2. 反向地理編碼：獲取當前行政區並智慧過濾「里、村、鄰」
                 tempCurrentDistrict = "";
                 try {
                     const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=14&addressdetails=1&accept-language=zh-TW`, {
@@ -1241,7 +1235,6 @@
                         let city = ad.city || ad.county || ad.state || "";
                         let dist = "";
                         
-                        // 將所有回傳的地名轉成陣列，精確找出「區」、「鄉」、「鎮」
                         const vals = Object.values(ad);
                         const exactDist = vals.find(v => typeof v === 'string' && (v.endsWith('區') || v.endsWith('鄉') || v.endsWith('鎮')));
                         
@@ -1252,7 +1245,6 @@
                             if (dist.endsWith('里') || dist.endsWith('村') || dist.endsWith('鄰')) dist = "";
                         }
                         
-                        // 避免類似「桃園市桃園區」變成「桃園市桃園市桃園區」的重複情況
                         if (dist && dist.startsWith(city)) {
                             tempCurrentDistrict = dist;
                         } else {
@@ -1263,19 +1255,15 @@
                     console.warn("反向地理編碼失敗", e);
                 }
 
-                // 3. 判斷多站點還是單站點
                 if (tempNearbyStations.length > 1) {
-                    // 有多個站點 -> 彈出清單供使用者選擇
                     if (tempCurrentDistrict) showToast(`📍 已定位地區：${tempCurrentDistrict}`, false, 1500);
                     openStationModal(tempNearbyStations, tempCurrentDistrict);
                 } else if (tempNearbyStations.length === 1) {
-                    // 剛好只有一個站點 -> 直接帶入
                     const single = tempNearbyStations[0];
                     if (DOM.inputDistrict) DOM.inputDistrict.value = tempCurrentDistrict;
                     if (DOM.inputTag) DOM.inputTag.value = single.name;
                     showToast(tempCurrentDistrict ? `已帶入地區與站點 📍` : `已帶入附近站點 ⚡`, false, 2000);
                 } else {
-                    // 附近沒有充電站 -> 直接帶入行政區或提示
                     if (tempCurrentDistrict) {
                         if (DOM.inputDistrict) DOM.inputDistrict.value = tempCurrentDistrict;
                         showToast(`📍 已帶入地區：${tempCurrentDistrict}`, false, 2000);
@@ -1284,7 +1272,6 @@
                     }
                 }
 
-                // 4. 呼叫 Open-Meteo API 獲取當前氣溫
                 try {
                     const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`);
                     const data = await res.json();
@@ -1302,7 +1289,6 @@
             }, { timeout: 10000 });
         }
 
-        // 彈出多站點選擇視窗
         function openStationModal(stations, district) {
             const modal = document.getElementById('stationSelectModal');
             const list = document.getElementById('stationOptionsList');
@@ -1365,7 +1351,7 @@
             if (DOM.inputChargeType) DOM.inputChargeType.value = type;
             
             document.querySelectorAll('.charge-type-btn').forEach(btn => {
-                btn.className = "charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#0f172a] text-slate-400 font-bold rounded-xl py-2 text-[11px] transition-all";
+                btn.className = "charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#0f172a] text-slate-400 font-bold rounded-xl py-2 text-[11px] transition-all flex items-center justify-center";
             });
             
             const activeBtn = document.getElementById('btnType-' + type);
@@ -1378,7 +1364,7 @@
                     '通行費': 'border-purple-400 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400'
                 };
                 const activeClass = themeMap[type] || 'border-slate-400 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200';
-                activeBtn.className = `charge-type-btn border-2 rounded-xl py-2 text-[11px] transition-all font-black shadow-sm ${activeClass}`;
+                activeBtn.className = `charge-type-btn border-2 rounded-xl py-2 text-[11px] transition-all font-black shadow-sm flex items-center justify-center ${activeClass}`;
             }
 
             const isNonDrive = ['維修保養', '停車費', '通行費'].includes(type);
@@ -1679,8 +1665,9 @@
                     </div>
                     ` : `
                     <div class="flex justify-between items-center text-center divide-x divide-slate-100 dark:divide-slate-800 bg-slate-50/50 dark:bg-slate-900/10 rounded-xl py-2">
-                        <div class="flex-[2] px-1 font-bold text-xs flex items-center justify-center ${rec.chargeType==='維修保養'?'text-fuchsia-600':(rec.chargeType==='停車費'?'text-blue-600':'text-purple-600')}">
-                            ${rec.chargeType==='維修保養'?'🔧 維護保養紀錄':(rec.chargeType==='停車費'?'🅿️ 停車繳費紀錄':'🛣️ 國道通行費紀錄')}
+                        <div class="flex-[2] px-1 font-bold text-xs flex items-center justify-center gap-1.5 ${rec.chargeType==='維修保養'?'text-fuchsia-600':(rec.chargeType==='停車費'?'text-blue-600':'text-purple-600')}">
+                            <span class="text-[14px] leading-none flex items-center mt-[-1px]">${rec.chargeType==='維修保養'?'🔧':(rec.chargeType==='停車費'?'🅿️':'🛣️')}</span>
+                            <span class="leading-none mt-[1px]">${rec.chargeType==='維修保養'?'維護保養紀錄':(rec.chargeType==='停車費'?'停車繳費紀錄':'國道通行費紀錄')}</span>
                         </div>
                         <div class="flex-1 px-1"><div class="text-[10px] text-slate-400 font-bold mb-1">總花費</div><div class="font-mono font-black text-[14px] ${rec.chargeType==='維修保養'?'text-fuchsia-500':(rec.chargeType==='停車費'?'text-blue-500':'text-purple-500')}">$${rec.cost}</div></div>
                     </div>
@@ -1786,13 +1773,17 @@
                 doughnutData = doughnutData.filter(rec => rec.date.startsWith(AppState.currentMonthFilter));
             }
 
-            let periodTotalKm = 0; let periodTotalCost = 0;
+            let periodTotalKm = 0; let periodTotalCost = 0; let periodEnergyCost = 0;
             const allPeriodRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && (AppState.currentMonthFilter === 'all' || (r.date && r.date.startsWith(AppState.currentMonthFilter))));
             allPeriodRecords.forEach(rec => {
-                if (!['維修保養', '停車費', '通行費'].includes(rec.chargeType)) periodTotalKm += (parseFloat(rec.distance) || 0);
-                periodTotalCost += (parseFloat(rec.cost) || 0);
+                const cost = parseFloat(rec.cost) || 0;
+                periodTotalCost += cost;
+                if (!['維修保養', '停車費', '通行費'].includes(rec.chargeType)) {
+                    periodTotalKm += (parseFloat(rec.distance) || 0);
+                    periodEnergyCost += cost;
+                }
             });
-            const periodCostPerKm = periodTotalKm > 0 ? (periodTotalCost / periodTotalKm) : 0;
+            const periodCostPerKm = periodTotalKm > 0 ? (periodEnergyCost / periodTotalKm) : 0;
 
             if (DOM.analysisTotalKm) DOM.analysisTotalKm.textContent = periodTotalKm.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
             if (DOM.analysisSummaryLabel) DOM.analysisSummaryLabel.textContent = AppState.currentMonthFilter === 'all' ? '全部累積里程' : `${AppState.currentMonthFilter.replace('-', '/')} 總里程`;
