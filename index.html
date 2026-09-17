@@ -867,7 +867,7 @@
             
             setupDelegatedEvents();
 
-            if (AppState.syncUrl) setTimeout(() => syncWithCloud('download', false), 800);
+            if (AppState.syncUrl) setTimeout(() => syncWithCloud('auto', false), 800);
         }
 
         function loadSettingsFromStorage() {
@@ -1219,13 +1219,19 @@
         
         window.setupSocSliders = function() {
             const sync = (source, target) => { target.value = source.value; updateConvertedPowerHint(); };
+            const blurInput = () => { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); };
+            
             if (DOM.inputStartSocNum && DOM.sliderStartSoc) {
                 DOM.inputStartSocNum.addEventListener('input', () => sync(DOM.inputStartSocNum, DOM.sliderStartSoc));
                 DOM.sliderStartSoc.addEventListener('input', () => sync(DOM.sliderStartSoc, DOM.inputStartSocNum));
+                DOM.sliderStartSoc.addEventListener('touchstart', blurInput, {passive: true});
+                DOM.sliderStartSoc.addEventListener('mousedown', blurInput);
             }
             if (DOM.inputEndSocNum && DOM.sliderEndSoc) {
                 DOM.inputEndSocNum.addEventListener('input', () => sync(DOM.inputEndSocNum, DOM.sliderEndSoc));
                 DOM.sliderEndSoc.addEventListener('input', () => sync(DOM.sliderEndSoc, DOM.inputEndSocNum));
+                DOM.sliderEndSoc.addEventListener('touchstart', blurInput, {passive: true});
+                DOM.sliderEndSoc.addEventListener('mousedown', blurInput);
             }
         }
 
