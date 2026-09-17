@@ -372,7 +372,6 @@
                                 </button>
                             </div>
                             
-                            <!-- 新增獨立的地區與站點欄位 -->
                             <div class="grid grid-cols-2 gap-2 mb-2">
                                 <div class="relative">
                                     <div class="absolute left-3 top-1/2 -translate-y-1/2 text-xs">📍</div>
@@ -897,7 +896,7 @@
                         const parsed = parseFloat(val);
                         AppState[stateKey] = !isNaN(parsed) ? parsed : defaultValue;
                     } else {
-                        AppState[stateKey] = val;
+                        AppState[stateKey] = val; // String values just get assigned directly
                     }
                 } else {
                     AppState[stateKey] = defaultValue;
@@ -945,10 +944,11 @@
             if (DOM.inputDate) DOM.inputDate.value = getLocalDateString();
         }
 
-        // 具備排隊系統的 Toast
-        window.showToast = function(message, isError=false, duration=2200) {
+        // 全新改良版：具備排隊系統的 Toast
+        window.showToast = function(message, isError=false, duration=2500) {
             const toastEl = DOM.toast;
             if (!toastEl) return;
+            
             toastQueue.push({message, isError, duration});
             processToastQueue();
         }
@@ -969,19 +969,22 @@
             const baseClasses = `fixed top-[70px] left-1/2 -translate-x-1/2 z-[120] transform transition-all duration-300 text-white px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 text-xs font-bold whitespace-nowrap border border-white/10`;
             const colorClasses = isError ? 'bg-rose-500' : 'bg-slate-900/95 dark:bg-amber-500 dark:text-slate-900';
 
+            // 進場動畫
             toastEl.className = `${baseClasses} ${colorClasses} translate-y-0 opacity-100 visible pointer-events-auto`;
             
             setTimeout(() => {
+                // 退場動畫
                 toastEl.classList.replace('translate-y-0', '-translate-y-10');
                 toastEl.classList.replace('opacity-100', 'opacity-0');
                 
                 setTimeout(() => {
                     toastEl.classList.add('invisible', 'pointer-events-none');
                     isToastShowing = false;
+                    // 如果還有排隊的訊息，稍微等待一下再拉出下一條
                     if (toastQueue.length > 0) {
                         setTimeout(processToastQueue, 150);
                     }
-                }, 300);
+                }, 300); // 等待退場的 CSS 動畫跑完
             }, duration);
         }
 
@@ -1632,7 +1635,7 @@
                 const districtHtml = safeDistrict ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-black border border-slate-200 dark:border-slate-700 text-slate-500 bg-white dark:bg-slate-800 shadow-sm">📍 ${safeDistrict}</span>` : '';
                 const tagHtml = safeTag ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-black border border-slate-200 dark:border-slate-700 text-slate-500 bg-white dark:bg-slate-800 shadow-sm">⚡ ${safeTag}</span>` : '';
                 
-                const tempHtml = (rec.temp !== undefined && rec.temp !== null) ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-black border border-sky-200 bg-sky-50 text-sky-600 dark:border-sky-800 dark:bg-sky-900/40 dark:text-sky-400 shadow-sm">${rec.temp}°C</span>` : '';
+                const tempHtml = (rec.temp !== undefined && rec.temp !== null && rec.temp !== '') ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-black border border-sky-200 bg-sky-50 text-sky-600 dark:border-sky-800 dark:bg-sky-900/40 dark:text-sky-400 shadow-sm">${rec.temp}°C</span>` : '';
 
                 return `
                 <div class="${cardClass}">
@@ -2035,7 +2038,7 @@
             return {
                 id: rec.id?.toString() || Date.now().toString(), date: finalDate, chargeType: rec.chargeType || 'DC-快充',
                 distance: parseFloat(rec.distance) || 0, power: parseFloat(rec.power) || 0, startSoc: startSoc !== undefined ? parseInt(startSoc) : 0,
-                endSoc: endSoc !== undefined ? parseInt(endSoc) : 0, cost: parseInt(rec.cost) || 0, note: cleanNote, tag: rec.tag || '', district: rec.district || '', temp: rec.temp !== undefined ? rec.temp : null
+                endSoc: endSoc !== undefined ? parseInt(endSoc) : 0, cost: parseInt(rec.cost) || 0, note: cleanNote, tag: rec.tag || '', district: rec.district || '', temp: (rec.temp !== undefined && rec.temp !== null && rec.temp !== '') ? parseFloat(rec.temp) : null
             };
         }
 
@@ -2166,7 +2169,6 @@
         
         window.exportToCSV = function() {
             if (AppState.records.length === 0) { showToast("目前沒有紀錄可以匯出喔！", true); return; }
-            // 更新 CSV 標頭加入地區
             let csvContent = "日期,紀錄類型,地區,標籤/站點,行駛里程(km),出發SOC(%),抵達SOC(%),消耗電量(度),花費(元),氣溫(°C),備註\n";
             const exportRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
             
