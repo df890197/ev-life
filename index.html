@@ -479,7 +479,7 @@
                             <button onclick="setChartFilter('cost')" id="btnChartCost" class="px-3 py-1.5 text-[10px] rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold transition-all">花費</button>
                         </div>
                         
-                        <select id="chartTimeView" onchange="updateCharts()" class="px-3 py-1.5 text-[11px] h-[34px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-bold focus:outline-none cursor-pointer shadow-sm flex-shrink-0">
+                        <select id="chartTimeView" onchange="debouncedUpdateCharts()" class="px-3 py-1.5 text-[11px] h-[34px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-bold focus:outline-none cursor-pointer shadow-sm flex-shrink-0">
                             <option value="monthly" selected>單月加總</option>
                             <option value="raw">每天逐筆</option>
                         </select>
@@ -560,6 +560,17 @@
                 </div>
                 <div class="p-6 space-y-4">
                     <div id="settings-tab-main" class="space-y-4">
+                        
+                        <!-- 🚘 預留 API 端點 -->
+                        <div class="bg-slate-50 dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4 mb-4">
+                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 flex justify-between items-center">
+                                <span>自建車輛 API 端點 (實時讀取 SOC)</span>
+                                <button type="button" onclick="fetchLiveVehicleData()" class="px-2 py-1 bg-amber-100 text-amber-700 rounded text-[10px] active:scale-95 transition font-bold">測試連線</button>
+                            </label>
+                            <input type="url" id="vehicleApiUrlInput" placeholder="http://192.168.x.x:3000/api/n7/status" class="w-full px-4 py-3 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono focus:outline-none focus:border-amber-400 transition-colors">
+                            <p class="text-[10px] text-slate-400 mt-1 font-bold">若您有自建代理伺服器攔截車聯網資料，可在此輸入端點。新增紀錄時將自動獲取電量。</p>
+                        </div>
+
                         <div class="bg-slate-50 dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
                             <span class="text-xs font-black text-slate-500 dark:text-slate-400">🚗 愛車參數設定</span>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -751,47 +762,181 @@
             gasPrice: 30.0,
             syncUrl: "",
             syncToken: "",
+            vehicleApiUrl: "", // 預留自建車聯網 API
             editingRecordId: null,
             currentChartFilter: 'all',
             currentMonthFilter: 'all',
-            globalAvgEfficiency: 0 // 用於旅程預測
+            globalAvgEfficiency: 0
         };
 
-        // 環保常數設定
-        const CO2_ICE_PER_KM = 0.173; // 燃油車每公里碳排 (kg)
-        const CO2_EV_PER_KM = 0.078;  // 電動車每公里碳排 (kg)
-        const CO2_SAVED_PER_KM = CO2_ICE_PER_KM - CO2_EV_PER_KM; // 每公里省下 0.095kg
-        const TREE_ABSORPTION_PER_YEAR = 10; // 一棵樹一年吸收 10kg CO2
+        const CONSTANTS = {
+            CO2_ICE_PER_KM: 0.173,
+            CO2_EV_PER_KM: 0.078,
+            TREE_ABSORPTION_PER_YEAR: 10,
+            get CO2_SAVED_PER_KM() { return this.CO2_ICE_PER_KM - this.CO2_EV_PER_KM; }
+        };
 
+        // DOM 快取，消除重複查詢效能瓶頸
+        const DOM = {};
         let efficiencyChartInstance = null;
         let costDistributionChartInstance = null;
         let activeConfirmCallback = null;
         let deferredPrompt = null;
         let toastTimeout = null;
+        let chartRenderTimer = null; // 用於防抖
 
-        function escapeHTML(str) {
-            if (typeof str !== 'string') return '';
-            return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
+        const escapeHTML = (str) => typeof str !== 'string' ? '' : str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
+        const getLocalDateString = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().split('T')[0]; };
+
+        function cacheDOMNodes() {
+            ['toast', 'toastMessage', 'toastIcon', 'inputDate', 'inputChargeType', 'inputDistance', 'inputCost', 'inputNote', 'inputTag', 
+             'inputStartSocNum', 'sliderStartSoc', 'inputEndSocNum', 'sliderEndSoc', 'powerHintText', 'driveInputsArea', 'powerHintContainer', 
+             'tagInputArea', 'costLabel', 'startSocLabel', 'endSocLabel', 'recordMobileList', 'noDataPlaceholder', 'homeStatsContainer', 
+             'onboardingCard', 'confirmModal', 'confirmModalContent', 'confirmModalTitle', 'confirmModalMessage', 'appSplashScreen', 
+             'vehicleApiUrlInput', 'evNameInput', 'batteryCapacityInput', 'initialOdometerInput', 'maintIntervalInput', 'iceEfficiencyInput', 
+             'gasPriceInput', 'nextMaintDateInput', 'syncUrlInput', 'syncTokenInput', 'topEvName', 'heroEvName', 'formTitle', 'cancelEditBtn', 
+             'recordForm', 'monthFilterContainer', 'monthFilterContainer_analysis', 'statTotalKm', 'statAvgEfficiency', 'statFuelSavings', 
+             'savingsBaseText', 'statCo2Savings', 'statTreesPlanted', 'maintIntervalText', 'maintRemainingText', 'maintProgressBar', 
+             'tireRemainingText', 'tireProgressBar', 'filterRemainingText', 'filterProgressBar', 'maintDateAlertContainer', 'maintTargetDateStr', 
+             'maintDaysRemainingBadge', 'efficiencyChart', 'costDistributionChart', 'analysisTotalKm', 'analysisSummaryLabel', 
+             'analysisTotalCost', 'analysisCostLabel', 'analysisCostPerKm', 'heroImageDisplay'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) DOM[id] = el;
+            });
         }
 
-        function getLocalDateString() {
-            const d = new Date();
-            const offset = d.getTimezoneOffset();
-            d.setMinutes(d.getMinutes() - offset);
-            return d.toISOString().split('T')[0];
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                cacheDOMNodes();
+                initAppCore();
+            } catch (err) {
+                console.error("App initialization error:", err);
+                showToast("部分啟動資料異常，已安全載入", true);
+            } finally {
+                if (DOM.appSplashScreen) {
+                    setTimeout(() => { 
+                        DOM.appSplashScreen.classList.add('opacity-0'); 
+                        setTimeout(() => DOM.appSplashScreen.remove(), 400); 
+                    }, 400); 
+                }
+            }
+        });
+
+        function initAppCore() {
+            setupThemeIcons();
+            setTimeout(() => updateLiquidIndicator('home'), 100);
+            initLiquidDrag();
+
+            loadSettingsFromStorage();
+            setupNumericRestrictions();
+            setupSocSliders();
+            selectChargeType('DC-快充'); 
+            updateSyncUiStatus();
+            updatePwaDiagnostic();
+            
+            try {
+                const localData = localStorage.getItem('ev_life_records');
+                if (localData) AppState.records = JSON.parse(localData).map(parseRecordSoc);
+            } catch (err) {
+                console.error("Local data parsing error:", err);
+                AppState.records = [];
+                showToast("本機資料解析異常，已重置狀態", true);
+            }
+            
+            renderDashboard();
+            autoFillStartSoc();
+            
+            if ('requestIdleCallback' in window) requestIdleCallback(debouncedUpdateCharts);
+            else setTimeout(debouncedUpdateCharts, 200);
+            
+            setupDelegatedEvents();
+
+            if (AppState.syncUrl) setTimeout(() => syncWithCloud('download', false), 800);
+        }
+
+        function loadSettingsFromStorage() {
+            const bindSetting = (stateKey, elementId, defaultValue, isFloat = false) => {
+                let val = localStorage.getItem(`ev_life_${stateKey.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)}`);
+                if (isFloat && val) val = parseFloat(val);
+                if (val !== null && !isNaN(val)) AppState[stateKey] = val;
+                else AppState[stateKey] = defaultValue;
+                if (DOM[elementId]) DOM[elementId].value = AppState[stateKey];
+            };
+
+            bindSetting('syncUrl', 'syncUrlInput', "");
+            bindSetting('syncToken', 'syncTokenInput', "");
+            bindSetting('vehicleApiUrl', 'vehicleApiUrlInput', "");
+            
+            AppState.evName = localStorage.getItem('ev_life_ev_name') || "LUXGEN n7";
+            if (DOM.evNameInput) DOM.evNameInput.value = AppState.evName;
+            
+            bindSetting('batteryCapacity', 'batteryCapacityInput', 57.7, true);
+            bindSetting('initialOdometer', 'initialOdometerInput', 0, true);
+            
+            let storedInterval = parseInt(localStorage.getItem('ev_life_maint_interval'));
+            AppState.maintInterval = !isNaN(storedInterval) ? storedInterval : 20000;
+            if (DOM.maintIntervalInput) DOM.maintIntervalInput.value = AppState.maintInterval;
+
+            bindSetting('iceEfficiency', 'iceEfficiencyInput', 15.0, true);
+            bindSetting('gasPrice', 'gasPriceInput', 30.0, true);
+
+            AppState.nextMaintDate = localStorage.getItem('ev_life_next_maint_date') || "";
+            if (DOM.nextMaintDateInput) DOM.nextMaintDateInput.value = AppState.nextMaintDate;
+
+            if (DOM.topEvName) DOM.topEvName.textContent = AppState.evName; 
+            if (DOM.heroEvName) DOM.heroEvName.textContent = AppState.evName;
+            
+            const customImg = localStorage.getItem('ev_life_hero_image');
+            if (customImg && DOM.heroImageDisplay) DOM.heroImageDisplay.src = customImg;
+
+            const splashBg = localStorage.getItem('ev_life_splash_color');
+            const colorInput = document.getElementById('splashColorInput');
+            if (colorInput) {
+                if(splashBg) colorInput.value = splashBg;
+                else colorInput.value = document.documentElement.classList.contains('dark') ? '#111827' : '#fcfaf2';
+                colorInput.addEventListener('change', function(e) { localStorage.setItem('ev_life_splash_color', e.target.value); showToast('自訂底色已儲存！下次重啟生效 🎨'); });
+            }
+            const splashImg = localStorage.getItem('ev_life_splash_image');
+            if (splashImg && document.getElementById('splashPreviewImg')) {
+                document.getElementById('splashPreviewImg').src = splashImg; document.getElementById('splashPreviewContainer').classList.remove('hidden');
+            }
+
+            if (DOM.inputDate) DOM.inputDate.value = getLocalDateString();
+        }
+
+        // 實時車輛 API 整合 (用於自架儀表板擷取資料)
+        window.fetchLiveVehicleData = async function() {
+            const apiUrl = DOM.vehicleApiUrlInput ? DOM.vehicleApiUrlInput.value : AppState.vehicleApiUrl;
+            if (!apiUrl) { showToast("請先輸入 API 端點 🔌", true); return; }
+            try {
+                showToast("連線中...");
+                const res = await fetch(apiUrl);
+                const data = await res.json();
+                if (data && data.soc) {
+                    if (DOM.inputStartSocNum) DOM.inputStartSocNum.value = data.soc;
+                    if (DOM.sliderStartSoc) DOM.sliderStartSoc.value = data.soc;
+                    updateConvertedPowerHint();
+                    showToast("已同步車輛即時電池數據 ⚡");
+                } else {
+                    showToast("未取得 SOC 資料", true);
+                }
+            } catch (e) {
+                console.warn("API 獲取失敗", e);
+                showToast("連線失敗，請檢查網路或端點 ⚠️", true);
+            }
         }
 
         function showToast(message, isError=false, duration=2500) {
-            const toast = document.getElementById('toast');
-            if (!toast) return;
-            document.getElementById('toastMessage').textContent = message;
-            document.getElementById('toastIcon').textContent = isError ? "⚠️" : "🐾";
-            toast.className = `fixed top-[70px] left-1/2 -translate-x-1/2 z-[120] transform translate-y-0 opacity-100 visible pointer-events-auto transition-all duration-300 ${isError?'bg-rose-500':'bg-slate-900/95 dark:bg-amber-500'} text-white ${isError?'':'dark:text-slate-900'} px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 text-xs font-bold whitespace-nowrap border border-white/10`;
+            if (!DOM.toast) return;
+            DOM.toastMessage.textContent = message;
+            DOM.toastIcon.textContent = isError ? "⚠️" : "🐾";
+            DOM.toast.className = `fixed top-[70px] left-1/2 -translate-x-1/2 z-[120] transform translate-y-0 opacity-100 visible pointer-events-auto transition-all duration-300 ${isError?'bg-rose-500':'bg-slate-900/95 dark:bg-amber-500'} text-white ${isError?'':'dark:text-slate-900'} px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 text-xs font-bold whitespace-nowrap border border-white/10`;
+            
             if (toastTimeout) clearTimeout(toastTimeout);
             toastTimeout = setTimeout(() => {
-                toast.classList.replace('translate-y-0', '-translate-y-10');
-                toast.classList.replace('opacity-100', 'opacity-0');
-                toast.classList.add('invisible', 'pointer-events-none');
+                DOM.toast.classList.replace('translate-y-0', '-translate-y-10');
+                DOM.toast.classList.replace('opacity-100', 'opacity-0');
+                DOM.toast.classList.add('invisible', 'pointer-events-none');
             }, duration);
         }
 
@@ -803,7 +948,7 @@
             if (moonIcon) moonIcon.style.display = isDark ? 'none' : 'block';
         }
 
-        function toggleTheme() {
+        window.toggleTheme = function() {
             const htmlEl = document.documentElement;
             if (htmlEl.classList.contains('dark')) {
                 htmlEl.classList.remove('dark'); localStorage.setItem('ev_life_theme', 'light');
@@ -811,10 +956,10 @@
                 htmlEl.classList.add('dark'); localStorage.setItem('ev_life_theme', 'dark');
             }
             setupThemeIcons();
-            if (typeof Chart !== 'undefined' && typeof updateCharts === 'function') updateCharts();
+            debouncedUpdateCharts();
         }
 
-        function handleHeroImageUpload(event) {
+        window.handleHeroImageUpload = function(event) {
             const file = event.target.files[0];
             if (!file) return;
             const reader = new FileReader();
@@ -830,8 +975,7 @@
                     const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
                     try {
                         localStorage.setItem('ev_life_hero_image', dataUrl);
-                        const display = document.getElementById('heroImageDisplay');
-                        if (display) display.src = dataUrl;
+                        if (DOM.heroImageDisplay) DOM.heroImageDisplay.src = dataUrl;
                         showToast('已更新愛車相片！🚗');
                     } catch (err) { showToast('相片檔案太大，請嘗試其他照片。', true); }
                 }
@@ -840,7 +984,7 @@
             reader.readAsDataURL(file);
         }
 
-        function handleSplashImageUpload(event) {
+        window.handleSplashImageUpload = function(event) {
             const file = event.target.files[0];
             if (!file) return;
             const reader = new FileReader();
@@ -868,7 +1012,7 @@
             reader.readAsDataURL(file);
         }
 
-        function clearSplashImage() {
+        window.clearSplashImage = function() {
             localStorage.removeItem('ev_life_splash_image');
             const previewContainer = document.getElementById('splashPreviewContainer');
             const uploadInput = document.getElementById('splashImageUpload');
@@ -877,7 +1021,7 @@
             showToast('已移除自訂啟動圖片 🗑️');
         }
 
-        function clearSplashColor() {
+        window.clearSplashColor = function() {
             localStorage.removeItem('ev_life_splash_color');
             const isDark = document.documentElement.classList.contains('dark');
             const colorInput = document.getElementById('splashColorInput');
@@ -899,7 +1043,7 @@
             }
         }
 
-        function switchTab(tabId) {
+        window.switchTab = function(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             const activeBtn = document.getElementById('tab-' + tabId);
             if (activeBtn && tabId !== 'add') activeBtn.classList.add('active'); 
@@ -911,8 +1055,7 @@
             if (view) view.classList.add('active');
             window.scrollTo({ top: 0, behavior: 'smooth' });
             
-            if(tabId === 'analysis') { if (typeof Chart !== 'undefined') updateCharts(); }
-            
+            if (tabId === 'analysis') debouncedUpdateCharts();
             if (tabId === 'settings') {
                 localStorage.setItem('ev_life_sync_dismissed', 'true');
                 updateSyncUiStatus();
@@ -998,116 +1141,30 @@
             navContainer.addEventListener('mousedown', handleDragStart); document.addEventListener('mousemove', handleDragMove, {passive: false}); document.addEventListener('mouseup', handleDragEnd);
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            try {
-                initAppCore();
-            } catch (err) {
-                console.error("App initialization error:", err);
-                showToast("部分啟動資料異常，已安全載入", true);
-            } finally {
-                // 強制移除 SplashScreen，確保任何情況下都不會卡在 Loading 畫面
-                const splash = document.getElementById('appSplashScreen');
-                if (splash) { setTimeout(() => { splash.classList.add('opacity-0'); setTimeout(() => splash.remove(), 400); }, 400); }
-            }
-        });
-
-        function initAppCore() {
-            setupThemeIcons();
-            setTimeout(() => { updateLiquidIndicator('home'); }, 100);
-            initLiquidDrag();
-
-            const customImg = localStorage.getItem('ev_life_hero_image');
-            if (customImg) document.getElementById('heroImageDisplay').src = customImg;
-
-            AppState.syncUrl = localStorage.getItem('ev_life_sync_url') || "";
-            if (document.getElementById('syncUrlInput')) document.getElementById('syncUrlInput').value = AppState.syncUrl;
-            AppState.syncToken = localStorage.getItem('ev_life_sync_token') || "";
-            if (document.getElementById('syncTokenInput')) document.getElementById('syncTokenInput').value = AppState.syncToken;
-            
-            AppState.evName = localStorage.getItem('ev_life_ev_name') || "LUXGEN n7";
-            document.getElementById('topEvName').textContent = AppState.evName; document.getElementById('heroEvName').textContent = AppState.evName;
-            if (document.getElementById('evNameInput')) document.getElementById('evNameInput').value = AppState.evName;
-
-            AppState.batteryCapacity = parseFloat(localStorage.getItem('ev_life_battery_capacity')) || 57.7;
-            if (document.getElementById('batteryCapacityInput')) document.getElementById('batteryCapacityInput').value = AppState.batteryCapacity;
-
-            AppState.initialOdometer = parseFloat(localStorage.getItem('ev_life_initial_odometer')) || 0;
-            if (document.getElementById('initialOdometerInput')) document.getElementById('initialOdometerInput').value = AppState.initialOdometer;
-            
-            AppState.maintInterval = parseInt(localStorage.getItem('ev_life_maint_interval')) || 20000;
-            if (document.getElementById('maintIntervalInput')) document.getElementById('maintIntervalInput').value = AppState.maintInterval;
-            
-            AppState.nextMaintDate = localStorage.getItem('ev_life_next_maint_date') || "";
-            if (document.getElementById('nextMaintDateInput')) document.getElementById('nextMaintDateInput').value = AppState.nextMaintDate;
-
-            AppState.iceEfficiency = parseFloat(localStorage.getItem('ev_life_ice_efficiency')) || 15.0;
-            if (document.getElementById('iceEfficiencyInput')) document.getElementById('iceEfficiencyInput').value = AppState.iceEfficiency;
-            
-            AppState.gasPrice = parseFloat(localStorage.getItem('ev_life_gas_price')) || 30.0;
-            if (document.getElementById('gasPriceInput')) document.getElementById('gasPriceInput').value = AppState.gasPrice;
-            
-            const splashBg = localStorage.getItem('ev_life_splash_color');
-            const colorInput = document.getElementById('splashColorInput');
-            if (colorInput) {
-                if(splashBg) colorInput.value = splashBg;
-                else colorInput.value = document.documentElement.classList.contains('dark') ? '#111827' : '#fcfaf2';
-                colorInput.addEventListener('change', function(e) { localStorage.setItem('ev_life_splash_color', e.target.value); showToast('自訂底色已儲存！下次重啟生效 🎨'); });
-            }
-            const splashImg = localStorage.getItem('ev_life_splash_image');
-            if (splashImg && document.getElementById('splashPreviewImg')) {
-                document.getElementById('splashPreviewImg').src = splashImg; document.getElementById('splashPreviewContainer').classList.remove('hidden');
-            }
-
-            if(document.getElementById('inputDate')) document.getElementById('inputDate').value = getLocalDateString();
-            
-            setupNumericRestrictions();
-            setupSocSliders();
-            selectChargeType('DC-快充'); 
-            updateSyncUiStatus();
-            updatePwaDiagnostic();
-            
-            try {
-                const localData = localStorage.getItem('ev_life_records');
-                if (localData) AppState.records = JSON.parse(localData).map(rec => parseRecordSoc(rec));
-            } catch (err) {
-                console.error("Local data parsing error:", err);
-                AppState.records = [];
-                showToast("本機資料解析異常，已重置狀態", true);
-            }
-            
-            renderDashboard();
-            autoFillStartSoc();
-            
-            if ('requestIdleCallback' in window) requestIdleCallback(() => { if (typeof Chart !== 'undefined') updateCharts(); });
-            else setTimeout(() => { if (typeof Chart !== 'undefined') updateCharts(); }, 200);
-            
-            setupDelegatedEvents();
-
-            if (AppState.syncUrl) { setTimeout(() => { syncWithCloud('download', false); }, 800); }
-        }
-
         function saveLocalState(newRecords) {
             AppState.records = newRecords;
             localStorage.setItem('ev_life_records', JSON.stringify(AppState.records));
             localStorage.setItem('ev_life_last_updated', Date.now());
         }
 
-        function setTag(tagName) {
-            const inputTag = document.getElementById('inputTag');
-            if(inputTag) inputTag.value = tagName;
+        window.setTag = function(tagName) {
+            if(DOM.inputTag) DOM.inputTag.value = tagName;
         }
         
-        function setupSocSliders() {
-            const startNum = document.getElementById('inputStartSocNum'), startSlider = document.getElementById('sliderStartSoc');
-            const endNum = document.getElementById('inputEndSocNum'), endSlider = document.getElementById('sliderEndSoc');
-            function sync(source, target) { target.value = source.value; updateConvertedPowerHint(); }
-            if(startNum && startSlider) { startNum.addEventListener('input', () => sync(startNum, startSlider)); startSlider.addEventListener('input', () => sync(startSlider, startNum)); }
-            if(endNum && endSlider) { endNum.addEventListener('input', () => sync(endNum, endSlider)); endSlider.addEventListener('input', () => sync(endSlider, endNum)); }
+        window.setupSocSliders = function() {
+            const sync = (source, target) => { target.value = source.value; updateConvertedPowerHint(); };
+            if (DOM.inputStartSocNum && DOM.sliderStartSoc) {
+                DOM.inputStartSocNum.addEventListener('input', () => sync(DOM.inputStartSocNum, DOM.sliderStartSoc));
+                DOM.sliderStartSoc.addEventListener('input', () => sync(DOM.sliderStartSoc, DOM.inputStartSocNum));
+            }
+            if (DOM.inputEndSocNum && DOM.sliderEndSoc) {
+                DOM.inputEndSocNum.addEventListener('input', () => sync(DOM.inputEndSocNum, DOM.sliderEndSoc));
+                DOM.sliderEndSoc.addEventListener('input', () => sync(DOM.sliderEndSoc, DOM.inputEndSocNum));
+            }
         }
 
-        function selectChargeType(type) {
-            const input = document.getElementById('inputChargeType');
-            if(input) input.value = type;
+        window.selectChargeType = function(type) {
+            if (DOM.inputChargeType) DOM.inputChargeType.value = type;
             
             document.querySelectorAll('.charge-type-btn').forEach(btn => {
                 btn.className = "charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#0f172a] text-slate-400 font-bold rounded-xl py-2 text-[11px] transition-all";
@@ -1115,80 +1172,73 @@
             
             const activeBtn = document.getElementById('btnType-' + type);
             if (activeBtn) {
-                let activeClass = "border-slate-400 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-black shadow-sm";
-                if(type === 'DC-快充') activeClass = "border-amber-400 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 font-black shadow-sm";
-                if(type === 'AC-慢充') activeClass = "border-teal-400 bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 font-black shadow-sm";
-                if(type === '維修保養') activeClass = "border-fuchsia-400 bg-fuchsia-50 dark:bg-fuchsia-900/20 text-fuchsia-600 dark:text-fuchsia-400 font-black shadow-sm";
-                if(type === '停車費') activeClass = "border-blue-400 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-black shadow-sm";
-                if(type === '通行費') activeClass = "border-purple-400 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 font-black shadow-sm";
-                activeBtn.className = `charge-type-btn border-2 rounded-xl py-2 text-[11px] transition-all ${activeClass}`;
+                const themeMap = {
+                    'DC-快充': 'border-amber-400 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400',
+                    'AC-慢充': 'border-teal-400 bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400',
+                    '維修保養': 'border-fuchsia-400 bg-fuchsia-50 dark:bg-fuchsia-900/20 text-fuchsia-600 dark:text-fuchsia-400',
+                    '停車費': 'border-blue-400 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400',
+                    '通行費': 'border-purple-400 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400'
+                };
+                const activeClass = themeMap[type] || 'border-slate-400 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200';
+                activeBtn.className = `charge-type-btn border-2 rounded-xl py-2 text-[11px] transition-all font-black shadow-sm ${activeClass}`;
             }
 
-            const distInput = document.getElementById('inputDistance');
-            const startSocInput = document.getElementById('inputStartSocNum');
-            const endSocInput = document.getElementById('inputEndSocNum');
-            const costInput = document.getElementById('inputCost');
-            const costLabel = document.getElementById('costLabel');
-            const driveArea = document.getElementById('driveInputsArea');
-            const hintContainer = document.getElementById('powerHintContainer');
-            const tagArea = document.getElementById('tagInputArea');
-
-            if (!distInput) return;
-
-            if (['維修保養', '停車費', '通行費'].includes(type)) {
-                if(driveArea) driveArea.classList.add('hidden');
-                if(hintContainer) hintContainer.classList.add('hidden');
-                distInput.required = false; startSocInput.required = false; endSocInput.required = false;
-                if(tagArea) tagArea.classList.add('hidden');
+            const isNonDrive = ['維修保養', '停車費', '通行費'].includes(type);
+            
+            if (isNonDrive) {
+                if(DOM.driveInputsArea) DOM.driveInputsArea.classList.add('hidden');
+                if(DOM.powerHintContainer) DOM.powerHintContainer.classList.add('hidden');
+                if(DOM.tagInputArea) DOM.tagInputArea.classList.add('hidden');
+                [DOM.inputDistance, DOM.inputStartSocNum, DOM.inputEndSocNum].forEach(el => el && (el.required = false));
                 
-                if(costLabel) costLabel.textContent = `${type}費用 (元)`;
-                costInput.disabled = false; costInput.classList.remove('opacity-40');
-                if (AppState.editingRecordId === null && costInput.value === "0") costInput.value = "";
+                if (DOM.costLabel) DOM.costLabel.textContent = `${type}費用 (元)`;
+                if (DOM.inputCost) {
+                    DOM.inputCost.disabled = false; 
+                    DOM.inputCost.classList.remove('opacity-40');
+                    if (AppState.editingRecordId === null && DOM.inputCost.value === "0") DOM.inputCost.value = "";
+                }
             } else {
-                if(driveArea) driveArea.classList.remove('hidden');
-                if(hintContainer) hintContainer.classList.remove('hidden');
-                distInput.required = true; startSocInput.required = true; endSocInput.required = true;
-                if(tagArea) tagArea.classList.remove('hidden');
-                if(costLabel) costLabel.textContent = "本次花費 (元) - 無則填 0";
+                if(DOM.driveInputsArea) DOM.driveInputsArea.classList.remove('hidden');
+                if(DOM.powerHintContainer) DOM.powerHintContainer.classList.remove('hidden');
+                if(DOM.tagInputArea) DOM.tagInputArea.classList.remove('hidden');
+                [DOM.inputDistance, DOM.inputStartSocNum, DOM.inputEndSocNum].forEach(el => el && (el.required = true));
+                
+                if (DOM.costLabel) DOM.costLabel.textContent = "本次花費 (元) - 無則填 0";
 
                 if (type === "未充電") {
-                    costInput.value = "0"; costInput.disabled = true; costInput.classList.add('opacity-40');
-                    document.getElementById('startSocLabel').textContent = "出發前 SOC (%)";
-                    document.getElementById('endSocLabel').textContent = "抵達後 SOC (%)";
+                    if (DOM.inputCost) { DOM.inputCost.value = "0"; DOM.inputCost.disabled = true; DOM.inputCost.classList.add('opacity-40'); }
+                    if (DOM.startSocLabel) DOM.startSocLabel.textContent = "出發前 SOC (%)";
+                    if (DOM.endSocLabel) DOM.endSocLabel.textContent = "抵達後 SOC (%)";
                     if (AppState.editingRecordId === null) autoFillStartSoc();
                 } else {
-                    if (AppState.editingRecordId === null && costInput.value === "0") costInput.value = "";
-                    costInput.disabled = false; costInput.classList.remove('opacity-40');
-                    document.getElementById('startSocLabel').textContent = "充電前 SOC (%)";
-                    document.getElementById('endSocLabel').textContent = "充電後 SOC (%)";
+                    if (DOM.inputCost) {
+                        if (AppState.editingRecordId === null && DOM.inputCost.value === "0") DOM.inputCost.value = "";
+                        DOM.inputCost.disabled = false; DOM.inputCost.classList.remove('opacity-40');
+                    }
+                    if (DOM.startSocLabel) DOM.startSocLabel.textContent = "充電前 SOC (%)";
+                    if (DOM.endSocLabel) DOM.endSocLabel.textContent = "充電後 SOC (%)";
                 }
             }
             updateConvertedPowerHint();
         }
 
-        function updateConvertedPowerHint() {
-            const typeInput = document.getElementById('inputChargeType');
-            if (!typeInput) return;
-            const type = typeInput.value;
+        window.updateConvertedPowerHint = function() {
+            if (!DOM.inputChargeType || !DOM.powerHintText) return;
+            const type = DOM.inputChargeType.value;
             if (['維修保養', '停車費', '通行費'].includes(type)) return;
 
-            const start = parseFloat(document.getElementById('inputStartSocNum').value) || 0;
-            const end = parseFloat(document.getElementById('inputEndSocNum').value) || 0;
-            const hint = document.getElementById('powerHintText');
-            if (!hint) return;
-            
+            const start = parseFloat(DOM.inputStartSocNum.value) || 0;
+            const end = parseFloat(DOM.inputEndSocNum.value) || 0;
             const delta = Math.abs(end - start);
             const kwh = AppState.batteryCapacity * (delta / 100);
-            hint.textContent = `共${type === "未充電" ? "消耗" : "補給"} ${delta}% 電量 (約 ${kwh.toFixed(2)} 度)`;
+            
+            DOM.powerHintText.textContent = `共${type === "未充電" ? "消耗" : "補給"} ${delta}% 電量 (約 ${kwh.toFixed(2)} 度)`;
         }
 
         function autoFillStartSoc() {
-            const startSocNum = document.getElementById('inputStartSocNum');
-            const startSocSlider = document.getElementById('sliderStartSoc');
-            const chargeTypeSelect = document.getElementById('inputChargeType');
-            if (!startSocNum || !chargeTypeSelect || AppState.editingRecordId !== null) return;
-            if (chargeTypeSelect.value !== "未充電") return;
-            if (startSocNum.value !== '') return;
+            if (!DOM.inputStartSocNum || !DOM.inputChargeType || AppState.editingRecordId !== null) return;
+            if (DOM.inputChargeType.value !== "未充電") return;
+            if (DOM.inputStartSocNum.value !== '') return;
 
             const activeRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && !['維修保養', '停車費', '通行費'].includes(r.chargeType));
             if (activeRecords.length === 0) return;
@@ -1197,8 +1247,8 @@
             const lastRecord = sortedRecords[0];
 
             if (lastRecord && lastRecord.endSoc !== undefined && !isNaN(lastRecord.endSoc)) {
-                startSocNum.value = lastRecord.endSoc;
-                if(startSocSlider) startSocSlider.value = lastRecord.endSoc;
+                DOM.inputStartSocNum.value = lastRecord.endSoc;
+                if(DOM.sliderStartSoc) DOM.sliderStartSoc.value = lastRecord.endSoc;
                 updateConvertedPowerHint();
             }
         }
@@ -1218,19 +1268,19 @@
             let html = `<button onclick="setMonthFilter('all')" class="flex-shrink-0 px-4 py-1.5 text-[11px] rounded-full transition-all border ${AppState.currentMonthFilter === 'all' ? activeClass : inactiveClass} font-black">全部</button>`;
             sortedMonths.forEach(m => { html += `<button onclick="setMonthFilter('${m}')" class="flex-shrink-0 px-4 py-1.5 text-[11px] rounded-full transition-all border ${AppState.currentMonthFilter === m ? activeClass : inactiveClass} font-black">${m.replace('-', '/')}</button>`; });
 
-            const cRec = document.getElementById('monthFilterContainer');
-            const cAna = document.getElementById('monthFilterContainer_analysis');
-            if (cRec) cRec.innerHTML = html; if (cAna) cAna.innerHTML = html;
+            if (DOM.monthFilterContainer) DOM.monthFilterContainer.innerHTML = html; 
+            if (DOM.monthFilterContainer_analysis) DOM.monthFilterContainer_analysis.innerHTML = html;
         }
 
-        function setMonthFilter(month) {
+        window.setMonthFilter = function(month) {
             AppState.currentMonthFilter = month;
             const timeViewSelect = document.getElementById('chartTimeView');
             if (timeViewSelect) {
                 if (month !== 'all') { timeViewSelect.value = 'raw'; timeViewSelect.disabled = true; timeViewSelect.classList.add('opacity-50'); } 
                 else { timeViewSelect.value = 'monthly'; timeViewSelect.disabled = false; timeViewSelect.classList.remove('opacity-50'); }
             }
-            renderDashboard(); if(typeof Chart !== 'undefined') updateCharts();
+            renderDashboard(); 
+            debouncedUpdateCharts();
         }
         
         function calculateRecordStats(activeRecords) {
@@ -1263,15 +1313,15 @@
                 }
             });
             const globalAvgEff = globalPowerReal > 0 ? (globalKm / globalPowerReal) : 0;
-            AppState.globalAvgEfficiency = globalAvgEff; // 供預測器使用
+            AppState.globalAvgEfficiency = globalAvgEff;
             
-            // 環保與省下計算
+            // Eco Stats
             const hypotheticalGasCost = (globalKm / AppState.iceEfficiency) * AppState.gasPrice;
             const fuelSavings = Math.max(0, hypotheticalGasCost - totalEnergyCost);
-            const co2Savings = globalKm * CO2_SAVED_PER_KM;
-            const treesPlanted = co2Savings / TREE_ABSORPTION_PER_YEAR;
+            const co2Savings = globalKm * CONSTANTS.CO2_SAVED_PER_KM;
+            const treesPlanted = co2Savings / CONSTANTS.TREE_ABSORPTION_PER_YEAR;
 
-            // 保養進度計算 (大保養、輪胎、冷氣)
+            // Maintenance Stats
             const currentTotalKm = AppState.initialOdometer + globalKm;
             const maintInterval = AppState.maintInterval || 20000;
             const tireInterval = 10000;
@@ -1290,32 +1340,24 @@
                         remMaint, progMaint, remTire, progTire, remFilter, progFilter);
         }
 
-        function calculatePrediction() {
+        window.calculatePrediction = function() {
             const distInput = document.getElementById('predictDistance').value;
             const resultBox = document.getElementById('predictionResult');
             const dist = parseFloat(distInput);
             
-            if (isNaN(dist) || dist <= 0) {
-                showToast("請輸入有效的預測里程數 🚗");
-                return;
-            }
-            if (AppState.globalAvgEfficiency <= 0) {
-                showToast("目前尚無足夠的歷史電耗數據可以預測 📊");
-                return;
-            }
+            if (isNaN(dist) || dist <= 0) { showToast("請輸入有效的預測里程數 🚗", true); return; }
+            if (AppState.globalAvgEfficiency <= 0) { showToast("目前尚無足夠的歷史電耗數據可以預測 📊", true); return; }
 
             const predictedKwh = dist / AppState.globalAvgEfficiency;
             const predictedSocPercent = (predictedKwh / AppState.batteryCapacity) * 100;
             
-            // 計算歷史每度電平均成本
             const chargeRecords = AppState.records.filter(r => r.chargeType.includes('快充') || r.chargeType.includes('慢充'));
-            let totalChargeCost = 0;
-            let totalChargeKwh = 0;
+            let totalChargeCost = 0, totalChargeKwh = 0;
             chargeRecords.forEach(r => {
                 totalChargeCost += parseFloat(r.cost) || 0;
                 totalChargeKwh += AppState.batteryCapacity * (Math.abs(r.startSoc - r.endSoc) / 100);
             });
-            const avgKwhCost = totalChargeKwh > 0 ? (totalChargeCost / totalChargeKwh) : 8; // 若無資料預設 8元/度
+            const avgKwhCost = totalChargeKwh > 0 ? (totalChargeCost / totalChargeKwh) : 8; 
             const predictedCost = predictedKwh * avgKwhCost;
 
             document.getElementById('predSoc').textContent = predictedSocPercent.toFixed(1);
@@ -1330,11 +1372,12 @@
             renderMonthFilters();
             calculateRecordStats(activeRecords);
 
-            const obCard = document.getElementById('onboardingCard'), statsCont = document.getElementById('homeStatsContainer');
             if (activeRecords.length === 0) {
-                if(obCard) obCard.classList.remove('hidden'); if(statsCont) statsCont.classList.add('hidden');
+                if(DOM.onboardingCard) DOM.onboardingCard.classList.remove('hidden'); 
+                if(DOM.homeStatsContainer) DOM.homeStatsContainer.classList.add('hidden');
             } else {
-                if(obCard) obCard.classList.add('hidden'); if(statsCont) statsCont.classList.remove('hidden');
+                if(DOM.onboardingCard) DOM.onboardingCard.classList.add('hidden'); 
+                if(DOM.homeStatsContainer) DOM.homeStatsContainer.classList.remove('hidden');
             }
 
             let filteredRecords = activeRecords;
@@ -1342,17 +1385,14 @@
                 filteredRecords = activeRecords.filter(rec => rec.date.startsWith(AppState.currentMonthFilter));
             }
 
-            const mobileList = document.getElementById('recordMobileList');
-            const placeholder = document.getElementById('noDataPlaceholder');
-
             if (filteredRecords.length === 0) {
-                mobileList.innerHTML = '';
-                placeholder.classList.remove('hidden');
+                if(DOM.recordMobileList) DOM.recordMobileList.innerHTML = '';
+                if(DOM.noDataPlaceholder) DOM.noDataPlaceholder.classList.remove('hidden');
                 const mvpCard = document.getElementById('mvpCard');
                 if(mvpCard) mvpCard.classList.add('hidden');
                 return;
             } else {
-                placeholder.classList.add('hidden');
+                if(DOM.noDataPlaceholder) DOM.noDataPlaceholder.classList.add('hidden');
             }
 
             const displayRecords = [...filteredRecords].reverse();
@@ -1436,10 +1476,11 @@
                 </div>`;
             }).join(''); 
 
-            mobileList.innerHTML = html;
+            if(DOM.recordMobileList) DOM.recordMobileList.innerHTML = html;
         }
 
         function updateProgressStyle(remEl, progEl, remainingKm) {
+            if(!remEl || !progEl) return;
             if (remainingKm < 1000) {
                 remEl.className = "text-xs font-black font-mono text-rose-500";
                 progEl.className = "bg-rose-500 h-1.5 rounded-full transition-all duration-1000 ease-out";
@@ -1453,59 +1494,53 @@
         }
 
         function updateStats(km, eff, cost, maintCost, baseOdo, fuelSavings, co2Savings, treesPlanted, remMaint, progMaint, remTire, progTire, remFilter, progFilter) {
-            document.getElementById('statTotalKm').textContent = (km + baseOdo).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
-            document.getElementById('statAvgEfficiency').textContent = eff.toFixed(2);
+            if(DOM.statTotalKm) DOM.statTotalKm.textContent = (km + baseOdo).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
+            if(DOM.statAvgEfficiency) DOM.statAvgEfficiency.textContent = eff.toFixed(2);
             
-            // Eco Stats
-            const savingsEl = document.getElementById('statFuelSavings');
-            if (savingsEl) {
-                savingsEl.textContent = Math.round(fuelSavings).toLocaleString();
-                document.getElementById('savingsBaseText').textContent = `${AppState.iceEfficiency} km/L, ${AppState.gasPrice} $/L`;
-                document.getElementById('statCo2Savings').textContent = co2Savings.toLocaleString(undefined, {maximumFractionDigits: 1});
-                document.getElementById('statTreesPlanted').textContent = treesPlanted.toFixed(1);
+            if (DOM.statFuelSavings) {
+                DOM.statFuelSavings.textContent = Math.round(fuelSavings).toLocaleString();
+                if(DOM.savingsBaseText) DOM.savingsBaseText.textContent = `${AppState.iceEfficiency} km/L, ${AppState.gasPrice} $/L`;
+                if(DOM.statCo2Savings) DOM.statCo2Savings.textContent = co2Savings.toLocaleString(undefined, {maximumFractionDigits: 1});
+                if(DOM.statTreesPlanted) DOM.statTreesPlanted.textContent = treesPlanted.toFixed(1);
             }
 
-            // Maintenance Progress Bars
-            const maintRemEl = document.getElementById('maintRemainingText');
-            if(maintRemEl) {
-                document.getElementById('maintIntervalText').textContent = AppState.maintInterval;
-                maintRemEl.textContent = Math.round(remMaint).toLocaleString();
-                document.getElementById('maintProgressBar').style.width = `${Math.min(100, progMaint)}%`;
-                updateProgressStyle(maintRemEl, document.getElementById('maintProgressBar'), remMaint);
+            if(DOM.maintRemainingText) {
+                if(DOM.maintIntervalText) DOM.maintIntervalText.textContent = AppState.maintInterval;
+                DOM.maintRemainingText.textContent = Math.round(remMaint).toLocaleString();
+                if(DOM.maintProgressBar) DOM.maintProgressBar.style.width = `${Math.min(100, progMaint)}%`;
+                updateProgressStyle(DOM.maintRemainingText, DOM.maintProgressBar, remMaint);
 
-                const tireRemEl = document.getElementById('tireRemainingText');
-                tireRemEl.textContent = Math.round(remTire).toLocaleString();
-                document.getElementById('tireProgressBar').style.width = `${Math.min(100, progTire)}%`;
-                updateProgressStyle(tireRemEl, document.getElementById('tireProgressBar'), remTire);
+                if(DOM.tireRemainingText) DOM.tireRemainingText.textContent = Math.round(remTire).toLocaleString();
+                if(DOM.tireProgressBar) DOM.tireProgressBar.style.width = `${Math.min(100, progTire)}%`;
+                updateProgressStyle(DOM.tireRemainingText, DOM.tireProgressBar, remTire);
 
-                const filterRemEl = document.getElementById('filterRemainingText');
-                filterRemEl.textContent = Math.round(remFilter).toLocaleString();
-                document.getElementById('filterProgressBar').style.width = `${Math.min(100, progFilter)}%`;
-                updateProgressStyle(filterRemEl, document.getElementById('filterProgressBar'), remFilter);
+                if(DOM.filterRemainingText) DOM.filterRemainingText.textContent = Math.round(remFilter).toLocaleString();
+                if(DOM.filterProgressBar) DOM.filterProgressBar.style.width = `${Math.min(100, progFilter)}%`;
+                updateProgressStyle(DOM.filterRemainingText, DOM.filterProgressBar, remFilter);
             }
 
-            const dateAlertCont = document.getElementById('maintDateAlertContainer');
-            if (AppState.nextMaintDate && dateAlertCont) {
-                dateAlertCont.classList.remove('hidden');
-                document.getElementById('maintTargetDateStr').textContent = AppState.nextMaintDate.replace(/-/g, '/');
+            if (AppState.nextMaintDate && DOM.maintDateAlertContainer) {
+                DOM.maintDateAlertContainer.classList.remove('hidden');
+                if(DOM.maintTargetDateStr) DOM.maintTargetDateStr.textContent = AppState.nextMaintDate.replace(/-/g, '/');
                 const targetDate = new Date(AppState.nextMaintDate);
                 const today = new Date(); today.setHours(0,0,0,0);
                 const diffDays = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24)); 
-                const badge = document.getElementById('maintDaysRemainingBadge');
-                if (diffDays < 0) {
-                    badge.textContent = `已逾期 ${Math.abs(diffDays)} 天`;
-                    badge.className = "text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm bg-rose-100 text-rose-600 dark:bg-rose-900/50 dark:text-rose-400 border border-rose-200 dark:border-rose-800";
-                } else if (diffDays <= 30) {
-                    badge.textContent = `剩餘 ${diffDays} 天`;
-                    badge.className = "text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-400 border border-amber-200 dark:border-amber-800";
-                } else {
-                    badge.textContent = `剩餘 ${diffDays} 天`;
-                    badge.className = "text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700";
+                if (DOM.maintDaysRemainingBadge) {
+                    if (diffDays < 0) {
+                        DOM.maintDaysRemainingBadge.textContent = `已逾期 ${Math.abs(diffDays)} 天`;
+                        DOM.maintDaysRemainingBadge.className = "text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm bg-rose-100 text-rose-600 dark:bg-rose-900/50 dark:text-rose-400 border border-rose-200 dark:border-rose-800";
+                    } else if (diffDays <= 30) {
+                        DOM.maintDaysRemainingBadge.textContent = `剩餘 ${diffDays} 天`;
+                        DOM.maintDaysRemainingBadge.className = "text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-400 border border-amber-200 dark:border-amber-800";
+                    } else {
+                        DOM.maintDaysRemainingBadge.textContent = `剩餘 ${diffDays} 天`;
+                        DOM.maintDaysRemainingBadge.className = "text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700";
+                    }
                 }
-            } else if (dateAlertCont) { dateAlertCont.classList.add('hidden'); }
+            } else if (DOM.maintDateAlertContainer) { DOM.maintDateAlertContainer.classList.add('hidden'); }
         }
 
-        function setChartFilter(filter) {
+        window.setChartFilter = function(filter) {
             AppState.currentChartFilter = filter;
             ['btnChartAll', 'btnChartEfficiency', 'btnChartCost'].forEach(id => {
                 const btn = document.getElementById(id);
@@ -1513,13 +1548,18 @@
             });
             const activeBtn = document.getElementById(`btnChart${filter.charAt(0).toUpperCase() + filter.slice(1)}`);
             if (activeBtn) activeBtn.className = "px-3 py-1.5 text-[10px] rounded-lg bg-white dark:bg-slate-600 shadow text-slate-900 dark:text-white font-bold transition-all";
-            updateCharts();
+            debouncedUpdateCharts();
+        }
+        
+        function debouncedUpdateCharts() {
+            if (chartRenderTimer) clearTimeout(chartRenderTimer);
+            chartRenderTimer = setTimeout(() => {
+                if (typeof Chart !== 'undefined') updateCharts();
+            }, 150);
         }
 
         function updateCharts() {
-            const canvasElement = document.getElementById('efficiencyChart');
-            const doughnutElement = document.getElementById('costDistributionChart');
-            if (!canvasElement || typeof Chart === 'undefined') return;
+            if (!DOM.efficiencyChart || typeof Chart === 'undefined') return;
 
             const isDarkMode = document.documentElement.classList.contains('dark');
             const labelColor = isDarkMode ? '#9ca3af' : '#64748b'; 
@@ -1541,17 +1581,11 @@
             });
             const periodCostPerKm = periodTotalKm > 0 ? (periodTotalCost / periodTotalKm) : 0;
 
-            const analysisKmEl = document.getElementById('analysisTotalKm');
-            const analysisLabelEl = document.getElementById('analysisSummaryLabel');
-            const analysisCostEl = document.getElementById('analysisTotalCost');
-            const analysisCostLabelEl = document.getElementById('analysisCostLabel');
-            const analysisCostPerKmEl = document.getElementById('analysisCostPerKm');
-
-            if (analysisKmEl) analysisKmEl.textContent = periodTotalKm.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
-            if (analysisLabelEl) analysisLabelEl.textContent = AppState.currentMonthFilter === 'all' ? '全部累積里程' : `${AppState.currentMonthFilter.replace('-', '/')} 總里程`;
-            if (analysisCostEl) analysisCostEl.textContent = periodTotalCost.toLocaleString();
-            if (analysisCostLabelEl) analysisCostLabelEl.textContent = AppState.currentMonthFilter === 'all' ? '歷史總花費' : `${AppState.currentMonthFilter.replace('-', '/')} 總花費`;
-            if (analysisCostPerKmEl) analysisCostPerKmEl.textContent = periodCostPerKm.toFixed(2);
+            if (DOM.analysisTotalKm) DOM.analysisTotalKm.textContent = periodTotalKm.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
+            if (DOM.analysisSummaryLabel) DOM.analysisSummaryLabel.textContent = AppState.currentMonthFilter === 'all' ? '全部累積里程' : `${AppState.currentMonthFilter.replace('-', '/')} 總里程`;
+            if (DOM.analysisTotalCost) DOM.analysisTotalCost.textContent = periodTotalCost.toLocaleString();
+            if (DOM.analysisCostLabel) DOM.analysisCostLabel.textContent = AppState.currentMonthFilter === 'all' ? '歷史總花費' : `${AppState.currentMonthFilter.replace('-', '/')} 總花費`;
+            if (DOM.analysisCostPerKm) DOM.analysisCostPerKm.textContent = periodCostPerKm.toFixed(2);
 
             const timeView = document.getElementById('chartTimeView')?.value || 'monthly';
             let labels = [], efficiencies = [], costs = [];
@@ -1581,7 +1615,7 @@
 
             const datasets = [];
             const scalesConfig = { x: { grid: { display: false }, ticks: { color: labelColor, font: { family: "'SF Mono', SFMono-Regular, ui-monospace, sans-serif", size: 10 } } } };
-            const ctx = canvasElement.getContext('2d');
+            const ctx = DOM.efficiencyChart.getContext('2d');
 
             if (AppState.currentChartFilter === 'all' || AppState.currentChartFilter === 'efficiency') {
                 let gradient = ctx.createLinearGradient(0, 0, 0, 250);
@@ -1613,8 +1647,8 @@
                 });
             }
 
-            if (doughnutElement) {
-                const pieCtx = doughnutElement.getContext('2d');
+            if (DOM.costDistributionChart) {
+                const pieCtx = DOM.costDistributionChart.getContext('2d');
                 let dcCost = 0, acCost = 0, maintCost = 0, parkCost = 0, tollCost = 0;
                 doughnutData.forEach(rec => {
                     const cost = parseFloat(rec.cost) || 0;
@@ -1652,20 +1686,20 @@
             }
         }
 
-        async function addRecord(e) {
+        window.addRecord = async function(e) {
             e.preventDefault();
-            const date = document.getElementById('inputDate').value;
-            const chargeType = document.getElementById('inputChargeType').value;
-            const cost = parseInt(document.getElementById('inputCost').value) || 0;
-            const note = document.getElementById('inputNote').value.trim();
-            const tag = document.getElementById('inputTag') ? document.getElementById('inputTag').value.trim() : '';
+            const date = DOM.inputDate.value;
+            const chargeType = DOM.inputChargeType.value;
+            const cost = parseInt(DOM.inputCost.value) || 0;
+            const note = DOM.inputNote.value.trim();
+            const tag = DOM.inputTag ? DOM.inputTag.value.trim() : '';
             
             let distance = 0, startSoc = 0, endSoc = 0, powerPercent = 0, power = 0;
 
             if (!['維修保養', '停車費', '通行費'].includes(chargeType)) {
-                distance = parseFloat(document.getElementById('inputDistance').value);
-                startSoc = parseFloat(document.getElementById('inputStartSocNum').value);
-                endSoc = parseFloat(document.getElementById('inputEndSocNum').value);
+                distance = parseFloat(DOM.inputDistance.value);
+                startSoc = parseFloat(DOM.inputStartSocNum.value);
+                endSoc = parseFloat(DOM.inputEndSocNum.value);
                 if (!date || isNaN(distance) || isNaN(startSoc) || isNaN(endSoc)) { showToast("請填寫完整數值！", true); return; }
                 powerPercent = Math.abs(startSoc - endSoc);
                 power = AppState.batteryCapacity * (powerPercent / 100);
@@ -1686,49 +1720,48 @@
             cancelEdit(); renderDashboard(); switchTab('records'); 
             
             if (AppState.syncUrl) {
-                // 將靜默模式改為 false，顯示同步進度
                 syncWithCloud('upload', false);
             } else {
                 showToast(isEditing ? "修改成功！✨" : "新增成功！🚗");
             }
         }
 
-        function editRecord(id) {
+        window.editRecord = function(id) {
             const rec = AppState.records.find(r => r.id === id);
             if (!rec) return;
-            document.getElementById('inputDate').value = rec.date;
+            DOM.inputDate.value = rec.date;
             selectChargeType(rec.chargeType);
             
             if (!['維修保養', '停車費', '通行費'].includes(rec.chargeType)) {
-                document.getElementById('inputDistance').value = rec.distance;
-                document.getElementById('inputStartSocNum').value = rec.startSoc;
-                document.getElementById('sliderStartSoc').value = rec.startSoc;
-                document.getElementById('inputEndSocNum').value = rec.endSoc;
-                document.getElementById('sliderEndSoc').value = rec.endSoc;
-                if(document.getElementById('inputTag')) document.getElementById('inputTag').value = rec.tag || '';
+                if(DOM.inputDistance) DOM.inputDistance.value = rec.distance;
+                if(DOM.inputStartSocNum) DOM.inputStartSocNum.value = rec.startSoc;
+                if(DOM.sliderStartSoc) DOM.sliderStartSoc.value = rec.startSoc;
+                if(DOM.inputEndSocNum) DOM.inputEndSocNum.value = rec.endSoc;
+                if(DOM.sliderEndSoc) DOM.sliderEndSoc.value = rec.endSoc;
+                if(DOM.inputTag) DOM.inputTag.value = rec.tag || '';
             }
-            document.getElementById('inputCost').value = rec.cost || 0;
-            document.getElementById('inputNote').value = rec.note || '';
+            if(DOM.inputCost) DOM.inputCost.value = rec.cost || 0;
+            if(DOM.inputNote) DOM.inputNote.value = rec.note || '';
             
             AppState.editingRecordId = id;
-            document.getElementById('formTitle').textContent = "編輯紀錄";
-            document.getElementById('cancelEditBtn').classList.remove('hidden');
+            if(DOM.formTitle) DOM.formTitle.textContent = "編輯紀錄";
+            if(DOM.cancelEditBtn) DOM.cancelEditBtn.classList.remove('hidden');
             switchTab('add'); 
         }
 
-        function cancelEdit() {
+        window.cancelEdit = function() {
             AppState.editingRecordId = null;
-            document.getElementById('formTitle').textContent = "記錄本次旅程";
-            document.getElementById('cancelEditBtn').classList.add('hidden');
-            document.getElementById('recordForm').reset();
-            document.getElementById('inputDate').value = getLocalDateString();
-            if(document.getElementById('sliderStartSoc')) document.getElementById('sliderStartSoc').value = 20;
-            if(document.getElementById('sliderEndSoc')) document.getElementById('sliderEndSoc').value = 80;
+            if(DOM.formTitle) DOM.formTitle.textContent = "記錄本次旅程";
+            if(DOM.cancelEditBtn) DOM.cancelEditBtn.classList.add('hidden');
+            if(DOM.recordForm) DOM.recordForm.reset();
+            if(DOM.inputDate) DOM.inputDate.value = getLocalDateString();
+            if(DOM.sliderStartSoc) DOM.sliderStartSoc.value = 20;
+            if(DOM.sliderEndSoc) DOM.sliderEndSoc.value = 80;
             selectChargeType('DC-快充'); 
             switchTab('records');
         }
 
-        function confirmDeleteRecord(id) {
+        window.confirmDeleteRecord = function(id) {
             showConfirmModal("確認刪除", "刪除後無法復原，是否繼續？", function() {
                 const updated = AppState.records.filter(rec => rec.id !== id);
                 if(updated.length === 0) localStorage.setItem('ev_life_cleared', 'true');
@@ -1741,7 +1774,7 @@
             });
         }
 
-        function clearAllData() {
+        window.clearAllData = function() {
             showConfirmModal("清空全部紀錄", "警告：這將徹底刪除裝置上所有數據！", function() {
                 localStorage.setItem('ev_life_cleared', 'true');
                 saveLocalState([]); renderDashboard(); 
@@ -1753,24 +1786,29 @@
             });
         }
 
-        function closeConfirmModal() {
-            const modal = document.getElementById('confirmModal'), content = document.getElementById('confirmModalContent');
-            modal.classList.add('opacity-0'); content.classList.add('scale-95'); setTimeout(() => modal.classList.add('hidden'), 300);
+        window.closeConfirmModal = function() {
+            if(!DOM.confirmModal || !DOM.confirmModalContent) return;
+            DOM.confirmModal.classList.add('opacity-0'); DOM.confirmModalContent.classList.add('scale-95'); setTimeout(() => DOM.confirmModal.classList.add('hidden'), 300);
         }
 
         function showConfirmModal(title, msg, onConfirm) {
-            document.getElementById('confirmModalTitle').textContent = title; document.getElementById('confirmModalMessage').textContent = msg;
+            if(DOM.confirmModalTitle) DOM.confirmModalTitle.textContent = title; 
+            if(DOM.confirmModalMessage) DOM.confirmModalMessage.textContent = msg;
             activeConfirmCallback = onConfirm;
-            const modal = document.getElementById('confirmModal'), content = document.getElementById('confirmModalContent');
-            modal.classList.remove('hidden'); setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); }, 10);
+            if(DOM.confirmModal && DOM.confirmModalContent) {
+                DOM.confirmModal.classList.remove('hidden'); 
+                setTimeout(() => { DOM.confirmModal.classList.remove('opacity-0'); DOM.confirmModalContent.classList.remove('scale-95'); }, 10);
+            }
         }
         document.getElementById('confirmSuccessBtn').onclick = () => { if(activeConfirmCallback) activeConfirmCallback(); closeConfirmModal(); };
 
         function setupDelegatedEvents() {
-            document.getElementById('recordMobileList').addEventListener('click', (e) => {
-                const editBtn = e.target.closest('.edit-btn'), delBtn = e.target.closest('.delete-btn');
-                if (editBtn) editRecord(editBtn.getAttribute('data-id')); else if (delBtn) confirmDeleteRecord(delBtn.getAttribute('data-id'));
-            });
+            if(DOM.recordMobileList) {
+                DOM.recordMobileList.addEventListener('click', (e) => {
+                    const editBtn = e.target.closest('.edit-btn'), delBtn = e.target.closest('.delete-btn');
+                    if (editBtn) editRecord(editBtn.getAttribute('data-id')); else if (delBtn) confirmDeleteRecord(delBtn.getAttribute('data-id'));
+                });
+            }
         }
 
         function parseRecordSoc(rec) {
@@ -1780,18 +1818,15 @@
                 if (match) { startSoc = parseInt(match[1], 10); endSoc = parseInt(match[2], 10); cleanNote = match[3]; }
             }
 
-            // 處理雲端同步可能產生的時區偏移問題 (將 UTC 轉回本地時區 YYYY-MM-DD)
             let finalDate = rec.date || '';
             if (finalDate.includes('T')) {
                 const d = new Date(finalDate);
-                // 確認這是一個有效日期
                 if (!isNaN(d.getTime())) {
                     const yyyy = d.getFullYear();
                     const mm = String(d.getMonth() + 1).padStart(2, '0');
                     const dd = String(d.getDate()).padStart(2, '0');
                     finalDate = `${yyyy}-${mm}-${dd}`;
                 } else {
-                    // 如果解析失敗，退回使用單純的字串切割
                     finalDate = finalDate.split('T')[0];
                 }
             }
@@ -1811,7 +1846,7 @@
             });
         }
 
-        function switchSettingsTab(tabId) {
+        window.switchSettingsTab = function(tabId) {
             const mainTab = document.getElementById('settings-tab-main'), pwaTab = document.getElementById('settings-tab-pwa');
             const btnMain = document.getElementById('btn-tab-main'), btnPwa = document.getElementById('btn-tab-pwa');
             if (tabId === 'settings-tab-main') {
@@ -1826,17 +1861,20 @@
             }
         }
 
-        function saveSyncSettingsOnly() {
-            AppState.evName = document.getElementById('evNameInput').value || "LUXGEN n7"; localStorage.setItem('ev_life_ev_name', AppState.evName);
-            document.getElementById('topEvName').textContent = AppState.evName; document.getElementById('heroEvName').textContent = AppState.evName;
-            AppState.batteryCapacity = parseFloat(document.getElementById('batteryCapacityInput').value) || 57.7; localStorage.setItem('ev_life_battery_capacity', AppState.batteryCapacity);
-            AppState.initialOdometer = parseFloat(document.getElementById('initialOdometerInput').value) || 0; localStorage.setItem('ev_life_initial_odometer', AppState.initialOdometer);
-            AppState.maintInterval = parseInt(document.getElementById('maintIntervalInput').value) || 20000; localStorage.setItem('ev_life_maint_interval', AppState.maintInterval);
-            AppState.nextMaintDate = document.getElementById('nextMaintDateInput').value; localStorage.setItem('ev_life_next_maint_date', AppState.nextMaintDate);
-            AppState.iceEfficiency = parseFloat(document.getElementById('iceEfficiencyInput').value) || 15.0; localStorage.setItem('ev_life_ice_efficiency', AppState.iceEfficiency);
-            AppState.gasPrice = parseFloat(document.getElementById('gasPriceInput').value) || 30.0; localStorage.setItem('ev_life_gas_price', AppState.gasPrice);
-            AppState.syncUrl = document.getElementById('syncUrlInput').value.trim(); localStorage.setItem('ev_life_sync_url', AppState.syncUrl);
-            AppState.syncToken = document.getElementById('syncTokenInput').value.trim(); localStorage.setItem('ev_life_sync_token', AppState.syncToken);
+        window.saveSyncSettingsOnly = function() {
+            AppState.evName = DOM.evNameInput?.value || "LUXGEN n7"; localStorage.setItem('ev_life_ev_name', AppState.evName);
+            if(DOM.topEvName) DOM.topEvName.textContent = AppState.evName; if(DOM.heroEvName) DOM.heroEvName.textContent = AppState.evName;
+            
+            AppState.batteryCapacity = parseFloat(DOM.batteryCapacityInput?.value) || 57.7; localStorage.setItem('ev_life_battery_capacity', AppState.batteryCapacity);
+            AppState.initialOdometer = parseFloat(DOM.initialOdometerInput?.value) || 0; localStorage.setItem('ev_life_initial_odometer', AppState.initialOdometer);
+            AppState.maintInterval = parseInt(DOM.maintIntervalInput?.value) || 20000; localStorage.setItem('ev_life_maint_interval', AppState.maintInterval);
+            AppState.nextMaintDate = DOM.nextMaintDateInput?.value || ""; localStorage.setItem('ev_life_next_maint_date', AppState.nextMaintDate);
+            AppState.iceEfficiency = parseFloat(DOM.iceEfficiencyInput?.value) || 15.0; localStorage.setItem('ev_life_ice_efficiency', AppState.iceEfficiency);
+            AppState.gasPrice = parseFloat(DOM.gasPriceInput?.value) || 30.0; localStorage.setItem('ev_life_gas_price', AppState.gasPrice);
+            
+            AppState.syncUrl = DOM.syncUrlInput?.value.trim() || ""; localStorage.setItem('ev_life_sync_url', AppState.syncUrl);
+            AppState.syncToken = DOM.syncTokenInput?.value.trim() || ""; localStorage.setItem('ev_life_sync_token', AppState.syncToken);
+            AppState.vehicleApiUrl = DOM.vehicleApiUrlInput?.value.trim() || ""; localStorage.setItem('ev_life_vehicle_api_url', AppState.vehicleApiUrl);
 
             updateSyncUiStatus(); switchTab('home'); renderDashboard(); 
             if (AppState.syncUrl) { syncWithCloud('upload', false); } else { showToast("設定已儲存 💾"); }
@@ -1847,7 +1885,7 @@
             if (!AppState.syncUrl && !localStorage.getItem('ev_life_sync_dismissed')) { if(dot) dot.classList.remove('hidden'); } else { if(dot) dot.classList.add('hidden'); }
         }
 
-        async function syncWithCloud(mode = 'auto', isSilent = false) {
+        window.syncWithCloud = async function(mode = 'auto', isSilent = false) {
             if (!AppState.syncUrl) { if (!isSilent) showToast("請先設定雲端同步網址！", true); return; }
             if (!isSilent) showToast("雲端同步中... 🔄");
             try {
@@ -1882,7 +1920,7 @@
                     }));
                     const configMeta = { 
                         id: "CONFIG_METADATA", date: "", chargeType: "", distance: 0, power: 0, cost: 0, 
-                        note: JSON.stringify({ evName: AppState.evName, batteryCapacity: AppState.batteryCapacity, initialOdometer: AppState.initialOdometer, maintInterval: AppState.maintInterval, nextMaintDate: AppState.nextMaintDate, iceEfficiency: AppState.iceEfficiency, gasPrice: AppState.gasPrice }) 
+                        note: JSON.stringify({ evName: AppState.evName, batteryCapacity: AppState.batteryCapacity, initialOdometer: AppState.initialOdometer, maintInterval: AppState.maintInterval, nextMaintDate: AppState.nextMaintDate, iceEfficiency: AppState.iceEfficiency, gasPrice: AppState.gasPrice, vehicleApiUrl: AppState.vehicleApiUrl }) 
                     };
                     const payloadToPost = { token: AppState.syncToken, records: [...uploadRecords, { id: "SYSTEM_METADATA", note: localLastUpdated.toString() }, configMeta] };
                     const postRes = await fetch(AppState.syncUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payloadToPost) });
@@ -1892,17 +1930,20 @@
                 } else if (shouldDownload) {
                     AppState.records = cloudRecords; localStorage.setItem('ev_life_records', JSON.stringify(AppState.records)); localStorage.setItem('ev_life_last_updated', Date.now().toString()); 
                     if (cloudConfig) {
-                        if (cloudConfig.evName) { AppState.evName = cloudConfig.evName; localStorage.setItem('ev_life_ev_name', AppState.evName); document.getElementById('topEvName').textContent = AppState.evName; document.getElementById('heroEvName').textContent = AppState.evName;}
+                        if (cloudConfig.evName) { AppState.evName = cloudConfig.evName; localStorage.setItem('ev_life_ev_name', AppState.evName); if(DOM.topEvName) DOM.topEvName.textContent = AppState.evName; if(DOM.heroEvName) DOM.heroEvName.textContent = AppState.evName;}
                         if (cloudConfig.batteryCapacity) { AppState.batteryCapacity = parseFloat(cloudConfig.batteryCapacity); localStorage.setItem('ev_life_battery_capacity', AppState.batteryCapacity); }
                         if (cloudConfig.initialOdometer !== undefined) { AppState.initialOdometer = parseFloat(cloudConfig.initialOdometer); localStorage.setItem('ev_life_initial_odometer', AppState.initialOdometer); }
                         if (cloudConfig.maintInterval) { AppState.maintInterval = parseInt(cloudConfig.maintInterval); localStorage.setItem('ev_life_maint_interval', AppState.maintInterval); }
                         if (cloudConfig.nextMaintDate !== undefined) { AppState.nextMaintDate = cloudConfig.nextMaintDate; localStorage.setItem('ev_life_next_maint_date', AppState.nextMaintDate); }
                         if (cloudConfig.iceEfficiency) { AppState.iceEfficiency = parseFloat(cloudConfig.iceEfficiency); localStorage.setItem('ev_life_ice_efficiency', AppState.iceEfficiency); }
                         if (cloudConfig.gasPrice) { AppState.gasPrice = parseFloat(cloudConfig.gasPrice); localStorage.setItem('ev_life_gas_price', AppState.gasPrice); }
-                        if (document.getElementById('maintIntervalInput')) document.getElementById('maintIntervalInput').value = AppState.maintInterval;
-                        if (document.getElementById('nextMaintDateInput')) document.getElementById('nextMaintDateInput').value = AppState.nextMaintDate;
-                        if (document.getElementById('iceEfficiencyInput')) document.getElementById('iceEfficiencyInput').value = AppState.iceEfficiency;
-                        if (document.getElementById('gasPriceInput')) document.getElementById('gasPriceInput').value = AppState.gasPrice;
+                        if (cloudConfig.vehicleApiUrl) { AppState.vehicleApiUrl = cloudConfig.vehicleApiUrl; localStorage.setItem('ev_life_vehicle_api_url', AppState.vehicleApiUrl); }
+                        
+                        if (DOM.maintIntervalInput) DOM.maintIntervalInput.value = AppState.maintInterval;
+                        if (DOM.nextMaintDateInput) DOM.nextMaintDateInput.value = AppState.nextMaintDate;
+                        if (DOM.iceEfficiencyInput) DOM.iceEfficiencyInput.value = AppState.iceEfficiency;
+                        if (DOM.gasPriceInput) DOM.gasPriceInput.value = AppState.gasPrice;
+                        if (DOM.vehicleApiUrlInput) DOM.vehicleApiUrlInput.value = AppState.vehicleApiUrl;
                     }
                     renderDashboard(); if (!isSilent) showToast(`已從雲端下載覆蓋本機 📥`);
                 } else { if (!isSilent) showToast("本機與雲端資料一致 ✿"); }
@@ -1911,7 +1952,6 @@
                 console.error("Sync Error:", error); 
                 if (!isSilent) { 
                     let msg = error.message || "同步失敗，請檢查網路或設定";
-                    // 針對 Failed to fetch 提供更明確的建議
                     if (msg === "Failed to fetch" || msg.includes("NetworkError")) {
                         msg = "連線失敗！請確認 GAS 已發佈為「所有人」，且 URL 結尾為 /exec";
                     }
@@ -1920,10 +1960,10 @@
             }
         }
 
-        function forceDownload() { showConfirmModal("以「試算表」為主？", "將下載雲端資料並「覆蓋」本機記錄。", function() { syncWithCloud('download'); }); }
-        function forceUpload() { showConfirmModal("以「本機」為主？", "將上傳本機資料並「覆蓋」雲端記錄。", function() { syncWithCloud('upload'); }); }
+        window.forceDownload = function() { showConfirmModal("以「試算表」為主？", "將下載雲端資料並「覆蓋」本機記錄。", function() { syncWithCloud('download'); }); }
+        window.forceUpload = function() { showConfirmModal("以「本機」為主？", "將上傳本機資料並「覆蓋」雲端記錄。", function() { syncWithCloud('upload'); }); }
         
-        function exportToCSV() {
+        window.exportToCSV = function() {
             if (AppState.records.length === 0) { showToast("目前沒有紀錄可以匯出喔！", true); return; }
             let csvContent = "日期,紀錄類型,標籤/站點,行駛里程(km),出發SOC(%),抵達SOC(%),消耗電量(度),花費(元),備註\n";
             const exportRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
@@ -1938,12 +1978,11 @@
                 const kwh = AppState.batteryCapacity * (Math.abs((start || 0) - (end || 0)) / 100);
                 const cost = rec.cost || 0;
                 let note = rec.note || '';
-                if (note.includes(',')) note = `"${note}"`; // 處理備註中的逗號
+                if (note.includes(',')) note = `"${note}"`; 
                 
                 csvContent += `${date},${type},${tag},${dist},${start},${end},${kwh.toFixed(2)},${cost},${note}\n`;
             });
 
-            // 加入 BOM 解決 Excel 中文亂碼問題
             const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
             const blob = new Blob([bom, csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
@@ -1957,19 +1996,20 @@
             showToast("成功匯出 CSV 報表！📊");
         }
 
-        function generateManifestContent() {
+        window.generateManifestContent = function() {
             return JSON.stringify({ "name": "Ev Life - 純電之旅", "short_name": "Ev Life", "start_url": "./index.html", "display": "standalone", "background_color": "#111827", "theme_color": "#0d9488", "icons": [ { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" }, { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" } ] }, null, 4);
         }
 
-        function generateSWContent() {
+        window.generateSWContent = function() {
             return `const CACHE_NAME = 'ev-life-cache-v1'; const ASSETS_TO_CACHE = ['./', './index.html', './manifest.json', './splash.png']; self.addEventListener('install', event => { event.waitUntil(caches.open(CACHE_NAME).then(cache => { return cache.addAll(ASSETS_TO_CACHE); })); }); self.addEventListener('fetch', event => { event.respondWith(caches.match(event.request).then(response => { return response || fetch(event.request); })); });`;
         }
 
-        function downloadFile(filename, content) {
+        window.downloadFile = function(filename, content) {
             const blob = new Blob([content], { type: 'text/plain;charset=utf-8' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); showToast(`已下載 ${filename} 📥`);
         }
 
-        function triggerPwaInstall() { if (!deferredPrompt) { showToast("裝置不支援或已安裝。🐾"); return; } deferredPrompt.prompt(); deferredPrompt.userChoice.then((res) => { if (res.outcome === 'accepted') { showToast("感謝安裝！🎉"); document.getElementById('pwaInstallBtn').classList.add('hidden'); } deferredPrompt = null; }); }
+        window.triggerPwaInstall = function() { if (!deferredPrompt) { showToast("裝置不支援或已安裝。🐾"); return; } deferredPrompt.prompt(); deferredPrompt.userChoice.then((res) => { if (res.outcome === 'accepted') { showToast("感謝安裝！🎉"); document.getElementById('pwaInstallBtn').classList.add('hidden'); } deferredPrompt = null; }); }
+        
         function updatePwaDiagnostic() {
             const isHttps = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
             const dH = document.getElementById('diag-https'), dS = document.getElementById('diag-sw'), dN = document.getElementById('diag-network');
@@ -1980,3 +2020,4 @@
     </script>
 </body>
 </html>
+```eof
