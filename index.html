@@ -322,34 +322,6 @@
                         </div>
                     </div>
 
-                    <!-- 輪胎調位 -->
-                    <div class="mb-3">
-                        <div class="flex justify-between items-end mb-1">
-                            <span class="text-[11px] font-bold text-slate-600 dark:text-slate-300">輪胎調位 (每 10,000km)</span>
-                            <div class="text-right">
-                                <span id="tireRemainingText" class="text-xs font-black font-mono text-amber-500">0</span>
-                                <span class="text-[9px] text-slate-500 font-bold">km 剩餘</span>
-                            </div>
-                        </div>
-                        <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden flex">
-                            <div id="tireProgressBar" class="bg-amber-500 h-1.5 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
-                        </div>
-                    </div>
-
-                    <!-- 冷氣濾網 -->
-                    <div class="mb-2">
-                        <div class="flex justify-between items-end mb-1">
-                            <span class="text-[11px] font-bold text-slate-600 dark:text-slate-300">冷氣濾網 (每 20,000km)</span>
-                            <div class="text-right">
-                                <span id="filterRemainingText" class="text-xs font-black font-mono text-teal-500">0</span>
-                                <span class="text-[9px] text-slate-500 font-bold">km 剩餘</span>
-                            </div>
-                        </div>
-                        <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden flex">
-                            <div id="filterProgressBar" class="bg-teal-500 h-1.5 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
-                        </div>
-                    </div>
-
                     <div id="maintDateAlertContainer" class="hidden mt-3 pt-2 border-t border-slate-100 dark:border-slate-700">
                         <div class="flex items-center justify-between">
                             <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400">預計下次進廠: <span id="maintTargetDateStr" class="font-mono text-slate-700 dark:text-slate-300"></span></span>
@@ -411,7 +383,7 @@
                             <div class="grid grid-cols-3 gap-2">
                                 <input type="text" id="inputTag" placeholder="手動或自動帶入站點..." class="col-span-2 w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
                                 <div class="relative">
-                                    <input type="number" id="inputTemperature" placeholder="氣溫" class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-mono font-bold focus:outline-none focus:border-sky-400 transition-colors">
+                                    <input type="number" step="0.1" id="inputTemperature" placeholder="氣溫" class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-mono font-bold focus:outline-none focus:border-sky-400 transition-colors">
                                     <div class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">°C</div>
                                 </div>
                             </div>
