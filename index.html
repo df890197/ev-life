@@ -817,7 +817,6 @@
         let deferredPrompt = null;
         let chartRenderTimer = null; 
 
-        // 訊息佇列系統 (Queue)
         let toastQueue = [];
         let isToastShowing = false;
 
@@ -898,7 +897,7 @@
                         const parsed = parseFloat(val);
                         AppState[stateKey] = !isNaN(parsed) ? parsed : defaultValue;
                     } else {
-                        AppState[stateKey] = val; // String values just get assigned directly
+                        AppState[stateKey] = val;
                     }
                 } else {
                     AppState[stateKey] = defaultValue;
@@ -946,7 +945,6 @@
             if (DOM.inputDate) DOM.inputDate.value = getLocalDateString();
         }
 
-        // 具備排隊系統的 Toast
         window.showToast = function(message, isError=false, duration=2200) {
             const toastEl = DOM.toast;
             if (!toastEl) return;
@@ -1649,7 +1647,7 @@
                     <div class="flex justify-between items-center mb-3 border-b border-slate-50 dark:border-slate-800/50 pb-2">
                         <div class="flex items-center flex-wrap gap-2">
                             <span class="text-xs font-black font-mono">${safeDate}</span>
-                            <span class="px-2 py-0.5 rounded-md text-[10px] font-black ${typeStyle}">${safeChargeType}</span>
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-black ${typeStyle} flex items-center justify-center">${safeChargeType}</span>
                             ${districtHtml}
                             ${tagHtml}
                             ${tempHtml}
@@ -2110,6 +2108,25 @@
                 const cacheBuster = urlWithToken.includes('?') ? '&' : '?';
                 urlWithToken += `${cacheBuster}_t=${Date.now()}`;
 
+                if (mode === 'upload') {
+                    let localLastUpdated = Date.now();
+                    localStorage.setItem('ev_life_last_updated', localLastUpdated.toString());
+                    const uploadRecords = AppState.records.map(rec => ({ 
+                        id: rec.id, date: rec.date, chargeType: rec.chargeType, distance: rec.distance, power: rec.power, cost: rec.cost, 
+                        note: (rec.startSoc !== undefined && rec.endSoc !== undefined) ? `[SOC:${rec.startSoc}-${rec.endSoc}] ${rec.note || ''}`.trim() : (rec.note || ''), tag: rec.tag || '', district: rec.district || '', temp: rec.temp
+                    }));
+                    const configMeta = { 
+                        id: "CONFIG_METADATA", date: "", chargeType: "", distance: 0, power: 0, cost: 0, 
+                        note: JSON.stringify({ evName: AppState.evName, batteryCapacity: AppState.batteryCapacity, initialOdometer: AppState.initialOdometer, maintInterval: AppState.maintInterval, nextMaintDate: AppState.nextMaintDate, iceEfficiency: AppState.iceEfficiency, gasPrice: AppState.gasPrice }) 
+                    };
+                    const payloadToPost = { token: AppState.syncToken, records: [...uploadRecords, { id: "SYSTEM_METADATA", note: localLastUpdated.toString() }, configMeta] };
+                    const postRes = await fetch(urlWithToken, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payloadToPost) });
+                    const postResult = await postRes.json();
+                    if (postResult.error) throw new Error(postResult.error === "Unauthorized" ? "API Token 錯誤，上傳遭拒絕" : postResult.error);
+                    if (!isSilent) showToast(`同步成功！已推播至雲端 ☁️`);
+                    return;
+                }
+
                 const getRes = await fetch(urlWithToken); if (!getRes.ok) throw new Error("取得資料失敗");
                 let cloudPayload = await getRes.json();
                 if (cloudPayload.error) throw new Error(cloudPayload.error === "Unauthorized" ? "API Token 錯誤，拒絕存取" : cloudPayload.error);
@@ -2122,30 +2139,16 @@
                     else if (item) cloudRecords.push(parseRecordSoc(item));
                 });
                 let localLastUpdated = parseInt(localStorage.getItem('ev_life_last_updated')) || 0;
-                let shouldUpload = false, shouldDownload = false;
+                let shouldDownload = false;
 
-                if (mode === 'upload') shouldUpload = true; else if (mode === 'download') shouldDownload = true;
-                else {
+                if (mode === 'download') {
+                    shouldDownload = true;
+                } else if (mode === 'auto') {
                     if (localLastUpdated > cloudLastUpdated && AppState.records.length === 0 && cloudRecords.length > 0) localLastUpdated = 0;
-                    if (localLastUpdated > cloudLastUpdated) shouldUpload = true; else if (cloudLastUpdated > localLastUpdated) shouldDownload = true;
+                    if (cloudLastUpdated > localLastUpdated) shouldDownload = true;
                 }
 
-                if (shouldUpload) {
-                    if (mode === 'upload') { localLastUpdated = Date.now(); localStorage.setItem('ev_life_last_updated', localLastUpdated.toString()); }
-                    const uploadRecords = AppState.records.map(rec => ({ 
-                        id: rec.id, date: rec.date, chargeType: rec.chargeType, distance: rec.distance, power: rec.power, cost: rec.cost, 
-                        note: (rec.startSoc !== undefined && rec.endSoc !== undefined) ? `[SOC:${rec.startSoc}-${rec.endSoc}] ${rec.note || ''}`.trim() : (rec.note || ''), tag: rec.tag || '', district: rec.district || '', temp: rec.temp
-                    }));
-                    const configMeta = { 
-                        id: "CONFIG_METADATA", date: "", chargeType: "", distance: 0, power: 0, cost: 0, 
-                        note: JSON.stringify({ evName: AppState.evName, batteryCapacity: AppState.batteryCapacity, initialOdometer: AppState.initialOdometer, maintInterval: AppState.maintInterval, nextMaintDate: AppState.nextMaintDate, iceEfficiency: AppState.iceEfficiency, gasPrice: AppState.gasPrice }) 
-                    };
-                    const payloadToPost = { token: AppState.syncToken, records: [...uploadRecords, { id: "SYSTEM_METADATA", note: localLastUpdated.toString() }, configMeta] };
-                    const postRes = await fetch(AppState.syncUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payloadToPost) });
-                    const postResult = await postRes.json();
-                    if (postResult.error) throw new Error(postResult.error === "Unauthorized" ? "API Token 錯誤，上傳遭拒絕" : postResult.error);
-                    if (!isSilent) showToast(`同步成功！已推播至雲端 ☁️`);
-                } else if (shouldDownload) {
+                if (shouldDownload) {
                     AppState.records = cloudRecords; localStorage.setItem('ev_life_records', JSON.stringify(AppState.records)); localStorage.setItem('ev_life_last_updated', Date.now().toString()); 
                     if (cloudConfig) {
                         if (cloudConfig.evName) { AppState.evName = cloudConfig.evName; localStorage.setItem('ev_life_ev_name', AppState.evName); if(DOM.topEvName) DOM.topEvName.textContent = AppState.evName; if(DOM.heroEvName) DOM.heroEvName.textContent = AppState.evName;}
@@ -2162,7 +2165,9 @@
                         if (DOM.gasPriceInput) DOM.gasPriceInput.value = AppState.gasPrice;
                     }
                     renderDashboard(); if (!isSilent) showToast(`已從雲端下載覆蓋本機 📥`);
-                } else { if (!isSilent) showToast("本機與雲端資料一致 ✿"); }
+                } else if (mode === 'auto') { 
+                    if (!isSilent) showToast("本機與雲端資料一致 ✿"); 
+                }
                 updateSyncUiStatus(); 
             } catch (error) { 
                 console.error("Sync Error:", error); 
