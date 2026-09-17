@@ -556,16 +556,6 @@
                 </div>
                 <div class="p-6 space-y-4">
                     <div id="settings-tab-main" class="space-y-4">
-                        
-                        <!-- 🚘 預留 API 端點 -->
-                        <div class="bg-slate-50 dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4 mb-4">
-                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 flex justify-between items-center">
-                                <span>自建車輛 API 端點 (實時讀取 SOC)</span>
-                                <button type="button" onclick="fetchLiveVehicleData()" class="px-2 py-1 bg-amber-100 text-amber-700 rounded text-[10px] active:scale-95 transition font-bold">測試連線</button>
-                            </label>
-                            <input type="url" id="vehicleApiUrlInput" placeholder="http://192.168.x.x:3000/api/n7/status" class="w-full px-4 py-3 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono focus:outline-none focus:border-amber-400 transition-colors">
-                            <p class="text-[10px] text-slate-400 mt-1 font-bold">若您有自建代理伺服器攔截車聯網資料，可在此輸入端點。新增紀錄時將自動獲取電量。</p>
-                        </div>
 
                         <div class="bg-slate-50 dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
                             <span class="text-xs font-black text-slate-500 dark:text-slate-400">🚗 愛車參數設定</span>
@@ -758,7 +748,6 @@
             gasPrice: 30.0,
             syncUrl: "",
             syncToken: "",
-            vehicleApiUrl: "", // 預留自建車聯網 API
             editingRecordId: null,
             currentChartFilter: 'all',
             currentMonthFilter: 'all',
@@ -810,7 +799,7 @@
              'inputStartSocNum', 'sliderStartSoc', 'inputEndSocNum', 'sliderEndSoc', 'powerHintText', 'driveInputsArea', 'powerHintContainer', 
              'tagInputArea', 'costLabel', 'startSocLabel', 'endSocLabel', 'recordMobileList', 'noDataPlaceholder', 'homeStatsContainer', 
              'onboardingCard', 'confirmModal', 'confirmModalContent', 'confirmModalTitle', 'confirmModalMessage', 'appSplashScreen', 
-             'vehicleApiUrlInput', 'evNameInput', 'batteryCapacityInput', 'initialOdometerInput', 'maintIntervalInput', 'iceEfficiencyInput', 
+             'evNameInput', 'batteryCapacityInput', 'initialOdometerInput', 'maintIntervalInput', 'iceEfficiencyInput', 
              'gasPriceInput', 'nextMaintDateInput', 'syncUrlInput', 'syncTokenInput', 'topEvName', 'heroEvName', 'formTitle', 'cancelEditBtn', 
              'recordForm', 'monthFilterContainer', 'monthFilterContainer_analysis', 'statTotalKm', 'statAvgEfficiency', 'statFuelSavings', 
              'savingsBaseText', 'statCo2Savings', 'statTreesPlanted', 'maintIntervalText', 'maintRemainingText', 'maintProgressBar', 
@@ -882,7 +871,6 @@
 
             bindSetting('syncUrl', 'syncUrlInput', "");
             bindSetting('syncToken', 'syncTokenInput', "");
-            bindSetting('vehicleApiUrl', 'vehicleApiUrlInput', "");
             
             AppState.evName = localStorage.getItem('ev_life_ev_name') || "LUXGEN n7";
             if (DOM.evNameInput) DOM.evNameInput.value = AppState.evName;
@@ -919,28 +907,6 @@
             }
 
             if (DOM.inputDate) DOM.inputDate.value = getLocalDateString();
-        }
-
-        // 實時車輛 API 整合 (用於自架儀表板擷取資料)
-        window.fetchLiveVehicleData = async function() {
-            const apiUrl = DOM.vehicleApiUrlInput ? DOM.vehicleApiUrlInput.value : AppState.vehicleApiUrl;
-            if (!apiUrl) { showToast("請先輸入 API 端點 🔌", true); return; }
-            try {
-                showToast("連線中...");
-                const res = await fetch(apiUrl);
-                const data = await res.json();
-                if (data && data.soc) {
-                    if (DOM.inputStartSocNum) DOM.inputStartSocNum.value = data.soc;
-                    if (DOM.sliderStartSoc) DOM.sliderStartSoc.value = data.soc;
-                    updateConvertedPowerHint();
-                    showToast("已同步車輛即時電池數據 ⚡");
-                } else {
-                    showToast("未取得 SOC 資料", true);
-                }
-            } catch (e) {
-                console.warn("API 獲取失敗", e);
-                showToast("連線失敗，請檢查網路或端點 ⚠️", true);
-            }
         }
 
         window.showToast = function(message, isError=false, duration=2500) {
@@ -1444,7 +1410,6 @@
                         remMaint, progMaint, remTire, progTire, remFilter, progFilter);
         }
 
-        // ====== 擴充功能 2：預測器進階版 (覆寫舊版) ======
         window.calculatePrediction = function() {
             const distInput = document.getElementById('predictDistance').value;
             const resultBox = document.getElementById('predictionResult');
@@ -1994,7 +1959,6 @@
             
             AppState.syncUrl = DOM.syncUrlInput?.value.trim() || ""; localStorage.setItem('ev_life_sync_url', AppState.syncUrl);
             AppState.syncToken = DOM.syncTokenInput?.value.trim() || ""; localStorage.setItem('ev_life_sync_token', AppState.syncToken);
-            AppState.vehicleApiUrl = DOM.vehicleApiUrlInput?.value.trim() || ""; localStorage.setItem('ev_life_vehicle_api_url', AppState.vehicleApiUrl);
 
             updateSyncUiStatus(); switchTab('home'); renderDashboard(); 
             if (AppState.syncUrl) { syncWithCloud('upload', false); } else { showToast("設定已儲存 💾"); }
@@ -2044,7 +2008,7 @@
                     }));
                     const configMeta = { 
                         id: "CONFIG_METADATA", date: "", chargeType: "", distance: 0, power: 0, cost: 0, 
-                        note: JSON.stringify({ evName: AppState.evName, batteryCapacity: AppState.batteryCapacity, initialOdometer: AppState.initialOdometer, maintInterval: AppState.maintInterval, nextMaintDate: AppState.nextMaintDate, iceEfficiency: AppState.iceEfficiency, gasPrice: AppState.gasPrice, vehicleApiUrl: AppState.vehicleApiUrl }) 
+                        note: JSON.stringify({ evName: AppState.evName, batteryCapacity: AppState.batteryCapacity, initialOdometer: AppState.initialOdometer, maintInterval: AppState.maintInterval, nextMaintDate: AppState.nextMaintDate, iceEfficiency: AppState.iceEfficiency, gasPrice: AppState.gasPrice }) 
                     };
                     const payloadToPost = { token: AppState.syncToken, records: [...uploadRecords, { id: "SYSTEM_METADATA", note: localLastUpdated.toString() }, configMeta] };
                     const postRes = await fetch(AppState.syncUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payloadToPost) });
@@ -2061,13 +2025,11 @@
                         if (cloudConfig.nextMaintDate !== undefined) { AppState.nextMaintDate = cloudConfig.nextMaintDate; localStorage.setItem('ev_life_next_maint_date', AppState.nextMaintDate); }
                         if (cloudConfig.iceEfficiency) { AppState.iceEfficiency = parseFloat(cloudConfig.iceEfficiency); localStorage.setItem('ev_life_ice_efficiency', AppState.iceEfficiency); }
                         if (cloudConfig.gasPrice) { AppState.gasPrice = parseFloat(cloudConfig.gasPrice); localStorage.setItem('ev_life_gas_price', AppState.gasPrice); }
-                        if (cloudConfig.vehicleApiUrl) { AppState.vehicleApiUrl = cloudConfig.vehicleApiUrl; localStorage.setItem('ev_life_vehicle_api_url', AppState.vehicleApiUrl); }
                         
                         if (DOM.maintIntervalInput) DOM.maintIntervalInput.value = AppState.maintInterval;
                         if (DOM.nextMaintDateInput) DOM.nextMaintDateInput.value = AppState.nextMaintDate;
                         if (DOM.iceEfficiencyInput) DOM.iceEfficiencyInput.value = AppState.iceEfficiency;
                         if (DOM.gasPriceInput) DOM.gasPriceInput.value = AppState.gasPrice;
-                        if (DOM.vehicleApiUrlInput) DOM.vehicleApiUrlInput.value = AppState.vehicleApiUrl;
                     }
                     renderDashboard(); if (!isSilent) showToast(`已從雲端下載覆蓋本機 📥`);
                 } else { if (!isSilent) showToast("本機與雲端資料一致 ✿"); }
