@@ -798,7 +798,8 @@
         let costDistributionChartInstance = null;
         let activeConfirmCallback = null;
         let deferredPrompt = null;
-        let toastTimeout = null;
+        let currentToastTimeout = null;
+        let isAnimatingOut = false;
         let chartRenderTimer = null; // 用於防抖
 
         const escapeHTML = (str) => typeof str !== 'string' ? '' : str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
@@ -942,18 +943,49 @@
             }
         }
 
-        function showToast(message, isError=false, duration=2500) {
-            if (!DOM.toast) return;
-            DOM.toastMessage.textContent = message;
-            DOM.toastIcon.textContent = isError ? "⚠️" : "🐾";
-            DOM.toast.className = `fixed top-[70px] left-1/2 -translate-x-1/2 z-[120] transform translate-y-0 opacity-100 visible pointer-events-auto transition-all duration-300 ${isError?'bg-rose-500':'bg-slate-900/95 dark:bg-amber-500'} text-white ${isError?'':'dark:text-slate-900'} px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 text-xs font-bold whitespace-nowrap border border-white/10`;
-            
-            if (toastTimeout) clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => {
-                DOM.toast.classList.replace('translate-y-0', '-translate-y-10');
-                DOM.toast.classList.replace('opacity-100', 'opacity-0');
-                DOM.toast.classList.add('invisible', 'pointer-events-none');
-            }, duration);
+        window.showToast = function(message, isError=false, duration=2500) {
+            const toastEl = DOM.toast;
+            const msgEl = DOM.toastMessage;
+            const iconEl = DOM.toastIcon;
+            if (!toastEl || !msgEl || !iconEl) return;
+
+            const displayNewToast = () => {
+                msgEl.textContent = message;
+                iconEl.textContent = isError ? "⚠️" : "🐾";
+
+                const baseClasses = `fixed top-[70px] left-1/2 -translate-x-1/2 z-[120] transform transition-all duration-300 text-white px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 text-xs font-bold whitespace-nowrap border border-white/10`;
+                const colorClasses = isError ? 'bg-rose-500' : 'bg-slate-900/95 dark:bg-amber-500 dark:text-slate-900';
+
+                toastEl.className = `${baseClasses} ${colorClasses} translate-y-0 opacity-100 visible pointer-events-auto`;
+                isAnimatingOut = false;
+
+                if (currentToastTimeout) clearTimeout(currentToastTimeout);
+                currentToastTimeout = setTimeout(() => {
+                    hideToast();
+                }, duration);
+            };
+
+            const hideToast = (callback) => {
+                isAnimatingOut = true;
+                toastEl.classList.replace('translate-y-0', '-translate-y-10');
+                toastEl.classList.replace('opacity-100', 'opacity-0');
+                
+                setTimeout(() => {
+                    toastEl.classList.add('invisible', 'pointer-events-none');
+                    if (callback) callback();
+                }, 300); // 等待向上收起的 CSS 動畫完成
+            };
+
+            const isVisible = toastEl.classList.contains('opacity-100');
+
+            if (isVisible && !isAnimatingOut) {
+                if (currentToastTimeout) clearTimeout(currentToastTimeout);
+                hideToast(displayNewToast); // 先向上收起舊的，再顯示新的
+            } else if (isAnimatingOut) {
+                setTimeout(displayNewToast, 300); // 稍微排隊等待
+            } else {
+                displayNewToast(); // 直接顯示
+            }
         }
 
         function setupThemeIcons() {
@@ -1979,6 +2011,10 @@
             try {
                 let urlWithToken = AppState.syncUrl;
                 if (AppState.syncToken) { const separator = urlWithToken.includes('?') ? '&' : '?'; urlWithToken += `${separator}token=${encodeURIComponent(AppState.syncToken)}`; }
+
+                // 加上時間戳，強制破解瀏覽器 GET 快取，確保每次載入都能抓到雲端最新資料
+                const cacheBuster = urlWithToken.includes('?') ? '&' : '?';
+                urlWithToken += `${cacheBuster}_t=${Date.now()}`;
 
                 const getRes = await fetch(urlWithToken); if (!getRes.ok) throw new Error("取得資料失敗");
                 let cloudPayload = await getRes.json();
