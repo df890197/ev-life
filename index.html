@@ -261,7 +261,6 @@
                         <button onclick="calculatePrediction()" class="bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-black shadow-sm active:scale-95 transition-transform flex-shrink-0">預測</button>
                     </div>
                     
-                    <!-- 新增：環境變數開關 -->
                     <div class="flex items-center gap-4 mt-3 mb-1">
                         <label class="flex items-center gap-1.5 cursor-pointer">
                             <input type="checkbox" id="toggleHighway" class="w-4 h-4 rounded text-indigo-500 focus:ring-indigo-500 bg-white border-slate-300 dark:border-slate-600 dark:bg-slate-700">
@@ -367,11 +366,24 @@
                         
                         <div id="tagInputArea">
                             <div class="flex justify-between items-end mb-1.5">
-                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 block">站點 / 標籤 (選填)</label>
-                                <button type="button" onclick="autoLocateAndWeather()" class="text-[10px] bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-400 px-2 py-1 rounded shadow-sm font-bold active:scale-95 transition-transform flex items-center gap-1">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 block">站點位置 (選填)</label>
+                                <button type="button" onclick="autoLocateAndWeather()" class="text-[10px] bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-400 px-2.5 py-1 rounded-lg shadow-sm font-bold active:scale-95 transition-transform flex items-center gap-1">
                                     📍 自動定位與天氣
                                 </button>
                             </div>
+                            
+                            <!-- 新增獨立的地區與站點欄位 -->
+                            <div class="grid grid-cols-2 gap-2 mb-2">
+                                <div class="relative">
+                                    <div class="absolute left-3 top-1/2 -translate-y-1/2 text-xs">📍</div>
+                                    <input type="text" id="inputDistrict" placeholder="地區 (例:中壢區)" class="w-full pl-8 pr-3 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
+                                </div>
+                                <div class="relative">
+                                    <div class="absolute left-3 top-1/2 -translate-y-1/2 text-xs">⚡</div>
+                                    <input type="text" id="inputTag" placeholder="站點 (例:U-POWER)" class="w-full pl-8 pr-3 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
+                                </div>
+                            </div>
+
                             <div class="flex overflow-x-auto gap-2 pb-2 no-scrollbar mb-1">
                                 <button type="button" onclick="setTag('U-POWER')" class="flex-shrink-0 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold border border-slate-200 dark:border-slate-700 active:scale-95 transition-transform">⚡ U-POWER</button>
                                 <button type="button" onclick="setTag('EVOASIS')" class="flex-shrink-0 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold border border-slate-200 dark:border-slate-700 active:scale-95 transition-transform">⚡ EVOASIS</button>
@@ -380,12 +392,10 @@
                                 <button type="button" onclick="setTag('住家慢充')" class="flex-shrink-0 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold border border-slate-200 dark:border-slate-700 active:scale-95 transition-transform">🏠 住家慢充</button>
                                 <button type="button" onclick="setTag('Tesla')" class="flex-shrink-0 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold border border-slate-200 dark:border-slate-700 active:scale-95 transition-transform">🔋 Tesla</button>
                             </div>
-                            <div class="grid grid-cols-3 gap-2">
-                                <input type="text" id="inputTag" placeholder="手動或自動帶入站點..." class="col-span-2 w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
-                                <div class="relative">
-                                    <input type="number" step="0.1" id="inputTemperature" placeholder="氣溫" class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-mono font-bold focus:outline-none focus:border-sky-400 transition-colors">
-                                    <div class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">°C</div>
-                                </div>
+                            
+                            <div class="relative">
+                                <input type="number" step="0.1" id="inputTemperature" placeholder="氣溫 (選填)" class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-mono font-bold focus:outline-none focus:border-sky-400 transition-colors">
+                                <div class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">°C</div>
                             </div>
                         </div>
 
@@ -686,6 +696,22 @@
 
     </main>
 
+    <!-- 📍 站點多選彈出視窗 (Modal) -->
+    <div id="stationSelectModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[115] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white dark:bg-[#1e293b] rounded-[2rem] p-6 shadow-2xl max-w-sm w-full mx-4 transform scale-95 transition-all duration-300 border border-slate-100 dark:border-slate-700">
+            <div class="flex items-center justify-between mb-3 border-b border-slate-100 dark:border-slate-700/60 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-base">📍</span>
+                    <h3 class="text-sm font-black text-slate-800 dark:text-white">選擇附近站點</h3>
+                </div>
+                <span id="modalDistrictBadge" class="text-[10px] font-black px-2 py-0.5 rounded-md bg-sky-100 dark:bg-sky-900/40 text-sky-600 dark:text-sky-300"></span>
+            </div>
+            <p class="text-[11px] font-bold text-slate-400 mb-3">在您附近偵測到多個充電站，請選擇：</p>
+            <div id="stationOptionsList" class="space-y-2 max-h-56 overflow-y-auto no-scrollbar mb-4"></div>
+            <button onclick="closeStationModal()" class="w-full py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-400">取消</button>
+        </div>
+    </div>
+
     <nav class="fixed left-4 right-4 z-50 rounded-[2rem] ios-27-glass px-2 floating-nav">
         <div class="flex justify-around items-center h-16 max-w-md mx-auto relative" id="nav-container">
             
@@ -761,12 +787,17 @@
             get CO2_SAVED_PER_KM() { return this.CO2_ICE_PER_KM - this.CO2_EV_PER_KM; }
         };
 
+        // 常用充電站清單（可持續擴充經緯度）
         const CHARGE_STATIONS = [
             { name: "U-POWER 桃園經國站", lat: 25.029, lng: 121.294 },
             { name: "U-POWER 中壢青埔站", lat: 25.009, lng: 121.214 },
             { name: "EVOASIS 桃園中壢站", lat: 24.965, lng: 121.224 },
             { name: "EVOASIS 台北信義站", lat: 25.033, lng: 121.564 },
             { name: "特爾電力 桃園機場站", lat: 25.077, lng: 121.232 },
+            // 國道服務區常有多品牌充電站範例：
+            { name: "特爾電力 國一湖口服務區南向", lat: 24.871, lng: 121.011 },
+            { name: "iCharging 國一湖口服務區南向", lat: 24.870, lng: 121.010 },
+            { name: "U-POWER 關西服務區", lat: 24.802, lng: 121.178 }
         ];
 
         function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
@@ -793,7 +824,7 @@
         const getLocalDateString = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().split('T')[0]; };
 
         function cacheDOMNodes() {
-            ['toast', 'toastMessage', 'toastIcon', 'inputDate', 'inputChargeType', 'inputDistance', 'inputCost', 'inputNote', 'inputTag', 'inputTemperature', 
+            ['toast', 'toastMessage', 'toastIcon', 'inputDate', 'inputChargeType', 'inputDistance', 'inputCost', 'inputNote', 'inputTag', 'inputDistrict', 'inputTemperature', 
              'inputStartSocNum', 'sliderStartSoc', 'inputEndSocNum', 'sliderEndSoc', 'powerHintText', 'driveInputsArea', 'powerHintContainer', 
              'tagInputArea', 'costLabel', 'startSocLabel', 'endSocLabel', 'recordMobileList', 'noDataPlaceholder', 'homeStatsContainer', 
              'onboardingCard', 'confirmModal', 'confirmModalContent', 'confirmModalTitle', 'confirmModalMessage', 'appSplashScreen', 
@@ -866,7 +897,7 @@
                         const parsed = parseFloat(val);
                         AppState[stateKey] = !isNaN(parsed) ? parsed : defaultValue;
                     } else {
-                        AppState[stateKey] = val; // String values just get assigned directly
+                        AppState[stateKey] = val;
                     }
                 } else {
                     AppState[stateKey] = defaultValue;
@@ -914,11 +945,10 @@
             if (DOM.inputDate) DOM.inputDate.value = getLocalDateString();
         }
 
-        // 全新改良版：具備排隊系統的 Toast
-        window.showToast = function(message, isError=false, duration=2500) {
+        // 具備排隊系統的 Toast
+        window.showToast = function(message, isError=false, duration=2200) {
             const toastEl = DOM.toast;
             if (!toastEl) return;
-            
             toastQueue.push({message, isError, duration});
             processToastQueue();
         }
@@ -939,22 +969,19 @@
             const baseClasses = `fixed top-[70px] left-1/2 -translate-x-1/2 z-[120] transform transition-all duration-300 text-white px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 text-xs font-bold whitespace-nowrap border border-white/10`;
             const colorClasses = isError ? 'bg-rose-500' : 'bg-slate-900/95 dark:bg-amber-500 dark:text-slate-900';
 
-            // 進場動畫
             toastEl.className = `${baseClasses} ${colorClasses} translate-y-0 opacity-100 visible pointer-events-auto`;
             
             setTimeout(() => {
-                // 退場動畫
                 toastEl.classList.replace('translate-y-0', '-translate-y-10');
                 toastEl.classList.replace('opacity-100', 'opacity-0');
                 
                 setTimeout(() => {
                     toastEl.classList.add('invisible', 'pointer-events-none');
                     isToastShowing = false;
-                    // 如果還有排隊的訊息，稍微等待一下再拉出下一條
                     if (toastQueue.length > 0) {
                         setTimeout(processToastQueue, 150);
                     }
-                }, 300); // 等待退場的 CSS 動畫跑完
+                }, 300);
             }, duration);
         }
 
@@ -1169,46 +1196,82 @@
             if(DOM.inputTag) DOM.inputTag.value = tagName;
         }
 
-        // GPS 自動定位與天氣 API
+        // ====== 升級版：GPS 自動定位、行政區辨識、多站點選擇與天氣 API ======
+        let tempNearbyStations = [];
+        let tempCurrentDistrict = "";
+
         window.autoLocateAndWeather = function() {
             if (!navigator.geolocation) {
                 showToast("瀏覽器不支援定位功能", true);
                 return;
             }
             
-            // 加入第三個參數: 持續時間改短為 1.5 秒
-            showToast("📍 定位與獲取天氣中...", false, 1500); 
+            showToast("📍 定位與獲取天氣中...", false, 1500);
             
             navigator.geolocation.getCurrentPosition(async (position) => {
                 const lat = position.coords.latitude;
                 const lng = position.coords.longitude;
                 
-                // 1. 比對最近的充電站 (搜尋半徑設為 2.5 公里)
-                let nearestStation = null;
-                let minDistance = 2.5; 
+                // 1. 搜尋半徑 3 公里內的所有充電站並依距離排序
+                const SEARCH_RADIUS_KM = 3.0;
+                tempNearbyStations = [];
                 
                 CHARGE_STATIONS.forEach(station => {
                     const dist = getDistanceFromLatLonInKm(lat, lng, station.lat, station.lng);
-                    if (dist < minDistance) {
-                        minDistance = dist;
-                        nearestStation = station.name;
+                    if (dist <= SEARCH_RADIUS_KM) {
+                        tempNearbyStations.push({
+                            name: station.name,
+                            distanceKm: dist,
+                            distanceM: Math.round(dist * 1000)
+                        });
                     }
                 });
                 
-                if (nearestStation && document.getElementById('inputTag')) {
-                    document.getElementById('inputTag').value = nearestStation;
-                    showToast(`已自動帶入站點: ${nearestStation}`, false, 2000);
-                } else {
-                    showToast("附近 2.5km 內無內建站點", false, 2000);
+                tempNearbyStations.sort((a, b) => a.distanceKm - b.distanceKm);
+
+                // 2. 反向地理編碼：獲取當前行政區 (如：桃園市中壢區)
+                tempCurrentDistrict = "";
+                try {
+                    const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=14&addressdetails=1&accept-language=zh-TW`, {
+                        headers: { 'User-Agent': 'EvLifePWA/2.0' }
+                    });
+                    const geoData = await geoRes.json();
+                    if (geoData && geoData.address) {
+                        const city = geoData.address.city || geoData.address.county || "";
+                        const district = geoData.address.suburb || geoData.address.town || geoData.address.district || "";
+                        tempCurrentDistrict = `${city}${district}`.trim();
+                    }
+                } catch (e) {
+                    console.warn("反向地理編碼失敗", e);
                 }
 
-                // 2. 呼叫 Open-Meteo API 獲取當前氣溫
+                // 3. 判斷多站點還是單站點
+                if (tempNearbyStations.length > 1) {
+                    // 有多個站點 -> 彈出清單供使用者選擇
+                    openStationModal(tempNearbyStations, tempCurrentDistrict);
+                } else if (tempNearbyStations.length === 1) {
+                    // 剛好只有一個站點 -> 直接帶入
+                    const single = tempNearbyStations[0];
+                    if (DOM.inputDistrict) DOM.inputDistrict.value = tempCurrentDistrict;
+                    if (DOM.inputTag) DOM.inputTag.value = single.name;
+                    showToast(`已帶入附近站點 (${single.distanceM}m)`, false, 2000);
+                } else {
+                    // 附近沒有充電站 -> 直接帶入行政區或提示
+                    if (tempCurrentDistrict) {
+                        if (DOM.inputDistrict) DOM.inputDistrict.value = tempCurrentDistrict;
+                        showToast(`已帶入地區: ${tempCurrentDistrict}`, false, 2000);
+                    } else {
+                        showToast("附近 3km 內無內建站點", false, 2000);
+                    }
+                }
+
+                // 4. 呼叫 Open-Meteo API 獲取當前氣溫
                 try {
                     const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`);
                     const data = await res.json();
                     if (data && data.current_weather && document.getElementById('inputTemperature')) {
                         document.getElementById('inputTemperature').value = data.current_weather.temperature;
-                        showToast(`已帶入當下氣溫: ${data.current_weather.temperature}°C ☁️`, false, 2000);
+                        showToast(`已帶入氣溫: ${data.current_weather.temperature}°C ☁️`, false, 2000);
                     }
                 } catch (error) {
                     console.warn("天氣 API 呼叫失敗", error);
@@ -1218,6 +1281,47 @@
             }, (error) => {
                 showToast("定位失敗，請確認是否開啟網頁位置權限", true);
             }, { timeout: 10000 });
+        }
+
+        // 彈出多站點選擇視窗
+        function openStationModal(stations, district) {
+            const modal = document.getElementById('stationSelectModal');
+            const list = document.getElementById('stationOptionsList');
+            const badge = document.getElementById('modalDistrictBadge');
+            if (!modal || !list) return;
+
+            badge.textContent = district || "偵測位置";
+            
+            list.innerHTML = stations.map((s, idx) => `
+                <button type="button" onclick="chooseStation('${escapeHTML(s.name)}')" class="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 hover:bg-amber-50 dark:hover:bg-amber-900/20 border border-slate-200 dark:border-slate-700 transition active:scale-95 text-left">
+                    <div class="flex items-center gap-2">
+                        <span class="text-amber-500 font-bold text-xs">⚡</span>
+                        <span class="text-xs font-bold text-slate-700 dark:text-slate-200">${escapeHTML(s.name)}</span>
+                    </div>
+                    <span class="text-[10px] font-mono font-bold text-slate-400 bg-white dark:bg-slate-700 px-2 py-0.5 rounded-full border border-slate-100 dark:border-slate-600">${s.distanceM}m</span>
+                </button>
+            `).join('');
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.firstElementChild.classList.remove('scale-95');
+            }, 10);
+        }
+
+        window.chooseStation = function(stationName) {
+            if (DOM.inputDistrict) DOM.inputDistrict.value = tempCurrentDistrict;
+            if (DOM.inputTag) DOM.inputTag.value = stationName;
+            closeStationModal();
+            showToast(`已選取站點: ${stationName}`);
+        }
+
+        window.closeStationModal = function() {
+            const modal = document.getElementById('stationSelectModal');
+            if (!modal) return;
+            modal.classList.add('opacity-0');
+            modal.firstElementChild.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
         }
         
         window.setupSocSliders = function() {
@@ -1425,10 +1529,9 @@
             if (isNaN(dist) || dist <= 0) { showToast("請輸入有效的預測里程數 🚗", true); return; }
             if (AppState.globalAvgEfficiency <= 0) { showToast("目前尚無足夠的歷史電耗數據可以預測 📊", true); return; }
 
-            // 依據環境變數調整電耗
             let adjustedEfficiency = AppState.globalAvgEfficiency;
-            if (isHighway) adjustedEfficiency *= 0.82; // 高速約打 8.2 折
-            if (isMountain) adjustedEfficiency *= 0.70; // 爬坡約打 7 折
+            if (isHighway) adjustedEfficiency *= 0.82;
+            if (isMountain) adjustedEfficiency *= 0.70;
 
             const predictedKwh = dist / adjustedEfficiency;
             const predictedSocPercent = (predictedKwh / AppState.batteryCapacity) * 100;
@@ -1439,7 +1542,6 @@
                 totalChargeCost += parseFloat(r.cost) || 0;
                 totalChargeKwh += AppState.batteryCapacity * (Math.abs(r.startSoc - r.endSoc) / 100);
             });
-            // 預設平均電價 8 元
             const avgKwhCost = totalChargeKwh > 0 ? (totalChargeCost / totalChargeKwh) : 8; 
             const predictedCost = predictedKwh * avgKwhCost;
 
@@ -1523,9 +1625,14 @@
                 const safeDate = escapeHTML(rec.date);
                 const safeId = escapeHTML(rec.id);
                 const safeChargeType = escapeHTML(rec.chargeType.split('-')[1] || rec.chargeType);
+                
+                // 渲染地區與站點標籤
+                const safeDistrict = escapeHTML(rec.district || '');
                 const safeTag = escapeHTML(rec.tag || '');
-                const tagHtml = safeTag ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-black border border-slate-200 dark:border-slate-700 text-slate-500">${safeTag}</span>` : '';
-                const tempHtml = (rec.temp !== undefined && rec.temp !== null) ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-black border border-sky-200 bg-sky-50 text-sky-600 dark:border-sky-800 dark:bg-sky-900/40 dark:text-sky-400">${rec.temp}°C</span>` : '';
+                const districtHtml = safeDistrict ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-black border border-slate-200 dark:border-slate-700 text-slate-500 bg-white dark:bg-slate-800 shadow-sm">📍 ${safeDistrict}</span>` : '';
+                const tagHtml = safeTag ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-black border border-slate-200 dark:border-slate-700 text-slate-500 bg-white dark:bg-slate-800 shadow-sm">⚡ ${safeTag}</span>` : '';
+                
+                const tempHtml = (rec.temp !== undefined && rec.temp !== null) ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-black border border-sky-200 bg-sky-50 text-sky-600 dark:border-sky-800 dark:bg-sky-900/40 dark:text-sky-400 shadow-sm">${rec.temp}°C</span>` : '';
 
                 return `
                 <div class="${cardClass}">
@@ -1533,6 +1640,7 @@
                         <div class="flex items-center flex-wrap gap-2">
                             <span class="text-xs font-black font-mono">${safeDate}</span>
                             <span class="px-2 py-0.5 rounded-md text-[10px] font-black ${typeStyle}">${safeChargeType}</span>
+                            ${districtHtml}
                             ${tagHtml}
                             ${tempHtml}
                             ${mvpBadge}
@@ -1778,6 +1886,7 @@
             const cost = parseInt(DOM.inputCost.value) || 0;
             const note = DOM.inputNote.value.trim();
             const tag = DOM.inputTag ? DOM.inputTag.value.trim() : '';
+            const district = DOM.inputDistrict ? DOM.inputDistrict.value.trim() : '';
             
             const tempInput = document.getElementById('inputTemperature');
             const temp = tempInput && tempInput.value ? parseFloat(tempInput.value) : null;
@@ -1799,10 +1908,10 @@
 
             if (isEditing) {
                 const idx = AppState.records.findIndex(r => r.id === AppState.editingRecordId);
-                if (idx > -1) AppState.records[idx] = { ...AppState.records[idx], date, chargeType, distance, power: parseFloat(power.toFixed(3)), powerPercent, startSoc, endSoc, cost, note, tag, temp };
+                if (idx > -1) AppState.records[idx] = { ...AppState.records[idx], date, chargeType, distance, power: parseFloat(power.toFixed(3)), powerPercent, startSoc, endSoc, cost, note, tag, district, temp };
                 saveLocalState(AppState.records); 
             } else {
-                saveLocalState([...AppState.records, { id: Date.now().toString(), date, chargeType, distance, power: parseFloat(power.toFixed(3)), powerPercent, startSoc, endSoc, cost, note, tag, temp }]);
+                saveLocalState([...AppState.records, { id: Date.now().toString(), date, chargeType, distance, power: parseFloat(power.toFixed(3)), powerPercent, startSoc, endSoc, cost, note, tag, district, temp }]);
             }
             
             cancelEdit(); renderDashboard(); switchTab('records'); 
@@ -1827,6 +1936,7 @@
                 if(DOM.inputEndSocNum) DOM.inputEndSocNum.value = rec.endSoc;
                 if(DOM.sliderEndSoc) DOM.sliderEndSoc.value = rec.endSoc;
                 if(DOM.inputTag) DOM.inputTag.value = rec.tag || '';
+                if(DOM.inputDistrict) DOM.inputDistrict.value = rec.district || '';
                 if(document.getElementById('inputTemperature')) document.getElementById('inputTemperature').value = rec.temp !== undefined && rec.temp !== null ? rec.temp : '';
             }
             if(DOM.inputCost) DOM.inputCost.value = rec.cost || 0;
@@ -1847,6 +1957,7 @@
             if(DOM.sliderStartSoc) DOM.sliderStartSoc.value = 20;
             if(DOM.sliderEndSoc) DOM.sliderEndSoc.value = 80;
             if(document.getElementById('inputTemperature')) document.getElementById('inputTemperature').value = '';
+            if(DOM.inputDistrict) DOM.inputDistrict.value = '';
             selectChargeType('DC-快充'); 
             switchTab('records');
         }
@@ -1924,7 +2035,7 @@
             return {
                 id: rec.id?.toString() || Date.now().toString(), date: finalDate, chargeType: rec.chargeType || 'DC-快充',
                 distance: parseFloat(rec.distance) || 0, power: parseFloat(rec.power) || 0, startSoc: startSoc !== undefined ? parseInt(startSoc) : 0,
-                endSoc: endSoc !== undefined ? parseInt(endSoc) : 0, cost: parseInt(rec.cost) || 0, note: cleanNote, tag: rec.tag || '', temp: rec.temp !== undefined ? rec.temp : null
+                endSoc: endSoc !== undefined ? parseInt(endSoc) : 0, cost: parseInt(rec.cost) || 0, note: cleanNote, tag: rec.tag || '', district: rec.district || '', temp: rec.temp !== undefined ? rec.temp : null
             };
         }
 
@@ -1981,7 +2092,6 @@
                 let urlWithToken = AppState.syncUrl;
                 if (AppState.syncToken) { const separator = urlWithToken.includes('?') ? '&' : '?'; urlWithToken += `${separator}token=${encodeURIComponent(AppState.syncToken)}`; }
 
-                // 加上時間戳，強制破解瀏覽器 GET 快取，確保每次載入都能抓到雲端最新資料
                 const cacheBuster = urlWithToken.includes('?') ? '&' : '?';
                 urlWithToken += `${cacheBuster}_t=${Date.now()}`;
 
@@ -2009,7 +2119,7 @@
                     if (mode === 'upload') { localLastUpdated = Date.now(); localStorage.setItem('ev_life_last_updated', localLastUpdated.toString()); }
                     const uploadRecords = AppState.records.map(rec => ({ 
                         id: rec.id, date: rec.date, chargeType: rec.chargeType, distance: rec.distance, power: rec.power, cost: rec.cost, 
-                        note: (rec.startSoc !== undefined && rec.endSoc !== undefined) ? `[SOC:${rec.startSoc}-${rec.endSoc}] ${rec.note || ''}`.trim() : (rec.note || ''), tag: rec.tag || '', temp: rec.temp
+                        note: (rec.startSoc !== undefined && rec.endSoc !== undefined) ? `[SOC:${rec.startSoc}-${rec.endSoc}] ${rec.note || ''}`.trim() : (rec.note || ''), tag: rec.tag || '', district: rec.district || '', temp: rec.temp
                     }));
                     const configMeta = { 
                         id: "CONFIG_METADATA", date: "", chargeType: "", distance: 0, power: 0, cost: 0, 
@@ -2056,12 +2166,14 @@
         
         window.exportToCSV = function() {
             if (AppState.records.length === 0) { showToast("目前沒有紀錄可以匯出喔！", true); return; }
-            let csvContent = "日期,紀錄類型,標籤/站點,行駛里程(km),出發SOC(%),抵達SOC(%),消耗電量(度),花費(元),氣溫(°C),備註\n";
+            // 更新 CSV 標頭加入地區
+            let csvContent = "日期,紀錄類型,地區,標籤/站點,行駛里程(km),出發SOC(%),抵達SOC(%),消耗電量(度),花費(元),氣溫(°C),備註\n";
             const exportRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
             
             exportRecords.forEach(rec => {
                 const date = rec.date || '';
                 const type = rec.chargeType || '';
+                const district = rec.district || '';
                 const tag = rec.tag || '';
                 const dist = rec.distance || 0;
                 const start = rec.startSoc !== undefined ? rec.startSoc : '';
@@ -2072,7 +2184,7 @@
                 let note = rec.note || '';
                 if (note.includes(',')) note = `"${note}"`; 
                 
-                csvContent += `${date},${type},${tag},${dist},${start},${end},${kwh.toFixed(2)},${cost},${temp},${note}\n`;
+                csvContent += `${date},${type},${district},${tag},${dist},${start},${end},${kwh.toFixed(2)},${cost},${temp},${note}\n`;
             });
 
             const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
