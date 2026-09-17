@@ -58,141 +58,79 @@
         .ios-safe-nav { padding-top: env(safe-area-inset-top, 0px) !important; }
         body { text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; touch-action: manipulation; -webkit-text-size-adjust: 100%; }
 
-        /* iOS 27-style Liquid Glass bottom navigation */
+        /* iOS-style Liquid Glass Dock */
         .ios-27-glass {
             position: relative;
+            overflow: visible !important;
             isolation: isolate;
-            background: rgba(255,255,255,0.16);
-            -webkit-backdrop-filter: blur(22px) saturate(180%) contrast(105%);
-            backdrop-filter: blur(22px) saturate(180%) contrast(105%);
-            border: 1px solid rgba(255,255,255,0.46);
-            box-shadow:
-                0 14px 34px rgba(15,23,42,0.12),
-                inset 0 1px 0 rgba(255,255,255,0.82),
-                inset 0 -1px 0 rgba(255,255,255,0.12),
-                inset 0 0 18px rgba(255,255,255,0.10);
-            overflow: hidden;
+            background: linear-gradient(135deg, rgba(255,255,255,.30), rgba(255,255,255,.10) 48%, rgba(255,255,255,.18));
+            backdrop-filter: blur(28px) saturate(180%) contrast(108%);
+            -webkit-backdrop-filter: blur(28px) saturate(180%) contrast(108%);
+            border: 1px solid rgba(255,255,255,.48);
+            border-top-color: rgba(255,255,255,.82);
+            border-bottom-color: rgba(255,255,255,.20);
+            box-shadow: 0 18px 45px rgba(15,23,42,.14), inset 0 1px 0 rgba(255,255,255,.82), inset 0 -1px 0 rgba(255,255,255,.16), inset 0 0 22px rgba(255,255,255,.12);
         }
         .ios-27-glass::before {
-            content: "";
-            position: absolute;
-            inset: 1px;
-            border-radius: inherit;
-            pointer-events: none;
-            background:
-                radial-gradient(120% 80% at 12% 0%, rgba(255,255,255,0.48), transparent 45%),
-                radial-gradient(90% 70% at 90% 100%, rgba(255,255,255,0.16), transparent 55%);
-            opacity: 0.9;
-            z-index: -1;
+            content: ''; position:absolute; inset:0; border-radius:inherit; pointer-events:none; z-index:-1;
+            background: radial-gradient(120px 42px at 18% 0%, rgba(255,255,255,.58), transparent 72%), radial-gradient(180px 70px at 88% 100%, rgba(255,255,255,.18), transparent 70%);
+            opacity:.8;
         }
         .ios-27-glass::after {
-            content: "";
-            position: absolute;
-            left: 8%;
-            right: 8%;
-            top: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.95), transparent);
-            opacity: 0.7;
-            pointer-events: none;
+            content: ''; position:absolute; left:12%; right:12%; top:0; height:1px; border-radius:999px; pointer-events:none;
+            background:linear-gradient(90deg, transparent, rgba(255,255,255,.95), transparent); opacity:.7;
         }
         .dark .ios-27-glass {
-            background: rgba(30,41,59,0.24);
-            -webkit-backdrop-filter: blur(24px) saturate(175%) contrast(108%);
-            backdrop-filter: blur(24px) saturate(175%) contrast(108%);
-            border-color: rgba(255,255,255,0.20);
-            box-shadow:
-                0 18px 42px rgba(0,0,0,0.42),
-                inset 0 1px 0 rgba(255,255,255,0.36),
-                inset 0 -1px 0 rgba(255,255,255,0.05),
-                inset 0 0 20px rgba(255,255,255,0.06);
+            background: linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.055) 48%, rgba(255,255,255,.11));
+            backdrop-filter: blur(30px) saturate(175%) contrast(110%);
+            -webkit-backdrop-filter: blur(30px) saturate(175%) contrast(110%);
+            border-color:rgba(255,255,255,.20); border-top-color:rgba(255,255,255,.42);
+            box-shadow:0 20px 55px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.38), inset 0 -1px 0 rgba(255,255,255,.06);
         }
-        .dark .ios-27-glass::before {
-            background:
-                radial-gradient(120% 80% at 12% 0%, rgba(255,255,255,0.20), transparent 45%),
-                radial-gradient(90% 70% at 90% 100%, rgba(255,255,255,0.08), transparent 55%);
-        }
-        .floating-nav {
-            bottom: calc(env(safe-area-inset-bottom, 0px) * 0.5 + 8px) !important;
-            margin-bottom: 0 !important;
-            padding-bottom: max(0.25rem, env(safe-area-inset-bottom, 0px)) !important;
-        }
+        .floating-nav { bottom: calc(env(safe-area-inset-bottom, 0px) + 8px) !important; margin-bottom:0 !important; min-height:76px; overflow:visible !important; }
+        #nav-container { overflow:visible !important; height:68px !important; }
 
+        /* SVG filter layer gives the capsule a subtle refraction/distortion feel */
+        .liquid-svg-filters { position:absolute; width:0; height:0; pointer-events:none; }
         .liquid-indicator {
-            position: absolute;
-            height: 52px;
-            border-radius: 26px;
-            background: rgba(255,255,255,0.20);
-            -webkit-backdrop-filter: blur(18px) saturate(200%) brightness(1.08);
-            backdrop-filter: blur(18px) saturate(200%) brightness(1.08);
-            border: 1px solid rgba(255,255,255,0.58);
-            box-shadow:
-                inset 0 1px 0 rgba(255,255,255,0.92),
-                inset 0 -1px 0 rgba(255,255,255,0.18),
-                inset 0 0 12px rgba(255,255,255,0.18),
-                0 3px 10px rgba(15,23,42,0.08);
-            transition:
-                transform 0.52s cubic-bezier(0.22, 1, 0.36, 1),
-                width 0.42s cubic-bezier(0.22, 1, 0.36, 1),
-                opacity 0.25s ease,
-                box-shadow 0.35s ease,
-                backdrop-filter 0.35s ease;
-            z-index: 5;
-            pointer-events: none;
-            will-change: transform, width;
+            position:absolute; height:54px; border-radius:28px;
+            background:linear-gradient(135deg, rgba(255,255,255,.38), rgba(255,255,255,.12) 48%, rgba(255,255,255,.24));
+            backdrop-filter:blur(20px) saturate(185%) brightness(1.08);
+            -webkit-backdrop-filter:blur(20px) saturate(185%) brightness(1.08);
+            border:1px solid rgba(255,255,255,.58);
+            box-shadow:inset 0 1px 0 rgba(255,255,255,.88), inset 0 -1px 0 rgba(255,255,255,.16), inset 0 5px 16px rgba(255,255,255,.24), 0 6px 18px rgba(15,23,42,.10);
+            transition:transform .58s cubic-bezier(.22,1,.36,1), width .48s cubic-bezier(.22,1,.36,1), height .48s cubic-bezier(.22,1,.36,1), border-radius .48s ease, opacity .25s ease, box-shadow .35s ease;
+            z-index:5; pointer-events:none; will-change:transform,width,height,filter;
+            filter:url(#liquidRefraction);
         }
         .liquid-indicator::before {
-            content: "";
-            position: absolute;
-            inset: 1px;
-            border-radius: inherit;
-            background: linear-gradient(180deg, rgba(255,255,255,0.28), rgba(255,255,255,0.03) 55%, rgba(255,255,255,0.10));
-            pointer-events: none;
+            content:''; position:absolute; inset:1px; border-radius:inherit; pointer-events:none;
+            background:linear-gradient(115deg, rgba(255,255,255,.58), transparent 28%, transparent 66%, rgba(255,255,255,.20));
+            opacity:.75; mix-blend-mode:screen;
+        }
+        .liquid-indicator::after {
+            content:''; position:absolute; width:42%; height:38%; left:8%; top:7%; border-radius:999px;
+            background:radial-gradient(ellipse, rgba(255,255,255,.48), transparent 72%); filter:blur(7px); opacity:.7;
         }
         .dark .liquid-indicator {
-            background: rgba(255,255,255,0.10);
-            -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(1.16);
-            backdrop-filter: blur(20px) saturate(180%) brightness(1.16);
-            border-color: rgba(255,255,255,0.30);
-            box-shadow:
-                inset 0 1px 0 rgba(255,255,255,0.52),
-                inset 0 -1px 0 rgba(255,255,255,0.08),
-                inset 0 0 14px rgba(255,255,255,0.10),
-                0 5px 14px rgba(0,0,0,0.20);
+            background:linear-gradient(135deg,rgba(255,255,255,.18),rgba(255,255,255,.055) 50%,rgba(255,255,255,.12));
+            backdrop-filter:blur(22px) saturate(175%) brightness(1.15); -webkit-backdrop-filter:blur(22px) saturate(175%) brightness(1.15);
+            border-color:rgba(255,255,255,.25); box-shadow:inset 0 1px 0 rgba(255,255,255,.38), inset 0 -1px 0 rgba(255,255,255,.05), 0 7px 22px rgba(0,0,0,.24);
         }
         .liquid-indicator.dragging {
-            background: rgba(255,255,255,0.27);
-            -webkit-backdrop-filter: blur(26px) saturate(210%) brightness(1.12);
-            backdrop-filter: blur(26px) saturate(210%) brightness(1.12);
-            box-shadow:
-                inset 0 1px 0 rgba(255,255,255,1),
-                inset 0 -1px 0 rgba(255,255,255,0.22),
-                inset 0 0 18px rgba(255,255,255,0.28),
-                0 7px 18px rgba(15,23,42,0.12);
+            height:58px; border-radius:30px;
+            background:linear-gradient(135deg,rgba(255,255,255,.48),rgba(255,255,255,.15) 50%,rgba(255,255,255,.28));
+            backdrop-filter:blur(26px) saturate(200%) brightness(1.12); -webkit-backdrop-filter:blur(26px) saturate(200%) brightness(1.12);
+            box-shadow:inset 0 1px 0 rgba(255,255,255,.95), inset 0 7px 20px rgba(255,255,255,.30), 0 10px 28px rgba(15,23,42,.16);
         }
-        .dark .liquid-indicator.dragging {
-            background: rgba(255,255,255,0.15);
-            -webkit-backdrop-filter: blur(26px) saturate(195%) brightness(1.22);
-            backdrop-filter: blur(26px) saturate(195%) brightness(1.22);
-        }
-
-        .tab-btn {
-            position: relative;
-            z-index: 2;
-            transition: all 0.42s cubic-bezier(0.22, 1, 0.36, 1);
-            will-change: transform, opacity;
-        }
-        .tab-btn.active {
-            color: #0d9488;
-            font-weight: 900;
-            transform: translateY(-1px) scale(1.06);
-            z-index: 10;
-            text-shadow: 0 1px 10px rgba(20,184,166,0.18);
-        }
-        .dark .tab-btn.active {
-            color: #5eead4;
-            text-shadow: 0 1px 12px rgba(45,212,191,0.22);
-        }
+        .tab-btn { position:relative; z-index:6; transition:transform .42s cubic-bezier(.22,1,.36,1), color .25s ease, opacity .25s ease; will-change:transform; }
+        .tab-btn.active { transform:scale(1.045); }
+        #add-btn-wrapper { overflow:visible !important; z-index:30 !important; }
+        #tab-add { position:relative; z-index:31; width:60px !important; height:60px !important; flex:none; transform:translateY(-1px); border-width:2px !important; border-color:rgba(255,255,255,.92) !important; box-shadow:0 10px 26px rgba(15,23,42,.22), inset 0 1px 0 rgba(255,255,255,.48), inset 0 -5px 12px rgba(0,0,0,.10); transition:transform .22s cubic-bezier(.22,1,.36,1), box-shadow .22s ease; }
+        #tab-add:hover { transform:translateY(-3px) scale(1.03); }
+        #tab-add:active { transform:translateY(0) scale(.90); box-shadow:0 5px 14px rgba(15,23,42,.18), inset 0 2px 8px rgba(0,0,0,.16); }
+        .dark #tab-add { box-shadow:0 10px 28px rgba(251,191,36,.25), inset 0 1px 0 rgba(255,255,255,.55), inset 0 -5px 12px rgba(120,53,15,.14); }
+        @media (max-width:420px) { #tab-add { width:58px !important; height:58px !important; } #nav-container { padding-left:2px; padding-right:2px; } }
 
         .tab-btn { position: relative; z-index: 2; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); will-change: transform, opacity; }
         .tab-btn.active { color: #0d9488; font-weight: 900; transform: translateY(-2px) scale(1.1); z-index: 10; }
@@ -817,6 +755,14 @@
     </main>
 
     <nav class="fixed left-3 right-3 sm:left-4 sm:right-4 z-50 rounded-[2rem] ios-27-glass px-2 floating-nav" aria-label="主要導覽">
+        <svg class="liquid-svg-filters" aria-hidden="true" focusable="false">
+            <defs>
+                <filter id="liquidRefraction" x="-20%" y="-30%" width="140%" height="160%">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.018 0.035" numOctaves="2" seed="7" result="noise"/>
+                    <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.2" xChannelSelector="R" yChannelSelector="G"/>
+                </filter>
+            </defs>
+        </svg>
         <div class="flex justify-around items-center h-16 max-w-md mx-auto relative" id="nav-container">
             
             <div id="liquid-indicator" class="liquid-indicator opacity-0 absolute top-1/2 -translate-y-1/2 left-0 w-14"></div>
@@ -831,7 +777,7 @@
                 <span class="text-[9px] font-bold tracking-wider">紀錄</span>
             </button>
             
-            <div class="relative flex justify-center w-16 -mt-8 z-20" id="add-btn-wrapper">
+            <div class="relative flex justify-center items-center w-16 -mt-7 z-30" id="add-btn-wrapper">
                 <button onclick="switchTab('add')" id="tab-add" class="w-14 h-14 bg-slate-900 dark:bg-amber-500 text-white dark:text-slate-900 rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.2)] dark:shadow-[0_8px_20px_rgba(251,191,36,0.3)] border-[3px] border-white/80 dark:border-slate-800/80 transition transform active:scale-90">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
                 </button>
@@ -1077,13 +1023,17 @@
                 const deltaX = clientX - startX;
                 if (Math.abs(deltaX) > 2) { 
                     moved = true; if(e.cancelable) e.preventDefault(); 
-                    let stretch = Math.min(Math.abs(deltaX) * 0.55, 65); 
+                    let stretch = Math.min(Math.abs(deltaX) * 0.72, 78);
+                    let squeeze = Math.max(0, 1 - Math.abs(deltaX) / 260); 
                     let targetX = deltaX > 0 ? (initialTranslate + deltaX - stretch) : (initialTranslate + deltaX);
                     let targetWidth = initialWidth + stretch;
                     let maxTranslate = navContainer.offsetWidth - targetWidth;
                     targetX = Math.max(0, Math.min(targetX, maxTranslate));
                     
-                    indicator.style.width = `${targetWidth}px`; indicator.style.transform = `translate(${targetX}px, -50%)`; indicator.dataset.currentX = targetX;
+                    indicator.style.width = `${targetWidth}px`;
+                    indicator.style.height = `${54 + Math.min(stretch * 0.10, 8)}px`;
+                    indicator.style.transform = `translate(${targetX}px, -50%) scaleX(${1 + stretch / 220}) scaleY(${squeeze})`;
+                    indicator.dataset.currentX = targetX;
                     const indicatorCenter = targetX + targetWidth / 2;
                     validTabs.forEach(tab => {
                         const tabCenter = tab.offsetLeft + tab.offsetWidth / 2;
@@ -1101,6 +1051,7 @@
                 if (!isDragging) return;
                 isDragging = false;
                 indicator.classList.remove('dragging');
+                indicator.style.height = '';
                 indicator.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.4s ease, backdrop-filter 0.4s ease, -webkit-backdrop-filter 0.4s ease';
                 validTabs.forEach(tab => { tab.style.transition = ''; tab.style.transform = ''; tab.style.opacity = ''; });
                 
