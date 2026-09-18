@@ -144,7 +144,6 @@
             </button>
         </div>
     </header>
-
     <main class="max-w-4xl mx-auto pb-32 pt-2">
         
         <!-- 🔹 Tab 1: 首頁 (Home) -->
@@ -542,7 +541,6 @@
                 <!-- 日曆將由 JS 生成 -->
             </div>
         </div>
-
         <!-- 🔹 Tab 4: 分析圖表 (Analysis) -->
         <div id="view-analysis" class="view-section px-4">
             <div class="rpg-card bg-white dark:bg-[#1e293b] p-5 sm:p-6 rounded-[2rem]">
@@ -807,7 +805,6 @@
         </div>
 
     </main>
-
     <!-- 📍 站點多選彈出視窗 (Modal) -->
     <div id="stationSelectModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[115] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
         <div class="bg-white dark:bg-[#1e293b] rounded-[2rem] p-6 shadow-2xl max-w-sm w-full mx-4 transform scale-95 transition-all duration-300 border border-slate-100 dark:border-slate-700">
@@ -871,9 +868,9 @@
             </button>
         </div>
     </nav>
-
-    <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-[120] transform -translate-y-10 opacity-0 invisible pointer-events-none transition-all duration-300 bg-slate-900/95 dark:bg-[#1e293b]/95 text-white px-5 py-3 rounded-2xl shadow-lg flex items-start space-x-2 text-xs font-bold border border-white/10 max-w-[90vw] text-center justify-center leading-relaxed">
-        <span id="toastIcon" class="mt-0.5 flex-shrink-0">🐾</span>
+    <!-- 修正 Toast 樣式，使其更具適應性，並在深色/淺色模式下都保持清晰的對比度 -->
+    <div id="toast" class="fixed top-[70px] left-1/2 -translate-x-1/2 z-[120] transform -translate-y-10 opacity-0 invisible pointer-events-none transition-all duration-300 flex items-start space-x-2.5 text-xs font-bold border max-w-[85vw] w-max sm:max-w-md text-left leading-relaxed px-4 py-3 rounded-2xl shadow-xl">
+        <span id="toastIcon" class="flex-shrink-0 text-sm mt-0.5"></span>
         <span id="toastMessage" class="break-words"></span>
     </div>
 
@@ -1094,13 +1091,23 @@
             const msgEl = DOM.toastMessage;
             const iconEl = DOM.toastIcon;
             
-            msgEl.innerHTML = message; // 允許 HTML 換行標籤
-            iconEl.textContent = isError ? "⚠️" : "🐾";
+            msgEl.innerHTML = message; 
 
-            const colorClasses = isError ? 'bg-rose-500' : 'bg-slate-900/95 dark:bg-amber-500 dark:text-slate-900';
+            // 自動隱藏預設圖標如果訊息開頭已經有特定表情符號
+            if (message.startsWith('📍') || message.startsWith('⚡') || message.startsWith('🌍') || message.startsWith('💰') || message.startsWith('🚀') || message.startsWith('👑')) {
+                iconEl.style.display = 'none';
+            } else {
+                iconEl.style.display = 'block';
+                iconEl.textContent = isError ? "⚠️" : "🐾";
+            }
+
+            // 使用統一的深色背景樣式來保證任何自定義顏色的文字都能清晰閱讀，無論當前在哪種模式
+            const colorClasses = isError 
+                ? 'bg-rose-500 text-white border-rose-600' 
+                : 'bg-slate-900 text-white border-slate-800 dark:bg-slate-800 dark:border-slate-700';
             
             // 重置既有 class，重新加入狀態
-            toastEl.className = `fixed top-[70px] left-1/2 -translate-x-1/2 z-[120] transform transition-all duration-300 text-white px-5 py-3 rounded-2xl shadow-lg flex items-start space-x-2 text-xs font-bold border border-white/10 max-w-[90vw] text-left leading-relaxed ${colorClasses} translate-y-0 opacity-100 visible pointer-events-auto`;
+            toastEl.className = `fixed top-[70px] left-1/2 -translate-x-1/2 z-[120] transform transition-all duration-300 flex items-start space-x-2.5 text-xs font-bold border max-w-[85vw] w-max sm:max-w-md text-left leading-relaxed px-4 py-3 rounded-2xl shadow-xl ${colorClasses} translate-y-0 opacity-100 visible pointer-events-auto`;
             
             setTimeout(() => {
                 toastEl.classList.replace('translate-y-0', '-translate-y-10');
@@ -1134,7 +1141,6 @@
             setupThemeIcons();
             debouncedUpdateCharts();
         }
-
         window.handleHeroImageUpload = function(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1326,7 +1332,6 @@
         window.setTag = function(tagName) {
             if(DOM.inputTag) DOM.inputTag.value = tagName;
         }
-
         let tempNearbyStations = [];
         let tempCurrentDistrict = "";
 
@@ -1565,7 +1570,6 @@
             showToast("⭐ 已儲存為常用捷徑！");
             checkQuickLog();
         }
-
         window.loadQuickLog = function() {
             try {
                 const data = JSON.parse(localStorage.getItem('ev_life_quicklog'));
@@ -2252,9 +2256,9 @@
                                     }
                                 }
                             }
-                        }, 
-                        scales: scalesConfig 
-                    }
+                        }
+                    }, 
+                    scales: scalesConfig 
                 });
             }
 
