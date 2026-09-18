@@ -366,7 +366,7 @@
                         
                         <div id="tagInputArea">
                             <div class="flex justify-between items-end mb-1.5">
-                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 block">站點與地區 (選填)</label>
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 block">站點 (選填)</label>
                                 <button type="button" onclick="autoLocateAndWeather()" class="text-[10px] bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-400 px-2.5 py-1 rounded-lg shadow-sm font-bold active:scale-95 transition-transform flex items-center gap-1">
                                     📍 自動定位與天氣
                                 </button>
@@ -378,6 +378,17 @@
                                 <input type="text" id="inputTag" placeholder="站點 (例:U-POWER 中壢青埔站)" class="w-full pl-8 pr-3 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
                             </div>
 
+                            <!-- 捷徑選單 -->
+                            <div class="flex overflow-x-auto gap-2 pb-2 no-scrollbar mb-2">
+                                <button type="button" onclick="setTag('U-POWER')" class="flex-shrink-0 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold border border-slate-200 dark:border-slate-700 active:scale-95 transition-transform">⚡ U-POWER</button>
+                                <button type="button" onclick="setTag('EVOASIS')" class="flex-shrink-0 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold border border-slate-200 dark:border-slate-700 active:scale-95 transition-transform">⚡ EVOASIS</button>
+                                <button type="button" onclick="setTag('特爾電力')" class="flex-shrink-0 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold border border-slate-200 dark:border-slate-700 active:scale-95 transition-transform">⚡ 特爾電力</button>
+                                <button type="button" onclick="setTag('TAIL')" class="flex-shrink-0 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold border border-slate-200 dark:border-slate-700 active:scale-95 transition-transform">⚡ TAIL</button>
+                                <button type="button" onclick="setTag('住家慢充')" class="flex-shrink-0 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold border border-slate-200 dark:border-slate-700 active:scale-95 transition-transform">🏠 住家慢充</button>
+                                <button type="button" onclick="setTag('Tesla')" class="flex-shrink-0 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold border border-slate-200 dark:border-slate-700 active:scale-95 transition-transform">🔋 Tesla</button>
+                            </div>
+
+                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block mt-2">地區與氣溫 (選填)</label>
                             <!-- 第二排：地區佔 2/3，氣溫佔 1/3 -->
                             <div class="grid grid-cols-3 gap-2 mb-2">
                                 <div class="relative col-span-2">
@@ -388,16 +399,6 @@
                                     <input type="number" step="0.1" id="inputTemperature" placeholder="氣溫" class="w-full pl-3 pr-7 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-mono font-bold focus:outline-none focus:border-sky-400 transition-colors">
                                     <div class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">°C</div>
                                 </div>
-                            </div>
-
-                            <!-- 捷徑選單 -->
-                            <div class="flex overflow-x-auto gap-2 pb-2 no-scrollbar mb-1">
-                                <button type="button" onclick="setTag('U-POWER')" class="flex-shrink-0 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold border border-slate-200 dark:border-slate-700 active:scale-95 transition-transform">⚡ U-POWER</button>
-                                <button type="button" onclick="setTag('EVOASIS')" class="flex-shrink-0 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold border border-slate-200 dark:border-slate-700 active:scale-95 transition-transform">⚡ EVOASIS</button>
-                                <button type="button" onclick="setTag('特爾電力')" class="flex-shrink-0 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold border border-slate-200 dark:border-slate-700 active:scale-95 transition-transform">⚡ 特爾電力</button>
-                                <button type="button" onclick="setTag('TAIL')" class="flex-shrink-0 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold border border-slate-200 dark:border-slate-700 active:scale-95 transition-transform">⚡ TAIL</button>
-                                <button type="button" onclick="setTag('住家慢充')" class="flex-shrink-0 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold border border-slate-200 dark:border-slate-700 active:scale-95 transition-transform">🏠 住家慢充</button>
-                                <button type="button" onclick="setTag('Tesla')" class="flex-shrink-0 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[10px] font-bold border border-slate-200 dark:border-slate-700 active:scale-95 transition-transform">🔋 Tesla</button>
                             </div>
                         </div>
 
@@ -1258,13 +1259,19 @@
                 }
 
                 if (tempNearbyStations.length > 1) {
-                    if (tempCurrentDistrict) showToast(`📍 已定位地區：${tempCurrentDistrict}`, false, 1500);
+                    if (tempCurrentDistrict) {
+                        if (DOM.inputDistrict) DOM.inputDistrict.value = tempCurrentDistrict;
+                        showToast(`📍 已帶入地區：${tempCurrentDistrict}`, false, 1500);
+                    }
                     openStationModal(tempNearbyStations, tempCurrentDistrict);
                 } else if (tempNearbyStations.length === 1) {
                     const single = tempNearbyStations[0];
                     if (DOM.inputDistrict) DOM.inputDistrict.value = tempCurrentDistrict;
                     if (DOM.inputTag) DOM.inputTag.value = single.name;
-                    showToast(tempCurrentDistrict ? `已帶入地區與站點 📍` : `已帶入附近站點 ⚡`, false, 2000);
+                    if (tempCurrentDistrict) {
+                        showToast(`📍 已帶入地區：${tempCurrentDistrict}`, false, 1500);
+                    }
+                    showToast(`⚡ 已帶入站點：${single.name}`, false, 1500);
                 } else {
                     if (tempCurrentDistrict) {
                         if (DOM.inputDistrict) DOM.inputDistrict.value = tempCurrentDistrict;
@@ -1317,10 +1324,9 @@
         }
 
         window.chooseStation = function(stationName) {
-            if (DOM.inputDistrict) DOM.inputDistrict.value = tempCurrentDistrict;
             if (DOM.inputTag) DOM.inputTag.value = stationName;
             closeStationModal();
-            showToast(`已選取站點: ${stationName}`);
+            showToast(`⚡ 已帶入站點: ${stationName}`);
         }
 
         window.closeStationModal = function() {
@@ -1639,7 +1645,6 @@
                 const districtHtml = safeDistrict ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-black border border-slate-200 dark:border-slate-700 text-slate-500 bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center gap-0.5"><span class="text-[12px] leading-none mt-[-1px]">📍</span><span>${safeDistrict}</span></span>` : '';
                 const tagHtml = safeTag ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-black border border-slate-200 dark:border-slate-700 text-slate-500 bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center gap-0.5"><span class="text-[12px] leading-none mt-[-1px]">⚡</span><span>${safeTag}</span></span>` : '';
                 
-                // 溫度標籤加上防呆：只有在有值的情況下才顯示
                 const tempHtml = (rec.temp !== undefined && rec.temp !== null && rec.temp !== '') ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-black border border-sky-200 bg-sky-50 text-sky-600 dark:border-sky-800 dark:bg-sky-900/40 dark:text-sky-400 shadow-sm">${rec.temp}°C</span>` : '';
 
                 return `
