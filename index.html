@@ -3196,7 +3196,7 @@ self.addEventListener('fetch', event => {
             setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
-        // 新增：處理目的地即時搜尋的邏輯
+        // 新增：處理目的地即時搜尋的邏輯 (優化雙重搜尋引擎)
         window.searchRealtimeDestination = async function() {
             const query = document.getElementById('realtimeSearchInput').value.trim();
             if (!query) {
@@ -3225,10 +3225,12 @@ self.addEventListener('fetch', event => {
                     
                     showToast(`已定位至：${displayName} 📍`, false, 2000);
                     
-                    // 呼叫 TDX 查詢目標座標周圍的站點
-                    fetchNearbyRealtimeStations(targetLat, targetLng, currentSearchRadiusKm);
+                    // 呼叫 TDX 查詢目標座標周圍的站點 (將 query 傳入作為備用文字搜尋)
+                    fetchNearbyRealtimeStations(targetLat, targetLng, currentSearchRadiusKm, query);
                 } else {
-                    listContainer.innerHTML = `<div class="text-center text-slate-400 text-xs font-bold py-16 flex flex-col items-center gap-2"><span class="text-4xl">🏜️</span>找不到「${escapeHTML(query)}」，請嘗試其他關鍵字。</div>`;
+                    // 如果地圖 API 找不到這個地點，直接啟動備用計畫：純文字 TDX 搜尋
+                    showToast(`地圖上查無座標，改由 TDX 資料庫直接搜尋...`, false, 3000);
+                    fetchNearbyRealtimeStations(null, null, currentSearchRadiusKm, query);
                 }
             } catch (err) {
                 console.error("Geocoding Error:", err);
@@ -3236,7 +3238,7 @@ self.addEventListener('fetch', event => {
             }
         };
 
-        async function fetchNearbyRealtimeStations(lat, lng, radiusKm) {
+        async function fetchNearbyRealtimeStations(lat, lng, radiusKm, fallbackQuery = "") {
             const listContainer = document.getElementById('realTimeListContainer');
             listContainer.innerHTML = '<div class="text-center text-amber-500 text-xs font-bold py-16 flex flex-col items-center gap-3"><span class="text-4xl animate-spin origin-center">⏳</span><span>正在抓取最新充電樁空位資料...</span></div>';
 
@@ -3244,17 +3246,53 @@ self.addEventListener('fetch', event => {
                 const token = await getTdxToken();
                 if (!token) throw new Error("TDX 授權失敗");
 
-                const radiusMeters = radiusKm * 1000;
-                
-                // 1. 抓取靜態基本資料 (站名、地址等)
-                const staticRes = await fetch(`https://tdx.transportdata.tw/api/basic/v1/Parking/ChargingStation?$spatialFilter=nearby(${lat},${lng},${radiusMeters})&$format=JSON`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const staticData = await staticRes.json();
-                const staticList = Array.isArray(staticData) ? staticData : (staticData.ChargingStations || []);
+                let staticList = [];
 
-                // 2. 抓取動態即時資料 (營業狀態、空位)
-                const dynamicRes = await fetch(`https://tdx.transportdata.tw/api/basic/v1/Parking/ChargingStation/Availability?$spatialFilter=nearby(${lat},${lng},${radiusMeters})&$format=JSON`, {
+                // 1. 優先使用「空間雷達」過濾 (修正經緯度精確度以防 API 報錯)
+                if (lat !== null && lng !== null) {
+                    const radiusMeters = Math.round(radiusKm * 1000);
+                    const safeLat = lat.toFixed(6);
+                    const safeLng = lng.toFixed(6);
+                    const staticRes = await fetch(`https://tdx.transportdata.tw/api/basic/v1/Parking/ChargingStation?$spatialFilter=nearby(${safeLat},${safeLng},${radiusMeters})&$format=JSON`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const staticData = await staticRes.json();
+                    staticList = Array.isArray(staticData) ? staticData : (staticData.ChargingStations || []);
+                }
+
+                // 2. 🌟 智慧備用機制：如果雷達找不到，或者根本沒座標，就用「文字」直接去 TDX 找！
+                if (staticList.length === 0 && fallbackQuery) {
+                    const keyword = encodeURIComponent(fallbackQuery);
+                    const fallbackRes = await fetch(`https://tdx.transportdata.tw/api/basic/v1/Parking/ChargingStation?$filter=contains(StationName/Zh_tw,'${keyword}') or contains(Location,'${keyword}')&$format=JSON`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const fallbackData = await fallbackRes.json();
+                    const fallbackList = Array.isArray(fallbackData) ? fallbackData : (fallbackData.ChargingStations || []);
+
+                    if (fallbackList.length > 0) {
+                        staticList = fallbackList;
+                        // 既然找到了，把雷達中心點「重新對準」這個真實站點的座標
+                        lat = staticList[0].StationPosition.PositionLat;
+                        lng = staticList[0].StationPosition.PositionLon;
+                        window.lastKnownLat = lat;
+                        window.lastKnownLng = lng;
+                        // 順便把雷達範圍縮小，因為我們已經鎖定目標了
+                        radiusKm = Math.max(radiusKm, 5); 
+                    }
+                }
+
+                // 如果雙重搜尋都失敗，回報找不到
+                if (staticList.length === 0) {
+                    let msg = lat !== null ? `方圓 ${radiusKm} 公里內沒有找到充電站，試著把上方的滑桿拉大範圍吧！` : `在 TDX 資料庫中找不到包含「${escapeHTML(fallbackQuery)}」的站點。`;
+                    listContainer.innerHTML = `<div class="text-center text-slate-400 text-xs font-bold py-16 flex flex-col items-center gap-2"><span class="text-4xl">🏜️</span>${msg}</div>`;
+                    return;
+                }
+
+                // 3. 抓取動態空位資料 (使用確保有站點的座標去抓)
+                const finalRadiusMeters = Math.round(radiusKm * 1000);
+                const finalSafeLat = lat.toFixed(6);
+                const finalSafeLng = lng.toFixed(6);
+                const dynamicRes = await fetch(`https://tdx.transportdata.tw/api/basic/v1/Parking/ChargingStation/Availability?$spatialFilter=nearby(${finalSafeLat},${finalSafeLng},${finalRadiusMeters})&$format=JSON`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const dynamicData = await dynamicRes.json();
@@ -3265,12 +3303,7 @@ self.addEventListener('fetch', event => {
                     availabilityMap[item.StationID] = item;
                 });
 
-                if (staticList.length === 0) {
-                    listContainer.innerHTML = `<div class="text-center text-slate-400 text-xs font-bold py-16 flex flex-col items-center gap-2"><span class="text-4xl">🏜️</span>方圓 ${radiusKm} 公里內沒有找到充電站，試著把上方的滑桿拉大範圍吧！</div>`;
-                    return;
-                }
-
-                // 3. 合併與整理資料
+                // 4. 合併與整理資料
                 let mergedStations = staticList.map(station => {
                     const distKm = getDistanceFromLatLonInKm(lat, lng, station.StationPosition.PositionLat, station.StationPosition.PositionLon);
                     const dyn = availabilityMap[station.StationID] || {};
@@ -3287,10 +3320,8 @@ self.addEventListener('fetch', event => {
                     let dcTotal = 0, dcAvail = 0;
                     let acTotal = 0, acAvail = 0;
 
-                    // 統計各類型的車位數量
                     const availArray = dyn.ChargeAvailabilities || [];
                     availArray.forEach(ca => {
-                        // TDX ChargeType: 1=慢充, 2=快充
                         if (ca.ChargeType === 2) {
                             dcTotal += (ca.TotalSpots || 0);
                             dcAvail += (ca.AvailableSpots || 0);
@@ -3300,7 +3331,6 @@ self.addEventListener('fetch', event => {
                         }
                     });
 
-                    // 若動態資料未提供槍數細節，嘗試從靜態資料去算總數 (當作備援)
                     if (availArray.length === 0 && station.Spots) {
                         station.Spots.forEach(s => {
                             if (s.ChargeType === 2) dcTotal++;
@@ -3319,10 +3349,9 @@ self.addEventListener('fetch', event => {
                     };
                 });
 
-                // 按距離遠近排序
                 mergedStations.sort((a, b) => a.distKm - b.distKm);
 
-                // 4. 渲染到畫面上
+                // 5. 渲染到畫面上
                 listContainer.innerHTML = mergedStations.map(s => {
                     let dcHtml = '';
                     if (s.dcTotal > 0) {
