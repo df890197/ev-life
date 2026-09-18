@@ -43,6 +43,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
+    <!-- 新增地圖 Leaflet 資源 -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+
     <script>
         (function() {
             try {
@@ -242,6 +246,17 @@
                     </div>
                 </div>
 
+                <!-- 🏅 純電成就解鎖 (Badges) -->
+                <div class="mb-4">
+                    <div class="flex items-center justify-between mb-2 px-1">
+                        <span class="text-xs font-black text-slate-600 dark:text-slate-300 flex items-center gap-1.5"><span class="text-[14px]">🏅</span> 駕駛成就</span>
+                        <button onclick="openMapModal()" class="text-[10px] bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-2 py-1 rounded shadow-sm font-bold active:scale-95 transition flex items-center gap-1">🗺️ 充電足跡</button>
+                    </div>
+                    <div id="badgesContainer" class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+                        <div class="text-[10px] text-slate-400 font-bold px-2">持續紀錄旅程來解鎖專屬成就！</div>
+                    </div>
+                </div>
+
                 <!-- 🔮 AI 旅程預測器 -->
                 <div class="rpg-card bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/10 p-5 rounded-[1.5rem] border border-indigo-100 dark:border-indigo-800/50 mb-4">
                     <div class="flex items-center justify-between mb-3">
@@ -380,7 +395,13 @@
                 <form id="recordForm" onsubmit="addRecord(event)" class="space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">日期</label>
+                            <div class="flex justify-between items-end mb-1.5">
+                                <label class="text-xs font-bold text-slate-500 dark:text-slate-400 block">日期</label>
+                                <div class="flex gap-1">
+                                    <button type="button" onclick="saveQuickLog()" class="text-[10px] bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400 px-2 py-1 rounded shadow-sm font-bold active:scale-95 transition">⭐ 儲存捷徑</button>
+                                    <button type="button" id="btnLoadQuickLog" onclick="loadQuickLog()" class="text-[10px] bg-slate-800 text-white dark:bg-slate-700 px-2 py-1 rounded shadow-sm font-bold active:scale-95 transition hidden">載入捷徑</button>
+                                </div>
+                            </div>
                             <input type="date" id="inputDate" required class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold text-left focus:outline-none focus:border-amber-400 transition-colors appearance-none block">
                         </div>
                         <div>
@@ -581,7 +602,10 @@
         <div id="view-records" class="view-section px-4">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-black">歷史紀錄</h2>
-                <button onclick="clearAllData()" class="text-[10px] text-rose-500 bg-rose-50 dark:bg-rose-900/30 px-3 py-1.5 rounded-full font-bold transition active:scale-95">清空全部</button>
+                <div class="flex items-center gap-2">
+                    <button id="btnToggleView" onclick="toggleRecordView()" class="text-[10px] text-slate-700 bg-slate-200 dark:bg-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-full font-bold transition active:scale-95 shadow-sm">📅 切換日曆</button>
+                    <button onclick="clearAllData()" class="text-[10px] text-rose-500 bg-rose-50 dark:bg-rose-900/30 px-3 py-1.5 rounded-full font-bold transition active:scale-95">清空全部</button>
+                </div>
             </div>
             
             <div id="monthFilterContainer" class="flex overflow-x-auto gap-2 no-scrollbar mb-4 pb-2"></div>
@@ -592,6 +616,10 @@
             </div>
 
             <div id="recordMobileList" class="space-y-4 pb-4"></div>
+            
+            <div id="recordCalendarView" class="hidden bg-white dark:bg-[#1e293b] p-5 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-800 pb-4">
+                <!-- 日曆將由 JS 生成 -->
+            </div>
         </div>
 
         <!-- 🔹 Tab 4: 分析圖表 (Analysis) -->
@@ -680,13 +708,34 @@
                     <canvas id="efficiencyChart"></canvas>
                 </div>
                 
-                <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
-                    <h3 class="text-sm font-black text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2">
-                        <span class="bg-rose-100 dark:bg-rose-900/30 text-rose-500 w-6 h-6 rounded-full flex items-center justify-center text-[10px]">🍩</span>
-                        全方位養車成本分佈
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
+                    <div>
+                        <h3 class="text-sm font-black text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2">
+                            <span class="bg-rose-100 dark:bg-rose-900/30 text-rose-500 w-6 h-6 rounded-full flex items-center justify-center text-[10px]">🍩</span>
+                            全方位養車成本分佈
+                        </h3>
+                        <div class="h-56 relative w-full flex justify-center">
+                            <canvas id="costDistributionChart"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-black text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2">
+                            <span class="bg-sky-100 dark:bg-sky-900/30 text-sky-500 w-6 h-6 rounded-full flex items-center justify-center text-[10px]">🌡️</span>
+                            氣溫 vs 電耗關聯圖
+                        </h3>
+                        <div class="h-56 relative w-full flex justify-center bg-slate-50 dark:bg-slate-800/40 rounded-2xl p-2 border border-slate-100 dark:border-slate-700/50">
+                            <canvas id="tempEffChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
+                    <h3 class="text-sm font-black text-slate-700 dark:text-slate-200 mb-3 flex items-center gap-2">
+                        <span class="bg-amber-100 dark:bg-amber-900/30 text-amber-500 w-6 h-6 rounded-full flex items-center justify-center text-[10px]">🏆</span>
+                        充電站 CP 值排行榜
                     </h3>
-                    <div class="h-56 relative w-full flex justify-center">
-                        <canvas id="costDistributionChart"></canvas>
+                    <div id="cpRankingList" class="space-y-2">
+                        <!-- CP 值列表由 JS 生成 -->
                     </div>
                 </div>
             </div>
@@ -854,6 +903,21 @@
         </div>
     </div>
 
+    <!-- 🗺️ 充電地圖 Modal -->
+    <div id="mapModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[120] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white dark:bg-[#1e293b] rounded-[2rem] p-4 shadow-2xl max-w-md w-full mx-4 h-[75vh] flex flex-col transform scale-95 transition-all duration-300 border border-slate-100 dark:border-slate-700 relative">
+            <div class="flex items-center justify-between mb-3 px-2">
+                <h3 class="text-sm font-black text-slate-800 dark:text-white flex items-center gap-2">🗺️ 我的充電足跡</h3>
+                <button onclick="closeMapModal()" class="w-7 h-7 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center text-xs font-bold transition active:scale-90">✕</button>
+            </div>
+            <div id="evMapContainer" class="w-full flex-1 rounded-xl bg-slate-200 dark:bg-slate-800 overflow-hidden relative z-10"></div>
+            <div class="mt-3 text-center text-[10px] font-bold text-slate-400">
+                <span class="inline-block w-2 h-2 rounded-full bg-amber-500 mr-1"></span>已造訪站點 
+                <span class="inline-block w-2 h-2 rounded-full bg-slate-400 ml-3 mr-1"></span>未造訪站點
+            </div>
+        </div>
+    </div>
+
     <nav class="fixed left-4 right-4 z-50 rounded-[2rem] ios-27-glass px-2 floating-nav">
         <div class="flex justify-around items-center h-16 max-w-md mx-auto relative" id="nav-container">
             
@@ -954,6 +1018,7 @@
         const DOM = {};
         let efficiencyChartInstance = null;
         let costDistributionChartInstance = null;
+        let tempEffChartInstance = null;
         let activeConfirmCallback = null;
         let deferredPrompt = null;
         let chartRenderTimer = null; 
@@ -974,8 +1039,8 @@
              'recordForm', 'monthFilterContainer', 'monthFilterContainer_analysis', 'statTotalKm', 'statAvgEfficiency', 'statFuelSavings', 
              'savingsBaseText', 'statCo2Savings', 'statTreesPlanted', 'maintIntervalText', 'maintRemainingText', 'maintProgressBar', 
              'maintDateAlertContainer', 'maintTargetDateStr', 'maintDaysRemainingBadge', 'insuranceDateAlertContainer', 'insuranceTargetDateStr', 'insuranceDaysRemainingBadge',
-             'efficiencyChart', 'costDistributionChart', 'analysisTotalKm', 'analysisSummaryLabel', 'analysisAvgEfficiency',
-             'analysisTotalCost', 'analysisCostLabel', 'analysisCostPerKm', 'heroImageDisplay', 'toggleHighway', 'toggleMountain'].forEach(id => {
+             'efficiencyChart', 'costDistributionChart', 'tempEffChart', 'cpRankingList', 'analysisTotalKm', 'analysisSummaryLabel', 'analysisAvgEfficiency',
+             'analysisTotalCost', 'analysisCostLabel', 'analysisCostPerKm', 'heroImageDisplay', 'toggleHighway', 'toggleMountain', 'badgesContainer'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) DOM[id] = el;
             });
@@ -1009,6 +1074,7 @@
             selectChargeType('DC-快充'); 
             updateSyncUiStatus();
             updatePwaDiagnostic();
+            checkQuickLog();
             
             try {
                 const localData = localStorage.getItem('ev_life_records');
@@ -1474,6 +1540,75 @@
             modal.firstElementChild.classList.add('scale-95');
             setTimeout(() => modal.classList.add('hidden'), 300);
         }
+
+        window.openMapModal = function() {
+            const modal = document.getElementById('mapModal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.firstElementChild.classList.remove('scale-95');
+                if (typeof L !== 'undefined') {
+                    if (!window.evMap) {
+                        window.evMap = L.map('evMapContainer').setView([23.6978, 120.9605], 7);
+                        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                            attribution: '&copy; OpenStreetMap'
+                        }).addTo(window.evMap);
+                    }
+                    window.evMap.invalidateSize();
+
+                    const visitedTags = new Set(AppState.records.map(r => r.tag).filter(t=>t));
+                    CHARGE_STATIONS.forEach(st => {
+                        const isVisited = visitedTags.has(st.name);
+                        const colorClass = isVisited ? 'bg-amber-500' : 'bg-slate-400';
+                        const markerHtml = `<div class="${colorClass} w-3.5 h-3.5 rounded-full border-2 border-white shadow-md"></div>`;
+                        const icon = L.divIcon({ html: markerHtml, className: '' });
+                        L.marker([st.lat, st.lng], {icon}).addTo(window.evMap).bindPopup(`<b>${st.name}</b><br>${isVisited?'✅ 已造訪':'未造訪'}`);
+                    });
+                }
+            }, 100);
+        }
+
+        window.closeMapModal = function() {
+            const modal = document.getElementById('mapModal');
+            modal.classList.add('opacity-0');
+            modal.firstElementChild.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        window.saveQuickLog = function() {
+            const data = {
+                type: DOM.inputChargeType?.value,
+                tag: DOM.inputTag?.value,
+                dist: DOM.inputDistance?.value,
+                startSoc: DOM.inputStartSocNum?.value,
+                endSoc: DOM.inputEndSocNum?.value,
+            };
+            localStorage.setItem('ev_life_quicklog', JSON.stringify(data));
+            showToast("⭐ 已儲存為常用捷徑！");
+            checkQuickLog();
+        }
+
+        window.loadQuickLog = function() {
+            try {
+                const data = JSON.parse(localStorage.getItem('ev_life_quicklog'));
+                if(data) {
+                    if(data.type) selectChargeType(data.type);
+                    if(DOM.inputTag) DOM.inputTag.value = data.tag || '';
+                    if(DOM.inputDistance) DOM.inputDistance.value = data.dist || '';
+                    if(DOM.inputStartSocNum) { DOM.inputStartSocNum.value = data.startSoc || ''; if(DOM.sliderStartSoc) DOM.sliderStartSoc.value = data.startSoc || 0; }
+                    if(DOM.inputEndSocNum) { DOM.inputEndSocNum.value = data.endSoc || ''; if(DOM.sliderEndSoc) DOM.sliderEndSoc.value = data.endSoc || 0; }
+                    updateConvertedPowerHint();
+                    showToast("✅ 已載入常用捷徑");
+                }
+            } catch(e){}
+        }
+
+        function checkQuickLog() {
+            if(localStorage.getItem('ev_life_quicklog')) {
+                const btn = document.getElementById('btnLoadQuickLog');
+                if(btn) btn.classList.remove('hidden');
+            }
+        }
         
         window.setupSocSliders = function() {
             const sync = (source, target) => { target.value = source.value; updateConvertedPowerHint(); };
@@ -1708,6 +1843,35 @@
             renderMonthFilters();
             calculateRecordStats(activeRecords);
 
+            // 🏅 渲染成就徽章
+            if (DOM.badgesContainer) {
+                let badgesHtml = '';
+                const baseClass = "px-3 py-1.5 rounded-lg text-[10px] font-black shadow-sm flex items-center justify-center gap-1.5 flex-shrink-0 whitespace-nowrap border";
+                let fuelSavings = 0, co2Savings = 0, maxDist = 0, maxEff = 0, nightCharge = 0;
+                
+                let globalKm = 0, totalEnergyCost = 0, globalPower = 0;
+                activeRecords.forEach(rec => {
+                    if (!['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType)) {
+                        const dist = parseFloat(rec.distance) || 0;
+                        const pwr = AppState.batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
+                        globalKm += dist; totalEnergyCost += (parseFloat(rec.cost) || 0); globalPower += pwr;
+                        if (dist > maxDist) maxDist = dist;
+                        if (pwr > 0) { const eff = dist/pwr; if (eff > maxEff && dist > 5) maxEff = eff; }
+                    }
+                });
+                const hypotheticalGasCost = (globalKm / AppState.iceEfficiency) * AppState.gasPrice;
+                fuelSavings = Math.max(0, hypotheticalGasCost - totalEnergyCost);
+                co2Savings = globalKm * CONSTANTS.CO2_SAVED_PER_KM;
+
+                if (co2Savings > 500) badgesHtml += `<div class="${baseClass} bg-green-100 border-green-200 text-green-700 dark:bg-green-900/40 dark:border-green-800 dark:text-green-400">🌍 環保先鋒</div>`;
+                if (fuelSavings > 5000) badgesHtml += `<div class="${baseClass} bg-amber-100 border-amber-200 text-amber-700 dark:bg-amber-900/40 dark:border-amber-800 dark:text-amber-400">💰 省錢大師</div>`;
+                if (maxDist >= 200) badgesHtml += `<div class="${baseClass} bg-indigo-100 border-indigo-200 text-indigo-700 dark:bg-indigo-900/40 dark:border-indigo-800 dark:text-indigo-400">🚀 高速巡航者</div>`;
+                if (maxEff >= 6.5) badgesHtml += `<div class="${baseClass} bg-rose-100 border-rose-200 text-rose-700 dark:bg-rose-900/40 dark:border-rose-800 dark:text-rose-400">👑 黃金右腳</div>`;
+                
+                if (badgesHtml === '') badgesHtml = `<div class="text-[10px] text-slate-400 font-bold px-2 py-1">持續紀錄旅程來解鎖專屬成就！</div>`;
+                DOM.badgesContainer.innerHTML = badgesHtml;
+            }
+
             if (activeRecords.length === 0) {
                 if(DOM.onboardingCard) DOM.onboardingCard.classList.remove('hidden'); 
                 if(DOM.homeStatsContainer) DOM.homeStatsContainer.classList.add('hidden');
@@ -1733,7 +1897,7 @@
             const displayRecords = [...filteredRecords].reverse();
             
             // 計算黃金右腳 (Eco Score)
-            // 公式： 60 + (eff - 5.0) * 24，最小0分，最大100分。
+            // 修正公式：以 5.0 km/度為 60 分，每提升 0.1 增加 2.4 分，滿分 100
             const scoredRecords = displayRecords.filter(r => !['維修保養', '停車費', '通行費', '保險費'].includes(r.chargeType) && r.distance > 5)
                 .map(r => {
                     const power = AppState.batteryCapacity * ((r.consumedSocPercent || 0) / 100);
@@ -1843,6 +2007,49 @@
             }).join(''); 
 
             if(DOM.recordMobileList) DOM.recordMobileList.innerHTML = html;
+            if (currentViewMode === 'calendar') renderCalendar();
+        }
+
+        let currentViewMode = 'list';
+        window.toggleRecordView = function() {
+            currentViewMode = currentViewMode === 'list' ? 'calendar' : 'list';
+            document.getElementById('recordMobileList').classList.toggle('hidden', currentViewMode === 'calendar');
+            document.getElementById('recordCalendarView').classList.toggle('hidden', currentViewMode === 'list');
+            document.getElementById('btnToggleView').textContent = currentViewMode === 'list' ? '📅 切換日曆' : '📝 切換列表';
+            if (currentViewMode === 'calendar') renderCalendar();
+        }
+
+        function renderCalendar() {
+            const calEl = document.getElementById('recordCalendarView');
+            if (!calEl) return;
+            const targetMonth = AppState.currentMonthFilter === 'all' ? getLocalDateString().substring(0,7) : AppState.currentMonthFilter;
+            const [y, m] = targetMonth.split('-');
+            const daysInMonth = new Date(y, m, 0).getDate();
+            const firstDay = new Date(y, m - 1, 1).getDay();
+
+            const recordDays = new Set(AppState.records.filter(r=>r.date.startsWith(targetMonth)).map(r=>parseInt(r.date.split('-')[2], 10)));
+
+            let html = `<div class="text-xs font-black mb-3 text-center text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 py-2 rounded-xl">${y}年${m}月 打卡足跡</div>`;
+            html += `<div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-slate-400 mb-2"><div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div></div>`;
+            html += `<div class="grid grid-cols-7 gap-1.5">`;
+            for (let i = 0; i < firstDay; i++) html += `<div></div>`;
+            for (let i = 1; i <= daysInMonth; i++) {
+                const hasRec = recordDays.has(i);
+                const style = hasRec ? 'bg-amber-400 text-slate-900 shadow-md font-black scale-105' : 'bg-slate-50 dark:bg-slate-800/80 text-slate-400 border border-slate-100 dark:border-slate-700/50';
+                html += `<div class="aspect-square flex items-center justify-center rounded-xl text-[11px] font-bold transition-all ${style}">${i}</div>`;
+            }
+            html += `</div>`;
+            calEl.innerHTML = html;
+        }
+
+        // 業界標準倒數演算法 (忽略時分秒進位)
+        function getDaysRemaining(dateStr) {
+            if (!dateStr) return null;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const [y, m, d] = dateStr.split('-');
+            const target = new Date(y, m - 1, d);
+            return Math.round((target.getTime() - today.getTime()) / 86400000);
         }
 
         function updateProgressStyle(remEl, progEl, remainingKm) {
@@ -1880,13 +2087,16 @@
             if (AppState.nextMaintDate && DOM.maintDateAlertContainer) {
                 DOM.maintDateAlertContainer.classList.remove('hidden');
                 if(DOM.maintTargetDateStr) DOM.maintTargetDateStr.textContent = AppState.nextMaintDate.replace(/-/g, '/');
-                const targetDate = new Date(AppState.nextMaintDate);
-                const today = new Date(); today.setHours(0,0,0,0);
-                const diffDays = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24)); 
-                if (DOM.maintDaysRemainingBadge) {
+                
+                const diffDays = getDaysRemaining(AppState.nextMaintDate);
+                
+                if (DOM.maintDaysRemainingBadge && diffDays !== null) {
                     if (diffDays < 0) {
                         DOM.maintDaysRemainingBadge.textContent = `已逾期 ${Math.abs(diffDays)} 天`;
                         DOM.maintDaysRemainingBadge.className = "text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm bg-rose-100 text-rose-600 dark:bg-rose-900/50 dark:text-rose-400 border border-rose-200 dark:border-rose-800";
+                    } else if (diffDays === 0) {
+                        DOM.maintDaysRemainingBadge.textContent = `今天進廠`;
+                        DOM.maintDaysRemainingBadge.className = "text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm bg-rose-500 text-white border border-rose-600";
                     } else if (diffDays <= 30) {
                         DOM.maintDaysRemainingBadge.textContent = `剩餘 ${diffDays} 天`;
                         DOM.maintDaysRemainingBadge.className = "text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-400 border border-amber-200 dark:border-amber-800";
@@ -1900,13 +2110,16 @@
             if (AppState.insuranceExpiryDate && DOM.insuranceDateAlertContainer) {
                 DOM.insuranceDateAlertContainer.classList.remove('hidden');
                 if(DOM.insuranceTargetDateStr) DOM.insuranceTargetDateStr.textContent = AppState.insuranceExpiryDate.replace(/-/g, '/');
-                const targetDate = new Date(AppState.insuranceExpiryDate);
-                const today = new Date(); today.setHours(0,0,0,0);
-                const diffDays = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24)); 
-                if (DOM.insuranceDaysRemainingBadge) {
+                
+                const diffDays = getDaysRemaining(AppState.insuranceExpiryDate);
+                
+                if (DOM.insuranceDaysRemainingBadge && diffDays !== null) {
                     if (diffDays < 0) {
                         DOM.insuranceDaysRemainingBadge.textContent = `已逾期 ${Math.abs(diffDays)} 天`;
                         DOM.insuranceDaysRemainingBadge.className = "text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm bg-rose-100 text-rose-600 dark:bg-rose-900/50 dark:text-rose-400 border border-rose-200 dark:border-rose-800";
+                    } else if (diffDays === 0) {
+                        DOM.insuranceDaysRemainingBadge.textContent = `今天到期`;
+                        DOM.insuranceDaysRemainingBadge.className = "text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm bg-rose-500 text-white border border-rose-600";
                     } else if (diffDays <= 30) {
                         DOM.insuranceDaysRemainingBadge.textContent = `剩餘 ${diffDays} 天`;
                         DOM.insuranceDaysRemainingBadge.className = "text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-400 border border-amber-200 dark:border-amber-800";
@@ -2030,6 +2243,57 @@
                     type: 'line', data: { labels: labels, datasets: datasets },
                     options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { position: 'top', align: 'end', labels: { color: labelColor, boxWidth: 8, boxHeight: 8, usePointStyle: true } } }, scales: scalesConfig }
                 });
+            }
+
+            // 🌡️ 渲染氣溫 vs 電耗散佈圖
+            if (DOM.tempEffChart) {
+                const scatterCtx = DOM.tempEffChart.getContext('2d');
+                const scatterDataPts = chartData.filter(r => r.temp !== null && r.temp !== undefined && r.distance > 0).map(r => {
+                    const pwr = AppState.batteryCapacity * ((r.consumedSocPercent || 0) / 100);
+                    return { x: r.temp, y: pwr > 0 ? parseFloat((r.distance/pwr).toFixed(2)) : 0 };
+                }).filter(d => d.y > 0);
+
+                const scatterDataSet = {
+                    datasets: [{
+                        label: '單趟電耗', data: scatterDataPts, backgroundColor: isDarkMode ? 'rgba(56, 189, 248, 0.6)' : 'rgba(14, 165, 233, 0.6)', 
+                        borderColor: isDarkMode ? '#38bdf8' : '#0ea5e9', borderWidth: 1, pointRadius: 4, pointHoverRadius: 6
+                    }]
+                };
+
+                if (tempEffChartInstance) {
+                    tempEffChartInstance.data = scatterDataSet; tempEffChartInstance.update();
+                } else {
+                    tempEffChartInstance = new Chart(scatterCtx, {
+                        type: 'scatter', data: scatterDataSet,
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => `氣溫: ${ctx.raw.x}°C, 電耗: ${ctx.raw.y}` } } }, scales: { x: { title: { display: true, text: '氣溫 (°C)', color: labelColor, font: {size: 10} }, ticks: { color: labelColor }, grid: { color: gridColor } }, y: { title: { display: true, text: '電耗 (km/度)', color: labelColor, font: {size: 10} }, ticks: { color: labelColor }, grid: { color: gridColor } } } }
+                    });
+                }
+            }
+
+            // 🏆 計算並渲染充電站 CP 值
+            if (DOM.cpRankingList) {
+                const stationStats = {};
+                allPeriodRecords.forEach(r => {
+                    if (!r.chargeType.includes('充') || !r.tag || !(r.cost > 0)) return;
+                    const pwr = AppState.batteryCapacity * (Math.abs(r.startSoc - r.endSoc) / 100);
+                    if (pwr <= 0) return;
+                    if (!stationStats[r.tag]) stationStats[r.tag] = { cost: 0, power: 0 };
+                    stationStats[r.tag].cost += r.cost;
+                    stationStats[r.tag].power += pwr;
+                });
+                const cpArr = Object.keys(stationStats).map(tag => ({
+                    tag, cp: stationStats[tag].cost / stationStats[tag].power
+                })).sort((a,b) => a.cp - b.cp).slice(0, 5);
+
+                if (cpArr.length === 0) DOM.cpRankingList.innerHTML = '<div class="text-xs text-slate-400 text-center py-4 bg-slate-50 dark:bg-slate-800/30 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">區間內尚無足夠的充電花費數據</div>';
+                else {
+                    DOM.cpRankingList.innerHTML = cpArr.map((item, i) => `
+                        <div class="flex justify-between items-center text-[11px] p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700/50">
+                            <span class="font-bold flex items-center gap-2 text-slate-700 dark:text-slate-200"><span class="${i===0?'text-amber-500':'text-slate-400'} font-black w-3 text-center">${i+1}</span> ${escapeHTML(item.tag)}</span>
+                            <span class="font-mono font-black text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 px-2 py-0.5 rounded shadow-sm">$${item.cp.toFixed(1)} <span class="text-[9px] font-bold">/度</span></span>
+                        </div>
+                    `).join('');
+                }
             }
 
             if (DOM.costDistributionChart) {
