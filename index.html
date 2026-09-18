@@ -43,8 +43,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
-    <!-- ⚠️ 請將 YOUR_DEMO_KEY 替換為您的 Google Maps API Key -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4VD2QwmyRkM8gwApiDIMUXKBKRAaoXW0" defer></script>
+    <!-- ⚠️ 替換掉原本的 Google Maps 引入腳本，加入 libraries=places -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4VD2QwmyRkM8gwApiDIMUXKBKRAaoXW0&libraries=places" defer></script>
 
     <script>
         (function() {
@@ -85,6 +85,12 @@
         
         .hero-image-container { position: relative; width: 100%; padding-top: 56.25%; border-radius: 2rem; overflow: hidden; }
         .hero-image-container img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+
+        /* 配合 Google Autocomplete 的樣式微調 */
+        .pac-container { border-radius: 1rem; border: none; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); margin-top: 4px; padding: 4px; font-family: 'Fredoka', 'Noto Sans TC', sans-serif; z-index: 100 !important; }
+        .dark .pac-container { background-color: #1e293b; color: #f8fafc; }
+        .dark .pac-item { border-top-color: #334155; color: #cbd5e1; }
+        .dark .pac-item-query { color: #f8fafc; }
     </style>
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -833,7 +839,8 @@
             </div>
             <div id="evMapContainer" class="w-full flex-1 rounded-xl bg-slate-200 dark:bg-slate-800 overflow-hidden relative z-10"></div>
             <div class="mt-3 text-center text-[10px] font-bold text-slate-400">
-                <span class="inline-block w-2 h-2 rounded-full bg-amber-500 mr-1"></span>已造訪站點 
+                <span class="inline-block w-2 h-2 rounded-full bg-amber-500 mr-1"></span>內建預設站點
+                <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 ml-3 mr-1"></span>自訂擴充站點 
             </div>
         </div>
     </div>
@@ -1016,6 +1023,51 @@
             setupDelegatedEvents();
 
             if (AppState.syncUrl) setTimeout(() => syncWithCloud('auto', false), 800);
+
+            // 🌟 初始化輸入框的 Google Places 自動建議
+            initPlacesAutocomplete();
+        }
+
+        // 🌟 初始化 Places Autocomplete 功能
+        function initPlacesAutocomplete() {
+            if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
+                setTimeout(initPlacesAutocomplete, 500); // 等待 API 載入完成
+                return;
+            }
+            const inputTag = document.getElementById('inputTag');
+            if (inputTag) {
+                const autocomplete = new google.maps.places.Autocomplete(inputTag, {
+                    types: ['establishment', 'geocode'], // 允許地標與地址
+                    componentRestrictions: { country: 'tw' } // 限制在台灣
+                });
+                
+                autocomplete.addListener('place_changed', () => {
+                    const place = autocomplete.getPlace();
+                    if (place.name) {
+                        inputTag.value = place.name; // 將輸入框替換為乾淨的地標名稱
+                    }
+                    
+                    // 自動解析地區 (District) 並帶入欄位
+                    if (place.address_components) {
+                        let city = '', district = '';
+                        place.address_components.forEach(comp => {
+                            if (comp.types.includes('administrative_area_level_1') || comp.types.includes('administrative_area_level_2')) city = comp.long_name;
+                            if (comp.types.includes('administrative_area_level_3') || comp.types.includes('locality')) district = comp.long_name;
+                        });
+                        const distInput = document.getElementById('inputDistrict');
+                        if (distInput && (city || district)) {
+                            distInput.value = (city + district).replace('台灣', '');
+                        }
+                    }
+                    
+                    // 將 Google 提供的精準座標存入快取，供充電足跡地圖直接使用
+                    if (place.geometry && place.geometry.location) {
+                        const cache = JSON.parse(localStorage.getItem('ev_life_geocode_cache') || '{}');
+                        cache[place.name] = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
+                        localStorage.setItem('ev_life_geocode_cache', JSON.stringify(cache));
+                    }
+                });
+            }
         }
 
         function loadSettingsFromStorage() {
@@ -1463,6 +1515,7 @@
             setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
+        // 🌟 更新版的地圖 Modal，支援自訂站點顯示與 Geocoding 轉換
         window.openMapModal = function() {
             const modal = document.getElementById('mapModal');
             modal.classList.remove('hidden');
@@ -1505,16 +1558,20 @@
                 }
                 window.evMarkers = [];
 
-                // 取得紀錄中所有的 Tag
-                const visitedTags = new Set(AppState.records.map(r => r.tag).filter(t=>t));
-                
-                // 只過濾出「有造訪過」的站點並標記在圖上
-                CHARGE_STATIONS.forEach(st => {
-                    if (!visitedTags.has(st.name)) return; // 沒去過就不顯示
-                    
-                    const markerColor = '#f59e0b'; // 琥珀色
-                    
-                    // 自訂水滴型 SVG 地標
+                // 取得紀錄中所有的站點與其地區
+                const visitedStations = new Map();
+                AppState.records.forEach(r => {
+                    if (r.tag && !visitedStations.has(r.tag)) {
+                        visitedStations.set(r.tag, r.district || '');
+                    }
+                });
+
+                const geocoder = new google.maps.Geocoder();
+                const geocodeCache = JSON.parse(localStorage.getItem('ev_life_geocode_cache') || '{}');
+
+                // 放置標記的封裝函數
+                const placeMarker = (name, lat, lng, isCustom = false) => {
+                    const markerColor = isCustom ? '#10b981' : '#f59e0b'; // 內建為橘色，自訂站點為綠色
                     const svgMarker = {
                         path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
                         fillColor: markerColor,
@@ -1527,14 +1584,14 @@
                     };
 
                     const marker = new google.maps.Marker({
-                        position: { lat: st.lat, lng: st.lng },
+                        position: { lat, lng },
                         map: window.evMap,
                         icon: svgMarker,
-                        title: st.name
+                        title: name
                     });
 
                     const infoWindow = new google.maps.InfoWindow({
-                        content: `<div style="color:#1e293b;font-weight:900;font-size:12px;padding:2px;">${st.name}<br><span style="color:#f59e0b;font-size:10px;">✅ 曾在此紀錄</span></div>`
+                        content: `<div style="color:#1e293b;font-weight:900;font-size:12px;padding:2px;">${name}<br><span style="color:${markerColor};font-size:10px;">✅ 曾在此紀錄${isCustom ? '(自訂擴充)' : ''}</span></div>`
                     });
 
                     marker.addListener('click', () => {
@@ -1542,7 +1599,39 @@
                     });
 
                     window.evMarkers.push(marker);
+                };
+
+                // 遍歷所有造訪過的站點，決定如何獲取經緯度
+                visitedStations.forEach((district, tag) => {
+                    // 1. 優先檢查是否在您預設的 CHARGE_STATIONS 中
+                    const builtin = CHARGE_STATIONS.find(s => s.name === tag);
+                    if (builtin) {
+                        placeMarker(builtin.name, builtin.lat, builtin.lng, false);
+                        return;
+                    }
+
+                    // 2. 檢查是否在之前的自動建議或解析中快取過經緯度
+                    if (geocodeCache[tag]) {
+                        placeMarker(tag, geocodeCache[tag].lat, geocodeCache[tag].lng, true);
+                        return;
+                    }
+
+                    // 3. 若為未知且手動輸入的站點，即時呼叫 API 轉換成經緯度
+                    const searchQuery = `${district} ${tag}`.trim();
+                    geocoder.geocode({ address: searchQuery, region: 'tw' }, (results, status) => {
+                        if (status === 'OK' && results[0]) {
+                            const lat = results[0].geometry.location.lat();
+                            const lng = results[0].geometry.location.lng();
+                            
+                            // 寫入快取，避免每次開地圖都耗費 API 額度
+                            geocodeCache[tag] = { lat, lng };
+                            localStorage.setItem('ev_life_geocode_cache', JSON.stringify(geocodeCache));
+                            
+                            placeMarker(tag, lat, lng, true);
+                        }
+                    });
                 });
+
             }, 100);
         }
 
@@ -1869,7 +1958,6 @@
             const displayRecords = [...filteredRecords].reverse();
             
             // 計算黃金右腳 (Eco Score)
-            // 公式：以 5.0 km/度為 60 分，每提升 0.1 增加 2.4 分，滿分 100
             const scoredRecords = displayRecords.filter(r => !['維修保養', '停車費', '通行費', '保險費'].includes(r.chargeType) && r.distance > 5)
                 .map(r => {
                     const power = AppState.batteryCapacity * ((r.consumedSocPercent || 0) / 100);
@@ -2252,9 +2340,9 @@
                                     }
                                 }
                             }
-                        }, 
-                        scales: scalesConfig 
-                    }
+                        }
+                    }, 
+                    scales: scalesConfig 
                 });
             }
 
