@@ -43,9 +43,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
-    <!-- 新增地圖 Leaflet 資源 -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+    <!-- 新增 Google Maps 資源 (請將 YOUR_API_KEY 替換為您的真實金鑰) -->
+    <!-- ⚠️ 注意：上線前務必至 GCP 後台設定「網站限制 (HTTP Referrers)」以防盜用 -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4VD2QwmyRkM8gwApiDIMUXKBKRAaoXW0" defer></script>
 
     <script>
         (function() {
@@ -1469,24 +1469,76 @@
             setTimeout(() => {
                 modal.classList.remove('opacity-0');
                 modal.firstElementChild.classList.remove('scale-95');
-                if (typeof L !== 'undefined') {
-                    if (!window.evMap) {
-                        window.evMap = L.map('evMapContainer').setView([23.6978, 120.9605], 7);
-                        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                            attribution: '&copy; OpenStreetMap'
-                        }).addTo(window.evMap);
-                    }
-                    window.evMap.invalidateSize();
-
-                    const visitedTags = new Set(AppState.records.map(r => r.tag).filter(t=>t));
-                    CHARGE_STATIONS.forEach(st => {
-                        const isVisited = visitedTags.has(st.name);
-                        const colorClass = isVisited ? 'bg-amber-500' : 'bg-slate-400';
-                        const markerHtml = `<div class="${colorClass} w-3.5 h-3.5 rounded-full border-2 border-white shadow-md"></div>`;
-                        const icon = L.divIcon({ html: markerHtml, className: '' });
-                        L.marker([st.lat, st.lng], {icon}).addTo(window.evMap).bindPopup(`<b>${st.name}</b><br>${isVisited?'✅ 已造訪':'未造訪'}`);
-                    });
+                
+                if (typeof google === 'undefined' || !google.maps) {
+                    showToast("未載入 Google Maps，請確認 API Key 是否填寫", true);
+                    return;
                 }
+
+                if (!window.evMap) {
+                    window.evMap = new google.maps.Map(document.getElementById('evMapContainer'), {
+                        center: { lat: 23.9738, lng: 120.9820 }, // 台灣中心點
+                        zoom: 7.5,
+                        mapTypeControl: false,
+                        streetViewControl: false,
+                        fullscreenControl: false,
+                        styles: document.documentElement.classList.contains('dark') ? [
+                            { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+                            { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+                            { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+                            { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
+                            { featureType: "road", elementType: "geometry", stylers: [{ color: "#38414e" }] },
+                            { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#212a37" }] },
+                            { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#9ca5b3" }] },
+                            { featureType: "water", elementType: "geometry", stylers: [{ color: "#17263c" }] },
+                            { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#515c6d" }] },
+                            { featureType: "water", elementType: "labels.text.stroke", stylers: [{ color: "#17263c" }] }
+                        ] : []
+                    });
+                } else {
+                    google.maps.event.trigger(window.evMap, 'resize');
+                }
+
+                // 清除舊標記
+                if (window.evMarkers) {
+                    window.evMarkers.forEach(m => m.setMap(null));
+                }
+                window.evMarkers = [];
+
+                const visitedTags = new Set(AppState.records.map(r => r.tag).filter(t=>t));
+                CHARGE_STATIONS.forEach(st => {
+                    const isVisited = visitedTags.has(st.name);
+                    const markerColor = isVisited ? '#f59e0b' : '#94a3b8'; // 琥珀色 vs 灰色
+                    
+                    // 自訂水滴型 SVG 地標
+                    const svgMarker = {
+                        path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+                        fillColor: markerColor,
+                        fillOpacity: 1,
+                        strokeWeight: 1.5,
+                        strokeColor: '#ffffff',
+                        rotation: 0,
+                        scale: 1.4,
+                        anchor: new google.maps.Point(12, 22),
+                    };
+
+                    const marker = new google.maps.Marker({
+                        position: { lat: st.lat, lng: st.lng },
+                        map: window.evMap,
+                        icon: svgMarker,
+                        title: st.name
+                    });
+
+                    const infoWindow = new google.maps.InfoWindow({
+                        content: `<div style="color:#1e293b;font-weight:900;font-size:12px;padding:2px;">${st.name}<br><span style="color:${isVisited?'#f59e0b':'#94a3b8'};font-size:10px;">${isVisited?'✅ 已解鎖造訪':'🔒 尚未造訪'}</span></div>`
+                    });
+
+                    marker.addListener('click', () => {
+                        infoWindow.open(window.evMap, marker);
+                    });
+
+                    window.evMarkers.push(marker);
+                });
             }, 100);
         }
 
@@ -1762,7 +1814,7 @@
             // 🏅 渲染成就徽章
             if (DOM.badgesContainer) {
                 let badgesHtml = '';
-                const baseClass = "px-3 py-1.5 rounded-lg text-[10px] font-black shadow-sm flex items-center justify-center gap-1.5 flex-shrink-0 whitespace-nowrap border";
+                const baseClass = "px-3 py-1.5 rounded-lg text-[10px] font-black shadow-sm flex items-center justify-center gap-1.5 flex-shrink-0 whitespace-nowrap border cursor-pointer hover:scale-105 transition-transform";
                 let fuelSavings = 0, co2Savings = 0, maxDist = 0, maxEff = 0, nightCharge = 0;
                 
                 let globalKm = 0, totalEnergyCost = 0, globalPower = 0;
@@ -1779,10 +1831,10 @@
                 fuelSavings = Math.max(0, hypotheticalGasCost - totalEnergyCost);
                 co2Savings = globalKm * CONSTANTS.CO2_SAVED_PER_KM;
 
-                if (co2Savings > 500) badgesHtml += `<div class="${baseClass} bg-green-100 border-green-200 text-green-700 dark:bg-green-900/40 dark:border-green-800 dark:text-green-400">🌍 環保先鋒</div>`;
-                if (fuelSavings > 5000) badgesHtml += `<div class="${baseClass} bg-amber-100 border-amber-200 text-amber-700 dark:bg-amber-900/40 dark:border-amber-800 dark:text-amber-400">💰 省錢大師</div>`;
-                if (maxDist >= 200) badgesHtml += `<div class="${baseClass} bg-indigo-100 border-indigo-200 text-indigo-700 dark:bg-indigo-900/40 dark:border-indigo-800 dark:text-indigo-400">🚀 高速巡航者</div>`;
-                if (maxEff >= 6.5) badgesHtml += `<div class="${baseClass} bg-rose-100 border-rose-200 text-rose-700 dark:bg-rose-900/40 dark:border-rose-800 dark:text-rose-400">👑 黃金右腳</div>`;
+                if (co2Savings > 500) badgesHtml += `<div onclick="showBadgeInfo('eco')" class="${baseClass} bg-green-100 border-green-200 text-green-700 dark:bg-green-900/40 dark:border-green-800 dark:text-green-400">🌍 環保先鋒</div>`;
+                if (fuelSavings > 5000) badgesHtml += `<div onclick="showBadgeInfo('money')" class="${baseClass} bg-amber-100 border-amber-200 text-amber-700 dark:bg-amber-900/40 dark:border-amber-800 dark:text-amber-400">💰 省錢大師</div>`;
+                if (maxDist >= 200) badgesHtml += `<div onclick="showBadgeInfo('range')" class="${baseClass} bg-indigo-100 border-indigo-200 text-indigo-700 dark:bg-indigo-900/40 dark:border-indigo-800 dark:text-indigo-400">🚀 高速巡航者</div>`;
+                if (maxEff >= 6.5) badgesHtml += `<div onclick="showBadgeInfo('foot')" class="${baseClass} bg-rose-100 border-rose-200 text-rose-700 dark:bg-rose-900/40 dark:border-rose-800 dark:text-rose-400">👑 黃金右腳</div>`;
                 
                 if (badgesHtml === '') badgesHtml = `<div class="text-[10px] text-slate-400 font-bold px-2 py-1">持續紀錄旅程來解鎖專屬成就！</div>`;
                 DOM.badgesContainer.innerHTML = badgesHtml;
@@ -1966,6 +2018,16 @@
             const [y, m, d] = dateStr.split('-');
             const target = new Date(y, m - 1, d);
             return Math.round((target.getTime() - today.getTime()) / 86400000);
+        }
+        
+        window.showBadgeInfo = function(type) {
+            const info = {
+                'eco': '🌍 【環保先鋒】\n累積減少超過 500kg CO2 排放！感謝您為地球的貢獻。',
+                'money': '💰 【省錢大師】\n與燃油車相比，累積省下超過 5000 元油錢！純電真的省。',
+                'range': '🚀 【高速巡航者】\n單次行駛里程超過 200 公里！長途旅行也難不倒你。',
+                'foot': '👑 【黃金右腳】\n單趟平均電耗達 6.5 km/度以上！你的右腳控制力令人驚嘆。'
+            };
+            showToast(info[type] || '持續探索解鎖更多成就！', false, 3500);
         }
 
         function updateProgressStyle(remEl, progEl, remainingKm) {
@@ -2165,7 +2227,18 @@
                             legend: { position: 'top', align: 'end', labels: { color: labelColor, boxWidth: 8, boxHeight: 8, usePointStyle: true } },
                             tooltip: {
                                 usePointStyle: true,
-                                boxPadding: 4
+                                boxPadding: 6,
+                                padding: 10,
+                                bodySpacing: 6,
+                                callbacks: {
+                                    labelColor: function(context) {
+                                        // 強制色塊與邊框顏色一致，解決 Tailwind 重置清單樣式導致的不對齊問題
+                                        return {
+                                            borderColor: context.dataset.borderColor,
+                                            backgroundColor: context.dataset.borderColor
+                                        };
+                                    }
+                                }
                             }
                         }, 
                         scales: scalesConfig 
