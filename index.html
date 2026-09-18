@@ -2226,19 +2226,18 @@
                         plugins: { 
                             legend: { position: 'top', align: 'end', labels: { color: labelColor, boxWidth: 8, boxHeight: 8, usePointStyle: true } },
                             tooltip: {
+                                backgroundColor: isDarkMode ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                                titleColor: isDarkMode ? '#f8fafc' : '#0f172a',
+                                bodyColor: isDarkMode ? '#cbd5e1' : '#334155',
+                                borderColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                                borderWidth: 1,
+                                padding: 12,
+                                boxPadding: 8,
                                 usePointStyle: true,
-                                boxPadding: 6,
-                                padding: 10,
-                                bodySpacing: 6,
-                                callbacks: {
-                                    labelColor: function(context) {
-                                        // 強制色塊與邊框顏色一致，解決 Tailwind 重置清單樣式導致的不對齊問題
-                                        return {
-                                            borderColor: context.dataset.borderColor,
-                                            backgroundColor: context.dataset.borderColor
-                                        };
-                                    }
-                                }
+                                boxWidth: 8,
+                                boxHeight: 8,
+                                bodyFont: { size: 12, lineHeight: 1.4 },
+                                titleFont: { size: 13, weight: 'bold', lineHeight: 1.4 }
                             }
                         }, 
                         scales: scalesConfig 
@@ -2266,7 +2265,21 @@
                 } else {
                     tempEffChartInstance = new Chart(scatterCtx, {
                         type: 'scatter', data: scatterDataSet,
-                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => `氣溫: ${ctx.raw.x}°C, 電耗: ${ctx.raw.y}` } } }, scales: { x: { title: { display: true, text: '氣溫 (°C)', color: labelColor, font: {size: 10} }, ticks: { color: labelColor }, grid: { color: gridColor } }, y: { title: { display: true, text: '電耗 (km/度)', color: labelColor, font: {size: 10} }, ticks: { color: labelColor }, grid: { color: gridColor } } } }
+                        options: { 
+                            responsive: true, maintainAspectRatio: false, 
+                            plugins: { 
+                                legend: { display: false }, 
+                                tooltip: { 
+                                    backgroundColor: isDarkMode ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                                    titleColor: isDarkMode ? '#f8fafc' : '#0f172a',
+                                    bodyColor: isDarkMode ? '#cbd5e1' : '#334155',
+                                    borderColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                                    borderWidth: 1, padding: 12, boxPadding: 8, usePointStyle: true, boxWidth: 8, boxHeight: 8, bodyFont: { size: 12, lineHeight: 1.4 },
+                                    callbacks: { label: (ctx) => `氣溫: ${ctx.raw.x}°C, 電耗: ${ctx.raw.y}` } 
+                                } 
+                            }, 
+                            scales: { x: { title: { display: true, text: '氣溫 (°C)', color: labelColor, font: {size: 10} }, ticks: { color: labelColor }, grid: { color: gridColor } }, y: { title: { display: true, text: '電耗 (km/度)', color: labelColor, font: {size: 10} }, ticks: { color: labelColor }, grid: { color: gridColor } } } 
+                        }
                     });
                 }
             }
@@ -2332,7 +2345,26 @@
                 } else {
                     costDistributionChartInstance = new Chart(pieCtx, {
                         type: 'doughnut', data: pieData,
-                        options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'right', labels: { color: labelColor, usePointStyle: true, padding: 15, font: {size: 10} } } } }
+                        options: { 
+                            responsive: true, 
+                            maintainAspectRatio: false, 
+                            cutout: '70%', 
+                            plugins: { 
+                                legend: { position: 'right', labels: { color: labelColor, usePointStyle: true, padding: 15, font: {size: 10} } },
+                                tooltip: {
+                                    backgroundColor: isDarkMode ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                                    bodyColor: isDarkMode ? '#cbd5e1' : '#334155',
+                                    borderColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                                    borderWidth: 1,
+                                    padding: 12,
+                                    boxPadding: 8,
+                                    usePointStyle: true,
+                                    boxWidth: 8,
+                                    boxHeight: 8,
+                                    bodyFont: { size: 12, lineHeight: 1.4 }
+                                }
+                            } 
+                        }
                     });
                 }
             }
