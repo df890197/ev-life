@@ -432,9 +432,14 @@
                         <div id="tagInputArea">
                             <div class="flex justify-between items-end mb-1.5">
                                 <label class="text-xs font-bold text-slate-500 dark:text-slate-400 block">站點與地區 (選填)</label>
-                                <button type="button" onclick="autoLocateAndWeather()" class="text-[10px] bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300 px-2 py-1 rounded shadow-sm font-bold active:scale-95 transition-transform flex items-center gap-1 w-max">
-                                    📍定位與天氣
-                                </button>
+                                <div class="flex gap-1">
+                                    <button type="button" onclick="autoLocateAndWeather()" class="text-[10px] bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-400 px-2 py-1 rounded shadow-sm font-bold active:scale-95 transition-transform flex items-center gap-1 w-max">
+                                        📍自動定位
+                                    </button>
+                                    <button type="button" onclick="openPickerMapModal()" class="text-[10px] bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400 px-2 py-1 rounded shadow-sm font-bold active:scale-95 transition-transform flex items-center gap-1 w-max">
+                                        🗺️地圖選站
+                                    </button>
+                                </div>
                             </div>
                             
                             <!-- 第一排：滿版站點 -->
@@ -835,6 +840,20 @@
         </div>
     </div>
 
+    <!-- 🗺️ 手動選站地圖 Modal -->
+    <div id="pickerMapModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[125] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white dark:bg-[#1e293b] rounded-[2rem] p-4 shadow-2xl max-w-md w-full mx-4 h-[75vh] flex flex-col transform scale-95 transition-all duration-300 border border-slate-100 dark:border-slate-700 relative">
+            <div class="flex items-center justify-between mb-3 px-2">
+                <h3 class="text-sm font-black text-slate-800 dark:text-white flex items-center gap-2">🗺️ 點擊地圖選擇站點</h3>
+                <button onclick="closePickerMapModal()" class="w-7 h-7 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center text-xs font-bold transition active:scale-90">✕</button>
+            </div>
+            <div id="pickerMapContainer" class="w-full flex-1 rounded-xl bg-slate-200 dark:bg-slate-800 overflow-hidden relative z-10"></div>
+            <div class="mt-3 text-center text-[10px] font-bold text-slate-400">
+                點擊地標後，將自動載入該站點名稱、預估地區及目前氣溫
+            </div>
+        </div>
+    </div>
+
     <nav class="fixed left-4 right-4 z-50 rounded-[2rem] ios-27-glass px-2 floating-nav">
         <div class="flex justify-around items-center h-16 max-w-md mx-auto relative" id="nav-container">
             
@@ -994,6 +1013,7 @@
             updateSyncUiStatus();
             updatePwaDiagnostic();
             checkQuickLog();
+            setupDragScroll(); // 啟用電腦版滑鼠拖曳滑動
             
             try {
                 const localData = localStorage.getItem('ev_life_records');
@@ -1094,11 +1114,13 @@
             msgEl.innerHTML = message; // 允許 HTML 換行標籤
             iconEl.textContent = isError ? "⚠️" : "🐾";
 
-            // ★ 修正此處以支援深色模式的顏色適應
-            const colorClasses = isError ? 'bg-rose-500 text-white' : 'bg-slate-900/95 dark:bg-slate-800/95 text-white dark:border-slate-700';
+            // ★ 修正通知視窗顏色，確保在深淺模式下都有良好的對比度
+            const colorClasses = isError 
+                ? 'bg-rose-500 text-white' 
+                : 'bg-slate-800 dark:bg-slate-600 text-white border border-slate-700 dark:border-slate-500 shadow-xl';
             
             // 重置既有 class，重新加入狀態
-            toastEl.className = `fixed top-[70px] left-1/2 -translate-x-1/2 z-[120] transform transition-all duration-300 px-5 py-3 rounded-2xl shadow-lg flex items-start space-x-2 text-xs font-bold border border-white/10 max-w-[90vw] text-left leading-relaxed ${colorClasses} translate-y-0 opacity-100 visible pointer-events-auto`;
+            toastEl.className = `fixed top-[70px] left-1/2 -translate-x-1/2 z-[120] transform transition-all duration-300 px-5 py-3 rounded-2xl flex items-start space-x-2 text-xs font-bold max-w-[90vw] text-left leading-relaxed ${colorClasses} translate-y-0 opacity-100 visible pointer-events-auto`;
             
             setTimeout(() => {
                 toastEl.classList.replace('translate-y-0', '-translate-y-10');
@@ -1131,6 +1153,43 @@
             }
             setupThemeIcons();
             debouncedUpdateCharts();
+        }
+
+        function setupDragScroll() {
+            const containers = [
+                document.getElementById('monthFilterContainer'), 
+                document.getElementById('monthFilterContainer_analysis'), 
+                document.getElementById('badgesContainer')
+            ];
+            
+            containers.forEach(slider => {
+                if(!slider) return;
+                let isDown = false;
+                let startX;
+                let scrollLeft;
+
+                slider.addEventListener('mousedown', (e) => {
+                    isDown = true;
+                    slider.style.cursor = 'grabbing';
+                    startX = e.pageX - slider.offsetLeft;
+                    scrollLeft = slider.scrollLeft;
+                });
+                slider.addEventListener('mouseleave', () => {
+                    isDown = false;
+                    slider.style.cursor = '';
+                });
+                slider.addEventListener('mouseup', () => {
+                    isDown = false;
+                    slider.style.cursor = '';
+                });
+                slider.addEventListener('mousemove', (e) => {
+                    if (!isDown) return;
+                    e.preventDefault();
+                    const x = e.pageX - slider.offsetLeft;
+                    const walk = (x - startX) * 1.5; // 滑動速度倍率
+                    slider.scrollLeft = scrollLeft - walk;
+                });
+            });
         }
 
         window.handleHeroImageUpload = function(event) {
@@ -1549,6 +1608,112 @@
             modal.classList.add('opacity-0');
             modal.firstElementChild.classList.add('scale-95');
             setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        window.openPickerMapModal = function() {
+            const modal = document.getElementById('pickerMapModal');
+            modal.classList.remove('hidden');
+            
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.firstElementChild.classList.remove('scale-95');
+                
+                if (typeof google === 'undefined' || !google.maps) {
+                    showToast("未載入 Google Maps，請確認連線", true);
+                    return;
+                }
+
+                if (!window.pickerMap) {
+                    window.pickerMap = new google.maps.Map(document.getElementById('pickerMapContainer'), {
+                        center: { lat: 23.9738, lng: 120.9820 },
+                        zoom: 7.5,
+                        mapTypeControl: false,
+                        streetViewControl: false,
+                        fullscreenControl: false,
+                        styles: document.documentElement.classList.contains('dark') ? [
+                            { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+                            { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+                            { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+                            { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
+                            { featureType: "road", elementType: "geometry", stylers: [{ color: "#38414e" }] },
+                            { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#212a37" }] },
+                            { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#9ca5b3" }] },
+                            { featureType: "water", elementType: "geometry", stylers: [{ color: "#17263c" }] },
+                            { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#515c6d" }] },
+                            { featureType: "water", elementType: "labels.text.stroke", stylers: [{ color: "#17263c" }] }
+                        ] : []
+                    });
+
+                    window.pickerMarkers = [];
+                    CHARGE_STATIONS.forEach(st => {
+                        const marker = new google.maps.Marker({
+                            position: { lat: st.lat, lng: st.lng },
+                            map: window.pickerMap,
+                            title: st.name
+                        });
+
+                        marker.addListener('click', () => {
+                            if(window.pickerInfoWindow) window.pickerInfoWindow.close();
+                            window.pickerInfoWindow = new google.maps.InfoWindow({
+                                content: `
+                                    <div style="padding: 4px; min-width: 140px;">
+                                        <div style="color:#1e293b;font-weight:900;font-size:13px;margin-bottom:8px;">${st.name}</div>
+                                        <button onclick="pickStationFromMap('${escapeHTML(st.name)}', ${st.lat}, ${st.lng})" style="background:#0d9488;color:white;width:100%;border-radius:6px;padding:6px;font-size:11px;font-weight:bold;border:none;cursor:pointer;">✅ 帶入此站點</button>
+                                    </div>
+                                `
+                            });
+                            window.pickerInfoWindow.open(window.pickerMap, marker);
+                        });
+                        window.pickerMarkers.push(marker);
+                    });
+                } else {
+                    google.maps.event.trigger(window.pickerMap, 'resize');
+                }
+            }, 100);
+        }
+
+        window.closePickerMapModal = function() {
+            const modal = document.getElementById('pickerMapModal');
+            modal.classList.add('opacity-0');
+            modal.firstElementChild.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        window.pickStationFromMap = async function(name, lat, lng) {
+            if(DOM.inputTag) DOM.inputTag.value = name;
+            closePickerMapModal();
+            showToast(`已選擇：${name}<br>正在獲取地區與天氣...`, false, 2000);
+
+            try {
+                // 嘗試反向地理編碼取得行政區
+                const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=14&addressdetails=1&accept-language=zh-TW`, { headers: { 'User-Agent': 'EvLifePWA/2.0' }});
+                const geoData = await geoRes.json();
+                let district = "";
+                if (geoData && geoData.address) {
+                    const ad = geoData.address;
+                    let city = ad.city || ad.county || ad.state || "";
+                    const exactDist = Object.values(ad).find(v => typeof v === 'string' && (v.endsWith('區') || v.endsWith('鄉') || v.endsWith('鎮')));
+                    if (exactDist) district = exactDist;
+                    else {
+                        district = ad.town || ad.city_district || ad.suburb || ad.district || "";
+                        if (district.endsWith('里') || district.endsWith('村') || district.endsWith('鄰')) district = "";
+                    }
+                    if (district && !district.startsWith(city)) district = `${city}${district}`.trim();
+                    else if (!district) district = city;
+                }
+                if(district && DOM.inputDistrict) DOM.inputDistrict.value = district;
+
+                // 嘗試取得氣溫
+                const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`);
+                const wData = await wRes.json();
+                if(wData && wData.current_weather && document.getElementById('inputTemperature')) {
+                    document.getElementById('inputTemperature').value = wData.current_weather.temperature;
+                }
+                
+                showToast(`📍 站點、地區與氣溫已帶入完成！`, false, 2000);
+            } catch(e) {
+                console.log(e);
+            }
         }
 
         window.saveQuickLog = function() {
