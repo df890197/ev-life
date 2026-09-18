@@ -43,7 +43,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
-    <!-- ⚠️ 替換掉原本的 Google Maps 引入腳本，加入 libraries=places -->
+    <!-- ⚠️ 包含 places 庫，供自動建議使用 -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4VD2QwmyRkM8gwApiDIMUXKBKRAaoXW0&libraries=places" defer></script>
 
     <script>
@@ -86,11 +86,12 @@
         .hero-image-container { position: relative; width: 100%; padding-top: 56.25%; border-radius: 2rem; overflow: hidden; }
         .hero-image-container img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
 
-        /* 配合 Google Autocomplete 的樣式微調 */
-        .pac-container { border-radius: 1rem; border: none; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); margin-top: 4px; padding: 4px; font-family: 'Fredoka', 'Noto Sans TC', sans-serif; z-index: 100 !important; }
+        /* 配合 Google Autocomplete 的樣式微調，提高 z-index 並防止殘影 */
+        .pac-container { border-radius: 1rem; border: none; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); margin-top: 4px; padding: 4px; font-family: 'Fredoka', 'Noto Sans TC', sans-serif; z-index: 9999 !important; }
         .dark .pac-container { background-color: #1e293b; color: #f8fafc; }
         .dark .pac-item { border-top-color: #334155; color: #cbd5e1; }
         .dark .pac-item-query { color: #f8fafc; }
+        .pac-container:empty { display: none !important; }
     </style>
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -921,7 +922,7 @@
             get CO2_SAVED_PER_KM() { return this.CO2_ICE_PER_KM - this.CO2_EV_PER_KM; }
         };
 
-        // 常用充電站清單（如果使用者填寫的 Tag 有在這裡面，就會被標記到地圖上）
+        // 常用充電站清單
         const CHARGE_STATIONS = [
             { name: "U-POWER 桃園經國站", lat: 25.029, lng: 121.294 },
             { name: "U-POWER 中壢青埔站", lat: 25.009, lng: 121.214 },
@@ -992,46 +993,14 @@
             }
         });
 
-        function initAppCore() {
-            setupThemeIcons();
-            setTimeout(() => updateLiquidIndicator('home'), 100);
-            initLiquidDrag();
+        // 🌟 初始化 Places Autocomplete 功能 (加入防止重複執行的機制)
+        let isPlacesInitialized = false;
 
-            loadSettingsFromStorage();
-            setupNumericRestrictions();
-            setupSocSliders();
-            selectChargeType('DC-快充'); 
-            updateSyncUiStatus();
-            updatePwaDiagnostic();
-            checkQuickLog();
+        window.initPlacesAutocomplete = function() {
+            if (isPlacesInitialized) return; // 如果已經初始化過就跳出
             
-            try {
-                const localData = localStorage.getItem('ev_life_records');
-                if (localData) AppState.records = JSON.parse(localData).map(parseRecordSoc);
-            } catch (err) {
-                console.error("Local data parsing error:", err);
-                AppState.records = [];
-                showToast("本機資料解析異常，已重置狀態", true);
-            }
-            
-            renderDashboard();
-            autoFillStartSoc();
-            
-            if ('requestIdleCallback' in window) requestIdleCallback(debouncedUpdateCharts);
-            else setTimeout(debouncedUpdateCharts, 200);
-            
-            setupDelegatedEvents();
-
-            if (AppState.syncUrl) setTimeout(() => syncWithCloud('auto', false), 800);
-
-            // 🌟 初始化輸入框的 Google Places 自動建議
-            initPlacesAutocomplete();
-        }
-
-        // 🌟 初始化 Places Autocomplete 功能
-        function initPlacesAutocomplete() {
             if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
-                setTimeout(initPlacesAutocomplete, 500); // 等待 API 載入完成
+                setTimeout(window.initPlacesAutocomplete, 500); // 等待 API 載入完成
                 return;
             }
             const inputTag = document.getElementById('inputTag');
@@ -1067,7 +1036,41 @@
                         localStorage.setItem('ev_life_geocode_cache', JSON.stringify(cache));
                     }
                 });
+                isPlacesInitialized = true;
             }
+        }
+
+        function initAppCore() {
+            setupThemeIcons();
+            setTimeout(() => updateLiquidIndicator('home'), 100);
+            initLiquidDrag();
+
+            loadSettingsFromStorage();
+            setupNumericRestrictions();
+            setupSocSliders();
+            selectChargeType('DC-快充'); 
+            updateSyncUiStatus();
+            updatePwaDiagnostic();
+            checkQuickLog();
+            
+            try {
+                const localData = localStorage.getItem('ev_life_records');
+                if (localData) AppState.records = JSON.parse(localData).map(parseRecordSoc);
+            } catch (err) {
+                console.error("Local data parsing error:", err);
+                AppState.records = [];
+                showToast("本機資料解析異常，已重置狀態", true);
+            }
+            
+            renderDashboard();
+            autoFillStartSoc();
+            
+            if ('requestIdleCallback' in window) requestIdleCallback(debouncedUpdateCharts);
+            else setTimeout(debouncedUpdateCharts, 200);
+            
+            setupDelegatedEvents();
+
+            if (AppState.syncUrl) setTimeout(() => syncWithCloud('auto', false), 800);
         }
 
         function loadSettingsFromStorage() {
@@ -1146,12 +1149,11 @@
             const msgEl = DOM.toastMessage;
             const iconEl = DOM.toastIcon;
             
-            msgEl.innerHTML = message; // 允許 HTML 換行標籤
+            msgEl.innerHTML = message; 
             iconEl.textContent = isError ? "⚠️" : "🐾";
 
             const colorClasses = isError ? 'bg-rose-500' : 'bg-slate-900/95 dark:bg-amber-500 dark:text-slate-900';
             
-            // 重置既有 class，重新加入狀態
             toastEl.className = `fixed top-[70px] left-1/2 -translate-x-1/2 z-[120] transform transition-all duration-300 text-white px-5 py-3 rounded-2xl shadow-lg flex items-start space-x-2 text-xs font-bold border border-white/10 max-w-[90vw] text-left leading-relaxed ${colorClasses} translate-y-0 opacity-100 visible pointer-events-auto`;
             
             setTimeout(() => {
@@ -1232,7 +1234,7 @@
                         const previewContainer = document.getElementById('splashPreviewContainer');
                         if (previewImg) previewImg.src = dataUrl;
                         if (previewContainer) previewContainer.classList.remove('hidden');
-                        showToast('啟動圖片已儲存！下次重啟生效 🚀');
+                        showToast('啟ople動圖片已儲存！下次重啟生效 🚀');
                     } catch (err) { showToast('圖片檔案太大。', true); }
                 }
                 img.src = e.target.result;
@@ -1287,6 +1289,11 @@
             if (tabId === 'settings') {
                 localStorage.setItem('ev_life_sync_dismissed', 'true');
                 updateSyncUiStatus();
+            }
+            
+            // ✅ 當切換到「新增/編輯 (add)」分頁，且輸入框顯示出來後，才初始化自動建議，避免高度計算錯誤產生黑線
+            if (tabId === 'add') {
+                window.initPlacesAutocomplete();
             }
         }
 
@@ -1974,7 +1981,7 @@
                 let mvpRec = [...scoredRecords].sort((a, b) => b.score - a.score)[0];
                 
                 // 最新一筆
-                let latestRec = scoredRecords[0]; // displayRecords 已經是 reverse 過的，所以 [0] 是最新的
+                let latestRec = scoredRecords[0]; 
                 
                 // 計算最新一筆的排名
                 const allScoresSorted = [...scoredRecords].sort((a, b) => b.score - a.score);
