@@ -1816,30 +1816,42 @@
         let tdxAccessToken = null;
         let tdxTokenExpiry = 0;
 
-        // 取得 TDX 授權 Token
+// 取得 TDX 授權 Token (經由 GAS 代理解決 CORS)
         async function getTdxToken() {
-            if (!AppState.tdxClientId || !AppState.tdxClientSecret) return null;
+            // 檢查是否已設定 GAS 網址
+            if (!AppState.syncUrl) {
+                console.warn("尚未設定雲端同步網址 (GAS)，無法透過代理取得 TDX Token");
+                return null;
+            }
+
+            // 若 Token 仍在有效期限內，直接返回快取
             if (tdxAccessToken && Date.now() < tdxTokenExpiry) return tdxAccessToken;
 
             try {
-                const params = new URLSearchParams();
-                params.append('grant_type', 'client_credentials');
-                params.append('client_id', AppState.tdxClientId);
-                params.append('client_secret', AppState.tdxClientSecret);
+                // 將請求打包發送給 GAS 代理
+                const payload = {
+                    action: "get_tdx_token",
+                    client_id: AppState.tdxClientId,         // 傳遞前端設定的金鑰
+                    client_secret: AppState.tdxClientSecret
+                };
 
-                const res = await fetch('https://tdx.transportdata.tw/auth/realms/TDXConnect/protocol/openid-connect/token', {
+                const res = await fetch(AppState.syncUrl, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: params
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
                 });
+                
                 const data = await res.json();
+                
                 if (data.access_token) {
                     tdxAccessToken = data.access_token;
-                    tdxTokenExpiry = Date.now() + (data.expires_in - 60) * 1000; // 提早 60 秒視為過期，避免斷線
+                    tdxTokenExpiry = Date.now() + (data.expires_in - 60) * 1000; // 提早 60 秒視為過期
                     return tdxAccessToken;
+                } else if (data.error_description) {
+                    console.error("TDX 授權失敗:", data.error_description);
                 }
             } catch (e) { 
-                console.error("TDX Token Error:", e); 
+                console.error("TDX 代理連線發生錯誤:", e); 
             }
             return null;
         }
