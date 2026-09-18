@@ -184,15 +184,15 @@
                     <input type="file" id="heroImageUpload" class="hidden" accept="image/*" onchange="handleHeroImageUpload(event)">
                 </div>
 
-                <button onclick="openRealtimeStationModal()" class="w-full mb-6 rpg-card bg-gradient-to-r from-amber-400 to-amber-500 dark:from-amber-500 dark:to-amber-600 text-slate-900 p-4 rounded-[1.5rem] shadow-[0_8px_20px_rgba(251,191,36,0.25)] dark:shadow-[0_8px_20px_rgba(0,0,0,0.5)] border border-amber-300 dark:border-amber-400 flex items-center justify-between transition active:scale-95">
+                <button onclick="openRealtimeStationModal()" class="w-full mb-6 rpg-card bg-gradient-to-r from-amber-300 to-amber-400 dark:from-amber-600 dark:to-amber-700 text-slate-800 dark:text-white p-4 rounded-[1.5rem] shadow-[0_8px_20px_rgba(251,191,36,0.25)] dark:shadow-[0_8px_20px_rgba(0,0,0,0.5)] border border-amber-200 dark:border-amber-500 flex items-center justify-between transition active:scale-95">
                     <div class="flex items-center gap-3">
-                        <div class="bg-white/40 w-11 h-11 rounded-full flex items-center justify-center text-2xl shadow-sm border border-white/30">⚡</div>
+                        <div class="bg-white/50 dark:bg-black/20 w-11 h-11 rounded-full flex items-center justify-center text-2xl shadow-sm border border-white/40 dark:border-white/10">⚡</div>
                         <div class="text-left">
-                            <div class="font-black text-[15px] tracking-wide">尋找附近即時充電樁</div>
-                            <div class="text-[10px] font-bold opacity-80 mt-0.5 bg-slate-900/10 px-2 py-0.5 rounded-md inline-block">串接 TDX 官方即時空位狀態</div>
+                            <div class="font-black text-[15px] tracking-wide">尋找即時充電樁狀態</div>
+                            <div class="text-[10px] font-bold opacity-80 mt-0.5 bg-black/5 dark:bg-black/30 px-2 py-0.5 rounded-md inline-block">串接 TDX 官方即時空位資料</div>
                         </div>
                     </div>
-                    <div class="bg-white/30 rounded-full p-1.5 shadow-sm">
+                    <div class="bg-white/30 dark:bg-black/20 rounded-full p-1.5 shadow-sm">
                         <svg class="w-5 h-5 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
                     </div>
                 </button>
@@ -892,17 +892,29 @@
     <!-- ⚡ 即時充電狀態 Modal -->
     <div id="realTimeModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[130] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
         <div class="bg-white dark:bg-[#1e293b] rounded-[2rem] p-5 shadow-2xl max-w-md w-full mx-4 h-[85vh] flex flex-col transform scale-95 transition-all duration-300 border border-slate-100 dark:border-slate-700 relative overflow-hidden">
-            <div class="flex items-center justify-between mb-2 pb-2 border-b border-slate-100 dark:border-slate-700/60">
+            <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100 dark:border-slate-700/60">
                 <h3 class="text-sm font-black text-slate-800 dark:text-white flex items-center gap-2">
                     <span class="text-lg">⚡</span> 附近充電樁即時狀態
                 </h3>
                 <button onclick="closeRealtimeStationModal()" class="w-7 h-7 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center text-xs font-bold transition active:scale-90">✕</button>
             </div>
             
-            <div class="flex items-center gap-3 mb-4 mt-2 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-xl border border-amber-100 dark:border-amber-800/50">
-                <div class="text-[11px] font-black text-amber-700 dark:text-amber-400 flex-shrink-0">搜尋範圍</div>
+            <!-- 新增：目的地搜尋列 -->
+            <div class="flex gap-2 mb-1">
+                <div class="relative flex-1">
+                    <div class="absolute left-3 top-1/2 -translate-y-1/2 text-xs">🔍</div>
+                    <input type="text" id="realtimeSearchInput" onkeypress="if(event.key==='Enter'){event.preventDefault();searchRealtimeDestination();}" placeholder="搜尋目的地 (例:清水服務區)" class="w-full pl-8 pr-3 py-2.5 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold focus:outline-none focus:border-amber-400 transition-colors">
+                </div>
+                <button type="button" onclick="searchRealtimeDestination()" class="px-3.5 bg-amber-400 dark:bg-amber-500 text-slate-900 rounded-xl font-black text-xs shadow-sm transition active:scale-95 flex items-center justify-center flex-shrink-0">
+                    前往
+                </button>
+            </div>
+
+            <!-- 原本的搜尋範圍滑桿 -->
+            <div class="flex items-center gap-3 mb-4 mt-2 bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700/50">
+                <div class="text-[11px] font-black text-slate-600 dark:text-slate-400 flex-shrink-0">搜尋半徑</div>
                 <input type="range" id="searchRadiusSlider" min="1" max="10" value="3" class="flex-1 accent-amber-500" onchange="updateSearchRadius(this.value)">
-                <span class="text-[11px] font-black text-amber-700 dark:text-amber-400 w-12 text-right"><span id="searchRadiusText">3</span> km</span>
+                <span class="text-[11px] font-black text-slate-600 dark:text-slate-400 w-12 text-right"><span id="searchRadiusText">3</span> km</span>
             </div>
 
             <div id="realTimeListContainer" class="flex-1 overflow-y-auto no-scrollbar space-y-3 pb-4">
@@ -946,9 +958,10 @@
         </div>
     </nav>
 
-    <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-[120] transform -translate-y-10 opacity-0 invisible pointer-events-none transition-all duration-300 bg-slate-900/95 dark:bg-[#1e293b]/95 text-white px-5 py-3 rounded-2xl shadow-lg flex items-start space-x-2 text-xs font-bold border border-white/10 max-w-[90vw] text-center justify-center leading-relaxed">
-        <span id="toastIcon" class="mt-0.5 flex-shrink-0">🐾</span>
-        <span id="toastMessage" class="break-words"></span>
+    <!-- 重新設計的優化版 Toast 通知框 -->
+    <div id="toast" class="fixed top-[70px] left-1/2 -translate-x-1/2 z-[120] transform -translate-y-10 opacity-0 invisible pointer-events-none transition-all duration-300 w-max max-w-[85vw] px-5 py-3 rounded-full flex items-center justify-center gap-2.5 text-[13px] font-bold shadow-2xl bg-slate-800 dark:bg-slate-700 text-white border border-slate-700 dark:border-slate-600">
+        <span id="toastIcon" class="flex-shrink-0 text-sm">🐾</span>
+        <span id="toastMessage" class="text-center leading-relaxed"></span>
     </div>
 
     <div id="confirmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[110] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
@@ -1177,13 +1190,13 @@
             msgEl.innerHTML = message; // 允許 HTML 換行標籤
             iconEl.textContent = isError ? "⚠️" : "🐾";
 
-            // ★ 修正通知視窗顏色，確保在深淺模式下都有良好的對比度
+            // 優化：針對深淺模式重新設計精緻的藥丸狀 (Pill) 通知
             const colorClasses = isError 
-                ? 'bg-rose-500 text-white' 
-                : 'bg-slate-800 dark:bg-slate-600 text-white border border-slate-700 dark:border-slate-500 shadow-xl';
+                ? 'bg-rose-500 text-white shadow-rose-500/40 border-rose-600' 
+                : 'bg-slate-800 dark:bg-slate-700 text-white shadow-slate-900/50 dark:shadow-black/50 border border-slate-700 dark:border-slate-600';
             
-            // 重置既有 class，重新加入狀態
-            toastEl.className = `fixed top-[70px] left-1/2 -translate-x-1/2 z-[120] transform transition-all duration-300 px-5 py-3 rounded-2xl flex items-start space-x-2 text-xs font-bold max-w-[90vw] text-left leading-relaxed ${colorClasses} translate-y-0 opacity-100 visible pointer-events-auto`;
+            // 重置既有 class，重新加入狀態 (拿掉 max-w，強制 w-max 讓文字能一氣呵成不換行)
+            toastEl.className = `fixed top-[70px] left-1/2 -translate-x-1/2 z-[120] transform transition-all duration-300 px-5 py-3 rounded-full flex items-center justify-center gap-2.5 text-[13px] font-bold w-max max-w-[85vw] shadow-2xl ${colorClasses} translate-y-0 opacity-100 visible pointer-events-auto`;
             
             setTimeout(() => {
                 toastEl.classList.replace('translate-y-0', '-translate-y-10');
@@ -3182,6 +3195,46 @@ self.addEventListener('fetch', event => {
             modal.firstElementChild.classList.add('scale-95');
             setTimeout(() => modal.classList.add('hidden'), 300);
         }
+
+        // 新增：處理目的地即時搜尋的邏輯
+        window.searchRealtimeDestination = async function() {
+            const query = document.getElementById('realtimeSearchInput').value.trim();
+            if (!query) {
+                showToast("請輸入要查詢的目的地", true);
+                return;
+            }
+
+            const listContainer = document.getElementById('realTimeListContainer');
+            listContainer.innerHTML = '<div class="text-center text-amber-500 text-xs font-bold py-16 flex flex-col items-center gap-3"><span class="text-4xl animate-spin origin-center">🌍</span><span>正在搜尋目的地位置...</span></div>';
+
+            try {
+                // 使用免費的 OSM 取得目的地的經緯度
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1&countrycodes=tw`, {
+                    headers: { 'User-Agent': 'EvLifePWA/2.0' }
+                });
+                const data = await res.json();
+
+                if (data && data.length > 0) {
+                    const targetLat = parseFloat(data[0].lat);
+                    const targetLng = parseFloat(data[0].lon);
+                    const displayName = data[0].name || data[0].display_name.split(',')[0];
+                    
+                    // 更新全域變數，這樣拉動滑桿時才知道要在哪裡重新搜尋
+                    window.lastKnownLat = targetLat;
+                    window.lastKnownLng = targetLng;
+                    
+                    showToast(`已定位至：${displayName} 📍`, false, 2000);
+                    
+                    // 呼叫 TDX 查詢目標座標周圍的站點
+                    fetchNearbyRealtimeStations(targetLat, targetLng, currentSearchRadiusKm);
+                } else {
+                    listContainer.innerHTML = `<div class="text-center text-slate-400 text-xs font-bold py-16 flex flex-col items-center gap-2"><span class="text-4xl">🏜️</span>找不到「${escapeHTML(query)}」，請嘗試其他關鍵字。</div>`;
+                }
+            } catch (err) {
+                console.error("Geocoding Error:", err);
+                listContainer.innerHTML = '<div class="text-center text-rose-500 text-xs font-bold py-16 flex flex-col items-center gap-2"><span class="text-4xl mb-2">⚠️</span>搜尋失敗，請檢查網路連線。</div>';
+            }
+        };
 
         async function fetchNearbyRealtimeStations(lat, lng, radiusKm) {
             const listContainer = document.getElementById('realTimeListContainer');
