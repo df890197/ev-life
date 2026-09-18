@@ -286,9 +286,15 @@
 
                 <div id="mvpCard" class="rpg-card hidden bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/10 p-5 rounded-[1.5rem] border border-amber-100 dark:border-amber-800/50 relative overflow-hidden mb-4">
                     <div class="absolute -right-4 -top-4 opacity-10 dark:opacity-5 text-8xl transform rotate-12 pointer-events-none">👑</div>
-                    <div class="flex items-center gap-2 mb-2 relative z-10">
-                        <span class="bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 w-7 h-7 rounded-full flex items-center justify-center text-xs shadow-sm">👑</span>
-                        <span class="text-xs font-black text-slate-600 dark:text-slate-300">歷史黃金右腳紀錄</span>
+                    <div class="flex items-center justify-between mb-2 relative z-10">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 w-7 h-7 rounded-full flex items-center justify-center text-xs shadow-sm">👑</span>
+                            <span class="text-xs font-black text-slate-600 dark:text-slate-300">歷史黃金右腳紀錄</span>
+                        </div>
+                        <div class="flex items-center gap-1 bg-amber-500 text-white px-2 py-0.5 rounded-lg shadow-sm">
+                            <span class="text-[10px] font-bold">綜合評分</span>
+                            <span id="statMvpScore" class="font-mono font-black text-sm">0</span>
+                        </div>
                     </div>
                     <div class="flex items-baseline gap-1 relative z-10">
                         <span id="statMvpEfficiency" class="text-3xl font-black text-amber-500 font-mono tracking-tight drop-shadow-sm">0.00</span>
@@ -358,6 +364,7 @@
                                 <button type="button" onclick="selectChargeType('停車費')" id="btnType-停車費" class="charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#0f172a] text-slate-400 font-bold rounded-xl py-2 text-[11px] transition-all flex items-center justify-center"><span class="mr-1 text-[13px] leading-none flex items-center mt-[-1px]">🅿️</span><span class="leading-none mt-[1px]">停車費</span></button>
                                 <button type="button" onclick="selectChargeType('通行費')" id="btnType-通行費" class="charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#0f172a] text-slate-400 font-bold rounded-xl py-2 text-[11px] transition-all flex items-center justify-center"><span class="mr-1 text-[13px] leading-none flex items-center mt-[-1px]">🛣️</span><span class="leading-none mt-[1px]">通行費</span></button>
                                 <button type="button" onclick="selectChargeType('維修保養')" id="btnType-維修保養" class="charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#0f172a] text-slate-400 font-bold rounded-xl py-2 text-[11px] transition-all flex items-center justify-center"><span class="mr-1 text-[13px] leading-none flex items-center mt-[-1px]">🔧</span><span class="leading-none mt-[1px]">保養</span></button>
+                                <button type="button" onclick="selectChargeType('保險費')" id="btnType-保險費" class="charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#0f172a] text-slate-400 font-bold rounded-xl py-2 text-[11px] transition-all flex items-center justify-center"><span class="mr-1 text-[13px] leading-none flex items-center mt-[-1px]">🛡️</span><span class="leading-none mt-[1px]">保險</span></button>
                             </div>
                         </div>
                     </div>
@@ -1259,19 +1266,14 @@
                 }
 
                 if (tempNearbyStations.length > 1) {
-                    if (tempCurrentDistrict) {
-                        if (DOM.inputDistrict) DOM.inputDistrict.value = tempCurrentDistrict;
-                        showToast(`📍 已帶入地區：${tempCurrentDistrict}`, false, 1500);
-                    }
+                    if (tempCurrentDistrict) showToast(`📍 已定位地區：${tempCurrentDistrict}`, false, 1500);
                     openStationModal(tempNearbyStations, tempCurrentDistrict);
                 } else if (tempNearbyStations.length === 1) {
                     const single = tempNearbyStations[0];
                     if (DOM.inputDistrict) DOM.inputDistrict.value = tempCurrentDistrict;
                     if (DOM.inputTag) DOM.inputTag.value = single.name;
-                    if (tempCurrentDistrict) {
-                        showToast(`📍 已帶入地區：${tempCurrentDistrict}`, false, 1500);
-                    }
-                    showToast(`⚡ 已帶入站點：${single.name}`, false, 1500);
+                    const locText = tempCurrentDistrict ? `📍 ${tempCurrentDistrict}` : `⚡ 偵測到站點`;
+                    showToast(`${locText} | ${single.name} (${single.distanceM}m)`, false, 2500);
                 } else {
                     if (tempCurrentDistrict) {
                         if (DOM.inputDistrict) DOM.inputDistrict.value = tempCurrentDistrict;
@@ -1369,13 +1371,14 @@
                     'AC-慢充': 'border-teal-400 bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400',
                     '維修保養': 'border-fuchsia-400 bg-fuchsia-50 dark:bg-fuchsia-900/20 text-fuchsia-600 dark:text-fuchsia-400',
                     '停車費': 'border-blue-400 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400',
-                    '通行費': 'border-purple-400 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400'
+                    '通行費': 'border-purple-400 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400',
+                    '保險費': 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400'
                 };
                 const activeClass = themeMap[type] || 'border-slate-400 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200';
                 activeBtn.className = `charge-type-btn border-2 rounded-xl py-2 text-[11px] transition-all font-black shadow-sm flex items-center justify-center ${activeClass}`;
             }
 
-            const isNonDrive = ['維修保養', '停車費', '通行費'].includes(type);
+            const isNonDrive = ['維修保養', '停車費', '通行費', '保險費'].includes(type);
             
             if (isNonDrive) {
                 if(DOM.driveInputsArea) DOM.driveInputsArea.classList.add('hidden');
@@ -1417,7 +1420,7 @@
         window.updateConvertedPowerHint = function() {
             if (!DOM.inputChargeType || !DOM.powerHintText) return;
             const type = DOM.inputChargeType.value;
-            if (['維修保養', '停車費', '通行費'].includes(type)) return;
+            if (['維修保養', '停車費', '通行費', '保險費'].includes(type)) return;
 
             const start = parseFloat(DOM.inputStartSocNum.value) || 0;
             const end = parseFloat(DOM.inputEndSocNum.value) || 0;
@@ -1432,7 +1435,7 @@
             if (DOM.inputChargeType.value !== "未充電") return;
             if (DOM.inputStartSocNum.value !== '') return;
 
-            const activeRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && !['維修保養', '停車費', '通行費'].includes(r.chargeType));
+            const activeRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && !['維修保養', '停車費', '通行費', '保險費'].includes(r.chargeType));
             if (activeRecords.length === 0) return;
 
             const sortedRecords = [...activeRecords].sort((a, b) => new Date(b.date) - new Date(a.date) || parseInt(b.id, 10) - parseInt(a.id, 10));
@@ -1477,7 +1480,7 @@
         
         function calculateRecordStats(activeRecords) {
             let rollingOdo = AppState.initialOdometer;
-            const driveRecords = activeRecords.filter(r => !['維修保養', '停車費', '通行費'].includes(r.chargeType));
+            const driveRecords = activeRecords.filter(r => !['維修保養', '停車費', '通行費', '保險費'].includes(r.chargeType));
             
             driveRecords.forEach((rec, i) => {
                 let consumedSoc = 0;
@@ -1494,7 +1497,7 @@
 
             let globalKm = 0, globalCost = 0, globalPowerReal = 0, globalMaintCost = 0, totalEnergyCost = 0;
             activeRecords.forEach(rec => {
-                if (['維修保養', '停車費', '通行費'].includes(rec.chargeType)) {
+                if (['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType)) {
                     if (rec.chargeType === '維修保養') globalMaintCost += parseFloat(rec.cost) || 0;
                     globalCost += parseFloat(rec.cost) || 0; 
                 } else {
@@ -1597,7 +1600,7 @@
             let maxEff = 0, mvpRec = null;
             
             displayRecords.forEach(rec => {
-                if(['維修保養', '停車費', '通行費'].includes(rec.chargeType)) return;
+                if(['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType)) return;
                 const consumedPwr = AppState.batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
                 if (consumedPwr > 0) {
                     const eff = parseFloat((rec.distance / consumedPwr).toFixed(2));
@@ -1611,12 +1614,17 @@
                 document.getElementById('statMvpEfficiency').textContent = maxEff.toFixed(2);
                 document.getElementById('statMvpDate').textContent = escapeHTML(mvpRec.date);
                 document.getElementById('statMvpDist').textContent = escapeHTML(mvpRec.distance.toString());
+                
+                // 黃金右腳專屬評分： 3.5 = 50分, 5.0 = 80分, 6.0 = 100分
+                const calcScore = Math.min(100, Math.max(50, Math.round(50 + (maxEff - 3.5) * 20)));
+                const scoreEl = document.getElementById('statMvpScore');
+                if (scoreEl) scoreEl.textContent = calcScore;
             } else {
                 if(mvpCard) mvpCard.classList.add('hidden');
             }
 
             const html = displayRecords.map(rec => {
-                const isNonDrive = ['維修保養', '停車費', '通行費'].includes(rec.chargeType);
+                const isNonDrive = ['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType);
                 const dist = parseFloat(rec.distance) || 0;
                 const pwr = AppState.batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
                 const eff = pwr > 0 ? (dist / pwr).toFixed(2) : "0.00";
@@ -1627,6 +1635,7 @@
                 if (rec.chargeType === '維修保養') typeStyle = 'bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-900/40 dark:text-fuchsia-400';
                 if (rec.chargeType === '停車費') typeStyle = 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400';
                 if (rec.chargeType === '通行費') typeStyle = 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400';
+                if (rec.chargeType === '保險費') typeStyle = 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400';
                 
                 const isMVP = (mvpRec && rec.id === mvpRec.id && maxEff > 0);
                 const mvpBadge = isMVP ? `<span class="inline-flex items-center ml-1 px-1.5 py-0.5 rounded border border-amber-400 bg-amber-100 text-amber-700 text-[10px] font-black shadow-sm">👑 黃金右腳</span>` : '';
@@ -1672,11 +1681,11 @@
                     </div>
                     ` : `
                     <div class="flex justify-between items-center text-center divide-x divide-slate-100 dark:divide-slate-800 bg-slate-50/50 dark:bg-slate-900/10 rounded-xl py-2">
-                        <div class="flex-[2] px-1 font-bold text-xs flex items-center justify-center gap-1.5 ${rec.chargeType==='維修保養'?'text-fuchsia-600':(rec.chargeType==='停車費'?'text-blue-600':'text-purple-600')}">
-                            <span class="text-[14px] leading-none flex items-center mt-[-1px]">${rec.chargeType==='維修保養'?'🔧':(rec.chargeType==='停車費'?'🅿️':'🛣️')}</span>
-                            <span class="leading-none mt-[1px]">${rec.chargeType==='維修保養'?'維護保養紀錄':(rec.chargeType==='停車費'?'停車繳費紀錄':'國道通行費紀錄')}</span>
+                        <div class="flex-[2] px-1 font-bold text-xs flex items-center justify-center gap-1.5 ${rec.chargeType==='維修保養'?'text-fuchsia-600':(rec.chargeType==='停車費'?'text-blue-600':(rec.chargeType==='保險費'?'text-emerald-600':'text-purple-600'))}">
+                            <span class="text-[14px] leading-none flex items-center mt-[-1px]">${rec.chargeType==='維修保養'?'🔧':(rec.chargeType==='停車費'?'🅿️':(rec.chargeType==='保險費'?'🛡️':'🛣️'))}</span>
+                            <span class="leading-none mt-[1px]">${rec.chargeType==='維修保養'?'維護保養紀錄':(rec.chargeType==='停車費'?'停車繳費紀錄':(rec.chargeType==='保險費'?'保險費用紀錄':'國道通行費紀錄'))}</span>
                         </div>
-                        <div class="flex-1 px-1"><div class="text-[10px] text-slate-400 font-bold mb-1">總花費</div><div class="font-mono font-black text-[14px] ${rec.chargeType==='維修保養'?'text-fuchsia-500':(rec.chargeType==='停車費'?'text-blue-500':'text-purple-500')}">$${rec.cost}</div></div>
+                        <div class="flex-1 px-1"><div class="text-[10px] text-slate-400 font-bold mb-1">總花費</div><div class="font-mono font-black text-[14px] ${rec.chargeType==='維修保養'?'text-fuchsia-500':(rec.chargeType==='停車費'?'text-blue-500':(rec.chargeType==='保險費'?'text-emerald-500':'text-purple-500'))}">$${rec.cost}</div></div>
                     </div>
                     `}
                     ${safeNote ? `<div class="mt-3 pt-2 border-t border-slate-50 dark:border-slate-800 text-[11px] text-slate-500 font-bold leading-relaxed">📝 ${safeNote}</div>` : ''}
@@ -1772,7 +1781,7 @@
             const labelColor = isDarkMode ? '#9ca3af' : '#64748b'; 
             const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.03)';
             
-            let chartData = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && !['維修保養', '停車費', '通行費'].includes(r.chargeType));
+            let chartData = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && !['維修保養', '停車費', '通行費', '保險費'].includes(r.chargeType));
             let doughnutData = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
             
             if (AppState.currentMonthFilter !== 'all') {
@@ -1785,7 +1794,7 @@
             allPeriodRecords.forEach(rec => {
                 const cost = parseFloat(rec.cost) || 0;
                 periodTotalCost += cost;
-                if (!['維修保養', '停車費', '通行費'].includes(rec.chargeType)) {
+                if (!['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType)) {
                     periodTotalKm += (parseFloat(rec.distance) || 0);
                     periodEnergyCost += cost;
                 }
@@ -1860,7 +1869,7 @@
 
             if (DOM.costDistributionChart) {
                 const pieCtx = DOM.costDistributionChart.getContext('2d');
-                let dcCost = 0, acCost = 0, maintCost = 0, parkCost = 0, tollCost = 0;
+                let dcCost = 0, acCost = 0, maintCost = 0, parkCost = 0, tollCost = 0, insureCost = 0;
                 doughnutData.forEach(rec => {
                     const cost = parseFloat(rec.cost) || 0;
                     if(rec.chargeType.includes('快充')) dcCost += cost;
@@ -1868,18 +1877,20 @@
                     else if(rec.chargeType === '維修保養') maintCost += cost;
                     else if(rec.chargeType === '停車費') parkCost += cost;
                     else if(rec.chargeType === '通行費') tollCost += cost;
+                    else if(rec.chargeType === '保險費') insureCost += cost;
                 });
 
                 const pieData = {
-                    labels: ['DC 快充', 'AC 慢充', '保養維修', '停車費', '通行費'],
+                    labels: ['DC 快充', 'AC 慢充', '保養維修', '停車費', '通行費', '保險費'],
                     datasets: [{
-                        data: [dcCost, acCost, maintCost, parkCost, tollCost],
+                        data: [dcCost, acCost, maintCost, parkCost, tollCost, insureCost],
                         backgroundColor: [
                             isDarkMode ? '#fbbf24' : '#f59e0b', 
                             isDarkMode ? '#2dd4bf' : '#14b8a6', 
                             isDarkMode ? '#e879f9' : '#d946ef',
                             isDarkMode ? '#60a5fa' : '#3b82f6',
-                            isDarkMode ? '#c084fc' : '#a855f7'
+                            isDarkMode ? '#c084fc' : '#a855f7',
+                            isDarkMode ? '#34d399' : '#10b981'
                         ],
                         borderWidth: 0, hoverOffset: 4
                     }]
@@ -1911,7 +1922,7 @@
             
             let distance = 0, startSoc = 0, endSoc = 0, powerPercent = 0, power = 0;
 
-            if (!['維修保養', '停車費', '通行費'].includes(chargeType)) {
+            if (!['維修保養', '停車費', '通行費', '保險費'].includes(chargeType)) {
                 distance = parseFloat(DOM.inputDistance.value);
                 startSoc = parseFloat(DOM.inputStartSocNum.value);
                 endSoc = parseFloat(DOM.inputEndSocNum.value);
@@ -1947,7 +1958,7 @@
             DOM.inputDate.value = rec.date;
             selectChargeType(rec.chargeType);
             
-            if (!['維修保養', '停車費', '通行費'].includes(rec.chargeType)) {
+            if (!['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType)) {
                 if(DOM.inputDistance) DOM.inputDistance.value = rec.distance;
                 if(DOM.inputStartSocNum) DOM.inputStartSocNum.value = rec.startSoc;
                 if(DOM.sliderStartSoc) DOM.sliderStartSoc.value = rec.startSoc;
