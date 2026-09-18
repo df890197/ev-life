@@ -284,16 +284,131 @@
                     </div>
                 </div>
 
-                <div id="mvpCard" class="rpg-card hidden bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/10 p-5 rounded-[1.5rem] border border-amber-100 dark:border-amber-800/50 relative overflow-hidden mb-4">
-                    <div class="absolute -right-4 -top-4 opacity-10 dark:opacity-5 text-8xl transform rotate-12 pointer-events-none">👑</div>
-                    <div class="flex items-center justify-between mb-2 relative z-10">
-                        <div class="flex items-center gap-2">
-                            <span class="bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 w-7 h-7 rounded-full flex items-center justify-center text-xs shadow-sm">👑</span>
-                            <span class="text-xs font-black text-slate-600 dark:text-slate-300">歷史黃金右腳紀錄</span>
+                <!-- 👑 黃金右腳評分 (分成最新與最佳) -->
+                <div id="ecoScoreContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 hidden">
+                    <!-- 最新一筆紀錄 -->
+                    <div class="rpg-card bg-gradient-to-br from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/10 p-4 rounded-[1.5rem] border border-sky-100 dark:border-sky-800/50 relative overflow-hidden">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-xs">⏱️</span>
+                                <span class="text-[11px] font-black text-slate-600 dark:text-slate-300">最新單趟右腳</span>
+                            </div>
+                            <div class="text-[10px] font-bold text-sky-600 dark:text-sky-400 bg-sky-100 dark:bg-sky-900/40 px-2 py-0.5 rounded shadow-sm">
+                                排名 <span id="statLatestRank" class="font-mono font-black">1</span>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-1 bg-amber-500 text-white px-2 py-0.5 rounded-lg shadow-sm">
-                            <span class="text-[10px] font-bold">綜合評分</span>
-                            <span id="statMvpScore" class="font-mono font-black text-sm">0</span>
+                        <div class="flex items-baseline gap-1 mt-1">
+                            <span id="statLatestScore" class="text-3xl font-black text-sky-500 font-mono tracking-tight">0</span>
+                            <span class="text-xs font-bold text-sky-500/80">分</span>
+                        </div>
+                        <div class="text-[10px] text-slate-500 dark:text-slate-400 font-bold mt-1 flex justify-between items-center">
+                            <span>電耗: <span id="statLatestEfficiency" class="font-mono text-sky-600 dark:text-sky-400">0.00</span></span>
+                            <span id="statLatestDate" class="font-mono scale-90 origin-right">無</span>
+                        </div>
+                    </div>
+
+                    <!-- 歷史最高 MVP -->
+                    <div class="rpg-card bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/10 p-4 rounded-[1.5rem] border border-amber-100 dark:border-amber-800/50 relative overflow-hidden">
+                        <div class="absolute -right-2 -top-2 opacity-10 dark:opacity-5 text-6xl transform rotate-12 pointer-events-none">👑</div>
+                        <div class="flex items-center justify-between mb-2 relative z-10">
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-xs shadow-sm">👑</span>
+                                <span class="text-[11px] font-black text-slate-600 dark:text-slate-300">歷史最佳 MVP</span>
+                            </div>
+                            <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/40 px-2 py-0.5 rounded shadow-sm">Record</span>
+                        </div>
+                        <div class="flex items-baseline gap-1 relative z-10 mt-1">
+                            <span id="statMvpScore" class="text-3xl font-black text-amber-500 font-mono tracking-tight drop-shadow-sm">0</span>
+                            <span class="text-xs font-bold text-amber-500/80">分</span>
+                        </div>
+                        <div class="text-[10px] text-slate-500 dark:text-slate-400 font-bold mt-1 flex justify-between items-center relative z-10">
+                            <span>電耗: <span id="statMvpEfficiency" class="font-mono text-amber-600 dark:text-amber-400">0.00</span></span>
+                            <span id="statMvpDate" class="font-mono scale-90 origin-right">無</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 🔧 車輛保養與保險進度 -->
+                <div class="rpg-card bg-white dark:bg-slate-800 p-5 rounded-[1.5rem] mb-2 border border-slate-100 dark:border-slate-700">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 w-7 h-7 rounded-full flex items-center justify-center text-xs">🔧</span>
+                        <h3 class="text-xs font-black text-slate-700 dark:text-slate-200">車輛保養與保險</h3>
+                    </div>
+
+                    <!-- 大保養 -->
+                    <div class="mb-3">
+                        <div class="flex justify-between items-end mb-1">
+                            <span class="text-[11px] font-bold text-slate-600 dark:text-slate-300">大保養 (每 <span id="maintIntervalText">20000</span>km)</span>
+                            <div class="text-right">
+                                <span id="maintRemainingText" class="text-xs font-black font-mono text-indigo-500">0</span>
+                                <span class="text-[9px] text-slate-500 font-bold">km 剩餘</span>
+                            </div>
+                        </div>
+                        <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden flex">
+                            <div id="maintProgressBar" class="bg-indigo-500 h-1.5 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div id="maintDateAlertContainer" class="hidden mt-3 pt-2 border-t border-slate-100 dark:border-slate-700">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1"><span class="text-[10px]">📅</span> 預計進廠: <span id="maintTargetDateStr" class="font-mono text-slate-700 dark:text-slate-300"></span></span>
+                            <span id="maintDaysRemainingBadge" class="text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm"></span>
+                        </div>
+                    </div>
+                    
+                    <div id="insuranceDateAlertContainer" class="hidden mt-1 pt-2 border-t border-slate-100 dark:border-slate-700">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1"><span class="text-[10px]">🛡️</span> 保險到期: <span id="insuranceTargetDateStr" class="font-mono text-slate-700 dark:text-slate-300"></span></span>
+                            <span id="insuranceDaysRemainingBadge" class="text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm"></span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 🔹 Tab 2: 新增/編輯紀錄 (Add/Edit) -->
+        <div id="view-add" class="view-section px-4">
+            <div class="rpg-card bg-white dark:bg-[#1e293b] p-6 rounded-[2rem]">
+                <div class="flex items-center justify-between mb-5 pb-3 border-b border-slate-100 dark:border-slate-700">
+                    <h2 class="text-base font-black flex items-center gap-2">
+                        <span class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 w-6 h-6 rounded-full flex items-center justify-center text-xs">✍️</span>
+                        <span id="formTitle">記錄本次旅程</span>
+                    </h2>
+                </div>
+
+                <form id="recordForm" onsubmit="addRecord(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">日期</label>
+                            <input type="date" id="inputDate" required class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold text-left focus:outline-none focus:border-amber-400 transition-colors appearance-none block">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">紀錄類型</label>
+                            <input type="hidden" id="inputChargeType" value="DC-快充">
+                            
+                            <div class="space-y-2">
+                                <!-- 🚗 用車 -->
+                                <div class="bg-slate-50 dark:bg-slate-900/30 p-2 rounded-xl border border-slate-100 dark:border-slate-700/50">
+                                    <div class="text-[10px] font-bold text-slate-400 mb-1.5 px-1">🚗 用車紀錄</div>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        <button type="button" onclick="selectChargeType('未充電')" id="btnType-未充電" class="charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-white dark:bg-[#0f172a] text-slate-500 font-bold rounded-lg py-2 text-[11px] transition-all flex items-center justify-center gap-1 shadow-sm"><span class="text-[13px] mt-[-1px]">🐾</span><span>行程</span></button>
+                                        <button type="button" onclick="selectChargeType('DC-快充')" id="btnType-DC-快充" class="charge-type-btn border-2 border-amber-400 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 font-black shadow-sm rounded-lg py-2 text-[11px] transition-all flex items-center justify-center gap-1"><span class="text-[13px] mt-[-1px]">⚡</span><span>快充</span></button>
+                                        <button type="button" onclick="selectChargeType('AC-慢充')" id="btnType-AC-慢充" class="charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-white dark:bg-[#0f172a] text-slate-500 font-bold rounded-lg py-2 text-[11px] transition-all flex items-center justify-center gap-1 shadow-sm"><span class="text-[13px] mt-[-1px]">🔌</span><span>慢充</span></button>
+                                    </div>
+                                </div>
+                                <!-- 💰 支出 -->
+                                <div class="bg-slate-50 dark:bg-slate-900/30 p-2 rounded-xl border border-slate-100 dark:border-slate-700/50">
+                                    <div class="text-[10px] font-bold text-slate-400 mb-1.5 px-1">💰 衍生支出</div>
+                                    <div class="grid grid-cols-4 gap-2">
+                                        <button type="button" onclick="selectChargeType('停車費')" id="btnType-停車費" class="charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-white dark:bg-[#0f172a] text-slate-500 font-bold rounded-lg py-2 text-[10px] sm:text-[11px] transition-all flex items-center justify-center gap-1 shadow-sm"><span class="text-[12px] mt-[-1px]">🅿️</span><span>停車</span></button>
+                                        <button type="button" onclick="selectChargeType('通行費')" id="btnType-通行費" class="charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-white dark:bg-[#0f172a] text-slate-500 font-bold rounded-lg py-2 text-[10px] sm:text-[11px] transition-all flex items-center justify-center gap-1 shadow-sm"><span class="text-[12px] mt-[-1px]">🛣️</span><span>通行</span></button>
+                                        <button type="button" onclick="selectChargeType('維修保養')" id="btnType-維修保養" class="charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-white dark:bg-[#0f172a] text-slate-500 font-bold rounded-lg py-2 text-[10px] sm:text-[11px] transition-all flex items-center justify-center gap-1 shadow-sm"><span class="text-[12px] mt-[-1px]">🔧</span><span>保養</span></button>
+                                        <button type="button" onclick="selectChargeType('保險費')" id="btnType-保險費" class="charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-white dark:bg-[#0f172a] text-slate-500 font-bold rounded-lg py-2 text-[10px] sm:text-[11px] transition-all flex items-center justify-center gap-1 shadow-sm"><span class="text-[12px] mt-[-1px]">🛡️</span><span>保險</span></button>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                     <div class="flex items-baseline gap-1 relative z-10">
@@ -506,44 +621,57 @@
                     <div id="monthFilterContainer_analysis" class="flex overflow-x-auto gap-2 no-scrollbar pb-1 flex-1 items-center"></div>
                 </div>
                 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-                    <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700/50 transition-all">
-                        <div class="flex items-center gap-2">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                    <div class="flex flex-col justify-between bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700/50 transition-all">
+                        <div class="flex items-center gap-1.5 mb-2">
                             <div class="bg-amber-100 dark:bg-amber-900/30 text-amber-500 p-1.5 rounded-lg shadow-sm">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
                             </div>
-                            <span id="analysisSummaryLabel" class="text-xs font-bold text-slate-600 dark:text-slate-400">區間總里程</span>
+                            <span id="analysisSummaryLabel" class="text-[11px] font-bold text-slate-600 dark:text-slate-400 line-clamp-1">區間里程</span>
                         </div>
-                        <div class="flex items-baseline gap-1">
-                            <span id="analysisTotalKm" class="text-lg font-black font-mono text-slate-800 dark:text-white">0</span>
-                            <span class="text-[10px] font-bold text-slate-500">km</span>
+                        <div class="flex items-baseline gap-1 mt-auto">
+                            <span id="analysisTotalKm" class="text-base font-black font-mono text-slate-800 dark:text-white">0</span>
+                            <span class="text-[9px] font-bold text-slate-500">km</span>
                         </div>
                     </div>
 
-                    <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700/50 transition-all">
-                        <div class="flex items-center gap-2">
+                    <div class="flex flex-col justify-between bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700/50 transition-all">
+                        <div class="flex items-center gap-1.5 mb-2">
+                            <div class="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-500 p-1.5 rounded-lg shadow-sm">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            </div>
+                            <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400 line-clamp-1">平均電耗</span>
+                        </div>
+                        <div class="flex items-baseline gap-1 mt-auto">
+                            <span id="analysisAvgEfficiency" class="text-base font-black font-mono text-indigo-600 dark:text-indigo-400">0.00</span>
+                            <span class="text-[9px] font-bold text-slate-500">km/度</span>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col justify-between bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700/50 transition-all">
+                        <div class="flex items-center gap-1.5 mb-2">
                             <div class="bg-rose-100 dark:bg-rose-900/30 text-rose-500 p-1.5 rounded-lg shadow-sm">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             </div>
-                            <span id="analysisCostLabel" class="text-xs font-bold text-slate-600 dark:text-slate-400">當月花費</span>
+                            <span id="analysisCostLabel" class="text-[11px] font-bold text-slate-600 dark:text-slate-400 line-clamp-1">區間花費</span>
                         </div>
-                        <div class="flex items-baseline gap-1">
-                            <span class="text-[10px] font-bold text-slate-400">$</span>
-                            <span id="analysisTotalCost" class="text-lg font-black font-mono text-slate-800 dark:text-white">0</span>
+                        <div class="flex items-baseline gap-0.5 mt-auto">
+                            <span class="text-[9px] font-bold text-slate-400">$</span>
+                            <span id="analysisTotalCost" class="text-base font-black font-mono text-slate-800 dark:text-white">0</span>
                         </div>
                     </div>
 
-                    <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700/50 transition-all">
-                        <div class="flex items-center gap-2">
+                    <div class="flex flex-col justify-between bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700/50 transition-all">
+                        <div class="flex items-center gap-1.5 mb-2">
                             <div class="bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 p-1.5 rounded-lg shadow-sm">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                             </div>
-                            <span class="text-xs font-bold text-slate-600 dark:text-slate-400">每公里電費</span>
+                            <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400 line-clamp-1">每公里電費</span>
                         </div>
-                        <div class="flex items-baseline gap-1">
-                            <span class="text-[10px] font-bold text-teal-600 dark:text-teal-400">$</span>
-                            <span id="analysisCostPerKm" class="text-lg font-black font-mono text-teal-600 dark:text-teal-400">0.00</span>
-                            <span class="text-[10px] font-bold text-slate-400">/km</span>
+                        <div class="flex items-baseline gap-0.5 mt-auto">
+                            <span class="text-[9px] font-bold text-teal-600 dark:text-teal-400">$</span>
+                            <span id="analysisCostPerKm" class="text-base font-black font-mono text-teal-600 dark:text-teal-400">0.00</span>
+                            <span class="text-[9px] font-bold text-slate-400">/km</span>
                         </div>
                     </div>
                 </div>
@@ -599,6 +727,10 @@
                                 <div class="sm:col-span-2">
                                     <label class="text-[10px] font-bold text-slate-400 block mb-1">預計下次進廠日期 (選填)</label>
                                     <input type="date" id="nextMaintDateInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-left focus:outline-none appearance-none block">
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label class="text-[10px] font-bold text-slate-400 block mb-1 flex items-center gap-1"><span class="text-[12px]">🛡️</span>保險到期日 (選填)</label>
+                                    <input type="date" id="insuranceExpiryInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-left focus:outline-none appearance-none block">
                                 </div>
                             </div>
                         </div>
@@ -780,6 +912,7 @@
             initialOdometer: 0,
             maintInterval: 20000,
             nextMaintDate: "", 
+            insuranceExpiryDate: "",
             iceEfficiency: 15.0,
             gasPrice: 30.0,
             syncUrl: "",
@@ -837,11 +970,11 @@
              'tagInputArea', 'costLabel', 'startSocLabel', 'endSocLabel', 'recordMobileList', 'noDataPlaceholder', 'homeStatsContainer', 
              'onboardingCard', 'confirmModal', 'confirmModalContent', 'confirmModalTitle', 'confirmModalMessage', 'appSplashScreen', 
              'evNameInput', 'batteryCapacityInput', 'initialOdometerInput', 'maintIntervalInput', 'iceEfficiencyInput', 
-             'gasPriceInput', 'nextMaintDateInput', 'syncUrlInput', 'syncTokenInput', 'topEvName', 'heroEvName', 'formTitle', 'cancelEditBtn', 
+             'gasPriceInput', 'nextMaintDateInput', 'insuranceExpiryInput', 'syncUrlInput', 'syncTokenInput', 'topEvName', 'heroEvName', 'formTitle', 'cancelEditBtn', 
              'recordForm', 'monthFilterContainer', 'monthFilterContainer_analysis', 'statTotalKm', 'statAvgEfficiency', 'statFuelSavings', 
              'savingsBaseText', 'statCo2Savings', 'statTreesPlanted', 'maintIntervalText', 'maintRemainingText', 'maintProgressBar', 
-             'tireRemainingText', 'tireProgressBar', 'filterRemainingText', 'filterProgressBar', 'maintDateAlertContainer', 'maintTargetDateStr', 
-             'maintDaysRemainingBadge', 'efficiencyChart', 'costDistributionChart', 'analysisTotalKm', 'analysisSummaryLabel', 
+             'maintDateAlertContainer', 'maintTargetDateStr', 'maintDaysRemainingBadge', 'insuranceDateAlertContainer', 'insuranceTargetDateStr', 'insuranceDaysRemainingBadge',
+             'efficiencyChart', 'costDistributionChart', 'analysisTotalKm', 'analysisSummaryLabel', 'analysisAvgEfficiency',
              'analysisTotalCost', 'analysisCostLabel', 'analysisCostPerKm', 'heroImageDisplay', 'toggleHighway', 'toggleMountain'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) DOM[id] = el;
@@ -931,6 +1064,9 @@
 
             AppState.nextMaintDate = localStorage.getItem('ev_life_next_maint_date') || "";
             if (DOM.nextMaintDateInput) DOM.nextMaintDateInput.value = AppState.nextMaintDate;
+
+            AppState.insuranceExpiryDate = localStorage.getItem('ev_life_insurance_date') || "";
+            if (DOM.insuranceExpiryInput) DOM.insuranceExpiryInput.value = AppState.insuranceExpiryDate;
 
             if (DOM.topEvName) DOM.topEvName.textContent = AppState.evName; 
             if (DOM.heroEvName) DOM.heroEvName.textContent = AppState.evName;
@@ -1361,21 +1497,28 @@
             if (DOM.inputChargeType) DOM.inputChargeType.value = type;
             
             document.querySelectorAll('.charge-type-btn').forEach(btn => {
-                btn.className = "charge-type-btn border-2 border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-[#0f172a] text-slate-400 font-bold rounded-xl py-2 text-[11px] transition-all flex items-center justify-center";
+                btn.classList.remove('border-amber-400', 'bg-amber-50', 'dark:bg-amber-900/20', 'text-amber-600', 'dark:text-amber-400');
+                btn.classList.remove('border-teal-400', 'bg-teal-50', 'dark:bg-teal-900/20', 'text-teal-600', 'dark:text-teal-400');
+                btn.classList.remove('border-sky-400', 'bg-sky-50', 'dark:bg-sky-900/20', 'text-sky-600', 'dark:text-sky-400');
+                btn.classList.remove('border-fuchsia-400', 'bg-fuchsia-50', 'dark:bg-fuchsia-900/20', 'text-fuchsia-600', 'dark:text-fuchsia-400');
+                btn.classList.remove('border-blue-400', 'bg-blue-50', 'dark:bg-blue-900/20', 'text-blue-600', 'dark:text-blue-400');
+                btn.classList.remove('border-purple-400', 'bg-purple-50', 'dark:bg-purple-900/20', 'text-purple-600', 'dark:text-purple-400');
+                btn.classList.remove('border-emerald-400', 'bg-emerald-50', 'dark:bg-emerald-900/20', 'text-emerald-600', 'dark:text-emerald-400');
+                
+                btn.classList.add('border-slate-100', 'dark:border-slate-700', 'bg-white', 'dark:bg-[#0f172a]', 'text-slate-500');
             });
             
             const activeBtn = document.getElementById('btnType-' + type);
             if (activeBtn) {
-                const themeMap = {
-                    'DC-快充': 'border-amber-400 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400',
-                    'AC-慢充': 'border-teal-400 bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400',
-                    '維修保養': 'border-fuchsia-400 bg-fuchsia-50 dark:bg-fuchsia-900/20 text-fuchsia-600 dark:text-fuchsia-400',
-                    '停車費': 'border-blue-400 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400',
-                    '通行費': 'border-purple-400 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400',
-                    '保險費': 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400'
-                };
-                const activeClass = themeMap[type] || 'border-slate-400 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200';
-                activeBtn.className = `charge-type-btn border-2 rounded-xl py-2 text-[11px] transition-all font-black shadow-sm flex items-center justify-center ${activeClass}`;
+                activeBtn.classList.remove('border-slate-100', 'dark:border-slate-700', 'bg-white', 'dark:bg-[#0f172a]', 'text-slate-500');
+                
+                if(type === '未充電') activeBtn.classList.add('border-sky-400', 'bg-sky-50', 'dark:bg-sky-900/20', 'text-sky-600', 'dark:text-sky-400');
+                else if(type === 'DC-快充') activeBtn.classList.add('border-amber-400', 'bg-amber-50', 'dark:bg-amber-900/20', 'text-amber-600', 'dark:text-amber-400');
+                else if(type === 'AC-慢充') activeBtn.classList.add('border-teal-400', 'bg-teal-50', 'dark:bg-teal-900/20', 'text-teal-600', 'dark:text-teal-400');
+                else if(type === '停車費') activeBtn.classList.add('border-blue-400', 'bg-blue-50', 'dark:bg-blue-900/20', 'text-blue-600', 'dark:text-blue-400');
+                else if(type === '通行費') activeBtn.classList.add('border-purple-400', 'bg-purple-50', 'dark:bg-purple-900/20', 'text-purple-600', 'dark:text-purple-400');
+                else if(type === '維修保養') activeBtn.classList.add('border-fuchsia-400', 'bg-fuchsia-50', 'dark:bg-fuchsia-900/20', 'text-fuchsia-600', 'dark:text-fuchsia-400');
+                else if(type === '保險費') activeBtn.classList.add('border-emerald-400', 'bg-emerald-50', 'dark:bg-emerald-900/20', 'text-emerald-600', 'dark:text-emerald-400');
             }
 
             const isNonDrive = ['維修保養', '停車費', '通行費', '保險費'].includes(type);
@@ -1519,20 +1662,12 @@
             // Maintenance Stats
             const currentTotalKm = AppState.initialOdometer + globalKm;
             const maintInterval = AppState.maintInterval || 20000;
-            const tireInterval = 10000;
-            const filterInterval = 20000;
 
             const remMaint = maintInterval - (currentTotalKm % maintInterval);
             const progMaint = ((maintInterval - remMaint) / maintInterval) * 100;
-            
-            const remTire = tireInterval - (currentTotalKm % tireInterval);
-            const progTire = ((tireInterval - remTire) / tireInterval) * 100;
-
-            const remFilter = filterInterval - (currentTotalKm % filterInterval);
-            const progFilter = ((filterInterval - remFilter) / filterInterval) * 100;
 
             updateStats(globalKm, globalAvgEff, globalCost, globalMaintCost, AppState.initialOdometer, fuelSavings, co2Savings, treesPlanted, 
-                        remMaint, progMaint, remTire, progTire, remFilter, progFilter);
+                        remMaint, progMaint);
         }
 
         window.calculatePrediction = function() {
@@ -1589,38 +1724,52 @@
             if (filteredRecords.length === 0) {
                 if(DOM.recordMobileList) DOM.recordMobileList.innerHTML = '';
                 if(DOM.noDataPlaceholder) DOM.noDataPlaceholder.classList.remove('hidden');
-                const mvpCard = document.getElementById('mvpCard');
-                if(mvpCard) mvpCard.classList.add('hidden');
+                if(document.getElementById('ecoScoreContainer')) document.getElementById('ecoScoreContainer').classList.add('hidden');
                 return;
             } else {
                 if(DOM.noDataPlaceholder) DOM.noDataPlaceholder.classList.add('hidden');
             }
 
             const displayRecords = [...filteredRecords].reverse();
-            let maxEff = 0, mvpRec = null;
             
-            displayRecords.forEach(rec => {
-                if(['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType)) return;
-                const consumedPwr = AppState.batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
-                if (consumedPwr > 0) {
-                    const eff = parseFloat((rec.distance / consumedPwr).toFixed(2));
-                    if (eff > maxEff && rec.distance > 5) { maxEff = eff; mvpRec = rec; }
-                }
-            });
+            // 計算黃金右腳 (Eco Score)
+            // 公式： 60 + (eff - 5.0) * 24，最小0分，最大100分。
+            const scoredRecords = displayRecords.filter(r => !['維修保養', '停車費', '通行費', '保險費'].includes(r.chargeType) && r.distance > 5)
+                .map(r => {
+                    const power = AppState.batteryCapacity * ((r.consumedSocPercent || 0) / 100);
+                    const eff = power > 0 ? parseFloat((r.distance / power).toFixed(2)) : 0;
+                    const score = Math.min(100, Math.max(0, Math.round(60 + (eff - 5.0) * 24)));
+                    return { ...r, eff, score };
+                });
 
-            const mvpCard = document.getElementById('mvpCard');
-            if (mvpRec && maxEff > 0) {
-                if(mvpCard) mvpCard.classList.remove('hidden');
-                document.getElementById('statMvpEfficiency').textContent = maxEff.toFixed(2);
-                document.getElementById('statMvpDate').textContent = escapeHTML(mvpRec.date);
-                document.getElementById('statMvpDist').textContent = escapeHTML(mvpRec.distance.toString());
+            const ecoContainer = document.getElementById('ecoScoreContainer');
+            if (scoredRecords.length > 0) {
+                if(ecoContainer) ecoContainer.classList.remove('hidden');
                 
-                // 黃金右腳專屬評分： 3.5 = 50分, 5.0 = 80分, 6.0 = 100分
-                const calcScore = Math.min(100, Math.max(50, Math.round(50 + (maxEff - 3.5) * 20)));
-                const scoreEl = document.getElementById('statMvpScore');
-                if (scoreEl) scoreEl.textContent = calcScore;
+                // 找尋 MVP
+                let mvpRec = [...scoredRecords].sort((a, b) => b.score - a.score)[0];
+                
+                // 最新一筆
+                let latestRec = scoredRecords[0]; // displayRecords 已經是 reverse 過的，所以 [0] 是最新的
+                
+                // 計算最新一筆的排名
+                const allScoresSorted = [...scoredRecords].sort((a, b) => b.score - a.score);
+                const latestRank = allScoresSorted.findIndex(r => r.id === latestRec.id) + 1;
+
+                document.getElementById('statLatestScore').textContent = latestRec.score;
+                document.getElementById('statLatestEfficiency').textContent = latestRec.eff.toFixed(2);
+                document.getElementById('statLatestDate').textContent = escapeHTML(latestRec.date);
+                document.getElementById('statLatestRank').textContent = latestRank;
+
+                document.getElementById('statMvpScore').textContent = mvpRec.score;
+                document.getElementById('statMvpEfficiency').textContent = mvpRec.eff.toFixed(2);
+                document.getElementById('statMvpDate').textContent = escapeHTML(mvpRec.date);
+                
+                // 為了下面渲染卡片套用皇冠
+                var mvpGlobalId = mvpRec.id;
             } else {
-                if(mvpCard) mvpCard.classList.add('hidden');
+                if(ecoContainer) ecoContainer.classList.add('hidden');
+                var mvpGlobalId = null;
             }
 
             const html = displayRecords.map(rec => {
@@ -1636,9 +1785,10 @@
                 if (rec.chargeType === '停車費') typeStyle = 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400';
                 if (rec.chargeType === '通行費') typeStyle = 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400';
                 if (rec.chargeType === '保險費') typeStyle = 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400';
+                if (rec.chargeType === '未充電') typeStyle = 'bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-400';
                 
-                const isMVP = (mvpRec && rec.id === mvpRec.id && maxEff > 0);
-                const mvpBadge = isMVP ? `<span class="inline-flex items-center ml-1 px-1.5 py-0.5 rounded border border-amber-400 bg-amber-100 text-amber-700 text-[10px] font-black shadow-sm">👑 黃金右腳</span>` : '';
+                const isMVP = (mvpGlobalId && rec.id === mvpGlobalId);
+                const mvpBadge = isMVP ? `<span class="inline-flex items-center ml-1 px-1.5 py-0.5 rounded border border-amber-400 bg-amber-100 text-amber-700 text-[10px] font-black shadow-sm">👑 歷史 MVP</span>` : '';
                 const cardClass = isMVP 
                     ? "bg-gradient-to-br from-amber-50 to-white dark:from-amber-950/40 dark:to-[#1e293b] p-4 rounded-[1.5rem] shadow-md border-2 border-amber-400 dark:border-amber-500 relative shadow-[0_0_15px_rgba(251,191,36,0.3)]"
                     : "bg-white dark:bg-[#1e293b] p-4 rounded-[1.5rem] shadow-sm border border-slate-100 dark:border-slate-800 relative";
@@ -1709,7 +1859,7 @@
             }
         }
 
-        function updateStats(km, eff, cost, maintCost, baseOdo, fuelSavings, co2Savings, treesPlanted, remMaint, progMaint, remTire, progTire, remFilter, progFilter) {
+        function updateStats(km, eff, cost, maintCost, baseOdo, fuelSavings, co2Savings, treesPlanted, remMaint, progMaint) {
             if(DOM.statTotalKm) DOM.statTotalKm.textContent = (km + baseOdo).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
             if(DOM.statAvgEfficiency) DOM.statAvgEfficiency.textContent = eff.toFixed(2);
             
@@ -1725,14 +1875,6 @@
                 DOM.maintRemainingText.textContent = Math.round(remMaint).toLocaleString();
                 if(DOM.maintProgressBar) DOM.maintProgressBar.style.width = `${Math.min(100, progMaint)}%`;
                 updateProgressStyle(DOM.maintRemainingText, DOM.maintProgressBar, remMaint);
-
-                if(DOM.tireRemainingText) DOM.tireRemainingText.textContent = Math.round(remTire).toLocaleString();
-                if(DOM.tireProgressBar) DOM.tireProgressBar.style.width = `${Math.min(100, progTire)}%`;
-                updateProgressStyle(DOM.tireRemainingText, DOM.tireProgressBar, remTire);
-
-                if(DOM.filterRemainingText) DOM.filterRemainingText.textContent = Math.round(remFilter).toLocaleString();
-                if(DOM.filterProgressBar) DOM.filterProgressBar.style.width = `${Math.min(100, progFilter)}%`;
-                updateProgressStyle(DOM.filterRemainingText, DOM.filterProgressBar, remFilter);
             }
 
             if (AppState.nextMaintDate && DOM.maintDateAlertContainer) {
@@ -1754,6 +1896,26 @@
                     }
                 }
             } else if (DOM.maintDateAlertContainer) { DOM.maintDateAlertContainer.classList.add('hidden'); }
+
+            if (AppState.insuranceExpiryDate && DOM.insuranceDateAlertContainer) {
+                DOM.insuranceDateAlertContainer.classList.remove('hidden');
+                if(DOM.insuranceTargetDateStr) DOM.insuranceTargetDateStr.textContent = AppState.insuranceExpiryDate.replace(/-/g, '/');
+                const targetDate = new Date(AppState.insuranceExpiryDate);
+                const today = new Date(); today.setHours(0,0,0,0);
+                const diffDays = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24)); 
+                if (DOM.insuranceDaysRemainingBadge) {
+                    if (diffDays < 0) {
+                        DOM.insuranceDaysRemainingBadge.textContent = `已逾期 ${Math.abs(diffDays)} 天`;
+                        DOM.insuranceDaysRemainingBadge.className = "text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm bg-rose-100 text-rose-600 dark:bg-rose-900/50 dark:text-rose-400 border border-rose-200 dark:border-rose-800";
+                    } else if (diffDays <= 30) {
+                        DOM.insuranceDaysRemainingBadge.textContent = `剩餘 ${diffDays} 天`;
+                        DOM.insuranceDaysRemainingBadge.className = "text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-400 border border-amber-200 dark:border-amber-800";
+                    } else {
+                        DOM.insuranceDaysRemainingBadge.textContent = `剩餘 ${diffDays} 天`;
+                        DOM.insuranceDaysRemainingBadge.className = "text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700";
+                    }
+                }
+            } else if (DOM.insuranceDateAlertContainer) { DOM.insuranceDateAlertContainer.classList.add('hidden'); }
         }
 
         window.setChartFilter = function(filter) {
@@ -1789,7 +1951,7 @@
                 doughnutData = doughnutData.filter(rec => rec.date.startsWith(AppState.currentMonthFilter));
             }
 
-            let periodTotalKm = 0; let periodTotalCost = 0; let periodEnergyCost = 0;
+            let periodTotalKm = 0; let periodTotalCost = 0; let periodEnergyCost = 0; let periodConsumedPower = 0;
             const allPeriodRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && (AppState.currentMonthFilter === 'all' || (r.date && r.date.startsWith(AppState.currentMonthFilter))));
             allPeriodRecords.forEach(rec => {
                 const cost = parseFloat(rec.cost) || 0;
@@ -1797,12 +1959,15 @@
                 if (!['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType)) {
                     periodTotalKm += (parseFloat(rec.distance) || 0);
                     periodEnergyCost += cost;
+                    periodConsumedPower += AppState.batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
                 }
             });
             const periodCostPerKm = periodTotalKm > 0 ? (periodEnergyCost / periodTotalKm) : 0;
+            const periodAvgEff = periodConsumedPower > 0 ? (periodTotalKm / periodConsumedPower) : 0;
 
             if (DOM.analysisTotalKm) DOM.analysisTotalKm.textContent = periodTotalKm.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
-            if (DOM.analysisSummaryLabel) DOM.analysisSummaryLabel.textContent = AppState.currentMonthFilter === 'all' ? '全部累積里程' : `${AppState.currentMonthFilter.replace('-', '/')} 總里程`;
+            if (DOM.analysisSummaryLabel) DOM.analysisSummaryLabel.textContent = AppState.currentMonthFilter === 'all' ? '累積里程' : `${AppState.currentMonthFilter.replace('-', '/')} 里程`;
+            if (DOM.analysisAvgEfficiency) DOM.analysisAvgEfficiency.textContent = periodAvgEff.toFixed(2);
             if (DOM.analysisTotalCost) DOM.analysisTotalCost.textContent = periodTotalCost.toLocaleString();
             if (DOM.analysisCostLabel) DOM.analysisCostLabel.textContent = AppState.currentMonthFilter === 'all' ? '歷史總花費' : `${AppState.currentMonthFilter.replace('-', '/')} 總花費`;
             if (DOM.analysisCostPerKm) DOM.analysisCostPerKm.textContent = periodCostPerKm.toFixed(2);
@@ -2099,6 +2264,7 @@
             AppState.initialOdometer = parseFloat(DOM.initialOdometerInput?.value) || 0; localStorage.setItem('ev_life_initial_odometer', AppState.initialOdometer);
             AppState.maintInterval = parseInt(DOM.maintIntervalInput?.value) || 20000; localStorage.setItem('ev_life_maint_interval', AppState.maintInterval);
             AppState.nextMaintDate = DOM.nextMaintDateInput?.value || ""; localStorage.setItem('ev_life_next_maint_date', AppState.nextMaintDate);
+            AppState.insuranceExpiryDate = DOM.insuranceExpiryInput?.value || ""; localStorage.setItem('ev_life_insurance_date', AppState.insuranceExpiryDate);
             AppState.iceEfficiency = parseFloat(DOM.iceEfficiencyInput?.value) || 15.0; localStorage.setItem('ev_life_ice_efficiency', AppState.iceEfficiency);
             AppState.gasPrice = parseFloat(DOM.gasPriceInput?.value) || 30.0; localStorage.setItem('ev_life_gas_price', AppState.gasPrice);
             
@@ -2133,7 +2299,7 @@
                     }));
                     const configMeta = { 
                         id: "CONFIG_METADATA", date: "", chargeType: "", distance: 0, power: 0, cost: 0, 
-                        note: JSON.stringify({ evName: AppState.evName, batteryCapacity: AppState.batteryCapacity, initialOdometer: AppState.initialOdometer, maintInterval: AppState.maintInterval, nextMaintDate: AppState.nextMaintDate, iceEfficiency: AppState.iceEfficiency, gasPrice: AppState.gasPrice }) 
+                        note: JSON.stringify({ evName: AppState.evName, batteryCapacity: AppState.batteryCapacity, initialOdometer: AppState.initialOdometer, maintInterval: AppState.maintInterval, nextMaintDate: AppState.nextMaintDate, insuranceExpiryDate: AppState.insuranceExpiryDate, iceEfficiency: AppState.iceEfficiency, gasPrice: AppState.gasPrice }) 
                     };
                     const payloadToPost = { token: AppState.syncToken, records: [...uploadRecords, { id: "SYSTEM_METADATA", note: localLastUpdated.toString() }, configMeta] };
                     const postRes = await fetch(urlWithToken, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payloadToPost) });
@@ -2172,11 +2338,13 @@
                         if (cloudConfig.initialOdometer !== undefined) { AppState.initialOdometer = parseFloat(cloudConfig.initialOdometer); localStorage.setItem('ev_life_initial_odometer', AppState.initialOdometer); }
                         if (cloudConfig.maintInterval) { AppState.maintInterval = parseInt(cloudConfig.maintInterval); localStorage.setItem('ev_life_maint_interval', AppState.maintInterval); }
                         if (cloudConfig.nextMaintDate !== undefined) { AppState.nextMaintDate = cloudConfig.nextMaintDate; localStorage.setItem('ev_life_next_maint_date', AppState.nextMaintDate); }
+                        if (cloudConfig.insuranceExpiryDate !== undefined) { AppState.insuranceExpiryDate = cloudConfig.insuranceExpiryDate; localStorage.setItem('ev_life_insurance_date', AppState.insuranceExpiryDate); }
                         if (cloudConfig.iceEfficiency) { AppState.iceEfficiency = parseFloat(cloudConfig.iceEfficiency); localStorage.setItem('ev_life_ice_efficiency', AppState.iceEfficiency); }
                         if (cloudConfig.gasPrice) { AppState.gasPrice = parseFloat(cloudConfig.gasPrice); localStorage.setItem('ev_life_gas_price', AppState.gasPrice); }
                         
                         if (DOM.maintIntervalInput) DOM.maintIntervalInput.value = AppState.maintInterval;
                         if (DOM.nextMaintDateInput) DOM.nextMaintDateInput.value = AppState.nextMaintDate;
+                        if (DOM.insuranceExpiryInput) DOM.insuranceExpiryInput.value = AppState.insuranceExpiryDate;
                         if (DOM.iceEfficiencyInput) DOM.iceEfficiencyInput.value = AppState.iceEfficiency;
                         if (DOM.gasPriceInput) DOM.gasPriceInput.value = AppState.gasPrice;
                     }
