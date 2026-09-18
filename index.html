@@ -184,6 +184,19 @@
                     <input type="file" id="heroImageUpload" class="hidden" accept="image/*" onchange="handleHeroImageUpload(event)">
                 </div>
 
+                <button onclick="openRealtimeStationModal()" class="w-full mb-6 rpg-card bg-gradient-to-r from-amber-400 to-amber-500 dark:from-amber-500 dark:to-amber-600 text-slate-900 p-4 rounded-[1.5rem] shadow-[0_8px_20px_rgba(251,191,36,0.25)] dark:shadow-[0_8px_20px_rgba(0,0,0,0.5)] border border-amber-300 dark:border-amber-400 flex items-center justify-between transition active:scale-95">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-white/40 w-11 h-11 rounded-full flex items-center justify-center text-2xl shadow-sm border border-white/30">⚡</div>
+                        <div class="text-left">
+                            <div class="font-black text-[15px] tracking-wide">尋找附近即時充電樁</div>
+                            <div class="text-[10px] font-bold opacity-80 mt-0.5 bg-slate-900/10 px-2 py-0.5 rounded-md inline-block">串接 TDX 官方即時空位狀態</div>
+                        </div>
+                    </div>
+                    <div class="bg-white/30 rounded-full p-1.5 shadow-sm">
+                        <svg class="w-5 h-5 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </button>
+
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div class="rpg-card bg-[#fffaf0] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
                         <div class="text-amber-500 mb-2 flex items-start justify-between">
@@ -872,6 +885,29 @@
             <div id="pickerMapContainer" class="w-full flex-1 rounded-xl bg-slate-200 dark:bg-slate-800 overflow-hidden relative z-10"></div>
             <div class="mt-3 text-center text-[10px] font-bold text-slate-400">
                 點擊地標後，將自動載入該站點名稱、預估地區及目前氣溫
+            </div>
+        </div>
+    </div>
+
+    <!-- ⚡ 即時充電狀態 Modal -->
+    <div id="realTimeModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[130] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white dark:bg-[#1e293b] rounded-[2rem] p-5 shadow-2xl max-w-md w-full mx-4 h-[85vh] flex flex-col transform scale-95 transition-all duration-300 border border-slate-100 dark:border-slate-700 relative overflow-hidden">
+            <div class="flex items-center justify-between mb-2 pb-2 border-b border-slate-100 dark:border-slate-700/60">
+                <h3 class="text-sm font-black text-slate-800 dark:text-white flex items-center gap-2">
+                    <span class="text-lg">⚡</span> 附近充電樁即時狀態
+                </h3>
+                <button onclick="closeRealtimeStationModal()" class="w-7 h-7 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center text-xs font-bold transition active:scale-90">✕</button>
+            </div>
+            
+            <div class="flex items-center gap-3 mb-4 mt-2 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-xl border border-amber-100 dark:border-amber-800/50">
+                <div class="text-[11px] font-black text-amber-700 dark:text-amber-400 flex-shrink-0">搜尋範圍</div>
+                <input type="range" id="searchRadiusSlider" min="1" max="10" value="3" class="flex-1 accent-amber-500" onchange="updateSearchRadius(this.value)">
+                <span class="text-[11px] font-black text-amber-700 dark:text-amber-400 w-12 text-right"><span id="searchRadiusText">3</span> km</span>
+            </div>
+
+            <div id="realTimeListContainer" class="flex-1 overflow-y-auto no-scrollbar space-y-3 pb-4">
+                <!-- Data will be populated here -->
+                <div class="text-center text-slate-400 text-xs font-bold py-10">等待載入中...</div>
             </div>
         </div>
     </div>
@@ -3089,6 +3125,208 @@ self.addEventListener('fetch', event => {
             if(dH) dH.innerHTML = window.location.protocol === 'file:' ? '🔴 本機檔案不允許' : (isHttps ? '🟢 安全連線' : '🔴 非安全連線');
             if(dS) { if ('serviceWorker' in navigator) { navigator.serviceWorker.getRegistration().then(r => { dS.innerHTML = (r && r.active) ? '🟢 引擎運行中' : '🟡 未安裝'; }).catch(() => dS.innerHTML = '⚪ 引擎未就緒'); } else dS.innerHTML = '🔴 不支援'; }
             if(dN) dN.innerHTML = navigator.onLine ? '🟢 網路正常' : '🔴 離線模式';
+        }
+
+        let currentSearchRadiusKm = 3;
+        window.lastKnownLat = null;
+        window.lastKnownLng = null;
+
+        window.updateSearchRadius = function(val) {
+            document.getElementById('searchRadiusText').textContent = val;
+            currentSearchRadiusKm = parseInt(val, 10);
+            if (window.lastKnownLat && window.lastKnownLng) {
+                fetchNearbyRealtimeStations(window.lastKnownLat, window.lastKnownLng, currentSearchRadiusKm);
+            }
+        }
+
+        window.openRealtimeStationModal = function() {
+            if (!AppState.tdxClientId || !AppState.tdxClientSecret) {
+                showConfirmModal("需要 TDX API 授權", "此功能需串接交通部免費的 TDX API 才能取得即時狀態。是否前往設定頁面填寫您的 API 金鑰？", () => {
+                    switchTab('settings');
+                });
+                return;
+            }
+
+            const modal = document.getElementById('realTimeModal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.firstElementChild.classList.remove('scale-95');
+            }, 10);
+
+            const listContainer = document.getElementById('realTimeListContainer');
+            listContainer.innerHTML = '<div class="text-center text-amber-500 text-xs font-bold py-16 flex flex-col items-center gap-3"><span class="text-4xl animate-spin origin-center">⏳</span><span>正在定位並連線交通部伺服器...</span></div>';
+
+            if (!navigator.geolocation) {
+                listContainer.innerHTML = '<div class="text-center text-rose-500 text-xs font-bold py-10">您的瀏覽器不支援定位功能</div>';
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    window.lastKnownLat = pos.coords.latitude;
+                    window.lastKnownLng = pos.coords.longitude;
+                    fetchNearbyRealtimeStations(pos.coords.latitude, pos.coords.longitude, currentSearchRadiusKm);
+                },
+                (err) => {
+                    listContainer.innerHTML = '<div class="text-center text-rose-500 text-xs font-bold py-10">定位失敗，請確認已開啟瀏覽器/系統的位置權限。</div>';
+                },
+                { timeout: 10000, maximumAge: 60000 }
+            );
+        }
+
+        window.closeRealtimeStationModal = function() {
+            const modal = document.getElementById('realTimeModal');
+            if(!modal) return;
+            modal.classList.add('opacity-0');
+            modal.firstElementChild.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        async function fetchNearbyRealtimeStations(lat, lng, radiusKm) {
+            const listContainer = document.getElementById('realTimeListContainer');
+            listContainer.innerHTML = '<div class="text-center text-amber-500 text-xs font-bold py-16 flex flex-col items-center gap-3"><span class="text-4xl animate-spin origin-center">⏳</span><span>正在抓取最新充電樁空位資料...</span></div>';
+
+            try {
+                const token = await getTdxToken();
+                if (!token) throw new Error("TDX 授權失敗");
+
+                const radiusMeters = radiusKm * 1000;
+                
+                // 1. 抓取靜態基本資料 (站名、地址等)
+                const staticRes = await fetch(`https://tdx.transportdata.tw/api/basic/v1/Parking/ChargingStation?$spatialFilter=nearby(${lat},${lng},${radiusMeters})&$format=JSON`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const staticData = await staticRes.json();
+                const staticList = Array.isArray(staticData) ? staticData : (staticData.ChargingStations || []);
+
+                // 2. 抓取動態即時資料 (營業狀態、空位)
+                const dynamicRes = await fetch(`https://tdx.transportdata.tw/api/basic/v1/Parking/ChargingStation/Availability?$spatialFilter=nearby(${lat},${lng},${radiusMeters})&$format=JSON`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const dynamicData = await dynamicRes.json();
+                const dynamicList = Array.isArray(dynamicData) ? dynamicData : (dynamicData.ChargingStationAvailabilities || []);
+
+                const availabilityMap = {};
+                dynamicList.forEach(item => {
+                    availabilityMap[item.StationID] = item;
+                });
+
+                if (staticList.length === 0) {
+                    listContainer.innerHTML = `<div class="text-center text-slate-400 text-xs font-bold py-16 flex flex-col items-center gap-2"><span class="text-4xl">🏜️</span>方圓 ${radiusKm} 公里內沒有找到充電站，試著把上方的滑桿拉大範圍吧！</div>`;
+                    return;
+                }
+
+                // 3. 合併與整理資料
+                let mergedStations = staticList.map(station => {
+                    const distKm = getDistanceFromLatLonInKm(lat, lng, station.StationPosition.PositionLat, station.StationPosition.PositionLon);
+                    const dyn = availabilityMap[station.StationID] || {};
+                    
+                    let statusStr = "狀態未知";
+                    let statusColor = "text-slate-500 bg-slate-100 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700";
+                    
+                    if (dyn.ServiceStatus === 1) {
+                        statusStr = "🟢 營業中"; statusColor = "text-emerald-700 bg-emerald-100 dark:bg-emerald-900/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50";
+                    } else if (dyn.ServiceStatus === 2) {
+                        statusStr = "🔴 休息中"; statusColor = "text-rose-700 bg-rose-100 dark:bg-rose-900/40 dark:text-rose-400 border border-rose-200 dark:border-rose-800/50";
+                    }
+
+                    let dcTotal = 0, dcAvail = 0;
+                    let acTotal = 0, acAvail = 0;
+
+                    // 統計各類型的車位數量
+                    const availArray = dyn.ChargeAvailabilities || [];
+                    availArray.forEach(ca => {
+                        // TDX ChargeType: 1=慢充, 2=快充
+                        if (ca.ChargeType === 2) {
+                            dcTotal += (ca.TotalSpots || 0);
+                            dcAvail += (ca.AvailableSpots || 0);
+                        } else if (ca.ChargeType === 1) {
+                            acTotal += (ca.TotalSpots || 0);
+                            acAvail += (ca.AvailableSpots || 0);
+                        }
+                    });
+
+                    // 若動態資料未提供槍數細節，嘗試從靜態資料去算總數 (當作備援)
+                    if (availArray.length === 0 && station.Spots) {
+                        station.Spots.forEach(s => {
+                            if (s.ChargeType === 2) dcTotal++;
+                            else if (s.ChargeType === 1) acTotal++;
+                        });
+                    }
+
+                    return {
+                        id: station.StationID,
+                        name: station.StationName.Zh_tw,
+                        address: station.Location || station.StationAddress || "無提供地址",
+                        distKm: distKm,
+                        statusStr, statusColor,
+                        dcTotal, dcAvail,
+                        acTotal, acAvail
+                    };
+                });
+
+                // 按距離遠近排序
+                mergedStations.sort((a, b) => a.distKm - b.distKm);
+
+                // 4. 渲染到畫面上
+                listContainer.innerHTML = mergedStations.map(s => {
+                    let dcHtml = '';
+                    if (s.dcTotal > 0) {
+                        const isDcFull = s.dcAvail === 0 && s.statusStr.includes("營業");
+                        dcHtml = `
+                            <div class="flex-1 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/50 py-2.5 px-2 rounded-xl text-center shadow-sm">
+                                <div class="text-[10px] font-black text-amber-600 dark:text-amber-500 mb-0.5 flex items-center justify-center gap-1"><span class="text-[12px]">⚡</span>DC 快充</div>
+                                <div class="font-mono text-base font-black ${isDcFull ? 'text-rose-500 dark:text-rose-400' : 'text-slate-800 dark:text-white'}">
+                                    ${s.dcAvail} <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold">/ ${s.dcTotal}</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    let acHtml = '';
+                    if (s.acTotal > 0) {
+                        const isAcFull = s.acAvail === 0 && s.statusStr.includes("營業");
+                        acHtml = `
+                            <div class="flex-1 bg-teal-50 dark:bg-teal-900/10 border border-teal-100 dark:border-teal-800/50 py-2.5 px-2 rounded-xl text-center shadow-sm">
+                                <div class="text-[10px] font-black text-teal-600 dark:text-teal-500 mb-0.5 flex items-center justify-center gap-1"><span class="text-[12px]">🔌</span>AC 慢充</div>
+                                <div class="font-mono text-base font-black ${isAcFull ? 'text-rose-500 dark:text-rose-400' : 'text-slate-800 dark:text-white'}">
+                                    ${s.acAvail} <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold">/ ${s.acTotal}</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    if (s.dcTotal === 0 && s.acTotal === 0) {
+                        dcHtml = `<div class="text-[10px] text-slate-400 py-3 w-full text-center bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">查無此站充電槍數量與狀態資料</div>`;
+                    }
+
+                    return `
+                    <div class="bg-white dark:bg-[#0f172a] p-4 rounded-[1.5rem] border border-slate-100 dark:border-slate-800 shadow-sm relative transition active:scale-[0.98]">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="pr-2">
+                                <div class="text-sm font-black text-slate-800 dark:text-white mb-1 leading-tight">${escapeHTML(s.name)}</div>
+                                <div class="text-[10px] text-slate-400 flex items-start gap-1 font-bold">
+                                    <span class="mt-[1px]">📍</span> <span class="leading-relaxed">${escapeHTML(s.address)}</span>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-end gap-1.5 flex-shrink-0">
+                                <span class="text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm ${s.statusColor}">${s.statusStr}</span>
+                                <span class="text-[11px] font-mono text-slate-500 font-bold bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm">離你 ${(s.distKm < 1 ? Math.round(s.distKm*1000) + 'm' : s.distKm.toFixed(1) + 'km')}</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-3 mt-3 pt-3 border-t border-slate-50 dark:border-slate-800/80">
+                            ${dcHtml}
+                            ${acHtml}
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+
+            } catch (e) {
+                console.error(e);
+                listContainer.innerHTML = '<div class="text-center text-rose-500 text-xs font-bold py-16 flex flex-col items-center gap-2"><span class="text-4xl mb-2">⚠️</span>連線發生錯誤<br>請確認 TDX API 金鑰是否正確，或稍後再試。</div>';
+            }
         }
     </script>
 </body>
