@@ -43,9 +43,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
-    <!-- 新增 Google Maps 資源 (請將 YOUR_API_KEY 替換為您的真實金鑰) -->
-    <!-- ⚠️ 注意：上線前務必至 GCP 後台設定「網站限制 (HTTP Referrers)」以防盜用 -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4VD2QwmyRkM8gwApiDIMUXKBKRAaoXW0" defer></script>
+    <!-- ⚠️ 請將 YOUR_DEMO_KEY 替換為您的 Google Maps API Key -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_DEMO_KEY" defer></script>
 
     <script>
         (function() {
@@ -328,9 +327,9 @@
                         <div class="flex items-center justify-between mb-2 relative z-10">
                             <div class="flex items-center gap-1.5">
                                 <span class="text-xs shadow-sm">👑</span>
-                                <span class="text-[11px] font-black text-slate-600 dark:text-slate-300">歷史最佳 MVP</span>
+                                <span class="text-[11px] font-black text-slate-600 dark:text-slate-300">歷史最高紀錄</span>
                             </div>
-                            <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/40 px-2 py-0.5 rounded shadow-sm">最高紀錄</span>
+                            <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/40 px-2 py-0.5 rounded shadow-sm">最高分</span>
                         </div>
                         <div class="flex items-baseline gap-1 relative z-10 mt-1">
                             <span id="statMvpScore" class="text-3xl font-black text-amber-500 font-mono tracking-tight drop-shadow-sm">0</span>
@@ -835,7 +834,6 @@
             <div id="evMapContainer" class="w-full flex-1 rounded-xl bg-slate-200 dark:bg-slate-800 overflow-hidden relative z-10"></div>
             <div class="mt-3 text-center text-[10px] font-bold text-slate-400">
                 <span class="inline-block w-2 h-2 rounded-full bg-amber-500 mr-1"></span>已造訪站點 
-                <span class="inline-block w-2 h-2 rounded-full bg-slate-400 ml-3 mr-1"></span>未造訪站點
             </div>
         </div>
     </div>
@@ -874,9 +872,9 @@
         </div>
     </nav>
 
-    <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-[120] transform -translate-y-10 opacity-0 invisible pointer-events-none transition-all duration-300 bg-slate-900/95 dark:bg-[#1e293b]/95 text-white px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 text-xs font-bold whitespace-nowrap border border-white/10">
-        <span id="toastIcon">🐾</span>
-        <span id="toastMessage"></span>
+    <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-[120] transform -translate-y-10 opacity-0 invisible pointer-events-none transition-all duration-300 bg-slate-900/95 dark:bg-[#1e293b]/95 text-white px-5 py-3 rounded-2xl shadow-lg flex items-start space-x-2 text-xs font-bold border border-white/10 max-w-[90vw] text-center justify-center leading-relaxed">
+        <span id="toastIcon" class="mt-0.5 flex-shrink-0">🐾</span>
+        <span id="toastMessage" class="break-words"></span>
     </div>
 
     <div id="confirmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[110] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
@@ -916,7 +914,7 @@
             get CO2_SAVED_PER_KM() { return this.CO2_ICE_PER_KM - this.CO2_EV_PER_KM; }
         };
 
-        // 常用充電站清單（可持續擴充經緯度）
+        // 常用充電站清單（如果使用者填寫的 Tag 有在這裡面，就會被標記到地圖上）
         const CHARGE_STATIONS = [
             { name: "U-POWER 桃園經國站", lat: 25.029, lng: 121.294 },
             { name: "U-POWER 中壢青埔站", lat: 25.009, lng: 121.214 },
@@ -925,7 +923,9 @@
             { name: "特爾電力 桃園機場站", lat: 25.077, lng: 121.232 },
             { name: "特爾電力 國一湖口服務區南向", lat: 24.871, lng: 121.011 },
             { name: "iCharging 國一湖口服務區南向", lat: 24.870, lng: 121.010 },
-            { name: "U-POWER 關西服務區", lat: 24.802, lng: 121.178 }
+            { name: "U-POWER 關西服務區", lat: 24.802, lng: 121.178 },
+            { name: "TAIL 中壢休息站", lat: 24.981, lng: 121.239 },
+            { name: "Tesla 中壢大江站", lat: 25.002, lng: 121.228 }
         ];
 
         function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
@@ -1077,7 +1077,7 @@
             if (DOM.inputDate) DOM.inputDate.value = getLocalDateString();
         }
 
-        window.showToast = function(message, isError=false, duration=2200) {
+        window.showToast = function(message, isError=false, duration=3500) {
             const toastEl = DOM.toast;
             if (!toastEl) return;
             toastQueue.push({message, isError, duration});
@@ -1094,13 +1094,13 @@
             const msgEl = DOM.toastMessage;
             const iconEl = DOM.toastIcon;
             
-            msgEl.textContent = message;
+            msgEl.innerHTML = message; // 允許 HTML 換行標籤
             iconEl.textContent = isError ? "⚠️" : "🐾";
 
-            const baseClasses = `fixed top-[70px] left-1/2 -translate-x-1/2 z-[120] transform transition-all duration-300 text-white px-5 py-3 rounded-full shadow-lg flex items-center space-x-2 text-xs font-bold whitespace-nowrap border border-white/10`;
             const colorClasses = isError ? 'bg-rose-500' : 'bg-slate-900/95 dark:bg-amber-500 dark:text-slate-900';
-
-            toastEl.className = `${baseClasses} ${colorClasses} translate-y-0 opacity-100 visible pointer-events-auto`;
+            
+            // 重置既有 class，重新加入狀態
+            toastEl.className = `fixed top-[70px] left-1/2 -translate-x-1/2 z-[120] transform transition-all duration-300 text-white px-5 py-3 rounded-2xl shadow-lg flex items-start space-x-2 text-xs font-bold border border-white/10 max-w-[90vw] text-left leading-relaxed ${colorClasses} translate-y-0 opacity-100 visible pointer-events-auto`;
             
             setTimeout(() => {
                 toastEl.classList.replace('translate-y-0', '-translate-y-10');
@@ -1397,7 +1397,7 @@
                     if (DOM.inputDistrict) DOM.inputDistrict.value = tempCurrentDistrict;
                     if (DOM.inputTag) DOM.inputTag.value = single.name;
                     const locText = tempCurrentDistrict ? `📍 ${tempCurrentDistrict}` : `⚡ 偵測到站點`;
-                    showToast(`${locText} | ${single.name} (${single.distanceM}m)`, false, 2500);
+                    showToast(`${locText}<br>${single.name} (${single.distanceM}m)`, false, 2500);
                 } else {
                     if (tempCurrentDistrict) {
                         if (DOM.inputDistrict) DOM.inputDistrict.value = tempCurrentDistrict;
@@ -1452,7 +1452,7 @@
         window.chooseStation = function(stationName) {
             if (DOM.inputTag) DOM.inputTag.value = stationName;
             closeStationModal();
-            showToast(`⚡ 已帶入站點: ${stationName}`);
+            showToast(`⚡ 已帶入站點: <br>${stationName}`);
         }
 
         window.closeStationModal = function() {
@@ -1505,10 +1505,14 @@
                 }
                 window.evMarkers = [];
 
+                // 取得紀錄中所有的 Tag
                 const visitedTags = new Set(AppState.records.map(r => r.tag).filter(t=>t));
+                
+                // 只過濾出「有造訪過」的站點並標記在圖上
                 CHARGE_STATIONS.forEach(st => {
-                    const isVisited = visitedTags.has(st.name);
-                    const markerColor = isVisited ? '#f59e0b' : '#94a3b8'; // 琥珀色 vs 灰色
+                    if (!visitedTags.has(st.name)) return; // 沒去過就不顯示
+                    
+                    const markerColor = '#f59e0b'; // 琥珀色
                     
                     // 自訂水滴型 SVG 地標
                     const svgMarker = {
@@ -1530,7 +1534,7 @@
                     });
 
                     const infoWindow = new google.maps.InfoWindow({
-                        content: `<div style="color:#1e293b;font-weight:900;font-size:12px;padding:2px;">${st.name}<br><span style="color:${isVisited?'#f59e0b':'#94a3b8'};font-size:10px;">${isVisited?'✅ 已解鎖造訪':'🔒 尚未造訪'}</span></div>`
+                        content: `<div style="color:#1e293b;font-weight:900;font-size:12px;padding:2px;">${st.name}<br><span style="color:#f59e0b;font-size:10px;">✅ 曾在此紀錄</span></div>`
                     });
 
                     marker.addListener('click', () => {
@@ -1831,10 +1835,10 @@
                 fuelSavings = Math.max(0, hypotheticalGasCost - totalEnergyCost);
                 co2Savings = globalKm * CONSTANTS.CO2_SAVED_PER_KM;
 
-                if (co2Savings > 500) badgesHtml += `<div onclick="showBadgeInfo('eco')" class="${baseClass} bg-green-100 border-green-200 text-green-700 dark:bg-green-900/40 dark:border-green-800 dark:text-green-400">🌍 環保先鋒</div>`;
-                if (fuelSavings > 5000) badgesHtml += `<div onclick="showBadgeInfo('money')" class="${baseClass} bg-amber-100 border-amber-200 text-amber-700 dark:bg-amber-900/40 dark:border-amber-800 dark:text-amber-400">💰 省錢大師</div>`;
-                if (maxDist >= 200) badgesHtml += `<div onclick="showBadgeInfo('range')" class="${baseClass} bg-indigo-100 border-indigo-200 text-indigo-700 dark:bg-indigo-900/40 dark:border-indigo-800 dark:text-indigo-400">🚀 高速巡航者</div>`;
-                if (maxEff >= 6.5) badgesHtml += `<div onclick="showBadgeInfo('foot')" class="${baseClass} bg-rose-100 border-rose-200 text-rose-700 dark:bg-rose-900/40 dark:border-rose-800 dark:text-rose-400">👑 黃金右腳</div>`;
+                if (co2Savings > 500) badgesHtml += `<div onclick="showBadgeInfo('eco', ${co2Savings.toFixed(1)})" class="${baseClass} bg-green-100 border-green-200 text-green-700 dark:bg-green-900/40 dark:border-green-800 dark:text-green-400">🌍 環保先鋒</div>`;
+                if (fuelSavings > 5000) badgesHtml += `<div onclick="showBadgeInfo('money', ${Math.round(fuelSavings)})" class="${baseClass} bg-amber-100 border-amber-200 text-amber-700 dark:bg-amber-900/40 dark:border-amber-800 dark:text-amber-400">💰 省錢大師</div>`;
+                if (maxDist >= 200) badgesHtml += `<div onclick="showBadgeInfo('range', ${maxDist})" class="${baseClass} bg-indigo-100 border-indigo-200 text-indigo-700 dark:bg-indigo-900/40 dark:border-indigo-800 dark:text-indigo-400">🚀 高速巡航者</div>`;
+                if (maxEff >= 6.5) badgesHtml += `<div onclick="showBadgeInfo('foot', ${maxEff.toFixed(2)})" class="${baseClass} bg-rose-100 border-rose-200 text-rose-700 dark:bg-rose-900/40 dark:border-rose-800 dark:text-rose-400">👑 黃金右腳</div>`;
                 
                 if (badgesHtml === '') badgesHtml = `<div class="text-[10px] text-slate-400 font-bold px-2 py-1">持續紀錄旅程來解鎖專屬成就！</div>`;
                 DOM.badgesContainer.innerHTML = badgesHtml;
@@ -1865,7 +1869,7 @@
             const displayRecords = [...filteredRecords].reverse();
             
             // 計算黃金右腳 (Eco Score)
-            // 修正公式：以 5.0 km/度為 60 分，每提升 0.1 增加 2.4 分，滿分 100
+            // 公式：以 5.0 km/度為 60 分，每提升 0.1 增加 2.4 分，滿分 100
             const scoredRecords = displayRecords.filter(r => !['維修保養', '停車費', '通行費', '保險費'].includes(r.chargeType) && r.distance > 5)
                 .map(r => {
                     const power = AppState.batteryCapacity * ((r.consumedSocPercent || 0) / 100);
@@ -1920,7 +1924,7 @@
                 if (rec.chargeType === '未充電') typeStyle = 'bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-400';
                 
                 const isMVP = (mvpGlobalId && rec.id === mvpGlobalId);
-                const mvpBadge = isMVP ? `<span class="inline-flex items-center ml-1 px-1.5 py-0.5 rounded border border-amber-400 bg-amber-100 text-amber-700 text-[10px] font-black shadow-sm">👑 歷史 MVP</span>` : '';
+                const mvpBadge = isMVP ? `<span class="inline-flex items-center ml-1 px-1.5 py-0.5 rounded border border-amber-400 bg-amber-100 text-amber-700 text-[10px] font-black shadow-sm">👑 最高分</span>` : '';
                 const cardClass = isMVP 
                     ? "bg-gradient-to-br from-amber-50 to-white dark:from-amber-950/40 dark:to-[#1e293b] p-4 rounded-[1.5rem] shadow-md border-2 border-amber-400 dark:border-amber-500 relative shadow-[0_0_15px_rgba(251,191,36,0.3)]"
                     : "bg-white dark:bg-[#1e293b] p-4 rounded-[1.5rem] shadow-sm border border-slate-100 dark:border-slate-800 relative";
@@ -2020,12 +2024,12 @@
             return Math.round((target.getTime() - today.getTime()) / 86400000);
         }
         
-        window.showBadgeInfo = function(type) {
+        window.showBadgeInfo = function(type, value) {
             const info = {
-                'eco': '🌍 【環保先鋒】\n累積減少超過 500kg CO2 排放！感謝您為地球的貢獻。',
-                'money': '💰 【省錢大師】\n與燃油車相比，累積省下超過 5000 元油錢！純電真的省。',
-                'range': '🚀 【高速巡航者】\n單次行駛里程超過 200 公里！長途旅行也難不倒你。',
-                'foot': '👑 【黃金右腳】\n單趟平均電耗達 6.5 km/度以上！你的右腳控制力令人驚嘆。'
+                'eco': `🌍 <b class="text-green-400">環保先鋒</b><br>解鎖條件：累積減少 500kg CO₂<br>目前進度：已減少 ${value} kg！<br>感謝您為地球的貢獻 🌱`,
+                'money': `💰 <b class="text-amber-400">省錢大師</b><br>解鎖條件：省下超過 5000 元油錢<br>目前進度：已省下 $${value} 元！<br>純電真的省 ⚡`,
+                'range': `🚀 <b class="text-indigo-400">高速巡航者</b><br>解鎖條件：單次行駛超過 200 公里<br>最佳紀錄：${value} km！<br>長途旅行也難不倒你 🛣️`,
+                'foot': `👑 <b class="text-rose-400">黃金右腳</b><br>解鎖條件：單趟電耗達 6.5 km/度以上<br>最佳紀錄：${value} km/度！<br>你的右腳控制力令人驚嘆 🦶`
             };
             showToast(info[type] || '持續探索解鎖更多成就！', false, 3500);
         }
@@ -2237,7 +2241,16 @@
                                 boxWidth: 8,
                                 boxHeight: 8,
                                 bodyFont: { size: 12, lineHeight: 1.4 },
-                                titleFont: { size: 13, weight: 'bold', lineHeight: 1.4 }
+                                titleFont: { size: 13, weight: 'bold', lineHeight: 1.4 },
+                                callbacks: {
+                                    // 強制複寫 label，確保文字和點可以乾淨的對齊
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) { label += ': '; }
+                                        if (context.parsed.y !== null) { label += context.parsed.y; }
+                                        return label;
+                                    }
+                                }
                             }
                         }, 
                         scales: scalesConfig 
