@@ -572,7 +572,7 @@
                 </div>
 
                 <div class="flex items-center w-full mb-4">
-                    <div id="monthFilterContainer_analysis" class="flex overflow-x-auto gap-2 no-scrollbar pb-1 flex-1 items-center md:gap-3"></div>
+                    <div id="monthFilterContainer_analysis" class="flex overflow-x-auto gap-2 no-scrollbar pb-1 flex-1 min-w-0 items-center md:gap-3"></div>
                 </div>
                 
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
@@ -965,6 +965,38 @@
             });
         }
 
+        // 新增：滑鼠點擊拖曳橫向滾動功能
+        function initDragToScroll() {
+            const scrollContainers = document.querySelectorAll('.overflow-x-auto');
+            scrollContainers.forEach(slider => {
+                let isDown = false;
+                let startX;
+                let scrollLeft;
+
+                slider.addEventListener('mousedown', (e) => {
+                    isDown = true;
+                    slider.style.cursor = 'grabbing';
+                    startX = e.pageX - slider.offsetLeft;
+                    scrollLeft = slider.scrollLeft;
+                });
+                slider.addEventListener('mouseleave', () => {
+                    isDown = false;
+                    slider.style.cursor = '';
+                });
+                slider.addEventListener('mouseup', () => {
+                    isDown = false;
+                    slider.style.cursor = '';
+                });
+                slider.addEventListener('mousemove', (e) => {
+                    if (!isDown) return;
+                    e.preventDefault();
+                    const x = e.pageX - slider.offsetLeft;
+                    const walk = (x - startX) * 1.5; // 控制滑動速度
+                    slider.scrollLeft = scrollLeft - walk;
+                });
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             try {
                 cacheDOMNodes();
@@ -1039,6 +1071,7 @@
             checkQuickLog();
             
             setupAutoHideNav(); 
+            initDragToScroll(); // 👈 啟動新增的拖曳功能
             
             try {
                 const localData = localStorage.getItem('ev_life_records');
@@ -1848,7 +1881,7 @@
                 .map(r => {
                     const power = AppState.batteryCapacity * ((r.consumedSocPercent || 0) / 100);
                     const eff = power > 0 ? parseFloat((r.distance / power).toFixed(2)) : 0;
-                    const score = Math.min(100, Math.max(0, Math.round(60 + (eff - 5.0) * 24)));
+                    const score = Math.min(100, Math.max(0, Math.round(60 + (eff - 5.0) * 24))));
                     return { ...r, eff, score };
                 });
 
