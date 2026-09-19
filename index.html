@@ -44,7 +44,7 @@
         .ios-27-glass { background: transparent; backdrop-filter: blur(4px) saturate(110%); -webkit-backdrop-filter: blur(4px) saturate(110%); border: 1px solid rgba(255, 255, 255, 0.4); border-top: 1px solid rgba(255, 255, 255, 0.8); border-bottom: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), inset 0 1px 3px rgba(255, 255, 255, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.15); }
         .dark .ios-27-glass { background: transparent; backdrop-filter: blur(4px) saturate(110%); -webkit-backdrop-filter: blur(4px) saturate(110%); border: 1px solid rgba(255, 255, 255, 0.15); border-top: 1px solid rgba(255, 255, 255, 0.4); border-bottom: 1px solid rgba(255, 255, 255, 0.02); box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.08); }
         
-        /* 導覽列定位修正 (iOS完美的間距 + 電腦版) */
+        /* 導覽列定位修正 */
         .floating-nav { bottom: calc(env(safe-area-inset-bottom, 0px) * 0.5 + 2px) !important; margin-bottom: 0 !important; }
         @media (min-width: 768px) {
             .floating-nav { bottom: 6px !important; }
@@ -79,7 +79,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
-    <!-- 保留 Google Maps API 供充電地圖 Modal 使用 -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4VD2QwmyRkM8gwApiDIMUXKBKRAaoXW0&libraries=places" defer></script>
 
     <script>
@@ -262,7 +261,7 @@
                     </div>
                 </div>
 
-                <!-- 🔮 AI 旅程預測器 (獨立全寬顯示) -->
+                <!-- 🔮 AI 旅程預測器 -->
                 <div class="mb-4">
                     <div class="rpg-card bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/10 p-5 rounded-[1.5rem] border border-indigo-100 dark:border-indigo-800/50">
                         <div class="flex items-center justify-between mb-3">
@@ -306,7 +305,7 @@
                     </div>
                 </div>
 
-                <!-- 👑 黃金右腳評分 (分成最新與最佳) -->
+                <!-- 👑 黃金右腳評分 -->
                 <div id="ecoScoreContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 hidden">
                     <div class="rpg-card bg-gradient-to-br from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/10 p-4 rounded-[1.5rem] border border-sky-100 dark:border-sky-800/50 relative overflow-hidden">
                         <div class="flex items-center justify-between mb-2">
@@ -348,7 +347,7 @@
                     </div>
                 </div>
 
-                <!-- 🔧 車輛保養與保險進度 (獨立滿寬顯示) -->
+                <!-- 🔧 車輛保養與保險進度 -->
                 <div class="mb-4">
                     <div class="rpg-card bg-white dark:bg-slate-800 p-5 rounded-[1.5rem] border border-slate-100 dark:border-slate-700 flex flex-col justify-center">
                         <div class="flex items-center gap-2 mb-4">
@@ -448,10 +447,7 @@
                             
                             <div class="relative mb-2">
                                 <div class="absolute left-3 top-1/2 -translate-y-1/2 text-xs">⚡</div>
-                                <!-- 修改此處：加上 list="myStations" -->
-                                <input type="text" id="inputTag" list="myStations" placeholder="站點 (例:U-POWER 中壢青埔站)" class="w-full pl-8 pr-3 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
-                                <!-- 新增 datalist -->
-                                <datalist id="myStations"></datalist>
+                                <input type="text" id="inputTag" placeholder="站點 (例:U-POWER 中壢青埔站)" class="w-full pl-8 pr-3 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
                             </div>
 
                             <div class="grid grid-cols-3 gap-2 mb-2">
@@ -544,10 +540,9 @@
                 <p class="text-xs md:text-sm font-bold">目前區間尚無紀錄喔！</p>
             </div>
 
-            <div id="recordMobileList" class="space-y-4 md:space-y-5 pb-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0"></div>
+            <div id="recordMobileList" class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 items-stretch"></div>
             
             <div id="recordCalendarView" class="hidden bg-white dark:bg-[#1e293b] p-5 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-800 pb-4 max-w-2xl mx-auto">
-                <!-- 日曆將由 JS 生成 -->
             </div>
         </div>
 
@@ -664,7 +659,6 @@
                         充電站 CP 值排行榜
                     </h3>
                     <div id="cpRankingList" class="space-y-3 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
-                        <!-- CP 值列表由 JS 生成 -->
                     </div>
                 </div>
             </div>
@@ -769,7 +763,6 @@
                     </div>
                     
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
-                        <!-- CSV 匯出區塊 -->
                         <div class="bg-emerald-50 dark:bg-emerald-900/10 p-5 rounded-2xl border border-emerald-200 dark:border-emerald-900/50 space-y-3">
                             <span class="text-sm text-emerald-700 dark:text-emerald-500 font-extrabold block">📊 報表匯出</span>
                             <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-4">將所有紀錄匯出為 CSV 格式，您可以使用 Excel 或 Numbers 開啟進行進階分析。</p>
@@ -779,7 +772,6 @@
                             </button>
                         </div>
 
-                        <!-- PWA 區塊 -->
                         <div class="bg-amber-50 dark:bg-amber-900/10 p-5 rounded-2xl border border-amber-200 dark:border-amber-900/50 space-y-2 mt-6">
                             <span class="text-sm text-amber-700 dark:text-amber-500 font-extrabold block">📲 甚麼是 PWA 離線安裝？</span>
                             <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">允許您將 Ev Life 安裝至桌面，當作原生 App 快速啟用。無網路也能正常查看日誌！</p>
@@ -849,7 +841,6 @@
 
     <nav class="fixed left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[calc(100%-2rem)] md:max-w-2xl z-50 rounded-[2rem] ios-27-glass px-2 floating-nav">
         <div class="flex justify-around items-center h-16 md:h-20 max-w-md md:max-w-full mx-auto relative" id="nav-container">
-            
             <div id="liquid-indicator" class="liquid-indicator opacity-0 absolute top-1/2 -translate-y-1/2 left-0 w-14 md:h-16 md:rounded-full"></div>
 
             <button onclick="switchTab('home')" id="tab-home" class="tab-btn active flex flex-col items-center gap-1 w-14 md:w-20 text-slate-500 dark:text-slate-400 cursor-pointer">
@@ -968,7 +959,6 @@
             });
         }
 
-        // 滑鼠拖曳功能
         function initDragToScroll() {
             const scrollContainers = document.querySelectorAll('.overflow-x-auto');
             scrollContainers.forEach(slider => {
@@ -998,22 +988,6 @@
                     slider.scrollLeft = scrollLeft - walk;
                 });
             });
-        }
-
-        // 新增：將內建站點與歷史紀錄的站點加入下拉選單
-        function updateStationDatalist() {
-            const datalist = document.getElementById('myStations');
-            if (!datalist) return;
-
-            const uniqueStations = new Set();
-            CHARGE_STATIONS.forEach(s => uniqueStations.add(s.name));
-            AppState.records.forEach(r => {
-                if (r.tag) uniqueStations.add(r.tag);
-            });
-
-            datalist.innerHTML = Array.from(uniqueStations)
-                .map(name => `<option value="${escapeHTML(name)}">`)
-                .join('');
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -1100,49 +1074,6 @@
             
             setupDelegatedEvents();
             if (AppState.syncUrl) setTimeout(() => syncWithCloud('auto', false), 800);
-            
-            // initPlacesAutocomplete(); // 關閉會報錯的 Google 自動搜尋
-            updateStationDatalist();     // 改用 HTML 內建的 Datalist 功能
-        }
-
-        // 保留原函式但不呼叫，以防萬一
-        function initPlacesAutocomplete() {
-            if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
-                setTimeout(initPlacesAutocomplete, 500); 
-                return;
-            }
-            const inputTag = document.getElementById('inputTag');
-            if (inputTag) {
-                const autocomplete = new google.maps.places.Autocomplete(inputTag, {
-                    types: ['establishment', 'geocode'],
-                    componentRestrictions: { country: 'tw' }
-                });
-                
-                autocomplete.addListener('place_changed', () => {
-                    const place = autocomplete.getPlace();
-                    if (place.name) {
-                        inputTag.value = place.name;
-                    }
-                    
-                    if (place.address_components) {
-                        let city = '', district = '';
-                        place.address_components.forEach(comp => {
-                            if (comp.types.includes('administrative_area_level_1') || comp.types.includes('administrative_area_level_2')) city = comp.long_name;
-                            if (comp.types.includes('administrative_area_level_3') || comp.types.includes('locality')) district = comp.long_name;
-                        });
-                        const distInput = document.getElementById('inputDistrict');
-                        if (distInput && (city || district)) {
-                            distInput.value = (city + district).replace('台灣', '');
-                        }
-                    }
-                    
-                    if (place.geometry && place.geometry.location) {
-                        const cache = JSON.parse(localStorage.getItem('ev_life_geocode_cache') || '{}');
-                        cache[place.name] = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
-                        localStorage.setItem('ev_life_geocode_cache', JSON.stringify(cache));
-                    }
-                });
-            }
         }
 
         function loadSettingsFromStorage() {
@@ -1831,10 +1762,8 @@
         }
 
         function renderDashboard() {
-            updateStationDatalist(); // 新增：每次更新畫面時刷新站點選項
-
             const activeRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.date);
-            activeRecords.sort((a, b) => new Date(a.date) - new Date(b.date) || parseInt(a.id, 10) - parseInt(b.id, 10));
+            activeRecords.sort((a, b) => new Date(a.date) - new Date(b.date) || parseInt(a.id, 10) - parseInt(a.id, 10));
             
             renderMonthFilters();
             calculateRecordStats(activeRecords);
@@ -1842,7 +1771,7 @@
             if (DOM.badgesContainer) {
                 let badgesHtml = '';
                 const baseClass = "px-3 py-1.5 rounded-lg text-[10px] md:text-xs font-black shadow-sm flex items-center justify-center gap-1.5 flex-shrink-0 whitespace-nowrap border cursor-pointer hover:scale-105 transition-transform";
-                let fuelSavings = 0, co2Savings = 0, maxDist = 0, maxEff = 0, nightCharge = 0;
+                let fuelSavings = 0, co2Savings = 0, maxDist = 0, maxEff = 0;
                 
                 let globalKm = 0, totalEnergyCost = 0, globalPower = 0;
                 activeRecords.forEach(rec => {
@@ -1934,9 +1863,10 @@
                 
                 const isMVP = (mvpGlobalId && rec.id === mvpGlobalId);
                 const mvpBadge = isMVP ? `<span class="inline-flex items-center ml-1 px-1.5 py-0.5 rounded border border-amber-400 bg-amber-100 text-amber-700 text-[10px] font-black shadow-sm">👑 最高分</span>` : '';
+                
                 const cardClass = isMVP 
-                    ? "bg-gradient-to-br from-amber-50 to-white dark:from-amber-950/40 dark:to-[#1e293b] p-4 rounded-[1.5rem] shadow-md border-2 border-amber-400 dark:border-amber-500 relative shadow-[0_0_15px_rgba(251,191,36,0.3)] h-full flex flex-col justify-between"
-                    : "bg-white dark:bg-[#1e293b] p-4 rounded-[1.5rem] shadow-sm border border-slate-100 dark:border-slate-800 relative h-full flex flex-col justify-between";
+                    ? "bg-gradient-to-br from-amber-50 to-white dark:from-amber-950/40 dark:to-[#1e293b] p-4 rounded-[1.5rem] border border-amber-400 dark:border-amber-500 shadow-sm relative w-full h-full flex flex-col justify-between"
+                    : "bg-white dark:bg-[#1e293b] p-4 rounded-[1.5rem] border border-slate-100 dark:border-slate-800 shadow-sm relative w-full h-full flex flex-col justify-between";
                 
                 const safeNote = escapeHTML(rec.note);
                 const safeDate = escapeHTML(rec.date);
@@ -1983,7 +1913,7 @@
                         </div>
                         `}
                     </div>
-                    ${safeNote ? `<div class="mt-3 pt-2 border-t border-slate-50 dark:border-slate-800 text-[11px] md:text-xs text-slate-500 font-bold leading-relaxed break-all">📝 ${safeNote}</div>` : ''}
+                    ${safeNote ? `<div class="mt-3 pt-2 border-t border-slate-50 dark:border-slate-800 text-[11px] md:text-xs text-slate-500 font-bold leading-relaxed break-words">📝 ${safeNote}</div>` : ''}
                 </div>`;
             }); 
 
@@ -2247,7 +2177,7 @@
             if (DOM.tempEffChart) {
                 const scatterCtx = DOM.tempEffChart.getContext('2d');
                 const scatterDataPts = chartData.filter(r => r.temp !== null && r.temp !== undefined && r.distance > 0).map(r => {
-                    const pwr = AppState.batteryCapacity * ((r.consumedSocPercent || 0) / 100);
+                    const pwr = AppState.batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
                     return { x: r.temp, y: pwr > 0 ? parseFloat((r.distance/pwr).toFixed(2)) : 0 };
                 }).filter(d => d.y > 0);
 
