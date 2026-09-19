@@ -79,7 +79,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
-    <!-- 保留 Google Maps API -->
+    <!-- 保留 Google Maps API 供充電地圖 Modal 使用 -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4VD2QwmyRkM8gwApiDIMUXKBKRAaoXW0&libraries=places" defer></script>
 
     <script>
@@ -448,7 +448,10 @@
                             
                             <div class="relative mb-2">
                                 <div class="absolute left-3 top-1/2 -translate-y-1/2 text-xs">⚡</div>
-                                <input type="text" id="inputTag" placeholder="站點 (例:U-POWER 中壢青埔站)" class="w-full pl-8 pr-3 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
+                                <!-- 修改此處：加上 list="myStations" -->
+                                <input type="text" id="inputTag" list="myStations" placeholder="站點 (例:U-POWER 中壢青埔站)" class="w-full pl-8 pr-3 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
+                                <!-- 新增 datalist -->
+                                <datalist id="myStations"></datalist>
                             </div>
 
                             <div class="grid grid-cols-3 gap-2 mb-2">
@@ -965,7 +968,7 @@
             });
         }
 
-        // 新增：滑鼠點擊拖曳橫向滾動功能
+        // 滑鼠拖曳功能
         function initDragToScroll() {
             const scrollContainers = document.querySelectorAll('.overflow-x-auto');
             scrollContainers.forEach(slider => {
@@ -991,10 +994,26 @@
                     if (!isDown) return;
                     e.preventDefault();
                     const x = e.pageX - slider.offsetLeft;
-                    const walk = (x - startX) * 1.5; // 控制滑動速度
+                    const walk = (x - startX) * 1.5; 
                     slider.scrollLeft = scrollLeft - walk;
                 });
             });
+        }
+
+        // 新增：將內建站點與歷史紀錄的站點加入下拉選單
+        function updateStationDatalist() {
+            const datalist = document.getElementById('myStations');
+            if (!datalist) return;
+
+            const uniqueStations = new Set();
+            CHARGE_STATIONS.forEach(s => uniqueStations.add(s.name));
+            AppState.records.forEach(r => {
+                if (r.tag) uniqueStations.add(r.tag);
+            });
+
+            datalist.innerHTML = Array.from(uniqueStations)
+                .map(name => `<option value="${escapeHTML(name)}">`)
+                .join('');
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -1019,38 +1038,29 @@
             const navBar = document.querySelector('nav.floating-nav');
             if (!navBar) return;
 
-            // 預先為導覽列加上平滑動畫、縮小基準點設為底部
             navBar.classList.add('transition-all', 'duration-500', 'ease-out', 'origin-bottom');
 
             window.addEventListener('scroll', () => {
                 const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
                 
-                // 1. 若滑到最頂部 (包含 iOS 頂部橡皮筋回彈)，強制恢復顯示
                 if (scrollTop <= 10) {
                     navBar.classList.remove('translate-y-32', 'scale-75', 'opacity-0', 'pointer-events-none');
                     lastScrollTop = scrollTop;
                     return;
                 }
 
-                // [優化] 2. 解決 iOS 底部橡皮筋回彈問題
-                // 計算頁面最大可滾動高度
                 const maxScroll = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) - window.innerHeight;
-                // 如果頁面夠長，且目前位置在「最底部」或「底部回彈過程」，強制保持隱藏
                 if (maxScroll > 0 && scrollTop >= maxScroll - 20) {
                     navBar.classList.add('translate-y-32', 'scale-75', 'opacity-0', 'pointer-events-none');
                     lastScrollTop = scrollTop;
                     return;
                 }
 
-                // 3. 忽略微小的滑動 (加上門檻值，防手抖頻繁觸發)
                 if (Math.abs(scrollTop - lastScrollTop) < 15) return; 
 
-                // 4. 判斷滑動方向
                 if (scrollTop > lastScrollTop && scrollTop > 50) {
-                    // 往下滾動 (手指往上滑) -> 導覽列縮小、透明、並往下沉隱藏
                     navBar.classList.add('translate-y-32', 'scale-75', 'opacity-0', 'pointer-events-none');
                 } else {
-                    // 往上滾動 (手指往下滑) -> 恢復正常大小與顯示
                     navBar.classList.remove('translate-y-32', 'scale-75', 'opacity-0', 'pointer-events-none');
                 }
                 
@@ -1071,7 +1081,7 @@
             checkQuickLog();
             
             setupAutoHideNav(); 
-            initDragToScroll(); // 👈 啟動新增的拖曳功能
+            initDragToScroll(); 
             
             try {
                 const localData = localStorage.getItem('ev_life_records');
@@ -1091,9 +1101,11 @@
             setupDelegatedEvents();
             if (AppState.syncUrl) setTimeout(() => syncWithCloud('auto', false), 800);
             
-            initPlacesAutocomplete();
+            // initPlacesAutocomplete(); // 關閉會報錯的 Google 自動搜尋
+            updateStationDatalist();     // 改用 HTML 內建的 Datalist 功能
         }
 
+        // 保留原函式但不呼叫，以防萬一
         function initPlacesAutocomplete() {
             if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
                 setTimeout(initPlacesAutocomplete, 500); 
@@ -1819,6 +1831,8 @@
         }
 
         function renderDashboard() {
+            updateStationDatalist(); // 新增：每次更新畫面時刷新站點選項
+
             const activeRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.date);
             activeRecords.sort((a, b) => new Date(a.date) - new Date(b.date) || parseInt(a.id, 10) - parseInt(b.id, 10));
             
