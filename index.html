@@ -1461,35 +1461,49 @@
             const modal = document.getElementById('mapModal');
             modal.classList.remove('hidden');
             setTimeout(() => {
-                modal.classList.remove('opacity-0'); modal.firstElementChild.classList.remove('scale-95');
-                if (typeof google === 'undefined' || !google.maps) { showToast("未載入 Google Maps，請確認連線", true); return; }
+                modal.classList.remove('opacity-0'); 
+                modal.firstElementChild.classList.remove('scale-95');
+                if (typeof google === 'undefined' || !google.maps) { 
+                    showToast("未載入 Google Maps，請確認網路連線", true); 
+                    return; 
+                }
 
                 if (!window.evMap) {
                     window.evMap = new google.maps.Map(document.getElementById('evMapContainer'), {
-                        center: { lat: 23.9738, lng: 120.9820 }, zoom: 7.5,
+                        center: { lat: 24.5, lng: 121.0 }, 
+                        zoom: 8,
                         mapTypeControl: false, streetViewControl: false, fullscreenControl: false,
                         styles: document.documentElement.classList.contains('dark') ? [
                             { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
                             { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
                             { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
-                            { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
                             { featureType: "road", elementType: "geometry", stylers: [{ color: "#38414e" }] },
-                            { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#212a37" }] },
-                            { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#9ca5b3" }] },
-                            { featureType: "water", elementType: "geometry", stylers: [{ color: "#17263c" }] },
-                            { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#515c6d" }] },
-                            { featureType: "water", elementType: "labels.text.stroke", stylers: [{ color: "#17263c" }] }
+                            { featureType: "water", elementType: "geometry", stylers: [{ color: "#17263c" }] }
                         ] : []
                     });
-                } else { google.maps.event.trigger(window.evMap, 'resize'); }
+                } else { 
+                    google.maps.event.trigger(window.evMap, 'resize'); 
+                }
 
                 if (window.evMarkers) { window.evMarkers.forEach(m => m.setMap(null)); }
                 window.evMarkers = [];
-                const visitedStations = new Map();
-                AppState.records.forEach(r => { if (r.tag && !visitedStations.has(r.tag)) { visitedStations.set(r.tag, r.district || ''); } });
 
-                const geocoder = new google.maps.Geocoder();
+                const visitedStations = new Map();
+                AppState.records.forEach(r => { 
+                    const cleanTag = (r.tag || '').trim();
+                    if (cleanTag && !visitedStations.has(cleanTag)) { 
+                        visitedStations.set(cleanTag, (r.district || '').trim()); 
+                    } 
+                });
+
+                if (visitedStations.size === 0) {
+                    showToast("目前沒有任何填寫「站點」的紀錄喔！", false, 2500);
+                    return;
+                }
+
                 const geocodeCache = JSON.parse(localStorage.getItem('ev_life_geocode_cache') || '{}');
+                const bounds = new google.maps.LatLngBounds();
+                let markerCount = 0;
 
                 const placeMarker = (name, lat, lng, isCustom = false) => {
                     const markerColor = isCustom ? '#10b981' : '#f59e0b'; 
@@ -1498,26 +1512,102 @@
                         fillColor: markerColor, fillOpacity: 1, strokeWeight: 1.5, strokeColor: '#ffffff',
                         rotation: 0, scale: 1.4, anchor: new google.maps.Point(12, 22),
                     };
-                    const marker = new google.maps.Marker({ position: { lat, lng }, map: window.evMap, icon: svgMarker, title: name });
-                    const infoWindow = new google.maps.InfoWindow({ content: `<div style="color:#1e293b;font-weight:900;font-size:12px;padding:2px;">${name}<br><span style="color:${markerColor};font-size:10px;">✅ 曾在此紀錄${isCustom ? '(自訂擴充)' : ''}</span></div>` });
+                    const marker = new google.maps.Marker({ 
+                        position: { lat, lng }, 
+                        map: window.evMap, 
+                        icon: svgMarker, 
+                        title: name 
+                    });
+                    const infoWindow = new google.maps.InfoWindow({ 
+                        content: `<div style="color:#1e293b;font-weight:900;font-size:12px;padding:3px;">${name}<br><span style="color:${markerColor};font-size:10px;">✅ 已記錄旅程足跡</span></div>` 
+                    });
                     marker.addListener('click', () => { infoWindow.open(window.evMap, marker); });
                     window.evMarkers.push(marker);
+                    bounds.extend({ lat, lng });
+                    markerCount++;
+                    if (markerCount > 1) { window.evMap.fitBounds(bounds); }
+                    else { window.evMap.setCenter({ lat, lng }); window.evMap.setZoom(13); }
                 };
 
-                visitedStations.forEach((district, tag) => {
-                    const builtin = CHARGE_STATIONS.find(s => s.name === tag);
-                    if (builtin) { placeMarker(builtin.name, builtin.lat, builtin.lng, false); return; }
-                    if (geocodeCache[tag]) { placeMarker(tag, geocodeCache[tag].lat, geocodeCache[tag].lng, true); return; }
+                const placesService = google.maps.places ? new google.maps.places.PlacesService(window.evMap) : null;
+                const geocoder = new google.maps.Geocoder();
+
+                visitedStations.forEach(async (district, tag) => {
+                    const builtin = CHARGE_STATIONS.find(s => 
+                        s.name === tag || s.name.includes(tag) || tag.includes(s.name.replace(/站$/, ''))
+                    );
+                    if (builtin) { 
+                        placeMarker(tag, builtin.lat, builtin.lng, false); 
+                        return; 
+                    }
+
+                    if (geocodeCache[tag]) { 
+                        placeMarker(tag, geocodeCache[tag].lat, geocodeCache[tag].lng, true); 
+                        return; 
+                    }
                     
-                    const searchQuery = `${district} ${tag}`.trim();
-                    geocoder.geocode({ address: searchQuery, region: 'tw' }, (results, status) => {
-                        if (status === 'OK' && results[0]) {
-                            const lat = results[0].geometry.location.lat(); const lng = results[0].geometry.location.lng();
+                    const fullQuery = `${district} ${tag}`.trim();
+
+                    let found = false;
+                    if (placesService) {
+                        try {
+                            await new Promise((resolve) => {
+                                placesService.findPlaceFromQuery({
+                                    query: fullQuery,
+                                    fields: ['name', 'geometry']
+                                }, (results, status) => {
+                                    if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0]) {
+                                        const loc = results[0].geometry.location;
+                                        const lat = loc.lat(), lng = loc.lng();
+                                        geocodeCache[tag] = { lat, lng };
+                                        localStorage.setItem('ev_life_geocode_cache', JSON.stringify(geocodeCache));
+                                        placeMarker(tag, lat, lng, true);
+                                        found = true;
+                                    }
+                                    resolve();
+                                });
+                            });
+                        } catch (e) {}
+                    }
+
+                    if (found) return;
+
+                    try {
+                        await new Promise((resolve) => {
+                            geocoder.geocode({ address: fullQuery, region: 'tw' }, (results, status) => {
+                                if (status === 'OK' && results && results[0]) {
+                                    const loc = results[0].geometry.location;
+                                    const lat = loc.lat(), lng = loc.lng();
+                                    geocodeCache[tag] = { lat, lng };
+                                    localStorage.setItem('ev_life_geocode_cache', JSON.stringify(geocodeCache));
+                                    placeMarker(tag, lat, lng, true);
+                                    found = true;
+                                }
+                                resolve();
+                            });
+                        });
+                    } catch (e) {}
+
+                    if (found) return;
+
+                    try {
+                        const osmRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullQuery)}&countrycodes=tw&limit=1`, {
+                            headers: { 'User-Agent': 'EvLifePWA/2.0' }
+                        });
+                        const osmData = await osmRes.json();
+                        if (osmData && osmData[0]) {
+                            const lat = parseFloat(osmData[0].lat);
+                            const lng = parseFloat(osmData[0].lon);
                             geocodeCache[tag] = { lat, lng };
                             localStorage.setItem('ev_life_geocode_cache', JSON.stringify(geocodeCache));
                             placeMarker(tag, lat, lng, true);
+                            found = true;
                         }
-                    });
+                    } catch (e) {}
+
+                    if (!found) {
+                        console.warn(`無法解析站點座標: ${fullQuery}`);
+                    }
                 });
             }, 100);
         }
