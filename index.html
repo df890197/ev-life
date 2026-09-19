@@ -1407,42 +1407,44 @@
                         }
                     }).catch(e => console.warn("氣溫獲取失敗", e));
 
-                // 2. 呼叫 Google Places API 搜尋半徑 5000 公尺內的充電站
-                const fetchGoogleStations = new Promise((resolve) => {
+// 2. 呼叫新版 Google Places API (New) 搜尋半徑 5000 公尺內的充電站
+                const fetchGoogleStations = (async () => {
                     if (!window.google || !google.maps || !google.maps.places) {
                         console.warn("Google Places API 尚未載入完成");
-                        resolve();
                         return;
                     }
 
-                    const dummyNode = document.createElement('div');
-                    const placesService = new google.maps.places.PlacesService(dummyNode);
-                    const userLocation = new google.maps.LatLng(lat, lng);
+                    try {
+                        // 確保載入新版 places 函式庫類別
+                        const { Place } = await google.maps.importLibrary("places");
+                        const userLocation = new google.maps.LatLng(lat, lng);
 
-                    const request = {
-                        location: userLocation,
-                        radius: 5000,
-                        type: ['charging_station'],
-                        keyword: '充電站'
-                    };
+                        const request = {
+                            fields: ['displayName', 'location'],
+                            locationRestriction: {
+                                center: userLocation,
+                                radius: 5000 // 搜尋半徑 5000 公尺
+                            },
+                            includedPrimaryTypes: ['charging_station'],
+                            maxResultCount: 15
+                        };
 
-                    placesService.nearbySearch(request, (results, status) => {
-                        console.log("Google Places 搜尋狀態:", status);
-                        console.log("搜尋到的站點列表:", results);
+                        const { places } = await Place.searchNearby(request);
 
-                        if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-                            results.forEach(place => {
-                                const pLat = place.geometry.location.lat();
-                                const pLng = place.geometry.location.lng();
+                        if (places && places.length > 0) {
+                            places.forEach(place => {
+                                const pLat = place.location.lat();
+                                const pLng = place.location.lng();
                                 const dist = getDistanceFromLatLonInKm(lat, lng, pLat, pLng);
 
                                 tempNearbyStations.push({
-                                    name: place.name,
+                                    name: place.displayName, // 新版標準店名
                                     distanceKm: dist,
                                     distanceM: Math.round(dist * 1000)
                                 });
                             });
 
+                            // 依距離由近到遠排序，並去除重複名稱
                             tempNearbyStations.sort((a, b) => a.distanceKm - b.distanceKm);
                             const seen = new Set();
                             tempNearbyStations = tempNearbyStations.filter(item => {
@@ -1450,14 +1452,13 @@
                                 seen.add(item.name);
                                 return true;
                             });
-                        } else if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-                            console.warn("附近 5km 內沒有找到充電站");
                         } else {
-                            console.error("Places API 查詢異常:", status);
+                            console.warn("附近 5km 內沒有找到充電站");
                         }
-                        resolve();
-                    });
-                });
+                    } catch (err) {
+                        console.error("新版 Places API 查詢異常:", err);
+                    }
+                })();
 
                 await Promise.allSettled([fetchDistrict, fetchWeather, fetchGoogleStations]);
 
