@@ -1,11 +1,19 @@
-const CACHE_NAME = 'ev-life-cache-v2';
-const ASSETS_TO_CACHE = ['./', './index.html', './manifest.json', './splash.png'];
+const CACHE_NAME = 'ev-life-cache-v3';
+const ASSETS_TO_CACHE = [
+    './',
+    './index.html',
+    './manifest.json',
+    './splash.png',
+    './achievements.js'
+];
 
 self.addEventListener('install', event => {
     self.skipWaiting();
-    event.waitUntil(caches.open(CACHE_NAME).then(cache => {
-        return cache.addAll(ASSETS_TO_CACHE);
-    }));
+    event.waitUntil(
+        caches.open(CACHE_NAME).then(cache => {
+            return cache.addAll(ASSETS_TO_CACHE);
+        })
+    );
 });
 
 self.addEventListener('activate', event => {
