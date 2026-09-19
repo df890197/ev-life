@@ -1415,17 +1415,17 @@
                     }
 
                     try {
-                        // 確保載入新版 places 函式庫類別
                         const { Place } = await google.maps.importLibrary("places");
                         const userLocation = new google.maps.LatLng(lat, lng);
 
+                        // 💡 改用 includedTypes 並設定正確支援的電動車充電站類別
                         const request = {
                             fields: ['displayName', 'location'],
                             locationRestriction: {
                                 center: userLocation,
                                 radius: 5000 // 搜尋半徑 5000 公尺
                             },
-                            includedPrimaryTypes: ['charging_station'],
+                            includedTypes: ['electric_vehicle_charging_station'],
                             maxResultCount: 15
                         };
 
@@ -1438,7 +1438,7 @@
                                 const dist = getDistanceFromLatLonInKm(lat, lng, pLat, pLng);
 
                                 tempNearbyStations.push({
-                                    name: place.displayName, // 新版標準店名
+                                    name: place.displayName,
                                     distanceKm: dist,
                                     distanceM: Math.round(dist * 1000)
                                 });
