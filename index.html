@@ -1816,46 +1816,59 @@
         let tdxAccessToken = null;
         let tdxTokenExpiry = 0;
 
-// 取得 TDX 授權 Token (經由 GAS 代理解決 CORS)
-        async function getTdxToken() {
-            // 檢查是否已設定 GAS 網址
-            if (!AppState.syncUrl) {
-                console.warn("尚未設定雲端同步網址 (GAS)，無法透過代理取得 TDX Token");
-                return null;
+// 修改後：優先走 GAS 代理取得 Token，繞過瀏覽器 CORS
+async function getTdxToken() {
+    if (tdxAccessToken && Date.now() < tdxTokenExpiry) return tdxAccessToken;
+
+    // 1. 優先透過 GAS 代理請求 (解決 CORS)
+    if (AppState.syncUrl) {
+        try {
+            const res = await fetch(AppState.syncUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: 'get_tdx_token',
+                    client_id: AppState.tdxClientId || '',
+                    client_secret: AppState.tdxClientSecret || ''
+                })
+            });
+            const data = await res.json();
+            if (data && data.access_token) {
+                tdxAccessToken = data.access_token;
+                tdxTokenExpiry = Date.now() + ((data.expires_in || 86400) - 60) * 1000;
+                return tdxAccessToken;
             }
-
-            // 若 Token 仍在有效期限內，直接返回快取
-            if (tdxAccessToken && Date.now() < tdxTokenExpiry) return tdxAccessToken;
-
-            try {
-                // 將請求打包發送給 GAS 代理
-                const payload = {
-                    action: "get_tdx_token",
-                    client_id: AppState.tdxClientId,         // 傳遞前端設定的金鑰
-                    client_secret: AppState.tdxClientSecret
-                };
-
-                const res = await fetch(AppState.syncUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload)
-                });
-                
-                const data = await res.json();
-                
-                if (data.access_token) {
-                    tdxAccessToken = data.access_token;
-                    tdxTokenExpiry = Date.now() + (data.expires_in - 60) * 1000; // 提早 60 秒視為過期
-                    return tdxAccessToken;
-                } else if (data.error_description) {
-                    console.error("TDX 授權失敗:", data.error_description);
-                }
-            } catch (e) { 
-                console.error("TDX 代理連線發生錯誤:", e); 
-            }
-            return null;
+        } catch (err) {
+            console.warn("GAS TDX 代理失敗，嘗試前端直連...", err);
         }
+    }
 
+    // 2. 後備方案：未設定 GAS 或代理失敗時，若使用者有設定金鑰則直連
+    if (AppState.tdxClientId && AppState.tdxClientSecret) {
+        try {
+            const params = new URLSearchParams();
+            params.append('grant_type', 'client_credentials');
+            params.append('client_id', AppState.tdxClientId);
+            params.append('client_secret', AppState.tdxClientSecret);
+
+            const res = await fetch('https://tdx.transportdata.tw/auth/realms/TDXConnect/protocol/openid-connect/token', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params
+            });
+            const data = await res.json();
+            if (data && data.access_token) {
+                tdxAccessToken = data.access_token;
+                tdxTokenExpiry = Date.now() + (data.expires_in - 60) * 1000;
+                return tdxAccessToken;
+            }
+        } catch (e) {
+            console.error("TDX 直連錯誤:", e);
+        }
+    }
+
+    return null;
+}
         window.searchStationByText = async function() {
             const query = DOM.inputTag ? DOM.inputTag.value.trim() : '';
             if (!query) {
