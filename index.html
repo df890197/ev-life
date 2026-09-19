@@ -851,8 +851,7 @@
             </div>
             <div id="evMapContainer" class="w-full flex-1 rounded-xl bg-slate-200 dark:bg-slate-800 overflow-hidden relative z-10"></div>
             <div class="mt-3 md:mt-4 text-center text-xs font-bold text-slate-400">
-                <span class="inline-block w-3 h-3 rounded-full bg-amber-500 mr-1 align-middle"></span>內建預設站點
-                <span class="inline-block w-3 h-3 rounded-full bg-emerald-500 ml-4 mr-1 align-middle"></span>自訂擴充站點 
+                <span class="inline-block w-3 h-3 rounded-full bg-emerald-500 mr-1 align-middle"></span>已造訪站點足跡
             </div>
         </div>
     </div>
@@ -933,19 +932,6 @@
         // 明確綁定至全域 window，供外部 achievements.js 調用
         window.AppState = AppState;
         window.CONSTANTS = CONSTANTS;
-
-        const CHARGE_STATIONS = [
-            { name: "U-POWER 桃園經國站", lat: 25.029, lng: 121.294 },
-            { name: "U-POWER 中壢青埔站", lat: 25.009, lng: 121.214 },
-            { name: "EVOASIS 桃園中壢站", lat: 24.965, lng: 121.224 },
-            { name: "EVOASIS 台北信義站", lat: 25.033, lng: 121.564 },
-            { name: "特爾電力 桃園機場站", lat: 25.077, lng: 121.232 },
-            { name: "特爾電力 國一湖口服務區南向", lat: 24.871, lng: 121.011 },
-            { name: "iCharging 國一湖口服務區南向", lat: 24.870, lng: 121.010 },
-            { name: "U-POWER 關西服務區", lat: 24.802, lng: 121.178 },
-            { name: "TAIL 中壢休息站", lat: 24.981, lng: 121.239 },
-            { name: "Tesla 中壢大江站", lat: 25.002, lng: 121.228 }
-        ];
 
         function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
             const R = 6371; 
@@ -1384,65 +1370,95 @@
         let tempNearbyStations = [];
         let tempCurrentDistrict = "";
 
+        // 🌟 改用 OpenStreetMap (Overpass API) 動態抓取全台半徑 3km 內的充電站
         window.autoLocateAndWeather = function() {
             if (!navigator.geolocation) { showToast("瀏覽器不支援定位功能", true); return; }
-            showToast("📍 定位與獲取天氣中...", false, 1500);
+            showToast("📍 定位與搜尋附近充電站中...", false, 2000);
             
             navigator.geolocation.getCurrentPosition(async (position) => {
                 const lat = position.coords.latitude;
                 const lng = position.coords.longitude;
-                const SEARCH_RADIUS_KM = 3.0;
+                const SEARCH_RADIUS_METERS = 3000;
                 tempNearbyStations = [];
-                
-                CHARGE_STATIONS.forEach(station => {
-                    const dist = getDistanceFromLatLonInKm(lat, lng, station.lat, station.lng);
-                    if (dist <= SEARCH_RADIUS_KM) {
-                        tempNearbyStations.push({ name: station.name, distanceKm: dist, distanceM: Math.round(dist * 1000) });
-                    }
-                });
-                tempNearbyStations.sort((a, b) => a.distanceKm - b.distanceKm);
                 tempCurrentDistrict = "";
-                
-                try {
-                    const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=14&addressdetails=1&accept-language=zh-TW`, { headers: { 'User-Agent': 'EvLifePWA/2.0' }});
-                    const geoData = await geoRes.json();
+
+                // 1. 同步抓取地區 (Nominatim) 與 氣溫 (Open-Meteo)
+                const fetchDistrict = fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=14&addressdetails=1&accept-language=zh-TW`, { 
+                    headers: { 'User-Agent': 'EvLifePWA/2.0' }
+                }).then(r => r.json()).then(geoData => {
                     if (geoData && geoData.address) {
                         const ad = geoData.address;
-                        let city = ad.city || ad.county || ad.state || "";
-                        let dist = "";
+                        const city = ad.city || ad.county || ad.state || "";
                         const vals = Object.values(ad);
-                        const exactDist = vals.find(v => typeof v === 'string' && (v.endsWith('區') || v.endsWith('鄉') || v.endsWith('鎮')));
-                        if (exactDist) dist = exactDist;
-                        else { dist = ad.town || ad.city_district || ad.suburb || ad.district || ""; if (dist.endsWith('里') || dist.endsWith('村') || dist.endsWith('鄰')) dist = ""; }
-                        if (dist && dist.startsWith(city)) tempCurrentDistrict = dist;
-                        else tempCurrentDistrict = `${city}${dist}`.trim();
+                        let dist = vals.find(v => typeof v === 'string' && (v.endsWith('區') || v.endsWith('鄉') || v.endsWith('鎮')));
+                        if (!dist) dist = ad.town || ad.city_district || ad.suburb || ad.district || "";
+                        if (dist.endsWith('里') || dist.endsWith('村') || dist.endsWith('鄰')) dist = "";
+                        tempCurrentDistrict = dist.startsWith(city) ? dist : `${city}${dist}`.trim();
+                        if (DOM.inputDistrict) DOM.inputDistrict.value = tempCurrentDistrict;
                     }
-                } catch (e) { console.warn("反向地理編碼失敗", e); }
+                }).catch(e => console.warn("反向地理編碼失敗", e));
 
+                const fetchWeather = fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`)
+                    .then(r => r.json()).then(data => {
+                        if (data?.current_weather && document.getElementById('inputTemperature')) {
+                            document.getElementById('inputTemperature').value = data.current_weather.temperature;
+                        }
+                    }).catch(e => console.warn("氣溫獲取失敗", e));
+
+                // 2. 透過 Overpass API 即時查詢半徑內所有充電站
+                const overpassQuery = `
+                    [out:json][timeout:10];
+                    (
+                      node["amenity"="charging_station"](around:${SEARCH_RADIUS_METERS},${lat},${lng});
+                      way["amenity"="charging_station"](around:${SEARCH_RADIUS_METERS},${lat},${lng});
+                    );
+                    out center;
+                `;
+
+                const fetchStations = fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`)
+                    .then(r => r.json())
+                    .then(osmData => {
+                        if (osmData && osmData.elements) {
+                            osmData.elements.forEach(el => {
+                                const tags = el.tags || {};
+                                const stationName = tags.name || tags.operator || tags.brand || "公共充電站";
+                                const sLat = el.lat || (el.center && el.center.lat);
+                                const sLng = el.lon || (el.center && el.center.lon);
+
+                                if (sLat && sLng) {
+                                    const dist = getDistanceFromLatLonInKm(lat, lng, sLat, sLng);
+                                    tempNearbyStations.push({
+                                        name: stationName,
+                                        distanceKm: dist,
+                                        distanceM: Math.round(dist * 1000)
+                                    });
+                                }
+                            });
+
+                            tempNearbyStations.sort((a, b) => a.distanceKm - b.distanceKm);
+                            const seen = new Set();
+                            tempNearbyStations = tempNearbyStations.filter(item => {
+                                if (seen.has(item.name)) return false;
+                                seen.add(item.name);
+                                return true;
+                            });
+                        }
+                    }).catch(e => console.error("Overpass API 查詢失敗", e));
+
+                await Promise.allSettled([fetchDistrict, fetchWeather, fetchStations]);
+
+                // 3. 處理充電站選單回傳 UI
                 if (tempNearbyStations.length > 1) {
-                    if (tempCurrentDistrict) showToast(`📍 已定位地區：${tempCurrentDistrict}`, false, 1500);
                     openStationModal(tempNearbyStations, tempCurrentDistrict);
                 } else if (tempNearbyStations.length === 1) {
                     const single = tempNearbyStations[0];
-                    if (DOM.inputDistrict) DOM.inputDistrict.value = tempCurrentDistrict;
                     if (DOM.inputTag) DOM.inputTag.value = single.name;
-                    const locText = tempCurrentDistrict ? `📍 ${tempCurrentDistrict}` : `⚡ 偵測到站點`;
-                    showToast(`${locText}<br>${single.name} (${single.distanceM}m)`, false, 2500);
+                    showToast(`⚡ 已自動匹配最近站點：<br>${single.name} (${single.distanceM}m)`);
                 } else {
-                    if (tempCurrentDistrict) {
-                        if (DOM.inputDistrict) DOM.inputDistrict.value = tempCurrentDistrict;
-                        showToast(`📍 已帶入地區：${tempCurrentDistrict}`, false, 2000);
-                    } else { showToast("附近 3km 內無內建站點", false, 2000); }
+                    const fallbackMsg = tempCurrentDistrict ? `已定位至 ${tempCurrentDistrict}，但周遭 3km 未偵測到充電站` : "周圍 3km 內未偵測到充電站";
+                    showToast(fallbackMsg, false, 2500);
                 }
 
-                try {
-                    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`);
-                    const data = await res.json();
-                    if (data && data.current_weather && document.getElementById('inputTemperature')) {
-                        document.getElementById('inputTemperature').value = data.current_weather.temperature;
-                        showToast(`已帶入氣溫：${data.current_weather.temperature}°C ☁️`, false, 2000);
-                    }
-                } catch (error) { showToast("無法獲取氣溫資料", true, 2000); }
             }, (error) => { showToast("定位失敗，請確認是否開啟網頁位置權限", true); }, { timeout: 10000 });
         }
 
@@ -1527,8 +1543,8 @@
                 const bounds = new google.maps.LatLngBounds();
                 let markerCount = 0;
 
-                const placeMarker = (name, lat, lng, isCustom = false) => {
-                    const markerColor = isCustom ? '#10b981' : '#f59e0b'; 
+                const placeMarker = (name, lat, lng) => {
+                    const markerColor = '#10b981'; 
                     const svgMarker = {
                         path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
                         fillColor: markerColor, fillOpacity: 1, strokeWeight: 1.5, strokeColor: '#ffffff',
@@ -1555,22 +1571,14 @@
                 const geocoder = new google.maps.Geocoder();
 
                 visitedStations.forEach(async (district, tag) => {
-                    const builtin = CHARGE_STATIONS.find(s => 
-                        s.name === tag || s.name.includes(tag) || tag.includes(s.name.replace(/站$/, ''))
-                    );
-                    if (builtin) { 
-                        placeMarker(tag, builtin.lat, builtin.lng, false); 
-                        return; 
-                    }
-
                     if (geocodeCache[tag]) { 
-                        placeMarker(tag, geocodeCache[tag].lat, geocodeCache[tag].lng, true); 
+                        placeMarker(tag, geocodeCache[tag].lat, geocodeCache[tag].lng); 
                         return; 
                     }
                     
                     const fullQuery = `${district} ${tag}`.trim();
-
                     let found = false;
+
                     if (placesService) {
                         try {
                             await new Promise((resolve) => {
@@ -1583,7 +1591,7 @@
                                         const lat = loc.lat(), lng = loc.lng();
                                         geocodeCache[tag] = { lat, lng };
                                         localStorage.setItem('ev_life_geocode_cache', JSON.stringify(geocodeCache));
-                                        placeMarker(tag, lat, lng, true);
+                                        placeMarker(tag, lat, lng);
                                         found = true;
                                     }
                                     resolve();
@@ -1602,7 +1610,7 @@
                                     const lat = loc.lat(), lng = loc.lng();
                                     geocodeCache[tag] = { lat, lng };
                                     localStorage.setItem('ev_life_geocode_cache', JSON.stringify(geocodeCache));
-                                    placeMarker(tag, lat, lng, true);
+                                    placeMarker(tag, lat, lng);
                                     found = true;
                                 }
                                 resolve();
@@ -1622,7 +1630,7 @@
                             const lng = parseFloat(osmData[0].lon);
                             geocodeCache[tag] = { lat, lng };
                             localStorage.setItem('ev_life_geocode_cache', JSON.stringify(geocodeCache));
-                            placeMarker(tag, lat, lng, true);
+                            placeMarker(tag, lat, lng);
                             found = true;
                         }
                     } catch (e) {}
@@ -1880,7 +1888,6 @@
             renderMonthFilters();
             calculateRecordStats(activeRecords);
 
-            // 呼叫外部 achievements.js 的成就卡片渲染
             if (DOM.badgesContainer && typeof renderBadgesContainer === 'function') {
                 renderBadgesContainer(DOM.badgesContainer);
             }
@@ -2247,7 +2254,6 @@
 
             if (DOM.tempEffChart) {
                 const scatterCtx = DOM.tempEffChart.getContext('2d');
-                // 修復變數名稱：將原先的 rec.consumedSocPercent 修正為 r.consumedSocPercent
                 const scatterDataPts = chartData.filter(r => r.temp !== null && r.temp !== undefined && r.distance > 0).map(r => {
                     const pwr = AppState.batteryCapacity * ((r.consumedSocPercent || 0) / 100);
                     return { x: r.temp, y: pwr > 0 ? parseFloat((r.distance/pwr).toFixed(2)) : 0 };
