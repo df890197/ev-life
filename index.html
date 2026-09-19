@@ -68,13 +68,38 @@
         
         .hero-image-container { position: relative; width: 100%; padding-top: 56.25%; border-radius: 2rem; overflow: hidden; }
         .hero-image-container img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+
+        /* 🔍 Google Autocomplete 樣式優化 */
+        .pac-container {
+            z-index: 10000 !important;
+            border-radius: 1rem !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15) !important;
+            border: 1px solid rgba(226, 232, 240, 0.8) !important;
+            font-family: inherit !important;
+            margin-top: 4px !important;
+        }
+        .dark .pac-container {
+            background-color: #1e293b !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            color: #f8fafc !important;
+        }
+        .dark .pac-item {
+            border-top-color: rgba(255, 255, 255, 0.05) !important;
+            color: #cbd5e1 !important;
+        }
+        .dark .pac-item:hover {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+        }
+        .dark .pac-item-query {
+            color: #ffffff !important;
+        }
     </style>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
-    <!-- 🔑 Google API 金鑰 -->
+    <!-- 🔑 Google Maps API -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAf88sAzYlzVpv6qK6g0rsvDLyz98tCZMU&libraries=places&v=weekly" defer></script>
 
     <script>
@@ -447,6 +472,7 @@
                             
                             <div class="relative mb-2">
                                 <div class="absolute left-3 top-1/2 -translate-y-1/2 text-xs">⚡</div>
+                                <!-- 🔍 支援 Google Places 手動輸入即時推薦 -->
                                 <input type="text" id="inputTag" placeholder="站點 (例:U-POWER 中壢青埔站)" autocomplete="off" class="w-full pl-8 pr-3 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
                             </div>
 
@@ -694,7 +720,7 @@
                                 </div>
                                 <div>
                                     <label class="text-[10px] md:text-xs font-bold text-slate-400 block mb-1">大保養間距 (km)</label>
-                                    <input type="number" step="1000" id="maintIntervalInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs md:text-sm font-mono font-bold focus:outline-none focus:border-amber-400" placeholder="20000">
+                                    <input type="number" step="1000" id="maintIntervalInput" class="w-full px-3 py-2 bg-white dark:border-slate-700 rounded-xl text-xs md:text-sm font-mono font-bold focus:outline-none focus:border-amber-400" placeholder="20000">
                                 </div>
                                 <div>
                                     <label class="text-[10px] md:text-xs font-bold text-slate-400 block mb-1">預計下次進廠日期 (選填)</label>
@@ -1065,6 +1091,9 @@
             setupAutoHideNav(); 
             initDragToScroll(); 
             
+            // 💡 初始化 Google Places 站點輸入自動推薦
+            initStationAutocomplete();
+
             try {
                 const localData = localStorage.getItem('ev_life_records');
                 if (localData) AppState.records = JSON.parse(localData).map(parseRecordSoc);
@@ -1082,6 +1111,52 @@
             
             setupDelegatedEvents();
             if (AppState.syncUrl) setTimeout(() => syncWithCloud('auto', false), 800);
+        }
+
+        // 🔍 Google Places Autocomplete 自動完成功能
+        async function initStationAutocomplete() {
+            const input = document.getElementById('inputTag');
+            if (!input) return;
+
+            const checkGoogleReady = setInterval(async () => {
+                if (window.google && google.maps && google.maps.places) {
+                    clearInterval(checkGoogleReady);
+                    try {
+                        const { Autocomplete } = await google.maps.importLibrary("places");
+                        const autocomplete = new Autocomplete(input, {
+                            componentRestrictions: { country: "tw" },
+                            fields: ["name", "formatted_address", "geometry"],
+                            types: ["establishment"]
+                        });
+
+                        autocomplete.addListener("place_changed", () => {
+                            const place = autocomplete.getPlace();
+                            if (!place || !place.name) return;
+
+                            input.value = place.name;
+
+                            // 💡 取得點選站點的精準經緯度，儲存至快取供充電足跡地圖使用
+                            if (place.geometry && place.geometry.location) {
+                                const pLat = place.geometry.location.lat();
+                                const pLng = place.geometry.location.lng();
+                                try {
+                                    const geocodeCache = JSON.parse(localStorage.getItem('ev_life_geocode_cache') || '{}');
+                                    geocodeCache[place.name] = { lat: pLat, lng: pLng };
+                                    localStorage.setItem('ev_life_geocode_cache', JSON.stringify(geocodeCache));
+                                } catch(e) {}
+                            }
+
+                            if (DOM.inputDistrict && !DOM.inputDistrict.value && place.formatted_address) {
+                                const match = place.formatted_address.match(/(..[市縣])(..[區市鎮鄉])/);
+                                if (match) DOM.inputDistrict.value = `${match[1]}${match[2]}`;
+                            }
+                            showToast(`已選取站點：<br>${place.name}`);
+                        });
+                    } catch (e) {
+                        console.warn("Autocomplete 初始化異常:", e);
+                    }
+                }
+            }, 300);
         }
 
         function loadSettingsFromStorage() {
@@ -1370,7 +1445,7 @@
         let tempNearbyStations = [];
         let tempCurrentDistrict = "";
 
-        // 🌟 正確修復後的 Google Places API 搜尋邏輯
+        // 🌟 正確整合新版 Google Places API (searchNearby) 搜尋附近充電站
         window.autoLocateAndWeather = function() {
             if (!navigator.geolocation) { 
                 showToast("瀏覽器不支援定位功能", true); 
@@ -1407,7 +1482,7 @@
                         }
                     }).catch(e => console.warn("氣溫獲取失敗", e));
 
-// 2. 呼叫新版 Google Places API (New) 搜尋半徑 5000 公尺內的充電站
+                // 2. 呼叫新版 Google Places API (New) 搜尋半徑 5000 公尺內的充電站
                 const fetchGoogleStations = (async () => {
                     if (!window.google || !google.maps || !google.maps.places) {
                         console.warn("Google Places API 尚未載入完成");
@@ -1418,7 +1493,6 @@
                         const { Place } = await google.maps.importLibrary("places");
                         const userLocation = new google.maps.LatLng(lat, lng);
 
-                        // 💡 改用 includedTypes 並設定正確支援的電動車充電站類別
                         const request = {
                             fields: ['displayName', 'location'],
                             locationRestriction: {
@@ -1439,12 +1513,13 @@
 
                                 tempNearbyStations.push({
                                     name: place.displayName,
+                                    lat: pLat, // 💡 保存經緯度，方便選中時直接存入地圖快取
+                                    lng: pLng,
                                     distanceKm: dist,
                                     distanceM: Math.round(dist * 1000)
                                 });
                             });
 
-                            // 依距離由近到遠排序，並去除重複名稱
                             tempNearbyStations.sort((a, b) => a.distanceKm - b.distanceKm);
                             const seen = new Set();
                             tempNearbyStations = tempNearbyStations.filter(item => {
@@ -1468,6 +1543,14 @@
                 } else if (tempNearbyStations.length === 1) {
                     const single = tempNearbyStations[0];
                     if (DOM.inputTag) DOM.inputTag.value = single.name;
+
+                    // 💡 單一站點直接快取座標
+                    try {
+                        const geocodeCache = JSON.parse(localStorage.getItem('ev_life_geocode_cache') || '{}');
+                        geocodeCache[single.name] = { lat: single.lat, lng: single.lng };
+                        localStorage.setItem('ev_life_geocode_cache', JSON.stringify(geocodeCache));
+                    } catch(e) {}
+
                     showToast(`⚡ 已自動匹配最近站點：<br>${single.name} (${single.distanceM}m)`);
                 } else {
                     const fallbackMsg = tempCurrentDistrict ? `已定位至 ${tempCurrentDistrict}，但周遭 5km 未偵測到充電站` : "周圍 5km 內未偵測到充電站";
@@ -1502,7 +1585,19 @@
 
         window.chooseStation = function(stationName) {
             if (DOM.inputTag) DOM.inputTag.value = stationName;
-            closeStationModal(); showToast(`⚡ 已帶入站點: <br>${stationName}`);
+            
+            // 💡 點選站點時將精確經緯度存入快取，供足跡地圖使用
+            const matched = tempNearbyStations.find(s => s.name === stationName);
+            if (matched && matched.lat && matched.lng) {
+                try {
+                    const geocodeCache = JSON.parse(localStorage.getItem('ev_life_geocode_cache') || '{}');
+                    geocodeCache[stationName] = { lat: matched.lat, lng: matched.lng };
+                    localStorage.setItem('ev_life_geocode_cache', JSON.stringify(geocodeCache));
+                } catch(e) {}
+            }
+
+            closeStationModal(); 
+            showToast(`⚡ 已帶入站點: <br>${stationName}`);
         }
 
         window.closeStationModal = function() {
@@ -1512,12 +1607,14 @@
             setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
+        // 🗺️ 充電足跡地圖：雙重備援（快取 > Google Geocoder > OSM）
         window.openMapModal = function() {
             const modal = document.getElementById('mapModal');
             modal.classList.remove('hidden');
-            setTimeout(() => {
+            setTimeout(async () => {
                 modal.classList.remove('opacity-0'); 
                 modal.firstElementChild.classList.remove('scale-95');
+                
                 if (typeof google === 'undefined' || !google.maps) { 
                     showToast("未載入 Google Maps，請確認網路連線", true); 
                     return; 
@@ -1525,7 +1622,7 @@
 
                 if (!window.evMap) {
                     window.evMap = new google.maps.Map(document.getElementById('evMapContainer'), {
-                        center: { lat: 24.5, lng: 121.0 }, 
+                        center: { lat: 23.8, lng: 121.0 }, 
                         zoom: 8,
                         mapTypeControl: false, streetViewControl: false, fullscreenControl: false,
                         styles: document.documentElement.classList.contains('dark') ? [
@@ -1543,6 +1640,7 @@
                 if (window.evMarkers) { window.evMarkers.forEach(m => m.setMap(null)); }
                 window.evMarkers = [];
 
+                // 抓取所有有填寫「站點」的紀錄
                 const visitedStations = new Map();
                 AppState.records.forEach(r => { 
                     const cleanTag = (r.tag || '').trim();
@@ -1574,7 +1672,7 @@
                         title: name 
                     });
                     const infoWindow = new google.maps.InfoWindow({ 
-                        content: `<div style="color:#1e293b;font-weight:900;font-size:12px;padding:3px;">${name}<br><span style="color:${markerColor};font-size:10px;">✅ 已記錄旅程足跡</span></div>` 
+                        content: `<div style="color:#1e293b;font-weight:900;font-size:12px;padding:3px;">${escapeHTML(name)}<br><span style="color:${markerColor};font-size:10px;">✅ 已記錄旅程足跡</span></div>` 
                     });
                     marker.addListener('click', () => { infoWindow.open(window.evMap, marker); });
                     window.evMarkers.push(marker);
@@ -1584,26 +1682,30 @@
                     else { window.evMap.setCenter({ lat, lng }); window.evMap.setZoom(13); }
                 };
 
-                const placesService = google.maps.places ? new google.maps.places.PlacesService(window.evMap) : null;
                 const geocoder = new google.maps.Geocoder();
 
-                visitedStations.forEach(async (district, tag) => {
+                for (const [tag, district] of visitedStations.entries()) {
+                    // 1. 快取中已有經緯度直接繪製
                     if (geocodeCache[tag]) { 
                         placeMarker(tag, geocodeCache[tag].lat, geocodeCache[tag].lng); 
-                        return; 
+                        continue; 
                     }
-                    
-                    const fullQuery = `${district} ${tag}`.trim();
+
+                    // 2. 使用 Google Geocoder 智慧反查地址
+                    const queries = [
+                        `${district} ${tag}`.trim(),
+                        tag.trim(),
+                        `${district} ${tag.replace(/\s.*站$/, '')}`.trim()
+                    ];
+
                     let found = false;
 
-                    if (placesService) {
+                    for (const q of queries) {
+                        if (found) break;
                         try {
-                            await new Promise((resolve) => {
-                                placesService.findPlaceFromQuery({
-                                    query: fullQuery,
-                                    fields: ['name', 'geometry']
-                                }, (results, status) => {
-                                    if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0]) {
+                            await new Promise(resolve => {
+                                geocoder.geocode({ address: q, componentRestrictions: { country: 'TW' } }, (results, status) => {
+                                    if (status === 'OK' && results && results[0]) {
                                         const loc = results[0].geometry.location;
                                         const lat = loc.lat(), lng = loc.lng();
                                         geocodeCache[tag] = { lat, lng };
@@ -1614,49 +1716,32 @@
                                     resolve();
                                 });
                             });
-                        } catch (e) {}
+                        } catch(e) {}
                     }
 
-                    if (found) return;
-
-                    try {
-                        await new Promise((resolve) => {
-                            geocoder.geocode({ address: fullQuery, region: 'tw' }, (results, status) => {
-                                if (status === 'OK' && results && results[0]) {
-                                    const loc = results[0].geometry.location;
-                                    const lat = loc.lat(), lng = loc.lng();
-                                    geocodeCache[tag] = { lat, lng };
-                                    localStorage.setItem('ev_life_geocode_cache', JSON.stringify(geocodeCache));
-                                    placeMarker(tag, lat, lng);
-                                    found = true;
-                                }
-                                resolve();
+                    // 3. Google 查不到時，以 OpenStreetMap 進行備援查詢
+                    if (!found) {
+                        try {
+                            const osmRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(district + ' ' + tag)}&countrycodes=tw&limit=1`, {
+                                headers: { 'User-Agent': 'EvLifePWA/2.0' }
                             });
-                        });
-                    } catch (e) {}
-
-                    if (found) return;
-
-                    try {
-                        const osmRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullQuery)}&countrycodes=tw&limit=1`, {
-                            headers: { 'User-Agent': 'EvLifePWA/2.0' }
-                        });
-                        const osmData = await osmRes.json();
-                        if (osmData && osmData[0]) {
-                            const lat = parseFloat(osmData[0].lat);
-                            const lng = parseFloat(osmData[0].lon);
-                            geocodeCache[tag] = { lat, lng };
-                            localStorage.setItem('ev_life_geocode_cache', JSON.stringify(geocodeCache));
-                            placeMarker(tag, lat, lng);
-                            found = true;
-                        }
-                    } catch (e) {}
+                            const osmData = await osmRes.json();
+                            if (osmData && osmData[0]) {
+                                const lat = parseFloat(osmData[0].lat);
+                                const lng = parseFloat(osmData[0].lon);
+                                geocodeCache[tag] = { lat, lng };
+                                localStorage.setItem('ev_life_geocode_cache', JSON.stringify(geocodeCache));
+                                placeMarker(tag, lat, lng);
+                                found = true;
+                            }
+                        } catch(e) {}
+                    }
 
                     if (!found) {
-                        console.warn(`無法解析站點座標: ${fullQuery}`);
+                        console.warn(`無法解析站點座標: ${district} ${tag}`);
                     }
-                });
-            }, 100);
+                }
+            }, 150);
         }
 
         window.closeMapModal = function() {
