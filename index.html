@@ -44,15 +44,10 @@
         .ios-27-glass { background: transparent; backdrop-filter: blur(4px) saturate(110%); -webkit-backdrop-filter: blur(4px) saturate(110%); border: 1px solid rgba(255, 255, 255, 0.4); border-top: 1px solid rgba(255, 255, 255, 0.8); border-bottom: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), inset 0 1px 3px rgba(255, 255, 255, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.15); }
         .dark .ios-27-glass { background: transparent; backdrop-filter: blur(4px) saturate(110%); -webkit-backdrop-filter: blur(4px) saturate(110%); border: 1px solid rgba(255, 255, 255, 0.15); border-top: 1px solid rgba(255, 255, 255, 0.4); border-bottom: 1px solid rgba(255, 255, 255, 0.02); box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.08); }
         
-        /* 修改後：恢復原本緊貼底部的視覺設定，避免導覽列飛太高 */
-        .floating-nav { 
-            bottom: calc(env(safe-area-inset-bottom, 0px) * 0.5 + 2px) !important; 
-            margin-bottom: 0 !important; 
-        }
+        /* 導覽列定位修正 (iOS完美的間距 + 電腦版) */
+        .floating-nav { bottom: calc(env(safe-area-inset-bottom, 0px) * 0.5 + 2px) !important; margin-bottom: 0 !important; }
         @media (min-width: 768px) {
-            .floating-nav { 
-                bottom: 6px !important; /* 電腦版也縮小間距，讓它安穩貼在下方 */
-            }
+            .floating-nav { bottom: 6px !important; }
         }
 
         .liquid-indicator { position: absolute; height: 52px; border-radius: 26px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(16px) saturate(180%) brightness(1.15); -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), inset 0 4px 10px rgba(255, 255, 255, 0.5), 0 4px 12px rgba(0, 0, 0, 0.08); transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.4s ease, backdrop-filter 0.4s ease; z-index: 5; pointer-events: none; will-change: transform, width; }
@@ -353,7 +348,7 @@
                     </div>
                 </div>
 
-                <!-- 🔧 車輛保養與保險進度 (移至最下方並獨立滿寬顯示) -->
+                <!-- 🔧 車輛保養與保險進度 (獨立滿寬顯示) -->
                 <div class="mb-4">
                     <div class="rpg-card bg-white dark:bg-slate-800 p-5 rounded-[1.5rem] border border-slate-100 dark:border-slate-700 flex flex-col justify-center">
                         <div class="flex items-center gap-2 mb-4">
@@ -849,7 +844,6 @@
         </div>
     </div>
 
-    <!-- 加上 w-[calc(100%-2rem)] 與 md:-translate-x-1/2 以解決電腦版偏右問題 -->
     <nav class="fixed left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[calc(100%-2rem)] md:max-w-2xl z-50 rounded-[2rem] ios-27-glass px-2 floating-nav">
         <div class="flex justify-around items-center h-16 md:h-20 max-w-md md:max-w-full mx-auto relative" id="nav-container">
             
@@ -884,7 +878,6 @@
         </div>
     </nav>
 
-    <!-- 加入 w-max，放大 max-w，並改成 items-center 與 gap-3 讓提早換行問題被解決 -->
     <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-[120] transform -translate-y-10 opacity-0 invisible pointer-events-none transition-all duration-300 bg-slate-900/95 dark:bg-[#1e293b]/95 text-white px-5 py-3 md:py-4 md:px-6 rounded-2xl shadow-lg flex items-center gap-3 text-xs md:text-sm font-bold border border-white/10 w-max max-w-[90vw] md:max-w-[600px] justify-center leading-relaxed">
         <span id="toastIcon" class="flex-shrink-0 text-base">🐾</span>
         <span id="toastMessage"></span>
@@ -902,7 +895,6 @@
     </div>
 
     <script>
-        // 統一配置充電類型的樣式 (Dry 原則優化)
         const CHARGE_STYLE_MAP = {
             'DC-快充': { btn: 'border-amber-400 bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400', badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400', icon: '⚡' },
             'AC-慢充': { btn: 'border-teal-400 bg-teal-50 text-teal-600 dark:bg-teal-900/20 dark:text-teal-400', badge: 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-400', icon: '🔌' },
@@ -990,6 +982,40 @@
             }
         });
 
+        function setupAutoHideNav() {
+            let lastScrollTop = 0;
+            const navBar = document.querySelector('nav.floating-nav');
+            if (!navBar) return;
+
+            // 預先為導覽列加上平滑動畫、縮小基準點設為底部
+            navBar.classList.add('transition-all', 'duration-500', 'ease-out', 'origin-bottom');
+
+            window.addEventListener('scroll', () => {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                
+                // 1. 若滑到最頂部 (或 iOS 橡皮筋回彈)，強制恢復顯示
+                if (scrollTop <= 10) {
+                    navBar.classList.remove('translate-y-32', 'scale-75', 'opacity-0', 'pointer-events-none');
+                    lastScrollTop = scrollTop;
+                    return;
+                }
+
+                // 2. 忽略微小的滑動 (加上門檻值，防手抖頻繁觸發)
+                if (Math.abs(scrollTop - lastScrollTop) < 15) return; 
+
+                // 3. 判斷滑動方向
+                if (scrollTop > lastScrollTop && scrollTop > 50) {
+                    // 往下滾動 (手指往上滑) -> 導覽列縮小、透明、並往下沉隱藏
+                    navBar.classList.add('translate-y-32', 'scale-75', 'opacity-0', 'pointer-events-none');
+                } else {
+                    // 往上滾動 (手指往下滑) -> 恢復正常大小與顯示
+                    navBar.classList.remove('translate-y-32', 'scale-75', 'opacity-0', 'pointer-events-none');
+                }
+                
+                lastScrollTop = scrollTop;
+            }, { passive: true });
+        }
+
         function initAppCore() {
             setupThemeIcons();
             setTimeout(() => updateLiquidIndicator('home'), 100);
@@ -1001,6 +1027,8 @@
             updateSyncUiStatus();
             updatePwaDiagnostic();
             checkQuickLog();
+            
+            setupAutoHideNav(); // 啟動自動隱藏/縮小導覽列功能
             
             try {
                 const localData = localStorage.getItem('ev_life_records');
@@ -1020,11 +1048,9 @@
             setupDelegatedEvents();
             if (AppState.syncUrl) setTimeout(() => syncWithCloud('auto', false), 800);
             
-            // 保留原本的 Google Maps 初始化呼叫方式
             initPlacesAutocomplete();
         }
 
-        // --- Google Maps 相關程式 ---
         function initPlacesAutocomplete() {
             if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
                 setTimeout(initPlacesAutocomplete, 500); 
@@ -1063,7 +1089,6 @@
                 });
             }
         }
-        // --- Google Maps 保留結束 ---
 
         function loadSettingsFromStorage() {
             const bindSetting = (stateKey, elementId, defaultValue, isFloat = false) => {
@@ -1128,7 +1153,6 @@
             DOM.toastIcon.textContent = isError ? "⚠️" : "🐾";
             const colorClasses = isError ? 'bg-rose-500 text-white' : 'bg-slate-900/95 dark:bg-amber-500 text-white dark:text-slate-900';
             
-            // 加入 w-max、md:max-w-[600px]、items-center、gap-3
             DOM.toast.className = `fixed top-[80px] md:top-[100px] left-1/2 -translate-x-1/2 z-[120] transform transition-all duration-300 px-5 py-3 md:py-3 md:px-6 rounded-2xl shadow-lg flex items-center gap-3 text-xs md:text-sm font-bold border border-white/10 w-max max-w-[90vw] md:max-w-[600px] text-left leading-relaxed ${colorClasses} translate-y-0 opacity-100 visible pointer-events-auto`;
             
             setTimeout(() => {
