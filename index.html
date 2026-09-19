@@ -89,9 +89,6 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
-    
-    <!-- 引入獨立的成就系統模組 -->
-    <script src="./achievements.js" defer></script>
 
     <script>
         tailwind.config = {
@@ -932,6 +929,10 @@
             CO2_ICE_PER_KM: 0.173, CO2_EV_PER_KM: 0.078, TREE_ABSORPTION_PER_YEAR: 10,
             get CO2_SAVED_PER_KM() { return this.CO2_ICE_PER_KM - this.CO2_EV_PER_KM; }
         };
+
+        // 明確綁定至全域 window，供外部 achievements.js 調用
+        window.AppState = AppState;
+        window.CONSTANTS = CONSTANTS;
 
         const CHARGE_STATIONS = [
             { name: "U-POWER 桃園經國站", lat: 25.029, lng: 121.294 },
@@ -2246,6 +2247,7 @@
 
             if (DOM.tempEffChart) {
                 const scatterCtx = DOM.tempEffChart.getContext('2d');
+                // 修復變數名稱：將原先的 rec.consumedSocPercent 修正為 r.consumedSocPercent
                 const scatterDataPts = chartData.filter(r => r.temp !== null && r.temp !== undefined && r.distance > 0).map(r => {
                     const pwr = AppState.batteryCapacity * ((r.consumedSocPercent || 0) / 100);
                     return { x: r.temp, y: pwr > 0 ? parseFloat((r.distance/pwr).toFixed(2)) : 0 };
@@ -2651,14 +2653,22 @@
         }
 
         window.generateSWContent = function() {
-            return `const CACHE_NAME = 'ev-life-cache-v2';
-const ASSETS_TO_CACHE = ['./', './index.html', './manifest.json', './splash.png', './achievements.js'];
+            return `const CACHE_NAME = 'ev-life-cache-v5';
+const ASSETS_TO_CACHE = ['./', './index.html', './manifest.json', './achievements.js'];
 
 self.addEventListener('install', event => {
     self.skipWaiting();
-    event.waitUntil(caches.open(CACHE_NAME).then(cache => {
-        return cache.addAll(ASSETS_TO_CACHE);
-    }));
+    event.waitUntil(
+        caches.open(CACHE_NAME).then(async cache => {
+            for (const asset of ASSETS_TO_CACHE) {
+                try {
+                    await cache.add(asset);
+                } catch (err) {
+                    console.warn('[SW] 快取失敗已略過:', asset, err);
+                }
+            }
+        })
+    );
 });
 
 self.addEventListener('activate', event => {
@@ -2667,13 +2677,30 @@ self.addEventListener('activate', event => {
             keys.map(key => {
                 if (key !== CACHE_NAME) return caches.delete(key);
             })
-        ))
+        )).then(() => self.clients.claim())
     );
 });
 
 self.addEventListener('fetch', event => {
+    const request = event.request;
+    const url = new URL(request.url);
+
+    if (!url.protocol.startsWith('http')) return;
+    if (request.method !== 'GET') return;
+    if (!url.origin.includes(self.location.origin)) return;
+
     event.respondWith(
-        fetch(event.request).catch(() => caches.match(event.request))
+        caches.open(CACHE_NAME).then(async cache => {
+            const cachedResponse = await cache.match(request);
+            const fetchPromise = fetch(request).then(networkResponse => {
+                if (networkResponse && networkResponse.status === 200) {
+                    cache.put(request, networkResponse.clone());
+                }
+                return networkResponse;
+            }).catch(() => cachedResponse);
+
+            return cachedResponse || fetchPromise;
+        })
     );
 });`;
         }
@@ -2692,5 +2719,8 @@ self.addEventListener('fetch', event => {
             if(dN) dN.innerHTML = navigator.onLine ? '🟢 網路正常' : '🔴 離線模式';
         }
     </script>
+
+    <!-- 🔹 移至此處載入：確保主程式 AppState、DOM 快取等結構已全部就緒 -->
+    <script src="./achievements.js"></script>
 </body>
 </html>
