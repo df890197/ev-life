@@ -2247,7 +2247,7 @@
             if (DOM.tempEffChart) {
                 const scatterCtx = DOM.tempEffChart.getContext('2d');
                 const scatterDataPts = chartData.filter(r => r.temp !== null && r.temp !== undefined && r.distance > 0).map(r => {
-                    const pwr = AppState.batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
+                    const pwr = AppState.batteryCapacity * ((r.consumedSocPercent || 0) / 100);
                     return { x: r.temp, y: pwr > 0 ? parseFloat((r.distance/pwr).toFixed(2)) : 0 };
                 }).filter(d => d.y > 0);
 
