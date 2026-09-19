@@ -44,7 +44,7 @@
         .ios-27-glass { background: transparent; backdrop-filter: blur(4px) saturate(110%); -webkit-backdrop-filter: blur(4px) saturate(110%); border: 1px solid rgba(255, 255, 255, 0.4); border-top: 1px solid rgba(255, 255, 255, 0.8); border-bottom: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), inset 0 1px 3px rgba(255, 255, 255, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.15); }
         .dark .ios-27-glass { background: transparent; backdrop-filter: blur(4px) saturate(110%); -webkit-backdrop-filter: blur(4px) saturate(110%); border: 1px solid rgba(255, 255, 255, 0.15); border-top: 1px solid rgba(255, 255, 255, 0.4); border-bottom: 1px solid rgba(255, 255, 255, 0.02); box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.08); }
         
-        /* 修改後：針對底部安全區域與桌機定位的優化 */
+        /* 針對底部安全區域與桌機定位的優化 */
         .floating-nav { bottom: calc(env(safe-area-inset-bottom, 0px) + 12px) !important; margin-bottom: 0 !important; }
         @media (min-width: 768px) {
             .floating-nav { bottom: 24px !important; }
@@ -262,8 +262,8 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <!-- 🔮 AI 旅程預測器 -->
+                <!-- 🔮 AI 旅程預測器 (獨立全寬顯示) -->
+                <div class="mb-4">
                     <div class="rpg-card bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/10 p-5 rounded-[1.5rem] border border-indigo-100 dark:border-indigo-800/50">
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center gap-2">
@@ -301,41 +301,6 @@
                             <div class="bg-white/60 dark:bg-slate-800/60 p-2 rounded-lg text-center border border-indigo-100 dark:border-indigo-800/30">
                                 <div class="text-[10px] text-slate-500 font-bold">預估花費</div>
                                 <div class="font-mono font-black text-indigo-600 dark:text-indigo-400 text-lg">$<span id="predCost">0</span></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 🔧 車輛保養與保險進度 -->
-                    <div class="rpg-card bg-white dark:bg-slate-800 p-5 rounded-[1.5rem] border border-slate-100 dark:border-slate-700 flex flex-col justify-center">
-                        <div class="flex items-center gap-2 mb-4">
-                            <span class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 w-7 h-7 rounded-full flex items-center justify-center text-xs">🔧</span>
-                            <h3 class="text-xs md:text-sm font-black text-slate-700 dark:text-slate-200">車輛保養與保險</h3>
-                        </div>
-
-                        <div class="mb-3">
-                            <div class="flex justify-between items-end mb-1">
-                                <span class="text-[11px] font-bold text-slate-600 dark:text-slate-300">大保養 (每 <span id="maintIntervalText">20000</span>km)</span>
-                                <div class="text-right">
-                                    <span id="maintRemainingText" class="text-xs font-black font-mono text-indigo-500">0</span>
-                                    <span class="text-[9px] text-slate-500 font-bold">km 剩餘</span>
-                                </div>
-                            </div>
-                            <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden flex">
-                                <div id="maintProgressBar" class="bg-indigo-500 h-1.5 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
-                            </div>
-                        </div>
-
-                        <div id="maintDateAlertContainer" class="hidden mt-3 pt-2 border-t border-slate-100 dark:border-slate-700">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1"><span class="text-[10px]">📅</span> 預計進廠: <span id="maintTargetDateStr" class="font-mono text-slate-700 dark:text-slate-300"></span></span>
-                                <span id="maintDaysRemainingBadge" class="text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm"></span>
-                            </div>
-                        </div>
-                        
-                        <div id="insuranceDateAlertContainer" class="hidden mt-1 pt-2 border-t border-slate-100 dark:border-slate-700">
-                            <div class="flex items-center justify-between">
-                                <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1"><span class="text-[10px]">🛡️</span> 保險到期: <span id="insuranceTargetDateStr" class="font-mono text-slate-700 dark:text-slate-300"></span></span>
-                                <span id="insuranceDaysRemainingBadge" class="text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm"></span>
                             </div>
                         </div>
                     </div>
@@ -379,6 +344,43 @@
                         <div class="text-[10px] md:text-xs text-slate-500 dark:text-slate-400 font-bold mt-1 flex justify-between items-center relative z-10">
                             <span>電耗: <span id="statMvpEfficiency" class="font-mono text-amber-600 dark:text-amber-400">0.00</span></span>
                             <span id="statMvpDate" class="font-mono scale-90 md:scale-100 origin-right">無</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 🔧 車輛保養與保險進度 (移至最下方並獨立滿寬顯示) -->
+                <div class="mb-4">
+                    <div class="rpg-card bg-white dark:bg-slate-800 p-5 rounded-[1.5rem] border border-slate-100 dark:border-slate-700 flex flex-col justify-center">
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 w-7 h-7 rounded-full flex items-center justify-center text-xs">🔧</span>
+                            <h3 class="text-xs md:text-sm font-black text-slate-700 dark:text-slate-200">車輛保養與保險</h3>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="flex justify-between items-end mb-1">
+                                <span class="text-[11px] font-bold text-slate-600 dark:text-slate-300">大保養 (每 <span id="maintIntervalText">20000</span>km)</span>
+                                <div class="text-right">
+                                    <span id="maintRemainingText" class="text-xs font-black font-mono text-indigo-500">0</span>
+                                    <span class="text-[9px] text-slate-500 font-bold">km 剩餘</span>
+                                </div>
+                            </div>
+                            <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden flex">
+                                <div id="maintProgressBar" class="bg-indigo-500 h-1.5 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div id="maintDateAlertContainer" class="hidden mt-3 pt-2 border-t border-slate-100 dark:border-slate-700">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1"><span class="text-[10px]">📅</span> 預計進廠: <span id="maintTargetDateStr" class="font-mono text-slate-700 dark:text-slate-300"></span></span>
+                                <span id="maintDaysRemainingBadge" class="text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm"></span>
+                            </div>
+                        </div>
+                        
+                        <div id="insuranceDateAlertContainer" class="hidden mt-1 pt-2 border-t border-slate-100 dark:border-slate-700">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1"><span class="text-[10px]">🛡️</span> 保險到期: <span id="insuranceTargetDateStr" class="font-mono text-slate-700 dark:text-slate-300"></span></span>
+                                <span id="insuranceDaysRemainingBadge" class="text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -842,7 +844,7 @@
         </div>
     </div>
 
-    <!-- 修改後：加上 w-[calc(100%-2rem)] 與 md:-translate-x-1/2 以解決電腦版偏右問題 -->
+    <!-- 加上 w-[calc(100%-2rem)] 與 md:-translate-x-1/2 以解決電腦版偏右問題 -->
     <nav class="fixed left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[calc(100%-2rem)] md:max-w-2xl z-50 rounded-[2rem] ios-27-glass px-2 floating-nav">
         <div class="flex justify-around items-center h-16 md:h-20 max-w-md md:max-w-full mx-auto relative" id="nav-container">
             
@@ -877,7 +879,7 @@
         </div>
     </nav>
 
-    <!-- 修改後：加入 w-max，放大 max-w，並改成 items-center 與 gap-3 讓提早換行問題被解決 -->
+    <!-- 加入 w-max，放大 max-w，並改成 items-center 與 gap-3 讓提早換行問題被解決 -->
     <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-[120] transform -translate-y-10 opacity-0 invisible pointer-events-none transition-all duration-300 bg-slate-900/95 dark:bg-[#1e293b]/95 text-white px-5 py-3 md:py-4 md:px-6 rounded-2xl shadow-lg flex items-center gap-3 text-xs md:text-sm font-bold border border-white/10 w-max max-w-[90vw] md:max-w-[600px] justify-center leading-relaxed">
         <span id="toastIcon" class="flex-shrink-0 text-base">🐾</span>
         <span id="toastMessage"></span>
@@ -1013,11 +1015,11 @@
             setupDelegatedEvents();
             if (AppState.syncUrl) setTimeout(() => syncWithCloud('auto', false), 800);
             
-            // 保留原本的 Google Maps 初始化呼叫方式，不變動
+            // 保留原本的 Google Maps 初始化呼叫方式
             initPlacesAutocomplete();
         }
 
-        // --- 以下為完全保留未更動的 Google Maps 相關程式 ---
+        // --- Google Maps 相關程式 ---
         function initPlacesAutocomplete() {
             if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
                 setTimeout(initPlacesAutocomplete, 500); 
@@ -1056,7 +1058,7 @@
                 });
             }
         }
-        // --- 以上 Google Maps 保留結束 ---
+        // --- Google Maps 保留結束 ---
 
         function loadSettingsFromStorage() {
             const bindSetting = (stateKey, elementId, defaultValue, isFloat = false) => {
@@ -1121,7 +1123,7 @@
             DOM.toastIcon.textContent = isError ? "⚠️" : "🐾";
             const colorClasses = isError ? 'bg-rose-500 text-white' : 'bg-slate-900/95 dark:bg-amber-500 text-white dark:text-slate-900';
             
-            /* 修改後：同樣加入 w-max、md:max-w-[600px]、items-center、gap-3 */
+            // 加入 w-max、md:max-w-[600px]、items-center、gap-3
             DOM.toast.className = `fixed top-[80px] md:top-[100px] left-1/2 -translate-x-1/2 z-[120] transform transition-all duration-300 px-5 py-3 md:py-3 md:px-6 rounded-2xl shadow-lg flex items-center gap-3 text-xs md:text-sm font-bold border border-white/10 w-max max-w-[90vw] md:max-w-[600px] text-left leading-relaxed ${colorClasses} translate-y-0 opacity-100 visible pointer-events-auto`;
             
             setTimeout(() => {
@@ -1154,7 +1156,6 @@
             debouncedUpdateCharts();
         }
 
-        // Image compression to prevent LocalStorage QuotaExceededError
         window.handleHeroImageUpload = function(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1163,12 +1164,12 @@
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 600; // Optimized size
+                    const MAX_WIDTH = 600; 
                     let width = img.width, height = img.height;
                     if (width > MAX_WIDTH) { height = Math.round((height * MAX_WIDTH) / width); width = MAX_WIDTH; }
                     canvas.width = width; canvas.height = height;
                     const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.6); // Lowered quality for localStorage
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.6); 
                     try {
                         localStorage.setItem('ev_life_hero_image', dataUrl);
                         if (DOM.heroImageDisplay) DOM.heroImageDisplay.src = dataUrl;
@@ -1188,12 +1189,12 @@
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 400; // Optimized size
+                    const MAX_WIDTH = 400;
                     let width = img.width, height = img.height;
                     if (width > MAX_WIDTH) { height = Math.round((height * MAX_WIDTH) / width); width = MAX_WIDTH; }
                     canvas.width = width; canvas.height = height;
                     const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.6); // Lowered quality
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
                     try {
                         localStorage.setItem('ev_life_splash_image', dataUrl);
                         const previewImg = document.getElementById('splashPreviewImg');
@@ -1835,7 +1836,6 @@
                 if(ecoContainer) ecoContainer.classList.add('hidden');
             }
 
-            // 使用陣列組合字串，提升效能
             const htmlFragments = displayRecords.map(rec => {
                 const isNonDrive = ['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType);
                 const dist = parseFloat(rec.distance) || 0;
@@ -2206,7 +2206,7 @@
                 });
                 const cpArr = Object.keys(stationStats).map(tag => ({
                     tag, cp: stationStats[tag].cost / stationStats[tag].power
-                })).sort((a,b) => a.cp - b.cp).slice(0, 6); // 為了排版好看，可以拉到 6 筆
+                })).sort((a,b) => a.cp - b.cp).slice(0, 6); 
 
                 if (cpArr.length === 0) DOM.cpRankingList.innerHTML = '<div class="text-xs text-slate-400 text-center py-4 bg-slate-50 dark:bg-slate-800/30 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 md:col-span-2">區間內尚無足夠的充電花費數據</div>';
                 else {
