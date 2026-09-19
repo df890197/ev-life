@@ -1895,7 +1895,7 @@
                 .map(r => {
                     const power = AppState.batteryCapacity * ((r.consumedSocPercent || 0) / 100);
                     const eff = power > 0 ? parseFloat((r.distance / power).toFixed(2)) : 0;
-                    const score = Math.min(100, Math.max(0, Math.round(60 + (eff - 5.0) * 24))));
+                    const score = Math.min(100, Math.max(0, Math.round(60 + (eff - 5.0) * 24)));
                     return { ...r, eff, score };
                 });
 
