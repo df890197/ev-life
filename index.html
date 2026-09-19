@@ -68,17 +68,13 @@
         
         .hero-image-container { position: relative; width: 100%; padding-top: 56.25%; border-radius: 2rem; overflow: hidden; }
         .hero-image-container img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-
-        .pac-container { border-radius: 1rem; border: none; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); margin-top: 4px; padding: 4px; font-family: 'Fredoka', 'Noto Sans TC', sans-serif; z-index: 100 !important; }
-        .dark .pac-container { background-color: #1e293b; color: #f8fafc; }
-        .dark .pac-item { border-top-color: #334155; color: #cbd5e1; }
-        .dark .pac-item-query { color: #f8fafc; }
     </style>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
+    <!-- 保留 Google Maps API 供充電足跡地圖使用 -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4VD2QwmyRkM8gwApiDIMUXKBKRAaoXW0&libraries=places" defer></script>
 
     <script>
@@ -447,13 +443,13 @@
                             
                             <div class="relative mb-2">
                                 <div class="absolute left-3 top-1/2 -translate-y-1/2 text-xs">⚡</div>
-                                <input type="text" id="inputTag" placeholder="站點 (例:U-POWER 中壢青埔站)" class="w-full pl-8 pr-3 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
+                                <input type="text" id="inputTag" placeholder="站點 (例:U-POWER 中壢青埔站)" autocomplete="off" class="w-full pl-8 pr-3 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
                             </div>
 
                             <div class="grid grid-cols-3 gap-2 mb-2">
                                 <div class="relative col-span-2">
                                     <div class="absolute left-3 top-1/2 -translate-y-1/2 text-xs">📍</div>
-                                    <input type="text" id="inputDistrict" placeholder="地區 (例:桃園市中壢區)" class="w-full pl-8 pr-3 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
+                                    <input type="text" id="inputDistrict" placeholder="地區 (例:桃園市中壢區)" autocomplete="off" class="w-full pl-8 pr-3 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
                                 </div>
                                 <div class="relative col-span-1">
                                     <input type="number" step="0.1" id="inputTemperature" placeholder="氣溫" class="w-full pl-3 pr-7 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-mono font-bold focus:outline-none focus:border-sky-400 transition-colors">
