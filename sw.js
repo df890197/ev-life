@@ -1,17 +1,25 @@
-const CACHE_NAME = 'ev-life-cache-v4'; // 升級版本號強制觸發更新
+const CACHE_NAME = 'ev-life-cache-v5';
+
+// 預先快取清單：若 splash.png 尚未推播到 GitHub，請先不要放在這裡
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
     './manifest.json',
-    './splash.png',
     './achievements.js'
 ];
 
 self.addEventListener('install', event => {
     self.skipWaiting();
     event.waitUntil(
-        caches.open(CACHE_NAME).then(cache => {
-            return cache.addAll(ASSETS_TO_CACHE);
+        caches.open(CACHE_NAME).then(async cache => {
+            // 使用個別快取容錯機制，避免單一檔案 404 造成整組 addAll 爆掉
+            for (const asset of ASSETS_TO_CACHE) {
+                try {
+                    await cache.add(asset);
+                } catch (err) {
+                    console.warn(`[SW] 快取失敗已略過: ${asset}`, err);
+                }
+            }
         })
     );
 });
@@ -24,30 +32,36 @@ self.addEventListener('activate', event => {
                     return caches.delete(key);
                 }
             })
-        )).then(() => self.clients.claim()) // 立即接管所有頁面
+        )).then(() => self.clients.claim())
     );
 });
 
 self.addEventListener('fetch', event => {
     const request = event.request;
+    const url = new URL(request.url);
 
-    // 1. 只快取 GET 請求（忽略 POST 雲端同步請求，避免 Cache API 拋出錯誤）
+    // 1. 只處理 http 和 https 協定（徹底排除 chrome-extension:// 報錯）
+    if (!url.protocol.startsWith('http')) {
+        return;
+    }
+
+    // 2. 只快取 GET 請求
     if (request.method !== 'GET') {
         return;
     }
 
-    // 2. 忽略外部 API / 地圖資源（避免阻礙天氣、地址解析與地圖載入）
-    const url = new URL(request.url);
+    // 3. 忽略第三方外部 API / 地圖（避免污染本機快取）
     if (!url.origin.includes(self.location.origin)) {
         return;
     }
 
-    // 3. Stale-While-Revalidate 策略：先用快取快速顯示，背景更新快取，斷網亦可離線瀏覽
+    // 4. 快取優先 / 背景更新策略
     event.respondWith(
         caches.open(CACHE_NAME).then(async cache => {
             const cachedResponse = await cache.match(request);
             
             const fetchPromise = fetch(request).then(networkResponse => {
+                // 只有成功取得 200 狀態碼才寫入快取，避免 404 檔案被存入
                 if (networkResponse && networkResponse.status === 200) {
                     cache.put(request, networkResponse.clone());
                 }
