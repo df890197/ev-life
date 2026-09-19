@@ -43,8 +43,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
-    <!-- ⚠️ 替換掉原本的 Google Maps 引入腳本，加入 libraries=places -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4VD2QwmyRkM8gwApiDIMUXKBKRAaoXW0&libraries=places" defer></script>
+    <!-- ⚠️ 已移除 libraries=places，避免消耗 Places API 額度 -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4VD2QwmyRkM8gwApiDIMUXKBKRAaoXW0" defer></script>
 
     <script>
         (function() {
@@ -85,12 +85,6 @@
         
         .hero-image-container { position: relative; width: 100%; padding-top: 56.25%; border-radius: 2rem; overflow: hidden; }
         .hero-image-container img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-
-        /* 配合 Google Autocomplete 的樣式微調 */
-        .pac-container { border-radius: 1rem; border: none; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); margin-top: 4px; padding: 4px; font-family: 'Fredoka', 'Noto Sans TC', sans-serif; z-index: 100 !important; }
-        .dark .pac-container { background-color: #1e293b; color: #f8fafc; }
-        .dark .pac-item { border-top-color: #334155; color: #cbd5e1; }
-        .dark .pac-item-query { color: #f8fafc; }
     </style>
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -447,10 +441,10 @@
                                 </button>
                             </div>
                             
-                            <!-- 第一排：滿版站點 -->
+                            <!-- 第一排：滿版站點 (已加入 datalist 支援) -->
                             <div class="relative mb-2">
                                 <div class="absolute left-3 top-1/2 -translate-y-1/2 text-xs">⚡</div>
-                                <input type="text" id="inputTag" placeholder="站點 (例:U-POWER 中壢青埔站)" class="w-full pl-8 pr-3 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
+                                <input type="text" id="inputTag" placeholder="站點 (例:U-POWER 中壢青埔站)" class="w-full pl-8 pr-3 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors" autocomplete="off">
                             </div>
 
                             <!-- 第二排：地區佔 2/3，氣溫佔 1/3 -->
@@ -921,8 +915,8 @@
             get CO2_SAVED_PER_KM() { return this.CO2_ICE_PER_KM - this.CO2_EV_PER_KM; }
         };
 
-        // 常用充電站清單（如果使用者填寫的 Tag 有在這裡面，就會被標記到地圖上）
-        const CHARGE_STATIONS = [
+        // 🌟 TDX 充電站清單（預設帶入幾筆，後續會透過 GAS 更新）
+        window.TDX_STATIONS = [
             { name: "U-POWER 桃園經國站", lat: 25.029, lng: 121.294 },
             { name: "U-POWER 中壢青埔站", lat: 25.009, lng: 121.214 },
             { name: "EVOASIS 桃園中壢站", lat: 24.965, lng: 121.224 },
@@ -1024,50 +1018,62 @@
 
             if (AppState.syncUrl) setTimeout(() => syncWithCloud('auto', false), 800);
 
-            // 🌟 初始化輸入框的 Google Places 自動建議
-            initPlacesAutocomplete();
+            // 🌟 初始化 TDX 站點資料取代原本的 Places API
+            initTDXStations();
         }
 
-        // 🌟 初始化 Places Autocomplete 功能
-        function initPlacesAutocomplete() {
-            if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
-                setTimeout(initPlacesAutocomplete, 500); // 等待 API 載入完成
+        // 🌟 初始化 TDX 站點資料與 Autocomplete
+        async function initTDXStations() {
+            const CACHE_KEY = 'ev_life_tdx_stations';
+            const CACHE_TIME_KEY = 'ev_life_tdx_time';
+            const now = Date.now();
+
+            if (localStorage.getItem(CACHE_KEY) && (now - parseInt(localStorage.getItem(CACHE_TIME_KEY) || '0') < 86400000)) {
+                try {
+                    const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
+                    if (cached && cached.length > 0) window.TDX_STATIONS = cached;
+                } catch(e) {}
+                setupTDXAutocomplete();
                 return;
             }
-            const inputTag = document.getElementById('inputTag');
-            if (inputTag) {
-                const autocomplete = new google.maps.places.Autocomplete(inputTag, {
-                    types: ['establishment', 'geocode'], // 允許地標與地址
-                    componentRestrictions: { country: 'tw' } // 限制在台灣
-                });
-                
-                autocomplete.addListener('place_changed', () => {
-                    const place = autocomplete.getPlace();
-                    if (place.name) {
-                        inputTag.value = place.name; // 將輸入框替換為乾淨的地標名稱
-                    }
-                    
-                    // 自動解析地區 (District) 並帶入欄位
-                    if (place.address_components) {
-                        let city = '', district = '';
-                        place.address_components.forEach(comp => {
-                            if (comp.types.includes('administrative_area_level_1') || comp.types.includes('administrative_area_level_2')) city = comp.long_name;
-                            if (comp.types.includes('administrative_area_level_3') || comp.types.includes('locality')) district = comp.long_name;
-                        });
-                        const distInput = document.getElementById('inputDistrict');
-                        if (distInput && (city || district)) {
-                            distInput.value = (city + district).replace('台灣', '');
-                        }
-                    }
-                    
-                    // 將 Google 提供的精準座標存入快取，供充電足跡地圖直接使用
-                    if (place.geometry && place.geometry.location) {
-                        const cache = JSON.parse(localStorage.getItem('ev_life_geocode_cache') || '{}');
-                        cache[place.name] = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
-                        localStorage.setItem('ev_life_geocode_cache', JSON.stringify(cache));
-                    }
-                });
+
+            if (!AppState.syncUrl) {
+                setupTDXAutocomplete(); // 沒有設定同步時，降級使用內建清單
+                return;
             }
+
+            try {
+                const res = await fetch(`${AppState.syncUrl}?action=getTdxStations`);
+                const data = await res.json();
+                if (data && data.length > 0) {
+                    window.TDX_STATIONS = data;
+                    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+                    localStorage.setItem(CACHE_TIME_KEY, now.toString());
+                }
+            } catch (error) {
+                console.warn("TDX 站點載入失敗，將使用快取或預設清單", error);
+            } finally {
+                setupTDXAutocomplete();
+            }
+        }
+
+        // 建立輕量級的原生自動完成清單
+        function setupTDXAutocomplete() {
+            const inputTag = document.getElementById('inputTag');
+            if (!inputTag || !window.TDX_STATIONS.length) return;
+
+            let datalist = document.getElementById('tdx-stations-list');
+            if (!datalist) {
+                datalist = document.createElement('datalist');
+                datalist.id = 'tdx-stations-list';
+                document.body.appendChild(datalist);
+                inputTag.setAttribute('list', 'tdx-stations-list');
+            }
+
+            // 注入充電站名稱
+            datalist.innerHTML = window.TDX_STATIONS.map(s => 
+                `<option value="${escapeHTML(s.name)}"></option>`
+            ).join('');
         }
 
         function loadSettingsFromStorage() {
@@ -1397,14 +1403,19 @@
                 const SEARCH_RADIUS_KM = 3.0;
                 tempNearbyStations = [];
                 
-                CHARGE_STATIONS.forEach(station => {
-                    const dist = getDistanceFromLatLonInKm(lat, lng, station.lat, station.lng);
-                    if (dist <= SEARCH_RADIUS_KM) {
-                        tempNearbyStations.push({
-                            name: station.name,
-                            distanceKm: dist,
-                            distanceM: Math.round(dist * 1000)
-                        });
+                // 🌟 使用 TDX 的完整站點清單
+                window.TDX_STATIONS.forEach(station => {
+                    if (station.lat && station.lng) {
+                        const dist = getDistanceFromLatLonInKm(lat, lng, station.lat, station.lng);
+                        if (dist <= SEARCH_RADIUS_KM) {
+                            tempNearbyStations.push({
+                                name: station.name,
+                                distanceKm: dist,
+                                distanceM: Math.round(dist * 1000),
+                                lat: station.lat,
+                                lng: station.lng
+                            });
+                        }
                     }
                 });
                 
@@ -1447,7 +1458,10 @@
                 } else if (tempNearbyStations.length === 1) {
                     const single = tempNearbyStations[0];
                     if (DOM.inputDistrict) DOM.inputDistrict.value = tempCurrentDistrict;
-                    if (DOM.inputTag) DOM.inputTag.value = single.name;
+                    
+                    // 🌟 只有單一站點直接套用，順便把座標塞進快取
+                    chooseStation(single.name, single.lat, single.lng);
+                    
                     const locText = tempCurrentDistrict ? `📍 ${tempCurrentDistrict}` : `⚡ 偵測到站點`;
                     showToast(`${locText}<br>${single.name} (${single.distanceM}m)`, false, 2500);
                 } else {
@@ -1484,8 +1498,9 @@
 
             badge.textContent = district || "偵測位置";
             
+            // 🌟 將 lat, lng 也傳遞給 chooseStation 以供快取寫入
             list.innerHTML = stations.map((s, idx) => `
-                <button type="button" onclick="chooseStation('${escapeHTML(s.name)}')" class="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 hover:bg-amber-50 dark:hover:bg-amber-900/20 border border-slate-200 dark:border-slate-700 transition active:scale-95 text-left">
+                <button type="button" onclick="chooseStation('${escapeHTML(s.name)}', ${s.lat}, ${s.lng})" class="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 hover:bg-amber-50 dark:hover:bg-amber-900/20 border border-slate-200 dark:border-slate-700 transition active:scale-95 text-left">
                     <div class="flex items-center gap-2">
                         <span class="text-amber-500 font-bold text-xs">⚡</span>
                         <span class="text-xs font-bold text-slate-700 dark:text-slate-200">${escapeHTML(s.name)}</span>
@@ -1501,8 +1516,16 @@
             }, 10);
         }
 
-        window.chooseStation = function(stationName) {
+        window.chooseStation = function(stationName, lat, lng) {
             if (DOM.inputTag) DOM.inputTag.value = stationName;
+            
+            // 🌟 將選定的站點座標存入快取，讓地圖直接套用，不再呼叫 Google Geocoding API
+            if (lat && lng) {
+                const cache = JSON.parse(localStorage.getItem('ev_life_geocode_cache') || '{}');
+                cache[stationName] = { lat, lng };
+                localStorage.setItem('ev_life_geocode_cache', JSON.stringify(cache));
+            }
+
             closeStationModal();
             showToast(`⚡ 已帶入站點: <br>${stationName}`);
         }
@@ -1515,7 +1538,6 @@
             setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
-        // 🌟 更新版的地圖 Modal，支援自訂站點顯示與 Geocoding 轉換
         window.openMapModal = function() {
             const modal = document.getElementById('mapModal');
             modal.classList.remove('hidden');
@@ -1603,9 +1625,9 @@
 
                 // 遍歷所有造訪過的站點，決定如何獲取經緯度
                 visitedStations.forEach((district, tag) => {
-                    // 1. 優先檢查是否在您預設的 CHARGE_STATIONS 中
-                    const builtin = CHARGE_STATIONS.find(s => s.name === tag);
-                    if (builtin) {
+                    // 1. 優先檢查是否在 TDX 預設或載入清單中
+                    const builtin = window.TDX_STATIONS.find(s => s.name === tag);
+                    if (builtin && builtin.lat && builtin.lng) {
                         placeMarker(builtin.name, builtin.lat, builtin.lng, false);
                         return;
                     }
