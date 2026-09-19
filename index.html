@@ -43,7 +43,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
-    <!-- ⚠️ 請將 YOUR_DEMO_KEY 替換為您的 Google Maps API Key -->
+    <!-- ⚠️ 替換掉原本的 Google Maps 引入腳本，加入 libraries=places -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4VD2QwmyRkM8gwApiDIMUXKBKRAaoXW0&libraries=places" defer></script>
 
     <script>
@@ -85,6 +85,12 @@
         
         .hero-image-container { position: relative; width: 100%; padding-top: 56.25%; border-radius: 2rem; overflow: hidden; }
         .hero-image-container img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+
+        /* 配合 Google Autocomplete 的樣式微調 */
+        .pac-container { border-radius: 1rem; border: none; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); margin-top: 4px; padding: 4px; font-family: 'Fredoka', 'Noto Sans TC', sans-serif; z-index: 100 !important; }
+        .dark .pac-container { background-color: #1e293b; color: #f8fafc; }
+        .dark .pac-item { border-top-color: #334155; color: #cbd5e1; }
+        .dark .pac-item-query { color: #f8fafc; }
     </style>
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -147,6 +153,7 @@
 
     <main class="max-w-4xl mx-auto pb-32 pt-2">
         
+        <!-- 🔹 Tab 1: 首頁 (Home) -->
         <div id="view-home" class="view-section active px-4">
             
             <div id="onboardingCard" class="hidden mb-6 rpg-card bg-gradient-to-br from-teal-50 to-white dark:from-teal-900/30 dark:to-slate-800 p-6 rounded-[2rem] shadow-sm border border-teal-100 dark:border-teal-800/50">
@@ -184,19 +191,6 @@
                     <input type="file" id="heroImageUpload" class="hidden" accept="image/*" onchange="handleHeroImageUpload(event)">
                 </div>
 
-                <button onclick="openRealtimeStationModal()" class="w-full mb-6 rpg-card bg-gradient-to-r from-amber-300 to-amber-400 dark:from-amber-600 dark:to-amber-700 text-slate-800 dark:text-white p-4 rounded-[1.5rem] shadow-[0_8px_20px_rgba(251,191,36,0.25)] dark:shadow-[0_8px_20px_rgba(0,0,0,0.5)] border border-amber-200 dark:border-amber-500 flex items-center justify-between transition active:scale-95">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-white/50 dark:bg-black/20 w-11 h-11 rounded-full flex items-center justify-center text-2xl shadow-sm border border-white/40 dark:border-white/10">⚡</div>
-                        <div class="text-left">
-                            <div class="font-black text-[15px] tracking-wide">尋找即時充電樁狀態</div>
-                            <div class="text-[10px] font-bold opacity-80 mt-0.5 bg-black/5 dark:bg-black/30 px-2 py-0.5 rounded-md inline-block">串接 TDX 官方即時空位資料</div>
-                        </div>
-                    </div>
-                    <div class="bg-white/30 dark:bg-black/20 rounded-full p-1.5 shadow-sm">
-                        <svg class="w-5 h-5 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
-                    </div>
-                </button>
-
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div class="rpg-card bg-[#fffaf0] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
                         <div class="text-amber-500 mb-2 flex items-start justify-between">
@@ -225,6 +219,7 @@
                     </div>
                 </div>
 
+                <!-- 🏆 燃油省下與環保貢獻 -->
                 <div class="rpg-card bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/10 p-5 rounded-[1.5rem] border border-green-100 dark:border-green-800/50 mb-4">
                     <div class="flex items-center gap-2 mb-3 border-b border-green-200/50 dark:border-green-800/30 pb-2">
                         <span class="bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 w-7 h-7 rounded-full flex items-center justify-center text-xs">🌳</span>
@@ -309,6 +304,7 @@
                     </div>
                 </div>
 
+                <!-- 👑 黃金右腳評分 (分成最新與最佳) -->
                 <div id="ecoScoreContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 hidden">
                     <!-- 最新一筆紀錄 -->
                     <div class="rpg-card bg-gradient-to-br from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/10 p-4 rounded-[1.5rem] border border-sky-100 dark:border-sky-800/50 relative overflow-hidden">
@@ -391,6 +387,7 @@
             </div>
         </div>
 
+        <!-- 🔹 Tab 2: 新增/編輯紀錄 (Add/Edit) -->
         <div id="view-add" class="view-section px-4">
             <div class="rpg-card bg-white dark:bg-[#1e293b] p-6 rounded-[2rem]">
                 <div class="flex items-center justify-between mb-5 pb-3 border-b border-slate-100 dark:border-slate-700">
@@ -445,25 +442,15 @@
                         <div id="tagInputArea">
                             <div class="flex justify-between items-end mb-1.5">
                                 <label class="text-xs font-bold text-slate-500 dark:text-slate-400 block">站點與地區 (選填)</label>
-                                <div class="flex gap-1">
-                                    <button type="button" onclick="autoLocateAndWeather()" class="text-[10px] bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-400 px-2 py-1 rounded shadow-sm font-bold active:scale-95 transition-transform flex items-center gap-1 w-max">
-                                        📍自動定位
-                                    </button>
-                                    <button type="button" onclick="openPickerMapModal()" class="text-[10px] bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400 px-2 py-1 rounded shadow-sm font-bold active:scale-95 transition-transform flex items-center gap-1 w-max">
-                                        🗺️地圖選站
-                                    </button>
-                                </div>
+                                <button type="button" onclick="autoLocateAndWeather()" class="text-[10px] bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-400 px-2.5 py-1 rounded-lg shadow-sm font-bold active:scale-95 transition-transform flex items-center gap-1">
+                                    📍 自動定位與天氣
+                                </button>
                             </div>
                             
-                            <!-- 第一排：滿版站點加上搜尋按鈕 -->
-                            <div class="flex gap-2 mb-2">
-                                <div class="relative flex-1">
-                                    <div class="absolute left-3 top-1/2 -translate-y-1/2 text-xs">⚡</div>
-                                    <input type="text" id="inputTag" onkeypress="if(event.key==='Enter'){event.preventDefault();searchStationByText();}" placeholder="站名 (例:EVOASIS)" class="w-full pl-8 pr-3 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
-                                </div>
-                                <button type="button" onclick="searchStationByText()" class="px-4 bg-slate-800 dark:bg-amber-400 text-white dark:text-slate-900 rounded-2xl font-black text-xs shadow-sm transition active:scale-95 flex items-center justify-center flex-shrink-0">
-                                    🔍 搜尋
-                                </button>
+                            <!-- 第一排：滿版站點 -->
+                            <div class="relative mb-2">
+                                <div class="absolute left-3 top-1/2 -translate-y-1/2 text-xs">⚡</div>
+                                <input type="text" id="inputTag" placeholder="站點 (例:U-POWER 中壢青埔站)" class="w-full pl-8 pr-3 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
                             </div>
 
                             <!-- 第二排：地區佔 2/3，氣溫佔 1/3 -->
@@ -526,10 +513,6 @@
                         <input type="text" id="inputNote" placeholder="例如：帶貓咪去兜風 🐱 / 兩萬公里定保" class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
                     </div>
 
-                    <div id="powerHintContainer" class="bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 text-xs font-bold p-3 rounded-xl border border-amber-100 dark:border-amber-800 flex items-center justify-between">
-                        <span id="powerHintText">電量預估計算中...</span>
-                    </div>
-
                     <div class="flex gap-3 pt-4">
                         <button type="submit" class="flex-1 rpg-btn-primary text-sm font-black py-4 rounded-2xl shadow-md">
                             <span id="submitBtnText">儲存紀錄</span>
@@ -542,6 +525,7 @@
             </div>
         </div>
 
+        <!-- 🔹 Tab 3: 紀錄列表 (Records) -->
         <div id="view-records" class="view-section px-4">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-black">歷史紀錄</h2>
@@ -565,6 +549,7 @@
             </div>
         </div>
 
+        <!-- 🔹 Tab 4: 分析圖表 (Analysis) -->
         <div id="view-analysis" class="view-section px-4">
             <div class="rpg-card bg-white dark:bg-[#1e293b] p-5 sm:p-6 rounded-[2rem]">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
@@ -683,6 +668,7 @@
             </div>
         </div>
 
+        <!-- 🚀 🔹 Tab 5: 獨立設定頁面 (Settings) -->
         <div id="view-settings" class="view-section px-4 pb-10">
             <div class="rpg-card bg-white dark:bg-[#1e293b] rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col">
                 <div class="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-[#1e293b]">
@@ -761,23 +747,6 @@
                                 <span class="text-[10px] text-slate-400 font-bold mb-2 block">目前圖片預覽</span>
                                 <img id="splashPreviewImg" src="" class="max-h-24 mx-auto rounded-lg object-contain shadow-sm bg-black/5 dark:bg-white/5">
                                 <button type="button" onclick="clearSplashImage()" class="absolute top-2 right-0 w-6 h-6 bg-rose-500 text-white rounded-full flex items-center justify-center shadow text-xs font-bold transition active:scale-90">✕</button>
-                            </div>
-                        </div>
-
-                        <div class="bg-slate-50 dark:bg-[#0f172a] p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
-                            <span class="text-xs font-black text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><span class="text-[14px]">🔌</span> TDX 官方充電站 API 串接 (選填)</span>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="text-[10px] font-bold text-slate-400 block mb-1">Client Id</label>
-                                    <input type="text" id="tdxClientIdInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold focus:outline-none" placeholder="輸入您的 TDX Client Id">
-                                </div>
-                                <div>
-                                    <label class="text-[10px] font-bold text-slate-400 block mb-1">Client Secret</label>
-                                    <input type="password" id="tdxClientSecretInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-bold focus:outline-none" placeholder="輸入您的 TDX Client Secret">
-                                </div>
-                            </div>
-                            <div class="text-[10px] text-slate-500 font-bold leading-relaxed border-t border-slate-200 dark:border-slate-700 pt-3">
-                                💡 填寫後，系統在「新增紀錄」時將優先使用交通部 TDX 資料庫搜尋 (涵蓋全台服務區與各大營運商)。未填寫則自動使用開源地圖搜尋。
                             </div>
                         </div>
 
@@ -870,56 +839,8 @@
             </div>
             <div id="evMapContainer" class="w-full flex-1 rounded-xl bg-slate-200 dark:bg-slate-800 overflow-hidden relative z-10"></div>
             <div class="mt-3 text-center text-[10px] font-bold text-slate-400">
-                <span class="inline-block w-2 h-2 rounded-full bg-amber-500 mr-1"></span>已造訪站點 
-            </div>
-        </div>
-    </div>
-
-    <!-- 🗺️ 手動選站地圖 Modal -->
-    <div id="pickerMapModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[125] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-white dark:bg-[#1e293b] rounded-[2rem] p-4 shadow-2xl max-w-md w-full mx-4 h-[75vh] flex flex-col transform scale-95 transition-all duration-300 border border-slate-100 dark:border-slate-700 relative">
-            <div class="flex items-center justify-between mb-3 px-2">
-                <h3 class="text-sm font-black text-slate-800 dark:text-white flex items-center gap-2">🗺️ 點擊地圖選擇站點</h3>
-                <button onclick="closePickerMapModal()" class="w-7 h-7 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center text-xs font-bold transition active:scale-90">✕</button>
-            </div>
-            <div id="pickerMapContainer" class="w-full flex-1 rounded-xl bg-slate-200 dark:bg-slate-800 overflow-hidden relative z-10"></div>
-            <div class="mt-3 text-center text-[10px] font-bold text-slate-400">
-                點擊地標後，將自動載入該站點名稱、預估地區及目前氣溫
-            </div>
-        </div>
-    </div>
-
-    <!-- ⚡ 即時充電狀態 Modal -->
-    <div id="realTimeModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[130] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-white dark:bg-[#1e293b] rounded-[2rem] p-5 shadow-2xl max-w-md w-full mx-4 h-[85vh] flex flex-col transform scale-95 transition-all duration-300 border border-slate-100 dark:border-slate-700 relative overflow-hidden">
-            <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100 dark:border-slate-700/60">
-                <h3 class="text-sm font-black text-slate-800 dark:text-white flex items-center gap-2">
-                    <span class="text-lg">⚡</span> 附近充電樁即時狀態
-                </h3>
-                <button onclick="closeRealtimeStationModal()" class="w-7 h-7 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center text-xs font-bold transition active:scale-90">✕</button>
-            </div>
-            
-            <!-- 新增：目的地搜尋列 -->
-            <div class="flex gap-2 mb-1">
-                <div class="relative flex-1">
-                    <div class="absolute left-3 top-1/2 -translate-y-1/2 text-xs">🔍</div>
-                    <input type="text" id="realtimeSearchInput" onkeypress="if(event.key==='Enter'){event.preventDefault();searchRealtimeDestination();}" placeholder="搜尋目的地 (例:清水服務區)" class="w-full pl-8 pr-3 py-2.5 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold focus:outline-none focus:border-amber-400 transition-colors">
-                </div>
-                <button type="button" onclick="searchRealtimeDestination()" class="px-3.5 bg-amber-400 dark:bg-amber-500 text-slate-900 rounded-xl font-black text-xs shadow-sm transition active:scale-95 flex items-center justify-center flex-shrink-0">
-                    前往
-                </button>
-            </div>
-
-            <!-- 原本的搜尋範圍滑桿 -->
-            <div class="flex items-center gap-3 mb-4 mt-2 bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700/50">
-                <div class="text-[11px] font-black text-slate-600 dark:text-slate-400 flex-shrink-0">搜尋半徑</div>
-                <input type="range" id="searchRadiusSlider" min="1" max="10" value="3" class="flex-1 accent-amber-500" onchange="updateSearchRadius(this.value)">
-                <span class="text-[11px] font-black text-slate-600 dark:text-slate-400 w-12 text-right"><span id="searchRadiusText">3</span> km</span>
-            </div>
-
-            <div id="realTimeListContainer" class="flex-1 overflow-y-auto no-scrollbar space-y-3 pb-4">
-                <!-- Data will be populated here -->
-                <div class="text-center text-slate-400 text-xs font-bold py-10">等待載入中...</div>
+                <span class="inline-block w-2 h-2 rounded-full bg-amber-500 mr-1"></span>內建預設站點
+                <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 ml-3 mr-1"></span>自訂擴充站點 
             </div>
         </div>
     </div>
@@ -958,10 +879,9 @@
         </div>
     </nav>
 
-    <!-- 重新設計的優化版 Toast 通知框 -->
-    <div id="toast" class="fixed top-[70px] left-1/2 -translate-x-1/2 z-[120] transform -translate-y-10 opacity-0 invisible pointer-events-none transition-all duration-300 w-max max-w-[85vw] px-5 py-3 rounded-full flex items-center justify-center gap-2.5 text-[13px] font-bold shadow-2xl bg-slate-800 dark:bg-slate-700 text-white border border-slate-700 dark:border-slate-600">
-        <span id="toastIcon" class="flex-shrink-0 text-sm">🐾</span>
-        <span id="toastMessage" class="text-center leading-relaxed"></span>
+    <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-[120] transform -translate-y-10 opacity-0 invisible pointer-events-none transition-all duration-300 bg-slate-900/95 dark:bg-[#1e293b]/95 text-white px-5 py-3 rounded-2xl shadow-lg flex items-start space-x-2 text-xs font-bold border border-white/10 max-w-[90vw] text-center justify-center leading-relaxed">
+        <span id="toastIcon" class="mt-0.5 flex-shrink-0">🐾</span>
+        <span id="toastMessage" class="break-words"></span>
     </div>
 
     <div id="confirmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[110] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
@@ -988,8 +908,6 @@
             gasPrice: 30.0,
             syncUrl: "",
             syncToken: "",
-            tdxClientId: "",
-            tdxClientSecret: "",
             editingRecordId: null,
             currentChartFilter: 'all',
             currentMonthFilter: 'all',
@@ -1051,8 +969,7 @@
              'savingsBaseText', 'statCo2Savings', 'statTreesPlanted', 'maintIntervalText', 'maintRemainingText', 'maintProgressBar', 
              'maintDateAlertContainer', 'maintTargetDateStr', 'maintDaysRemainingBadge', 'insuranceDateAlertContainer', 'insuranceTargetDateStr', 'insuranceDaysRemainingBadge',
              'efficiencyChart', 'costDistributionChart', 'tempEffChart', 'cpRankingList', 'analysisTotalKm', 'analysisSummaryLabel', 'analysisAvgEfficiency',
-             'analysisTotalCost', 'analysisCostLabel', 'analysisCostPerKm', 'heroImageDisplay', 'toggleHighway', 'toggleMountain', 'badgesContainer',
-             'tdxClientIdInput', 'tdxClientSecretInput'].forEach(id => {
+             'analysisTotalCost', 'analysisCostLabel', 'analysisCostPerKm', 'heroImageDisplay', 'toggleHighway', 'toggleMountain', 'badgesContainer'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) DOM[id] = el;
             });
@@ -1087,7 +1004,6 @@
             updateSyncUiStatus();
             updatePwaDiagnostic();
             checkQuickLog();
-            setupDragScroll(); // 啟用電腦版滑鼠拖曳滑動
             
             try {
                 const localData = localStorage.getItem('ev_life_records');
@@ -1107,6 +1023,51 @@
             setupDelegatedEvents();
 
             if (AppState.syncUrl) setTimeout(() => syncWithCloud('auto', false), 800);
+
+            // 🌟 初始化輸入框的 Google Places 自動建議
+            initPlacesAutocomplete();
+        }
+
+        // 🌟 初始化 Places Autocomplete 功能
+        function initPlacesAutocomplete() {
+            if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
+                setTimeout(initPlacesAutocomplete, 500); // 等待 API 載入完成
+                return;
+            }
+            const inputTag = document.getElementById('inputTag');
+            if (inputTag) {
+                const autocomplete = new google.maps.places.Autocomplete(inputTag, {
+                    types: ['establishment', 'geocode'], // 允許地標與地址
+                    componentRestrictions: { country: 'tw' } // 限制在台灣
+                });
+                
+                autocomplete.addListener('place_changed', () => {
+                    const place = autocomplete.getPlace();
+                    if (place.name) {
+                        inputTag.value = place.name; // 將輸入框替換為乾淨的地標名稱
+                    }
+                    
+                    // 自動解析地區 (District) 並帶入欄位
+                    if (place.address_components) {
+                        let city = '', district = '';
+                        place.address_components.forEach(comp => {
+                            if (comp.types.includes('administrative_area_level_1') || comp.types.includes('administrative_area_level_2')) city = comp.long_name;
+                            if (comp.types.includes('administrative_area_level_3') || comp.types.includes('locality')) district = comp.long_name;
+                        });
+                        const distInput = document.getElementById('inputDistrict');
+                        if (distInput && (city || district)) {
+                            distInput.value = (city + district).replace('台灣', '');
+                        }
+                    }
+                    
+                    // 將 Google 提供的精準座標存入快取，供充電足跡地圖直接使用
+                    if (place.geometry && place.geometry.location) {
+                        const cache = JSON.parse(localStorage.getItem('ev_life_geocode_cache') || '{}');
+                        cache[place.name] = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
+                        localStorage.setItem('ev_life_geocode_cache', JSON.stringify(cache));
+                    }
+                });
+            }
         }
 
         function loadSettingsFromStorage() {
@@ -1127,8 +1088,6 @@
 
             bindSetting('syncUrl', 'syncUrlInput', "");
             bindSetting('syncToken', 'syncTokenInput', "");
-            bindSetting('tdxClientId', 'tdxClientIdInput', "");
-            bindSetting('tdxClientSecret', 'tdxClientSecretInput', "");
             
             AppState.evName = localStorage.getItem('ev_life_ev_name') || "LUXGEN n7";
             if (DOM.evNameInput) DOM.evNameInput.value = AppState.evName;
@@ -1190,13 +1149,10 @@
             msgEl.innerHTML = message; // 允許 HTML 換行標籤
             iconEl.textContent = isError ? "⚠️" : "🐾";
 
-            // 優化：針對深淺模式重新設計精緻的藥丸狀 (Pill) 通知
-            const colorClasses = isError 
-                ? 'bg-rose-500 text-white shadow-rose-500/40 border-rose-600' 
-                : 'bg-slate-800 dark:bg-slate-700 text-white shadow-slate-900/50 dark:shadow-black/50 border border-slate-700 dark:border-slate-600';
+            const colorClasses = isError ? 'bg-rose-500' : 'bg-slate-900/95 dark:bg-amber-500 dark:text-slate-900';
             
-            // 重置既有 class，重新加入狀態 (拿掉 max-w，強制 w-max 讓文字能一氣呵成不換行)
-            toastEl.className = `fixed top-[70px] left-1/2 -translate-x-1/2 z-[120] transform transition-all duration-300 px-5 py-3 rounded-full flex items-center justify-center gap-2.5 text-[13px] font-bold w-max max-w-[85vw] shadow-2xl ${colorClasses} translate-y-0 opacity-100 visible pointer-events-auto`;
+            // 重置既有 class，重新加入狀態
+            toastEl.className = `fixed top-[70px] left-1/2 -translate-x-1/2 z-[120] transform transition-all duration-300 text-white px-5 py-3 rounded-2xl shadow-lg flex items-start space-x-2 text-xs font-bold border border-white/10 max-w-[90vw] text-left leading-relaxed ${colorClasses} translate-y-0 opacity-100 visible pointer-events-auto`;
             
             setTimeout(() => {
                 toastEl.classList.replace('translate-y-0', '-translate-y-10');
@@ -1229,43 +1185,6 @@
             }
             setupThemeIcons();
             debouncedUpdateCharts();
-        }
-
-        function setupDragScroll() {
-            const containers = [
-                document.getElementById('monthFilterContainer'), 
-                document.getElementById('monthFilterContainer_analysis'), 
-                document.getElementById('badgesContainer')
-            ];
-            
-            containers.forEach(slider => {
-                if(!slider) return;
-                let isDown = false;
-                let startX;
-                let scrollLeft;
-
-                slider.addEventListener('mousedown', (e) => {
-                    isDown = true;
-                    slider.style.cursor = 'grabbing';
-                    startX = e.pageX - slider.offsetLeft;
-                    scrollLeft = slider.scrollLeft;
-                });
-                slider.addEventListener('mouseleave', () => {
-                    isDown = false;
-                    slider.style.cursor = '';
-                });
-                slider.addEventListener('mouseup', () => {
-                    isDown = false;
-                    slider.style.cursor = '';
-                });
-                slider.addEventListener('mousemove', (e) => {
-                    if (!isDown) return;
-                    e.preventDefault();
-                    const x = e.pageX - slider.offsetLeft;
-                    const walk = (x - startX) * 1.5; // 滑動速度倍率
-                    slider.scrollLeft = scrollLeft - walk;
-                });
-            });
         }
 
         window.handleHeroImageUpload = function(event) {
@@ -1483,8 +1402,6 @@
                     if (dist <= SEARCH_RADIUS_KM) {
                         tempNearbyStations.push({
                             name: station.name,
-                            lat: station.lat,
-                            lng: station.lng,
                             distanceKm: dist,
                             distanceM: Math.round(dist * 1000)
                         });
@@ -1529,7 +1446,10 @@
                     openStationModal(tempNearbyStations, tempCurrentDistrict);
                 } else if (tempNearbyStations.length === 1) {
                     const single = tempNearbyStations[0];
-                    pickStationFromMap(single.name, single.lat, single.lng);
+                    if (DOM.inputDistrict) DOM.inputDistrict.value = tempCurrentDistrict;
+                    if (DOM.inputTag) DOM.inputTag.value = single.name;
+                    const locText = tempCurrentDistrict ? `📍 ${tempCurrentDistrict}` : `⚡ 偵測到站點`;
+                    showToast(`${locText}<br>${single.name} (${single.distanceM}m)`, false, 2500);
                 } else {
                     if (tempCurrentDistrict) {
                         if (DOM.inputDistrict) DOM.inputDistrict.value = tempCurrentDistrict;
@@ -1556,24 +1476,21 @@
             }, { timeout: 10000 });
         }
 
-        window.openStationModal = function(stations, district) {
+        function openStationModal(stations, district) {
             const modal = document.getElementById('stationSelectModal');
             const list = document.getElementById('stationOptionsList');
             const badge = document.getElementById('modalDistrictBadge');
             if (!modal || !list) return;
 
-            badge.textContent = district || "搜尋結果";
+            badge.textContent = district || "偵測位置";
             
             list.innerHTML = stations.map((s, idx) => `
-                <button type="button" onclick="pickStationFromMap('${escapeHTML(s.name)}', ${s.lat}, ${s.lng})" class="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 hover:bg-amber-50 dark:hover:bg-amber-900/20 border border-slate-200 dark:border-slate-700 transition active:scale-95 text-left">
-                    <div class="flex-1 overflow-hidden pr-2">
-                        <div class="flex items-center gap-2">
-                            <span class="text-amber-500 font-bold text-xs">⚡</span>
-                            <span class="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">${escapeHTML(s.name)}</span>
-                        </div>
-                        ${s.address ? `<div class="text-[10px] text-slate-400 mt-1 truncate pl-5">${escapeHTML(s.address)}</div>` : ''}
+                <button type="button" onclick="chooseStation('${escapeHTML(s.name)}')" class="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 hover:bg-amber-50 dark:hover:bg-amber-900/20 border border-slate-200 dark:border-slate-700 transition active:scale-95 text-left">
+                    <div class="flex items-center gap-2">
+                        <span class="text-amber-500 font-bold text-xs">⚡</span>
+                        <span class="text-xs font-bold text-slate-700 dark:text-slate-200">${escapeHTML(s.name)}</span>
                     </div>
-                    <span class="text-[10px] font-mono font-bold text-slate-400 bg-white dark:bg-slate-700 px-2 py-0.5 rounded-full border border-slate-100 dark:border-slate-600 flex-shrink-0">${typeof s.distanceM === 'number' ? s.distanceM + 'm' : s.distanceM}</span>
+                    <span class="text-[10px] font-mono font-bold text-slate-400 bg-white dark:bg-slate-700 px-2 py-0.5 rounded-full border border-slate-100 dark:border-slate-600">${s.distanceM}m</span>
                 </button>
             `).join('');
 
@@ -1598,6 +1515,7 @@
             setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
+        // 🌟 更新版的地圖 Modal，支援自訂站點顯示與 Geocoding 轉換
         window.openMapModal = function() {
             const modal = document.getElementById('mapModal');
             modal.classList.remove('hidden');
@@ -1640,16 +1558,20 @@
                 }
                 window.evMarkers = [];
 
-                // 取得紀錄中所有的 Tag
-                const visitedTags = new Set(AppState.records.map(r => r.tag).filter(t=>t));
-                
-                // 只過濾出「有造訪過」的站點並標記在圖上
-                CHARGE_STATIONS.forEach(st => {
-                    if (!visitedTags.has(st.name)) return; // 沒去過就不顯示
-                    
-                    const markerColor = '#f59e0b'; // 琥珀色
-                    
-                    // 自訂水滴型 SVG 地標
+                // 取得紀錄中所有的站點與其地區
+                const visitedStations = new Map();
+                AppState.records.forEach(r => {
+                    if (r.tag && !visitedStations.has(r.tag)) {
+                        visitedStations.set(r.tag, r.district || '');
+                    }
+                });
+
+                const geocoder = new google.maps.Geocoder();
+                const geocodeCache = JSON.parse(localStorage.getItem('ev_life_geocode_cache') || '{}');
+
+                // 放置標記的封裝函數
+                const placeMarker = (name, lat, lng, isCustom = false) => {
+                    const markerColor = isCustom ? '#10b981' : '#f59e0b'; // 內建為橘色，自訂站點為綠色
                     const svgMarker = {
                         path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
                         fillColor: markerColor,
@@ -1662,14 +1584,14 @@
                     };
 
                     const marker = new google.maps.Marker({
-                        position: { lat: st.lat, lng: st.lng },
+                        position: { lat, lng },
                         map: window.evMap,
                         icon: svgMarker,
-                        title: st.name
+                        title: name
                     });
 
                     const infoWindow = new google.maps.InfoWindow({
-                        content: `<div style="color:#1e293b;font-weight:900;font-size:12px;padding:2px;">${st.name}<br><span style="color:#f59e0b;font-size:10px;">✅ 曾在此紀錄</span></div>`
+                        content: `<div style="color:#1e293b;font-weight:900;font-size:12px;padding:2px;">${name}<br><span style="color:${markerColor};font-size:10px;">✅ 曾在此紀錄${isCustom ? '(自訂擴充)' : ''}</span></div>`
                     });
 
                     marker.addListener('click', () => {
@@ -1677,7 +1599,39 @@
                     });
 
                     window.evMarkers.push(marker);
+                };
+
+                // 遍歷所有造訪過的站點，決定如何獲取經緯度
+                visitedStations.forEach((district, tag) => {
+                    // 1. 優先檢查是否在您預設的 CHARGE_STATIONS 中
+                    const builtin = CHARGE_STATIONS.find(s => s.name === tag);
+                    if (builtin) {
+                        placeMarker(builtin.name, builtin.lat, builtin.lng, false);
+                        return;
+                    }
+
+                    // 2. 檢查是否在之前的自動建議或解析中快取過經緯度
+                    if (geocodeCache[tag]) {
+                        placeMarker(tag, geocodeCache[tag].lat, geocodeCache[tag].lng, true);
+                        return;
+                    }
+
+                    // 3. 若為未知且手動輸入的站點，即時呼叫 API 轉換成經緯度
+                    const searchQuery = `${district} ${tag}`.trim();
+                    geocoder.geocode({ address: searchQuery, region: 'tw' }, (results, status) => {
+                        if (status === 'OK' && results[0]) {
+                            const lat = results[0].geometry.location.lat();
+                            const lng = results[0].geometry.location.lng();
+                            
+                            // 寫入快取，避免每次開地圖都耗費 API 額度
+                            geocodeCache[tag] = { lat, lng };
+                            localStorage.setItem('ev_life_geocode_cache', JSON.stringify(geocodeCache));
+                            
+                            placeMarker(tag, lat, lng, true);
+                        }
+                    });
                 });
+
             }, 100);
         }
 
@@ -1686,272 +1640,6 @@
             modal.classList.add('opacity-0');
             modal.firstElementChild.classList.add('scale-95');
             setTimeout(() => modal.classList.add('hidden'), 300);
-        }
-
-        window.openPickerMapModal = function() {
-            const modal = document.getElementById('pickerMapModal');
-            modal.classList.remove('hidden');
-            
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                modal.firstElementChild.classList.remove('scale-95');
-                
-                if (typeof google === 'undefined' || !google.maps) {
-                    showToast("未載入 Google Maps，請確認連線", true);
-                    return;
-                }
-
-                if (!window.pickerMap) {
-                    window.pickerMap = new google.maps.Map(document.getElementById('pickerMapContainer'), {
-                        center: { lat: 23.9738, lng: 120.9820 },
-                        zoom: 7.5,
-                        mapTypeControl: false,
-                        streetViewControl: false,
-                        fullscreenControl: false,
-                        styles: document.documentElement.classList.contains('dark') ? [
-                            { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
-                            { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
-                            { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
-                            { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
-                            { featureType: "road", elementType: "geometry", stylers: [{ color: "#38414e" }] },
-                            { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#212a37" }] },
-                            { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#9ca5b3" }] },
-                            { featureType: "water", elementType: "geometry", stylers: [{ color: "#17263c" }] },
-                            { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#515c6d" }] },
-                            { featureType: "water", elementType: "labels.text.stroke", stylers: [{ color: "#17263c" }] }
-                        ] : []
-                    });
-
-                    window.pickerMarkers = [];
-                    CHARGE_STATIONS.forEach(st => {
-                        const marker = new google.maps.Marker({
-                            position: { lat: st.lat, lng: st.lng },
-                            map: window.pickerMap,
-                            title: st.name
-                        });
-
-                        marker.addListener('click', () => {
-                            if(window.pickerInfoWindow) window.pickerInfoWindow.close();
-                            window.pickerInfoWindow = new google.maps.InfoWindow({
-                                content: `
-                                    <div style="padding: 4px; min-width: 140px;">
-                                        <div style="color:#1e293b;font-weight:900;font-size:13px;margin-bottom:8px;">${st.name}</div>
-                                        <button onclick="pickStationFromMap('${escapeHTML(st.name)}', ${st.lat}, ${st.lng})" style="background:#0d9488;color:white;width:100%;border-radius:6px;padding:6px;font-size:11px;font-weight:bold;border:none;cursor:pointer;">✅ 帶入此站點</button>
-                                    </div>
-                                `
-                            });
-                            window.pickerInfoWindow.open(window.pickerMap, marker);
-                        });
-                        window.pickerMarkers.push(marker);
-                    });
-                } else {
-                    google.maps.event.trigger(window.pickerMap, 'resize');
-                }
-            }, 100);
-        }
-
-        window.closePickerMapModal = function() {
-            const modal = document.getElementById('pickerMapModal');
-            modal.classList.add('opacity-0');
-            modal.firstElementChild.classList.add('scale-95');
-            setTimeout(() => modal.classList.add('hidden'), 300);
-        }
-
-        // 將抓取地區與氣溫的邏輯獨立出來，讓自訂站點也能共用
-        async function fetchWeatherAndDistrict(lat, lng) {
-            try {
-                // 嘗試反向地理編碼取得行政區
-                const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=14&addressdetails=1&accept-language=zh-TW`, { headers: { 'User-Agent': 'EvLifePWA/2.0' }});
-                const geoData = await geoRes.json();
-                let district = "";
-                if (geoData && geoData.address) {
-                    const ad = geoData.address;
-                    let city = ad.city || ad.county || ad.state || "";
-                    const exactDist = Object.values(ad).find(v => typeof v === 'string' && (v.endsWith('區') || v.endsWith('鄉') || v.endsWith('鎮')));
-                    if (exactDist) district = exactDist;
-                    else {
-                        district = ad.town || ad.city_district || ad.suburb || ad.district || "";
-                        if (district.endsWith('里') || district.endsWith('村') || district.endsWith('鄰')) district = "";
-                    }
-                    if (district && !district.startsWith(city)) district = `${city}${district}`.trim();
-                    else if (!district) district = city;
-                }
-                if(district && DOM.inputDistrict) DOM.inputDistrict.value = district;
-
-                // 嘗試取得氣溫
-                const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`);
-                const wData = await wRes.json();
-                if(wData && wData.current_weather && document.getElementById('inputTemperature')) {
-                    document.getElementById('inputTemperature').value = wData.current_weather.temperature;
-                }
-                
-                showToast(`📍 地區與氣溫已帶入完成！`, false, 2000);
-            } catch(e) {
-                console.log("天氣或地區獲取失敗", e);
-            }
-        }
-
-        window.pickStationFromMap = async function(name, lat, lng) {
-            if(DOM.inputTag) DOM.inputTag.value = name;
-            closePickerMapModal();
-            closeStationModal();
-
-            // 如果是「自訂站點」(lat 與 lng 為 null)
-            if (lat === null || lng === null) {
-                showToast(`已建立站點：${name}。<br>嘗試使用您目前位置獲取天氣...`, false, 3000);
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition((pos) => {
-                        fetchWeatherAndDistrict(pos.coords.latitude, pos.coords.longitude);
-                    }, () => {
-                        showToast(`📍 已填寫自訂站名 (未開啟定位，略過天氣)`, false, 2500);
-                    });
-                }
-                return;
-            }
-
-            showToast(`已選擇：${name}<br>正在獲取地區與天氣...`, false, 2000);
-            fetchWeatherAndDistrict(lat, lng);
-        }
-
-        let tdxAccessToken = null;
-        let tdxTokenExpiry = 0;
-
-// 修改後：優先走 GAS 代理取得 Token，繞過瀏覽器 CORS
-async function getTdxToken() {
-    if (tdxAccessToken && Date.now() < tdxTokenExpiry) return tdxAccessToken;
-
-    // 1. 優先透過 GAS 代理請求 (解決 CORS)
-    if (AppState.syncUrl) {
-        try {
-            const res = await fetch(AppState.syncUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({
-                    action: 'get_tdx_token',
-                    client_id: AppState.tdxClientId || '',
-                    client_secret: AppState.tdxClientSecret || ''
-                })
-            });
-            const data = await res.json();
-            if (data && data.access_token) {
-                tdxAccessToken = data.access_token;
-                tdxTokenExpiry = Date.now() + ((data.expires_in || 86400) - 60) * 1000;
-                return tdxAccessToken;
-            }
-        } catch (err) {
-            console.warn("GAS TDX 代理失敗，嘗試前端直連...", err);
-        }
-    }
-
-    // 2. 後備方案：未設定 GAS 或代理失敗時，若使用者有設定金鑰則直連
-    if (AppState.tdxClientId && AppState.tdxClientSecret) {
-        try {
-            const params = new URLSearchParams();
-            params.append('grant_type', 'client_credentials');
-            params.append('client_id', AppState.tdxClientId);
-            params.append('client_secret', AppState.tdxClientSecret);
-
-            const res = await fetch('https://tdx.transportdata.tw/auth/realms/TDXConnect/protocol/openid-connect/token', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: params
-            });
-            const data = await res.json();
-            if (data && data.access_token) {
-                tdxAccessToken = data.access_token;
-                tdxTokenExpiry = Date.now() + (data.expires_in - 60) * 1000;
-                return tdxAccessToken;
-            }
-        } catch (e) {
-            console.error("TDX 直連錯誤:", e);
-        }
-    }
-
-    return null;
-}
-        window.searchStationByText = async function() {
-            const query = DOM.inputTag ? DOM.inputTag.value.trim() : '';
-            if (!query) {
-                showToast("請在欄位中輸入站點名稱，例如：U-POWER", true);
-                return;
-            }
-
-            showToast("🔍 搜尋充電站中...", false, 1500);
-            let finalStations = [];
-
-            try {
-                // 第一步：優先使用 TDX API (如果有設定金鑰)
-                const token = await getTdxToken();
-                if (token) {
-                    const tdxRes = await fetch(`https://tdx.transportdata.tw/api/basic/v1/Parking/ChargingStation?$filter=contains(StationName/Zh_tw,'${encodeURIComponent(query)}')&$format=JSON`, {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    const tdxData = await tdxRes.json();
-                    
-                    // TDX 的回傳格式處理
-                    const stationsArr = Array.isArray(tdxData) ? tdxData : (tdxData.ChargingStations || []);
-                    
-                    if (stationsArr && stationsArr.length > 0) {
-                        finalStations = stationsArr.map(s => ({
-                            name: s.StationName.Zh_tw,
-                            lat: s.StationPosition.PositionLat,
-                            lng: s.StationPosition.PositionLon,
-                            address: s.Location || s.StationAddress || '台灣',
-                            distanceM: 'TDX官方'
-                        }));
-                    }
-                }
-
-                // 第二步：如果 TDX 沒搜到，或根本沒有設定金鑰，退回備用的 OSM 搜尋
-                if (finalStations.length === 0) {
-                    let res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query + ' 充電站')}&format=json&limit=8&countrycodes=tw`, {
-                        headers: { 'User-Agent': 'EvLifePWA/2.0' }
-                    });
-                    let data = await res.json();
-                    
-                    if (data.length === 0) {
-                        res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=8&countrycodes=tw`, {
-                            headers: { 'User-Agent': 'EvLifePWA/2.0' }
-                        });
-                        data = await res.json();
-                    }
-
-                    if (data && data.length > 0) {
-                        finalStations = data.map(r => ({
-                            name: r.name || r.display_name.split(',')[0],
-                            lat: parseFloat(r.lat),
-                            lng: parseFloat(r.lon),
-                            address: r.display_name.replace(/台灣, /g, ''),
-                            distanceM: '地圖地標'
-                        }));
-                    }
-                }
-
-                // 永遠在最下方補上「完全自訂」的選項 (避免任何 API 都找不到你要的)
-                finalStations.push({
-                    name: query,
-                    lat: null,
-                    lng: null,
-                    address: '如果清單沒有您要找的站點，點此直接新增。系統將自動使用您目前的位置為該站點抓取天氣',
-                    distanceM: '強制新增'
-                });
-
-                if (finalStations.length > 1) { 
-                    openStationModal(finalStations, finalStations[0].distanceM === 'TDX官方' ? "⚡ 交通部 TDX 充電站庫" : "🔍 搜尋結果");
-                }
-
-            } catch (e) {
-                showToast("搜尋失敗，請檢查網路連線", true);
-                console.error("Search Error:", e);
-                // 失敗時也要能強制自訂新增
-                openStationModal([{
-                    name: query,
-                    lat: null,
-                    lng: null,
-                    address: '連線發生錯誤，點此強制以目前位置新增此站點',
-                    distanceM: '強制新增'
-                }], "⚠️ 搜尋失敗");
-            }
         }
 
         window.saveQuickLog = function() {
@@ -2236,9 +1924,8 @@ async function getTdxToken() {
                 fuelSavings = Math.max(0, hypotheticalGasCost - totalEnergyCost);
                 co2Savings = globalKm * CONSTANTS.CO2_SAVED_PER_KM;
 
-                // ★ 修正此處樣式，提升「省錢大師」按鈕在淺色模式下的可讀性
                 if (co2Savings > 500) badgesHtml += `<div onclick="showBadgeInfo('eco', ${co2Savings.toFixed(1)})" class="${baseClass} bg-green-100 border-green-200 text-green-700 dark:bg-green-900/40 dark:border-green-800 dark:text-green-400">🌍 環保先鋒</div>`;
-                if (fuelSavings > 5000) badgesHtml += `<div onclick="showBadgeInfo('money', ${Math.round(fuelSavings)})" class="${baseClass} bg-amber-100 border-amber-300 text-amber-800 dark:bg-amber-900/40 dark:border-amber-700 dark:text-amber-400">💰 省錢大師</div>`;
+                if (fuelSavings > 5000) badgesHtml += `<div onclick="showBadgeInfo('money', ${Math.round(fuelSavings)})" class="${baseClass} bg-amber-100 border-amber-200 text-amber-700 dark:bg-amber-900/40 dark:border-amber-800 dark:text-amber-400">💰 省錢大師</div>`;
                 if (maxDist >= 200) badgesHtml += `<div onclick="showBadgeInfo('range', ${maxDist})" class="${baseClass} bg-indigo-100 border-indigo-200 text-indigo-700 dark:bg-indigo-900/40 dark:border-indigo-800 dark:text-indigo-400">🚀 高速巡航者</div>`;
                 if (maxEff >= 6.5) badgesHtml += `<div onclick="showBadgeInfo('foot', ${maxEff.toFixed(2)})" class="${baseClass} bg-rose-100 border-rose-200 text-rose-700 dark:bg-rose-900/40 dark:border-rose-800 dark:text-rose-400">👑 黃金右腳</div>`;
                 
@@ -2271,7 +1958,6 @@ async function getTdxToken() {
             const displayRecords = [...filteredRecords].reverse();
             
             // 計算黃金右腳 (Eco Score)
-            // 公式：以 5.0 km/度為 60 分，每提升 0.1 增加 2.4 分，滿分 100
             const scoredRecords = displayRecords.filter(r => !['維修保養', '停車費', '通行費', '保險費'].includes(r.chargeType) && r.distance > 5)
                 .map(r => {
                     const power = AppState.batteryCapacity * ((r.consumedSocPercent || 0) / 100);
@@ -2654,9 +2340,9 @@ async function getTdxToken() {
                                     }
                                 }
                             }
-                        }, 
-                        scales: scalesConfig 
-                    }
+                        }
+                    }, 
+                    scales: scalesConfig 
                 });
             }
 
@@ -2982,8 +2668,6 @@ async function getTdxToken() {
             
             AppState.syncUrl = DOM.syncUrlInput?.value.trim() || ""; localStorage.setItem('ev_life_sync_url', AppState.syncUrl);
             AppState.syncToken = DOM.syncTokenInput?.value.trim() || ""; localStorage.setItem('ev_life_sync_token', AppState.syncToken);
-            AppState.tdxClientId = DOM.tdxClientIdInput?.value.trim() || ""; localStorage.setItem('ev_life_tdx_client_id', AppState.tdxClientId);
-            AppState.tdxClientSecret = DOM.tdxClientSecretInput?.value.trim() || ""; localStorage.setItem('ev_life_tdx_client_secret', AppState.tdxClientSecret);
 
             updateSyncUiStatus(); switchTab('home'); renderDashboard(); 
             if (AppState.syncUrl) { syncWithCloud('upload', false); } else { showToast("設定已儲存 💾"); }
@@ -3073,8 +2757,6 @@ async function getTdxToken() {
                     let msg = error.message || "同步失敗，請檢查網路或設定";
                     if (msg === "Failed to fetch" || msg.includes("NetworkError")) {
                         msg = "連線失敗！請確認 GAS 已發佈為「所有人」，且 URL 結尾為 /exec";
-                    } else if (msg.includes("Unexpected token") || msg.includes("is not valid JSON") || msg.includes("JSON.parse") || msg.includes("<")) {
-                        msg = "雲端同步失敗：網址回傳了網頁而非資料。<br>請確認 GAS 權限設為「所有人」，且網址結尾為 /exec";
                     }
                     showToast(msg, true); 
                 } 
@@ -3163,277 +2845,6 @@ self.addEventListener('fetch', event => {
             if(dH) dH.innerHTML = window.location.protocol === 'file:' ? '🔴 本機檔案不允許' : (isHttps ? '🟢 安全連線' : '🔴 非安全連線');
             if(dS) { if ('serviceWorker' in navigator) { navigator.serviceWorker.getRegistration().then(r => { dS.innerHTML = (r && r.active) ? '🟢 引擎運行中' : '🟡 未安裝'; }).catch(() => dS.innerHTML = '⚪ 引擎未就緒'); } else dS.innerHTML = '🔴 不支援'; }
             if(dN) dN.innerHTML = navigator.onLine ? '🟢 網路正常' : '🔴 離線模式';
-        }
-
-        let currentSearchRadiusKm = 3;
-        window.lastKnownLat = null;
-        window.lastKnownLng = null;
-
-        window.updateSearchRadius = function(val) {
-            document.getElementById('searchRadiusText').textContent = val;
-            currentSearchRadiusKm = parseInt(val, 10);
-            if (window.lastKnownLat && window.lastKnownLng) {
-                fetchNearbyRealtimeStations(window.lastKnownLat, window.lastKnownLng, currentSearchRadiusKm);
-            }
-        }
-
-        window.openRealtimeStationModal = function() {
-            if (!AppState.tdxClientId || !AppState.tdxClientSecret) {
-                showConfirmModal("需要 TDX API 授權", "此功能需串接交通部免費的 TDX API 才能取得即時狀態。是否前往設定頁面填寫您的 API 金鑰？", () => {
-                    switchTab('settings');
-                });
-                return;
-            }
-
-            const modal = document.getElementById('realTimeModal');
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                modal.firstElementChild.classList.remove('scale-95');
-            }, 10);
-
-            const listContainer = document.getElementById('realTimeListContainer');
-            listContainer.innerHTML = '<div class="text-center text-amber-500 text-xs font-bold py-16 flex flex-col items-center gap-3"><span class="text-4xl animate-spin origin-center">⏳</span><span>正在定位並連線交通部伺服器...</span></div>';
-
-            if (!navigator.geolocation) {
-                listContainer.innerHTML = '<div class="text-center text-rose-500 text-xs font-bold py-10">您的瀏覽器不支援定位功能</div>';
-                return;
-            }
-
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    window.lastKnownLat = pos.coords.latitude;
-                    window.lastKnownLng = pos.coords.longitude;
-                    fetchNearbyRealtimeStations(pos.coords.latitude, pos.coords.longitude, currentSearchRadiusKm);
-                },
-                (err) => {
-                    listContainer.innerHTML = '<div class="text-center text-rose-500 text-xs font-bold py-10">定位失敗，請確認已開啟瀏覽器/系統的位置權限。</div>';
-                },
-                { timeout: 10000, maximumAge: 60000 }
-            );
-        }
-
-        window.closeRealtimeStationModal = function() {
-            const modal = document.getElementById('realTimeModal');
-            if(!modal) return;
-            modal.classList.add('opacity-0');
-            modal.firstElementChild.classList.add('scale-95');
-            setTimeout(() => modal.classList.add('hidden'), 300);
-        }
-
-        // 新增：處理目的地即時搜尋的邏輯 (優化雙重搜尋引擎)
-        window.searchRealtimeDestination = async function() {
-            const query = document.getElementById('realtimeSearchInput').value.trim();
-            if (!query) {
-                showToast("請輸入要查詢的目的地", true);
-                return;
-            }
-
-            const listContainer = document.getElementById('realTimeListContainer');
-            listContainer.innerHTML = '<div class="text-center text-amber-500 text-xs font-bold py-16 flex flex-col items-center gap-3"><span class="text-4xl animate-spin origin-center">🌍</span><span>正在搜尋目的地位置...</span></div>';
-
-            try {
-                // 使用免費的 OSM 取得目的地的經緯度
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1&countrycodes=tw`, {
-                    headers: { 'User-Agent': 'EvLifePWA/2.0' }
-                });
-                const data = await res.json();
-
-                if (data && data.length > 0) {
-                    const targetLat = parseFloat(data[0].lat);
-                    const targetLng = parseFloat(data[0].lon);
-                    const displayName = data[0].name || data[0].display_name.split(',')[0];
-                    
-                    // 更新全域變數，這樣拉動滑桿時才知道要在哪裡重新搜尋
-                    window.lastKnownLat = targetLat;
-                    window.lastKnownLng = targetLng;
-                    
-                    showToast(`已定位至：${displayName} 📍`, false, 2000);
-                    
-                    // 呼叫 TDX 查詢目標座標周圍的站點 (將 query 傳入作為備用文字搜尋)
-                    fetchNearbyRealtimeStations(targetLat, targetLng, currentSearchRadiusKm, query);
-                } else {
-                    // 如果地圖 API 找不到這個地點，直接啟動備用計畫：純文字 TDX 搜尋
-                    showToast(`地圖上查無座標，改由 TDX 資料庫直接搜尋...`, false, 3000);
-                    fetchNearbyRealtimeStations(null, null, currentSearchRadiusKm, query);
-                }
-            } catch (err) {
-                console.error("Geocoding Error:", err);
-                listContainer.innerHTML = '<div class="text-center text-rose-500 text-xs font-bold py-16 flex flex-col items-center gap-2"><span class="text-4xl mb-2">⚠️</span>搜尋失敗，請檢查網路連線。</div>';
-            }
-        };
-
-        async function fetchNearbyRealtimeStations(lat, lng, radiusKm, fallbackQuery = "") {
-            const listContainer = document.getElementById('realTimeListContainer');
-            listContainer.innerHTML = '<div class="text-center text-amber-500 text-xs font-bold py-16 flex flex-col items-center gap-3"><span class="text-4xl animate-spin origin-center">⏳</span><span>正在抓取最新充電樁空位資料...</span></div>';
-
-            try {
-                const token = await getTdxToken();
-                if (!token) throw new Error("TDX 授權失敗");
-
-                let staticList = [];
-
-                // 1. 優先使用「空間雷達」過濾 (修正經緯度精確度以防 API 報錯)
-                if (lat !== null && lng !== null) {
-                    const radiusMeters = Math.round(radiusKm * 1000);
-                    const safeLat = lat.toFixed(6);
-                    const safeLng = lng.toFixed(6);
-                    const staticRes = await fetch(`https://tdx.transportdata.tw/api/basic/v1/Parking/ChargingStation?$spatialFilter=nearby(${safeLat},${safeLng},${radiusMeters})&$format=JSON`, {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    const staticData = await staticRes.json();
-                    staticList = Array.isArray(staticData) ? staticData : (staticData.ChargingStations || []);
-                }
-
-                // 2. 🌟 智慧備用機制：如果雷達找不到，或者根本沒座標，就用「文字」直接去 TDX 找！
-                if (staticList.length === 0 && fallbackQuery) {
-                    const keyword = encodeURIComponent(fallbackQuery);
-                    const fallbackRes = await fetch(`https://tdx.transportdata.tw/api/basic/v1/Parking/ChargingStation?$filter=contains(StationName/Zh_tw,'${keyword}') or contains(Location,'${keyword}')&$format=JSON`, {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    const fallbackData = await fallbackRes.json();
-                    const fallbackList = Array.isArray(fallbackData) ? fallbackData : (fallbackData.ChargingStations || []);
-
-                    if (fallbackList.length > 0) {
-                        staticList = fallbackList;
-                        // 既然找到了，把雷達中心點「重新對準」這個真實站點的座標
-                        lat = staticList[0].StationPosition.PositionLat;
-                        lng = staticList[0].StationPosition.PositionLon;
-                        window.lastKnownLat = lat;
-                        window.lastKnownLng = lng;
-                        // 順便把雷達範圍縮小，因為我們已經鎖定目標了
-                        radiusKm = Math.max(radiusKm, 5); 
-                    }
-                }
-
-                // 如果雙重搜尋都失敗，回報找不到
-                if (staticList.length === 0) {
-                    let msg = lat !== null ? `方圓 ${radiusKm} 公里內沒有找到充電站，試著把上方的滑桿拉大範圍吧！` : `在 TDX 資料庫中找不到包含「${escapeHTML(fallbackQuery)}」的站點。`;
-                    listContainer.innerHTML = `<div class="text-center text-slate-400 text-xs font-bold py-16 flex flex-col items-center gap-2"><span class="text-4xl">🏜️</span>${msg}</div>`;
-                    return;
-                }
-
-                // 3. 抓取動態空位資料 (使用確保有站點的座標去抓)
-                const finalRadiusMeters = Math.round(radiusKm * 1000);
-                const finalSafeLat = lat.toFixed(6);
-                const finalSafeLng = lng.toFixed(6);
-                const dynamicRes = await fetch(`https://tdx.transportdata.tw/api/basic/v1/Parking/ChargingStation/Availability?$spatialFilter=nearby(${finalSafeLat},${finalSafeLng},${finalRadiusMeters})&$format=JSON`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const dynamicData = await dynamicRes.json();
-                const dynamicList = Array.isArray(dynamicData) ? dynamicData : (dynamicData.ChargingStationAvailabilities || []);
-
-                const availabilityMap = {};
-                dynamicList.forEach(item => {
-                    availabilityMap[item.StationID] = item;
-                });
-
-                // 4. 合併與整理資料
-                let mergedStations = staticList.map(station => {
-                    const distKm = getDistanceFromLatLonInKm(lat, lng, station.StationPosition.PositionLat, station.StationPosition.PositionLon);
-                    const dyn = availabilityMap[station.StationID] || {};
-                    
-                    let statusStr = "狀態未知";
-                    let statusColor = "text-slate-500 bg-slate-100 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700";
-                    
-                    if (dyn.ServiceStatus === 1) {
-                        statusStr = "🟢 營業中"; statusColor = "text-emerald-700 bg-emerald-100 dark:bg-emerald-900/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50";
-                    } else if (dyn.ServiceStatus === 2) {
-                        statusStr = "🔴 休息中"; statusColor = "text-rose-700 bg-rose-100 dark:bg-rose-900/40 dark:text-rose-400 border border-rose-200 dark:border-rose-800/50";
-                    }
-
-                    let dcTotal = 0, dcAvail = 0;
-                    let acTotal = 0, acAvail = 0;
-
-                    const availArray = dyn.ChargeAvailabilities || [];
-                    availArray.forEach(ca => {
-                        if (ca.ChargeType === 2) {
-                            dcTotal += (ca.TotalSpots || 0);
-                            dcAvail += (ca.AvailableSpots || 0);
-                        } else if (ca.ChargeType === 1) {
-                            acTotal += (ca.TotalSpots || 0);
-                            acAvail += (ca.AvailableSpots || 0);
-                        }
-                    });
-
-                    if (availArray.length === 0 && station.Spots) {
-                        station.Spots.forEach(s => {
-                            if (s.ChargeType === 2) dcTotal++;
-                            else if (s.ChargeType === 1) acTotal++;
-                        });
-                    }
-
-                    return {
-                        id: station.StationID,
-                        name: station.StationName.Zh_tw,
-                        address: station.Location || station.StationAddress || "無提供地址",
-                        distKm: distKm,
-                        statusStr, statusColor,
-                        dcTotal, dcAvail,
-                        acTotal, acAvail
-                    };
-                });
-
-                mergedStations.sort((a, b) => a.distKm - b.distKm);
-
-                // 5. 渲染到畫面上
-                listContainer.innerHTML = mergedStations.map(s => {
-                    let dcHtml = '';
-                    if (s.dcTotal > 0) {
-                        const isDcFull = s.dcAvail === 0 && s.statusStr.includes("營業");
-                        dcHtml = `
-                            <div class="flex-1 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/50 py-2.5 px-2 rounded-xl text-center shadow-sm">
-                                <div class="text-[10px] font-black text-amber-600 dark:text-amber-500 mb-0.5 flex items-center justify-center gap-1"><span class="text-[12px]">⚡</span>DC 快充</div>
-                                <div class="font-mono text-base font-black ${isDcFull ? 'text-rose-500 dark:text-rose-400' : 'text-slate-800 dark:text-white'}">
-                                    ${s.dcAvail} <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold">/ ${s.dcTotal}</span>
-                                </div>
-                            </div>
-                        `;
-                    }
-
-                    let acHtml = '';
-                    if (s.acTotal > 0) {
-                        const isAcFull = s.acAvail === 0 && s.statusStr.includes("營業");
-                        acHtml = `
-                            <div class="flex-1 bg-teal-50 dark:bg-teal-900/10 border border-teal-100 dark:border-teal-800/50 py-2.5 px-2 rounded-xl text-center shadow-sm">
-                                <div class="text-[10px] font-black text-teal-600 dark:text-teal-500 mb-0.5 flex items-center justify-center gap-1"><span class="text-[12px]">🔌</span>AC 慢充</div>
-                                <div class="font-mono text-base font-black ${isAcFull ? 'text-rose-500 dark:text-rose-400' : 'text-slate-800 dark:text-white'}">
-                                    ${s.acAvail} <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold">/ ${s.acTotal}</span>
-                                </div>
-                            </div>
-                        `;
-                    }
-
-                    if (s.dcTotal === 0 && s.acTotal === 0) {
-                        dcHtml = `<div class="text-[10px] text-slate-400 py-3 w-full text-center bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">查無此站充電槍數量與狀態資料</div>`;
-                    }
-
-                    return `
-                    <div class="bg-white dark:bg-[#0f172a] p-4 rounded-[1.5rem] border border-slate-100 dark:border-slate-800 shadow-sm relative transition active:scale-[0.98]">
-                        <div class="flex justify-between items-start mb-3">
-                            <div class="pr-2">
-                                <div class="text-sm font-black text-slate-800 dark:text-white mb-1 leading-tight">${escapeHTML(s.name)}</div>
-                                <div class="text-[10px] text-slate-400 flex items-start gap-1 font-bold">
-                                    <span class="mt-[1px]">📍</span> <span class="leading-relaxed">${escapeHTML(s.address)}</span>
-                                </div>
-                            </div>
-                            <div class="flex flex-col items-end gap-1.5 flex-shrink-0">
-                                <span class="text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm ${s.statusColor}">${s.statusStr}</span>
-                                <span class="text-[11px] font-mono text-slate-500 font-bold bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm">離你 ${(s.distKm < 1 ? Math.round(s.distKm*1000) + 'm' : s.distKm.toFixed(1) + 'km')}</span>
-                            </div>
-                        </div>
-                        <div class="flex gap-3 mt-3 pt-3 border-t border-slate-50 dark:border-slate-800/80">
-                            ${dcHtml}
-                            ${acHtml}
-                        </div>
-                    </div>
-                    `;
-                }).join('');
-
-            } catch (e) {
-                console.error(e);
-                listContainer.innerHTML = '<div class="text-center text-rose-500 text-xs font-bold py-16 flex flex-col items-center gap-2"><span class="text-4xl mb-2">⚠️</span>連線發生錯誤<br>請確認 TDX API 金鑰是否正確，或稍後再試。</div>';
-            }
         }
     </script>
 </body>
