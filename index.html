@@ -74,7 +74,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4VD2QwmyRkM8gwApiDIMUXKBKRAaoXW0&libraries=places" defer></script>
+    <!-- 🔑 請在此處填入您申請到的 Google API 金鑰 -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places" defer></script>
 
     <script>
         (function() {
@@ -929,7 +930,6 @@
             get CO2_SAVED_PER_KM() { return this.CO2_ICE_PER_KM - this.CO2_EV_PER_KM; }
         };
 
-        // 明確綁定至全域 window，供外部 achievements.js 調用
         window.AppState = AppState;
         window.CONSTANTS = CONSTANTS;
 
@@ -1370,15 +1370,17 @@
         let tempNearbyStations = [];
         let tempCurrentDistrict = "";
 
-        // 🌟 改用 OpenStreetMap (Overpass API) 動態抓取全台半徑 3km 內的充電站
+        // 🌟 使用 Google Places API 搜尋附近 3 公里充電站，抓取最完整商業站名
         window.autoLocateAndWeather = function() {
-            if (!navigator.geolocation) { showToast("瀏覽器不支援定位功能", true); return; }
+            if (!navigator.geolocation) { 
+                showToast("瀏覽器不支援定位功能", true); 
+                return; 
+            }
             showToast("📍 定位與搜尋附近充電站中...", false, 2000);
             
             navigator.geolocation.getCurrentPosition(async (position) => {
                 const lat = position.coords.latitude;
                 const lng = position.coords.longitude;
-                const SEARCH_RADIUS_METERS = 3000;
                 tempNearbyStations = [];
                 tempCurrentDistrict = "";
 
@@ -1405,34 +1407,36 @@
                         }
                     }).catch(e => console.warn("氣溫獲取失敗", e));
 
-                // 2. 透過 Overpass API 即時查詢半徑內所有充電站
-                const overpassQuery = `
-                    [out:json][timeout:10];
-                    (
-                      node["amenity"="charging_station"](around:${SEARCH_RADIUS_METERS},${lat},${lng});
-                      way["amenity"="charging_station"](around:${SEARCH_RADIUS_METERS},${lat},${lng});
-                    );
-                    out center;
-                `;
+                // 2. 呼叫 Google Places API 搜尋半徑 3000 公尺內的充電站
+                const fetchGoogleStations = new Promise((resolve) => {
+                    if (!window.google || !google.maps || !google.maps.places) {
+                        console.warn("Google Places API 尚未載入完成");
+                        resolve();
+                        return;
+                    }
 
-                const fetchStations = fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`)
-                    .then(r => r.json())
-                    .then(osmData => {
-                        if (osmData && osmData.elements) {
-                            osmData.elements.forEach(el => {
-                                const tags = el.tags || {};
-                                const stationName = tags.name || tags.operator || tags.brand || "公共充電站";
-                                const sLat = el.lat || (el.center && el.center.lat);
-                                const sLng = el.lon || (el.center && el.center.lon);
+                    const dummyNode = document.createElement('div');
+                    const placesService = new google.maps.places.PlacesService(dummyNode);
+                    const userLocation = new google.maps.LatLng(lat, lng);
 
-                                if (sLat && sLng) {
-                                    const dist = getDistanceFromLatLonInKm(lat, lng, sLat, sLng);
-                                    tempNearbyStations.push({
-                                        name: stationName,
-                                        distanceKm: dist,
-                                        distanceM: Math.round(dist * 1000)
-                                    });
-                                }
+                    const request = {
+                        location: userLocation,
+                        radius: 3000,
+                        type: ['charging_station']
+                    };
+
+                    placesService.nearbySearch(request, (results, status) => {
+                        if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+                            results.forEach(place => {
+                                const pLat = place.geometry.location.lat();
+                                const pLng = place.geometry.location.lng();
+                                const dist = getDistanceFromLatLonInKm(lat, lng, pLat, pLng);
+
+                                tempNearbyStations.push({
+                                    name: place.name, // Google 完整官方名稱
+                                    distanceKm: dist,
+                                    distanceM: Math.round(dist * 1000)
+                                });
                             });
 
                             tempNearbyStations.sort((a, b) => a.distanceKm - b.distanceKm);
@@ -1443,11 +1447,13 @@
                                 return true;
                             });
                         }
-                    }).catch(e => console.error("Overpass API 查詢失敗", e));
+                        resolve();
+                    });
+                });
 
-                await Promise.allSettled([fetchDistrict, fetchWeather, fetchStations]);
+                await Promise.allSettled([fetchDistrict, fetchWeather, fetchGoogleStations]);
 
-                // 3. 處理充電站選單回傳 UI
+                // 3. 處理站點選單彈窗與自動填入
                 if (tempNearbyStations.length > 1) {
                     openStationModal(tempNearbyStations, tempCurrentDistrict);
                 } else if (tempNearbyStations.length === 1) {
@@ -1459,8 +1465,10 @@
                     showToast(fallbackMsg, false, 2500);
                 }
 
-            }, (error) => { showToast("定位失敗，請確認是否開啟網頁位置權限", true); }, { timeout: 10000 });
-        }
+            }, (error) => { 
+                showToast("定位失敗，請確認是否開啟網頁位置權限", true); 
+            }, { timeout: 10000 });
+        };
 
         function openStationModal(stations, district) {
             const modal = document.getElementById('stationSelectModal');
@@ -2726,7 +2734,6 @@ self.addEventListener('fetch', event => {
         }
     </script>
 
-    <!-- 🔹 移至此處載入：確保主程式 AppState、DOM 快取等結構已全部就緒 -->
     <script src="./achievements.js"></script>
 </body>
 </html>
