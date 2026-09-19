@@ -69,7 +69,14 @@
         .hero-image-container { position: relative; width: 100%; padding-top: 56.25%; border-radius: 2rem; overflow: hidden; }
         .hero-image-container img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
 
-        /* 🔍 Google Autocomplete 樣式優化 */
+        /* 🔍 Google Autocomplete 樣式優化與空白防殘留修復 */
+        .pac-container:empty {
+            display: none !important;
+            border: none !important;
+            box-shadow: none !important;
+            height: 0 !important;
+            padding: 0 !important;
+        }
         .pac-container {
             z-index: 10000 !important;
             border-radius: 1rem !important;
@@ -472,7 +479,7 @@
                             
                             <div class="relative mb-2">
                                 <div class="absolute left-3 top-1/2 -translate-y-1/2 text-xs">⚡</div>
-                                <!-- 🔍 支援 Google Places 手動輸入即時推薦 -->
+                                <!-- 🔍 Google Places 自動推薦站點 -->
                                 <input type="text" id="inputTag" placeholder="站點 (例:U-POWER 中壢青埔站)" autocomplete="off" class="w-full pl-8 pr-3 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
                             </div>
 
@@ -1607,34 +1614,43 @@
             setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
-        // 🗺️ 充電足跡地圖：雙重備援（快取 > Google Geocoder > OSM）
+        // 🗺️ 充電足跡地圖：加入安全防護，避免未授權時頁面卡死
         window.openMapModal = function() {
+            if (typeof google === 'undefined' || !google.maps) { 
+                showToast("地圖服務載入中或未正確載入，請確認網路連線", true); 
+                return; 
+            }
+
             const modal = document.getElementById('mapModal');
+            if (!modal) return;
+
             modal.classList.remove('hidden');
             setTimeout(async () => {
                 modal.classList.remove('opacity-0'); 
                 modal.firstElementChild.classList.remove('scale-95');
-                
-                if (typeof google === 'undefined' || !google.maps) { 
-                    showToast("未載入 Google Maps，請確認網路連線", true); 
-                    return; 
-                }
 
-                if (!window.evMap) {
-                    window.evMap = new google.maps.Map(document.getElementById('evMapContainer'), {
-                        center: { lat: 23.8, lng: 121.0 }, 
-                        zoom: 8,
-                        mapTypeControl: false, streetViewControl: false, fullscreenControl: false,
-                        styles: document.documentElement.classList.contains('dark') ? [
-                            { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
-                            { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
-                            { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
-                            { featureType: "road", elementType: "geometry", stylers: [{ color: "#38414e" }] },
-                            { featureType: "water", elementType: "geometry", stylers: [{ color: "#17263c" }] }
-                        ] : []
-                    });
-                } else { 
-                    google.maps.event.trigger(window.evMap, 'resize'); 
+                try {
+                    if (!window.evMap) {
+                        window.evMap = new google.maps.Map(document.getElementById('evMapContainer'), {
+                            center: { lat: 23.8, lng: 121.0 }, 
+                            zoom: 8,
+                            mapTypeControl: false, streetViewControl: false, fullscreenControl: false,
+                            styles: document.documentElement.classList.contains('dark') ? [
+                                { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+                                { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+                                { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+                                { featureType: "road", elementType: "geometry", stylers: [{ color: "#38414e" }] },
+                                { featureType: "water", elementType: "geometry", stylers: [{ color: "#17263c" }] }
+                            ] : []
+                        });
+                    } else { 
+                        google.maps.event.trigger(window.evMap, 'resize'); 
+                    }
+                } catch(err) {
+                    console.error("初始化地圖失敗:", err);
+                    showToast("Google 地圖授權異常，請檢查金鑰限制", true);
+                    closeMapModal();
+                    return;
                 }
 
                 if (window.evMarkers) { window.evMarkers.forEach(m => m.setMap(null)); }
@@ -1746,6 +1762,7 @@
 
         window.closeMapModal = function() {
             const modal = document.getElementById('mapModal');
+            if (!modal) return;
             modal.classList.add('opacity-0'); modal.firstElementChild.classList.add('scale-95');
             setTimeout(() => modal.classList.add('hidden'), 300);
         }
