@@ -74,7 +74,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
-    <!-- 保留 Google Maps API 供充電足跡地圖使用 -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4VD2QwmyRkM8gwApiDIMUXKBKRAaoXW0&libraries=places" defer></script>
 
     <script>
@@ -250,7 +249,10 @@
                 <div class="mb-4 bg-white dark:bg-slate-800 p-4 rounded-[1.5rem] border border-slate-100 dark:border-slate-700 shadow-sm">
                     <div class="flex items-center justify-between mb-2 px-1">
                         <span class="text-xs md:text-sm font-black text-slate-600 dark:text-slate-300 flex items-center gap-1.5"><span class="text-[14px]">🏅</span> 駕駛成就</span>
-                        <button onclick="openMapModal()" class="text-[10px] md:text-xs bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg shadow-sm font-bold active:scale-95 transition flex items-center gap-1">🗺️ 充電足跡</button>
+                        <div class="flex gap-1.5">
+                            <button onclick="openBadgeModal()" class="text-[10px] md:text-xs bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 px-2.5 py-1.5 rounded-lg shadow-sm font-bold active:scale-95 transition flex items-center gap-1">🏆 成就大廳</button>
+                            <button onclick="openMapModal()" class="text-[10px] md:text-xs bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-2.5 py-1.5 rounded-lg shadow-sm font-bold active:scale-95 transition flex items-center gap-1">🗺️ 充電足跡</button>
+                        </div>
                     </div>
                     <div id="badgesContainer" class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
                         <div class="text-[10px] text-slate-400 font-bold px-2">持續紀錄旅程來解鎖專屬成就！</div>
@@ -804,6 +806,25 @@
 
     </main>
 
+    <!-- 🏆 成就榮譽榜 Modal -->
+    <div id="badgeModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[120] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white dark:bg-[#1e293b] rounded-[2rem] p-5 md:p-6 shadow-2xl max-w-lg w-full mx-4 max-h-[85vh] flex flex-col transform scale-95 transition-all duration-300 border border-slate-100 dark:border-slate-700">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
+                <h3 class="text-base md:text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">🏆 純電榮譽殿堂</h3>
+                <button onclick="closeBadgeModal()" class="w-8 h-8 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center text-sm font-bold active:scale-90">✕</button>
+            </div>
+
+            <!-- 切換按鈕 -->
+            <div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl mb-4 text-xs font-bold">
+                <button id="tabBadgeUnlocked" onclick="switchBadgeTab('unlocked')" class="flex-1 py-2 rounded-lg bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow transition-all">已解鎖 (<span id="unlockedBadgeCount">0</span>)</button>
+                <button id="tabBadgeLocked" onclick="switchBadgeTab('locked')" class="flex-1 py-2 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white transition-all">待挑戰 (<span id="lockedBadgeCount">0</span>)</button>
+            </div>
+
+            <!-- 成就列表容器 -->
+            <div id="badgeModalContent" class="space-y-3 overflow-y-auto no-scrollbar flex-1 pr-1"></div>
+        </div>
+    </div>
+
     <!-- 📍 站點多選彈出視窗 (Modal) -->
     <div id="stationSelectModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[115] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
         <div class="bg-white dark:bg-[#1e293b] rounded-[2rem] p-6 shadow-2xl max-w-sm w-full mx-4 transform scale-95 transition-all duration-300 border border-slate-100 dark:border-slate-700">
@@ -895,6 +916,81 @@
             '保險費': { btn: 'border-emerald-400 bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400', badge: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400', icon: '🛡️' },
             'default': { btn: 'border-slate-400 bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200', badge: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400', icon: '📝' }
         };
+
+        const ALL_BADGES_CONFIG = [
+            {
+                id: 'eco',
+                name: '環保先鋒',
+                icon: '🌍',
+                desc: '累積減少 500kg CO₂',
+                target: 500,
+                unit: 'kg',
+                getValue: (stats) => stats.co2Savings,
+                check: (stats) => stats.co2Savings >= 500
+            },
+            {
+                id: 'money',
+                name: '省錢大師',
+                icon: '💰',
+                desc: '省下超過 5,000 元油錢',
+                target: 5000,
+                unit: '元',
+                getValue: (stats) => stats.fuelSavings,
+                check: (stats) => stats.fuelSavings >= 5000
+            },
+            {
+                id: 'money_10k',
+                name: '萬元俱樂部',
+                icon: '🪙',
+                desc: '省下超過 10,000 元油錢',
+                target: 10000,
+                unit: '元',
+                getValue: (stats) => stats.fuelSavings,
+                check: (stats) => stats.fuelSavings >= 10000
+            },
+            {
+                id: 'range',
+                name: '高速巡航者',
+                icon: '🚀',
+                desc: '單次行駛超過 200 公里',
+                target: 200,
+                unit: 'km',
+                getValue: (stats) => stats.maxDist,
+                check: (stats) => stats.maxDist >= 200
+            },
+            {
+                id: 'foot',
+                name: '黃金右腳',
+                icon: '👑',
+                desc: '單趟電耗達 6.5 km/度以上',
+                target: 6.5,
+                unit: 'km/度',
+                getValue: (stats) => stats.maxEff,
+                check: (stats) => stats.maxEff >= 6.5
+            },
+            {
+                id: 'island',
+                name: '環島旅行家',
+                icon: '🌐',
+                desc: '總行駛里程達到 1,000 公里',
+                target: 1000,
+                unit: 'km',
+                getValue: (stats) => stats.totalKm,
+                check: (stats) => stats.totalKm >= 1000
+            },
+            {
+                id: 'low_soc',
+                name: '黃金心臟',
+                icon: '🪫',
+                desc: '曾於電量 ≤ 10% 順利抵達充電',
+                target: 1,
+                unit: '次',
+                getValue: (stats) => stats.lowSocCount,
+                check: (stats) => stats.lowSocCount >= 1
+            }
+        ];
+
+        let currentBadgeTab = 'unlocked';
 
         const AppState = {
             records: [], evName: "LUXGEN n7", batteryCapacity: 57.7, initialOdometer: 0,
@@ -1453,6 +1549,117 @@
             setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
+        // 成就統計與大廳視窗邏輯
+        function getAchievementStats() {
+            let globalKm = 0, totalEnergyCost = 0, globalPower = 0, maxDist = 0, maxEff = 0, lowSocCount = 0;
+            const activeRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.date);
+            
+            activeRecords.forEach(rec => {
+                if (!['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType)) {
+                    const dist = parseFloat(rec.distance) || 0;
+                    const pwr = AppState.batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
+                    globalKm += dist; 
+                    totalEnergyCost += (parseFloat(rec.cost) || 0); 
+                    globalPower += pwr;
+                    if (dist > maxDist) maxDist = dist;
+                    if (pwr > 0 && dist > 5) {
+                        const eff = dist / pwr;
+                        if (eff > maxEff) maxEff = eff;
+                    }
+                    if ((rec.startSoc !== undefined && rec.startSoc <= 10) || (rec.endSoc !== undefined && rec.endSoc <= 10)) {
+                        lowSocCount++;
+                    }
+                }
+            });
+
+            const hypotheticalGasCost = (globalKm / AppState.iceEfficiency) * AppState.gasPrice;
+            const fuelSavings = Math.max(0, hypotheticalGasCost - totalEnergyCost);
+            const co2Savings = globalKm * CONSTANTS.CO2_SAVED_PER_KM;
+            const totalKm = AppState.initialOdometer + globalKm;
+
+            return { globalKm, totalKm, fuelSavings, co2Savings, maxDist, maxEff, lowSocCount };
+        }
+
+        window.openBadgeModal = function() {
+            const modal = document.getElementById('badgeModal');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.firstElementChild.classList.remove('scale-95');
+            }, 10);
+            renderBadgeModalContent();
+        };
+
+        window.closeBadgeModal = function() {
+            const modal = document.getElementById('badgeModal');
+            if (!modal) return;
+            modal.classList.add('opacity-0');
+            modal.firstElementChild.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        };
+
+        window.switchBadgeTab = function(tab) {
+            currentBadgeTab = tab;
+            const btnUnlocked = document.getElementById('tabBadgeUnlocked');
+            const btnLocked = document.getElementById('tabBadgeLocked');
+            if (btnUnlocked && btnLocked) {
+                btnUnlocked.className = tab === 'unlocked'
+                    ? "flex-1 py-2 rounded-lg bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow transition-all"
+                    : "flex-1 py-2 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white transition-all";
+                btnLocked.className = tab === 'locked'
+                    ? "flex-1 py-2 rounded-lg bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow transition-all"
+                    : "flex-1 py-2 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white transition-all";
+            }
+            renderBadgeModalContent();
+        };
+
+        function renderBadgeModalContent() {
+            const stats = getAchievementStats();
+            const unlocked = [];
+            const locked = [];
+
+            ALL_BADGES_CONFIG.forEach(b => {
+                const isDone = b.check(stats);
+                const curVal = b.getValue(stats);
+                const item = { ...b, isDone, curVal };
+                if (isDone) unlocked.push(item);
+                else locked.push(item);
+            });
+
+            const countUnlockedEl = document.getElementById('unlockedBadgeCount');
+            const countLockedEl = document.getElementById('lockedBadgeCount');
+            if (countUnlockedEl) countUnlockedEl.textContent = unlocked.length;
+            if (countLockedEl) countLockedEl.textContent = locked.length;
+
+            const list = currentBadgeTab === 'unlocked' ? unlocked : locked;
+            const container = document.getElementById('badgeModalContent');
+            if (!container) return;
+
+            if (list.length === 0) {
+                container.innerHTML = `<div class="text-center py-12 text-slate-400 text-xs font-bold">${currentBadgeTab === 'unlocked' ? '尚未解鎖任何成就，出門跑一趟吧！🚗' : '太厲害了！所有成就已全部達成 🎉'}</div>`;
+                return;
+            }
+
+            container.innerHTML = list.map(item => {
+                const percent = Math.min(100, Math.round((item.curVal / item.target) * 100));
+                return `
+                <div class="p-3.5 rounded-2xl border ${item.isDone ? 'bg-amber-50/60 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800/40' : 'bg-slate-50 dark:bg-slate-800/40 border-slate-100 dark:border-slate-800'} flex items-center gap-3.5">
+                    <span class="text-3xl p-2 rounded-xl bg-white dark:bg-slate-800 shadow-sm flex-shrink-0">${item.icon}</span>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-center mb-0.5">
+                            <h4 class="text-xs md:text-sm font-black ${item.isDone ? 'text-amber-700 dark:text-amber-400' : 'text-slate-700 dark:text-slate-300'}">${item.name}</h4>
+                            <span class="text-[10px] font-mono font-bold ${item.isDone ? 'text-amber-600 dark:text-amber-400' : 'text-slate-400'}">${item.isDone ? '✅ 已解鎖' : `${item.curVal.toFixed(1)} / ${item.target} ${item.unit}`}</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 font-bold leading-tight mb-2">${item.desc}</p>
+                        <div class="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                            <div class="h-full rounded-full transition-all duration-500 ${item.isDone ? 'bg-amber-500' : 'bg-teal-500'}" style="width: ${item.isDone ? 100 : percent}%"></div>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
         window.openMapModal = function() {
             const modal = document.getElementById('mapModal');
             modal.classList.remove('hidden');
@@ -1855,39 +2062,17 @@
             calculateRecordStats(activeRecords);
 
             if (DOM.badgesContainer) {
-                let badgesHtml = '';
+                const stats = getAchievementStats();
+                const unlocked = ALL_BADGES_CONFIG.filter(b => b.check(stats));
                 const baseClass = "px-3 py-1.5 rounded-lg text-[10px] md:text-xs font-black shadow-sm flex items-center justify-center gap-1.5 flex-shrink-0 whitespace-nowrap border cursor-pointer hover:scale-105 transition-transform";
-                let fuelSavings = 0, co2Savings = 0, maxDist = 0, maxEff = 0;
                 
-                let globalKm = 0, totalEnergyCost = 0, globalPower = 0;
-                activeRecords.forEach(rec => {
-                    if (!['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType)) {
-                        const dist = parseFloat(rec.distance) || 0;
-                        const pwr = AppState.batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
-                        globalKm += dist; totalEnergyCost += (parseFloat(rec.cost) || 0); globalPower += pwr;
-                        if (dist > maxDist) maxDist = dist;
-                        if (pwr > 0) { const eff = dist/pwr; if (eff > maxEff && dist > 5) maxEff = eff; }
-                    }
-                });
-                const hypotheticalGasCost = (globalKm / AppState.iceEfficiency) * AppState.gasPrice;
-                fuelSavings = Math.max(0, hypotheticalGasCost - totalEnergyCost);
-                co2Savings = globalKm * CONSTANTS.CO2_SAVED_PER_KM;
-
-                if (co2Savings > 500) badgesHtml += `<div onclick="showBadgeInfo('eco', ${co2Savings.toFixed(1)})" class="${baseClass} bg-green-100 border-green-200 text-green-700 dark:bg-green-900/40 dark:border-green-800 dark:text-green-400">🌍 環保先鋒</div>`;
-                if (fuelSavings > 5000) badgesHtml += `<div onclick="showBadgeInfo('money', ${Math.round(fuelSavings)})" class="${baseClass} bg-amber-100 border-amber-200 text-amber-700 dark:bg-amber-900/40 dark:border-amber-800 dark:text-amber-400">💰 省錢大師</div>`;
-                if (maxDist >= 200) badgesHtml += `<div onclick="showBadgeInfo('range', ${maxDist})" class="${baseClass} bg-indigo-100 border-indigo-200 text-indigo-700 dark:bg-indigo-900/40 dark:border-indigo-800 dark:text-indigo-400">🚀 高速巡航者</div>`;
-                if (maxEff >= 6.5) badgesHtml += `<div onclick="showBadgeInfo('foot', ${maxEff.toFixed(2)})" class="${baseClass} bg-rose-100 border-rose-200 text-rose-700 dark:bg-rose-900/40 dark:border-rose-800 dark:text-rose-400">👑 黃金右腳</div>`;
-                
-                if (badgesHtml === '') badgesHtml = `<div class="text-[10px] md:text-xs text-slate-400 font-bold px-2 py-1">持續紀錄旅程來解鎖專屬成就！</div>`;
-                DOM.badgesContainer.innerHTML = badgesHtml;
-            }
-
-            if (activeRecords.length === 0) {
-                if(DOM.onboardingCard) DOM.onboardingCard.classList.remove('hidden'); 
-                if(DOM.homeStatsContainer) DOM.homeStatsContainer.classList.add('hidden');
-            } else {
-                if(DOM.onboardingCard) DOM.onboardingCard.classList.add('hidden'); 
-                if(DOM.homeStatsContainer) DOM.homeStatsContainer.classList.remove('hidden');
+                if (unlocked.length > 0) {
+                    DOM.badgesContainer.innerHTML = unlocked.map(b => 
+                        `<div onclick="openBadgeModal()" class="${baseClass} bg-amber-100 border-amber-200 text-amber-700 dark:bg-amber-900/40 dark:border-amber-800 dark:text-amber-400">${b.icon} ${b.name}</div>`
+                    ).join('');
+                } else {
+                    DOM.badgesContainer.innerHTML = `<div class="text-[10px] md:text-xs text-slate-400 font-bold px-2 py-1">持續紀錄旅程來解鎖專屬成就！點擊「成就大廳」看挑戰清單</div>`;
+                }
             }
 
             let filteredRecords = activeRecords;
@@ -2045,16 +2230,6 @@
             const [y, m, d] = dateStr.split('-');
             const target = new Date(y, m - 1, d);
             return Math.round((target.getTime() - today.getTime()) / 86400000);
-        }
-        
-        window.showBadgeInfo = function(type, value) {
-            const info = {
-                'eco': `🌍 <b class="text-green-400">環保先鋒</b><br>解鎖條件：累積減少 500kg CO₂<br>目前進度：已減少 ${value} kg！<br>感謝您為地球的貢獻 🌱`,
-                'money': `💰 <b class="text-amber-400">省錢大師</b><br>解鎖條件：省下超過 5000 元油錢<br>目前進度：已省下 $${value} 元！<br>純電真的省 ⚡`,
-                'range': `🚀 <b class="text-indigo-400">高速巡航者</b><br>解鎖條件：單次行駛超過 200 公里<br>最佳紀錄：${value} km！<br>長途旅行也難不倒你 🛣️`,
-                'foot': `👑 <b class="text-rose-400">黃金右腳</b><br>解鎖條件：單趟電耗達 6.5 km/度以上<br>最佳紀錄：${value} km/度！<br>你的右腳控制力令人驚嘆 🦶`
-            };
-            showToast(info[type] || '持續探索解鎖更多成就！', false, 3500);
         }
 
         function updateProgressStyle(remEl, progEl, remainingKm) {
