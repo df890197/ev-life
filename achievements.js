@@ -52,6 +52,16 @@ const ALL_BADGES_CONFIG = [
         check: (stats) => (Number(stats.maxEff) || 0) >= 6.5
     },
     {
+        id: 'diamond_foot',
+        name: '鑽石右腳',
+        icon: '💎',
+        desc: '單趟電耗達 8.0 km/度以上',
+        target: 8.0,
+        unit: 'km/度',
+        getValue: (stats) => Number(stats.maxEff) || 0,
+        check: (stats) => (Number(stats.maxEff) || 0) >= 8.0
+    },
+    {
         id: 'island',
         name: '環島旅行家',
         icon: '🌐',
@@ -62,6 +72,16 @@ const ALL_BADGES_CONFIG = [
         check: (stats) => (Number(stats.totalKm) || 0) >= 1000
     },
     {
+        id: '10k_club',
+        name: '萬里達人',
+        icon: '🌌',
+        desc: '總行駛里程達到 10,000 公里',
+        target: 10000,
+        unit: 'km',
+        getValue: (stats) => Number(stats.totalKm) || 0,
+        check: (stats) => (Number(stats.totalKm) || 0) >= 10000
+    },
+    {
         id: 'low_soc',
         name: '黃金心臟',
         icon: '🪫',
@@ -70,6 +90,36 @@ const ALL_BADGES_CONFIG = [
         unit: '次',
         getValue: (stats) => Number(stats.lowSocCount) || 0,
         check: (stats) => (Number(stats.lowSocCount) || 0) >= 1
+    },
+    {
+        id: 'anxiety',
+        name: '電量焦慮',
+        icon: '😰',
+        desc: '曾於電量 ≥ 80% 時進行充電',
+        target: 1,
+        unit: '次',
+        getValue: (stats) => Number(stats.anxietyCount) || 0,
+        check: (stats) => (Number(stats.anxietyCount) || 0) >= 1
+    },
+    {
+        id: 'freeloader',
+        name: '蹭電達人',
+        icon: '🔌',
+        desc: '達成 5 次 0 元充電',
+        target: 5,
+        unit: '次',
+        getValue: (stats) => Number(stats.freeChargeCount) || 0,
+        check: (stats) => (Number(stats.freeChargeCount) || 0) >= 5
+    },
+    {
+        id: 'data_nerd',
+        name: '數據控',
+        icon: '📊',
+        desc: '累積新增 50 筆行駛紀錄',
+        target: 50,
+        unit: '筆',
+        getValue: (stats) => Number(stats.recordCount) || 0,
+        check: (stats) => (Number(stats.recordCount) || 0) >= 50
     }
 ];
 
@@ -86,11 +136,15 @@ function getAchievementStats() {
     const co2Rate = 0.095; // 0.173 - 0.078
 
     let globalKm = 0, totalEnergyCost = 0, globalPower = 0, maxDist = 0, maxEff = 0, lowSocCount = 0;
+    let freeChargeCount = 0, anxietyCount = 0, validDriveCount = 0;
+
     const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.date);
 
     activeRecords.forEach(rec => {
         if (!['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType)) {
+            validDriveCount++; // 計算有效紀錄
             const dist = parseFloat(rec.distance) || 0;
+            const cost = parseFloat(rec.cost) || 0;
             
             let socDelta = rec.consumedSocPercent;
             if (socDelta === undefined || isNaN(socDelta)) {
@@ -101,7 +155,7 @@ function getAchievementStats() {
 
             const pwr = batteryCapacity * (socDelta / 100);
             globalKm += dist;
-            totalEnergyCost += (parseFloat(rec.cost) || 0);
+            totalEnergyCost += cost;
             globalPower += pwr;
 
             if (dist > maxDist) maxDist = dist;
@@ -112,8 +166,20 @@ function getAchievementStats() {
 
             const startSoc = parseFloat(rec.startSoc);
             const endSoc = parseFloat(rec.endSoc);
+            
+            // 黃金心臟 (電量 ≤ 10%)
             if ((!isNaN(startSoc) && startSoc <= 10) || (!isNaN(endSoc) && endSoc <= 10)) {
                 lowSocCount++;
+            }
+
+            // 電量焦慮 (電量 ≥ 80% 進行充電)
+            if (!isNaN(startSoc) && startSoc >= 80) {
+                anxietyCount++;
+            }
+
+            // 蹭電達人 (花費為0且有充進電量)
+            if (cost === 0 && socDelta > 0) {
+                freeChargeCount++;
             }
         }
     });
@@ -123,7 +189,18 @@ function getAchievementStats() {
     const co2Savings = globalKm * co2Rate;
     const totalKm = initialOdo + globalKm;
 
-    return { globalKm, totalKm, fuelSavings, co2Savings, maxDist, maxEff, lowSocCount };
+    return { 
+        globalKm, 
+        totalKm, 
+        fuelSavings, 
+        co2Savings, 
+        maxDist, 
+        maxEff, 
+        lowSocCount,
+        freeChargeCount, 
+        anxietyCount, 
+        recordCount: validDriveCount
+    };
 }
 
 // 🔹 開啟成就榮譽榜彈窗
