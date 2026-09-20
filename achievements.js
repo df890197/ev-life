@@ -13,6 +13,16 @@ const ALL_BADGES_CONFIG = [
         check: (stats) => (Number(stats.co2Savings) || 0) >= 500
     },
     {
+        id: 'eco_god',
+        name: '森林守護神',
+        icon: '🌲',
+        desc: '累積減少 1,000kg CO₂',
+        target: 1000,
+        unit: 'kg',
+        getValue: (stats) => Number(stats.co2Savings) || 0,
+        check: (stats) => (Number(stats.co2Savings) || 0) >= 1000
+    },
+    {
         id: 'money',
         name: '省錢大師',
         icon: '💰',
@@ -168,6 +178,28 @@ const ALL_BADGES_CONFIG = [
         getValue: (stats) => Number(stats.chargeCount) || 0,
         check: (stats) => (Number(stats.chargeCount) || 0) >= 100
     },
+    
+    // ⚡ AC / DC 充電習慣 (本次新增)
+    {
+        id: 'dc_lover',
+        name: '急速補給',
+        icon: '⚡',
+        desc: '累積使用 DC 快充達 20 次',
+        target: 20,
+        unit: '次',
+        getValue: (stats) => Number(stats.dcChargeCount) || 0,
+        check: (stats) => (Number(stats.dcChargeCount) || 0) >= 20
+    },
+    {
+        id: 'ac_lover',
+        name: '慢充養生學',
+        icon: '🔌',
+        desc: '累積使用 AC 慢充達 20 次',
+        target: 20,
+        unit: '次',
+        getValue: (stats) => Number(stats.acChargeCount) || 0,
+        check: (stats) => (Number(stats.acChargeCount) || 0) >= 20
+    },
 
     // 🔋 充電習慣與電池控制
     {
@@ -251,26 +283,6 @@ const ALL_BADGES_CONFIG = [
         check: (stats) => (Number(stats.quickPitstopCount) || 0) >= 1
     },
     {
-        id: 'big_spender',
-        name: '超充大戶',
-        icon: '💸',
-        desc: '曾單次充電花費超過 500 元',
-        target: 1,
-        unit: '次',
-        getValue: (stats) => Number(stats.highCostChargeCount) || 0,
-        check: (stats) => (Number(stats.highCostChargeCount) || 0) >= 1
-    },
-    {
-        id: 'mega_watt',
-        name: '兆瓦級買家',
-        icon: '⚡',
-        desc: '累計消耗超過 1,000 度電',
-        target: 1000,
-        unit: '度',
-        getValue: (stats) => Number(stats.globalPower) || 0,
-        check: (stats) => (Number(stats.globalPower) || 0) >= 1000
-    },
-    {
         id: 'perfect_half',
         name: '精準控制',
         icon: '🎯',
@@ -289,6 +301,38 @@ const ALL_BADGES_CONFIG = [
         unit: '次',
         getValue: (stats) => Number(stats.shallowChargeCount) || 0,
         check: (stats) => (Number(stats.shallowChargeCount) || 0) >= 10
+    },
+    {
+        id: 'deep_cycle',
+        name: '深度大循環',
+        icon: '♻️',
+        desc: '單次從 <20% 充至 >80% 達 5 次',
+        target: 5,
+        unit: '次',
+        getValue: (stats) => Number(stats.deepCycleCount) || 0,
+        check: (stats) => (Number(stats.deepCycleCount) || 0) >= 5
+    },
+
+    // 💸 費用極限
+    {
+        id: 'big_spender',
+        name: '超充大戶',
+        icon: '💸',
+        desc: '曾單次充電花費超過 500 元',
+        target: 1,
+        unit: '次',
+        getValue: (stats) => Number(stats.highCostChargeCount) || 0,
+        check: (stats) => (Number(stats.highCostChargeCount) || 0) >= 1
+    },
+    {
+        id: 'mega_watt',
+        name: '兆瓦級買家',
+        icon: '⚡',
+        desc: '累計消耗超過 1,000 度電',
+        target: 1000,
+        unit: '度',
+        getValue: (stats) => Number(stats.globalPower) || 0,
+        check: (stats) => (Number(stats.globalPower) || 0) >= 1000
     },
 
     // 🌡️ 氣候與環境
@@ -409,6 +453,16 @@ const ALL_BADGES_CONFIG = [
         check: (stats) => (Number(stats.noteCount) || 0) >= 20
     },
     {
+        id: 'storyteller',
+        name: '純電說書人',
+        icon: '✍️',
+        desc: '單筆備註超過 15 個字達 5 次',
+        target: 5,
+        unit: '次',
+        getValue: (stats) => Number(stats.longNoteCount) || 0,
+        check: (stats) => (Number(stats.longNoteCount) || 0) >= 5
+    },
+    {
         id: 'data_nerd',
         name: '數據控',
         icon: '📊',
@@ -444,9 +498,11 @@ function getAchievementStats() {
     
     let hotTempCount = 0, coldTempCount = 0;
     let noteCount = 0, perfectHalfCount = 0;
-    
-    // 停車、過路與週末等變數
     let weekendDriveCount = 0, shallowChargeCount = 0, tollCount = 0, parkingCount = 0;
+    
+    // 本次新增變數
+    let dcChargeCount = 0, acChargeCount = 0;
+    let deepCycleCount = 0, longNoteCount = 0;
 
     const districtSet = new Set();
     const tagCountMap = {};
@@ -454,8 +510,11 @@ function getAchievementStats() {
     const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.date);
 
     activeRecords.forEach(rec => {
-        // 📓 汽車日記：有填寫備註
-        if (rec.note && rec.note.trim() !== '') noteCount++;
+        // 📓 汽車日記與說書人
+        if (rec.note && rec.note.trim() !== '') {
+            noteCount++;
+            if (rec.note.trim().length >= 15) longNoteCount++; // 單筆超過 15 字
+        }
 
         // 處理非充電/駕駛的雜項花費
         if (['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType)) {
@@ -473,6 +532,10 @@ function getAchievementStats() {
             const startSoc = parseFloat(rec.startSoc);
             const endSoc = parseFloat(rec.endSoc);
             const temp = parseFloat(rec.temp);
+
+            // ⚡ 統計 AC / DC 快充使用次數
+            if (rec.chargeType === 'DC-快充') dcChargeCount++;
+            if (rec.chargeType === 'AC-慢充') acChargeCount++;
 
             // 📅 假日車手：判斷是否為星期六 (6) 或星期日 (0)
             if (rec.date && dist > 0) {
@@ -538,6 +601,9 @@ function getAchievementStats() {
                 // 🧘 淺充淺放：30% 以上才充，80% 以下就拔槍
                 if (startSoc >= 30 && endSoc <= 80) shallowChargeCount++;
 
+                // ♻️ 深度大循環：20% 以下充至 80% 以上
+                if (startSoc <= 20 && endSoc >= 80) deepCycleCount++;
+
                 // 滿電強迫症：充到 99% 或 100%
                 if (endSoc >= 99) fullChargeCount++;
 
@@ -576,7 +642,8 @@ function getAchievementStats() {
         chargeCount, health80Count, extremeLowSocCount,
         hotTempCount, coldTempCount, uniqueDistricts: districtSet.size, 
         maxBrandCharge, noteCount, perfectHalfCount,
-        weekendDriveCount, shallowChargeCount, tollCount, parkingCount
+        weekendDriveCount, shallowChargeCount, tollCount, parkingCount,
+        dcChargeCount, acChargeCount, deepCycleCount, longNoteCount
     };
 }
 
