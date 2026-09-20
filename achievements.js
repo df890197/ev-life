@@ -179,7 +179,7 @@ const ALL_BADGES_CONFIG = [
         check: (stats) => (Number(stats.chargeCount) || 0) >= 100
     },
     
-    // ⚡ AC / DC 充電習慣 (本次新增)
+    // ⚡ AC / DC 充電習慣
     {
         id: 'dc_lover',
         name: '急速補給',
@@ -476,6 +476,44 @@ const ALL_BADGES_CONFIG = [
 
 let currentBadgeTab = 'unlocked';
 
+// 🔹 儲存與取得解鎖日期的功能
+function getUnlockedBadgeDates(stats) {
+    const STORAGE_KEY = 'ev_life_badge_dates';
+    let badgeDates = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    let hasNew = false;
+    
+    // 找出目前系統裡最新的一筆紀錄日期
+    const app = window.AppState || {};
+    const records = app.records || [];
+    const activeRecords = records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.date);
+    activeRecords.sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    // 如果沒有任何紀錄，預設就用今天的日期
+    const latestDate = activeRecords.length > 0 ? activeRecords[activeRecords.length - 1].date : new Date().toISOString().split('T')[0];
+
+    // 檢查每一個成就
+    ALL_BADGES_CONFIG.forEach(b => {
+        if (b.check(stats)) {
+            // 如果達成成就，但本機沒有記錄解鎖日期，就把它存起來
+            if (!badgeDates[b.id]) {
+                badgeDates[b.id] = latestDate;
+                hasNew = true;
+            }
+        } else {
+            // 萬一使用者刪除紀錄導致失去成就，就把日期拔掉 (防作弊機制)
+            if (badgeDates[b.id]) {
+                delete badgeDates[b.id];
+                hasNew = true;
+            }
+        }
+    });
+
+    if (hasNew) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(badgeDates));
+    }
+    return badgeDates;
+}
+
 // 🔹 核心數據統計函式
 function getAchievementStats() {
     const app = window.AppState || {};
@@ -500,7 +538,7 @@ function getAchievementStats() {
     let noteCount = 0, perfectHalfCount = 0;
     let weekendDriveCount = 0, shallowChargeCount = 0, tollCount = 0, parkingCount = 0;
     
-    // 本次新增變數
+    // 品牌與紀錄次數變數
     let dcChargeCount = 0, acChargeCount = 0;
     let deepCycleCount = 0, longNoteCount = 0;
 
@@ -684,16 +722,20 @@ window.switchBadgeTab = function(tab) {
     renderBadgeModalContent();
 };
 
-// 🔹 渲染彈窗清單內容
+// 🔹 渲染彈窗清單內容 (加入解鎖日期顯示)
 function renderBadgeModalContent() {
     const stats = getAchievementStats();
+    const badgeDates = getUnlockedBadgeDates(stats); // 取得各成就的解鎖日期
     const unlocked = [];
     const locked = [];
 
     ALL_BADGES_CONFIG.forEach(b => {
         const isDone = b.check(stats);
         const curVal = b.getValue(stats) || 0;
-        const item = { ...b, isDone, curVal };
+        // 把存取的日期放入 item 中
+        const unlockDate = badgeDates[b.id] || '';
+        const item = { ...b, isDone, curVal, unlockDate };
+        
         if (isDone) unlocked.push(item);
         else locked.push(item);
     });
@@ -714,13 +756,24 @@ function renderBadgeModalContent() {
 
     container.innerHTML = list.map(item => {
         const percent = Math.min(100, Math.max(0, Math.round((item.curVal / item.target) * 100)));
+        
+        // 如果已解鎖且有記錄日期，就渲染出日期文字
+        const dateHtml = (item.isDone && item.unlockDate) 
+            ? `<div class="text-[8px] md:text-[9px] text-amber-600/70 dark:text-amber-400/70 mt-0.5">${item.unlockDate}</div>` 
+            : '';
+
         return `
         <div class="p-3.5 rounded-2xl border ${item.isDone ? 'bg-amber-50/60 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800/40' : 'bg-slate-50 dark:bg-slate-800/40 border-slate-100 dark:border-slate-800'} flex items-center gap-3.5">
             <span class="text-3xl p-2 rounded-xl bg-white dark:bg-slate-800 shadow-sm flex-shrink-0">${item.icon}</span>
             <div class="flex-1 min-w-0">
                 <div class="flex justify-between items-center mb-0.5">
                     <h4 class="text-xs md:text-sm font-black ${item.isDone ? 'text-amber-700 dark:text-amber-400' : 'text-slate-700 dark:text-slate-300'}">${item.name}</h4>
-                    <span class="text-[10px] font-mono font-bold ${item.isDone ? 'text-amber-600 dark:text-amber-400' : 'text-slate-400'}">${item.isDone ? '✅ 已解鎖' : `${item.curVal.toFixed(1)} / ${item.target}${item.unit}`}</span>
+                    <div class="text-right">
+                        <span class="text-[10px] font-mono font-bold ${item.isDone ? 'text-amber-600 dark:text-amber-400' : 'text-slate-400'}">
+                            ${item.isDone ? '✅ 已解鎖' : `${item.curVal.toFixed(1)} / ${item.target}${item.unit}`}
+                        </span>
+                        ${dateHtml}
+                    </div>
                 </div>
                 <p class="text-[11px] text-slate-500 dark:text-slate-400 font-bold leading-tight mb-2">${item.desc}</p>
                 <div class="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
