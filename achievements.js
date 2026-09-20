@@ -290,8 +290,18 @@ const ALL_BADGES_CONFIG = [
         getValue: (stats) => Number(stats.perfectHalfCount) || 0,
         check: (stats) => (Number(stats.perfectHalfCount) || 0) >= 1
     },
+    {
+        id: 'battery_zen',
+        name: '淺充淺放',
+        icon: '🧘',
+        desc: '電量 30%~80% 區間充電達 10 次',
+        target: 10,
+        unit: '次',
+        getValue: (stats) => Number(stats.shallowChargeCount) || 0,
+        check: (stats) => (Number(stats.shallowChargeCount) || 0) >= 10
+    },
 
-    // 🌡️ 氣候與環境 (本次新增)
+    // 🌡️ 氣候與環境
     {
         id: 'hot_walker',
         name: '烈日行者',
@@ -313,7 +323,7 @@ const ALL_BADGES_CONFIG = [
         check: (stats) => (Number(stats.coldTempCount) || 0) >= 1
     },
 
-    // 🗺️ 探索與忠誠 (本次新增)
+    // 🗺️ 探索與忠誠
     {
         id: 'explorer',
         name: '鄉鎮探索家',
@@ -335,6 +345,18 @@ const ALL_BADGES_CONFIG = [
         check: (stats) => (Number(stats.maxBrandCharge) || 0) >= 10
     },
 
+    // 📅 時間與作息
+    {
+        id: 'weekend_driver',
+        name: '假日車手',
+        icon: '🎉',
+        desc: '在週末(六/日)完成 10 趟行駛',
+        target: 10,
+        unit: '趟',
+        getValue: (stats) => Number(stats.weekendDriveCount) || 0,
+        check: (stats) => (Number(stats.weekendDriveCount) || 0) >= 10
+    },
+
     // 🛠️ 養車、費用與紀錄
     {
         id: 'toll_parking',
@@ -345,6 +367,26 @@ const ALL_BADGES_CONFIG = [
         unit: '元',
         getValue: (stats) => Number(stats.nonDriveCost) || 0,
         check: (stats) => (Number(stats.nonDriveCost) || 0) >= 1000
+    },
+    {
+        id: 'highway_cruiser',
+        name: '國道常客',
+        icon: '🛣️',
+        desc: '紀錄 5 次通行費支出',
+        target: 5,
+        unit: '次',
+        getValue: (stats) => Number(stats.tollCount) || 0,
+        check: (stats) => (Number(stats.tollCount) || 0) >= 5
+    },
+    {
+        id: 'parking_tycoon',
+        name: '停車大亨',
+        icon: '🅿️',
+        desc: '紀錄 10 次停車費支出',
+        target: 10,
+        unit: '次',
+        getValue: (stats) => Number(stats.parkingCount) || 0,
+        check: (stats) => (Number(stats.parkingCount) || 0) >= 10
     },
     {
         id: 'car_lover',
@@ -410,9 +452,12 @@ function getAchievementStats() {
     let insuranceCount = 0, cheapDriveCount = 0, expensiveDriveCount = 0, quickPitstopCount = 0;
     let chargeCount = 0, health80Count = 0, extremeLowSocCount = 0;
     
-    // 本次新增的探索與環境變數
     let hotTempCount = 0, coldTempCount = 0;
     let noteCount = 0, perfectHalfCount = 0;
+    
+    // 新增的統計變數
+    let weekendDriveCount = 0, shallowChargeCount = 0, tollCount = 0, parkingCount = 0;
+
     const districtSet = new Set();
     const tagCountMap = {};
 
@@ -426,7 +471,8 @@ function getAchievementStats() {
         if (['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType)) {
             const extraCost = parseFloat(rec.cost) || 0;
             if (rec.chargeType === '維修保養') maintenanceCount++;
-            if (rec.chargeType === '停車費' || rec.chargeType === '通行費') nonDriveCost += extraCost;
+            if (rec.chargeType === '停車費') { nonDriveCost += extraCost; parkingCount++; }
+            if (rec.chargeType === '通行費') { nonDriveCost += extraCost; tollCount++; }
             if (rec.chargeType === '保險費') insuranceCount++;
         } 
         // 處理正常的駕駛與充電紀錄
@@ -437,6 +483,12 @@ function getAchievementStats() {
             const startSoc = parseFloat(rec.startSoc);
             const endSoc = parseFloat(rec.endSoc);
             const temp = parseFloat(rec.temp);
+
+            // 📅 假日車手：判斷是否為星期六 (6) 或星期日 (0)
+            if (rec.date && dist > 0) {
+                const dayOfWeek = new Date(rec.date).getDay();
+                if (dayOfWeek === 0 || dayOfWeek === 6) weekendDriveCount++;
+            }
             
             let socDelta = rec.consumedSocPercent;
             if (socDelta === undefined || isNaN(socDelta)) {
@@ -495,6 +547,9 @@ function getAchievementStats() {
                 if (startSoc <= 10) extremeLowSocCount++; // 電量守門員
                 if ((endSoc - startSoc) < 10) quickPitstopCount++; // 快充快閃
                 if ((endSoc - startSoc) === 50) perfectHalfCount++; // 🎯 精準控制
+                
+                // 🧘 淺充淺放：30% 以上才充，80% 以下就拔槍
+                if (startSoc >= 30 && endSoc <= 80) shallowChargeCount++;
 
                 // 🏢 品牌鐵粉：統計各站點充電次數 (排除住家)
                 if (rec.tag && rec.tag.trim() !== '' && !rec.tag.includes('住家')) {
@@ -533,7 +588,8 @@ function getAchievementStats() {
         insuranceCount, cheapDriveCount, expensiveDriveCount, quickPitstopCount,
         chargeCount, health80Count, extremeLowSocCount,
         hotTempCount, coldTempCount, uniqueDistricts: districtSet.size, 
-        maxBrandCharge, noteCount, perfectHalfCount
+        maxBrandCharge, noteCount, perfectHalfCount,
+        weekendDriveCount, shallowChargeCount, tollCount, parkingCount
     };
 }
 
