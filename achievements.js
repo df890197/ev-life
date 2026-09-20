@@ -84,16 +84,6 @@ const ALL_BADGES_CONFIG = [
         getValue: (stats) => Number(stats.totalKm) || 0,
         check: (stats) => (Number(stats.totalKm) || 0) >= 40000
     },
-    {
-        id: 'short_trip',
-        name: '巷口買便當',
-        icon: '🍱',
-        desc: '單趟行駛小於 3 公里',
-        target: 1,
-        unit: '次',
-        getValue: (stats) => Number(stats.shortTripCount) || 0,
-        check: (stats) => (Number(stats.shortTripCount) || 0) >= 1
-    },
 
     // ⚡ 電耗、花費與極限
     {
@@ -446,7 +436,7 @@ function getAchievementStats() {
     let globalKm = 0, totalEnergyCost = 0, globalPower = 0;
     let maxDist = 0, maxEff = 0, lowSocCount = 0;
     let freeChargeCount = 0, anxietyCount = 0, validDriveCount = 0;
-    let shortTripCount = 0, heavyFootCount = 0, maxSocDrain = 0;
+    let heavyFootCount = 0, maxSocDrain = 0;
     let fullChargeCount = 0, highCostChargeCount = 0;
     let nonDriveCost = 0, maintenanceCount = 0;
     let insuranceCount = 0, cheapDriveCount = 0, expensiveDriveCount = 0, quickPitstopCount = 0;
@@ -455,7 +445,7 @@ function getAchievementStats() {
     let hotTempCount = 0, coldTempCount = 0;
     let noteCount = 0, perfectHalfCount = 0;
     
-    // 新增的統計變數
+    // 停車、過路與週末等變數
     let weekendDriveCount = 0, shallowChargeCount = 0, tollCount = 0, parkingCount = 0;
 
     const districtSet = new Set();
@@ -528,9 +518,6 @@ function getAchievementStats() {
                 if (eff < 4.5) heavyFootCount++;
             }
 
-            // 里程小於 3km (巷口買便當)
-            if (dist > 0 && dist <= 3) shortTripCount++;
-
             // 消耗最多趴數 (榨乾極限)
             if (socDelta > maxSocDrain && dist > 0) maxSocDrain = socDelta;
 
@@ -551,6 +538,12 @@ function getAchievementStats() {
                 // 🧘 淺充淺放：30% 以上才充，80% 以下就拔槍
                 if (startSoc >= 30 && endSoc <= 80) shallowChargeCount++;
 
+                // 滿電強迫症：充到 99% 或 100%
+                if (endSoc >= 99) fullChargeCount++;
+
+                // 蹭電達人：只要有充進電，且花費為 0
+                if (cost === 0) freeChargeCount++;
+
                 // 🏢 品牌鐵粉：統計各站點充電次數 (排除住家)
                 if (rec.tag && rec.tag.trim() !== '' && !rec.tag.includes('住家')) {
                     const cleanTag = rec.tag.trim();
@@ -560,12 +553,6 @@ function getAchievementStats() {
 
             // 電量焦慮 (80% 以上就充電)
             if (!isNaN(startSoc) && startSoc >= 80) anxietyCount++;
-
-            // 蹭電達人 (0元充到電)
-            if (cost === 0 && socDelta > 0 && dist === 0) freeChargeCount++;
-
-            // 滿電強迫症 (充到 99% 以上)
-            if (!isNaN(endSoc) && endSoc >= 99 && dist === 0) fullChargeCount++;
 
             // 超充大戶 (單次花費 > 500)
             if (cost >= 500) highCostChargeCount++;
@@ -583,7 +570,7 @@ function getAchievementStats() {
     return { 
         globalKm, totalKm, fuelSavings, co2Savings, maxDist, maxEff, lowSocCount,
         freeChargeCount, anxietyCount, recordCount: validDriveCount,
-        shortTripCount, heavyFootCount, maxSocDrain, fullChargeCount, 
+        heavyFootCount, maxSocDrain, fullChargeCount, 
         highCostChargeCount, globalPower, nonDriveCost, maintenanceCount,
         insuranceCount, cheapDriveCount, expensiveDriveCount, quickPitstopCount,
         chargeCount, health80Count, extremeLowSocCount,
