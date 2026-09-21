@@ -1089,7 +1089,6 @@
             setupAutoHideNav(); 
             initDragToScroll(); 
             
-            // 💡 初始化 Google Places 站點輸入自動推薦
             initStationAutocomplete();
 
             try {
@@ -1111,7 +1110,6 @@
             if (AppState.syncUrl) setTimeout(() => syncWithCloud('auto', false), 800);
         }
 
-        // 🔍 Google Places Autocomplete 自動完成功能
         async function initStationAutocomplete() {
             const input = document.getElementById('inputTag');
             if (!input) return;
@@ -1133,7 +1131,6 @@
 
                             input.value = place.name;
 
-                            // 💡 取得點選站點的精準經緯度，儲存至快取供充電足跡地圖使用
                             if (place.geometry && place.geometry.location) {
                                 const pLat = place.geometry.location.lat();
                                 const pLng = place.geometry.location.lng();
@@ -1443,7 +1440,6 @@
         let tempNearbyStations = [];
         let tempCurrentDistrict = "";
 
-        // 🌟 正確整合新版 Google Places API (searchNearby) 搜尋附近充電站
         window.autoLocateAndWeather = function() {
             if (!navigator.geolocation) { 
                 showToast("瀏覽器不支援定位功能", true); 
@@ -1457,7 +1453,6 @@
                 tempNearbyStations = [];
                 tempCurrentDistrict = "";
 
-                // 1. 同步抓取地區 (Nominatim) 與 氣溫 (Open-Meteo)
                 const fetchDistrict = fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=14&addressdetails=1&accept-language=zh-TW`, { 
                     headers: { 'User-Agent': 'EvLifePWA/2.0' }
                 }).then(r => r.json()).then(geoData => {
@@ -1480,7 +1475,6 @@
                         }
                     }).catch(e => console.warn("氣溫獲取失敗", e));
 
-                // 2. 呼叫新版 Google Places API (New) 搜尋半徑 5000 公尺內的充電站
                 const fetchGoogleStations = (async () => {
                     if (!window.google || !google.maps || !google.maps.places) {
                         console.warn("Google Places API 尚未載入完成");
@@ -1495,7 +1489,7 @@
                             fields: ['displayName', 'location'],
                             locationRestriction: {
                                 center: userLocation,
-                                radius: 5000 // 搜尋半徑 5000 公尺
+                                radius: 5000
                             },
                             includedTypes: ['electric_vehicle_charging_station'],
                             maxResultCount: 15
@@ -1511,7 +1505,7 @@
 
                                 tempNearbyStations.push({
                                     name: place.displayName,
-                                    lat: pLat, // 💡 保存經緯度，方便選中時直接存入地圖快取
+                                    lat: pLat,
                                     lng: pLng,
                                     distanceKm: dist,
                                     distanceM: Math.round(dist * 1000)
@@ -1535,14 +1529,12 @@
 
                 await Promise.allSettled([fetchDistrict, fetchWeather, fetchGoogleStations]);
 
-                // 3. 處理站點選單彈窗與自動填入
                 if (tempNearbyStations.length > 1) {
                     openStationModal(tempNearbyStations, tempCurrentDistrict);
                 } else if (tempNearbyStations.length === 1) {
                     const single = tempNearbyStations[0];
                     if (DOM.inputTag) DOM.inputTag.value = single.name;
 
-                    // 💡 單一站點直接快取座標
                     try {
                         const geocodeCache = JSON.parse(localStorage.getItem('ev_life_geocode_cache') || '{}');
                         geocodeCache[single.name] = { lat: single.lat, lng: single.lng };
@@ -1584,7 +1576,6 @@
         window.chooseStation = function(stationName) {
             if (DOM.inputTag) DOM.inputTag.value = stationName;
             
-            // 💡 點選站點時將精確經緯度存入快取，供足跡地圖使用
             const matched = tempNearbyStations.find(s => s.name === stationName);
             if (matched && matched.lat && matched.lng) {
                 try {
@@ -1605,7 +1596,6 @@
             setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
-        // 🗺️ 充電足跡地圖：加入安全防護，避免未授權時頁面卡死
         window.openMapModal = function() {
             if (typeof google === 'undefined' || !google.maps) { 
                 showToast("地圖服務載入中或未正確載入，請確認網路連線", true); 
@@ -1647,7 +1637,6 @@
                 if (window.evMarkers) { window.evMarkers.forEach(m => m.setMap(null)); }
                 window.evMarkers = [];
 
-                // 抓取所有有填寫「站點」的紀錄
                 const visitedStations = new Map();
                 AppState.records.forEach(r => { 
                     const cleanTag = (r.tag || '').trim();
@@ -1692,13 +1681,11 @@
                 const geocoder = new google.maps.Geocoder();
 
                 for (const [tag, district] of visitedStations.entries()) {
-                    // 1. 快取中已有經緯度直接繪製
                     if (geocodeCache[tag]) { 
                         placeMarker(tag, geocodeCache[tag].lat, geocodeCache[tag].lng); 
                         continue; 
                     }
 
-                    // 2. 使用 Google Geocoder 智慧反查地址
                     const queries = [
                         `${district} ${tag}`.trim(),
                         tag.trim(),
@@ -1726,7 +1713,6 @@
                         } catch(e) {}
                     }
 
-                    // 3. Google 查不到時，以 OpenStreetMap 進行備援查詢
                     if (!found) {
                         try {
                             const osmRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(district + ' ' + tag)}&countrycodes=tw&limit=1`, {
@@ -2079,7 +2065,7 @@
 
                 return `
                 <div class="${cardClass}">
-                    <div>
+                    <div class="flex-1 flex flex-col">
                         <div class="mb-3 border-b border-slate-100 dark:border-slate-800/60 pb-2.5">
                             <div class="flex justify-between items-center">
                                 <div class="flex items-center flex-wrap gap-1.5 min-w-0 pr-2">
@@ -2096,22 +2082,24 @@
                             </div>
                             ${tagHtml}
                         </div>
-                        ${!isNonDrive ? `
-                        <div class="flex justify-between items-center text-center divide-x divide-slate-100 dark:divide-slate-800 mt-2">
-                            <div class="flex-1 px-1"><div class="text-[10px] md:text-xs text-slate-400 font-bold mb-1">里程</div><div class="font-mono font-black text-[13px] md:text-[15px]">${dist}</div></div>
-                            <div class="flex-1 px-1"><div class="text-[10px] md:text-xs text-slate-400 font-bold mb-1">電耗</div><div class="font-mono font-black text-[13px] md:text-[15px] ${isMVP ? 'text-amber-600 dark:text-amber-400' : 'text-teal-500'}">${eff}</div></div>
-                            <div class="flex-[1.5] px-1"><div class="text-[10px] md:text-xs text-slate-400 font-bold mb-1">電量</div><div class="font-mono font-black text-[11px] sm:text-[13px] md:text-[15px] mt-0.5 whitespace-nowrap tracking-tighter">${rec.startSoc}%➔${rec.endSoc}%</div></div>
-                            <div class="flex-1 px-1"><div class="text-[10px] md:text-xs text-slate-400 font-bold mb-1">花費</div><div class="font-mono font-black text-[13px] md:text-[15px]">$${rec.cost}</div></div>
-                        </div>
-                        ` : `
-                        <div class="flex justify-between items-center text-center divide-x divide-slate-100 dark:divide-slate-800 bg-slate-50/50 dark:bg-slate-900/10 rounded-xl py-2 mt-2">
-                            <div class="flex-[2] px-1 font-bold text-xs md:text-sm flex items-center justify-center gap-1.5 text-slate-600 dark:text-slate-300">
-                                <span class="text-[14px] leading-none flex items-center mt-[-1px]">${iconStr}</span>
-                                <span class="leading-none mt-[1px]">${rec.chargeType}紀錄</span>
+                        <div class="flex-1 flex flex-col justify-center my-auto py-1">
+                            ${!isNonDrive ? `
+                            <div class="flex justify-between items-center text-center divide-x divide-slate-100 dark:divide-slate-800">
+                                <div class="flex-1 px-1"><div class="text-[10px] md:text-xs text-slate-400 font-bold mb-1">里程</div><div class="font-mono font-black text-[13px] md:text-[15px]">${dist}</div></div>
+                                <div class="flex-1 px-1"><div class="text-[10px] md:text-xs text-slate-400 font-bold mb-1">電耗</div><div class="font-mono font-black text-[13px] md:text-[15px] ${isMVP ? 'text-amber-600 dark:text-amber-400' : 'text-teal-500'}">${eff}</div></div>
+                                <div class="flex-[1.5] px-1"><div class="text-[10px] md:text-xs text-slate-400 font-bold mb-1">電量</div><div class="font-mono font-black text-[11px] sm:text-[13px] md:text-[15px] mt-0.5 whitespace-nowrap tracking-tighter">${rec.startSoc}%➔${rec.endSoc}%</div></div>
+                                <div class="flex-1 px-1"><div class="text-[10px] md:text-xs text-slate-400 font-bold mb-1">花費</div><div class="font-mono font-black text-[13px] md:text-[15px]">$${rec.cost}</div></div>
                             </div>
-                            <div class="flex-1 px-1"><div class="text-[10px] md:text-xs text-slate-400 font-bold mb-1">總花費</div><div class="font-mono font-black text-[14px] md:text-[16px] text-slate-600 dark:text-slate-300">$${rec.cost}</div></div>
+                            ` : `
+                            <div class="flex justify-between items-center text-center divide-x divide-slate-100 dark:divide-slate-800 bg-slate-50/50 dark:bg-slate-900/10 rounded-xl py-2">
+                                <div class="flex-[2] px-1 font-bold text-xs md:text-sm flex items-center justify-center gap-1.5 text-slate-600 dark:text-slate-300">
+                                    <span class="text-[14px] leading-none flex items-center mt-[-1px]">${iconStr}</span>
+                                    <span class="leading-none mt-[1px]">${rec.chargeType}紀錄</span>
+                                </div>
+                                <div class="flex-1 px-1"><div class="text-[10px] md:text-xs text-slate-400 font-bold mb-1">總花費</div><div class="font-mono font-black text-[14px] md:text-[16px] text-slate-600 dark:text-slate-300">$${rec.cost}</div></div>
+                            </div>
+                            `}
                         </div>
-                        `}
                     </div>
                     ${safeNote ? `<div class="mt-3 pt-2 border-t border-slate-50 dark:border-slate-800 text-[11px] md:text-xs text-slate-500 font-bold leading-relaxed break-words">📝 ${safeNote}</div>` : ''}
                 </div>`;
