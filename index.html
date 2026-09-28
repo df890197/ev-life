@@ -1971,7 +1971,7 @@
             resultBox.classList.remove('hidden');
         }
 
-        // 🌟 核心卡片產生函式 (時空分層排版 + 點擊進入編輯 + 移除編輯/刪除按鈕)
+        // 🌟 核心卡片產生函式 (第一行：日期・地區・溫度 ＋ Badge；第二行：單純站點)
         function buildRecordCardHtml(rec, isMVP) {
             const isNonDrive = ['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType);
             const dist = parseFloat(rec.distance) || 0;
@@ -1993,13 +1993,15 @@
             const safeDistrict = escapeHTML(rec.district || '');
             const safeTag = escapeHTML(rec.tag || '');
 
-            // 組裝環境資訊：地區與氣溫
-            const envParts = [];
-            if (safeDistrict) envParts.push(`<span>📍 ${safeDistrict}</span>`);
-            if (rec.temp !== undefined && rec.temp !== null && rec.temp !== '') {
-                envParts.push(`<span class="font-mono text-sky-600 dark:text-sky-400">🌡️ ${rec.temp}°C</span>`);
+            // 組裝第一行：日期 · 地區 · 溫度
+            const metaParts = [`<span class="shrink-0 text-slate-800 dark:text-slate-200 font-black">${safeDate}</span>`];
+            if (safeDistrict) {
+                metaParts.push(`<span class="shrink-0 text-slate-500 dark:text-slate-400 max-w-[110px] md:max-w-none truncate">${safeDistrict}</span>`);
             }
-            const envHtml = envParts.join('<span class="opacity-30 mx-1">·</span>');
+            if (rec.temp !== undefined && rec.temp !== null && rec.temp !== '') {
+                metaParts.push(`<span class="shrink-0 text-sky-600 dark:text-sky-400 font-mono font-bold">${rec.temp}°C</span>`);
+            }
+            const metaCombinedHtml = metaParts.join('<span class="opacity-30 mx-0.5 shrink-0">·</span>');
 
             const cardWrapperClass = (isMVP
                 ? "bg-gradient-to-br from-amber-50/80 via-white to-amber-50/20 dark:from-amber-950/30 dark:via-[#1e293b] dark:to-[#1e293b] p-4 md:p-5 rounded-[1.75rem] border-2 border-amber-400 dark:border-amber-500 shadow-md relative w-full flex flex-col justify-between"
@@ -2009,12 +2011,14 @@
             return `
             <div class="${cardWrapperClass}" onclick="editRecord('${safeId}')">
                 <div class="flex-1 flex flex-col justify-between">
-                    <!-- 1️⃣ 第一行：時間維度（日期）＋ 紀錄類型 Badge，空間完全釋放 -->
+                    <!-- 1️⃣ 第一行：日期 · 地區 · 氣溫 ＋ 類型標籤 (置左飽滿、置右固定) -->
                     <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100 dark:border-slate-800/60 mb-2.5">
-                        <div class="flex items-center gap-1.5 text-xs md:text-sm font-mono font-black text-slate-800 dark:text-slate-200">
-                            <span>📅</span>
-                            <span>${safeDate}</span>
-                            ${isMVP ? `
+                        <div class="flex items-center gap-1.5 text-[11px] md:text-xs font-mono font-bold overflow-hidden flex-1 min-w-0">
+                            <span class="shrink-0">📅</span>
+                            <div class="flex items-center gap-1 overflow-x-auto no-scrollbar whitespace-nowrap">
+                                ${metaCombinedHtml}
+                            </div>
+                            ${(!safeTag && isMVP) ? `
                                 <span class="inline-flex items-center px-1.5 py-0.2 rounded-full border border-amber-400 bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 text-[9px] font-black shrink-0 ml-1 shadow-sm">
                                     👑 MVP
                                 </span>
@@ -2029,22 +2033,22 @@
                         </div>
                     </div>
 
-                    <!-- 2️⃣ 第二行：站點資訊 ＋ 空間環境（地區 · 溫度），空間充足絕不截斷 -->
-                    ${(safeTag || envHtml) ? `
-                    <div class="mb-3 space-y-1">
-                        ${safeTag ? `
-                            <div class="flex items-start gap-1.5">
+                    <!-- 2️⃣ 第二行：單純放站點名稱 (有填才顯示，獨立一行清晰大器) -->
+                    ${safeTag ? `
+                    <div class="mb-3">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex items-start gap-1.5 flex-1 min-w-0">
                                 <span class="text-amber-500 dark:text-amber-400 text-sm mt-0.5 shrink-0">⚡</span>
                                 <h3 class="text-sm md:text-base font-black text-slate-800 dark:text-white leading-snug break-words">
                                     ${safeTag}
                                 </h3>
                             </div>
-                        ` : ''}
-                        ${envHtml ? `
-                            <div class="text-[11px] md:text-xs text-slate-500 dark:text-slate-400 font-bold flex items-center flex-wrap ${safeTag ? 'pl-5' : ''}">
-                                ${envHtml}
-                            </div>
-                        ` : ''}
+                            ${isMVP ? `
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full border border-amber-400 bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 text-[10px] font-black shrink-0 shadow-sm">
+                                    👑 最高分
+                                </span>
+                            ` : ''}
+                        </div>
                     </div>
                     ` : ''}
 
