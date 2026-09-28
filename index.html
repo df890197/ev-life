@@ -75,18 +75,28 @@
         .dark .pac-item:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
         .dark .pac-item-query { color: #ffffff !important; }
 
-        /* 🚗 超長站點平滑自動跑馬燈 */
-        @keyframes evMarquee {
-            0%, 20% { transform: translateX(0%); }
-            80%, 100% { transform: translateX(calc(-100% + 220px)); }
+        /* 🚗 智慧跑馬燈：平滑左右巡航，100% 顯示頭尾文字 */
+        .marquee-box {
+            display: flex;
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
         }
-        .ev-marquee-track {
+        .marquee-content {
             display: inline-block;
             white-space: nowrap;
             will-change: transform;
         }
-        .ev-marquee-active {
-            animation: evMarquee 8s ease-in-out infinite alternate;
+        .marquee-active {
+            animation: evMarqueeScroll 7.5s ease-in-out infinite alternate;
+        }
+        @keyframes evMarqueeScroll {
+            0%, 25% {
+                transform: translateX(0%);
+            }
+            75%, 100% {
+                transform: translateX(var(--marquee-end, -45%));
+            }
         }
     </style>
 
@@ -1985,7 +1995,7 @@
             resultBox.classList.remove('hidden');
         }
 
-        // 🌟 核心卡片產生函式 (第一行：📅 日期 · 📍 地區 · 🌡️ 氣溫；第二行：純 CSS 平滑跑馬燈站點)
+        // 🌟 核心卡片產生函式 (緊湊第一行防吃字 + 動態自適應跑馬燈站點)
         function buildRecordCardHtml(rec, isMVP) {
             const isNonDrive = ['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType);
             const dist = parseFloat(rec.distance) || 0;
@@ -2007,56 +2017,59 @@
             const safeDistrict = escapeHTML(rec.district || '');
             const safeTag = escapeHTML(rec.tag || '');
 
-            // 1️⃣ 第一行組裝：📅 日期 · 📍 地區 · 🌡️ 氣溫
-            const metaParts = [`<span class="shrink-0 text-slate-800 dark:text-slate-200 font-black">📅 ${safeDate}</span>`];
+            // 1️⃣ 第一行緊湊組裝：無多餘空白，確保在各尺寸手機上完整容納
+            const metaParts = [`<span class="shrink-0 text-slate-800 dark:text-slate-200 font-black tracking-tight">📅${safeDate}</span>`];
             if (safeDistrict) {
-                metaParts.push(`<span class="shrink-0 text-slate-500 dark:text-slate-400 max-w-[105px] sm:max-w-[140px] truncate">📍 ${safeDistrict}</span>`);
+                metaParts.push(`<span class="shrink-0 text-slate-500 dark:text-slate-400 max-w-[80px] sm:max-w-[130px] truncate tracking-tight">📍${safeDistrict}</span>`);
             }
             if (rec.temp !== undefined && rec.temp !== null && rec.temp !== '') {
-                metaParts.push(`<span class="shrink-0 text-sky-600 dark:text-sky-400 font-mono font-bold">🌡️ ${rec.temp}°C</span>`);
+                metaParts.push(`<span class="shrink-0 text-sky-600 dark:text-sky-400 font-mono font-bold tracking-tight">🌡️${rec.temp}°C</span>`);
             }
-            const metaCombinedHtml = metaParts.join('<span class="inline-block w-[3px] h-[3px] rounded-full bg-slate-300 dark:bg-slate-600 mx-1 shrink-0 self-center"></span>');
+            const metaCombinedHtml = metaParts.join('<span class="inline-block w-[2px] h-[2px] rounded-full bg-slate-300 dark:bg-slate-600 mx-0.5 shrink-0 self-center"></span>');
 
-            // 2️⃣ 站點超長時自動啟用 CSS 跑馬燈（超過 12 字自動啟用緩移）
-            const isLongTag = safeTag.length > 12;
+            // 2️⃣ 智慧計算跑馬燈位移（根據字元數動態計算終點百分比，保證最後一個字完整現形）
+            const tagLength = safeTag.length;
+            const isLongTag = tagLength > 10;
+            // 估計超長文字所需要的位移量百分比
+            const scrollEndPercent = isLongTag ? Math.min(85, Math.max(30, (tagLength - 10) * 8.5)) : 0;
 
             const cardWrapperClass = (isMVP
-                ? "bg-gradient-to-br from-amber-50/80 via-white to-amber-50/20 dark:from-amber-950/30 dark:via-[#1e293b] dark:to-[#1e293b] p-4 sm:p-5 rounded-[1.75rem] border-2 border-amber-400 dark:border-amber-500 shadow-md relative w-full flex flex-col justify-between"
-                : "bg-white dark:bg-[#1e293b] p-4 sm:p-5 rounded-[1.75rem] border border-slate-200/80 dark:border-slate-800 shadow-sm relative w-full flex flex-col justify-between"
+                ? "bg-gradient-to-br from-amber-50/80 via-white to-amber-50/20 dark:from-amber-950/30 dark:via-[#1e293b] dark:to-[#1e293b] p-3.5 sm:p-5 rounded-[1.75rem] border-2 border-amber-400 dark:border-amber-500 shadow-md relative w-full flex flex-col justify-between"
+                : "bg-white dark:bg-[#1e293b] p-3.5 sm:p-5 rounded-[1.75rem] border border-slate-200/80 dark:border-slate-800 shadow-sm relative w-full flex flex-col justify-between"
             ) + " cursor-pointer transition active:scale-[0.99] hover:border-amber-300 dark:hover:border-amber-500/50";
 
             return `
             <div class="${cardWrapperClass}" onclick="editRecord('${safeId}')">
                 <div class="flex-1 flex flex-col justify-between">
-                    <!-- 1️⃣ 第一行：📅 日期 · 📍 地區 · 🌡️ 氣溫 ＋ 類型標籤 (置左飽滿、置右固定) -->
-                    <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100 dark:border-slate-800/60 mb-2.5">
-                        <div class="flex items-center gap-1.5 text-[11px] sm:text-xs font-mono font-bold overflow-hidden flex-1 min-w-0">
-                            <div class="flex items-center gap-0.5 overflow-hidden whitespace-nowrap">
+                    <!-- 1️⃣ 緊湊版第一行：日期 · 地區 · 氣溫 ＋ 迷你 Badge -->
+                    <div class="flex items-center justify-between gap-1 pb-2 border-b border-slate-100 dark:border-slate-800/60 mb-2.5">
+                        <div class="flex items-center text-[10.5px] sm:text-xs font-mono font-bold overflow-hidden flex-1 min-w-0">
+                            <div class="flex items-center overflow-hidden whitespace-nowrap">
                                 ${metaCombinedHtml}
                             </div>
                             ${(!safeTag && isMVP) ? `
-                                <span class="inline-flex items-center px-1.5 py-0.5 rounded-full border border-amber-400 bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 text-[9px] font-black shrink-0 ml-1 shadow-sm">
-                                    👑 MVP
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded-full border border-amber-400 bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 text-[8.5px] font-black shrink-0 ml-1 shadow-sm">
+                                    👑MVP
                                 </span>
                             ` : ''}
                         </div>
 
-                        <div class="flex items-center shrink-0">
-                            <span class="px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-black ${typeBadgeStyle} shrink-0 flex items-center gap-1 shadow-sm whitespace-nowrap">
-                                <span class="text-xs leading-none">${iconStr}</span>
+                        <div class="flex items-center shrink-0 ml-1">
+                            <span class="px-2 py-0.5 rounded-full text-[9.5px] sm:text-[10px] font-black ${typeBadgeStyle} shrink-0 flex items-center gap-0.5 shadow-sm whitespace-nowrap leading-tight">
+                                <span class="text-[10px] leading-none">${iconStr}</span>
                                 <span class="leading-none">${safeChargeType}</span>
                             </span>
                         </div>
                     </div>
 
-                    <!-- 2️⃣ 第二行：免手滑、純 CSS 平滑跑馬燈站點名稱 (無截斷且點擊 100% 穿透靈敏) -->
+                    <!-- 2️⃣ 第二行：免手滑、自適應平滑左右巡航跑馬燈（保證結尾完全展示） -->
                     ${safeTag ? `
                     <div class="mb-3">
                         <div class="flex items-center justify-between gap-2">
                             <div class="flex items-center gap-1.5 flex-1 min-w-0 overflow-hidden">
                                 <span class="w-4 flex justify-center text-amber-500 dark:text-amber-400 text-sm shrink-0">⚡</span>
-                                <div class="overflow-hidden whitespace-nowrap flex-1 pointer-events-none">
-                                    <h3 class="text-sm sm:text-base font-black text-slate-800 dark:text-white leading-snug ev-marquee-track ${isLongTag ? 'ev-marquee-active' : ''}">
+                                <div class="marquee-box flex-1 pointer-events-none">
+                                    <h3 class="text-sm sm:text-base font-black text-slate-800 dark:text-white leading-snug marquee-content ${isLongTag ? 'marquee-active' : ''}" style="--marquee-end: -${scrollEndPercent}%;">
                                         ${safeTag}
                                     </h3>
                                 </div>
@@ -2073,8 +2086,8 @@
                     <!-- 3️⃣ 核心數據區 -->
                     ${!isNonDrive ? `
                     <div class="flex-1 flex flex-col justify-center">
-                        <!-- 🔋 電量狀態條：加大進度條粗度、優化內距 -->
-                        <div class="bg-slate-50 dark:bg-slate-900/60 px-3 py-2.5 rounded-2xl border border-slate-100 dark:border-slate-800/80 mb-3 flex items-center justify-between gap-2.5">
+                        <!-- 🔋 電量狀態條 -->
+                        <div class="bg-slate-50 dark:bg-slate-900/60 px-3 py-2 rounded-2xl border border-slate-100 dark:border-slate-800/80 mb-3 flex items-center justify-between gap-2.5">
                             <div class="flex items-center gap-1.5 shrink-0">
                                 <span class="text-[10px] text-slate-400 font-bold">起</span>
                                 <span class="font-mono font-black text-xs sm:text-sm text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 px-2 py-0.5 rounded-lg border border-slate-200/60 dark:border-slate-700/60">${rec.startSoc}%</span>
@@ -2085,7 +2098,7 @@
                                     <span>${isCharging ? '⚡ +' : '🐾 -'}${kwhDelta}</span>
                                     <span class="text-[9px] font-bold">kWh (${socDelta}%)</span>
                                 </span>
-                                <div class="w-full h-2 bg-slate-200 dark:bg-slate-700/80 rounded-full mt-1 overflow-hidden">
+                                <div class="w-full h-1.5 bg-slate-200 dark:bg-slate-700/80 rounded-full mt-1 overflow-hidden">
                                     <div class="h-full rounded-full ${isCharging ? 'bg-gradient-to-r from-teal-400 to-emerald-500' : 'bg-slate-400'}" style="width: ${Math.min(100, (socDelta / 80) * 100)}%"></div>
                                 </div>
                             </div>
@@ -2096,7 +2109,7 @@
                             </div>
                         </div>
 
-                        <!-- 📊 數據 3 欄：統一數值節奏與基準線對齊 -->
+                        <!-- 📊 數據 3 欄 -->
                         <div class="grid grid-cols-3 divide-x divide-slate-100 dark:divide-slate-800 text-center py-1">
                             <div class="px-1 flex flex-col items-center justify-center">
                                 <span class="text-[10px] sm:text-[11px] text-slate-400 font-bold mb-0.5">行駛里程</span>
