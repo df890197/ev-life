@@ -1971,7 +1971,7 @@
             resultBox.classList.remove('hidden');
         }
 
-        // 🌟 核心卡片產生函式 (第一行：日期・地區・溫度 ＋ Badge；第二行：單純站點)
+        // 🌟 核心卡片產生函式 (第一行：日期・地區・溫度 ＋ Badge；第二行：免折行平滑橫向滑動站點名稱)
         function buildRecordCardHtml(rec, isMVP) {
             const isNonDrive = ['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType);
             const dist = parseFloat(rec.distance) || 0;
@@ -2033,18 +2033,20 @@
                         </div>
                     </div>
 
-                    <!-- 2️⃣ 第二行：站點名稱與第一行 X 軸絕對對齊 -->
+                    <!-- 2️⃣ 第二行：免折行平滑橫向滑動站點名稱 (解決 iOS 出現 ... 的問題) -->
                     ${safeTag ? `
                     <div class="mb-3">
                         <div class="flex items-center justify-between gap-2">
                             <div class="flex items-center gap-1.5 flex-1 min-w-0">
                                 <span class="w-4 flex justify-center text-amber-500 dark:text-amber-400 text-sm shrink-0">⚡</span>
-                                <h3 class="text-sm sm:text-base font-black text-slate-800 dark:text-white leading-snug truncate">
-                                    ${safeTag}
-                                </h3>
+                                <div class="overflow-x-auto no-scrollbar whitespace-nowrap flex-1">
+                                    <h3 class="text-sm sm:text-base font-black text-slate-800 dark:text-white leading-snug inline-block">
+                                        ${safeTag}
+                                    </h3>
+                                </div>
                             </div>
                             ${isMVP ? `
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full border border-amber-400 bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 text-[10px] font-black shrink-0 shadow-sm">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full border border-amber-400 bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 text-[10px] font-black shrink-0 shadow-sm ml-1">
                                     👑 最高分
                                 </span>
                             ` : ''}
