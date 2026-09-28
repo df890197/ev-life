@@ -75,7 +75,7 @@
         .dark .pac-item:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
         .dark .pac-item-query { color: #ffffff !important; }
 
-        /* 🚗 智慧跑馬燈：平滑左右巡航，精準只移動被遮住的字元寬度 */
+        /* 🚗 智慧跑馬燈：平滑左右巡航，無遮罩清晰呈現，位移量精確到像素 */
         .marquee-box {
             display: flex;
             width: 100%;
@@ -86,24 +86,6 @@
             -webkit-user-select: none;
         }
 
-        /* 僅在長字串滾動時啟用兩側漸層淡出（左右各 12px 羽化遮罩） */
-        .marquee-box.marquee-masked {
-            -webkit-mask-image: linear-gradient(
-                to right,
-                transparent 0%,
-                black 12px,
-                black calc(100% - 12px),
-                transparent 100%
-            );
-            mask-image: linear-gradient(
-                to right,
-                transparent 0%,
-                black 12px,
-                black calc(100% - 12px),
-                transparent 100%
-            );
-        }
-
         .marquee-content {
             display: inline-block;
             white-space: nowrap;
@@ -111,7 +93,6 @@
         }
 
         .marquee-active {
-            /* 動畫時間由 JS 依據超出字數動態注入，維持全局恆等速 */
             animation: evMarqueeScroll var(--marquee-duration, 5s) ease-in-out infinite alternate;
         }
 
@@ -127,7 +108,7 @@
                 transform: translateX(0px);
             }
             75%, 100% {
-                /* 精確位移剛剛好露出的距離，不多跑任何空白 */
+                /* 嚴格移動差值，剛好露出被遮住的字立刻折返 */
                 transform: translateX(var(--marquee-scroll-x, 0px));
             }
         }
@@ -944,7 +925,7 @@
             </button>
 
             <div class="relative flex justify-center w-16 md:w-24 -mt-8 md:-mt-10 z-20" id="add-btn-wrapper">
-                <button onclick="switchTab('add')" id="tab-add" class="w-14 h-14 md:w-16 md:h-16 bg-slate-900 dark:amber-500 text-white dark:text-slate-900 rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.2)] dark:shadow-[0_8px_20px_rgba(251,191,36,0.3)] border-[3px] border-white/80 dark:border-slate-800/80 transition transform hover:scale-105 active:scale-90 cursor-pointer">
+                <button onclick="switchTab('add')" id="tab-add" class="w-14 h-14 md:w-16 md:h-16 bg-slate-900 dark:bg-amber-500 text-white dark:text-slate-900 rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.2)] dark:shadow-[0_8px_20px_rgba(251,191,36,0.3)] border-[3px] border-white/80 dark:border-slate-800/80 transition transform hover:scale-105 active:scale-90 cursor-pointer">
                     <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
                 </button>
             </div>
@@ -1401,6 +1382,7 @@
         window.addEventListener('resize', () => {
             const activeBtn = document.querySelector('.tab-btn.active');
             if (activeBtn) updateLiquidIndicator(activeBtn.id.replace('tab-', ''));
+            measureAndAdjustMarquees();
         });
 
         function initLiquidDrag() {
@@ -2026,7 +2008,7 @@
             resultBox.classList.remove('hidden');
         }
 
-        // 🌟 核心卡片產生函式 (第一行地區絕對置中 + 跑馬燈字元級精準位移露出即停)
+        // 🌟 核心卡片產生函式 (第一行地區絕對同高水平置中 + 跑馬燈真實寬度計算露出即停)
         function buildRecordCardHtml(rec, isMVP) {
             const isNonDrive = ['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType);
             const dist = parseFloat(rec.distance) || 0;
@@ -2048,23 +2030,6 @@
             const safeDistrict = escapeHTML(rec.district || '');
             const safeTag = escapeHTML(rec.tag || '');
 
-            // 🎯 跑馬燈精準計算：依照卡片寬度，常態約容納 11 個中文字元
-            // 若長度為 13（遮住 2 字），位移量就剛好是 2.2 個中文字寬 (em)，跑出來就立刻停住折返！
-            const tagLength = safeTag.length;
-            const visibleCharCount = 11.5; 
-            const isLongTag = tagLength > visibleCharCount;
-            let overflowPx = '0px';
-            let marqueeDuration = 4;
-
-            if (isLongTag) {
-                const hiddenChars = tagLength - visibleCharCount;
-                // 一個全形中文字約 1.05em，剛好移動 (被遮蔽字數 + 0.3 微緩衝)
-                const shiftEm = (hiddenChars + 0.35).toFixed(2);
-                overflowPx = `-${shiftEm}em`;
-                // 停頓 2.2 秒 + 每個遮蔽字提供 0.45 秒平順滑行
-                marqueeDuration = (2.2 + hiddenChars * 0.45).toFixed(1);
-            }
-
             const cardWrapperClass = (isMVP
                 ? "bg-gradient-to-br from-amber-50/80 via-white to-amber-50/20 dark:from-amber-950/30 dark:via-[#1e293b] dark:to-[#1e293b] p-3.5 sm:p-5 rounded-[1.75rem] border-2 border-amber-400 dark:border-amber-500 shadow-md relative w-full flex flex-col justify-between"
                 : "bg-white dark:bg-[#1e293b] p-3.5 sm:p-5 rounded-[1.75rem] border border-slate-200/80 dark:border-slate-800 shadow-sm relative w-full flex flex-col justify-between"
@@ -2073,53 +2038,52 @@
             return `
             <div class="${cardWrapperClass}" onclick="editRecord('${safeId}')">
                 <div class="flex-1 flex flex-col justify-between">
-                    <!-- 1️⃣ 第一行：三欄平衡結構，地區完美居中 -->
-                    <div class="grid grid-cols-[auto_1fr_auto] items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800/60 mb-2.5">
-                        <!-- 左側：日期 -->
-                        <div class="flex items-center text-[11px] sm:text-xs font-mono font-black text-slate-800 dark:text-slate-200 tracking-tight shrink-0">
+                    <!-- 1️⃣ 第一行：同高對齊，地區絕對居中 (不偏上) -->
+                    <div class="relative flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800/60 mb-2.5 min-h-[26px]">
+                        <!-- 左側：日期 (垂直絕對居中對齊) -->
+                        <div class="inline-flex items-center text-[11px] sm:text-xs font-mono font-black text-slate-800 dark:text-slate-200 tracking-tight shrink-0 z-10 leading-none">
                             📅${safeDate}
                         </div>
 
-                        <!-- 中間：地區 (絕對居中，過長優雅截斷) -->
-                        <div class="text-center overflow-hidden px-1">
-                            ${safeDistrict ? `
-                                <span class="inline-block text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 truncate max-w-full tracking-tight" title="${safeDistrict}">
-                                    📍${safeDistrict}
-                                </span>
-                            ` : ''}
+                        <!-- 中間：地區 (絕對定位，與左右兩側嚴格水平居中同高) -->
+                        ${safeDistrict ? `
+                        <div class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 max-w-[40%] sm:max-w-[48%] overflow-hidden text-center pointer-events-none">
+                            <span class="inline-block text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 truncate tracking-tight align-middle leading-none" title="${safeDistrict}">
+                                📍${safeDistrict}
+                            </span>
                         </div>
+                        ` : ''}
 
-                        <!-- 右側：氣溫與類型 Badge -->
-                        <div class="flex items-center gap-1.5 justify-end shrink-0">
+                        <!-- 右側：氣溫與類型 Badge (垂直絕對居中對齊) -->
+                        <div class="inline-flex items-center gap-1.5 justify-end shrink-0 z-10">
                             ${(rec.temp !== undefined && rec.temp !== null && rec.temp !== '') ? `
-                                <span class="text-[10px] sm:text-xs font-mono font-bold text-sky-600 dark:text-sky-400">
+                                <span class="text-[10px] sm:text-xs font-mono font-bold text-sky-600 dark:text-sky-400 leading-none">
                                     🌡️${rec.temp}°C
                                 </span>
                             ` : ''}
                             ${(!safeTag && isMVP) ? `
-                                <span class="inline-flex items-center px-1.5 py-0.5 rounded-full border border-amber-400 bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 text-[8.5px] font-black shadow-sm">
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded-full border border-amber-400 bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 text-[8.5px] font-black shadow-sm leading-none">
                                     👑MVP
                                 </span>
                             ` : ''}
-                            <span class="px-2 py-0.5 rounded-full text-[9.5px] sm:text-[10px] font-black ${typeBadgeStyle} shrink-0 flex items-center gap-0.5 shadow-sm whitespace-nowrap leading-tight">
+                            <span class="px-2 py-0.5 rounded-full text-[9.5px] sm:text-[10px] font-black ${typeBadgeStyle} shrink-0 inline-flex items-center gap-0.5 shadow-sm whitespace-nowrap leading-tight">
                                 <span class="text-[10px] leading-none">${iconStr}</span>
                                 <span class="leading-none">${safeChargeType}</span>
                             </span>
                         </div>
                     </div>
 
-                    <!-- 2️⃣ 第二行：跑馬燈（精確移動被遮蔽字元，露出即停，不留白） -->
+                    <!-- 2️⃣ 第二行：跑馬燈（無兩側遮罩淡化，像素級實時計算位移，遮多少走多少） -->
                     ${safeTag ? `
                     <div class="mb-3" onclick="event.stopPropagation()">
                         <div class="flex items-center justify-between gap-2">
                             <div class="flex items-center gap-1.5 flex-1 min-w-0 overflow-hidden">
                                 <span class="w-4 flex justify-center text-amber-500 dark:text-amber-400 text-sm shrink-0">⚡</span>
-                                <div class="marquee-box flex-1 cursor-grab active:cursor-grabbing ${isLongTag ? 'marquee-masked' : ''}"
+                                <div class="marquee-box flex-1 cursor-grab active:cursor-grabbing"
                                      ontouchstart="this.querySelector('.marquee-content')?.classList.add('marquee-paused')"
                                      ontouchend="this.querySelector('.marquee-content')?.classList.remove('marquee-paused')"
                                      ontouchcancel="this.querySelector('.marquee-content')?.classList.remove('marquee-paused')">
-                                    <h3 class="text-sm sm:text-base font-black text-slate-800 dark:text-white leading-snug marquee-content ${isLongTag ? 'marquee-active' : ''}" 
-                                        style="--marquee-scroll-x: ${overflowPx}; --marquee-duration: ${marqueeDuration}s;">
+                                    <h3 class="text-sm sm:text-base font-black text-slate-800 dark:text-white leading-snug marquee-content">
                                         ${safeTag}
                                     </h3>
                                 </div>
@@ -2214,6 +2178,34 @@
             </div>`;
         }
 
+        // 📏 精準測量每個跑馬燈的溢出像素，遮住多少像素就走多少，絕不多走一絲空白
+        function measureAndAdjustMarquees() {
+            requestAnimationFrame(() => {
+                const boxes = document.querySelectorAll('.marquee-box');
+                boxes.forEach(box => {
+                    const content = box.querySelector('.marquee-content');
+                    if (!content) return;
+                    
+                    const boxWidth = box.clientWidth;
+                    const contentWidth = content.scrollWidth;
+                    const overflow = contentWidth - boxWidth;
+
+                    if (overflow > 6) {
+                        content.classList.add('marquee-active');
+                        // 剛好位移「溢出寬度 + 2px」，使末端字體恰好完全露出
+                        content.style.setProperty('--marquee-scroll-x', `-${Math.ceil(overflow) + 2}px`);
+                        // 停頓 2.5 秒，每溢出 24px 給予 0.35 秒等速巡航
+                        const duration = Math.max(3.2, 2.5 + (overflow / 24) * 0.35).toFixed(2);
+                        content.style.setProperty('--marquee-duration', `${duration}s`);
+                    } else {
+                        content.classList.remove('marquee-active');
+                        content.style.removeProperty('--marquee-scroll-x');
+                        content.style.removeProperty('--marquee-duration');
+                    }
+                });
+            });
+        }
+
         var mvpGlobalId = null;
 
         function renderDashboard() {
@@ -2280,8 +2272,13 @@
                 return buildRecordCardHtml(rec, isMVP);
             }); 
 
-            if(DOM.recordMobileList) DOM.recordMobileList.innerHTML = htmlFragments.join('');
-            if (currentViewMode === 'calendar') renderCalendar();
+            if(DOM.recordMobileList) {
+                DOM.recordMobileList.innerHTML = htmlFragments.join('');
+                measureAndAdjustMarquees();
+            }
+            if (currentViewMode === 'calendar') {
+                renderCalendar();
+            }
         }
 
         let currentViewMode = 'list';
@@ -2293,6 +2290,7 @@
             if (DOM.recordCalendarContainer) DOM.recordCalendarContainer.classList.toggle('hidden', currentViewMode === 'list');
             document.getElementById('btnToggleView').textContent = currentViewMode === 'list' ? '📅 切換日曆' : '📝 切換列表';
             if (currentViewMode === 'calendar') renderCalendar();
+            else measureAndAdjustMarquees();
         }
 
         window.selectCalendarDay = function(dateStr) {
@@ -2372,6 +2370,7 @@
                         const isMVP = (mvpGlobalId && rec.id === mvpGlobalId);
                         return buildRecordCardHtml(rec, isMVP);
                     }).join('');
+                    measureAndAdjustMarquees();
                 } else {
                     daySection.classList.add('hidden');
                     dayList.innerHTML = '';
