@@ -1966,7 +1966,7 @@
             resultBox.classList.remove('hidden');
         }
 
-        // 🌟 依照最新需求打造：第一行 (日期・地區・氣溫 同排) + 充電站全名直接呈現
+        // 🌟 核心卡片產生函式 (修復日期吃字 + 衍生支出高度置中對齊 + 包含 Emoji)
         function buildRecordCardHtml(rec, isMVP) {
             const isNonDrive = ['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType);
             const dist = parseFloat(rec.distance) || 0;
@@ -1988,15 +1988,15 @@
             const safeDistrict = escapeHTML(rec.district || '');
             const safeTag = escapeHTML(rec.tag || '');
 
-            // 1️⃣ 第一行整合：日期 · 地區 · 溫度 在同一排緊密排列
-            const metaParts = [`<span>${safeDate}</span>`];
+            // 1️⃣ 第一行資訊組裝：日期必定展示 (shrink-0 保護不吃字)
+            const metaParts = [`<span class="shrink-0 text-slate-800 dark:text-slate-200">${safeDate}</span>`];
             if (safeDistrict) {
-                metaParts.push(`<span>${safeDistrict}</span>`);
+                metaParts.push(`<span class="truncate max-w-[100px] sm:max-w-none">${safeDistrict}</span>`);
             }
             if (rec.temp !== undefined && rec.temp !== null && rec.temp !== '') {
-                metaParts.push(`<span>${rec.temp}°C</span>`);
+                metaParts.push(`<span class="shrink-0 text-sky-600 dark:text-sky-400 font-bold">${rec.temp}°C</span>`);
             }
-            const metaCombinedHtml = metaParts.join('<span class="opacity-40">·</span>');
+            const metaCombinedHtml = metaParts.join('<span class="opacity-30 mx-0.5">·</span>');
 
             const cardWrapperClass = isMVP
                 ? "bg-gradient-to-br from-amber-50/80 via-white to-amber-50/20 dark:from-amber-950/30 dark:via-[#1e293b] dark:to-[#1e293b] p-4 md:p-5 rounded-[1.75rem] border-2 border-amber-400 dark:border-amber-500 shadow-md relative w-full flex flex-col justify-between"
@@ -2004,24 +2004,26 @@
 
             return `
             <div class="${cardWrapperClass}">
-                <div>
-                    <!-- 1️⃣ 第一行：日期 · 地區 · 溫度 (同一排) ＋ 右側 Badge 與按鈕 -->
-                    <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100 dark:border-slate-800/60 mb-2.5">
-                        <div class="flex items-center gap-1.5 text-[11px] md:text-xs font-mono font-bold text-slate-500 dark:text-slate-400 min-w-0 flex-1 truncate">
-                            <span>📅</span>
-                            <div class="flex items-center gap-1.5 truncate">
+                <div class="flex-1 flex flex-col">
+                    <!-- 1️⃣ 第一行：日期 · 地區 · 溫度 (加強防吃字保護) ＋ 右側 Emoji 膠囊與按鈕 -->
+                    <div class="flex items-center justify-between gap-1.5 pb-2.5 border-b border-slate-100 dark:border-slate-800/60 mb-2.5">
+                        <div class="flex items-center gap-1.5 text-[11px] md:text-xs font-mono font-bold text-slate-500 dark:text-slate-400 min-w-0 shrink">
+                            <span class="shrink-0">📅</span>
+                            <div class="flex items-center gap-1 min-w-0">
                                 ${metaCombinedHtml}
                             </div>
                             ${(!safeTag && isMVP) ? `
-                                <span class="inline-flex items-center px-1.5 py-0.2 rounded-full border border-amber-400 bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 text-[9px] font-black shrink-0 ml-1 shadow-sm">
+                                <span class="inline-flex items-center px-1.5 py-0.2 rounded-full border border-amber-400 bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 text-[9px] font-black shrink-0 ml-0.5 shadow-sm">
                                     👑 MVP
                                 </span>
                             ` : ''}
                         </div>
 
-                        <div class="flex items-center gap-2 shrink-0">
-                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black ${typeBadgeStyle} shrink-0 flex items-center gap-1">
-                                <span>${iconStr}</span><span>${safeChargeType}</span>
+                        <div class="flex items-center gap-1.5 shrink-0 ml-auto">
+                            <!-- 🏷️ 帶有專屬 Emoji 的膠囊 Badge -->
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-black ${typeBadgeStyle} shrink-0 flex items-center gap-1 shadow-sm">
+                                <span class="text-xs leading-none">${iconStr}</span>
+                                <span class="leading-none">${safeChargeType}</span>
                             </span>
                             <div class="flex items-center -mr-1">
                                 <button class="edit-btn p-1 text-slate-400 hover:text-amber-500 active:scale-90 transition rounded" data-id="${safeId}" title="編輯">
@@ -2034,7 +2036,7 @@
                         </div>
                     </div>
 
-                    <!-- 2️⃣ 站點名稱：有填才顯示，沒填寫（如公司/家充）則直接留白隱藏，不加贅詞 -->
+                    <!-- 2️⃣ 站點名稱：有填寫才顯示，沒填寫直接乾淨留白 -->
                     ${safeTag ? `
                     <div class="mb-3">
                         <div class="flex items-start justify-between gap-2">
@@ -2053,7 +2055,7 @@
                     </div>
                     ` : ''}
 
-                    <!-- 3️⃣ 行車/充電核心指標區 -->
+                    <!-- 3️⃣ 行車/充電核心指標區 或 置中對齊的衍生支出卡 -->
                     ${!isNonDrive ? `
                     <!-- 🔋 電量狀態條膠囊 -->
                     <div class="bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-2xl border border-slate-100 dark:border-slate-800/80 mb-3 flex items-center justify-between gap-2">
@@ -2101,18 +2103,24 @@
                         </div>
                     </div>
                     ` : `
-                    <!-- 💰 衍生支出條樣式 (保養/停車/通行費/保險) -->
-                    <div class="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center justify-between mb-2">
-                        <div class="flex items-center gap-2.5">
-                            <span class="text-2xl">${iconStr}</span>
-                            <div>
-                                <span class="text-xs md:text-sm font-black text-slate-700 dark:text-slate-200 block">${rec.chargeType}項目支出</span>
-                                <span class="text-[10px] text-slate-400 font-bold">${safeNote ? '詳見下方備註' : '車輛衍生費用'}</span>
+                    <!-- 💰 衍生支出條：自動居中對齊，徹底解決單一框撐高跑版問題 -->
+                    <div class="my-auto py-3">
+                        <div class="bg-slate-50 dark:bg-slate-900/50 p-4 md:p-5 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center justify-between shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-2xl bg-white dark:bg-slate-800 flex items-center justify-center text-2xl shadow-sm border border-slate-200/50 dark:border-slate-700/50">
+                                    ${iconStr}
+                                </div>
+                                <div class="text-left">
+                                    <span class="text-sm md:text-base font-black text-slate-800 dark:text-slate-100 block tracking-tight">${rec.chargeType}支出</span>
+                                    <span class="text-[10px] md:text-[11px] text-slate-400 font-bold block mt-0.5">${safeNote ? '請見備註說明' : '純電日常用車開銷'}</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-[10px] text-slate-400 font-bold block">支出金額</span>
-                            <span class="font-mono font-black text-lg md:text-xl text-rose-500 dark:text-rose-400"><span class="text-xs mr-0.5">$</span>${rec.cost}</span>
+                            <div class="text-right pl-3">
+                                <span class="text-[10px] text-slate-400 font-bold block">費用</span>
+                                <div class="font-mono font-black text-xl md:text-2xl text-slate-800 dark:text-white leading-tight">
+                                    <span class="text-sm font-bold text-slate-400 mr-0.5">$</span>${rec.cost}
+                                </div>
+                            </div>
                         </div>
                     </div>
                     `}
