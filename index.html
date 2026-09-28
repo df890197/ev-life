@@ -75,27 +75,60 @@
         .dark .pac-item:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
         .dark .pac-item-query { color: #ffffff !important; }
 
-        /* 🚗 智慧跑馬燈：平滑左右巡航，100% 顯示頭尾文字 */
+        /* 🚗 智慧跑馬燈：平滑左右巡航，速度完全等速，結尾不留白，支援邊界羽化遮罩 */
         .marquee-box {
             display: flex;
             width: 100%;
             overflow: hidden;
             white-space: nowrap;
+            position: relative;
+            user-select: none;
+            -webkit-user-select: none;
         }
+
+        /* 僅在長字串滾動時啟用兩側漸層淡出（左右各 14px 羽化遮罩） */
+        .marquee-box.marquee-masked {
+            -webkit-mask-image: linear-gradient(
+                to right,
+                transparent 0%,
+                black 14px,
+                black calc(100% - 14px),
+                transparent 100%
+            );
+            mask-image: linear-gradient(
+                to right,
+                transparent 0%,
+                black 14px,
+                black calc(100% - 14px),
+                transparent 100%
+            );
+        }
+
         .marquee-content {
             display: inline-block;
             white-space: nowrap;
             will-change: transform;
+            min-width: 100%;
         }
+
         .marquee-active {
-            animation: evMarqueeScroll 7.5s ease-in-out infinite alternate;
+            /* 動畫時間由 JS 依據超出字數動態注入，維持全局恆等速 */
+            animation: evMarqueeScroll var(--marquee-duration, 8s) ease-in-out infinite alternate;
         }
+
+        /* 🛑 滑鼠懸停、長按或手機觸控時即時凍結 */
+        .marquee-box:hover .marquee-active,
+        .marquee-box:active .marquee-active,
+        .marquee-active.marquee-paused {
+            animation-play-state: paused !important;
+        }
+
         @keyframes evMarqueeScroll {
-            0%, 25% {
-                transform: translateX(0%);
+            0%, 18% {
+                transform: translateX(0px);
             }
-            75%, 100% {
-                transform: translateX(var(--marquee-end, -45%));
+            82%, 100% {
+                transform: translateX(var(--marquee-scroll-x, 0%));
             }
         }
     </style>
@@ -541,7 +574,6 @@
                                 取消
                             </button>
                         </div>
-                        <!-- 僅在點入卡片進行「編輯」時顯現的刪除按鈕 -->
                         <button type="button" id="btnDeleteInForm" onclick="handleDeleteFromEdit()" class="hidden w-full py-3.5 rounded-2xl text-rose-500 bg-rose-50 hover:bg-rose-100 dark:bg-rose-900/20 dark:hover:bg-rose-900/40 text-xs md:text-sm font-bold border border-rose-200 dark:border-rose-900/50 transition active:scale-95">
                             🗑️ 刪除此筆紀錄
                         </button>
@@ -574,7 +606,6 @@
             <div id="recordCalendarContainer" class="hidden max-w-2xl mx-auto space-y-4">
                 <div id="recordCalendarView" class="bg-white dark:bg-[#1e293b] p-5 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-800 pb-6">
                 </div>
-                <!-- 點選日期後展開的當日明細列表 -->
                 <div id="calendarDayRecordsSection" class="hidden space-y-3">
                     <div class="flex items-center justify-between px-2">
                         <span id="calendarDayRecordsTitle" class="text-xs md:text-sm font-black text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
@@ -1995,7 +2026,7 @@
             resultBox.classList.remove('hidden');
         }
 
-        // 🌟 核心卡片產生函式 (緊湊第一行防吃字 + 動態自適應跑馬燈站點)
+        // 🌟 核心卡片產生函式 (第一行自適應大小 + 精準等速羽化跑馬燈)
         function buildRecordCardHtml(rec, isMVP) {
             const isNonDrive = ['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType);
             const dist = parseFloat(rec.distance) || 0;
@@ -2017,21 +2048,28 @@
             const safeDistrict = escapeHTML(rec.district || '');
             const safeTag = escapeHTML(rec.tag || '');
 
-            // 1️⃣ 第一行緊湊組裝：無多餘空白，確保在各尺寸手機上完整容納
-            const metaParts = [`<span class="shrink-0 text-slate-800 dark:text-slate-200 font-black tracking-tight">📅${safeDate}</span>`];
+            // 1️⃣ 第一行：自適應大小，填滿兩側多餘空隙且不吃字
+            const metaParts = [`<span class="shrink-0 text-slate-800 dark:text-slate-200 font-black tracking-tight text-[11px] sm:text-xs">📅${safeDate}</span>`];
             if (safeDistrict) {
-                metaParts.push(`<span class="shrink-0 text-slate-500 dark:text-slate-400 max-w-[80px] sm:max-w-[130px] truncate tracking-tight">📍${safeDistrict}</span>`);
+                metaParts.push(`<span class="flex-1 min-w-0 truncate text-slate-500 dark:text-slate-400 tracking-tight text-[11px] sm:text-xs font-bold" title="${safeDistrict}">📍${safeDistrict}</span>`);
             }
             if (rec.temp !== undefined && rec.temp !== null && rec.temp !== '') {
-                metaParts.push(`<span class="shrink-0 text-sky-600 dark:text-sky-400 font-mono font-bold tracking-tight">🌡️${rec.temp}°C</span>`);
+                metaParts.push(`<span class="shrink-0 text-sky-600 dark:text-sky-400 font-mono font-bold tracking-tight text-[10.5px] sm:text-xs">🌡️${rec.temp}°C</span>`);
             }
-            const metaCombinedHtml = metaParts.join('<span class="inline-block w-[2px] h-[2px] rounded-full bg-slate-300 dark:bg-slate-600 mx-0.5 shrink-0 self-center"></span>');
+            const metaCombinedHtml = metaParts.join('<span class="inline-block w-[3px] h-[3px] rounded-full bg-slate-300 dark:bg-slate-600 mx-1 shrink-0 self-center"></span>');
 
-            // 2️⃣ 智慧計算跑馬燈位移（根據字元數動態計算終點百分比，保證最後一個字完整現形）
+            // 2️⃣ 跑馬燈位移與等速秒數精準計算（支援淡入淡出遮罩）
             const tagLength = safeTag.length;
-            const isLongTag = tagLength > 10;
-            // 估計超長文字所需要的位移量百分比
-            const scrollEndPercent = isLongTag ? Math.min(85, Math.max(30, (tagLength - 10) * 8.5)) : 0;
+            const isLongTag = tagLength > 11;
+            let overflowRatio = 0;
+            let marqueeDuration = 6;
+
+            if (isLongTag) {
+                // 精準計算溢出比例：最後一個字剛好貼齊邊框不留白
+                overflowRatio = Math.min(68, Math.max(12, ((tagLength - 9.5) / tagLength) * 100));
+                // 等速公式：停頓 2.8s + 每超出 1 字 0.38s
+                marqueeDuration = (2.8 + (tagLength - 11) * 0.38).toFixed(1);
+            }
 
             const cardWrapperClass = (isMVP
                 ? "bg-gradient-to-br from-amber-50/80 via-white to-amber-50/20 dark:from-amber-950/30 dark:via-[#1e293b] dark:to-[#1e293b] p-3.5 sm:p-5 rounded-[1.75rem] border-2 border-amber-400 dark:border-amber-500 shadow-md relative w-full flex flex-col justify-between"
@@ -2041,20 +2079,20 @@
             return `
             <div class="${cardWrapperClass}" onclick="editRecord('${safeId}')">
                 <div class="flex-1 flex flex-col justify-between">
-                    <!-- 1️⃣ 緊湊版第一行：日期 · 地區 · 氣溫 ＋ 迷你 Badge -->
-                    <div class="flex items-center justify-between gap-1 pb-2 border-b border-slate-100 dark:border-slate-800/60 mb-2.5">
-                        <div class="flex items-center text-[10.5px] sm:text-xs font-mono font-bold overflow-hidden flex-1 min-w-0">
-                            <div class="flex items-center overflow-hidden whitespace-nowrap">
+                    <!-- 1️⃣ 緊湊版自適應第一行 -->
+                    <div class="flex items-center justify-between gap-1.5 pb-2 border-b border-slate-100 dark:border-slate-800/60 mb-2.5">
+                        <div class="flex items-center font-mono overflow-hidden flex-1 min-w-0 pr-1">
+                            <div class="flex items-center overflow-hidden flex-1 min-w-0">
                                 ${metaCombinedHtml}
                             </div>
                             ${(!safeTag && isMVP) ? `
-                                <span class="inline-flex items-center px-1.5 py-0.5 rounded-full border border-amber-400 bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 text-[8.5px] font-black shrink-0 ml-1 shadow-sm">
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded-full border border-amber-400 bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 text-[8.5px] font-black shrink-0 ml-1.5 shadow-sm">
                                     👑MVP
                                 </span>
                             ` : ''}
                         </div>
 
-                        <div class="flex items-center shrink-0 ml-1">
+                        <div class="flex items-center shrink-0">
                             <span class="px-2 py-0.5 rounded-full text-[9.5px] sm:text-[10px] font-black ${typeBadgeStyle} shrink-0 flex items-center gap-0.5 shadow-sm whitespace-nowrap leading-tight">
                                 <span class="text-[10px] leading-none">${iconStr}</span>
                                 <span class="leading-none">${safeChargeType}</span>
@@ -2062,14 +2100,18 @@
                         </div>
                     </div>
 
-                    <!-- 2️⃣ 第二行：免手滑、自適應平滑左右巡航跑馬燈（保證結尾完全展示） -->
+                    <!-- 2️⃣ 第二行：等速巡航跑馬燈（兩側漸層羽化遮罩 + 觸控懸停即停） -->
                     ${safeTag ? `
-                    <div class="mb-3">
+                    <div class="mb-3" onclick="event.stopPropagation()">
                         <div class="flex items-center justify-between gap-2">
                             <div class="flex items-center gap-1.5 flex-1 min-w-0 overflow-hidden">
                                 <span class="w-4 flex justify-center text-amber-500 dark:text-amber-400 text-sm shrink-0">⚡</span>
-                                <div class="marquee-box flex-1 pointer-events-none">
-                                    <h3 class="text-sm sm:text-base font-black text-slate-800 dark:text-white leading-snug marquee-content ${isLongTag ? 'marquee-active' : ''}" style="--marquee-end: -${scrollEndPercent}%;">
+                                <div class="marquee-box flex-1 cursor-grab active:cursor-grabbing ${isLongTag ? 'marquee-masked' : ''}"
+                                     ontouchstart="this.querySelector('.marquee-content')?.classList.add('marquee-paused')"
+                                     ontouchend="this.querySelector('.marquee-content')?.classList.remove('marquee-paused')"
+                                     ontouchcancel="this.querySelector('.marquee-content')?.classList.remove('marquee-paused')">
+                                    <h3 class="text-sm sm:text-base font-black text-slate-800 dark:text-white leading-snug marquee-content ${isLongTag ? 'marquee-active' : ''}" 
+                                        style="--marquee-scroll-x: -${overflowRatio}%; --marquee-duration: ${marqueeDuration}s;">
                                         ${safeTag}
                                     </h3>
                                 </div>
