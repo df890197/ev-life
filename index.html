@@ -74,6 +74,20 @@
         .dark .pac-item { border-top-color: rgba(255, 255, 255, 0.05) !important; color: #cbd5e1 !important; }
         .dark .pac-item:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
         .dark .pac-item-query { color: #ffffff !important; }
+
+        /* 🚗 超長站點平滑自動跑馬燈 */
+        @keyframes evMarquee {
+            0%, 20% { transform: translateX(0%); }
+            80%, 100% { transform: translateX(calc(-100% + 220px)); }
+        }
+        .ev-marquee-track {
+            display: inline-block;
+            white-space: nowrap;
+            will-change: transform;
+        }
+        .ev-marquee-active {
+            animation: evMarquee 8s ease-in-out infinite alternate;
+        }
     </style>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1971,7 +1985,7 @@
             resultBox.classList.remove('hidden');
         }
 
-        // 🌟 核心卡片產生函式 (第一行：日期・地區・溫度 ＋ Badge；第二行：免折行平滑橫向滑動站點名稱)
+        // 🌟 核心卡片產生函式 (第一行：📅 日期 · 📍 地區 · 🌡️ 氣溫；第二行：純 CSS 平滑跑馬燈站點)
         function buildRecordCardHtml(rec, isMVP) {
             const isNonDrive = ['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType);
             const dist = parseFloat(rec.distance) || 0;
@@ -1993,15 +2007,18 @@
             const safeDistrict = escapeHTML(rec.district || '');
             const safeTag = escapeHTML(rec.tag || '');
 
-            // 組裝第一行：乾淨俐落的垂直分隔線取代模糊的符號點
-            const metaParts = [`<span class="shrink-0 text-slate-800 dark:text-slate-200 font-black">${safeDate}</span>`];
+            // 1️⃣ 第一行組裝：📅 日期 · 📍 地區 · 🌡️ 氣溫
+            const metaParts = [`<span class="shrink-0 text-slate-800 dark:text-slate-200 font-black">📅 ${safeDate}</span>`];
             if (safeDistrict) {
-                metaParts.push(`<span class="shrink-0 text-slate-500 dark:text-slate-400 max-w-[100px] sm:max-w-[140px] truncate">${safeDistrict}</span>`);
+                metaParts.push(`<span class="shrink-0 text-slate-500 dark:text-slate-400 max-w-[105px] sm:max-w-[140px] truncate">📍 ${safeDistrict}</span>`);
             }
             if (rec.temp !== undefined && rec.temp !== null && rec.temp !== '') {
-                metaParts.push(`<span class="shrink-0 text-sky-600 dark:text-sky-400 font-mono font-bold">${rec.temp}°C</span>`);
+                metaParts.push(`<span class="shrink-0 text-sky-600 dark:text-sky-400 font-mono font-bold">🌡️ ${rec.temp}°C</span>`);
             }
             const metaCombinedHtml = metaParts.join('<span class="inline-block w-[3px] h-[3px] rounded-full bg-slate-300 dark:bg-slate-600 mx-1 shrink-0 self-center"></span>');
+
+            // 2️⃣ 站點超長時自動啟用 CSS 跑馬燈（超過 12 字自動啟用緩移）
+            const isLongTag = safeTag.length > 12;
 
             const cardWrapperClass = (isMVP
                 ? "bg-gradient-to-br from-amber-50/80 via-white to-amber-50/20 dark:from-amber-950/30 dark:via-[#1e293b] dark:to-[#1e293b] p-4 sm:p-5 rounded-[1.75rem] border-2 border-amber-400 dark:border-amber-500 shadow-md relative w-full flex flex-col justify-between"
@@ -2011,11 +2028,10 @@
             return `
             <div class="${cardWrapperClass}" onclick="editRecord('${safeId}')">
                 <div class="flex-1 flex flex-col justify-between">
-                    <!-- 1️⃣ 第一行：固定寬度圖示 + 完美垂直置中對齊 -->
+                    <!-- 1️⃣ 第一行：📅 日期 · 📍 地區 · 🌡️ 氣溫 ＋ 類型標籤 (置左飽滿、置右固定) -->
                     <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100 dark:border-slate-800/60 mb-2.5">
                         <div class="flex items-center gap-1.5 text-[11px] sm:text-xs font-mono font-bold overflow-hidden flex-1 min-w-0">
-                            <span class="w-4 flex justify-center shrink-0">📅</span>
-                            <div class="flex items-center gap-0.5 overflow-x-auto no-scrollbar whitespace-nowrap">
+                            <div class="flex items-center gap-0.5 overflow-hidden whitespace-nowrap">
                                 ${metaCombinedHtml}
                             </div>
                             ${(!safeTag && isMVP) ? `
@@ -2033,14 +2049,14 @@
                         </div>
                     </div>
 
-                    <!-- 2️⃣ 第二行：免折行平滑橫向滑動站點名稱 (解決 iOS 出現 ... 的問題) -->
+                    <!-- 2️⃣ 第二行：免手滑、純 CSS 平滑跑馬燈站點名稱 (無截斷且點擊 100% 穿透靈敏) -->
                     ${safeTag ? `
                     <div class="mb-3">
                         <div class="flex items-center justify-between gap-2">
-                            <div class="flex items-center gap-1.5 flex-1 min-w-0">
+                            <div class="flex items-center gap-1.5 flex-1 min-w-0 overflow-hidden">
                                 <span class="w-4 flex justify-center text-amber-500 dark:text-amber-400 text-sm shrink-0">⚡</span>
-                                <div class="overflow-x-auto no-scrollbar whitespace-nowrap flex-1">
-                                    <h3 class="text-sm sm:text-base font-black text-slate-800 dark:text-white leading-snug inline-block">
+                                <div class="overflow-hidden whitespace-nowrap flex-1 pointer-events-none">
+                                    <h3 class="text-sm sm:text-base font-black text-slate-800 dark:text-white leading-snug ev-marquee-track ${isLongTag ? 'ev-marquee-active' : ''}">
                                         ${safeTag}
                                     </h3>
                                 </div>
