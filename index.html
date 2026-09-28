@@ -508,12 +508,18 @@
                         <input type="text" id="inputNote" placeholder="例如：帶貓咪去兜風 🐱 / 兩萬公里定保" class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
                     </div>
 
-                    <div class="flex gap-3 pt-4">
-                        <button type="submit" class="flex-1 rpg-btn-primary text-sm md:text-base font-black py-4 md:py-5 rounded-2xl shadow-md transition hover:scale-[1.02] active:scale-95">
-                            <span id="submitBtnText">儲存紀錄</span>
-                        </button>
-                        <button type="button" id="cancelEditBtn" onclick="cancelEdit()" class="hidden rpg-btn-secondary text-sm md:text-base font-bold py-4 px-6 md:px-8 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-500 transition hover:bg-slate-100 active:scale-95">
-                            取消
+                    <div class="flex flex-col gap-3 pt-4">
+                        <div class="flex gap-3">
+                            <button type="submit" class="flex-1 rpg-btn-primary text-sm md:text-base font-black py-4 md:py-5 rounded-2xl shadow-md transition hover:scale-[1.02] active:scale-95">
+                                <span id="submitBtnText">儲存紀錄</span>
+                            </button>
+                            <button type="button" id="cancelEditBtn" onclick="cancelEdit()" class="hidden rpg-btn-secondary text-sm md:text-base font-bold py-4 px-6 md:px-8 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-500 transition hover:bg-slate-100 active:scale-95">
+                                取消
+                            </button>
+                        </div>
+                        <!-- 僅在點入卡片進行「編輯」時顯現的刪除按鈕 -->
+                        <button type="button" id="btnDeleteInForm" onclick="handleDeleteFromEdit()" class="hidden w-full py-3.5 rounded-2xl text-rose-500 bg-rose-50 hover:bg-rose-100 dark:bg-rose-900/20 dark:hover:bg-rose-900/40 text-xs md:text-sm font-bold border border-rose-200 dark:border-rose-900/50 transition active:scale-95">
+                            🗑️ 刪除此筆紀錄
                         </button>
                     </div>
                 </form>
@@ -973,7 +979,7 @@
              'maintDateAlertContainer', 'maintTargetDateStr', 'maintDaysRemainingBadge', 'insuranceDateAlertContainer', 'insuranceTargetDateStr', 'insuranceDaysRemainingBadge',
              'efficiencyChart', 'costDistributionChart', 'tempEffChart', 'cpRankingList', 'analysisTotalKm', 'analysisSummaryLabel', 'analysisAvgEfficiency',
              'analysisTotalCost', 'analysisCostLabel', 'analysisCostPerKm', 'heroImageDisplay', 'toggleHighway', 'toggleMountain', 'badgesContainer',
-             'recordCalendarContainer', 'recordCalendarView', 'calendarDayRecordsSection', 'calendarDayRecordsTitle', 'calendarDayRecordsList'].forEach(id => {
+             'recordCalendarContainer', 'recordCalendarView', 'calendarDayRecordsSection', 'calendarDayRecordsTitle', 'calendarDayRecordsList', 'btnDeleteInForm'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) DOM[id] = el;
             });
@@ -1094,7 +1100,6 @@
             if ('requestIdleCallback' in window) requestIdleCallback(debouncedUpdateCharts);
             else setTimeout(debouncedUpdateCharts, 200);
 
-            setupDelegatedEvents();
             if (AppState.syncUrl) setTimeout(() => syncWithCloud('auto', false), 800);
         }
 
@@ -1966,7 +1971,7 @@
             resultBox.classList.remove('hidden');
         }
 
-        // 🌟 核心卡片產生函式 (修復日期吃字 + 衍生支出高度置中對齊 + 包含 Emoji)
+        // 🌟 核心卡片產生函式 (時空分層排版 + 點擊進入編輯 + 移除編輯/刪除按鈕)
         function buildRecordCardHtml(rec, isMVP) {
             const isNonDrive = ['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType);
             const dist = parseFloat(rec.distance) || 0;
@@ -1988,73 +1993,62 @@
             const safeDistrict = escapeHTML(rec.district || '');
             const safeTag = escapeHTML(rec.tag || '');
 
-            // 1️⃣ 第一行資訊組裝：確保 日期・地區・溫度 絕不折行且完整顯示
-            const metaParts = [`<span class="shrink-0 whitespace-nowrap text-slate-800 dark:text-slate-200 font-black">${safeDate}</span>`];
-            if (safeDistrict) {
-                metaParts.push(`<span class="shrink-0 whitespace-nowrap text-slate-500 dark:text-slate-400 max-w-[120px] truncate">${safeDistrict}</span>`);
-            }
+            // 組裝環境資訊：地區與氣溫
+            const envParts = [];
+            if (safeDistrict) envParts.push(`<span>📍 ${safeDistrict}</span>`);
             if (rec.temp !== undefined && rec.temp !== null && rec.temp !== '') {
-                metaParts.push(`<span class="shrink-0 whitespace-nowrap text-sky-600 dark:text-sky-400 font-mono font-bold">${rec.temp}°C</span>`);
+                envParts.push(`<span class="font-mono text-sky-600 dark:text-sky-400">🌡️ ${rec.temp}°C</span>`);
             }
-            const metaCombinedHtml = metaParts.join('<span class="opacity-30 mx-1 shrink-0">·</span>');
+            const envHtml = envParts.join('<span class="opacity-30 mx-1">·</span>');
 
-            const cardWrapperClass = isMVP
+            const cardWrapperClass = (isMVP
                 ? "bg-gradient-to-br from-amber-50/80 via-white to-amber-50/20 dark:from-amber-950/30 dark:via-[#1e293b] dark:to-[#1e293b] p-4 md:p-5 rounded-[1.75rem] border-2 border-amber-400 dark:border-amber-500 shadow-md relative w-full flex flex-col justify-between"
-                : "bg-white dark:bg-[#1e293b] p-4 md:p-5 rounded-[1.75rem] border border-slate-200/80 dark:border-slate-800 shadow-sm relative w-full flex flex-col justify-between";
+                : "bg-white dark:bg-[#1e293b] p-4 md:p-5 rounded-[1.75rem] border border-slate-200/80 dark:border-slate-800 shadow-sm relative w-full flex flex-col justify-between"
+            ) + " cursor-pointer transition active:scale-[0.99] hover:border-amber-300 dark:hover:border-amber-500/50";
 
             return `
-            <div class="${cardWrapperClass}">
+            <div class="${cardWrapperClass}" onclick="editRecord('${safeId}')">
                 <div class="flex-1 flex flex-col justify-between">
-                    <!-- 1️⃣ 第一行：日期 · 地區 · 溫度 (強制不換行) ＋ 類型標籤與操作按鈕 -->
+                    <!-- 1️⃣ 第一行：時間維度（日期）＋ 紀錄類型 Badge，空間完全釋放 -->
                     <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100 dark:border-slate-800/60 mb-2.5">
-                        <div class="flex items-center gap-1.5 text-[11px] md:text-xs font-mono font-bold overflow-hidden flex-1 min-w-0">
-                            <span class="shrink-0">📅</span>
-                            <div class="flex items-center gap-0.5 overflow-x-auto no-scrollbar">
-                                ${metaCombinedHtml}
-                            </div>
-                            ${(!safeTag && isMVP) ? `
+                        <div class="flex items-center gap-1.5 text-xs md:text-sm font-mono font-black text-slate-800 dark:text-slate-200">
+                            <span>📅</span>
+                            <span>${safeDate}</span>
+                            ${isMVP ? `
                                 <span class="inline-flex items-center px-1.5 py-0.2 rounded-full border border-amber-400 bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 text-[9px] font-black shrink-0 ml-1 shadow-sm">
                                     👑 MVP
                                 </span>
                             ` : ''}
                         </div>
 
-                        <div class="flex items-center gap-1.5 shrink-0">
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-black ${typeBadgeStyle} shrink-0 flex items-center gap-1 shadow-sm whitespace-nowrap">
+                        <div class="flex items-center gap-1 shrink-0">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] md:text-xs font-black ${typeBadgeStyle} shrink-0 flex items-center gap-1 shadow-sm whitespace-nowrap">
                                 <span class="text-xs leading-none">${iconStr}</span>
                                 <span class="leading-none">${safeChargeType}</span>
                             </span>
-                            <div class="flex items-center -mr-1">
-                                <button class="edit-btn p-1 text-slate-400 hover:text-amber-500 active:scale-90 transition rounded" data-id="${safeId}" title="編輯">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                                </button>
-                                <button class="delete-btn p-1 text-slate-400 hover:text-rose-500 active:scale-90 transition rounded" data-id="${safeId}" title="刪除">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.895-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                </button>
-                            </div>
                         </div>
                     </div>
 
-                    <!-- 2️⃣ 站點名稱 -->
-                    ${safeTag ? `
-                    <div class="mb-3">
-                        <div class="flex items-start justify-between gap-2">
-                            <div class="flex items-start gap-1.5 flex-1 min-w-0">
+                    <!-- 2️⃣ 第二行：站點資訊 ＋ 空間環境（地區 · 溫度），空間充足絕不截斷 -->
+                    ${(safeTag || envHtml) ? `
+                    <div class="mb-3 space-y-1">
+                        ${safeTag ? `
+                            <div class="flex items-start gap-1.5">
                                 <span class="text-amber-500 dark:text-amber-400 text-sm mt-0.5 shrink-0">⚡</span>
                                 <h3 class="text-sm md:text-base font-black text-slate-800 dark:text-white leading-snug break-words">
                                     ${safeTag}
                                 </h3>
                             </div>
-                            ${isMVP ? `
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full border border-amber-400 bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 text-[10px] font-black shrink-0 shadow-sm">
-                                    👑 最高分
-                                </span>
-                            ` : ''}
-                        </div>
+                        ` : ''}
+                        ${envHtml ? `
+                            <div class="text-[11px] md:text-xs text-slate-500 dark:text-slate-400 font-bold flex items-center flex-wrap ${safeTag ? 'pl-5' : ''}">
+                                ${envHtml}
+                            </div>
+                        ` : ''}
                     </div>
                     ` : ''}
 
-                    <!-- 3️⃣ 核心數據區 (少資訊時自動垂直置中) -->
+                    <!-- 3️⃣ 核心數據區 -->
                     ${!isNonDrive ? `
                     <div class="flex-1 flex flex-col justify-center">
                         <!-- 🔋 電量狀態條膠囊 -->
@@ -2103,7 +2097,7 @@
                         </div>
                     </div>
                     ` : `
-                    <!-- 💰 衍生支出條：自動垂直居中對齊 -->
+                    <!-- 💰 衍生支出條 -->
                     <div class="flex-1 flex flex-col justify-center my-3">
                         <div class="bg-slate-50 dark:bg-slate-900/50 p-4 md:p-5 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center justify-between shadow-sm">
                             <div class="flex items-center gap-3">
@@ -2684,6 +2678,7 @@
             AppState.editingRecordId = id;
             if(DOM.formTitle) DOM.formTitle.textContent = "編輯紀錄";
             if(DOM.cancelEditBtn) DOM.cancelEditBtn.classList.remove('hidden');
+            if(DOM.btnDeleteInForm) DOM.btnDeleteInForm.classList.remove('hidden');
             switchTab('add'); 
         }
 
@@ -2691,6 +2686,7 @@
             AppState.editingRecordId = null;
             if(DOM.formTitle) DOM.formTitle.textContent = "記錄本次旅程";
             if(DOM.cancelEditBtn) DOM.cancelEditBtn.classList.add('hidden');
+            if(DOM.btnDeleteInForm) DOM.btnDeleteInForm.classList.add('hidden');
             if(DOM.recordForm) DOM.recordForm.reset();
             if(DOM.inputDate) DOM.inputDate.value = getLocalDateString();
             if(DOM.sliderStartSoc) DOM.sliderStartSoc.value = 20;
@@ -2701,11 +2697,19 @@
             switchTab('records');
         }
 
+        window.handleDeleteFromEdit = function() {
+            if (!AppState.editingRecordId) return;
+            const targetId = AppState.editingRecordId;
+            confirmDeleteRecord(targetId);
+        }
+
         window.confirmDeleteRecord = function(id) {
             showConfirmModal("確認刪除", "刪除後無法復原，是否繼續？", function() {
                 const updated = AppState.records.filter(rec => rec.id !== id);
                 if(updated.length === 0) localStorage.setItem('ev_life_cleared', 'true');
-                saveLocalState(updated); renderDashboard(); 
+                saveLocalState(updated);
+                cancelEdit();
+                renderDashboard(); 
                 if (AppState.syncUrl) { syncWithCloud('upload', false); } else { showToast("已刪除！🗑️"); }
             });
         }
@@ -2733,16 +2737,6 @@
             }
         }
         document.getElementById('confirmSuccessBtn').onclick = () => { if(activeConfirmCallback) activeConfirmCallback(); closeConfirmModal(); };
-
-        function setupDelegatedEvents() {
-            const handleRecordAction = (e) => {
-                const editBtn = e.target.closest('.edit-btn'), delBtn = e.target.closest('.delete-btn');
-                if (editBtn) editRecord(editBtn.getAttribute('data-id')); 
-                else if (delBtn) confirmDeleteRecord(delBtn.getAttribute('data-id'));
-            };
-            if(DOM.recordMobileList) DOM.recordMobileList.addEventListener('click', handleRecordAction);
-            if(DOM.calendarDayRecordsList) DOM.calendarDayRecordsList.addEventListener('click', handleRecordAction);
-        }
 
         function parseRecordSoc(rec) {
             let startSoc = rec.startSoc, endSoc = rec.endSoc, cleanNote = rec.note || '';
