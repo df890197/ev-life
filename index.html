@@ -1966,7 +1966,7 @@
             resultBox.classList.remove('hidden');
         }
 
-        // 🌟 打造簡約留白：沒填站點時直接不渲染該行，乾淨洗鍊！
+        // 🌟 依照最新需求打造：第一行 (日期・地區・氣溫 同排) + 充電站全名直接呈現
         function buildRecordCardHtml(rec, isMVP) {
             const isNonDrive = ['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType);
             const dist = parseFloat(rec.distance) || 0;
@@ -2020,7 +2020,9 @@
                         </div>
 
                         <div class="flex items-center gap-2 shrink-0">
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-black ${typeBadgeStyle} shrink-0">${safeChargeType}</span>
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black ${typeBadgeStyle} shrink-0 flex items-center gap-1">
+                                <span>${iconStr}</span><span>${safeChargeType}</span>
+                            </span>
                             <div class="flex items-center -mr-1">
                                 <button class="edit-btn p-1 text-slate-400 hover:text-amber-500 active:scale-90 transition rounded" data-id="${safeId}" title="編輯">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
@@ -2099,11 +2101,14 @@
                         </div>
                     </div>
                     ` : `
-                    <!-- 💰 非用車支出條樣式 (保養/停車/通行費) -->
+                    <!-- 💰 衍生支出條樣式 (保養/停車/通行費/保險) -->
                     <div class="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center justify-between mb-2">
-                        <div class="flex items-center gap-2">
-                            <span class="text-xl">${iconStr}</span>
-                            <span class="text-xs md:text-sm font-black text-slate-700 dark:text-slate-200">${rec.chargeType}項目支出</span>
+                        <div class="flex items-center gap-2.5">
+                            <span class="text-2xl">${iconStr}</span>
+                            <div>
+                                <span class="text-xs md:text-sm font-black text-slate-700 dark:text-slate-200 block">${rec.chargeType}項目支出</span>
+                                <span class="text-[10px] text-slate-400 font-bold">${safeNote ? '詳見下方備註' : '車輛衍生費用'}</span>
+                            </div>
                         </div>
                         <div class="text-right">
                             <span class="text-[10px] text-slate-400 font-bold block">支出金額</span>
