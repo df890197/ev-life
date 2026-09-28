@@ -1966,26 +1966,7 @@
             resultBox.classList.remove('hidden');
         }
 
-        // 🌟 智慧站名格式化：拆分品牌與長站名，避免強制打省略號
-        function formatStationDisplay(rawName) {
-            if (!rawName) return { brand: '', main: '純電行駛旅程' };
-            
-            const trimmed = rawName.trim();
-            // 常見充電品牌清單
-            const brandPattern = /^(Evoasis|U-POWER|TAIL|特爾電力|星舟快充|華城電能|EVALUE|iCharging|YES!來電|拓連|Tesla|NARA|台泥|中油|源點科技|泓德能源)[\s\-_/電站充電站]*/i;
-            const match = trimmed.match(brandPattern);
-            
-            if (match && match[1]) {
-                const brand = match[1];
-                let rest = trimmed.slice(match[0].length).trim();
-                // 清理剩餘開頭的冗餘字
-                rest = rest.replace(/^(充電站|快充站|超充站|站)\s*/, '');
-                return { brand, main: rest || trimmed };
-            }
-            return { brand: '', main: trimmed };
-        }
-
-        // 🌟 核心升級：告別 ... 截斷，採用「長站名全覽 + 品牌小膠囊 + 電量狀態條」
+        // 🌟 依照最新需求打造：第一行 (日期・地區・氣溫 同排) + 充電站全名直接呈現
         function buildRecordCardHtml(rec, isMVP) {
             const isNonDrive = ['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType);
             const dist = parseFloat(rec.distance) || 0;
@@ -2007,17 +1988,19 @@
             const safeDistrict = escapeHTML(rec.district || '');
             const safeTag = escapeHTML(rec.tag || '');
 
-            // 站名處理：智慧拆分品牌與站名本體
-            const stationInfo = formatStationDisplay(safeTag);
-            const hasCustomStation = !!safeTag;
+            // 站名直接顯示全名，不使用額外拆解或小標籤，無填寫則顯示預設
+            const stationFullName = safeTag || (isNonDrive ? `${rec.chargeType}項目支出` : '🐾 純電行駛旅程');
 
-            // 頂部中繼資料 (日期 · 地區 · 氣溫)
-            const metaParts = [safeDate];
-            if (safeDistrict) metaParts.push(safeDistrict);
-            if (rec.temp !== undefined && rec.temp !== null && rec.temp !== '') metaParts.push(`${rec.temp}°C`);
-            const metaLine = metaParts.join(' · ');
+            // 1️⃣ 第一行整合：日期 · 地區 · 溫度 在同一排緊密排列
+            const metaParts = [`<span>${safeDate}</span>`];
+            if (safeDistrict) {
+                metaParts.push(`<span>${safeDistrict}</span>`);
+            }
+            if (rec.temp !== undefined && rec.temp !== null && rec.temp !== '') {
+                metaParts.push(`<span>${rec.temp}°C</span>`);
+            }
+            const metaCombinedHtml = metaParts.join('<span class="opacity-40">·</span>');
 
-            // 卡片邊框與背景風格 (MVP 強化)
             const cardWrapperClass = isMVP
                 ? "bg-gradient-to-br from-amber-50/80 via-white to-amber-50/20 dark:from-amber-950/30 dark:via-[#1e293b] dark:to-[#1e293b] p-4 md:p-5 rounded-[1.75rem] border-2 border-amber-400 dark:border-amber-500 shadow-md relative w-full flex flex-col justify-between"
                 : "bg-white dark:bg-[#1e293b] p-4 md:p-5 rounded-[1.75rem] border border-slate-200/80 dark:border-slate-800 shadow-sm relative w-full flex flex-col justify-between";
@@ -2025,13 +2008,16 @@
             return `
             <div class="${cardWrapperClass}">
                 <div>
-                    <!-- 1️⃣ 頂部輕量資訊列 (日期・地區・氣溫 ｜ 操作工具) -->
-                    <div class="flex items-center justify-between gap-2 pb-2 border-b border-slate-100 dark:border-slate-800/60 mb-2.5">
-                        <div class="flex items-center gap-1.5 text-[11px] font-mono font-bold text-slate-400 dark:text-slate-400">
+                    <!-- 1️⃣ 第一行：日期 · 地區 · 溫度 (同一排) ＋ 右側 Badge 與按鈕 -->
+                    <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100 dark:border-slate-800/60 mb-2.5">
+                        <div class="flex items-center gap-1.5 text-[11px] md:text-xs font-mono font-bold text-slate-500 dark:text-slate-400 min-w-0 flex-1 truncate">
                             <span>📅</span>
-                            <span>${metaLine}</span>
+                            <div class="flex items-center gap-1.5 truncate">
+                                ${metaCombinedHtml}
+                            </div>
                         </div>
-                        <div class="flex items-center gap-2">
+
+                        <div class="flex items-center gap-2 shrink-0">
                             <span class="px-2 py-0.5 rounded-full text-[10px] font-black ${typeBadgeStyle} shrink-0">${safeChargeType}</span>
                             <div class="flex items-center -mr-1">
                                 <button class="edit-btn p-1 text-slate-400 hover:text-amber-500 active:scale-90 transition rounded" data-id="${safeId}" title="編輯">
@@ -2044,37 +2030,26 @@
                         </div>
                     </div>
 
-                    <!-- 2️⃣ 站點名稱專屬完整橫幅 (解決 ... 截斷，支援多行自適應) -->
+                    <!-- 2️⃣ 充電站全名專屬行：完全展開全名，不截斷、不使用額外小標籤 -->
                     <div class="mb-3">
-                        ${!isNonDrive ? `
-                            <div class="flex items-start gap-2 flex-wrap">
-                                ${stationInfo.brand ? `
-                                    <span class="px-2 py-0.5 rounded-lg text-[10px] font-black bg-slate-900 text-white dark:bg-slate-700 dark:text-slate-100 shrink-0 mt-0.5 shadow-sm">
-                                        ⚡ ${escapeHTML(stationInfo.brand)}
-                                    </span>
-                                ` : (hasCustomStation ? `<span class="text-amber-500 text-sm mt-0.5">⚡</span>` : `<span class="text-sky-500 text-sm mt-0.5">🐾</span>`)}
-                                
-                                <h3 class="text-sm md:text-base font-black text-slate-800 dark:text-white leading-snug flex-1 break-words">
-                                    ${escapeHTML(stationInfo.main)}
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex items-start gap-1.5 flex-1 min-w-0">
+                                <span class="text-amber-500 dark:text-amber-400 text-sm mt-0.5 shrink-0">⚡</span>
+                                <h3 class="text-sm md:text-base font-black text-slate-800 dark:text-white leading-snug break-words">
+                                    ${escapeHTML(stationFullName)}
                                 </h3>
-
-                                ${isMVP ? `
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full border border-amber-400 bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 text-[10px] font-black shrink-0 shadow-sm">
-                                        👑 最高分
-                                    </span>
-                                ` : ''}
                             </div>
-                        ` : `
-                            <div class="flex items-center gap-2">
-                                <span class="text-xl">${iconStr}</span>
-                                <h3 class="text-sm md:text-base font-black text-slate-800 dark:text-white">${rec.chargeType}項目支出</h3>
-                            </div>
-                        `}
+                            ${isMVP ? `
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full border border-amber-400 bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 text-[10px] font-black shrink-0 shadow-sm">
+                                    👑 最高分
+                                </span>
+                            ` : ''}
+                        </div>
                     </div>
 
                     <!-- 3️⃣ 行車/充電核心指標區 -->
                     ${!isNonDrive ? `
-                    <!-- 🔋 電量條膠囊 (SOC Capsule) -->
+                    <!-- 🔋 電量狀態條膠囊 -->
                     <div class="bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-2xl border border-slate-100 dark:border-slate-800/80 mb-3 flex items-center justify-between gap-2">
                         <div class="flex items-center gap-1.5 shrink-0">
                             <span class="text-[10px] text-slate-400 font-bold">起</span>
