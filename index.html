@@ -563,9 +563,23 @@
                 <p class="text-xs md:text-sm font-bold">目前區間尚無紀錄喔！</p>
             </div>
 
+            <!-- 列表顯示區 -->
             <div id="recordMobileList" class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 items-stretch"></div>
             
-            <div id="recordCalendarView" class="hidden bg-white dark:bg-[#1e293b] p-5 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-800 pb-4 max-w-2xl mx-auto">
+            <!-- 日曆顯示區容器 -->
+            <div id="recordCalendarContainer" class="hidden max-w-2xl mx-auto space-y-4">
+                <div id="recordCalendarView" class="bg-white dark:bg-[#1e293b] p-5 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-800 pb-6">
+                </div>
+                <!-- 點選日期後展開的當日明細列表 -->
+                <div id="calendarDayRecordsSection" class="hidden space-y-3">
+                    <div class="flex items-center justify-between px-2">
+                        <span id="calendarDayRecordsTitle" class="text-xs md:text-sm font-black text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+                            📅 選擇日期的紀錄
+                        </span>
+                        <button onclick="clearCalendarDaySelection()" class="text-[10px] md:text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold transition">收合</button>
+                    </div>
+                    <div id="calendarDayRecordsList" class="grid grid-cols-1 gap-4 items-stretch"></div>
+                </div>
             </div>
         </div>
 
@@ -881,7 +895,7 @@
     </div>
 
     <nav class="fixed left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[calc(100%-2rem)] md:max-w-2xl z-50 rounded-[2rem] ios-27-glass px-2 floating-nav">
-        <div class="flex justify-around items-center h-16 md:h-20 max-w-md md:max-w-full mx-auto relative" id="nav-container">
+        <div class="flex justify-around items-center h-16 md:h-20 max-w-md md:max-full mx-auto relative" id="nav-container">
             <div id="liquid-indicator" class="liquid-indicator opacity-0 absolute top-1/2 -translate-y-1/2 left-0 w-14 md:h-16 md:rounded-full"></div>
 
             <button onclick="switchTab('home')" id="tab-home" class="tab-btn active flex flex-col items-center gap-1 w-14 md:w-20 text-slate-500 dark:text-slate-400 cursor-pointer">
@@ -984,7 +998,8 @@
              'savingsBaseText', 'statCo2Savings', 'statTreesPlanted', 'maintIntervalText', 'maintRemainingText', 'maintProgressBar', 
              'maintDateAlertContainer', 'maintTargetDateStr', 'maintDaysRemainingBadge', 'insuranceDateAlertContainer', 'insuranceTargetDateStr', 'insuranceDaysRemainingBadge',
              'efficiencyChart', 'costDistributionChart', 'tempEffChart', 'cpRankingList', 'analysisTotalKm', 'analysisSummaryLabel', 'analysisAvgEfficiency',
-             'analysisTotalCost', 'analysisCostLabel', 'analysisCostPerKm', 'heroImageDisplay', 'toggleHighway', 'toggleMountain', 'badgesContainer'].forEach(id => {
+             'analysisTotalCost', 'analysisCostLabel', 'analysisCostPerKm', 'heroImageDisplay', 'toggleHighway', 'toggleMountain', 'badgesContainer',
+             'recordCalendarContainer', 'recordCalendarView', 'calendarDayRecordsSection', 'calendarDayRecordsTitle', 'calendarDayRecordsList'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) DOM[id] = el;
             });
@@ -1897,6 +1912,7 @@
                 if (month !== 'all') { timeViewSelect.value = 'raw'; timeViewSelect.disabled = true; timeViewSelect.classList.add('opacity-50'); } 
                 else { timeViewSelect.value = 'monthly'; timeViewSelect.disabled = false; timeViewSelect.classList.remove('opacity-50'); }
             }
+            selectedCalendarDate = null; // 切換月份時重設已選取的日曆日期
             renderDashboard(); debouncedUpdateCharts();
         }
         
@@ -1976,6 +1992,104 @@
             resultBox.classList.remove('hidden');
         }
 
+        // 獨立出卡片 HTML 產生函式，供列表與日曆點選複用
+        function buildRecordCardHtml(rec, isMVP) {
+            const isNonDrive = ['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType);
+            const dist = parseFloat(rec.distance) || 0;
+            const pwr = AppState.batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
+            const eff = pwr > 0 ? (dist / pwr).toFixed(2) : "0.00";
+            
+            // ⚡ 計算充入或消耗度數
+            const isCharging = rec.chargeType.includes('快充') || rec.chargeType.includes('慢充');
+            const socDelta = Math.abs((rec.endSoc ?? 0) - (rec.startSoc ?? 0));
+            const kwhDelta = (AppState.batteryCapacity * (socDelta / 100)).toFixed(1);
+            const kwhSign = isCharging ? '+' : '-';
+            const kwhText = `${kwhSign}${kwhDelta} 度`;
+            const kwhColor = isCharging ? 'text-teal-500 dark:text-teal-400' : 'text-slate-400 dark:text-slate-500';
+
+            const styleConfig = CHARGE_STYLE_MAP[rec.chargeType] || CHARGE_STYLE_MAP['default'];
+            const typeStyle = styleConfig.badge;
+            const iconStr = styleConfig.icon;
+            
+            const mvpBadge = isMVP ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded border border-amber-400 bg-amber-100 text-amber-700 text-[10px] font-black shadow-sm shrink-0">👑 最高分</span>` : '';
+            
+            const cardClass = isMVP 
+                ? "bg-gradient-to-br from-amber-50 to-white dark:from-amber-950/40 dark:to-[#1e293b] p-4 rounded-[1.5rem] border border-amber-400 dark:border-amber-500 shadow-sm relative w-full h-full flex flex-col justify-between"
+                : "bg-white dark:bg-[#1e293b] p-4 rounded-[1.5rem] border border-slate-100 dark:border-slate-800 shadow-sm relative w-full h-full flex flex-col justify-between";
+            
+            const safeNote = escapeHTML(rec.note);
+            const safeDate = escapeHTML(rec.date);
+            const safeId = escapeHTML(rec.id);
+            const safeChargeType = escapeHTML(rec.chargeType.split('-')[1] || rec.chargeType);
+            const safeDistrict = escapeHTML(rec.district || '');
+            const safeTag = escapeHTML(rec.tag || '');
+
+            const districtHtml = safeDistrict ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-black border border-slate-200 dark:border-slate-700 text-slate-500 bg-white dark:bg-slate-800 shadow-sm flex items-center gap-1 shrink-0"><span class="text-[11px] leading-none">📍</span><span>${safeDistrict}</span></span>` : '';
+            const tempHtml = (rec.temp !== undefined && rec.temp !== null && rec.temp !== '') ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-black border border-sky-200 bg-sky-50 text-sky-600 dark:border-sky-800 dark:bg-sky-900/40 dark:text-sky-400 shadow-sm shrink-0">${rec.temp}°C</span>` : '';
+            
+            const metaBadges = (safeDistrict || tempHtml) ? `<div class="flex items-center gap-1.5 flex-wrap mt-1.5">${districtHtml}${tempHtml}</div>` : '';
+            const tagHtml = safeTag ? `<div class="mt-2 text-left"><div class="inline-flex max-w-full px-2.5 py-1 rounded-xl text-[11px] font-black border border-slate-200/90 dark:border-slate-700/80 text-slate-600 dark:text-slate-300 bg-slate-50/80 dark:bg-slate-800/60 shadow-sm items-center gap-1.5"><span class="text-[12px] text-amber-500 shrink-0">⚡</span><span class="truncate">${safeTag}</span></div></div>` : '';
+
+            return `
+            <div class="${cardClass}">
+                <div class="flex-1 flex flex-col">
+                    <div class="mb-3 border-b border-slate-100 dark:border-slate-800/60 pb-2.5">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <span class="text-xs md:text-sm font-black font-mono tracking-tight">${safeDate}</span>
+                                <span class="px-2 py-0.5 rounded-md text-[10px] font-black ${typeStyle} shrink-0">${safeChargeType}</span>
+                                ${mvpBadge}
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <button class="edit-btn text-slate-400 hover:text-amber-500 transition p-1" data-id="${safeId}"><svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                                <button class="delete-btn text-slate-400 hover:text-rose-500 transition p-1" data-id="${safeId}"><svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.895-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                            </div>
+                        </div>
+                        ${metaBadges}
+                        ${tagHtml}
+                    </div>
+
+                    <div class="flex-1 flex flex-col justify-center my-auto py-1">
+                        ${!isNonDrive ? `
+                        <div class="grid grid-cols-4 text-center divide-x divide-slate-100 dark:divide-slate-800">
+                            <div class="px-0.5">
+                                <div class="text-[10px] md:text-xs text-slate-400 font-bold mb-0.5">里程</div>
+                                <div class="font-mono font-black text-sm md:text-[15px]">${dist}</div>
+                            </div>
+                            <div class="px-0.5">
+                                <div class="text-[10px] md:text-xs text-slate-400 font-bold mb-0.5">電耗</div>
+                                <div class="font-mono font-black text-sm md:text-[15px] ${isMVP ? 'text-amber-600 dark:text-amber-400' : 'text-teal-500'}">${eff}</div>
+                            </div>
+                            <div class="px-0.5 flex flex-col justify-center items-center">
+                                <div class="text-[10px] md:text-xs text-slate-400 font-bold mb-0.5">電量</div>
+                                <div class="font-mono font-black text-xs md:text-sm whitespace-nowrap tracking-tight leading-none">${rec.startSoc}%➔${rec.endSoc}%</div>
+                                <div class="font-mono font-bold text-[9px] md:text-[10px] ${kwhColor} mt-1 leading-none tracking-tight">${kwhText}</div>
+                            </div>
+                            <div class="px-0.5">
+                                <div class="text-[10px] md:text-xs text-slate-400 font-bold mb-0.5">花費</div>
+                                <div class="font-mono font-black text-sm md:text-[15px] text-slate-800 dark:text-white">$${rec.cost}</div>
+                            </div>
+                        </div>
+                        ` : `
+                        <div class="flex justify-between items-center text-center divide-x divide-slate-100 dark:divide-slate-800 bg-slate-50/50 dark:bg-slate-900/10 rounded-xl py-2 px-3">
+                            <div class="font-bold text-xs md:text-sm flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                                <span class="text-base">${iconStr}</span>
+                                <span>${rec.chargeType}紀錄</span>
+                            </div>
+                            <div class="pl-4 text-right">
+                                <div class="text-[10px] md:text-xs text-slate-400 font-bold mb-0.5">總花費</div>
+                                <div class="font-mono font-black text-sm md:text-base text-slate-800 dark:text-slate-100">$${rec.cost}</div>
+                            </div>
+                        </div>
+                        `}
+                    </div>
+                </div>
+                ${safeNote ? `<div class="mt-3 pt-2 border-t border-slate-50 dark:border-slate-800 text-[11px] md:text-xs text-slate-500 font-bold leading-relaxed break-words">📝 ${safeNote}</div>` : ''}
+            </div>`;
+        }
+
+        var mvpGlobalId = null;
+
         function renderDashboard() {
             const activeRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.date);
             activeRecords.sort((a, b) => new Date(a.date) - new Date(b.date) || parseInt(a.id, 10) - parseInt(a.id, 10));
@@ -1996,6 +2110,7 @@
                 if(DOM.recordMobileList) DOM.recordMobileList.innerHTML = '';
                 if(DOM.noDataPlaceholder) DOM.noDataPlaceholder.classList.remove('hidden');
                 if(document.getElementById('ecoScoreContainer')) document.getElementById('ecoScoreContainer').classList.add('hidden');
+                if(currentViewMode === 'calendar') renderCalendar();
                 return;
             } else {
                 if(DOM.noDataPlaceholder) DOM.noDataPlaceholder.classList.add('hidden');
@@ -2012,7 +2127,7 @@
                 });
 
             const ecoContainer = document.getElementById('ecoScoreContainer');
-            var mvpGlobalId = null;
+            mvpGlobalId = null;
             if (scoredRecords.length > 0) {
                 if(ecoContainer) ecoContainer.classList.remove('hidden');
                 let mvpRec = [...scoredRecords].sort((a, b) => b.score - a.score)[0];
@@ -2035,101 +2150,8 @@
             }
 
             const htmlFragments = displayRecords.map(rec => {
-                const isNonDrive = ['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType);
-                const dist = parseFloat(rec.distance) || 0;
-                const pwr = AppState.batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
-                const eff = pwr > 0 ? (dist / pwr).toFixed(2) : "0.00";
-                
-                // ⚡ 計算充入或消耗度數
-                const isCharging = rec.chargeType.includes('快充') || rec.chargeType.includes('慢充');
-                const socDelta = Math.abs((rec.endSoc ?? 0) - (rec.startSoc ?? 0));
-                const kwhDelta = (AppState.batteryCapacity * (socDelta / 100)).toFixed(1);
-                const kwhSign = isCharging ? '+' : '-';
-                const kwhText = `${kwhSign}${kwhDelta} 度`;
-                const kwhColor = isCharging ? 'text-teal-500 dark:text-teal-400' : 'text-slate-400 dark:text-slate-500';
-
-                const styleConfig = CHARGE_STYLE_MAP[rec.chargeType] || CHARGE_STYLE_MAP['default'];
-                const typeStyle = styleConfig.badge;
-                const iconStr = styleConfig.icon;
-                
                 const isMVP = (mvpGlobalId && rec.id === mvpGlobalId);
-                const mvpBadge = isMVP ? `<span class="inline-flex items-center px-1.5 py-0.5 rounded border border-amber-400 bg-amber-100 text-amber-700 text-[10px] font-black shadow-sm shrink-0">👑 最高分</span>` : '';
-                
-                const cardClass = isMVP 
-                    ? "bg-gradient-to-br from-amber-50 to-white dark:from-amber-950/40 dark:to-[#1e293b] p-4 rounded-[1.5rem] border border-amber-400 dark:border-amber-500 shadow-sm relative w-full h-full flex flex-col justify-between"
-                    : "bg-white dark:bg-[#1e293b] p-4 rounded-[1.5rem] border border-slate-100 dark:border-slate-800 shadow-sm relative w-full h-full flex flex-col justify-between";
-                
-                const safeNote = escapeHTML(rec.note);
-                const safeDate = escapeHTML(rec.date);
-                const safeId = escapeHTML(rec.id);
-                const safeChargeType = escapeHTML(rec.chargeType.split('-')[1] || rec.chargeType);
-                const safeDistrict = escapeHTML(rec.district || '');
-                const safeTag = escapeHTML(rec.tag || '');
-
-                const districtHtml = safeDistrict ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-black border border-slate-200 dark:border-slate-700 text-slate-500 bg-white dark:bg-slate-800 shadow-sm flex items-center gap-1 shrink-0"><span class="text-[11px] leading-none">📍</span><span>${safeDistrict}</span></span>` : '';
-                const tempHtml = (rec.temp !== undefined && rec.temp !== null && rec.temp !== '') ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-black border border-sky-200 bg-sky-50 text-sky-600 dark:border-sky-800 dark:bg-sky-900/40 dark:text-sky-400 shadow-sm shrink-0">${rec.temp}°C</span>` : '';
-                
-                const metaBadges = (safeDistrict || tempHtml) ? `<div class="flex items-center gap-1.5 flex-wrap mt-1.5">${districtHtml}${tempHtml}</div>` : '';
-                const tagHtml = safeTag ? `<div class="mt-2 text-left"><div class="inline-flex max-w-full px-2.5 py-1 rounded-xl text-[11px] font-black border border-slate-200/90 dark:border-slate-700/80 text-slate-600 dark:text-slate-300 bg-slate-50/80 dark:bg-slate-800/60 shadow-sm items-center gap-1.5"><span class="text-[12px] text-amber-500 shrink-0">⚡</span><span class="truncate">${safeTag}</span></div></div>` : '';
-
-                return `
-                <div class="${cardClass}">
-                    <div class="flex-1 flex flex-col">
-                        <!-- 標頭列：固定左右對齊，徹底杜絕跨平台文字溢出換行 -->
-                        <div class="mb-3 border-b border-slate-100 dark:border-slate-800/60 pb-2.5">
-                            <div class="flex justify-between items-center">
-                                <div class="flex items-center gap-1.5 shrink-0">
-                                    <span class="text-xs md:text-sm font-black font-mono tracking-tight">${safeDate}</span>
-                                    <span class="px-2 py-0.5 rounded-md text-[10px] font-black ${typeStyle} shrink-0">${safeChargeType}</span>
-                                    ${mvpBadge}
-                                </div>
-                                <div class="flex items-center gap-2 shrink-0">
-                                    <button class="edit-btn text-slate-400 hover:text-amber-500 transition p-1" data-id="${safeId}"><svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
-                                    <button class="delete-btn text-slate-400 hover:text-rose-500 transition p-1" data-id="${safeId}"><svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.895-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
-                                </div>
-                            </div>
-                            ${metaBadges}
-                            ${tagHtml}
-                        </div>
-
-                        <!-- 數據四欄列：改為固定 grid-cols-4，兩端平台字距不同也不會跳動 -->
-                        <div class="flex-1 flex flex-col justify-center my-auto py-1">
-                            ${!isNonDrive ? `
-                            <div class="grid grid-cols-4 text-center divide-x divide-slate-100 dark:divide-slate-800">
-                                <div class="px-0.5">
-                                    <div class="text-[10px] md:text-xs text-slate-400 font-bold mb-0.5">里程</div>
-                                    <div class="font-mono font-black text-sm md:text-[15px]">${dist}</div>
-                                </div>
-                                <div class="px-0.5">
-                                    <div class="text-[10px] md:text-xs text-slate-400 font-bold mb-0.5">電耗</div>
-                                    <div class="font-mono font-black text-sm md:text-[15px] ${isMVP ? 'text-amber-600 dark:text-amber-400' : 'text-teal-500'}">${eff}</div>
-                                </div>
-                                <div class="px-0.5 flex flex-col justify-center items-center">
-                                    <div class="text-[10px] md:text-xs text-slate-400 font-bold mb-0.5">電量</div>
-                                    <div class="font-mono font-black text-xs md:text-sm whitespace-nowrap tracking-tight leading-none">${rec.startSoc}%➔${rec.endSoc}%</div>
-                                    <div class="font-mono font-bold text-[9px] md:text-[10px] ${kwhColor} mt-1 leading-none tracking-tight">${kwhText}</div>
-                                </div>
-                                <div class="px-0.5">
-                                    <div class="text-[10px] md:text-xs text-slate-400 font-bold mb-0.5">花費</div>
-                                    <div class="font-mono font-black text-sm md:text-[15px] text-slate-800 dark:text-white">$${rec.cost}</div>
-                                </div>
-                            </div>
-                            ` : `
-                            <div class="flex justify-between items-center text-center divide-x divide-slate-100 dark:divide-slate-800 bg-slate-50/50 dark:bg-slate-900/10 rounded-xl py-2 px-3">
-                                <div class="font-bold text-xs md:text-sm flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
-                                    <span class="text-base">${iconStr}</span>
-                                    <span>${rec.chargeType}紀錄</span>
-                                </div>
-                                <div class="pl-4 text-right">
-                                    <div class="text-[10px] md:text-xs text-slate-400 font-bold mb-0.5">總花費</div>
-                                    <div class="font-mono font-black text-sm md:text-base text-slate-800 dark:text-slate-100">$${rec.cost}</div>
-                                </div>
-                            </div>
-                            `}
-                        </div>
-                    </div>
-                    ${safeNote ? `<div class="mt-3 pt-2 border-t border-slate-50 dark:border-slate-800 text-[11px] md:text-xs text-slate-500 font-bold leading-relaxed break-words">📝 ${safeNote}</div>` : ''}
-                </div>`;
+                return buildRecordCardHtml(rec, isMVP);
             }); 
 
             if(DOM.recordMobileList) DOM.recordMobileList.innerHTML = htmlFragments.join('');
@@ -2137,35 +2159,105 @@
         }
 
         let currentViewMode = 'list';
+        let selectedCalendarDate = null; // 紀錄目前選取的日曆日期 (YYYY-MM-DD)
+
         window.toggleRecordView = function() {
             currentViewMode = currentViewMode === 'list' ? 'calendar' : 'list';
-            document.getElementById('recordMobileList').classList.toggle('hidden', currentViewMode === 'calendar');
-            document.getElementById('recordCalendarView').classList.toggle('hidden', currentViewMode === 'list');
+            if (DOM.recordMobileList) DOM.recordMobileList.classList.toggle('hidden', currentViewMode === 'calendar');
+            if (DOM.recordCalendarContainer) DOM.recordCalendarContainer.classList.toggle('hidden', currentViewMode === 'list');
             document.getElementById('btnToggleView').textContent = currentViewMode === 'list' ? '📅 切換日曆' : '📝 切換列表';
             if (currentViewMode === 'calendar') renderCalendar();
         }
 
+        // 點選日曆上的日期格
+        window.selectCalendarDay = function(dateStr) {
+            if (selectedCalendarDate === dateStr) {
+                selectedCalendarDate = null; // 再次點擊取消選取
+            } else {
+                selectedCalendarDate = dateStr;
+            }
+            renderCalendar();
+        }
+
+        // 清除日曆選取
+        window.clearCalendarDaySelection = function() {
+            selectedCalendarDate = null;
+            renderCalendar();
+        }
+
         function renderCalendar() {
             const calEl = document.getElementById('recordCalendarView');
+            const daySection = document.getElementById('calendarDayRecordsSection');
+            const dayTitle = document.getElementById('calendarDayRecordsTitle');
+            const dayList = document.getElementById('calendarDayRecordsList');
             if (!calEl) return;
+
             const targetMonth = AppState.currentMonthFilter === 'all' ? getLocalDateString().substring(0,7) : AppState.currentMonthFilter;
             const [y, m] = targetMonth.split('-');
             const daysInMonth = new Date(y, m, 0).getDate();
             const firstDay = new Date(y, m - 1, 1).getDay();
 
-            const recordDays = new Set(AppState.records.filter(r=>r.date.startsWith(targetMonth)).map(r=>parseInt(r.date.split('-')[2], 10)));
+            // 統計該月有紀錄的日期集合
+            const monthRecords = AppState.records.filter(r => r.date && r.date.startsWith(targetMonth));
+            const recordDaysMap = {};
+            monthRecords.forEach(r => {
+                const d = parseInt(r.date.split('-')[2], 10);
+                recordDaysMap[d] = (recordDaysMap[d] || 0) + 1;
+            });
 
-            let html = `<div class="text-xs md:text-sm font-black mb-3 text-center text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 py-3 rounded-xl">${y}年${m}月 打卡足跡</div>`;
+            let html = `<div class="text-xs md:text-sm font-black mb-3 text-center text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 py-3 rounded-xl flex items-center justify-center gap-2">
+                <span>📅</span><span>${y}年${m}月 打卡足跡</span>
+            </div>`;
             html += `<div class="grid grid-cols-7 gap-1 text-center text-[10px] md:text-xs font-bold text-slate-400 mb-2"><div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div></div>`;
             html += `<div class="grid grid-cols-7 gap-1.5 md:gap-2">`;
+            
             for (let i = 0; i < firstDay; i++) html += `<div></div>`;
+            
             for (let i = 1; i <= daysInMonth; i++) {
-                const hasRec = recordDays.has(i);
-                const style = hasRec ? 'bg-amber-400 text-slate-900 shadow-md font-black scale-105' : 'bg-slate-50 dark:bg-slate-800/80 text-slate-400 border border-slate-100 dark:border-slate-700/50';
-                html += `<div class="aspect-square flex items-center justify-center rounded-xl text-[11px] md:text-sm font-bold transition-all ${style}">${i}</div>`;
+                const fullDate = `${targetMonth}-${String(i).padStart(2, '0')}`;
+                const hasRec = !!recordDaysMap[i];
+                const isSelected = selectedCalendarDate === fullDate;
+                
+                let style = '';
+                let action = '';
+
+                if (hasRec) {
+                    if (isSelected) {
+                        style = 'bg-amber-500 text-slate-950 font-black shadow-lg ring-4 ring-amber-300 dark:ring-amber-500/40 scale-110 z-10 cursor-pointer';
+                    } else {
+                        style = 'bg-amber-400 text-slate-900 shadow-md font-black hover:scale-105 active:scale-95 cursor-pointer';
+                    }
+                    action = `onclick="selectCalendarDay('${fullDate}')"`;
+                } else {
+                    style = 'bg-slate-50 dark:bg-slate-800/60 text-slate-400 border border-slate-100 dark:border-slate-700/50 opacity-60';
+                }
+
+                html += `<button type="button" ${action} class="aspect-square flex flex-col items-center justify-center rounded-xl text-[11px] md:text-sm font-bold transition-all relative ${style}">
+                    <span>${i}</span>
+                    ${hasRec && !isSelected ? `<span class="w-1 h-1 rounded-full bg-slate-900/60 mt-0.5"></span>` : ''}
+                </button>`;
             }
             html += `</div>`;
             calEl.innerHTML = html;
+
+            // 渲染選中日期的下方列表
+            if (selectedCalendarDate && daySection && dayList) {
+                const dayFiltered = AppState.records.filter(r => r.date === selectedCalendarDate);
+                if (dayFiltered.length > 0) {
+                    daySection.classList.remove('hidden');
+                    if (dayTitle) dayTitle.innerHTML = `<span>📅</span> <span>${selectedCalendarDate.replace(/-/g, '/')} 的紀錄 (${dayFiltered.length}筆)</span>`;
+                    dayList.innerHTML = dayFiltered.map(rec => {
+                        const isMVP = (mvpGlobalId && rec.id === mvpGlobalId);
+                        return buildRecordCardHtml(rec, isMVP);
+                    }).join('');
+                } else {
+                    daySection.classList.add('hidden');
+                    dayList.innerHTML = '';
+                }
+            } else if (daySection) {
+                daySection.classList.add('hidden');
+                if (dayList) dayList.innerHTML = '';
+            }
         }
 
         function getDaysRemaining(dateStr) {
@@ -2600,12 +2692,13 @@
         document.getElementById('confirmSuccessBtn').onclick = () => { if(activeConfirmCallback) activeConfirmCallback(); closeConfirmModal(); };
 
         function setupDelegatedEvents() {
-            if(DOM.recordMobileList) {
-                DOM.recordMobileList.addEventListener('click', (e) => {
-                    const editBtn = e.target.closest('.edit-btn'), delBtn = e.target.closest('.delete-btn');
-                    if (editBtn) editRecord(editBtn.getAttribute('data-id')); else if (delBtn) confirmDeleteRecord(delBtn.getAttribute('data-id'));
-                });
-            }
+            const handleRecordAction = (e) => {
+                const editBtn = e.target.closest('.edit-btn'), delBtn = e.target.closest('.delete-btn');
+                if (editBtn) editRecord(editBtn.getAttribute('data-id')); 
+                else if (delBtn) confirmDeleteRecord(delBtn.getAttribute('data-id'));
+            };
+            if(DOM.recordMobileList) DOM.recordMobileList.addEventListener('click', handleRecordAction);
+            if(DOM.calendarDayRecordsList) DOM.calendarDayRecordsList.addEventListener('click', handleRecordAction);
         }
 
         function parseRecordSoc(rec) {
