@@ -20,7 +20,7 @@
         :root, html, body { background-color: #fcfaf2; }
         html.dark, html.dark body { background-color: #111827 !important; }
         
-        /* 🚀 啟動畫面：強制置於最高 GPU 渲染層，防穿透與閃爍 */
+        /* 🚀 啟動畫面：層級置頂，啟動時強制不攔截任何點擊 */
         #appSplashScreen { 
             background-color: #fcfaf2; 
             transform: translateZ(0);
@@ -44,7 +44,6 @@
             text-rendering: optimizeLegibility; 
             -webkit-font-smoothing: antialiased; 
             -moz-osx-font-smoothing: grayscale; 
-            touch-action: manipulation; 
             -webkit-text-size-adjust: 100%;
             -webkit-tap-highlight-color: transparent;
         }
@@ -68,28 +67,29 @@
             box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.08); 
         }
 
-        /* 📱 底部浮動導覽列：初始 opacity-0 防止啟動前閃現，開屏結束後優雅淡入 */
+        /* 📱 底部浮動導覽列：避開 iOS Home Bar 判定區，啟動時防止死鎖 */
         .floating-nav { 
-            bottom: calc(env(safe-area-inset-bottom, 0px) * 0.5 + 4px) !important; 
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 8px) !important; 
             margin-bottom: 0 !important;
             transform: translateZ(0);
             -webkit-transform: translateZ(0);
             will-change: transform, opacity;
             pointer-events: auto !important;
             opacity: 0;
-            transition: opacity 0.3s ease, transform 0.4s ease-out;
+            transition: opacity 0.25s ease, transform 0.4s ease-out;
+            cursor: pointer;
         }
         .floating-nav.nav-ready {
             opacity: 1;
         }
         @media (min-width: 768px) {
-            .floating-nav { bottom: 8px !important; }
+            .floating-nav { bottom: 12px !important; }
         }
 
         .liquid-indicator { position: absolute; height: 52px; border-radius: 26px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(16px) saturate(180%) brightness(1.15); -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), inset 0 4px 10px rgba(255, 255, 255, 0.5), 0 4px 12px rgba(0, 0, 0, 0.08); transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.4s ease, backdrop-filter 0.4s ease; z-index: 5; pointer-events: none; will-change: transform, width; }
         .dark .liquid-indicator { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(16px) saturate(150%) brightness(1.2); -webkit-backdrop-filter: blur(16px) saturate(150%) brightness(1.2); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25), inset 0 4px 15px rgba(255, 255, 255, 0.15), 0 6px 15px rgba(0, 0, 0, 0.2); }
 
-        .tab-btn { position: relative; z-index: 2; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); will-change: transform, opacity; -webkit-tap-highlight-color: transparent; }
+        .tab-btn { position: relative; z-index: 2; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); will-change: transform, opacity; -webkit-tap-highlight-color: transparent; cursor: pointer; }
         .tab-btn.active { color: #0d9488; font-weight: 900; transform: translateY(-2px) scale(1.1); z-index: 10; }
         .dark .tab-btn.active { color: #2dd4bf; }
 
@@ -160,7 +160,6 @@
 </head>
 <body class="font-sans bg-[#fcfaf2] dark:bg-[#111827] text-slate-800 dark:text-[#f8fafc] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative slashed-zero">
 
-    <!-- 🚀 啟動畫面：提升至 z-[99999]，保證絕對在所有元素的最上方，杜絕遮不住底部導覽列的問題 -->
     <div id="appSplashScreen" class="fixed inset-0 z-[99999] bg-[#fcfaf2] dark:bg-[#111827] flex flex-col items-center justify-center text-slate-800 dark:text-white transition-opacity duration-300 pointer-events-none">
         <div id="splashFallbackContainer" class="absolute inset-0 flex flex-col items-center justify-center space-y-4 z-10">
             <span class="text-7xl md:text-8xl">⚡</span>
@@ -977,6 +976,7 @@
             get CO2_SAVED_PER_KM() { return this.CO2_ICE_PER_KM - this.CO2_EV_PER_KM; }
         };
 
+        // 綁定全域物件，供外部 achievements.js 與跨檔案模組依賴
         window.AppState = AppState;
         window.CONSTANTS = CONSTANTS;
 
@@ -1059,10 +1059,10 @@
                         DOM.appSplashScreen.classList.add('opacity-0'); 
                         setTimeout(() => {
                             DOM.appSplashScreen.remove();
-                            // 📱 啟動完成後讓導航列優雅淡入，杜絕在開屏畫面底端閃爍
+                            // 📱 導航列淡入，杜絕在開屏畫面底端閃爍
                             const nav = document.querySelector('nav.floating-nav');
                             if (nav) nav.classList.add('nav-ready');
-                            // 📱 強制觸發一次無物理位移的微重繪（Reflow），使 iOS WebKit 立刻建立觸控 Hit-testing，不需手動滑一下
+                            // 📱 無滾動重繪觸發，解決 iOS 必須滑動才響應點擊的問題
                             void document.body.offsetHeight;
                         }, 250); 
                     }, 200); 
@@ -1620,6 +1620,7 @@
             setTimeout(() => modal.classList.add('hidden'), 300);
         };
 
+        /* 🗺️ 充電足跡 Modal 展開核心修復（支援單一 InfoWindow，防視窗重疊） */
         window.openMapModal = function() {
             if (typeof google === 'undefined' || !google.maps) { 
                 showToast("地圖服務載入中或未正確載入，請確認網路連線", true); 
@@ -1651,6 +1652,10 @@
                                 { featureType: "water", elementType: "geometry", stylers: [{ color: "#17263c" }] }
                             ] : []
                         });
+                        // 點擊地圖任意空白處時自動收合視窗
+                        window.evMap.addListener('click', () => {
+                            if (window.currentInfoWindow) window.currentInfoWindow.close();
+                        });
                     }
                     google.maps.event.trigger(window.evMap, 'resize'); 
                 } catch(err) {
@@ -1662,6 +1667,7 @@
 
                 if (window.evMarkers) { window.evMarkers.forEach(m => m.setMap(null)); }
                 window.evMarkers = [];
+                if (window.currentInfoWindow) { window.currentInfoWindow.close(); }
 
                 const visitedStations = new Map();
                 AppState.records.forEach(r => { 
@@ -1680,6 +1686,11 @@
                 const bounds = new google.maps.LatLngBounds();
                 let markerCount = 0;
 
+                // ⚡ 單一 InfoWindow 實例，確保全地圖永遠只有一個氣泡開啟
+                if (!window.currentInfoWindow) {
+                    window.currentInfoWindow = new google.maps.InfoWindow();
+                }
+
                 const placeMarker = (name, lat, lng) => {
                     const marker = new google.maps.Marker({ 
                         position: { lat, lng }, 
@@ -1691,10 +1702,15 @@
                         }, 
                         title: name 
                     });
-                    const infoWindow = new google.maps.InfoWindow({ 
-                        content: `<div style="color:#1e293b;font-weight:900;font-size:12px;padding:3px;">${escapeHTML(name)}<br><span style="color:#10b981;font-size:10px;">✅ 已記錄旅程足跡</span></div>` 
+
+                    marker.addListener('click', () => { 
+                        window.currentInfoWindow.close();
+                        window.currentInfoWindow.setContent(
+                            `<div style="color:#1e293b;font-weight:900;font-size:12px;padding:3px;">${escapeHTML(name)}<br><span style="color:#10b981;font-size:10px;">✅ 已記錄旅程足跡</span></div>`
+                        );
+                        window.currentInfoWindow.open(window.evMap, marker); 
                     });
-                    marker.addListener('click', () => { infoWindow.open(window.evMap, marker); });
+
                     window.evMarkers.push(marker);
                     bounds.extend({ lat, lng });
                     markerCount++;
@@ -1754,6 +1770,9 @@
         window.closeMapModal = function() {
             const modal = document.getElementById('mapModal');
             if (!modal) return;
+            if (window.currentInfoWindow) {
+                window.currentInfoWindow.close();
+            }
             modal.classList.add('opacity-0'); 
             modal.firstElementChild?.classList.add('scale-95');
             setTimeout(() => modal.classList.add('hidden'), 300);
