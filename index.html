@@ -35,20 +35,51 @@
         .dark input[type=range]::-webkit-slider-runnable-track { background: #334155; }
 
         .ios-safe-nav { padding-top: env(safe-area-inset-top, 0px) !important; }
-        body { text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; touch-action: manipulation; -webkit-text-size-adjust: 100%; }
+        body { 
+            text-rendering: optimizeLegibility; 
+            -webkit-font-smoothing: antialiased; 
+            -moz-osx-font-smoothing: grayscale; 
+            touch-action: manipulation; 
+            -webkit-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-        .ios-27-glass { background: transparent; backdrop-filter: blur(4px) saturate(110%); -webkit-backdrop-filter: blur(4px) saturate(110%); border: 1px solid rgba(255, 255, 255, 0.4); border-top: 1px solid rgba(255, 255, 255, 0.8); border-bottom: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), inset 0 1px 3px rgba(255, 255, 255, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.15); }
-        .dark .ios-27-glass { background: transparent; backdrop-filter: blur(4px) saturate(110%); -webkit-backdrop-filter: blur(4px) saturate(110%); border: 1px solid rgba(255, 255, 255, 0.15); border-top: 1px solid rgba(255, 255, 255, 0.4); border-bottom: 1px solid rgba(255, 255, 255, 0.02); box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.08); }
+        .ios-27-glass { 
+            background: transparent; 
+            backdrop-filter: blur(4px) saturate(110%); 
+            -webkit-backdrop-filter: blur(4px) saturate(110%); 
+            border: 1px solid rgba(255, 255, 255, 0.4); 
+            border-top: 1px solid rgba(255, 255, 255, 0.8); 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), inset 0 1px 3px rgba(255, 255, 255, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.15); 
+        }
+        .dark .ios-27-glass { 
+            background: transparent; 
+            backdrop-filter: blur(4px) saturate(110%); 
+            -webkit-backdrop-filter: blur(4px) saturate(110%); 
+            border: 1px solid rgba(255, 255, 255, 0.15); 
+            border-top: 1px solid rgba(255, 255, 255, 0.4); 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02); 
+            box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.08); 
+        }
 
-        .floating-nav { bottom: calc(env(safe-area-inset-bottom, 0px) * 0.5 + 2px) !important; margin-bottom: 0 !important; }
+        /* 📱 iOS PWA 導航欄防懸空與點擊穿透優化 */
+        .floating-nav { 
+            bottom: calc(env(safe-area-inset-bottom, 0px) * 0.5 + 4px) !important; 
+            margin-bottom: 0 !important;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+            will-change: transform;
+            pointer-events: auto !important;
+        }
         @media (min-width: 768px) {
-            .floating-nav { bottom: 6px !important; }
+            .floating-nav { bottom: 8px !important; }
         }
 
         .liquid-indicator { position: absolute; height: 52px; border-radius: 26px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(16px) saturate(180%) brightness(1.15); -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), inset 0 4px 10px rgba(255, 255, 255, 0.5), 0 4px 12px rgba(0, 0, 0, 0.08); transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.4s ease, backdrop-filter 0.4s ease; z-index: 5; pointer-events: none; will-change: transform, width; }
         .dark .liquid-indicator { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(16px) saturate(150%) brightness(1.2); -webkit-backdrop-filter: blur(16px) saturate(150%) brightness(1.2); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25), inset 0 4px 15px rgba(255, 255, 255, 0.15), 0 6px 15px rgba(0, 0, 0, 0.2); }
 
-        .tab-btn { position: relative; z-index: 2; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); will-change: transform, opacity; }
+        .tab-btn { position: relative; z-index: 2; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); will-change: transform, opacity; -webkit-tap-highlight-color: transparent; }
         .tab-btn.active { color: #0d9488; font-weight: 900; transform: translateY(-2px) scale(1.1); z-index: 10; }
         .dark .tab-btn.active { color: #2dd4bf; }
 
@@ -119,7 +150,8 @@
 </head>
 <body class="font-sans bg-[#fcfaf2] dark:bg-[#111827] text-slate-800 dark:text-[#f8fafc] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative slashed-zero">
 
-    <div id="appSplashScreen" class="fixed inset-0 z-[9998] bg-[#fcfaf2] dark:bg-[#111827] flex flex-col items-center justify-center text-slate-800 dark:text-white transition-opacity duration-400">
+    <!-- 啟動畫面（初始即加載 pointer-events-none 避免在 iOS 上阻擋觸控命中） -->
+    <div id="appSplashScreen" class="fixed inset-0 z-[9998] bg-[#fcfaf2] dark:bg-[#111827] flex flex-col items-center justify-center text-slate-800 dark:text-white transition-opacity duration-300 pointer-events-none">
         <div id="splashFallbackContainer" class="absolute inset-0 flex flex-col items-center justify-center space-y-4 z-10">
             <span class="text-7xl md:text-8xl">⚡</span>
             <h2 class="text-xl md:text-2xl font-black tracking-wider mt-2">Ev Life Loading...</h2>
@@ -861,6 +893,7 @@
         </div>
     </div>
 
+    <!-- 導航列（強化層級與點擊事件） -->
     <nav class="fixed left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[calc(100%-2rem)] md:max-w-2xl z-50 rounded-[2rem] ios-27-glass px-2 floating-nav">
         <div class="flex justify-around items-center h-16 md:h-20 max-w-md md:max-w-full mx-auto relative" id="nav-container">
             <div id="liquid-indicator" class="liquid-indicator opacity-0 absolute top-1/2 -translate-y-1/2 left-0 w-14 md:h-16 md:rounded-full"></div>
@@ -934,6 +967,7 @@
             get CO2_SAVED_PER_KM() { return this.CO2_ICE_PER_KM - this.CO2_EV_PER_KM; }
         };
 
+        // 綁定全域物件，供外部 achievements.js 與跨檔案模組依賴
         window.AppState = AppState;
         window.CONSTANTS = CONSTANTS;
 
@@ -1014,8 +1048,13 @@
                     setTimeout(() => { 
                         DOM.appSplashScreen.style.pointerEvents = 'none';
                         DOM.appSplashScreen.classList.add('opacity-0'); 
-                        setTimeout(() => DOM.appSplashScreen.remove(), 400); 
-                    }, 300); 
+                        setTimeout(() => {
+                            DOM.appSplashScreen.remove();
+                            // 📱 解決 iOS PWA 初始未觸發 Hit-testing 導致底部必須滑一下才可點的 Bug
+                            window.scrollTo(0, 1);
+                            setTimeout(() => window.scrollTo(0, 0), 10);
+                        }, 250); 
+                    }, 200); 
                 }
             }
         });
@@ -1028,7 +1067,10 @@
             navBar.classList.add('transition-all', 'duration-500', 'ease-out', 'origin-bottom');
 
             window.addEventListener('scroll', () => {
-                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                // 📱 修正 iOS 橡皮筋回彈負值問題
+                const rawScroll = window.pageYOffset || document.documentElement.scrollTop;
+                const scrollTop = Math.max(0, rawScroll);
+
                 if (scrollTop <= 10) {
                     navBar.classList.remove('translate-y-32', 'scale-75', 'opacity-0', 'pointer-events-none');
                     lastScrollTop = scrollTop;
@@ -1323,7 +1365,8 @@
                 updateSyncUiStatus();
             }
             if (tabId === 'records') {
-                setTimeout(measureAndAdjustMarquees, 60);
+                // 延遲 250ms，確保 CSS Transition 與 DOM 展開完畢後才取得精準寬度
+                setTimeout(measureAndAdjustMarquees, 250);
             }
         };
 
@@ -2181,7 +2224,7 @@
             if (DOM.recordCalendarContainer) DOM.recordCalendarContainer.classList.toggle('hidden', currentViewMode === 'list');
             document.getElementById('btnToggleView').textContent = currentViewMode === 'list' ? '📅 切換日曆' : '📝 切換列表';
             if (currentViewMode === 'calendar') renderCalendar();
-            else setTimeout(measureAndAdjustMarquees, 50);
+            else setTimeout(measureAndAdjustMarquees, 250);
         };
 
         window.selectCalendarDay = function(dateStr) {
@@ -2879,6 +2922,7 @@ self.addEventListener('fetch', event => {
         }
     </script>
 
-    <script src="./achievements.js"></script>
+    <!-- 🌟 onload 確保外部成就腳本就緒後立即觸發渲染，解決冷啟動抓不到的問題 -->
+    <script src="./achievements.js" onload="if(typeof renderDashboard==='function') renderDashboard();"></script>
 </body>
 </html>
