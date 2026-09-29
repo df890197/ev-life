@@ -2016,7 +2016,7 @@
             resultBox.classList.remove('hidden');
         }
 
-        // 🌟 核心卡片產生函式 (第一行放大字級，地區微調防偏低)
+        // 🌟 核心卡片產生函式
         function buildRecordCardHtml(rec, isMVP) {
             const isNonDrive = ['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType);
             const dist = parseFloat(rec.distance) || 0;
@@ -2217,7 +2217,7 @@
 
         function renderDashboard() {
             const activeRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.date);
-            activeRecords.sort((a, b) => new Date(a.date) - new Date(b.date) || parseInt(a.id, 10) - parseInt(a.id, 10));
+            activeRecords.sort((a, b) => new Date(a.date) - new Date(b.date) || parseInt(a.id, 10) - parseInt(b.id, 10));
 
             renderMonthFilters();
             calculateRecordStats(activeRecords);
