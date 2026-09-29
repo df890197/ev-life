@@ -20,7 +20,12 @@
         :root, html, body { background-color: #fcfaf2; }
         html.dark, html.dark body { background-color: #111827 !important; }
         
-        #appSplashScreen { background-color: #fcfaf2; }
+        /* 🚀 啟動畫面：強制置於最高 GPU 渲染層，防穿透與閃爍 */
+        #appSplashScreen { 
+            background-color: #fcfaf2; 
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+        }
         html.dark #appSplashScreen { background-color: #111827 !important; }
 
         input[type="date"] { position: relative; -webkit-appearance: none; appearance: none; }
@@ -63,14 +68,19 @@
             box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.08); 
         }
 
-        /* 📱 底部浮動導覽列優化：防止 iOS PWA 手勢遮擋與未觸發命中測試 */
+        /* 📱 底部浮動導覽列：初始 opacity-0 防止啟動前閃現，開屏結束後優雅淡入 */
         .floating-nav { 
             bottom: calc(env(safe-area-inset-bottom, 0px) * 0.5 + 4px) !important; 
             margin-bottom: 0 !important;
             transform: translateZ(0);
             -webkit-transform: translateZ(0);
-            will-change: transform;
+            will-change: transform, opacity;
             pointer-events: auto !important;
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.4s ease-out;
+        }
+        .floating-nav.nav-ready {
+            opacity: 1;
         }
         @media (min-width: 768px) {
             .floating-nav { bottom: 8px !important; }
@@ -150,7 +160,8 @@
 </head>
 <body class="font-sans bg-[#fcfaf2] dark:bg-[#111827] text-slate-800 dark:text-[#f8fafc] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative slashed-zero">
 
-    <div id="appSplashScreen" class="fixed inset-0 z-[9998] bg-[#fcfaf2] dark:bg-[#111827] flex flex-col items-center justify-center text-slate-800 dark:text-white transition-opacity duration-300 pointer-events-none">
+    <!-- 🚀 啟動畫面：提升至 z-[99999]，保證絕對在所有元素的最上方，杜絕遮不住底部導覽列的問題 -->
+    <div id="appSplashScreen" class="fixed inset-0 z-[99999] bg-[#fcfaf2] dark:bg-[#111827] flex flex-col items-center justify-center text-slate-800 dark:text-white transition-opacity duration-300 pointer-events-none">
         <div id="splashFallbackContainer" class="absolute inset-0 flex flex-col items-center justify-center space-y-4 z-10">
             <span class="text-7xl md:text-8xl">⚡</span>
             <h2 class="text-xl md:text-2xl font-black tracking-wider mt-2">Ev Life Loading...</h2>
@@ -966,7 +977,6 @@
             get CO2_SAVED_PER_KM() { return this.CO2_ICE_PER_KM - this.CO2_EV_PER_KM; }
         };
 
-        // 綁定全域物件，供外部 achievements.js 與跨檔案模組依賴
         window.AppState = AppState;
         window.CONSTANTS = CONSTANTS;
 
@@ -1049,9 +1059,11 @@
                         DOM.appSplashScreen.classList.add('opacity-0'); 
                         setTimeout(() => {
                             DOM.appSplashScreen.remove();
-                            // 📱 解決 iOS PWA 初始未觸發 Hit-testing 導致底部必須滑一下才可點的 Bug
-                            window.scrollTo(0, 1);
-                            setTimeout(() => window.scrollTo(0, 0), 10);
+                            // 📱 啟動完成後讓導航列優雅淡入，杜絕在開屏畫面底端閃爍
+                            const nav = document.querySelector('nav.floating-nav');
+                            if (nav) nav.classList.add('nav-ready');
+                            // 📱 強制觸發一次無物理位移的微重繪（Reflow），使 iOS WebKit 立刻建立觸控 Hit-testing，不需手動滑一下
+                            void document.body.offsetHeight;
                         }, 250); 
                     }, 200); 
                 }
@@ -1066,6 +1078,7 @@
             navBar.classList.add('transition-all', 'duration-500', 'ease-out', 'origin-bottom');
 
             window.addEventListener('scroll', () => {
+                // 📱 修正 iOS 橡皮筋回彈負值問題
                 const rawScroll = window.pageYOffset || document.documentElement.scrollTop;
                 const scrollTop = Math.max(0, rawScroll);
 
@@ -1607,7 +1620,6 @@
             setTimeout(() => modal.classList.add('hidden'), 300);
         };
 
-        /* 🗺️ 充電足跡 Modal 展開核心修復 */
         window.openMapModal = function() {
             if (typeof google === 'undefined' || !google.maps) { 
                 showToast("地圖服務載入中或未正確載入，請確認網路連線", true); 
@@ -1616,7 +1628,6 @@
             const modal = document.getElementById('mapModal');
             if (!modal) return;
 
-            // ⚡ 核心修正：移除 hidden，並重設 transition 狀態
             modal.classList.remove('hidden');
             modal.classList.add('opacity-0'); 
             modal.firstElementChild?.classList.add('scale-95');
@@ -2929,7 +2940,6 @@ self.addEventListener('fetch', event => {
         }
     </script>
 
-    <!-- 🌟 onload 確保外部成就腳本就緒後立即觸發渲染，解決冷啟動抓不到的問題 -->
     <script src="./achievements.js" onload="if(typeof renderDashboard==='function') renderDashboard();"></script>
 </body>
 </html>
