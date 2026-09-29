@@ -20,7 +20,6 @@
         :root, html, body { background-color: #fcfaf2; }
         html.dark, html.dark body { background-color: #111827 !important; }
         
-        /* 🚀 啟動畫面：層級置頂，啟動時強制不攔截任何點擊 */
         #appSplashScreen { 
             background-color: #fcfaf2; 
             transform: translateZ(0);
@@ -67,7 +66,6 @@
             box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.08); 
         }
 
-        /* 📱 底部浮動導覽列：貼合下緣的舒適比例 */
         .floating-nav { 
             bottom: calc(env(safe-area-inset-bottom, 0px) * 0.5 + 2px) !important; 
             margin-bottom: 0 !important;
@@ -122,30 +120,27 @@
             75%, 100% { transform: translateX(var(--marquee-scroll-x, 0px)); }
         }
 
-        /* 🗺️ 緊湊型 InfoWindow 樣式：徹底消除上方多餘空白 */
+        /* 🗺️ 徹底消除 Google Maps InfoWindow 頂部預留空隙 */
         .gm-style .gm-style-iw-c {
             padding: 8px 12px !important;
             border-radius: 14px !important;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25) !important;
-            max-width: 250px !important;
+            max-width: 260px !important;
         }
         .gm-style .gm-style-iw-d {
             overflow: hidden !important;
             padding: 0 !important;
             max-height: none !important;
         }
-        .gm-style .gm-style-iw-t::after {
-            top: -1px;
-        }
-        .gm-style-iw.gm-style-iw-c {
-            padding-top: 10px !important;
-        }
         .gm-style .gm-style-iw-c button.gm-ui-hover-effect {
             display: none !important;
         }
-        .gm-style .gm-style-iw-d > div {
+        .gm-style-iw-d > div {
             margin: 0 !important;
             padding: 0 !important;
+        }
+        .gm-style .gm-style-iw-tc::after {
+            top: -1px;
         }
     </style>
 
@@ -448,7 +443,7 @@
 
                         <div id="insuranceDateAlertContainer" class="hidden mt-1 pt-2 border-t border-slate-100 dark:border-slate-700">
                             <div class="flex items-center justify-between">
-                                <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1"><span class="text-[10px]">🛡️️</span> 保險到期: <span id="insuranceTargetDateStr" class="font-mono text-slate-700 dark:text-slate-300"></span></span>
+                                <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1"><span class="text-[10px]">🛡️</span> 保險到期: <span id="insuranceTargetDateStr" class="font-mono text-slate-700 dark:text-slate-300"></span></span>
                                 <span id="insuranceDaysRemainingBadge" class="text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm"></span>
                             </div>
                         </div>
@@ -744,7 +739,7 @@
         <div id="view-settings" class="view-section px-4 pb-10">
             <div class="rpg-card bg-white dark:bg-[#1e293b] rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col max-w-3xl mx-auto">
                 <div class="flex items-center justify-between p-5 md:p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-[#1e293b]">
-                    <h3 class="text-base md:text-xl font-black flex items-center gap-2">⚙️️ 設定與雲端備份</h3>
+                    <h3 class="text-base md:text-xl font-black flex items-center gap-2">⚙️ 設定與雲端備份</h3>
                 </div>
                 <div class="flex flex-shrink-0 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#1e293b]">
                     <button onclick="switchSettingsTab('settings-tab-main')" id="btn-tab-main" class="flex-1 py-4 text-xs md:text-sm font-black border-r border-slate-200 dark:border-slate-700 transition-all bg-amber-400 dark:bg-amber-500 text-slate-900 shadow-sm hover:opacity-90">🛠️ 愛車與雲端</button>
@@ -776,7 +771,7 @@
                                     <input type="date" id="nextMaintDateInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs md:text-sm font-bold text-left focus:outline-none focus:border-amber-400 appearance-none block">
                                 </div>
                                 <div>
-                                    <label class="text-[10px] md:text-xs font-bold text-slate-400 block mb-1 flex items-center gap-1"><span class="text-[12px]">🛡️️</span>保險到期日 (選填)</label>
+                                    <label class="text-[10px] md:text-xs font-bold text-slate-400 block mb-1 flex items-center gap-1"><span class="text-[12px]">🛡️</span>保險到期日 (選填)</label>
                                     <input type="date" id="insuranceExpiryInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs md:text-sm font-bold text-left focus:outline-none focus:border-amber-400 appearance-none block">
                                 </div>
                             </div>
@@ -914,7 +909,7 @@
         </div>
     </div>
 
-    <!-- 🗺️ 充電地圖 Modal -->
+    <!-- 🗺️ 充電地圖 Modal（上方標題區緊湊化修復） -->
     <div id="mapModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[120] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
         <div class="bg-white dark:bg-[#1e293b] rounded-[2rem] p-3 md:p-4 shadow-2xl max-w-2xl w-full mx-4 h-[75vh] flex flex-col transform scale-95 transition-all duration-300 border border-slate-100 dark:border-slate-700 relative">
             <div class="flex items-center justify-between px-1 mb-2">
@@ -1004,7 +999,6 @@
             get CO2_SAVED_PER_KM() { return this.CO2_ICE_PER_KM - this.CO2_EV_PER_KM; }
         };
 
-        // 綁定全域物件，供外部 achievements.js 與跨檔案模組依賴
         window.AppState = AppState;
         window.CONSTANTS = CONSTANTS;
         window.currentInfoWindow = null;
@@ -1088,10 +1082,8 @@
                         DOM.appSplashScreen.classList.add('opacity-0'); 
                         setTimeout(() => {
                             DOM.appSplashScreen.remove();
-                            // 📱 導航列淡入，杜絕在開屏畫面底端閃爍
                             const nav = document.querySelector('nav.floating-nav');
                             if (nav) nav.classList.add('nav-ready');
-                            // 📱 無物理位移的微重繪觸發，解決 iOS 必須滑動才響應點擊的問題
                             void document.body.offsetHeight;
                         }, 250); 
                     }, 200); 
@@ -1107,7 +1099,6 @@
             navBar.classList.add('transition-all', 'duration-500', 'ease-out', 'origin-bottom');
 
             window.addEventListener('scroll', () => {
-                // 📱 修正 iOS 橡皮筋回彈負值問題
                 const rawScroll = window.pageYOffset || document.documentElement.scrollTop;
                 const scrollTop = Math.max(0, rawScroll);
 
@@ -1649,7 +1640,6 @@
             setTimeout(() => modal.classList.add('hidden'), 300);
         };
 
-        /* 🗺️ 充電足跡 Modal 展開核心修復（緊湊視窗、單一氣泡、防留白過多） */
         window.openMapModal = function() {
             if (typeof google === 'undefined' || !google.maps) { 
                 showToast("地圖服務載入中或未正確載入，請確認網路連線", true); 
@@ -1681,7 +1671,6 @@
                                 { featureType: "water", elementType: "geometry", stylers: [{ color: "#17263c" }] }
                             ] : []
                         });
-                        // 點擊地圖任意空白處時自動收合視窗
                         window.evMap.addListener('click', () => {
                             if (window.currentInfoWindow) {
                                 window.currentInfoWindow.close();
@@ -1719,7 +1708,6 @@
                 const bounds = new google.maps.LatLngBounds();
                 let markerCount = 0;
 
-                // ⚡ 確保全地圖永遠共用單一 InfoWindow 實例
                 if (!window.currentInfoWindow) {
                     window.currentInfoWindow = new google.maps.InfoWindow();
                 }
@@ -1737,7 +1725,6 @@
                     });
 
                     marker.addListener('click', () => { 
-                        // 點擊任一標記時，先強制關閉前一個，再換上緊湊無多餘空白的新內容
                         window.currentInfoWindow.close();
                         window.currentInfoWindow.setContent(
                             `<div style="color:#0f172a; font-family: inherit; line-height: 1.35; padding: 2px 0;">
@@ -1754,7 +1741,6 @@
                     bounds.extend({ lat, lng });
                     markerCount++;
                     if (markerCount > 1) { 
-                        // 給予適當 padding，避免最上方的標記直接頂到天花板
                         window.evMap.fitBounds(bounds, { top: 40, bottom: 20, left: 20, right: 20 }); 
                     } else { 
                         window.evMap.setCenter({ lat, lng }); 
