@@ -1377,7 +1377,7 @@
                 updateSyncUiStatus();
             }
             if (tabId === 'records') {
-                requestAnimationFrame(measureAndAdjustMarquees);
+                setTimeout(measureAndAdjustMarquees, 60);
             }
         }
 
@@ -2010,7 +2010,7 @@
             resultBox.classList.remove('hidden');
         }
 
-        // 🌟 核心卡片產生函式
+        // 🌟 核心卡片產生函式 (第一行等高水平對齊 + 跑馬燈露出即停)
         function buildRecordCardHtml(rec, isMVP) {
             const isNonDrive = ['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType);
             const dist = parseFloat(rec.distance) || 0;
@@ -2040,35 +2040,38 @@
             return `
             <div class="${cardWrapperClass}" onclick="editRecord('${safeId}')">
                 <div class="flex-1 flex flex-col justify-between">
-                    <!-- 1️⃣ 第一行：Flex 嚴格水平置中同高對齊 -->
+                    <!-- 1️⃣ 第一行：字體大小、行高、圖示基線完全統一，水平嚴格居中 -->
                     <div class="flex items-center justify-between gap-1 pb-2 border-b border-slate-100 dark:border-slate-800/60 mb-2.5">
-                        <!-- 左側：日期 -->
-                        <div class="flex items-center text-[11px] sm:text-xs font-mono font-black text-slate-800 dark:text-slate-200 tracking-tight shrink-0">
-                            📅${safeDate}
+                        <!-- 左側：日期 (統一 text-xs) -->
+                        <div class="inline-flex items-center gap-1 text-xs font-mono font-bold text-slate-800 dark:text-slate-200 tracking-tight shrink-0">
+                            <span class="text-xs leading-none">📅</span>
+                            <span class="leading-none">${safeDate}</span>
                         </div>
 
-                        <!-- 中間：地區 (純文字置中，不浮高) -->
+                        <!-- 中間：地區 (統一 text-xs，水平居中且與左右完全等高) -->
                         <div class="flex-1 text-center px-1 overflow-hidden">
                             ${safeDistrict ? `
-                                <span class="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 truncate tracking-tight inline-block max-w-full" title="${safeDistrict}">
-                                    📍${safeDistrict}
-                                </span>
+                                <div class="inline-flex items-center gap-0.5 text-xs font-bold text-slate-500 dark:text-slate-400 max-w-full" title="${safeDistrict}">
+                                    <span class="text-xs leading-none">📍</span>
+                                    <span class="truncate leading-none">${safeDistrict}</span>
+                                </div>
                             ` : ''}
                         </div>
 
-                        <!-- 右側：氣溫與類型 Badge -->
-                        <div class="flex items-center gap-1.5 shrink-0 justify-end">
+                        <!-- 右側：氣溫與類型 Badge (統一 text-xs) -->
+                        <div class="inline-flex items-center gap-1.5 shrink-0 justify-end">
                             ${(rec.temp !== undefined && rec.temp !== null && rec.temp !== '') ? `
-                                <span class="text-[10px] sm:text-xs font-mono font-bold text-sky-600 dark:text-sky-400">
-                                    🌡️${rec.temp}°C
-                                </span>
+                                <div class="inline-flex items-center gap-0.5 text-xs font-mono font-bold text-sky-600 dark:text-sky-400">
+                                    <span class="text-xs leading-none">🌡️</span>
+                                    <span class="leading-none">${rec.temp}°C</span>
+                                </div>
                             ` : ''}
                             ${(!safeTag && isMVP) ? `
-                                <span class="px-1.5 py-0.5 rounded-full border border-amber-400 bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 text-[8.5px] font-black shadow-sm">
+                                <span class="px-1.5 py-0.5 rounded-full border border-amber-400 bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 text-[9px] font-black shadow-sm leading-none">
                                     👑MVP
                                 </span>
                             ` : ''}
-                            <span class="px-2 py-0.5 rounded-full text-[9.5px] sm:text-[10px] font-black ${typeBadgeStyle} shrink-0 flex items-center gap-0.5 shadow-sm whitespace-nowrap leading-none">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-black ${typeBadgeStyle} shrink-0 inline-flex items-center gap-0.5 shadow-sm whitespace-nowrap leading-none">
                                 <span class="text-[10px] leading-none">${iconStr}</span>
                                 <span class="leading-none">${safeChargeType}</span>
                             </span>
