@@ -75,9 +75,9 @@
         .dark .pac-item:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
         .dark .pac-item-query { color: #ffffff !important; }
 
-        /* 🚗 智慧跑馬燈：平滑左右巡航，無遮罩清晰呈現，位移量精確到像素 */
+        /* 🚗 跑馬燈容器與動畫設定：無遮罩、清晰邊緣、平順折返 */
         .marquee-box {
-            display: flex;
+            display: block;
             width: 100%;
             overflow: hidden;
             white-space: nowrap;
@@ -96,7 +96,7 @@
             animation: evMarqueeScroll var(--marquee-duration, 5s) ease-in-out infinite alternate;
         }
 
-        /* 🛑 滑鼠懸停、長按或手機觸控時即時凍結 */
+        /* 🛑 懸停與觸控時暫停 */
         .marquee-box:hover .marquee-active,
         .marquee-box:active .marquee-active,
         .marquee-active.marquee-paused {
@@ -108,7 +108,6 @@
                 transform: translateX(0px);
             }
             75%, 100% {
-                /* 嚴格移動差值，剛好露出被遮住的字立刻折返 */
                 transform: translateX(var(--marquee-scroll-x, 0px));
             }
         }
@@ -925,9 +924,9 @@
             </button>
 
             <div class="relative flex justify-center w-16 md:w-24 -mt-8 md:-mt-10 z-20" id="add-btn-wrapper">
-<button onclick="switchTab('add')" id="tab-add" class="w-14 h-14 md:w-16 md:h-16 bg-slate-900 dark:bg-amber-500 text-white dark:text-slate-900 rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.2)] dark:shadow-[0_8px_20px_rgba(251,191,36,0.3)] border-[3px] border-white/80 dark:border-slate-800/80 transition transform hover:scale-105 active:scale-90 cursor-pointer">
-    <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
-</button>
+                <button onclick="switchTab('add')" id="tab-add" class="w-14 h-14 md:w-16 md:h-16 bg-slate-900 dark:bg-amber-500 text-white dark:text-slate-900 rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.2)] dark:shadow-[0_8px_20px_rgba(251,191,36,0.3)] border-[3px] border-white/80 dark:border-slate-800/80 transition transform hover:scale-105 active:scale-90 cursor-pointer">
+                    <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+                </button>
             </div>
 
             <button onclick="switchTab('analysis')" id="tab-analysis" class="tab-btn flex flex-col items-center gap-1 w-14 md:w-20 text-slate-500 dark:text-slate-400 cursor-pointer">
@@ -1376,6 +1375,9 @@
             if (tabId === 'settings') {
                 localStorage.setItem('ev_life_sync_dismissed', 'true');
                 updateSyncUiStatus();
+            }
+            if (tabId === 'records') {
+                requestAnimationFrame(measureAndAdjustMarquees);
             }
         }
 
@@ -2008,7 +2010,7 @@
             resultBox.classList.remove('hidden');
         }
 
-        // 🌟 核心卡片產生函式 (第一行地區絕對同高水平置中 + 跑馬燈真實寬度計算露出即停)
+        // 🌟 核心卡片產生函式
         function buildRecordCardHtml(rec, isMVP) {
             const isNonDrive = ['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType);
             const dist = parseFloat(rec.distance) || 0;
@@ -2038,42 +2040,42 @@
             return `
             <div class="${cardWrapperClass}" onclick="editRecord('${safeId}')">
                 <div class="flex-1 flex flex-col justify-between">
-                    <!-- 1️⃣ 第一行：同高對齊，地區絕對居中 (不偏上) -->
-                    <div class="relative flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800/60 mb-2.5 min-h-[26px]">
-                        <!-- 左側：日期 (垂直絕對居中對齊) -->
-                        <div class="inline-flex items-center text-[11px] sm:text-xs font-mono font-black text-slate-800 dark:text-slate-200 tracking-tight shrink-0 z-10 leading-none">
+                    <!-- 1️⃣ 第一行：Flex 嚴格水平置中同高對齊 -->
+                    <div class="flex items-center justify-between gap-1 pb-2 border-b border-slate-100 dark:border-slate-800/60 mb-2.5">
+                        <!-- 左側：日期 -->
+                        <div class="flex items-center text-[11px] sm:text-xs font-mono font-black text-slate-800 dark:text-slate-200 tracking-tight shrink-0">
                             📅${safeDate}
                         </div>
 
-                        <!-- 中間：地區 (絕對定位，與左右兩側嚴格水平居中同高) -->
-                        ${safeDistrict ? `
-                        <div class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 max-w-[40%] sm:max-w-[48%] overflow-hidden text-center pointer-events-none">
-                            <span class="inline-block text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 truncate tracking-tight align-middle leading-none" title="${safeDistrict}">
-                                📍${safeDistrict}
-                            </span>
+                        <!-- 中間：地區 (純文字置中，不浮高) -->
+                        <div class="flex-1 text-center px-1 overflow-hidden">
+                            ${safeDistrict ? `
+                                <span class="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 truncate tracking-tight inline-block max-w-full" title="${safeDistrict}">
+                                    📍${safeDistrict}
+                                </span>
+                            ` : ''}
                         </div>
-                        ` : ''}
 
-                        <!-- 右側：氣溫與類型 Badge (垂直絕對居中對齊) -->
-                        <div class="inline-flex items-center gap-1.5 justify-end shrink-0 z-10">
+                        <!-- 右側：氣溫與類型 Badge -->
+                        <div class="flex items-center gap-1.5 shrink-0 justify-end">
                             ${(rec.temp !== undefined && rec.temp !== null && rec.temp !== '') ? `
-                                <span class="text-[10px] sm:text-xs font-mono font-bold text-sky-600 dark:text-sky-400 leading-none">
+                                <span class="text-[10px] sm:text-xs font-mono font-bold text-sky-600 dark:text-sky-400">
                                     🌡️${rec.temp}°C
                                 </span>
                             ` : ''}
                             ${(!safeTag && isMVP) ? `
-                                <span class="inline-flex items-center px-1.5 py-0.5 rounded-full border border-amber-400 bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 text-[8.5px] font-black shadow-sm leading-none">
+                                <span class="px-1.5 py-0.5 rounded-full border border-amber-400 bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 text-[8.5px] font-black shadow-sm">
                                     👑MVP
                                 </span>
                             ` : ''}
-                            <span class="px-2 py-0.5 rounded-full text-[9.5px] sm:text-[10px] font-black ${typeBadgeStyle} shrink-0 inline-flex items-center gap-0.5 shadow-sm whitespace-nowrap leading-tight">
+                            <span class="px-2 py-0.5 rounded-full text-[9.5px] sm:text-[10px] font-black ${typeBadgeStyle} shrink-0 flex items-center gap-0.5 shadow-sm whitespace-nowrap leading-none">
                                 <span class="text-[10px] leading-none">${iconStr}</span>
                                 <span class="leading-none">${safeChargeType}</span>
                             </span>
                         </div>
                     </div>
 
-                    <!-- 2️⃣ 第二行：跑馬燈（無兩側遮罩淡化，像素級實時計算位移，遮多少走多少） -->
+                    <!-- 2️⃣ 第二行：跑馬燈（無兩側淡化，精準滑動多出字元） -->
                     ${safeTag ? `
                     <div class="mb-3" onclick="event.stopPropagation()">
                         <div class="flex items-center justify-between gap-2">
@@ -2178,31 +2180,27 @@
             </div>`;
         }
 
-        // 📏 精準測量每個跑馬燈的溢出像素，遮住多少像素就走多少，絕不多走一絲空白
+        // 📏 精確測量：計算文字實際溢出像素，精準只移動被遮住的長度
         function measureAndAdjustMarquees() {
-            requestAnimationFrame(() => {
-                const boxes = document.querySelectorAll('.marquee-box');
-                boxes.forEach(box => {
-                    const content = box.querySelector('.marquee-content');
-                    if (!content) return;
-                    
-                    const boxWidth = box.clientWidth;
-                    const contentWidth = content.scrollWidth;
-                    const overflow = contentWidth - boxWidth;
+            const boxes = document.querySelectorAll('.marquee-box');
+            boxes.forEach(box => {
+                const content = box.querySelector('.marquee-content');
+                if (!content) return;
 
-                    if (overflow > 6) {
-                        content.classList.add('marquee-active');
-                        // 剛好位移「溢出寬度 + 2px」，使末端字體恰好完全露出
-                        content.style.setProperty('--marquee-scroll-x', `-${Math.ceil(overflow) + 2}px`);
-                        // 停頓 2.5 秒，每溢出 24px 給予 0.35 秒等速巡航
-                        const duration = Math.max(3.2, 2.5 + (overflow / 24) * 0.35).toFixed(2);
-                        content.style.setProperty('--marquee-duration', `${duration}s`);
-                    } else {
-                        content.classList.remove('marquee-active');
-                        content.style.removeProperty('--marquee-scroll-x');
-                        content.style.removeProperty('--marquee-duration');
-                    }
-                });
+                const boxWidth = box.clientWidth;
+                const textWidth = content.scrollWidth;
+                const overflow = textWidth - boxWidth;
+
+                if (overflow > 4) {
+                    content.style.setProperty('--marquee-scroll-x', `-${Math.ceil(overflow) + 3}px`);
+                    const duration = Math.max(3.2, (2.0 + overflow * 0.045)).toFixed(2);
+                    content.style.setProperty('--marquee-duration', `${duration}s`);
+                    content.classList.add('marquee-active');
+                } else {
+                    content.classList.remove('marquee-active');
+                    content.style.removeProperty('--marquee-scroll-x');
+                    content.style.removeProperty('--marquee-duration');
+                }
             });
         }
 
@@ -2274,7 +2272,7 @@
 
             if(DOM.recordMobileList) {
                 DOM.recordMobileList.innerHTML = htmlFragments.join('');
-                measureAndAdjustMarquees();
+                setTimeout(measureAndAdjustMarquees, 50);
             }
             if (currentViewMode === 'calendar') {
                 renderCalendar();
@@ -2290,7 +2288,7 @@
             if (DOM.recordCalendarContainer) DOM.recordCalendarContainer.classList.toggle('hidden', currentViewMode === 'list');
             document.getElementById('btnToggleView').textContent = currentViewMode === 'list' ? '📅 切換日曆' : '📝 切換列表';
             if (currentViewMode === 'calendar') renderCalendar();
-            else measureAndAdjustMarquees();
+            else setTimeout(measureAndAdjustMarquees, 50);
         }
 
         window.selectCalendarDay = function(dateStr) {
@@ -2370,7 +2368,7 @@
                         const isMVP = (mvpGlobalId && rec.id === mvpGlobalId);
                         return buildRecordCardHtml(rec, isMVP);
                     }).join('');
-                    measureAndAdjustMarquees();
+                    setTimeout(measureAndAdjustMarquees, 50);
                 } else {
                     daySection.classList.add('hidden');
                     dayList.innerHTML = '';
