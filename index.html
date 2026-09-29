@@ -579,7 +579,7 @@
             </div>
 
             <!-- 列表顯示區 -->
-            <div id="recordMobileList" class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 items-stretch"></div>
+            <div id="recordMobileList" class="grid grid-cols-1 md:grid-cols-2 gap-3 pb-4 items-stretch"></div>
 
             <!-- 日曆顯示區容器 -->
             <div id="recordCalendarContainer" class="hidden max-w-2xl mx-auto space-y-4">
@@ -592,7 +592,7 @@
                         </span>
                         <button onclick="clearCalendarDaySelection()" class="text-[10px] md:text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold transition">收合</button>
                     </div>
-                    <div id="calendarDayRecordsList" class="grid grid-cols-1 gap-4 items-stretch"></div>
+                    <div id="calendarDayRecordsList" class="grid grid-cols-1 gap-3 items-stretch"></div>
                 </div>
             </div>
         </div>
@@ -918,7 +918,7 @@
             </button>
 
             <button onclick="switchTab('records')" id="tab-records" class="tab-btn flex flex-col items-center gap-1 w-14 md:w-20 text-slate-500 dark:text-slate-400 cursor-pointer">
-                <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2v0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                 <span class="text-[9px] md:text-[10px] font-bold tracking-wider mt-0.5">紀錄</span>
             </button>
 
@@ -1643,7 +1643,7 @@
             const modal = document.getElementById('mapModal');
             if (!modal) return;
 
-            modal.classList.remove('hidden');
+            modal.classList.add('opacity-0'); 
             setTimeout(async () => {
                 modal.classList.remove('opacity-0'); 
                 modal.firstElementChild.classList.remove('scale-95');
@@ -2016,7 +2016,7 @@
             resultBox.classList.remove('hidden');
         }
 
-        // 🌟 核心卡片產生函式
+        // 🌟 核心卡片產生函式 (全面緊湊化：p-2.5 sm:p-4，內部間距縮小)
         function buildRecordCardHtml(rec, isMVP) {
             const isNonDrive = ['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType);
             const dist = parseFloat(rec.distance) || 0;
@@ -2039,54 +2039,54 @@
             const safeTag = escapeHTML(rec.tag || '');
 
             const cardWrapperClass = (isMVP
-                ? "bg-gradient-to-br from-amber-50/80 via-white to-amber-50/20 dark:from-amber-950/30 dark:via-[#1e293b] dark:to-[#1e293b] p-3.5 sm:p-5 rounded-[1.75rem] border-2 border-amber-400 dark:border-amber-500 shadow-md relative w-full flex flex-col justify-between"
-                : "bg-white dark:bg-[#1e293b] p-3.5 sm:p-5 rounded-[1.75rem] border border-slate-200/80 dark:border-slate-800 shadow-sm relative w-full flex flex-col justify-between"
+                ? "bg-gradient-to-br from-amber-50/80 via-white to-amber-50/20 dark:from-amber-950/30 dark:via-[#1e293b] dark:to-[#1e293b] p-2.5 sm:p-4 rounded-[1.5rem] border-2 border-amber-400 dark:border-amber-500 shadow-md relative w-full flex flex-col justify-between"
+                : "bg-white dark:bg-[#1e293b] p-2.5 sm:p-4 rounded-[1.5rem] border border-slate-200/80 dark:border-slate-800 shadow-sm relative w-full flex flex-col justify-between"
             ) + " cursor-pointer transition active:scale-[0.99] hover:border-amber-300 dark:hover:border-amber-500/50";
 
             return `
             <div class="${cardWrapperClass}" onclick="editRecord('${safeId}')">
                 <div class="flex-1 flex flex-col justify-between">
-                    <!-- 1️⃣ 第一行：字級放大、統一基線、垂直嚴格居中對齊 -->
-                    <div class="flex items-center justify-between gap-1 pb-2 border-b border-slate-100 dark:border-slate-800/60 mb-2.5 min-h-[26px]">
-                        <!-- 左側：日期 (放大1px: 12.5px，sm以上 13.5px) -->
-                        <div class="inline-flex items-center text-[12.5px] sm:text-[13.5px] font-bold text-slate-800 dark:text-slate-200 tracking-tight shrink-0">
+                    <!-- 1️⃣ 第一行：更緊湊的內距與完美對齊 -->
+                    <div class="flex items-center justify-between gap-1 pb-1.5 border-b border-slate-100 dark:border-slate-800/60 mb-2 min-h-[24px]">
+                        <!-- 左側：日期 -->
+                        <div class="inline-flex items-center text-[12px] sm:text-[13px] font-bold text-slate-800 dark:text-slate-200 tracking-tight shrink-0">
                             <span class="mr-0.5 leading-none">📅</span>
                             <span class="leading-none">${safeDate}</span>
                         </div>
 
-                        <!-- 中間：地區 (放大1px: 12px，sm以上 13px，微提2px消除手機偏低) -->
+                        <!-- 中間：地區 -->
                         <div class="flex-1 text-center px-1 overflow-hidden">
                             ${safeDistrict ? `
-                                <div class="inline-flex items-center text-[12px] sm:text-[13px] font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap tracking-tight -translate-y-[2px] sm:-translate-y-[1px]" title="${safeDistrict}">
+                                <div class="inline-flex items-center text-[11.5px] sm:text-[12.5px] font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap tracking-tight -translate-y-[2px] sm:-translate-y-[1px]" title="${safeDistrict}">
                                     <span class="mr-0.5 leading-none">📍</span>
                                     <span class="leading-none">${safeDistrict}</span>
                                 </div>
                             ` : ''}
                         </div>
 
-                        <!-- 右側：氣溫與類型 Badge (放大1px: 12px，sm以上 13px) -->
+                        <!-- 右側：氣溫與類型 Badge -->
                         <div class="inline-flex items-center gap-1.5 shrink-0 justify-end">
                             ${(rec.temp !== undefined && rec.temp !== null && rec.temp !== '') ? `
-                                <div class="inline-flex items-center text-[12px] sm:text-[13px] font-bold text-sky-600 dark:text-sky-400">
+                                <div class="inline-flex items-center text-[11.5px] sm:text-[12.5px] font-bold text-sky-600 dark:text-sky-400">
                                     <span class="mr-0.5 leading-none">🌡️</span>
                                     <span class="leading-none">${rec.temp}°C</span>
                                 </div>
                             ` : ''}
                             ${(!safeTag && isMVP) ? `
-                                <span class="px-1.5 py-0.5 rounded-full border border-amber-400 bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 text-[9px] sm:text-[10px] font-black shadow-sm leading-none">
+                                <span class="px-1.5 py-0.5 rounded-full border border-amber-400 bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 text-[8.5px] font-black shadow-sm leading-none">
                                     👑MVP
                                 </span>
                             ` : ''}
-                            <span class="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-black ${typeBadgeStyle} shrink-0 inline-flex items-center gap-0.5 shadow-sm whitespace-nowrap leading-none">
+                            <span class="px-2 py-0.5 rounded-full text-[9.5px] sm:text-[10px] font-black ${typeBadgeStyle} shrink-0 inline-flex items-center gap-0.5 shadow-sm whitespace-nowrap leading-none">
                                 <span class="text-[10px] leading-none">${iconStr}</span>
                                 <span class="leading-none">${safeChargeType}</span>
                             </span>
                         </div>
                     </div>
 
-                    <!-- 2️⃣ 第二行：跑馬燈（無兩側淡化，精準滑動多出字元） -->
+                    <!-- 2️⃣ 第二行：跑馬燈 -->
                     ${safeTag ? `
-                    <div class="mb-3" onclick="event.stopPropagation()">
+                    <div class="mb-2" onclick="event.stopPropagation()">
                         <div class="flex items-center justify-between gap-2">
                             <div class="flex items-center gap-1.5 flex-1 min-w-0 overflow-hidden">
                                 <span class="w-4 flex justify-center text-amber-500 dark:text-amber-400 text-sm shrink-0">⚡</span>
@@ -2094,7 +2094,7 @@
                                      ontouchstart="this.querySelector('.marquee-content')?.classList.add('marquee-paused')"
                                      ontouchend="this.querySelector('.marquee-content')?.classList.remove('marquee-paused')"
                                      ontouchcancel="this.querySelector('.marquee-content')?.classList.remove('marquee-paused')">
-                                    <h3 class="text-sm sm:text-base font-black text-slate-800 dark:text-white leading-snug marquee-content">
+                                    <h3 class="text-xs sm:text-sm font-black text-slate-800 dark:text-white leading-snug marquee-content">
                                         ${safeTag}
                                     </h3>
                                 </div>
@@ -2112,7 +2112,7 @@
                     ${!isNonDrive ? `
                     <div class="flex-1 flex flex-col justify-center">
                         <!-- 🔋 電量狀態條 -->
-                        <div class="bg-slate-50 dark:bg-slate-900/60 px-3 py-2 rounded-2xl border border-slate-100 dark:border-slate-800/80 mb-3 flex items-center justify-between gap-2.5">
+                        <div class="bg-slate-50 dark:bg-slate-900/60 px-3 py-1.5 rounded-xl border border-slate-100 dark:border-slate-800/80 mb-2 flex items-center justify-between gap-2">
                             <div class="flex items-center gap-1.5 shrink-0">
                                 <span class="text-[10px] text-slate-400 font-bold">起</span>
                                 <span class="font-mono font-black text-xs sm:text-sm text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 px-2 py-0.5 rounded-lg border border-slate-200/60 dark:border-slate-700/60">${rec.startSoc}%</span>
@@ -2135,22 +2135,22 @@
                         </div>
 
                         <!-- 📊 數據 3 欄 -->
-                        <div class="grid grid-cols-3 divide-x divide-slate-100 dark:divide-slate-800 text-center py-1">
+                        <div class="grid grid-cols-3 divide-x divide-slate-100 dark:divide-slate-800 text-center py-0.5">
                             <div class="px-1 flex flex-col items-center justify-center">
                                 <span class="text-[10px] sm:text-[11px] text-slate-400 font-bold mb-0.5">行駛里程</span>
-                                <div class="flex items-baseline justify-center font-mono font-black text-base sm:text-lg text-slate-800 dark:text-white leading-tight">
+                                <div class="flex items-baseline justify-center font-mono font-black text-sm sm:text-base text-slate-800 dark:text-white leading-tight">
                                     <span>${dist}</span><span class="text-[10px] font-bold text-slate-400 ml-0.5">km</span>
                                 </div>
                             </div>
                             <div class="px-1 flex flex-col items-center justify-center">
                                 <span class="text-[10px] sm:text-[11px] text-slate-400 font-bold mb-0.5">平均電耗</span>
-                                <div class="flex items-baseline justify-center font-mono font-black text-base sm:text-lg ${isMVP ? 'text-amber-500' : 'text-teal-600 dark:text-teal-400'} leading-tight">
+                                <div class="flex items-baseline justify-center font-mono font-black text-sm sm:text-base ${isMVP ? 'text-amber-500' : 'text-teal-600 dark:text-teal-400'} leading-tight">
                                     <span>${eff}</span><span class="text-[10px] font-bold text-slate-400 ml-0.5">km/度</span>
                                 </div>
                             </div>
                             <div class="px-1 flex flex-col items-center justify-center">
                                 <span class="text-[10px] sm:text-[11px] text-slate-400 font-bold mb-0.5">花費金額</span>
-                                <div class="flex items-baseline justify-center font-mono font-black text-base sm:text-lg text-slate-800 dark:text-white leading-tight">
+                                <div class="flex items-baseline justify-center font-mono font-black text-sm sm:text-base text-slate-800 dark:text-white leading-tight">
                                     <span class="text-xs font-bold text-slate-400 mr-0.5">$</span><span>${rec.cost}</span>
                                 </div>
                             </div>
@@ -2158,21 +2158,21 @@
                     </div>
                     ` : `
                     <!-- 💰 衍生支出條 -->
-                    <div class="flex-1 flex flex-col justify-center my-2">
-                        <div class="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center justify-between shadow-sm">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-2xl bg-white dark:bg-slate-800 flex items-center justify-center text-2xl shadow-sm border border-slate-200/50 dark:border-slate-700/50 shrink-0">
+                    <div class="flex-1 flex flex-col justify-center my-1">
+                        <div class="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center justify-between shadow-sm">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-9 h-9 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center text-xl shadow-sm border border-slate-200/50 dark:border-slate-700/50 shrink-0">
                                     ${iconStr}
                                 </div>
                                 <div class="text-left">
-                                    <span class="text-sm sm:text-base font-black text-slate-800 dark:text-slate-100 block tracking-tight">${rec.chargeType}支出</span>
-                                    <span class="text-[10px] sm:text-[11px] text-slate-400 font-bold block mt-0.5">${safeNote ? '請見備註說明' : '純電日常用車開銷'}</span>
+                                    <span class="text-xs sm:text-sm font-black text-slate-800 dark:text-slate-100 block tracking-tight">${rec.chargeType}支出</span>
+                                    <span class="text-[10px] text-slate-400 font-bold block mt-0.2">${safeNote ? '請見備註說明' : '純電日常用車開銷'}</span>
                                 </div>
                             </div>
                             <div class="text-right pl-3">
-                                <span class="text-[10px] text-slate-400 font-bold block">費用</span>
-                                <div class="font-mono font-black text-xl sm:text-2xl text-slate-800 dark:text-white leading-tight">
-                                    <span class="text-sm font-bold text-slate-400 mr-0.5">$</span>${rec.cost}
+                                <span class="text-[9px] text-slate-400 font-bold block">費用</span>
+                                <div class="font-mono font-black text-lg sm:text-xl text-slate-800 dark:text-white leading-tight">
+                                    <span class="text-xs font-bold text-slate-400 mr-0.5">$</span>${rec.cost}
                                 </div>
                             </div>
                         </div>
@@ -2182,7 +2182,7 @@
 
                 <!-- 4️⃣ 備註文字區 -->
                 ${safeNote ? `
-                <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-bold flex items-start gap-1.5 leading-relaxed">
+                <div class="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800/80 text-[10.5px] sm:text-xs text-slate-500 dark:text-slate-400 font-bold flex items-start gap-1.5 leading-relaxed">
                     <span class="w-4 flex justify-center text-slate-400 shrink-0">📝</span>
                     <span class="break-words">${safeNote}</span>
                 </div>` : ''}
@@ -2823,6 +2823,7 @@
             if(DOM.confirmModalMessage) DOM.confirmModalMessage.textContent = msg;
             activeConfirmCallback = onConfirm;
             if(DOM.confirmModal && DOM.confirmModalContent) {
+                DOM.confirmModal.classList.add('opacity-0');
                 DOM.confirmModal.classList.remove('hidden'); 
                 setTimeout(() => { DOM.confirmModal.classList.remove('opacity-0'); DOM.confirmModalContent.classList.remove('scale-95'); }, 10);
             }
