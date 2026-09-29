@@ -20,6 +20,7 @@
         :root, html, body { background-color: #fcfaf2; }
         html.dark, html.dark body { background-color: #111827 !important; }
         
+        /* 🚀 啟動畫面：層級置頂，啟動時強制不攔截任何點擊 */
         #appSplashScreen { 
             background-color: #fcfaf2; 
             transform: translateZ(0);
@@ -121,7 +122,7 @@
             75%, 100% { transform: translateX(var(--marquee-scroll-x, 0px)); }
         }
 
-        /* 🗺️ 緊湊型 InfoWindow 樣式：去除預設多餘空白與自帶關閉叉叉 */
+        /* 🗺️ 緊湊型 InfoWindow 樣式：徹底消除上方多餘空白 */
         .gm-style .gm-style-iw-c {
             padding: 8px 12px !important;
             border-radius: 14px !important;
@@ -133,11 +134,18 @@
             padding: 0 !important;
             max-height: none !important;
         }
-        .gm-style .gm-style-iw-tc::after {
+        .gm-style .gm-style-iw-t::after {
             top: -1px;
+        }
+        .gm-style-iw.gm-style-iw-c {
+            padding-top: 10px !important;
         }
         .gm-style .gm-style-iw-c button.gm-ui-hover-effect {
             display: none !important;
+        }
+        .gm-style .gm-style-iw-d > div {
+            margin: 0 !important;
+            padding: 0 !important;
         }
     </style>
 
@@ -440,7 +448,7 @@
 
                         <div id="insuranceDateAlertContainer" class="hidden mt-1 pt-2 border-t border-slate-100 dark:border-slate-700">
                             <div class="flex items-center justify-between">
-                                <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1"><span class="text-[10px]">🛡️</span> 保險到期: <span id="insuranceTargetDateStr" class="font-mono text-slate-700 dark:text-slate-300"></span></span>
+                                <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1"><span class="text-[10px]">🛡️️</span> 保險到期: <span id="insuranceTargetDateStr" class="font-mono text-slate-700 dark:text-slate-300"></span></span>
                                 <span id="insuranceDaysRemainingBadge" class="text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm"></span>
                             </div>
                         </div>
@@ -736,7 +744,7 @@
         <div id="view-settings" class="view-section px-4 pb-10">
             <div class="rpg-card bg-white dark:bg-[#1e293b] rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col max-w-3xl mx-auto">
                 <div class="flex items-center justify-between p-5 md:p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-[#1e293b]">
-                    <h3 class="text-base md:text-xl font-black flex items-center gap-2">⚙️ 設定與雲端備份</h3>
+                    <h3 class="text-base md:text-xl font-black flex items-center gap-2">⚙️️ 設定與雲端備份</h3>
                 </div>
                 <div class="flex flex-shrink-0 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#1e293b]">
                     <button onclick="switchSettingsTab('settings-tab-main')" id="btn-tab-main" class="flex-1 py-4 text-xs md:text-sm font-black border-r border-slate-200 dark:border-slate-700 transition-all bg-amber-400 dark:bg-amber-500 text-slate-900 shadow-sm hover:opacity-90">🛠️ 愛車與雲端</button>
@@ -906,7 +914,7 @@
         </div>
     </div>
 
-    <!-- 🗺️ 充電地圖 Modal（上方標題區緊湊化修復） -->
+    <!-- 🗺️ 充電地圖 Modal -->
     <div id="mapModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[120] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
         <div class="bg-white dark:bg-[#1e293b] rounded-[2rem] p-3 md:p-4 shadow-2xl max-w-2xl w-full mx-4 h-[75vh] flex flex-col transform scale-95 transition-all duration-300 border border-slate-100 dark:border-slate-700 relative">
             <div class="flex items-center justify-between px-1 mb-2">
@@ -1099,6 +1107,7 @@
             navBar.classList.add('transition-all', 'duration-500', 'ease-out', 'origin-bottom');
 
             window.addEventListener('scroll', () => {
+                // 📱 修正 iOS 橡皮筋回彈負值問題
                 const rawScroll = window.pageYOffset || document.documentElement.scrollTop;
                 const scrollTop = Math.max(0, rawScroll);
 
