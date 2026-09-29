@@ -18,14 +18,10 @@
 
     <style>
         :root, html, body { background-color: #fcfaf2; }
-        @media (prefers-color-scheme: dark) { :root, html, body { background-color: #111827; } }
         html.dark, html.dark body { background-color: #111827 !important; }
-        html:not(.dark), html:not(.dark) body { background-color: #fcfaf2 !important; }
-
-        #appSplashScreen { background-color: #fcfaf2 !important; }
-        @media (prefers-color-scheme: dark) { #appSplashScreen { background-color: #111827 !important; } }
+        
+        #appSplashScreen { background-color: #fcfaf2; }
         html.dark #appSplashScreen { background-color: #111827 !important; }
-        html:not(.dark) #appSplashScreen { background-color: #fcfaf2 !important; }
 
         input[type="date"] { position: relative; -webkit-appearance: none; appearance: none; }
         input[type="date"]::-webkit-date-and-time-value { margin: 0; padding: 0; text-align: left; }
@@ -75,40 +71,14 @@
         .dark .pac-item:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
         .dark .pac-item-query { color: #ffffff !important; }
 
-        /* 🚗 跑馬燈容器與關鍵影格 */
-        .marquee-box {
-            display: block;
-            width: 100%;
-            overflow: hidden;
-            white-space: nowrap;
-            position: relative;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        .marquee-content {
-            display: inline-block;
-            white-space: nowrap;
-            will-change: transform;
-        }
-
-        .marquee-active {
-            animation: evMarqueeScroll var(--marquee-duration, 5s) ease-in-out infinite alternate;
-        }
-
-        .marquee-box:hover .marquee-active,
-        .marquee-box:active .marquee-active,
-        .marquee-active.marquee-paused {
-            animation-play-state: paused !important;
-        }
+        .marquee-box { display: block; width: 100%; overflow: hidden; white-space: nowrap; position: relative; user-select: none; -webkit-user-select: none; }
+        .marquee-content { display: inline-block; white-space: nowrap; will-change: transform; }
+        .marquee-active { animation: evMarqueeScroll var(--marquee-duration, 5s) ease-in-out infinite alternate; }
+        .marquee-box:hover .marquee-active, .marquee-box:active .marquee-active, .marquee-active.marquee-paused { animation-play-state: paused !important; }
 
         @keyframes evMarqueeScroll {
-            0%, 25% {
-                transform: translateX(0px);
-            }
-            75%, 100% {
-                transform: translateX(var(--marquee-scroll-x, 0px));
-            }
+            0%, 25% { transform: translateX(0px); }
+            75%, 100% { transform: translateX(var(--marquee-scroll-x, 0px)); }
         }
     </style>
 
@@ -116,7 +86,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
-    <!-- 🔑 Google Maps API -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAf88sAzYlzVpv6qK6g0rsvDLyz98tCZMU&libraries=places&v=weekly" defer></script>
 
     <script>
@@ -124,8 +93,8 @@
             try {
                 var theme = localStorage.getItem('ev_life_theme');
                 var isDark = theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
-                if (isDark) { document.documentElement.classList.add('dark'); document.documentElement.style.backgroundColor = '#111827'; }
-                else { document.documentElement.classList.remove('dark'); document.documentElement.style.backgroundColor = '#fcfaf2'; }
+                if (isDark) { document.documentElement.classList.add('dark'); }
+                else { document.documentElement.classList.remove('dark'); }
             } catch (e) {}
         })();
     </script>
@@ -175,7 +144,7 @@
     <header class="sticky top-0 z-40 bg-[#fcfaf2]/80 dark:bg-[#111827]/80 backdrop-blur-xl pt-[env(safe-area-inset-top)] border-b border-transparent transition-all">
         <div class="flex items-center justify-between px-4 py-3 max-w-6xl mx-auto">
             <button onclick="switchTab('home')" class="flex items-center gap-2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md px-4 py-2 rounded-full shadow-sm border border-slate-200 dark:border-slate-700 text-[11px] font-black tracking-wider transition active:scale-95">
-                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M4 4h4v4H4V4zm6 0h4v4h-4V4zm6 0h4v4h-4V4zM4 10h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4z"/></svg>
+                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M4 4h4v4H4V4zm6 0h4v4h-4V4zm6 0h4v4h-4V4zM4 10h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4z"/></svg>
                 總覽
             </button>
             <div class="flex items-center gap-2 bg-slate-900/90 dark:bg-slate-800/90 backdrop-blur-md px-1.5 py-1.5 pr-5 rounded-full shadow-md cursor-pointer transition active:scale-95" onclick="switchTab('settings')">
@@ -193,7 +162,6 @@
 
         <!-- 🔹 Tab 1: 首頁 (Home) -->
         <div id="view-home" class="view-section active px-4">
-
             <div id="onboardingCard" class="hidden mb-6 rpg-card bg-gradient-to-br from-teal-50 to-white dark:from-teal-900/30 dark:to-slate-800 p-6 md:p-8 rounded-[2rem] shadow-sm border border-teal-100 dark:border-teal-800/50">
                 <div class="text-center mb-5 md:mb-8">
                     <span class="text-5xl md:text-6xl block mb-3">🌱</span>
@@ -217,7 +185,7 @@
             </div>
 
             <div id="homeStatsContainer">
-                <div class="hero-image-container mb-6 shadow-sm border border-slate-200 dark:border-slate-800 bg-slate-200 dark:bg-slate-800 group md:h-72 lg:h-96 md:padding-0">
+                <div class="hero-image-container mb-6 shadow-sm border border-slate-200 dark:border-slate-800 bg-slate-200 dark:bg-slate-800 group md:h-72 lg:h-96">
                     <img id="heroImageDisplay" src="https://placehold.co/800x450/1e293b/2dd4bf?text=EV+Life" alt="EV" class="transition duration-500 group-hover:scale-105 w-full h-full object-cover absolute md:relative">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                     <div class="absolute bottom-5 left-6 right-6 flex justify-between items-end">
@@ -256,7 +224,6 @@
                         </div>
                     </div>
 
-                    <!-- 🏆 燃油省下 -->
                     <div class="rpg-card bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/10 p-5 rounded-[1.5rem] border border-green-100 dark:border-green-800/50 flex flex-col justify-between text-left h-full">
                         <div class="text-green-500 mb-2 flex items-start justify-between">
                             <span class="text-xl">💰</span>
@@ -270,7 +237,6 @@
                         </div>
                     </div>
 
-                    <!-- 🏆 環保貢獻 -->
                     <div class="rpg-card bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/10 p-5 rounded-[1.5rem] border border-green-100 dark:border-green-800/50 flex flex-col justify-between text-left h-full">
                         <div class="text-emerald-500 mb-2 flex items-start justify-between">
                             <span class="text-xl">🌳</span>
@@ -289,7 +255,6 @@
                     環保基準: <span id="savingsBaseText">15 km/L, 30 $/L</span>
                 </div>
 
-                <!-- 🏅 純電成就解鎖 (Badges) -->
                 <div class="mb-4 bg-white dark:bg-slate-800 p-4 rounded-[1.5rem] border border-slate-100 dark:border-slate-700 shadow-sm">
                     <div class="flex items-center justify-between mb-2 px-1">
                         <span class="text-xs md:text-sm font-black text-slate-600 dark:text-slate-300 flex items-center gap-1.5"><span class="text-[14px]">🏅</span> 駕駛成就</span>
@@ -303,7 +268,6 @@
                     </div>
                 </div>
 
-                <!-- 🔮 AI 旅程預測器 -->
                 <div class="mb-4">
                     <div class="rpg-card bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/10 p-5 rounded-[1.5rem] border border-indigo-100 dark:border-indigo-800/50">
                         <div class="flex items-center justify-between mb-3">
@@ -347,7 +311,6 @@
                     </div>
                 </div>
 
-                <!-- 👑 黃金右腳評分 -->
                 <div id="ecoScoreContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 hidden">
                     <div class="rpg-card bg-gradient-to-br from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/10 p-4 rounded-[1.5rem] border border-sky-100 dark:border-sky-800/50 relative overflow-hidden">
                         <div class="flex items-center justify-between mb-2">
@@ -389,7 +352,6 @@
                     </div>
                 </div>
 
-                <!-- 🔧 車輛保養與保險進度 -->
                 <div class="mb-4">
                     <div class="rpg-card bg-white dark:bg-slate-800 p-5 rounded-[1.5rem] border border-slate-100 dark:border-slate-700 flex flex-col justify-center">
                         <div class="flex items-center gap-2 mb-4">
@@ -478,7 +440,6 @@
                     </div>
 
                     <div id="driveInputsArea" class="space-y-4 md:space-y-6 transition-all duration-300 overflow-hidden">
-
                         <div id="tagInputArea">
                             <div class="flex justify-between items-end mb-1.5">
                                 <label class="text-xs md:text-sm font-bold text-slate-500 dark:text-slate-400 block">站點與地區 (選填)</label>
@@ -578,10 +539,8 @@
                 <p class="text-xs md:text-sm font-bold">目前區間尚無紀錄喔！</p>
             </div>
 
-            <!-- 列表顯示區 -->
             <div id="recordMobileList" class="grid grid-cols-1 md:grid-cols-2 gap-3 pb-4 items-stretch"></div>
 
-            <!-- 日曆顯示區容器 -->
             <div id="recordCalendarContainer" class="hidden max-w-2xl mx-auto space-y-4">
                 <div id="recordCalendarView" class="bg-white dark:bg-[#1e293b] p-5 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-800 pb-6">
                 </div>
@@ -709,8 +668,7 @@
                         <span class="bg-amber-100 dark:bg-amber-900/30 text-amber-500 w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center text-[10px] md:text-sm">🏆</span>
                         充電站 CP 值排行榜
                     </h3>
-                    <div id="cpRankingList" class="space-y-3 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
-                    </div>
+                    <div id="cpRankingList" class="space-y-3 md:grid md:grid-cols-2 md:gap-4 md:space-y-0"></div>
                 </div>
             </div>
         </div>
@@ -727,7 +685,6 @@
                 </div>
                 <div class="p-6 md:p-8 space-y-6">
                     <div id="settings-tab-main" class="space-y-6">
-
                         <div class="bg-slate-50 dark:bg-[#0f172a] p-5 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
                             <span class="text-xs md:text-sm font-black text-slate-500 dark:text-slate-400">🚗 愛車參數設定</span>
                             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -829,7 +786,7 @@
                         </div>
                         <div class="bg-slate-50 dark:bg-[#0f172a] p-5 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3 text-xs md:text-sm">
                             <span class="font-black text-slate-700 dark:text-slate-300">🔍 PWA 系統環境診斷：</span>
-                            <div class="space-y-2 font-bold font-mono text-[11px] md:text-xs bg-white dark:bg-black/30 p-3 rounded-lg border border-slate-100 dark:border-slate-700/50" id="pwaDiagnosticList">
+                            <div class="space-y-2 font-bold font-mono text-[11px] md:text-xs bg-white dark:bg-black/30 p-3 rounded-lg border border-slate-100 dark:border-slate-700/50">
                                 <div id="diag-https">🟢 正在載入診斷數據...</div>
                                 <div id="diag-sw">⚪ Service Worker 未初始化</div>
                                 <div id="diag-network">🟢 在線模式</div>
@@ -866,14 +823,10 @@
                 <h3 class="text-base md:text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">🏆 純電榮譽殿堂</h3>
                 <button onclick="closeBadgeModal()" class="w-8 h-8 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center text-sm font-bold active:scale-90">✕</button>
             </div>
-
-            <!-- 切換按鈕 -->
             <div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl mb-4 text-xs font-bold">
                 <button id="tabBadgeUnlocked" onclick="switchBadgeTab('unlocked')" class="flex-1 py-2 rounded-lg bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow transition-all">已解鎖 (<span id="unlockedBadgeCount">0</span>)</button>
                 <button id="tabBadgeLocked" onclick="switchBadgeTab('locked')" class="flex-1 py-2 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white transition-all">待挑戰 (<span id="lockedBadgeCount">0</span>)</button>
             </div>
-
-            <!-- 成就列表容器 -->
             <div id="badgeModalContent" class="space-y-3 overflow-y-auto no-scrollbar flex-1 pr-1"></div>
         </div>
     </div>
@@ -981,9 +934,6 @@
             get CO2_SAVED_PER_KM() { return this.CO2_ICE_PER_KM - this.CO2_EV_PER_KM; }
         };
 
-        window.AppState = AppState;
-        window.CONSTANTS = CONSTANTS;
-
         function updateAppTitle() {
             const name = AppState.evName || "純電之旅";
             document.title = `Ev Life - ⚡ ${name} の 純電之旅`;
@@ -994,14 +944,14 @@
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-            return R * c;
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
         }
 
         const DOM = {};
         let efficiencyChartInstance = null, costDistributionChartInstance = null, tempEffChartInstance = null;
         let activeConfirmCallback = null, deferredPrompt = null, chartRenderTimer = null; 
         let toastQueue = [], isToastShowing = false;
+        let mvpGlobalId = null;
 
         const escapeHTML = (str) => typeof str !== 'string' ? '' : str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
         const getLocalDateString = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().split('T')[0]; };
@@ -1025,54 +975,47 @@
         }
 
         function initDragToScroll() {
-            const scrollContainers = document.querySelectorAll('.overflow-x-auto');
-            scrollContainers.forEach(slider => {
-                let isDown = false;
-                let startX;
-                let scrollLeft;
-
+            document.querySelectorAll('.overflow-x-auto').forEach(slider => {
+                let isDown = false, startX, scrollLeft;
                 slider.addEventListener('mousedown', (e) => {
-                    isDown = true;
-                    slider.style.cursor = 'grabbing';
-                    startX = e.pageX - slider.offsetLeft;
-                    scrollLeft = slider.scrollLeft;
+                    isDown = true; slider.style.cursor = 'grabbing';
+                    startX = e.pageX - slider.offsetLeft; scrollLeft = slider.scrollLeft;
                 });
-                slider.addEventListener('mouseleave', () => {
-                    isDown = false;
-                    slider.style.cursor = '';
-                });
-                slider.addEventListener('mouseup', () => {
-                    isDown = false;
-                    slider.style.cursor = '';
-                });
+                const stopScroll = () => { isDown = false; slider.style.cursor = ''; };
+                slider.addEventListener('mouseleave', stopScroll);
+                slider.addEventListener('mouseup', stopScroll);
                 slider.addEventListener('mousemove', (e) => {
                     if (!isDown) return;
                     e.preventDefault();
-                    const x = e.pageX - slider.offsetLeft;
-                    const walk = (x - startX) * 1.5; 
-                    slider.scrollLeft = scrollLeft - walk;
+                    slider.scrollLeft = scrollLeft - ((e.pageX - slider.offsetLeft) - startX) * 1.5;
                 });
             });
         }
 
-document.addEventListener('DOMContentLoaded', () => {
-    try {
-        cacheDOMNodes();
-        initAppCore();
-    } catch (err) {
-        console.error("App initialization error:", err);
-        showToast("部分啟動資料異常，已安全載入", true);
-    } finally {
-        if (DOM.appSplashScreen) {
-            setTimeout(() => { 
-                // 立即停用 pointer-events，防止 iOS 穿透點擊到成就按鈕
-                DOM.appSplashScreen.style.pointerEvents = 'none';
-                DOM.appSplashScreen.classList.add('opacity-0'); 
-                setTimeout(() => DOM.appSplashScreen.remove(), 400); 
-            }, 300); 
-        }
-    }
-});
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const pwaBtn = document.getElementById('pwaInstallBtn');
+            if (pwaBtn) pwaBtn.classList.remove('hidden');
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                cacheDOMNodes();
+                initAppCore();
+            } catch (err) {
+                console.error("App initialization error:", err);
+                showToast("部分啟動資料異常，已安全載入", true);
+            } finally {
+                if (DOM.appSplashScreen) {
+                    setTimeout(() => { 
+                        DOM.appSplashScreen.style.pointerEvents = 'none';
+                        DOM.appSplashScreen.classList.add('opacity-0'); 
+                        setTimeout(() => DOM.appSplashScreen.remove(), 400); 
+                    }, 300); 
+                }
+            }
+        });
 
         function setupAutoHideNav() {
             let lastScrollTop = 0;
@@ -1083,20 +1026,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             window.addEventListener('scroll', () => {
                 const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
                 if (scrollTop <= 10) {
                     navBar.classList.remove('translate-y-32', 'scale-75', 'opacity-0', 'pointer-events-none');
                     lastScrollTop = scrollTop;
                     return;
                 }
-
                 const maxScroll = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) - window.innerHeight;
                 if (maxScroll > 0 && scrollTop >= maxScroll - 20) {
                     navBar.classList.add('translate-y-32', 'scale-75', 'opacity-0', 'pointer-events-none');
                     lastScrollTop = scrollTop;
                     return;
                 }
-
                 if (Math.abs(scrollTop - lastScrollTop) < 15) return; 
 
                 if (scrollTop > lastScrollTop && scrollTop > 50) {
@@ -1104,7 +1044,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     navBar.classList.remove('translate-y-32', 'scale-75', 'opacity-0', 'pointer-events-none');
                 }
-
                 lastScrollTop = scrollTop;
             }, { passive: true });
         }
@@ -1120,10 +1059,8 @@ document.addEventListener('DOMContentLoaded', () => {
             updateSyncUiStatus();
             updatePwaDiagnostic();
             checkQuickLog();
-
             setupAutoHideNav(); 
             initDragToScroll(); 
-
             initStationAutocomplete();
 
             try {
@@ -1164,7 +1101,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (!place || !place.name) return;
 
                             input.value = place.name;
-
                             if (place.geometry && place.geometry.location) {
                                 const pLat = place.geometry.location.lat();
                                 const pLng = place.geometry.location.lng();
@@ -1219,7 +1155,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (DOM.topEvName) DOM.topEvName.textContent = AppState.evName; 
             if (DOM.heroEvName) DOM.heroEvName.textContent = AppState.evName;
-
             updateAppTitle();
 
             const customImg = localStorage.getItem('ev_life_hero_image');
@@ -1228,13 +1163,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const splashBg = localStorage.getItem('ev_life_splash_color');
             const colorInput = document.getElementById('splashColorInput');
             if (colorInput) {
-                if(splashBg) colorInput.value = splashBg;
-                else colorInput.value = document.documentElement.classList.contains('dark') ? '#111827' : '#fcfaf2';
-                colorInput.addEventListener('change', function(e) { localStorage.setItem('ev_life_splash_color', e.target.value); showToast('自訂底色已儲存！下次重啟生效 🎨'); });
+                colorInput.value = splashBg || (document.documentElement.classList.contains('dark') ? '#111827' : '#fcfaf2');
+                colorInput.addEventListener('change', (e) => { localStorage.setItem('ev_life_splash_color', e.target.value); showToast('自訂底色已儲存！下次重啟生效 🎨'); });
             }
             const splashImg = localStorage.getItem('ev_life_splash_image');
             if (splashImg && document.getElementById('splashPreviewImg')) {
-                document.getElementById('splashPreviewImg').src = splashImg; document.getElementById('splashPreviewContainer').classList.remove('hidden');
+                document.getElementById('splashPreviewImg').src = splashImg; 
+                document.getElementById('splashPreviewContainer').classList.remove('hidden');
             }
             if (DOM.inputDate) DOM.inputDate.value = getLocalDateString();
         }
@@ -1243,7 +1178,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!DOM.toast) return;
             toastQueue.push({message, isError, duration});
             processToastQueue();
-        }
+        };
 
         function processToastQueue() {
             if (isToastShowing || toastQueue.length === 0) return;
@@ -1283,7 +1218,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             setupThemeIcons();
             debouncedUpdateCharts();
-        }
+        };
 
         window.handleHeroImageUpload = function(event) {
             const file = event.target.files[0];
@@ -1297,18 +1232,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     let width = img.width, height = img.height;
                     if (width > MAX_WIDTH) { height = Math.round((height * MAX_WIDTH) / width); width = MAX_WIDTH; }
                     canvas.width = width; canvas.height = height;
-                    const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
+                    canvas.getContext('2d').drawImage(img, 0, 0, width, height);
                     const dataUrl = canvas.toDataURL('image/jpeg', 0.6); 
                     try {
                         localStorage.setItem('ev_life_hero_image', dataUrl);
                         if (DOM.heroImageDisplay) DOM.heroImageDisplay.src = dataUrl;
                         showToast('已更新愛車相片！🚗');
                     } catch (err) { showToast('圖片儲存失敗，請嘗試使用更小的圖片', true); }
-                }
+                };
                 img.src = e.target.result;
-            }
+            };
             reader.readAsDataURL(file);
-        }
+        };
 
         window.handleSplashImageUpload = function(event) {
             const file = event.target.files[0];
@@ -1322,7 +1257,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     let width = img.width, height = img.height;
                     if (width > MAX_WIDTH) { height = Math.round((height * MAX_WIDTH) / width); width = MAX_WIDTH; }
                     canvas.width = width; canvas.height = height;
-                    const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
+                    canvas.getContext('2d').drawImage(img, 0, 0, width, height);
                     const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
                     try {
                         localStorage.setItem('ev_life_splash_image', dataUrl);
@@ -1332,11 +1267,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (previewContainer) previewContainer.classList.remove('hidden');
                         showToast('啟動圖片已儲存！下次重啟生效 🚀');
                     } catch (err) { showToast('圖片儲存失敗，請嘗試使用更小的圖片', true); }
-                }
+                };
                 img.src = e.target.result;
-            }
+            };
             reader.readAsDataURL(file);
-        }
+        };
 
         window.clearSplashImage = function() {
             localStorage.removeItem('ev_life_splash_image');
@@ -1345,7 +1280,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (previewContainer) previewContainer.classList.add('hidden');
             if (uploadInput) uploadInput.value = '';
             showToast('已移除自訂啟動圖片 🗑️');
-        }
+        };
 
         window.clearSplashColor = function() {
             localStorage.removeItem('ev_life_splash_color');
@@ -1355,7 +1290,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 colorInput.value = isDark ? '#111827' : '#fcfaf2';
                 showToast('已恢復預設底色，下次重啟生效 🎨');
             }
-        }
+        };
 
         function updateLiquidIndicator(tabId) {
             const btn = document.getElementById('tab-' + tabId);
@@ -1364,8 +1299,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 indicator.style.opacity = '1';
                 indicator.style.width = `${btn.offsetWidth}px`;
                 indicator.style.transform = `translate(${btn.offsetLeft}px, -50%) scale(1)`;
-            } else if (tabId === 'add') {
-                if (indicator) indicator.style.opacity = '0';
+            } else if (tabId === 'add' && indicator) {
+                indicator.style.opacity = '0';
             }
         }
 
@@ -1387,7 +1322,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (tabId === 'records') {
                 setTimeout(measureAndAdjustMarquees, 60);
             }
-        }
+        };
 
         window.addEventListener('resize', () => {
             const activeBtn = document.querySelector('.tab-btn.active');
@@ -1407,11 +1342,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 isDragging = true; moved = false;
                 tabs.forEach(btn => { btn.classList.remove('active'); btn.style.transition = 'transform 0.1s ease-out, opacity 0.2s ease-out'; });
                 indicator.classList.add('dragging');
-                indicator.style.transition = 'box-shadow 0.3s ease, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease';
-                const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-                startX = clientX; initialWidth = indicator.offsetWidth;
-                const transform = indicator.style.transform;
-                const match = transform.match(/translate\(([-\d.]+)px/);
+                indicator.style.transition = 'box-shadow 0.3s ease, backdrop-filter 0.3s ease';
+                startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+                initialWidth = indicator.offsetWidth;
+                const match = indicator.style.transform.match(/translate\(([-\d.]+)px/);
                 initialTranslate = match ? parseFloat(match[1]) : 0;
             }
 
@@ -1427,25 +1361,29 @@ document.addEventListener('DOMContentLoaded', () => {
                     let maxTranslate = navContainer.offsetWidth - targetWidth;
                     targetX = Math.max(0, Math.min(targetX, maxTranslate));
 
-                    indicator.style.width = `${targetWidth}px`; indicator.style.transform = `translate(${targetX}px, -50%)`; indicator.dataset.currentX = targetX;
+                    indicator.style.width = `${targetWidth}px`; 
+                    indicator.style.transform = `translate(${targetX}px, -50%)`; 
+                    indicator.dataset.currentX = targetX;
                     const indicatorCenter = targetX + targetWidth / 2;
                     validTabs.forEach(tab => {
                         const tabCenter = tab.offsetLeft + tab.offsetWidth / 2;
                         const distance = Math.abs(tabCenter - indicatorCenter);
-                        const effectRadius = 45; 
-                        if (distance < effectRadius) {
-                            const scale = 1 + 0.35 * (1 - distance / effectRadius);
-                            tab.style.transform = `scale(${scale})`; tab.style.opacity = '1';
-                        } else { tab.style.transform = `scale(1)`; tab.style.opacity = '0.5'; }
+                        if (distance < 45) {
+                            tab.style.transform = `scale(${1 + 0.35 * (1 - distance / 45)})`; 
+                            tab.style.opacity = '1';
+                        } else { 
+                            tab.style.transform = `scale(1)`; 
+                            tab.style.opacity = '0.5'; 
+                        }
                     });
                 }
             }
 
-            function handleDragEnd(e) {
+            function handleDragEnd() {
                 if (!isDragging) return;
                 isDragging = false;
                 indicator.classList.remove('dragging');
-                indicator.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.4s ease, backdrop-filter 0.4s ease, -webkit-backdrop-filter 0.4s ease';
+                indicator.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.4s ease, backdrop-filter 0.4s ease';
                 validTabs.forEach(tab => { tab.style.transition = ''; tab.style.transform = ''; tab.style.opacity = ''; });
 
                 if (moved) {
@@ -1465,8 +1403,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            navContainer.addEventListener('touchstart', handleDragStart, {passive: false}); navContainer.addEventListener('touchmove', handleDragMove, {passive: false}); navContainer.addEventListener('touchend', handleDragEnd);
-            navContainer.addEventListener('mousedown', handleDragStart); document.addEventListener('mousemove', handleDragMove, {passive: false}); document.addEventListener('mouseup', handleDragEnd);
+            navContainer.addEventListener('touchstart', handleDragStart, {passive: false}); 
+            navContainer.addEventListener('touchmove', handleDragMove, {passive: false}); 
+            navContainer.addEventListener('touchend', handleDragEnd);
+            navContainer.addEventListener('mousedown', handleDragStart); 
+            document.addEventListener('mousemove', handleDragMove, {passive: false}); 
+            document.addEventListener('mouseup', handleDragEnd);
         }
 
         function saveLocalState(newRecords) {
@@ -1474,8 +1416,6 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('ev_life_records', JSON.stringify(AppState.records));
             localStorage.setItem('ev_life_last_updated', Date.now());
         }
-
-        window.setTag = function(tagName) { if(DOM.inputTag) DOM.inputTag.value = tagName; }
 
         let tempNearbyStations = [];
         let tempCurrentDistrict = "";
@@ -1496,13 +1436,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const fetchDistrict = fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=14&addressdetails=1&accept-language=zh-TW`, { 
                     headers: { 'User-Agent': 'EvLifePWA/2.0' }
                 }).then(r => r.json()).then(geoData => {
-                    if (geoData && geoData.address) {
+                    if (geoData?.address) {
                         const ad = geoData.address;
-                        const city = ad.city || ad.county || ad.state || "";
-                        const vals = Object.values(ad);
-                        let dist = vals.find(v => typeof v === 'string' && (v.endsWith('區') || v.endsWith('鄉') || v.endsWith('鎮')));
-                        if (!dist) dist = ad.town || ad.city_district || ad.suburb || ad.district || "";
-                        if (dist.endsWith('里') || dist.endsWith('村') || dist.endsWith('鄰')) dist = "";
+                        const city = ad.city || ad.county || "";
+                        const dist = ad.town || ad.district || ad.city_district || ad.suburb || "";
                         tempCurrentDistrict = dist.startsWith(city) ? dist : `${city}${dist}`.trim();
                         if (DOM.inputDistrict) DOM.inputDistrict.value = tempCurrentDistrict;
                     }
@@ -1510,60 +1447,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const fetchWeather = fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`)
                     .then(r => r.json()).then(data => {
-                        if (data?.current_weather && document.getElementById('inputTemperature')) {
-                            document.getElementById('inputTemperature').value = data.current_weather.temperature;
+                        if (data?.current_weather && DOM.inputTemperature) {
+                            DOM.inputTemperature.value = data.current_weather.temperature;
                         }
                     }).catch(e => console.warn("氣溫獲取失敗", e));
 
                 const fetchGoogleStations = (async () => {
-                    if (!window.google || !google.maps || !google.maps.places) {
-                        console.warn("Google Places API 尚未載入完成");
-                        return;
-                    }
-
+                    if (!window.google?.maps?.places) return;
                     try {
                         const { Place } = await google.maps.importLibrary("places");
-                        const userLocation = new google.maps.LatLng(lat, lng);
-
-                        const request = {
+                        const { places } = await Place.searchNearby({
                             fields: ['displayName', 'location'],
-                            locationRestriction: {
-                                center: userLocation,
-                                radius: 5000
-                            },
+                            locationRestriction: { center: new google.maps.LatLng(lat, lng), radius: 5000 },
                             includedTypes: ['electric_vehicle_charging_station'],
                             maxResultCount: 15
-                        };
+                        });
 
-                        const { places } = await Place.searchNearby(request);
-
-                        if (places && places.length > 0) {
+                        if (places?.length > 0) {
                             places.forEach(place => {
                                 const pLat = place.location.lat();
                                 const pLng = place.location.lng();
                                 const dist = getDistanceFromLatLonInKm(lat, lng, pLat, pLng);
-
                                 tempNearbyStations.push({
-                                    name: place.displayName,
-                                    lat: pLat,
-                                    lng: pLng,
-                                    distanceKm: dist,
-                                    distanceM: Math.round(dist * 1000)
+                                    name: place.displayName, lat: pLat, lng: pLng,
+                                    distanceKm: dist, distanceM: Math.round(dist * 1000)
                                 });
                             });
-
                             tempNearbyStations.sort((a, b) => a.distanceKm - b.distanceKm);
                             const seen = new Set();
-                            tempNearbyStations = tempNearbyStations.filter(item => {
-                                if (seen.has(item.name)) return false;
-                                seen.add(item.name);
-                                return true;
-                            });
-                        } else {
-                            console.warn("附近 5km 內沒有找到充電站");
+                            tempNearbyStations = tempNearbyStations.filter(item => !seen.has(item.name) && seen.add(item.name));
                         }
                     } catch (err) {
-                        console.error("新版 Places API 查詢異常:", err);
+                        console.error("Places API 查詢異常:", err);
                     }
                 })();
 
@@ -1574,20 +1489,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (tempNearbyStations.length === 1) {
                     const single = tempNearbyStations[0];
                     if (DOM.inputTag) DOM.inputTag.value = single.name;
-
                     try {
                         const geocodeCache = JSON.parse(localStorage.getItem('ev_life_geocode_cache') || '{}');
                         geocodeCache[single.name] = { lat: single.lat, lng: single.lng };
                         localStorage.setItem('ev_life_geocode_cache', JSON.stringify(geocodeCache));
                     } catch(e) {}
-
                     showToast(`⚡ 已自動匹配最近站點：<br>${single.name} (${single.distanceM}m)`);
                 } else {
-                    const fallbackMsg = tempCurrentDistrict ? `已定位至 ${tempCurrentDistrict}，但周遭 5km 未偵測到充電站` : "周圍 5km 內未偵測到充電站";
-                    showToast(fallbackMsg, false, 2500);
+                    showToast(tempCurrentDistrict ? `已定位至 ${tempCurrentDistrict}，但周遭 5km 未偵測到充電站` : "周圍 5km 內未偵測到充電站", false, 2500);
                 }
-
-            }, (error) => { 
+            }, () => { 
                 showToast("定位失敗，請確認是否開啟網頁位置權限", true); 
             }, { timeout: 10000 });
         };
@@ -1615,33 +1526,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
         window.chooseStation = function(stationName) {
             if (DOM.inputTag) DOM.inputTag.value = stationName;
-
             const matched = tempNearbyStations.find(s => s.name === stationName);
-            if (matched && matched.lat && matched.lng) {
+            if (matched?.lat && matched?.lng) {
                 try {
                     const geocodeCache = JSON.parse(localStorage.getItem('ev_life_geocode_cache') || '{}');
                     geocodeCache[stationName] = { lat: matched.lat, lng: matched.lng };
                     localStorage.setItem('ev_life_geocode_cache', JSON.stringify(geocodeCache));
                 } catch(e) {}
             }
-
             closeStationModal(); 
             showToast(`⚡ 已帶入站點: <br>${stationName}`);
-        }
+        };
 
         window.closeStationModal = function() {
             const modal = document.getElementById('stationSelectModal');
             if (!modal) return;
             modal.classList.add('opacity-0'); modal.firstElementChild.classList.add('scale-95');
             setTimeout(() => modal.classList.add('hidden'), 300);
-        }
+        };
 
         window.openMapModal = function() {
             if (typeof google === 'undefined' || !google.maps) { 
                 showToast("地圖服務載入中或未正確載入，請確認網路連線", true); 
                 return; 
             }
-
             const modal = document.getElementById('mapModal');
             if (!modal) return;
 
@@ -1695,20 +1603,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 let markerCount = 0;
 
                 const placeMarker = (name, lat, lng) => {
-                    const markerColor = '#10b981'; 
-                    const svgMarker = {
-                        path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-                        fillColor: markerColor, fillOpacity: 1, strokeWeight: 1.5, strokeColor: '#ffffff',
-                        rotation: 0, scale: 1.4, anchor: new google.maps.Point(12, 22),
-                    };
                     const marker = new google.maps.Marker({ 
                         position: { lat, lng }, 
                         map: window.evMap, 
-                        icon: svgMarker, 
+                        icon: {
+                            path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+                            fillColor: '#10b981', fillOpacity: 1, strokeWeight: 1.5, strokeColor: '#ffffff',
+                            scale: 1.4, anchor: new google.maps.Point(12, 22),
+                        }, 
                         title: name 
                     });
                     const infoWindow = new google.maps.InfoWindow({ 
-                        content: `<div style="color:#1e293b;font-weight:900;font-size:12px;padding:3px;">${escapeHTML(name)}<br><span style="color:${markerColor};font-size:10px;">✅ 已記錄旅程足跡</span></div>` 
+                        content: `<div style="color:#1e293b;font-weight:900;font-size:12px;padding:3px;">${escapeHTML(name)}<br><span style="color:#10b981;font-size:10px;">✅ 已記錄旅程足跡</span></div>` 
                     });
                     marker.addListener('click', () => { infoWindow.open(window.evMap, marker); });
                     window.evMarkers.push(marker);
@@ -1719,19 +1625,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
 
                 const geocoder = new google.maps.Geocoder();
-
                 for (const [tag, district] of visitedStations.entries()) {
                     if (geocodeCache[tag]) { 
                         placeMarker(tag, geocodeCache[tag].lat, geocodeCache[tag].lng); 
                         continue; 
                     }
-
-                    const queries = [
-                        `${district} ${tag}`.trim(),
-                        tag.trim(),
-                        `${district} ${tag.replace(/\s.*站$/, '')}`.trim()
-                    ];
-
+                    const queries = [`${district} ${tag}`.trim(), tag.trim(), `${district} ${tag.replace(/\s.*站$/, '')}`.trim()];
                     let found = false;
 
                     for (const q of queries) {
@@ -1739,12 +1638,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         try {
                             await new Promise(resolve => {
                                 geocoder.geocode({ address: q, componentRestrictions: { country: 'TW' } }, (results, status) => {
-                                    if (status === 'OK' && results && results[0]) {
+                                    if (status === 'OK' && results?.[0]) {
                                         const loc = results[0].geometry.location;
-                                        const lat = loc.lat(), lng = loc.lng();
-                                        geocodeCache[tag] = { lat, lng };
+                                        geocodeCache[tag] = { lat: loc.lat(), lng: loc.lng() };
                                         localStorage.setItem('ev_life_geocode_cache', JSON.stringify(geocodeCache));
-                                        placeMarker(tag, lat, lng);
+                                        placeMarker(tag, loc.lat(), loc.lng());
                                         found = true;
                                     }
                                     resolve();
@@ -1759,30 +1657,24 @@ document.addEventListener('DOMContentLoaded', () => {
                                 headers: { 'User-Agent': 'EvLifePWA/2.0' }
                             });
                             const osmData = await osmRes.json();
-                            if (osmData && osmData[0]) {
-                                const lat = parseFloat(osmData[0].lat);
-                                const lng = parseFloat(osmData[0].lon);
+                            if (osmData?.[0]) {
+                                const lat = parseFloat(osmData[0].lat), lng = parseFloat(osmData[0].lon);
                                 geocodeCache[tag] = { lat, lng };
                                 localStorage.setItem('ev_life_geocode_cache', JSON.stringify(geocodeCache));
                                 placeMarker(tag, lat, lng);
-                                found = true;
                             }
                         } catch(e) {}
                     }
-
-                    if (!found) {
-                        console.warn(`無法解析站點座標: ${district} ${tag}`);
-                    }
                 }
             }, 150);
-        }
+        };
 
         window.closeMapModal = function() {
             const modal = document.getElementById('mapModal');
             if (!modal) return;
             modal.classList.add('opacity-0'); modal.firstElementChild.classList.add('scale-95');
             setTimeout(() => modal.classList.add('hidden'), 300);
-        }
+        };
 
         window.saveQuickLog = function() {
             const data = {
@@ -1791,7 +1683,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             localStorage.setItem('ev_life_quicklog', JSON.stringify(data));
             showToast("⭐ 已儲存為常用捷徑！"); checkQuickLog();
-        }
+        };
 
         window.loadQuickLog = function() {
             try {
@@ -1805,7 +1697,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateConvertedPowerHint(); showToast("✅ 已載入常用捷徑");
                 }
             } catch(e){}
-        }
+        };
 
         function checkQuickLog() {
             if(localStorage.getItem('ev_life_quicklog')) {
@@ -1816,7 +1708,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         window.setupSocSliders = function() {
             const sync = (source, target) => { target.value = source.value; updateConvertedPowerHint(); };
-            const blurInput = () => { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); };
+            const blurInput = () => { if (document.activeElement?.blur) document.activeElement.blur(); };
 
             if (DOM.inputStartSocNum && DOM.sliderStartSoc) {
                 DOM.inputStartSocNum.addEventListener('input', () => sync(DOM.inputStartSocNum, DOM.sliderStartSoc));
@@ -1828,7 +1720,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 DOM.sliderEndSoc.addEventListener('input', () => sync(DOM.sliderEndSoc, DOM.inputEndSocNum));
                 DOM.sliderEndSoc.addEventListener('touchstart', blurInput, {passive: true}); DOM.sliderEndSoc.addEventListener('mousedown', blurInput);
             }
-        }
+        };
 
         window.selectChargeType = function(type) {
             if (DOM.inputChargeType) DOM.inputChargeType.value = type;
@@ -1879,7 +1771,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             updateConvertedPowerHint();
-        }
+        };
 
         window.updateConvertedPowerHint = function() {
             if (!DOM.inputChargeType || !DOM.powerHintText) return;
@@ -1892,12 +1784,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const kwh = AppState.batteryCapacity * (delta / 100);
 
             DOM.powerHintText.textContent = `共${type === "未充電" ? "消耗" : "補給"} ${delta}% 電量 (約 ${kwh.toFixed(2)} 度)`;
-        }
+        };
 
         function autoFillStartSoc() {
             if (!DOM.inputStartSocNum || !DOM.inputChargeType || AppState.editingRecordId !== null) return;
-            if (DOM.inputChargeType.value !== "未充電") return;
-            if (DOM.inputStartSocNum.value !== '') return;
+            if (DOM.inputChargeType.value !== "未充電" || DOM.inputStartSocNum.value !== '') return;
 
             const activeRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && !['維修保養', '停車費', '通行費', '保險費'].includes(r.chargeType));
             if (activeRecords.length === 0) return;
@@ -1940,7 +1831,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             selectedCalendarDate = null;
             renderDashboard(); debouncedUpdateCharts();
-        }
+        };
 
         function calculateRecordStats(activeRecords) {
             let rollingOdo = AppState.initialOdometer;
@@ -1961,13 +1852,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let globalKm = 0, globalCost = 0, globalPowerReal = 0, globalMaintCost = 0, totalEnergyCost = 0;
             activeRecords.forEach(rec => {
+                const cost = parseFloat(rec.cost) || 0;
                 if (['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType)) {
-                    if (rec.chargeType === '維修保養') globalMaintCost += parseFloat(rec.cost) || 0;
-                    globalCost += parseFloat(rec.cost) || 0; 
+                    if (rec.chargeType === '維修保養') globalMaintCost += cost;
+                    globalCost += cost; 
                 } else {
                     globalKm += parseFloat(rec.distance) || 0;
-                    globalCost += parseFloat(rec.cost) || 0;
-                    totalEnergyCost += parseFloat(rec.cost) || 0; 
+                    globalCost += cost;
+                    totalEnergyCost += cost; 
                     globalPowerReal += AppState.batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
                 }
             });
@@ -1990,8 +1882,8 @@ document.addEventListener('DOMContentLoaded', () => {
         window.calculatePrediction = function() {
             const distInput = document.getElementById('predictDistance').value;
             const resultBox = document.getElementById('predictionResult');
-            const isHighway = document.getElementById('toggleHighway') ? document.getElementById('toggleHighway').checked : false;
-            const isMountain = document.getElementById('toggleMountain') ? document.getElementById('toggleMountain').checked : false;
+            const isHighway = DOM.toggleHighway ? DOM.toggleHighway.checked : false;
+            const isMountain = DOM.toggleMountain ? DOM.toggleMountain.checked : false;
             const dist = parseFloat(distInput);
 
             if (isNaN(dist) || dist <= 0) { showToast("請輸入有效的預測里程數 🚗", true); return; }
@@ -2016,9 +1908,8 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('predSoc').textContent = predictedSocPercent.toFixed(1);
             document.getElementById('predCost').textContent = Math.round(predictedCost).toLocaleString();
             resultBox.classList.remove('hidden');
-        }
+        };
 
-        // 🌟 核心卡片產生函式 (全面緊湊化：p-2.5 sm:p-4，內部間距縮小)
         function buildRecordCardHtml(rec, isMVP) {
             const isNonDrive = ['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType);
             const dist = parseFloat(rec.distance) || 0;
@@ -2048,45 +1939,38 @@ document.addEventListener('DOMContentLoaded', () => {
             return `
             <div class="${cardWrapperClass}" onclick="editRecord('${safeId}')">
                 <div class="flex-1 flex flex-col justify-between">
-<!-- 1️⃣ 第一行：微調字元間距與 Badge 間距，釋放空間 -->
-<div class="flex items-center justify-between gap-1 pb-1.5 border-b border-slate-100 dark:border-slate-800/60 mb-2 min-h-[24px]">
-    <!-- 左側：日期 -->
-    <div class="inline-flex items-center text-[13px] font-bold text-slate-800 dark:text-slate-200 tracking-tighter shrink-0">
-        <span class="mr-0.5 leading-none">📅</span>
-        <span class="leading-none">${safeDate}</span>
-    </div>
+                    <div class="flex items-center justify-between gap-1 pb-1.5 border-b border-slate-100 dark:border-slate-800/60 mb-2 min-h-[24px]">
+                        <div class="inline-flex items-center text-[13px] font-bold text-slate-800 dark:text-slate-200 tracking-tighter shrink-0">
+                            <span class="mr-0.5 leading-none">📅</span>
+                            <span class="leading-none">${safeDate}</span>
+                        </div>
+                        <div class="flex-1 text-center px-1 overflow-hidden">
+                            ${safeDistrict ? `
+                                <div class="inline-flex items-center text-[12.5px] font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap tracking-tighter -translate-y-[2px] sm:-translate-y-[1px]" title="${safeDistrict}">
+                                    <span class="mr-0.5 leading-none">📍</span>
+                                    <span class="leading-none">${safeDistrict}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="inline-flex items-center gap-1 shrink-0 justify-end">
+                            ${(rec.temp !== undefined && rec.temp !== null && rec.temp !== '') ? `
+                                <div class="inline-flex items-center text-[13px] font-bold text-sky-600 dark:text-sky-400 tracking-tighter">
+                                    <span class="mr-0.5 leading-none">🌡️</span>
+                                    <span class="leading-none">${rec.temp}°C</span>
+                                </div>
+                            ` : ''}
+                            ${(!safeTag && isMVP) ? `
+                                <span class="px-1.5 py-0.5 rounded-full border border-amber-400 bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 text-[8.5px] font-black shadow-sm leading-none">
+                                    👑MVP
+                                </span>
+                            ` : ''}
+                            <span class="px-2 py-0.5 rounded-full text-[9.5px] sm:text-[10px] font-black ${typeBadgeStyle} shrink-0 inline-flex items-center gap-0.5 shadow-sm whitespace-nowrap leading-none">
+                                <span class="text-[10px] leading-none">${iconStr}</span>
+                                <span class="leading-none">${safeChargeType}</span>
+                            </span>
+                        </div>
+                    </div>
 
-    <!-- 中間：地區 -->
-    <div class="flex-1 text-center px-1 overflow-hidden">
-        ${safeDistrict ? `
-            <div class="inline-flex items-center text-[12.5px] font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap tracking-tighter -translate-y-[2px] sm:-translate-y-[1px]" title="${safeDistrict}">
-                <span class="mr-0.5 leading-none">📍</span>
-                <span class="leading-none">${safeDistrict}</span>
-            </div>
-        ` : ''}
-    </div>
-
-    <!-- 右側：氣溫與類型 Badge (gap-1) -->
-    <div class="inline-flex items-center gap-1 shrink-0 justify-end">
-        ${(rec.temp !== undefined && rec.temp !== null && rec.temp !== '') ? `
-            <div class="inline-flex items-center text-[13px] font-bold text-sky-600 dark:text-sky-400 tracking-tighter">
-                <span class="mr-0.5 leading-none">🌡️</span>
-                <span class="leading-none">${rec.temp}°C</span>
-            </div>
-        ` : ''}
-        ${(!safeTag && isMVP) ? `
-            <span class="px-1.5 py-0.5 rounded-full border border-amber-400 bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300 text-[8.5px] font-black shadow-sm leading-none">
-                👑MVP
-            </span>
-        ` : ''}
-        <span class="px-2 py-0.5 rounded-full text-[9.5px] sm:text-[10px] font-black ${typeBadgeStyle} shrink-0 inline-flex items-center gap-0.5 shadow-sm whitespace-nowrap leading-none">
-            <span class="text-[10px] leading-none">${iconStr}</span>
-            <span class="leading-none">${safeChargeType}</span>
-        </span>
-    </div>
-</div>
-
-                    <!-- 2️⃣ 第二行：跑馬燈 -->
                     ${safeTag ? `
                     <div class="mb-2" onclick="event.stopPropagation()">
                         <div class="flex items-center justify-between gap-2">
@@ -2110,16 +1994,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     ` : ''}
 
-                    <!-- 3️⃣ 核心數據區 -->
                     ${!isNonDrive ? `
                     <div class="flex-1 flex flex-col justify-center">
-                        <!-- 🔋 電量狀態條 -->
                         <div class="bg-slate-50 dark:bg-slate-900/60 px-3 py-1.5 rounded-xl border border-slate-100 dark:border-slate-800/80 mb-2 flex items-center justify-between gap-2">
                             <div class="flex items-center gap-1.5 shrink-0">
                                 <span class="text-[10px] text-slate-400 font-bold">起</span>
                                 <span class="font-mono font-black text-xs sm:text-sm text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 px-2 py-0.5 rounded-lg border border-slate-200/60 dark:border-slate-700/60">${rec.startSoc}%</span>
                             </div>
-
                             <div class="flex-1 flex flex-col items-center px-1 min-w-0">
                                 <span class="font-mono font-black text-[11px] sm:text-xs ${isCharging ? 'text-teal-600 dark:text-teal-400' : 'text-slate-500 dark:text-slate-400'} flex items-center gap-1 truncate">
                                     <span>${isCharging ? '⚡ +' : '⚡ -'}${kwhDelta}</span>
@@ -2129,14 +2010,12 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <div class="h-full rounded-full ${isCharging ? 'bg-gradient-to-r from-teal-400 to-emerald-500' : 'bg-slate-400'}" style="width: ${Math.min(100, (socDelta / 80) * 100)}%"></div>
                                 </div>
                             </div>
-
                             <div class="flex items-center gap-1.5 shrink-0">
                                 <span class="text-[10px] text-slate-400 font-bold">迄</span>
                                 <span class="font-mono font-black text-xs sm:text-sm text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 px-2 py-0.5 rounded-lg border border-slate-200/60 dark:border-slate-700/60">${rec.endSoc}%</span>
                             </div>
                         </div>
 
-                        <!-- 📊 數據 3 欄 -->
                         <div class="grid grid-cols-3 divide-x divide-slate-100 dark:divide-slate-800 text-center py-0.5">
                             <div class="px-1 flex flex-col items-center justify-center">
                                 <span class="text-[10px] sm:text-[11px] text-slate-400 font-bold mb-0.5">行駛里程</span>
@@ -2159,7 +2038,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     ` : `
-                    <!-- 💰 衍生支出條 -->
                     <div class="flex-1 flex flex-col justify-center my-1">
                         <div class="bg-slate-50 dark:bg-slate-900/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center justify-between shadow-sm">
                             <div class="flex items-center gap-2.5">
@@ -2182,7 +2060,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     `}
                 </div>
 
-                <!-- 4️⃣ 備註文字區 -->
                 ${safeNote ? `
                 <div class="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800/80 text-[10.5px] sm:text-xs text-slate-500 dark:text-slate-400 font-bold flex items-start gap-1.5 leading-relaxed">
                     <span class="w-4 flex justify-center text-slate-400 shrink-0">📝</span>
@@ -2191,21 +2068,14 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>`;
         }
 
-        // 📏 精確測量：計算文字實際溢出像素，精準只移動被遮住的長度
         function measureAndAdjustMarquees() {
-            const boxes = document.querySelectorAll('.marquee-box');
-            boxes.forEach(box => {
+            document.querySelectorAll('.marquee-box').forEach(box => {
                 const content = box.querySelector('.marquee-content');
                 if (!content) return;
-
-                const boxWidth = box.clientWidth;
-                const textWidth = content.scrollWidth;
-                const overflow = textWidth - boxWidth;
-
+                const overflow = content.scrollWidth - box.clientWidth;
                 if (overflow > 4) {
                     content.style.setProperty('--marquee-scroll-x', `-${Math.ceil(overflow) + 3}px`);
-                    const duration = Math.max(3.2, (2.0 + overflow * 0.045)).toFixed(2);
-                    content.style.setProperty('--marquee-duration', `${duration}s`);
+                    content.style.setProperty('--marquee-duration', `${Math.max(3.2, (2.0 + overflow * 0.045)).toFixed(2)}s`);
                     content.classList.add('marquee-active');
                 } else {
                     content.classList.remove('marquee-active');
@@ -2214,8 +2084,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }
-
-        var mvpGlobalId = null;
 
         function renderDashboard() {
             const activeRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.date);
@@ -2244,13 +2112,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const displayRecords = [...filteredRecords].reverse();
-
             const scoredRecords = displayRecords.filter(r => !['維修保養', '停車費', '通行費', '保險費'].includes(r.chargeType) && r.distance > 5)
                 .map(r => {
                     const power = AppState.batteryCapacity * ((r.consumedSocPercent || 0) / 100);
                     const eff = power > 0 ? parseFloat((r.distance / power).toFixed(2)) : 0;
-                    const score = Math.min(100, Math.max(0, Math.round(60 + (eff - 5.0) * 24)));
-                    return { ...r, eff, score };
+                    return { ...r, eff, score: Math.min(100, Math.max(0, Math.round(60 + (eff - 5.0) * 24))) };
                 });
 
             const ecoContainer = document.getElementById('ecoScoreContainer');
@@ -2259,8 +2125,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(ecoContainer) ecoContainer.classList.remove('hidden');
                 let mvpRec = [...scoredRecords].sort((a, b) => b.score - a.score)[0];
                 let latestRec = scoredRecords[0]; 
-                const allScoresSorted = [...scoredRecords].sort((a, b) => b.score - a.score);
-                const latestRank = allScoresSorted.findIndex(r => r.id === latestRec.id) + 1;
+                const latestRank = [...scoredRecords].sort((a, b) => b.score - a.score).findIndex(r => r.id === latestRec.id) + 1;
 
                 document.getElementById('statLatestScore').textContent = latestRec.score;
                 document.getElementById('statLatestEfficiency').textContent = latestRec.eff.toFixed(2);
@@ -2276,13 +2141,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(ecoContainer) ecoContainer.classList.add('hidden');
             }
 
-            const htmlFragments = displayRecords.map(rec => {
-                const isMVP = (mvpGlobalId && rec.id === mvpGlobalId);
-                return buildRecordCardHtml(rec, isMVP);
-            }); 
-
             if(DOM.recordMobileList) {
-                DOM.recordMobileList.innerHTML = htmlFragments.join('');
+                DOM.recordMobileList.innerHTML = displayRecords.map(rec => buildRecordCardHtml(rec, mvpGlobalId && rec.id === mvpGlobalId)).join('');
                 setTimeout(measureAndAdjustMarquees, 50);
             }
             if (currentViewMode === 'calendar') {
@@ -2300,21 +2160,17 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('btnToggleView').textContent = currentViewMode === 'list' ? '📅 切換日曆' : '📝 切換列表';
             if (currentViewMode === 'calendar') renderCalendar();
             else setTimeout(measureAndAdjustMarquees, 50);
-        }
+        };
 
         window.selectCalendarDay = function(dateStr) {
-            if (selectedCalendarDate === dateStr) {
-                selectedCalendarDate = null;
-            } else {
-                selectedCalendarDate = dateStr;
-            }
+            selectedCalendarDate = selectedCalendarDate === dateStr ? null : dateStr;
             renderCalendar();
-        }
+        };
 
         window.clearCalendarDaySelection = function() {
             selectedCalendarDate = null;
             renderCalendar();
-        }
+        };
 
         function renderCalendar() {
             const calEl = document.getElementById('recordCalendarView');
@@ -2328,9 +2184,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const daysInMonth = new Date(y, m, 0).getDate();
             const firstDay = new Date(y, m - 1, 1).getDay();
 
-            const monthRecords = AppState.records.filter(r => r.date && r.date.startsWith(targetMonth));
             const recordDaysMap = {};
-            monthRecords.forEach(r => {
+            AppState.records.filter(r => r.date && r.date.startsWith(targetMonth)).forEach(r => {
                 const d = parseInt(r.date.split('-')[2], 10);
                 recordDaysMap[d] = (recordDaysMap[d] || 0) + 1;
             });
@@ -2338,8 +2193,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let html = `<div class="text-xs md:text-sm font-black mb-3 text-center text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 py-3 rounded-xl flex items-center justify-center gap-2">
                 <span>📅</span><span>${y}年${m}月 打卡足跡</span>
             </div>`;
-            html += `<div class="grid grid-cols-7 gap-1 text-center text-[10px] md:text-xs font-bold text-slate-400 mb-2"><div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div></div>`;
-            html += `<div class="grid grid-cols-7 gap-1.5 md:gap-2">`;
+            html += `<div class="grid grid-cols-7 gap-1 text-center text-[10px] md:text-xs font-bold text-slate-400 mb-2"><div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div></div><div class="grid grid-cols-7 gap-1.5 md:gap-2">`;
 
             for (let i = 0; i < firstDay; i++) html += `<div></div>`;
 
@@ -2348,21 +2202,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const hasRec = !!recordDaysMap[i];
                 const isSelected = selectedCalendarDate === fullDate;
 
-                let style = '';
-                let action = '';
+                let style = hasRec 
+                    ? (isSelected ? 'bg-amber-500 text-slate-950 font-black shadow-lg ring-4 ring-amber-300 dark:ring-amber-500/40 scale-110 z-10 cursor-pointer' : 'bg-amber-400 text-slate-900 shadow-md font-black hover:scale-105 active:scale-95 cursor-pointer')
+                    : 'bg-slate-50 dark:bg-slate-800/60 text-slate-400 border border-slate-100 dark:border-slate-700/50 opacity-60';
 
-                if (hasRec) {
-                    if (isSelected) {
-                        style = 'bg-amber-500 text-slate-950 font-black shadow-lg ring-4 ring-amber-300 dark:ring-amber-500/40 scale-110 z-10 cursor-pointer';
-                    } else {
-                        style = 'bg-amber-400 text-slate-900 shadow-md font-black hover:scale-105 active:scale-95 cursor-pointer';
-                    }
-                    action = `onclick="selectCalendarDay('${fullDate}')"`;
-                } else {
-                    style = 'bg-slate-50 dark:bg-slate-800/60 text-slate-400 border border-slate-100 dark:border-slate-700/50 opacity-60';
-                }
-
-                html += `<button type="button" ${action} class="aspect-square flex flex-col items-center justify-center rounded-xl text-[11px] md:text-sm font-bold transition-all relative ${style}">
+                html += `<button type="button" ${hasRec ? `onclick="selectCalendarDay('${fullDate}')"` : ''} class="aspect-square flex flex-col items-center justify-center rounded-xl text-[11px] md:text-sm font-bold transition-all relative ${style}">
                     <span>${i}</span>
                     ${hasRec && !isSelected ? `<span class="w-1 h-1 rounded-full bg-slate-900/60 mt-0.5"></span>` : ''}
                 </button>`;
@@ -2375,10 +2219,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (dayFiltered.length > 0) {
                     daySection.classList.remove('hidden');
                     if (dayTitle) dayTitle.innerHTML = `<span>📅</span> <span>${selectedCalendarDate.replace(/-/g, '/')} 的紀錄 (${dayFiltered.length}筆)</span>`;
-                    dayList.innerHTML = dayFiltered.map(rec => {
-                        const isMVP = (mvpGlobalId && rec.id === mvpGlobalId);
-                        return buildRecordCardHtml(rec, isMVP);
-                    }).join('');
+                    dayList.innerHTML = dayFiltered.map(rec => buildRecordCardHtml(rec, mvpGlobalId && rec.id === mvpGlobalId)).join('');
                     setTimeout(measureAndAdjustMarquees, 50);
                 } else {
                     daySection.classList.add('hidden');
@@ -2394,22 +2235,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!dateStr) return null;
             const today = new Date(); today.setHours(0, 0, 0, 0);
             const [y, m, d] = dateStr.split('-');
-            const target = new Date(y, m - 1, d);
-            return Math.round((target.getTime() - today.getTime()) / 86400000);
+            return Math.round((new Date(y, m - 1, d).getTime() - today.getTime()) / 86400000);
         }
 
         function updateProgressStyle(remEl, progEl, remainingKm) {
             if(!remEl || !progEl) return;
-            if (remainingKm < 1000) {
-                remEl.className = "text-xs md:text-sm font-black font-mono text-rose-500";
-                progEl.className = "bg-rose-500 h-1.5 md:h-2 rounded-full transition-all duration-1000 ease-out";
-            } else if (remainingKm < 3000) {
-                remEl.className = "text-xs md:text-sm font-black font-mono text-amber-500";
-                progEl.className = "bg-amber-500 h-1.5 md:h-2 rounded-full transition-all duration-1000 ease-out";
-            } else {
-                remEl.className = "text-xs md:text-sm font-black font-mono text-indigo-500";
-                progEl.className = "bg-indigo-500 h-1.5 md:h-2 rounded-full transition-all duration-1000 ease-out";
-            }
+            const isRed = remainingKm < 1000, isAmber = remainingKm < 3000;
+            remEl.className = `text-xs md:text-sm font-black font-mono ${isRed ? 'text-rose-500' : isAmber ? 'text-amber-500' : 'text-indigo-500'}`;
+            progEl.className = `h-1.5 md:h-2 rounded-full transition-all duration-1000 ease-out ${isRed ? 'bg-rose-500' : isAmber ? 'bg-amber-500' : 'bg-indigo-500'}`;
         }
 
         function updateStats(km, eff, cost, maintCost, baseOdo, fuelSavings, co2Savings, treesPlanted, remMaint, progMaint) {
@@ -2430,49 +2263,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateProgressStyle(DOM.maintRemainingText, DOM.maintProgressBar, remMaint);
             }
 
-            if (AppState.nextMaintDate && DOM.maintDateAlertContainer) {
-                DOM.maintDateAlertContainer.classList.remove('hidden');
-                if(DOM.maintTargetDateStr) DOM.maintTargetDateStr.textContent = AppState.nextMaintDate.replace(/-/g, '/');
-                const diffDays = getDaysRemaining(AppState.nextMaintDate);
-                if (DOM.maintDaysRemainingBadge && diffDays !== null) {
-                    const badgeClassBase = "text-[10px] md:text-xs font-black px-2 md:px-3 py-0.5 md:py-1 rounded-md shadow-sm border ";
-                    if (diffDays < 0) {
-                        DOM.maintDaysRemainingBadge.textContent = `已逾期 ${Math.abs(diffDays)} 天`;
-                        DOM.maintDaysRemainingBadge.className = badgeClassBase + "bg-rose-100 text-rose-600 dark:bg-rose-900/50 dark:text-rose-400 border-rose-200 dark:border-rose-800";
-                    } else if (diffDays === 0) {
-                        DOM.maintDaysRemainingBadge.textContent = `今天進廠`;
-                        DOM.maintDaysRemainingBadge.className = badgeClassBase + "bg-rose-500 text-white border-rose-600";
-                    } else if (diffDays <= 30) {
-                        DOM.maintDaysRemainingBadge.textContent = `剩餘 ${diffDays} 天`;
-                        DOM.maintDaysRemainingBadge.className = badgeClassBase + "bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-400 border-amber-200 dark:border-amber-800";
-                    } else {
-                        DOM.maintDaysRemainingBadge.textContent = `剩餘 ${diffDays} 天`;
-                        DOM.maintDaysRemainingBadge.className = badgeClassBase + "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border-slate-200 dark:border-slate-700";
+            const setupAlert = (date, container, textEl, badgeEl) => {
+                if (date && container) {
+                    container.classList.remove('hidden');
+                    if (textEl) textEl.textContent = date.replace(/-/g, '/');
+                    const diffDays = getDaysRemaining(date);
+                    if (badgeEl && diffDays !== null) {
+                        const base = "text-[10px] md:text-xs font-black px-2 md:px-3 py-0.5 md:py-1 rounded-md shadow-sm border ";
+                        if (diffDays < 0) {
+                            badgeEl.textContent = `已逾期 ${Math.abs(diffDays)} 天`;
+                            badgeEl.className = base + "bg-rose-100 text-rose-600 dark:bg-rose-900/50 dark:text-rose-400 border-rose-200 dark:border-rose-800";
+                        } else if (diffDays === 0) {
+                            badgeEl.textContent = `今天到期`;
+                            badgeEl.className = base + "bg-rose-500 text-white border-rose-600";
+                        } else if (diffDays <= 30) {
+                            badgeEl.textContent = `剩餘 ${diffDays} 天`;
+                            badgeEl.className = base + "bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-400 border-amber-200 dark:border-amber-800";
+                        } else {
+                            badgeEl.textContent = `剩餘 ${diffDays} 天`;
+                            badgeEl.className = base + "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border-slate-200 dark:border-slate-700";
+                        }
                     }
+                } else if (container) {
+                    container.classList.add('hidden');
                 }
-            } else if (DOM.maintDateAlertContainer) { DOM.maintDateAlertContainer.classList.add('hidden'); }
+            };
 
-            if (AppState.insuranceExpiryDate && DOM.insuranceDateAlertContainer) {
-                DOM.insuranceDateAlertContainer.classList.remove('hidden');
-                if(DOM.insuranceTargetDateStr) DOM.insuranceTargetDateStr.textContent = AppState.insuranceExpiryDate.replace(/-/g, '/');
-                const diffDays = getDaysRemaining(AppState.insuranceExpiryDate);
-                if (DOM.insuranceDaysRemainingBadge && diffDays !== null) {
-                    const badgeClassBase = "text-[10px] md:text-xs font-black px-2 md:px-3 py-0.5 md:py-1 rounded-md shadow-sm border ";
-                    if (diffDays < 0) {
-                        DOM.insuranceDaysRemainingBadge.textContent = `已逾期 ${Math.abs(diffDays)} 天`;
-                        DOM.insuranceDaysRemainingBadge.className = badgeClassBase + "bg-rose-100 text-rose-600 dark:bg-rose-900/50 dark:text-rose-400 border-rose-200 dark:border-rose-800";
-                    } else if (diffDays === 0) {
-                        DOM.insuranceDaysRemainingBadge.textContent = `今天到期`;
-                        DOM.insuranceDaysRemainingBadge.className = badgeClassBase + "bg-rose-500 text-white border-rose-600";
-                    } else if (diffDays <= 30) {
-                        DOM.insuranceDaysRemainingBadge.textContent = `剩餘 ${diffDays} 天`;
-                        DOM.insuranceDaysRemainingBadge.className = badgeClassBase + "bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-400 border-amber-200 dark:border-amber-800";
-                    } else {
-                        DOM.insuranceDaysRemainingBadge.textContent = `剩餘 ${diffDays} 天`;
-                        DOM.insuranceDaysRemainingBadge.className = badgeClassBase + "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border-slate-200 dark:border-slate-700";
-                    }
-                }
-            } else if (DOM.insuranceDateAlertContainer) { DOM.insuranceDateAlertContainer.classList.add('hidden'); }
+            setupAlert(AppState.nextMaintDate, DOM.maintDateAlertContainer, DOM.maintTargetDateStr, DOM.maintDaysRemainingBadge);
+            setupAlert(AppState.insuranceExpiryDate, DOM.insuranceDateAlertContainer, DOM.insuranceTargetDateStr, DOM.insuranceDaysRemainingBadge);
         }
 
         window.setChartFilter = function(filter) {
@@ -2484,7 +2302,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const activeBtn = document.getElementById(`btnChart${filter.charAt(0).toUpperCase() + filter.slice(1)}`);
             if (activeBtn) activeBtn.className = "px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-xs rounded-lg bg-white dark:bg-slate-600 shadow text-slate-900 dark:text-white font-bold transition-all";
             debouncedUpdateCharts();
-        }
+        };
 
         function debouncedUpdateCharts() {
             if (chartRenderTimer) clearTimeout(chartRenderTimer);
@@ -2508,7 +2326,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 doughnutData = doughnutData.filter(rec => rec.date.startsWith(AppState.currentMonthFilter));
             }
 
-            let periodTotalKm = 0; let periodTotalCost = 0; let periodEnergyCost = 0; let periodConsumedPower = 0;
+            let periodTotalKm = 0, periodTotalCost = 0, periodEnergyCost = 0, periodConsumedPower = 0;
             const allPeriodRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && (AppState.currentMonthFilter === 'all' || (r.date && r.date.startsWith(AppState.currentMonthFilter))));
             allPeriodRecords.forEach(rec => {
                 const cost = parseFloat(rec.cost) || 0;
@@ -2519,15 +2337,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     periodConsumedPower += AppState.batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
                 }
             });
-            const periodCostPerKm = periodTotalKm > 0 ? (periodEnergyCost / periodTotalKm) : 0;
-            const periodAvgEff = periodConsumedPower > 0 ? (periodTotalKm / periodConsumedPower) : 0;
 
             if (DOM.analysisTotalKm) DOM.analysisTotalKm.textContent = periodTotalKm.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
             if (DOM.analysisSummaryLabel) DOM.analysisSummaryLabel.textContent = AppState.currentMonthFilter === 'all' ? '累積里程' : `${AppState.currentMonthFilter.replace('-', '/')} 里程`;
-            if (DOM.analysisAvgEfficiency) DOM.analysisAvgEfficiency.textContent = periodAvgEff.toFixed(2);
+            if (DOM.analysisAvgEfficiency) DOM.analysisAvgEfficiency.textContent = periodConsumedPower > 0 ? (periodTotalKm / periodConsumedPower).toFixed(2) : "0.00";
             if (DOM.analysisTotalCost) DOM.analysisTotalCost.textContent = periodTotalCost.toLocaleString();
             if (DOM.analysisCostLabel) DOM.analysisCostLabel.textContent = AppState.currentMonthFilter === 'all' ? '歷史總花費' : `${AppState.currentMonthFilter.replace('-', '/')} 總花費`;
-            if (DOM.analysisCostPerKm) DOM.analysisCostPerKm.textContent = periodCostPerKm.toFixed(2);
+            if (DOM.analysisCostPerKm) DOM.analysisCostPerKm.textContent = periodTotalKm > 0 ? (periodEnergyCost / periodTotalKm).toFixed(2) : "0.00";
 
             const timeView = document.getElementById('chartTimeView')?.value || 'monthly';
             let labels = [], efficiencies = [], costs = [];
@@ -2568,7 +2384,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     pointBackgroundColor: isDarkMode ? '#1e293b' : '#ffffff', pointBorderColor: isDarkMode ? '#2dd4bf' : '#0d9488', pointBorderWidth: 2, pointRadius: 3, 
                     tension: 0.4, yAxisID: 'yEfficiency', fill: true, backgroundColor: gradient
                 });
-                scalesConfig.yEfficiency = { type: 'linear', position: 'left', title: {display: false}, ticks: { color: isDarkMode ? '#2dd4bf' : '#0d9488', maxTicksLimit: 6 }, border: { display: false }, grid: { color: gridColor } };
+                scalesConfig.yEfficiency = { type: 'linear', position: 'left', ticks: { color: isDarkMode ? '#2dd4bf' : '#0d9488', maxTicksLimit: 6 }, border: { display: false }, grid: { color: gridColor } };
             }
 
             if (AppState.currentChartFilter === 'all' || AppState.currentChartFilter === 'cost') {
@@ -2576,7 +2392,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 barGrad.addColorStop(0, isDarkMode ? 'rgba(251, 191, 36, 0.8)' : 'rgba(245, 158, 11, 0.7)');
                 barGrad.addColorStop(1, isDarkMode ? 'rgba(251, 191, 36, 0.2)' : 'rgba(245, 158, 11, 0.2)');
                 datasets.push({ label: '補給費用 (元)', type: 'bar', data: costs, backgroundColor: barGrad, borderRadius: 4, yAxisID: 'yCost', barThickness: window.innerWidth > 768 ? 16 : 12 });
-                scalesConfig.yCost = { type: 'linear', position: 'right', title: {display: false}, ticks: { color: isDarkMode ? '#fbbf24' : '#f59e0b', maxTicksLimit: 6 }, border: { display: false }, grid: { display: false } };
+                scalesConfig.yCost = { type: 'linear', position: 'right', ticks: { color: isDarkMode ? '#fbbf24' : '#f59e0b', maxTicksLimit: 6 }, border: { display: false }, grid: { display: false } };
             }
 
             if (efficiencyChartInstance) {
@@ -2584,25 +2400,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 efficiencyChartInstance.update();
             } else {
                 efficiencyChartInstance = new Chart(ctx, {
-                    type: 'line', data: { labels: labels, datasets: datasets },
+                    type: 'line', data: { labels, datasets },
                     options: { 
                         responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, 
-                        plugins: { 
-                            legend: { position: 'top', align: 'end', labels: { color: labelColor, boxWidth: 8, boxHeight: 8, usePointStyle: true, font: {size: window.innerWidth > 768 ? 12 : 10} } },
-                            tooltip: {
-                                backgroundColor: isDarkMode ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
-                                titleColor: isDarkMode ? '#f8fafc' : '#0f172a', bodyColor: isDarkMode ? '#cbd5e1' : '#334155',
-                                borderColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)', borderWidth: 1, padding: 12, boxPadding: 8, usePointStyle: true, boxWidth: 8, boxHeight: 8, bodyFont: { size: 12, lineHeight: 1.4 }, titleFont: { size: 13, weight: 'bold', lineHeight: 1.4 },
-                                callbacks: { label: function(context) { let label = context.dataset.label || ''; if (label) { label += ': '; } if (context.parsed.y !== null) { label += context.parsed.y; } return label; } }
-                            }
-                        }
-                    }, 
-                    scales: scalesConfig 
+                        plugins: { legend: { position: 'top', align: 'end', labels: { color: labelColor, boxWidth: 8, boxHeight: 8, usePointStyle: true, font: {size: window.innerWidth > 768 ? 12 : 10} } } },
+                        scales: scalesConfig 
+                    }
                 });
             }
 
             if (DOM.tempEffChart) {
-                const scatterCtx = DOM.tempEffChart.getContext('2d');
                 const scatterDataPts = chartData.filter(r => r.temp !== null && r.temp !== undefined && r.distance > 0).map(r => {
                     const pwr = AppState.batteryCapacity * ((r.consumedSocPercent || 0) / 100);
                     return { x: r.temp, y: pwr > 0 ? parseFloat((r.distance/pwr).toFixed(2)) : 0 };
@@ -2618,20 +2425,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (tempEffChartInstance) {
                     tempEffChartInstance.data = scatterDataSet; tempEffChartInstance.update();
                 } else {
-                    tempEffChartInstance = new Chart(scatterCtx, {
+                    tempEffChartInstance = new Chart(DOM.tempEffChart.getContext('2d'), {
                         type: 'scatter', data: scatterDataSet,
                         options: { 
                             responsive: true, maintainAspectRatio: false, 
-                            plugins: { 
-                                legend: { display: false }, 
-                                tooltip: { 
-                                    backgroundColor: isDarkMode ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
-                                    titleColor: isDarkMode ? '#f8fafc' : '#0f172a', bodyColor: isDarkMode ? '#cbd5e1' : '#334155',
-                                    borderColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)', borderWidth: 1, padding: 12, boxPadding: 8, usePointStyle: true, boxWidth: 8, boxHeight: 8, bodyFont: { size: 12, lineHeight: 1.4 },
-                                    callbacks: { label: (ctx) => `氣溫: ${ctx.raw.x}°C, 電耗: ${ctx.raw.y}` } 
-                                } 
-                            }, 
-                            scales: { x: { title: { display: true, text: '氣溫 (°C)', color: labelColor, font: {size: 10} }, ticks: { color: labelColor }, grid: { color: gridColor } }, y: { title: { display: true, text: '電耗 (km/度)', color: labelColor, font: {size: 10} }, ticks: { color: labelColor }, grid: { color: gridColor } } } 
+                            plugins: { legend: { display: false } }, 
+                            scales: { 
+                                x: { title: { display: true, text: '氣溫 (°C)', color: labelColor, font: {size: 10} }, ticks: { color: labelColor }, grid: { color: gridColor } }, 
+                                y: { title: { display: true, text: '電耗 (km/度)', color: labelColor, font: {size: 10} }, ticks: { color: labelColor }, grid: { color: gridColor } } 
+                            } 
                         }
                     });
                 }
@@ -2663,8 +2465,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (DOM.costDistributionChart) {
-                const pieCtx = DOM.costDistributionChart.getContext('2d');
-                let dcCost = 0, acCost = 0, maintCost = 0, parkCost = 0, tollCost = 0, 開始Cost = 0;
+                let dcCost = 0, acCost = 0, maintCost = 0, parkCost = 0, tollCost = 0, insCost = 0;
                 doughnutData.forEach(rec => {
                     const cost = parseFloat(rec.cost) || 0;
                     if(rec.chargeType.includes('快充')) dcCost += cost;
@@ -2672,20 +2473,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     else if(rec.chargeType === '維修保養') maintCost += cost;
                     else if(rec.chargeType === '停車費') parkCost += cost;
                     else if(rec.chargeType === '通行費') tollCost += cost;
-                    else if(rec.chargeType === '保險費') 開始Cost += cost;
+                    else if(rec.chargeType === '保險費') insCost += cost;
                 });
 
                 const pieData = {
                     labels: ['DC 快充', 'AC 慢充', '保養維修', '停車費', '通行費', '保險費'],
                     datasets: [{
-                        data: [dcCost, acCost, maintCost, parkCost, tollCost, 開始Cost],
+                        data: [dcCost, acCost, maintCost, parkCost, tollCost, insCost],
                         backgroundColor: [
-                            isDarkMode ? '#fbbf24' : '#f59e0b', 
-                            isDarkMode ? '#2dd4bf' : '#14b8a6', 
-                            isDarkMode ? '#e879f9' : '#d946ef',
-                            isDarkMode ? '#60a5fa' : '#3b82f6',
-                            isDarkMode ? '#c084fc' : '#a855f7',
-                            isDarkMode ? '#34d399' : '#10b981'
+                            isDarkMode ? '#fbbf24' : '#f59e0b', isDarkMode ? '#2dd4bf' : '#14b8a6', 
+                            isDarkMode ? '#e879f9' : '#d946ef', isDarkMode ? '#60a5fa' : '#3b82f6', 
+                            isDarkMode ? '#c084fc' : '#a855f7', isDarkMode ? '#34d399' : '#10b981'
                         ],
                         borderWidth: 0, hoverOffset: 4
                     }]
@@ -2695,18 +2493,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     costDistributionChartInstance.data = pieData;
                     costDistributionChartInstance.update();
                 } else {
-                    costDistributionChartInstance = new Chart(pieCtx, {
+                    costDistributionChartInstance = new Chart(DOM.costDistributionChart.getContext('2d'), {
                         type: 'doughnut', data: pieData,
                         options: { 
                             responsive: true, maintainAspectRatio: false, cutout: '70%', 
-                            plugins: { 
-                                legend: { position: 'right', labels: { color: labelColor, usePointStyle: true, padding: 15, font: {size: window.innerWidth > 768 ? 12 : 10} } },
-                                tooltip: {
-                                    backgroundColor: isDarkMode ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
-                                    titleColor: isDarkMode ? '#f8fafc' : '#0f172a', bodyColor: isDarkMode ? '#cbd5e1' : '#334155',
-                                    borderColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)', borderWidth: 1, padding: 12, boxPadding: 8, usePointStyle: true, boxWidth: 8, boxHeight: 8, bodyFont: { size: 12, lineHeight: 1.4 }
-                                }
-                            } 
+                            plugins: { legend: { position: 'right', labels: { color: labelColor, usePointStyle: true, padding: 15, font: {size: window.innerWidth > 768 ? 12 : 10} } } } 
                         }
                     });
                 }
@@ -2721,8 +2512,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const note = DOM.inputNote.value.trim();
             const tag = DOM.inputTag ? DOM.inputTag.value.trim() : '';
             const district = DOM.inputDistrict ? DOM.inputDistrict.value.trim() : '';
-            const tempInput = document.getElementById('inputTemperature');
-            const temp = tempInput && tempInput.value ? parseFloat(tempInput.value) : null;
+            const temp = DOM.inputTemperature?.value ? parseFloat(DOM.inputTemperature.value) : null;
 
             let distance = 0, startSoc = 0, endSoc = 0, powerPercent = 0, power = 0;
 
@@ -2735,7 +2525,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const isEditing = !!AppState.editingRecordId;
-
             if (isEditing) {
                 const idx = AppState.records.findIndex(r => r.id === AppState.editingRecordId);
                 if (idx > -1) AppState.records[idx] = { ...AppState.records[idx], date, chargeType, distance, power: parseFloat(power.toFixed(3)), powerPercent, startSoc, endSoc, cost, note, tag, district, temp };
@@ -2745,9 +2534,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             cancelEdit(); renderDashboard(); switchTab('records'); 
-
             if (AppState.syncUrl) { syncWithCloud('upload', false); } else { showToast(isEditing ? "修改成功！✨" : "新增成功！🚗"); }
-        }
+        };
 
         window.editRecord = function(id) {
             const rec = AppState.records.find(r => r.id === id);
@@ -2763,7 +2551,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(DOM.sliderEndSoc) DOM.sliderEndSoc.value = rec.endSoc;
                 if(DOM.inputTag) DOM.inputTag.value = rec.tag || '';
                 if(DOM.inputDistrict) DOM.inputDistrict.value = rec.district || '';
-                if(document.getElementById('inputTemperature')) document.getElementById('inputTemperature').value = rec.temp !== undefined && rec.temp !== null ? rec.temp : '';
+                if(DOM.inputTemperature) DOM.inputTemperature.value = rec.temp !== undefined && rec.temp !== null ? rec.temp : '';
             }
             if(DOM.inputCost) DOM.inputCost.value = rec.cost || 0;
             if(DOM.inputNote) DOM.inputNote.value = rec.note || '';
@@ -2773,7 +2561,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if(DOM.cancelEditBtn) DOM.cancelEditBtn.classList.remove('hidden');
             if(DOM.btnDeleteInForm) DOM.btnDeleteInForm.classList.remove('hidden');
             switchTab('add'); 
-        }
+        };
 
         window.cancelEdit = function() {
             AppState.editingRecordId = null;
@@ -2784,17 +2572,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if(DOM.inputDate) DOM.inputDate.value = getLocalDateString();
             if(DOM.sliderStartSoc) DOM.sliderStartSoc.value = 20;
             if(DOM.sliderEndSoc) DOM.sliderEndSoc.value = 80;
-            if(document.getElementById('inputTemperature')) document.getElementById('inputTemperature').value = '';
+            if(DOM.inputTemperature) DOM.inputTemperature.value = '';
             if(DOM.inputDistrict) DOM.inputDistrict.value = '';
             selectChargeType('DC-快充'); 
             switchTab('records');
-        }
+        };
 
         window.handleDeleteFromEdit = function() {
-            if (!AppState.editingRecordId) return;
-            const targetId = AppState.editingRecordId;
-            confirmDeleteRecord(targetId);
-        }
+            if (AppState.editingRecordId) confirmDeleteRecord(AppState.editingRecordId);
+        };
 
         window.confirmDeleteRecord = function(id) {
             showConfirmModal("確認刪除", "刪除後無法復原，是否繼續？", function() {
@@ -2805,7 +2591,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderDashboard(); 
                 if (AppState.syncUrl) { syncWithCloud('upload', false); } else { showToast("已刪除！🗑️"); }
             });
-        }
+        };
 
         window.clearAllData = function() {
             showConfirmModal("清空全部紀錄", "警告：這將徹底刪除裝置上所有數據！", function() {
@@ -2813,12 +2599,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 saveLocalState([]); renderDashboard(); 
                 if (AppState.syncUrl) { syncWithCloud('upload', false); } else { showToast("紀錄已清空 🗑️"); }
             });
-        }
+        };
 
         window.closeConfirmModal = function() {
             if(!DOM.confirmModal || !DOM.confirmModalContent) return;
-            DOM.confirmModal.classList.add('opacity-0'); DOM.confirmModalContent.classList.add('scale-95'); setTimeout(() => DOM.confirmModal.classList.add('hidden'), 300);
-        }
+            DOM.confirmModal.classList.add('opacity-0'); DOM.confirmModalContent.classList.add('scale-95'); 
+            setTimeout(() => DOM.confirmModal.classList.add('hidden'), 300);
+        };
 
         function showConfirmModal(title, msg, onConfirm) {
             if(DOM.confirmModalTitle) DOM.confirmModalTitle.textContent = title; 
@@ -2842,10 +2629,9 @@ document.addEventListener('DOMContentLoaded', () => {
             let finalDate = rec.date || '';
             if (finalDate.includes('T')) {
                 const d = new Date(finalDate);
-                if (!isNaN(d.getTime())) {
-                    const yyyy = d.getFullYear(); const mm = String(d.getMonth() + 1).padStart(2, '0'); const dd = String(d.getDate()).padStart(2, '0');
-                    finalDate = `${yyyy}-${mm}-${dd}`;
-                } else { finalDate = finalDate.split('T')[0]; }
+                finalDate = !isNaN(d.getTime()) 
+                    ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+                    : finalDate.split('T')[0];
             }
 
             return {
@@ -2866,22 +2652,17 @@ document.addEventListener('DOMContentLoaded', () => {
         window.switchSettingsTab = function(tabId) {
             const mainTab = document.getElementById('settings-tab-main'), pwaTab = document.getElementById('settings-tab-pwa');
             const btnMain = document.getElementById('btn-tab-main'), btnPwa = document.getElementById('btn-tab-pwa');
-            if (tabId === 'settings-tab-main') {
-                if (mainTab) mainTab.classList.remove('hidden'); if (pwaTab) pwaTab.classList.add('hidden');
-                if (btnMain) btnMain.className = "flex-1 py-4 text-xs md:text-sm font-black border-r border-slate-200 dark:border-slate-700 transition-all bg-amber-400 dark:bg-amber-500 text-slate-900 shadow-sm hover:opacity-90";
-                if (btnPwa) btnPwa.className = "flex-1 py-4 text-xs md:text-sm font-black text-slate-500 dark:text-[#94a3b8] transition-all bg-slate-100 dark:bg-[#0f172a] hover:bg-slate-200 dark:hover:bg-slate-800";
-            } else {
-                if (mainTab) mainTab.classList.add('hidden'); if (pwaTab) pwaTab.classList.remove('hidden');
-                if (btnMain) btnMain.className = "flex-1 py-4 text-xs md:text-sm font-black border-r border-slate-200 dark:border-slate-700 text-slate-500 dark:text-[#94a3b8] transition-all bg-slate-100 dark:bg-[#0f172a] hover:bg-slate-200 dark:hover:bg-slate-800";
-                if (btnPwa) btnPwa.className = "flex-1 py-4 text-xs md:text-sm font-black transition-all bg-amber-400 dark:bg-amber-500 text-slate-900 shadow-sm hover:opacity-90";
-                updatePwaDiagnostic();
-            }
-        }
+            const isMain = tabId === 'settings-tab-main';
+            if (mainTab) mainTab.classList.toggle('hidden', !isMain); 
+            if (pwaTab) pwaTab.classList.toggle('hidden', isMain);
+            if (btnMain) btnMain.className = isMain ? "flex-1 py-4 text-xs md:text-sm font-black border-r border-slate-200 dark:border-slate-700 transition-all bg-amber-400 dark:bg-amber-500 text-slate-900 shadow-sm hover:opacity-90" : "flex-1 py-4 text-xs md:text-sm font-black border-r border-slate-200 dark:border-slate-700 text-slate-500 dark:text-[#94a3b8] transition-all bg-slate-100 dark:bg-[#0f172a] hover:bg-slate-200 dark:hover:bg-slate-800";
+            if (btnPwa) btnPwa.className = !isMain ? "flex-1 py-4 text-xs md:text-sm font-black transition-all bg-amber-400 dark:bg-amber-500 text-slate-900 shadow-sm hover:opacity-90" : "flex-1 py-4 text-xs md:text-sm font-black text-slate-500 dark:text-[#94a3b8] transition-all bg-slate-100 dark:bg-[#0f172a] hover:bg-slate-200 dark:hover:bg-slate-800";
+            if (!isMain) updatePwaDiagnostic();
+        };
 
         window.saveSyncSettingsOnly = function() {
             AppState.evName = DOM.evNameInput?.value || "LUXGEN n7"; localStorage.setItem('ev_life_ev_name', AppState.evName);
             if(DOM.topEvName) DOM.topEvName.textContent = AppState.evName; if(DOM.heroEvName) DOM.heroEvName.textContent = AppState.evName;
-
             updateAppTitle();
 
             AppState.batteryCapacity = parseFloat(DOM.batteryCapacityInput?.value) || 57.7; localStorage.setItem('ev_life_battery_capacity', AppState.batteryCapacity);
@@ -2897,7 +2678,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             updateSyncUiStatus(); switchTab('home'); renderDashboard(); 
             if (AppState.syncUrl) { syncWithCloud('upload', false); } else { showToast("設定已儲存 💾"); }
-        }
+        };
 
         function updateSyncUiStatus() {
             const dot = document.getElementById('syncStatusDot');
@@ -2910,7 +2691,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 let urlWithToken = AppState.syncUrl;
                 if (AppState.syncToken) { const separator = urlWithToken.includes('?') ? '&' : '?'; urlWithToken += `${separator}token=${encodeURIComponent(AppState.syncToken)}`; }
-                const cacheBuster = urlWithToken.includes('?') ? '&' : '?'; urlWithToken += `${cacheBuster}_t=${Date.now()}`;
+                urlWithToken += `${urlWithToken.includes('?') ? '&' : '?'}_t=${Date.now()}`;
 
                 if (mode === 'upload') {
                     let localLastUpdated = Date.now();
@@ -2923,8 +2704,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         id: "CONFIG_METADATA", date: "", chargeType: "", distance: 0, power: 0, cost: 0, 
                         note: JSON.stringify({ evName: AppState.evName, batteryCapacity: AppState.batteryCapacity, initialOdometer: AppState.initialOdometer, maintInterval: AppState.maintInterval, nextMaintDate: AppState.nextMaintDate, insuranceExpiryDate: AppState.insuranceExpiryDate, iceEfficiency: AppState.iceEfficiency, gasPrice: AppState.gasPrice }) 
                     };
-                    const payloadToPost = { token: AppState.syncToken, records: [...uploadRecords, { id: "SYSTEM_METADATA", note: localLastUpdated.toString() }, configMeta] };
-                    const postRes = await fetch(urlWithToken, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payloadToPost) });
+                    const postRes = await fetch(urlWithToken, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ token: AppState.syncToken, records: [...uploadRecords, { id: "SYSTEM_METADATA", note: localLastUpdated.toString() }, configMeta] }) });
                     const postResult = await postRes.json();
                     if (postResult.error) throw new Error(postResult.error === "Unauthorized" ? "API Token 錯誤，上傳遭拒絕" : postResult.error);
                     if (!isSilent) showToast(`同步成功！已推播至雲端 ☁️`);
@@ -2938,21 +2718,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(!Array.isArray(cloudPayload)) cloudPayload = [];
                 let cloudLastUpdated = 0, cloudRecords = [], cloudConfig = null;
                 cloudPayload.forEach(item => {
-                    if (item && item.id === "SYSTEM_METADATA") cloudLastUpdated = parseInt(item.note) || 0;
-                    else if (item && item.id === "CONFIG_METADATA") { try { cloudConfig = JSON.parse(item.note); } catch(err) {} }
+                    if (item?.id === "SYSTEM_METADATA") cloudLastUpdated = parseInt(item.note) || 0;
+                    else if (item?.id === "CONFIG_METADATA") { try { cloudConfig = JSON.parse(item.note); } catch(err) {} }
                     else if (item) cloudRecords.push(parseRecordSoc(item));
                 });
                 let localLastUpdated = parseInt(localStorage.getItem('ev_life_last_updated')) || 0;
-                let shouldDownload = false;
-
-                if (mode === 'download') { shouldDownload = true; } 
-                else if (mode === 'auto') {
-                    if (localLastUpdated > cloudLastUpdated && AppState.records.length === 0 && cloudRecords.length > 0) localLastUpdated = 0;
-                    if (cloudLastUpdated > localLastUpdated) shouldDownload = true;
-                }
+                let shouldDownload = mode === 'download' || (mode === 'auto' && (cloudLastUpdated > localLastUpdated || (AppState.records.length === 0 && cloudRecords.length > 0)));
 
                 if (shouldDownload) {
-                    AppState.records = cloudRecords; localStorage.setItem('ev_life_records', JSON.stringify(AppState.records)); localStorage.setItem('ev_life_last_updated', Date.now().toString()); 
+                    AppState.records = cloudRecords; 
+                    localStorage.setItem('ev_life_records', JSON.stringify(AppState.records)); 
+                    localStorage.setItem('ev_life_last_updated', Date.now().toString()); 
                     if (cloudConfig) {
                         if (cloudConfig.evName) { 
                             AppState.evName = cloudConfig.evName; 
@@ -2986,36 +2762,32 @@ document.addEventListener('DOMContentLoaded', () => {
                     showToast(msg, true); 
                 } 
             }
-        }
+        };
 
-        window.forceDownload = function() { showConfirmModal("以「試算表」為主？", "將下載雲端資料並「覆蓋」本機記錄。", function() { syncWithCloud('download'); }); }
-        window.forceUpload = function() { showConfirmModal("以「本機」為主？", "將上傳本機資料並「覆蓋」雲端記錄。", function() { syncWithCloud('upload'); }); }
+        window.forceDownload = function() { showConfirmModal("以「試算表」為主？", "將下載雲端資料並「覆蓋」本機記錄。", function() { syncWithCloud('download'); }); };
+        window.forceUpload = function() { showConfirmModal("以「本機」為主？", "將上傳本機資料並「覆蓋」雲端記錄。", function() { syncWithCloud('upload'); }); };
 
         window.exportToCSV = function() {
             if (AppState.records.length === 0) { showToast("目前沒有紀錄可以匯出喔！", true); return; }
             let csvContent = "日期,紀錄類型,地區,標籤/站點,行駛里程(km),出發SOC(%),抵達SOC(%),消耗電量(度),花費(元),氣溫(°C),備註\n";
-            const exportRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
-
-            exportRecords.forEach(rec => {
-                const date = rec.date || ''; const type = rec.chargeType || ''; const district = rec.district || ''; const tag = rec.tag || '';
-                const dist = rec.distance || 0; const start = rec.startSoc !== undefined ? rec.startSoc : ''; const end = rec.endSoc !== undefined ? rec.endSoc : '';
+            AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA").forEach(rec => {
+                const start = rec.startSoc !== undefined ? rec.startSoc : '';
+                const end = rec.endSoc !== undefined ? rec.endSoc : '';
                 const kwh = AppState.batteryCapacity * (Math.abs((start || 0) - (end || 0)) / 100);
-                const cost = rec.cost || 0; const temp = rec.temp !== null && rec.temp !== undefined ? rec.temp : '';
                 let note = rec.note || ''; if (note.includes(',')) note = `"${note}"`; 
-                csvContent += `${date},${type},${district},${tag},${dist},${start},${end},${kwh.toFixed(2)},${cost},${temp},${note}\n`;
+                csvContent += `${rec.date || ''},${rec.chargeType || ''},${rec.district || ''},${rec.tag || ''},${rec.distance || 0},${start},${end},${kwh.toFixed(2)},${rec.cost || 0},${rec.temp ?? ''},${note}\n`;
             });
 
-            const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
-            const blob = new Blob([bom, csvContent], { type: 'text/csv;charset=utf-8;' });
+            const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a'); a.href = url; a.download = `EvLife_Records_${getLocalDateString()}.csv`;
             document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
             showToast("成功匯出 CSV 報表！📊");
-        }
+        };
 
         window.generateManifestContent = function() {
             return JSON.stringify({ "name": "Ev Life - 純電之旅", "short_name": "Ev Life", "start_url": "./index.html", "display": "standalone", "background_color": "#111827", "theme_color": "#0d9488", "icons": [ { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" }, { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" } ] }, null, 4);
-        }
+        };
 
         window.generateSWContent = function() {
             return `const CACHE_NAME = 'ev-life-cache-v5';
@@ -3023,64 +2795,64 @@ const ASSETS_TO_CACHE = ['./', './index.html', './manifest.json', './achievement
 
 self.addEventListener('install', event => {
     self.skipWaiting();
-    event.waitUntil(
-        caches.open(CACHE_NAME).then(async cache => {
-            for (const asset of ASSETS_TO_CACHE) {
-                try {
-                    await cache.add(asset);
-                } catch (err) {
-                    console.warn('[SW] 快取失敗已略過:', asset, err);
-                }
-            }
-        })
-    );
+    event.waitUntil(caches.open(CACHE_NAME).then(async cache => {
+        for (const asset of ASSETS_TO_CACHE) {
+            try { await cache.add(asset); } catch (err) { console.warn('[SW] 快取失敗已略過:', asset, err); }
+        }
+    }));
 });
 
 self.addEventListener('activate', event => {
-    event.waitUntil(
-        caches.keys().then(keys => Promise.all(
-            keys.map(key => {
-                if (key !== CACHE_NAME) return caches.delete(key);
-            })
-        )).then(() => self.clients.claim())
-    );
+    event.waitUntil(caches.keys().then(keys => Promise.all(keys.map(key => key !== CACHE_NAME && caches.delete(key)))).then(() => self.clients.claim()));
 });
 
 self.addEventListener('fetch', event => {
     const request = event.request;
-    const url = new URL(request.url);
-
-    if (!url.protocol.startsWith('http')) return;
-    if (request.method !== 'GET') return;
-    if (!url.origin.includes(self.location.origin)) return;
-
+    if (!request.url.startsWith('http') || request.method !== 'GET') return;
     event.respondWith(
         caches.open(CACHE_NAME).then(async cache => {
             const cachedResponse = await cache.match(request);
             const fetchPromise = fetch(request).then(networkResponse => {
-                if (networkResponse && networkResponse.status === 200) {
-                    cache.put(request, networkResponse.clone());
-                }
+                if (networkResponse?.status === 200) cache.put(request, networkResponse.clone());
                 return networkResponse;
             }).catch(() => cachedResponse);
-
             return cachedResponse || fetchPromise;
         })
     );
 });`;
-        }
+        };
 
         window.downloadFile = function(filename, content) {
-            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); showToast(`已產生 ${filename} 📥`);
-        }
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' }); 
+            const url = URL.createObjectURL(blob); 
+            const a = document.createElement('a'); 
+            a.href = url; a.download = filename; 
+            document.body.appendChild(a); a.click(); document.body.removeChild(a); 
+            URL.revokeObjectURL(url); 
+            showToast(`已產生 ${filename} 📥`);
+        };
 
-        window.triggerPwaInstall = function() { if (!deferredPrompt) { showToast("裝置不支援或已安裝。⚡"); return; } deferredPrompt.prompt(); deferredPrompt.userChoice.then((res) => { if (res.outcome === 'accepted') { showToast("感謝安裝！🎉"); document.getElementById('pwaInstallBtn').classList.add('hidden'); } deferredPrompt = null; }); }
+        window.triggerPwaInstall = function() { 
+            if (!deferredPrompt) { showToast("裝置不支援或已安裝。⚡"); return; } 
+            deferredPrompt.prompt(); 
+            deferredPrompt.userChoice.then((res) => { 
+                if (res.outcome === 'accepted') { 
+                    showToast("感謝安裝！🎉"); 
+                    document.getElementById('pwaInstallBtn')?.classList.add('hidden'); 
+                } 
+                deferredPrompt = null; 
+            }); 
+        };
 
         function updatePwaDiagnostic() {
             const isHttps = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
             const dH = document.getElementById('diag-https'), dS = document.getElementById('diag-sw'), dN = document.getElementById('diag-network');
             if(dH) dH.innerHTML = window.location.protocol === 'file:' ? '🔴 本機檔案不允許' : (isHttps ? '🟢 安全連線 (適用 GitHub Pages)' : '🔴 非安全連線');
-            if(dS) { if ('serviceWorker' in navigator) { navigator.serviceWorker.getRegistration().then(r => { dS.innerHTML = (r && r.active) ? '🟢 引擎運行中' : '🟡 未安裝'; }).catch(() => dS.innerHTML = '⚪ 引擎未就緒'); } else dS.innerHTML = '🔴 不支援'; }
+            if(dS) { 
+                if ('serviceWorker' in navigator) { 
+                    navigator.serviceWorker.getRegistration().then(r => { dS.innerHTML = (r && r.active) ? '🟢 引擎運行中' : '🟡 未安裝'; }).catch(() => dS.innerHTML = '⚪ 引擎未就緒'); 
+                } else dS.innerHTML = '🔴 不支援'; 
+            }
             if(dN) dN.innerHTML = navigator.onLine ? '🟢 網路正常' : '🔴 離線模式';
         }
     </script>
