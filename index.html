@@ -934,6 +934,9 @@
             get CO2_SAVED_PER_KM() { return this.CO2_ICE_PER_KM - this.CO2_EV_PER_KM; }
         };
 
+        window.AppState = AppState;
+        window.CONSTANTS = CONSTANTS;
+
         function updateAppTitle() {
             const name = AppState.evName || "純電之旅";
             document.title = `Ev Life - ⚡ ${name} の 純電之旅`;
@@ -1545,6 +1548,25 @@
             setTimeout(() => modal.classList.add('hidden'), 300);
         };
 
+        window.openBadgeModal = function() {
+            const modal = document.getElementById('badgeModal');
+            if (!modal) return;
+            if (typeof switchBadgeTab === 'function') switchBadgeTab('unlocked');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.firstElementChild?.classList.remove('scale-95');
+            }, 10);
+        };
+
+        window.closeBadgeModal = function() {
+            const modal = document.getElementById('badgeModal');
+            if (!modal) return;
+            modal.classList.add('opacity-0');
+            modal.firstElementChild?.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        };
+
         window.openMapModal = function() {
             if (typeof google === 'undefined' || !google.maps) { 
                 showToast("地圖服務載入中或未正確載入，請確認網路連線", true); 
@@ -2087,7 +2109,7 @@
 
         function renderDashboard() {
             const activeRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.date);
-            activeRecords.sort((a, b) => new Date(a.date) - new Date(b.date) || parseInt(a.id, 10) - parseInt(b.id, 10));
+            activeRecords.sort((a, b) => new Date(a.date) - new Date(b.date) || parseInt(a.id, 10) - parseInt(a.id, 10));
 
             renderMonthFilters();
             calculateRecordStats(activeRecords);
