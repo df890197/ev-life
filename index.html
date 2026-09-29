@@ -63,7 +63,7 @@
             box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.08); 
         }
 
-        /* 📱 iOS PWA 導航欄防懸空與點擊穿透優化 */
+        /* 📱 底部浮動導覽列優化：防止 iOS PWA 手勢遮擋與未觸發命中測試 */
         .floating-nav { 
             bottom: calc(env(safe-area-inset-bottom, 0px) * 0.5 + 4px) !important; 
             margin-bottom: 0 !important;
@@ -150,7 +150,6 @@
 </head>
 <body class="font-sans bg-[#fcfaf2] dark:bg-[#111827] text-slate-800 dark:text-[#f8fafc] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative slashed-zero">
 
-    <!-- 啟動畫面（初始即加載 pointer-events-none 避免在 iOS 上阻擋觸控命中） -->
     <div id="appSplashScreen" class="fixed inset-0 z-[9998] bg-[#fcfaf2] dark:bg-[#111827] flex flex-col items-center justify-center text-slate-800 dark:text-white transition-opacity duration-300 pointer-events-none">
         <div id="splashFallbackContainer" class="absolute inset-0 flex flex-col items-center justify-center space-y-4 z-10">
             <span class="text-7xl md:text-8xl">⚡</span>
@@ -893,7 +892,7 @@
         </div>
     </div>
 
-    <!-- 導航列（強化層級與點擊事件） -->
+    <!-- 導航列 -->
     <nav class="fixed left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[calc(100%-2rem)] md:max-w-2xl z-50 rounded-[2rem] ios-27-glass px-2 floating-nav">
         <div class="flex justify-around items-center h-16 md:h-20 max-w-md md:max-w-full mx-auto relative" id="nav-container">
             <div id="liquid-indicator" class="liquid-indicator opacity-0 absolute top-1/2 -translate-y-1/2 left-0 w-14 md:h-16 md:rounded-full"></div>
@@ -1067,7 +1066,6 @@
             navBar.classList.add('transition-all', 'duration-500', 'ease-out', 'origin-bottom');
 
             window.addEventListener('scroll', () => {
-                // 📱 修正 iOS 橡皮筋回彈負值問題
                 const rawScroll = window.pageYOffset || document.documentElement.scrollTop;
                 const scrollTop = Math.max(0, rawScroll);
 
@@ -1365,7 +1363,6 @@
                 updateSyncUiStatus();
             }
             if (tabId === 'records') {
-                // 延遲 250ms，確保 CSS Transition 與 DOM 展開完畢後才取得精準寬度
                 setTimeout(measureAndAdjustMarquees, 250);
             }
         };
@@ -1610,6 +1607,7 @@
             setTimeout(() => modal.classList.add('hidden'), 300);
         };
 
+        /* 🗺️ 充電足跡 Modal 展開核心修復 */
         window.openMapModal = function() {
             if (typeof google === 'undefined' || !google.maps) { 
                 showToast("地圖服務載入中或未正確載入，請確認網路連線", true); 
@@ -1618,14 +1616,19 @@
             const modal = document.getElementById('mapModal');
             if (!modal) return;
 
+            // ⚡ 核心修正：移除 hidden，並重設 transition 狀態
+            modal.classList.remove('hidden');
             modal.classList.add('opacity-0'); 
+            modal.firstElementChild?.classList.add('scale-95');
+
             setTimeout(async () => {
                 modal.classList.remove('opacity-0'); 
-                modal.firstElementChild.classList.remove('scale-95');
+                modal.firstElementChild?.classList.remove('scale-95');
 
                 try {
+                    const mapEl = document.getElementById('evMapContainer');
                     if (!window.evMap) {
-                        window.evMap = new google.maps.Map(document.getElementById('evMapContainer'), {
+                        window.evMap = new google.maps.Map(mapEl, {
                             center: { lat: 23.8, lng: 121.0 }, 
                             zoom: 8,
                             mapTypeControl: false, streetViewControl: false, fullscreenControl: false,
@@ -1637,9 +1640,8 @@
                                 { featureType: "water", elementType: "geometry", stylers: [{ color: "#17263c" }] }
                             ] : []
                         });
-                    } else { 
-                        google.maps.event.trigger(window.evMap, 'resize'); 
                     }
+                    google.maps.event.trigger(window.evMap, 'resize'); 
                 } catch(err) {
                     console.error("初始化地圖失敗:", err);
                     showToast("Google 地圖授權異常，請檢查金鑰限制", true);
@@ -1685,8 +1687,12 @@
                     window.evMarkers.push(marker);
                     bounds.extend({ lat, lng });
                     markerCount++;
-                    if (markerCount > 1) { window.evMap.fitBounds(bounds); }
-                    else { window.evMap.setCenter({ lat, lng }); window.evMap.setZoom(13); }
+                    if (markerCount > 1) { 
+                        window.evMap.fitBounds(bounds); 
+                    } else { 
+                        window.evMap.setCenter({ lat, lng }); 
+                        window.evMap.setZoom(13); 
+                    }
                 };
 
                 const geocoder = new google.maps.Geocoder();
@@ -1731,13 +1737,14 @@
                         } catch(e) {}
                     }
                 }
-            }, 150);
+            }, 100);
         };
 
         window.closeMapModal = function() {
             const modal = document.getElementById('mapModal');
             if (!modal) return;
-            modal.classList.add('opacity-0'); modal.firstElementChild.classList.add('scale-95');
+            modal.classList.add('opacity-0'); 
+            modal.firstElementChild?.classList.add('scale-95');
             setTimeout(() => modal.classList.add('hidden'), 300);
         };
 
