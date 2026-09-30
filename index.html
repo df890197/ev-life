@@ -1064,24 +1064,26 @@
         const escapeHTML = (str) => typeof str !== 'string' ? '' : str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
         const getLocalDateString = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().split('T')[0]; };
 
-        function cacheDOMNodes() {
-            ['toast', 'toastMessage', 'toastIcon', 'inputDate', 'inputChargeType', 'inputDistance', 'inputCost', 'inputNote', 'inputTag', 'inputDistrict', 'inputTemperature', 
-             'inputStartSocNum', 'sliderStartSoc', 'inputEndSocNum', 'sliderEndSoc', 'powerHintText', 'driveInputsArea', 'powerHintContainer', 
-             'tagInputArea', 'costLabel', 'startSocLabel', 'endSocLabel', 'recordMobileList', 'noDataPlaceholder', 'homeStatsContainer', 
-             'onboardingCard', 'confirmModal', 'confirmModalContent', 'confirmModalTitle', 'confirmModalMessage', 'appSplashScreen', 
-             'evNameInput', 'batteryCapacityInput', 'initialOdometerInput', 'maintIntervalInput', 'iceEfficiencyInput', 
-             'gasPriceInput', 'nextMaintDateInput', 'insuranceExpiryInput', 'loanTotalMonthsInput', 'loanMonthlyPaymentInput', 'syncUrlInput', 'syncTokenInput', 'topEvName', 'heroEvName', 'formTitle', 'cancelEditBtn', 
-             'recordForm', 'monthFilterContainer', 'monthFilterContainer_analysis', 'statTotalKm', 'statAvgEfficiency', 'statFuelSavings', 
-             'savingsBaseText', 'statCo2Savings', 'statTreesPlanted', 'maintIntervalText', 'maintRemainingText', 'maintProgressBar', 
-             'maintDateAlertContainer', 'maintTargetDateStr', 'maintDaysRemainingBadge', 'insuranceDateAlertContainer', 'insuranceTargetDateStr', 'insuranceDaysRemainingBadge',
-             'loanProgressContainer', 'loanMonthsProgressText', 'loanProgressBar', 'loanTotalPaidAmount', 'loanRemainingMonths',
-             'efficiencyChart', 'costDistributionChart', 'tempEffChart', 'cpRankingList', 'analysisTotalKm', 'analysisSummaryLabel', 'analysisAvgEfficiency',
-             'analysisTotalCost', 'analysisCostLabel', 'analysisCostPerKm', 'heroImageDisplay', 'toggleHighway', 'toggleMountain', 'badgesContainer',
-             'recordCalendarContainer', 'recordCalendarView', 'calendarDayRecordsSection', 'calendarDayRecordsTitle', 'calendarDayRecordsList', 'btnDeleteInForm'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) DOM[id] = el;
-            });
-        }
+function cacheDOMNodes() {
+    ['toast', 'toastMessage', 'toastIcon', 'inputDate', 'inputChargeType', 'inputDistance', 'inputCost', 'inputNote', 'inputTag', 'inputDistrict', 'inputTemperature', 
+     'inputStartSocNum', 'sliderStartSoc', 'inputEndSocNum', 'sliderEndSoc', 'powerHintText', 'driveInputsArea', 'powerHintContainer', 
+     'tagInputArea', 'costLabel', 'startSocLabel', 'endSocLabel', 'recordMobileList', 'noDataPlaceholder', 'homeStatsContainer', 
+     'onboardingCard', 'confirmModal', 'confirmModalContent', 'confirmModalTitle', 'confirmModalMessage', 'appSplashScreen', 
+     'evNameInput', 'batteryCapacityInput', 'initialOdometerInput', 'maintIntervalInput', 'iceEfficiencyInput', 
+     'gasPriceInput', 'nextMaintDateInput', 'insuranceExpiryInput', 
+     'loanTotalMonthsInput', 'loanMonthlyPaymentInput', 'loanStartDateInput', 'loanPayoffDateInput', // <-- 補在此處
+     'syncUrlInput', 'syncTokenInput', 'topEvName', 'heroEvName', 'formTitle', 'cancelEditBtn', 
+     'recordForm', 'monthFilterContainer', 'monthFilterContainer_analysis', 'statTotalKm', 'statAvgEfficiency', 'statFuelSavings', 
+     'savingsBaseText', 'statCo2Savings', 'statTreesPlanted', 'maintIntervalText', 'maintRemainingText', 'maintProgressBar', 
+     'maintDateAlertContainer', 'maintTargetDateStr', 'maintDaysRemainingBadge', 'insuranceDateAlertContainer', 'insuranceTargetDateStr', 'insuranceDaysRemainingBadge',
+     'loanProgressContainer', 'loanMonthsProgressText', 'loanProgressBar', 'loanTotalPaidAmount', 'loanRemainingMonths',
+     'efficiencyChart', 'costDistributionChart', 'tempEffChart', 'cpRankingList', 'analysisTotalKm', 'analysisSummaryLabel', 'analysisAvgEfficiency',
+     'analysisTotalCost', 'analysisCostLabel', 'analysisCostPerKm', 'heroImageDisplay', 'toggleHighway', 'toggleMountain', 'badgesContainer',
+     'recordCalendarContainer', 'recordCalendarView', 'calendarDayRecordsSection', 'calendarDayRecordsTitle', 'calendarDayRecordsList', 'btnDeleteInForm'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) DOM[id] = el;
+    });
+}
 
         function initDragToScroll() {
             document.querySelectorAll('.overflow-x-auto').forEach(slider => {
@@ -1239,7 +1241,29 @@
                 }
             }, 300);
         }
+            window.autoCalcPayoffDate = function() {
+            const startDateVal = DOM.loanStartDateInput ? DOM.loanStartDateInput.value : document.getElementById('loanStartDateInput')?.value;
+            const totalMonths = parseInt(DOM.loanTotalMonthsInput ? DOM.loanTotalMonthsInput.value : document.getElementById('loanTotalMonthsInput')?.value, 10);
+            const payoffInput = DOM.loanPayoffDateInput || document.getElementById('loanPayoffDateInput');
 
+            if (!startDateVal || isNaN(totalMonths) || totalMonths <= 0 || !payoffInput) return;
+
+            const [year, month, day] = startDateVal.split('-').map(Number);
+            // 第 1 期為首期，第 N 期即往後推 (N - 1) 個月
+            const targetDate = new Date(year, (month - 1) + (totalMonths - 1), day);
+
+            // 處理小月或月底天數溢位 (例如 1/31 加一個月不跑到 3/3，而是回退到 2 月最後一天)
+            if (targetDate.getDate() !== day) {
+                targetDate.setDate(0);
+            }
+
+            const yyyy = targetDate.getFullYear();
+            const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+            const dd = String(targetDate.getDate()).padStart(2, '0');
+
+            payoffInput.value = `${yyyy}-${mm}-${dd}`;
+            AppState.loanPayoffDate = payoffInput.value;
+        };
         function loadSettingsFromStorage() {
             const bindSetting = (stateKey, elementId, defaultValue, isFloat = false) => {
                 let val = localStorage.getItem(`ev_life_${stateKey.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)}`);
@@ -1277,7 +1301,13 @@
             AppState.loanMonthlyPayment = !isNaN(storedLoanPayment) ? storedLoanPayment : 0;
             if (DOM.loanMonthlyPaymentInput) DOM.loanMonthlyPaymentInput.value = AppState.loanMonthlyPayment || "";
 
-            if (DOM.topEvName) DOM.topEvName.textContent = AppState.evName; 
+            // 新增：載入首期扣款日與結清日
+            AppState.loanStartDate = localStorage.getItem('ev_life_loan_start_date') || "";
+            if (DOM.loanStartDateInput) DOM.loanStartDateInput.value = AppState.loanStartDate;
+            AppState.loanPayoffDate = localStorage.getItem('ev_life_loan_payoff_date') || "";
+            if (DOM.loanPayoffDateInput) DOM.loanPayoffDateInput.value = AppState.loanPayoffDate;
+
+            if (DOM.topEvName) DOM.topEvName.textContent = AppState.evName;
             if (DOM.heroEvName) DOM.heroEvName.textContent = AppState.evName;
             updateAppTitle();
 
@@ -2885,6 +2915,10 @@
             
             AppState.loanTotalMonths = parseInt(DOM.loanTotalMonthsInput?.value) || 0; localStorage.setItem('ev_life_loan_total_months', AppState.loanTotalMonths);
             AppState.loanMonthlyPayment = parseInt(DOM.loanMonthlyPaymentInput?.value) || 0; localStorage.setItem('ev_life_loan_monthly_payment', AppState.loanMonthlyPayment);
+
+            // 新增：儲存首期扣款日與結清日
+            AppState.loanStartDate = DOM.loanStartDateInput?.value || ""; localStorage.setItem('ev_life_loan_start_date', AppState.loanStartDate);
+            AppState.loanPayoffDate = DOM.loanPayoffDateInput?.value || ""; localStorage.setItem('ev_life_loan_payoff_date', AppState.loanPayoffDate);
 
             AppState.iceEfficiency = parseFloat(DOM.iceEfficiencyInput?.value) || 15.0; localStorage.setItem('ev_life_ice_efficiency', AppState.iceEfficiency);
             AppState.gasPrice = parseFloat(DOM.gasPriceInput?.value) || 30.0; localStorage.setItem('ev_life_gas_price', AppState.gasPrice);
