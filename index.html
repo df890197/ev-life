@@ -759,12 +759,14 @@
                             <div class="bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 p-1.5 md:p-2 rounded-lg shadow-sm">
                                 <svg class="w-3.5 h-3.5 md:w-5 md:h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                             </div>
-                            <span class="text-[11px] md:text-sm font-bold text-slate-600 dark:text-slate-400 line-clamp-1">每公里電費</span>
+                            <!-- 加上 id="analysisRateLabel" -->
+                            <span id="analysisRateLabel" class="text-[11px] md:text-sm font-bold text-slate-600 dark:text-slate-400 line-clamp-1">每公里電費</span>
                         </div>
                         <div class="flex items-baseline gap-0.5 mt-auto">
                             <span class="text-[9px] md:text-xs font-bold text-teal-600 dark:text-teal-400">$</span>
                             <span id="analysisCostPerKm" class="text-base md:text-2xl font-black font-mono text-teal-600 dark:text-teal-400">0.00</span>
-                            <span class="text-[9px] md:text-xs font-bold text-slate-400">/km</span>
+                            <!-- 加上 id="analysisRateUnit" -->
+                            <span id="analysisRateUnit" class="text-[9px] md:text-xs font-bold text-slate-400">/km</span>
                         </div>
                     </div>
                 </div>
@@ -2648,6 +2650,7 @@ function cacheDOMNodes() {
                 return type === costCat;
             };
 
+            // 完整納入所有衍生支出分類（通行費、停車費、維修保養、保險費、車貸）
             const isPureExpenseMode = isCostView && ['停車費', '通行費', '維修保養', '保險費', '車貸'].includes(costCat);
 
             let totalKm = 0, totalEnergyCost = 0, totalPower = 0, totalExpense = 0, pureExpenseCount = 0;
@@ -2674,34 +2677,63 @@ function cacheDOMNodes() {
 
             const lblSummary = document.getElementById('analysisSummaryLabel');
             const lblCost = document.getElementById('analysisCostLabel');
+            const lblRate = document.getElementById('analysisRateLabel');
+            const unitRate = document.getElementById('analysisRateUnit');
             const kmContainer = DOM.analysisTotalKm ? DOM.analysisTotalKm.parentElement : null;
+            const effContainer = DOM.analysisAvgEfficiency ? DOM.analysisAvgEfficiency.parentElement : null;
 
             if (isPureExpenseMode) {
-                if (lblSummary) lblSummary.textContent = `${costCat} 總筆數`;
-                if (DOM.analysisTotalKm) DOM.analysisTotalKm.textContent = pureExpenseCount;
-                if (kmContainer && kmContainer.lastElementChild) kmContainer.lastElementChild.textContent = '筆';
+                // 1. 第一張卡片：數量與單位（車貸為「期」，國道通行/停車可為「次」或「筆」）
+                let countUnit = '筆';
+                if (costCat === '車貸') countUnit = '期';
+                else if (costCat === '通行費' || costCat === '停車費') countUnit = '次';
 
-                if (lblCost) lblCost.textContent = `${costCat} 累計金額`;
+                if (lblSummary) lblSummary.textContent = `${costCat} 累計數量`;
+                if (DOM.analysisTotalKm) DOM.analysisTotalKm.textContent = pureExpenseCount;
+                if (kmContainer && kmContainer.lastElementChild) kmContainer.lastElementChild.textContent = countUnit;
+
+                // 2. 第二張卡片：純費用無電耗，將單位清空避免顯示 "-- km/度"
+                if (DOM.analysisAvgEfficiency) DOM.analysisAvgEfficiency.textContent = "--";
+                if (effContainer && effContainer.lastElementChild) effContainer.lastElementChild.textContent = '';
+
+                // 3. 第三張卡片：總費用
+                if (lblCost) lblCost.textContent = `${costCat} 總支出`;
                 if (DOM.analysisTotalCost) DOM.analysisTotalCost.textContent = totalExpense.toLocaleString();
 
-                const costLabelEl = document.querySelector('#view-analysis .grid > div:nth-child(4) span:first-child');
-                if (costLabelEl) costLabelEl.textContent = '單筆平均';
-                const avgPerItem = pureExpenseCount > 0 ? (totalExpense / pureExpenseCount).toFixed(0) : "0";
-                if (DOM.analysisCostPerKm) DOM.analysisCostPerKm.textContent = parseInt(avgPerItem).toLocaleString();
+                // 4. 第四張卡片：平均費用（徹底移除 /km）
+                let avgLabel = '單筆平均';
+                let avgUnit = '/筆';
+                if (costCat === '車貸') {
+                    avgLabel = '每期平均';
+                    avgUnit = '/期';
+                } else if (costCat === '通行費' || costCat === '停車費') {
+                    avgLabel = '單次平均';
+                    avgUnit = '/次';
+                }
 
-                if (DOM.analysisAvgEfficiency) DOM.analysisAvgEfficiency.textContent = "--";
+                if (lblRate) lblRate.textContent = avgLabel;
+                if (unitRate) unitRate.textContent = avgUnit;
+
+                const avgPerItem = pureExpenseCount > 0 ? Math.round(totalExpense / pureExpenseCount) : 0;
+                if (DOM.analysisCostPerKm) DOM.analysisCostPerKm.textContent = avgPerItem.toLocaleString();
+
             } else {
+                // 標準模式：里程、電耗、花費、每公里電費
                 if (lblSummary) lblSummary.textContent = monthFilter === 'all' ? '區間累積里程' : `${monthFilter.replace('-', '/')} 里程`;
                 if (DOM.analysisTotalKm) DOM.analysisTotalKm.textContent = totalKm.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
                 if (kmContainer && kmContainer.lastElementChild) kmContainer.lastElementChild.textContent = 'km';
 
+                // 恢復電耗單位
                 if (DOM.analysisAvgEfficiency) DOM.analysisAvgEfficiency.textContent = totalPower > 0 ? (totalKm / totalPower).toFixed(2) : "0.00";
+                if (effContainer && effContainer.lastElementChild) effContainer.lastElementChild.textContent = 'km/度';
 
                 if (lblCost) lblCost.textContent = isCostView && costCat !== 'all' ? `${costCat} 花費` : (monthFilter === 'all' ? '歷史總花費' : `${monthFilter.replace('-', '/')} 總花費`);
                 if (DOM.analysisTotalCost) DOM.analysisTotalCost.textContent = totalExpense.toLocaleString();
 
-                const costLabelEl = document.querySelector('#view-analysis .grid > div:nth-child(4) span:first-child');
-                if (costLabelEl) costLabelEl.textContent = '每公里電費';
+                // 恢復每公里電費單位
+                if (lblRate) lblRate.textContent = '每公里電費';
+                if (unitRate) unitRate.textContent = '/km';
+
                 if (DOM.analysisCostPerKm) DOM.analysisCostPerKm.textContent = totalKm > 0 ? (totalEnergyCost / totalKm).toFixed(2) : "0.00";
             }
 
