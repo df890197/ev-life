@@ -649,20 +649,34 @@
         <!-- 🔹 Tab 4: 分析圖表 (Analysis) -->
         <div id="view-analysis" class="view-section px-4">
             <div class="rpg-card bg-white dark:bg-[#1e293b] p-5 sm:p-8 rounded-[2rem]">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
                     <h2 class="text-base md:text-xl font-black flex items-center gap-2">
                         <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs md:text-sm">📊</span>
                         趨勢分析
                     </h2>
 
                     <div class="flex flex-wrap items-center gap-2 self-start sm:self-auto">
-                        <div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
-                            <button onclick="setChartFilter('all')" id="btnChartAll" class="px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-xs rounded-lg bg-white dark:bg-slate-600 shadow text-slate-900 dark:text-white font-bold transition-all">全部</button>
-                            <button onclick="setChartFilter('efficiency')" id="btnChartEfficiency" class="px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-xs rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold transition-all">電耗</button>
-                            <button onclick="setChartFilter('cost')" id="btnChartCost" class="px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-xs rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold transition-all">花費</button>
+                        <div class="flex bg-slate-100 dark:bg-slate-800/90 p-1 rounded-xl shadow-inner">
+                            <button type="button" onclick="setChartMetricView('all')" id="btnChartAll" class="px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg bg-white dark:bg-slate-600 shadow-sm text-slate-900 dark:text-white font-black transition-all">全部總覽</button>
+                            <button type="button" onclick="setChartMetricView('efficiency')" id="btnChartEfficiency" class="px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white font-bold transition-all">純電耗</button>
+                            <button type="button" onclick="setChartMetricView('cost')" id="btnChartCost" class="px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white font-bold transition-all">支出剖析</button>
                         </div>
 
-                        <select id="chartTimeView" onchange="debouncedUpdateCharts()" class="px-3 py-1.5 md:py-2 text-[11px] md:text-xs h-[34px] md:h-[38px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 font-bold focus:outline-none cursor-pointer shadow-sm flex-shrink-0">
+                        <div id="expenseCategoryWrapper" class="hidden">
+                            <select id="expenseCategoryFilter" onchange="onExpenseCategoryChange()" class="px-2.5 py-1.5 md:py-2 text-[11px] md:text-xs h-[34px] md:h-[36px] rounded-xl border border-amber-300 dark:border-amber-600/50 bg-amber-50/70 dark:bg-amber-950/30 text-amber-900 dark:text-amber-300 font-bold focus:outline-none cursor-pointer shadow-sm">
+                                <option value="all">💳 全部支出分類</option>
+                                <option value="charging">⚡ 充電補給 (快+慢)</option>
+                                <option value="DC-快充">⚡ DC 快充</option>
+                                <option value="AC-慢充">🔌 AC 慢充</option>
+                                <option value="停車費">🅿️ 停車費</option>
+                                <option value="通行費">🛣️ 國道通行</option>
+                                <option value="維修保養">🔧 維修保養</option>
+                                <option value="保險費">🛡️ 保險支出</option>
+                                <option value="車貸">🏦 車貸還款</option>
+                            </select>
+                        </div>
+
+                        <select id="chartTimeView" onchange="debouncedUpdateCharts()" class="px-3 py-1.5 md:py-2 text-[11px] md:text-xs h-[34px] md:h-[36px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold focus:outline-none cursor-pointer shadow-sm flex-shrink-0">
                             <option value="monthly" selected>單月加總</option>
                             <option value="raw">每天逐筆</option>
                         </select>
@@ -1037,8 +1051,13 @@
             maintInterval: 20000, nextMaintDate: "", insuranceExpiryDate: "",
             loanTotalMonths: 0, loanMonthlyPayment: 0,
             iceEfficiency: 15.0, gasPrice: 30.0, syncUrl: "", syncToken: "",
-            editingRecordId: null, currentChartFilter: 'all', currentMonthFilter: 'all', globalAvgEfficiency: 0
+            editingRecordId: null, 
+            currentChartFilter: 'all', 
+            currentCostCategory: 'all', // 新增：支出子類別篩選
+            currentMonthFilter: 'all', 
+            globalAvgEfficiency: 0
         };
+        let doughnutHoveredIndex = null; // 新增：記錄甜甜圈圖 Hover 索引
 
         const CONSTANTS = {
             CO2_ICE_PER_KM: 0.173, CO2_EV_PER_KM: 0.078, TREE_ABSORPTION_PER_YEAR: 10,
@@ -2541,14 +2560,36 @@ function cacheDOMNodes() {
             }
         }
 
-        window.setChartFilter = function(filter) {
-            AppState.currentChartFilter = filter;
-            ['btnChartAll', 'btnChartEfficiency', 'btnChartCost'].forEach(id => {
-                const btn = document.getElementById(id);
-                if (btn) btn.className = "px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-xs rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold transition-all bg-transparent";
-            });
-            const activeBtn = document.getElementById(`btnChart${filter.charAt(0).toUpperCase() + filter.slice(1)}`);
-            if (activeBtn) activeBtn.className = "px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-xs rounded-lg bg-white dark:bg-slate-600 shadow text-slate-900 dark:text-white font-bold transition-all";
+            window.setChartMetricView = function(view) {
+            AppState.currentChartFilter = view;
+
+            const activeClass = "px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg bg-white dark:bg-slate-600 shadow-sm text-slate-900 dark:text-white font-black transition-all";
+            const inactiveClass = "px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white font-bold transition-all bg-transparent";
+
+            const btnAll = document.getElementById('btnChartAll');
+            const btnEff = document.getElementById('btnChartEfficiency');
+            const btnCost = document.getElementById('btnChartCost');
+            if (btnAll) btnAll.className = view === 'all' ? activeClass : inactiveClass;
+            if (btnEff) btnEff.className = view === 'efficiency' ? activeClass : inactiveClass;
+            if (btnCost) btnCost.className = view === 'cost' ? activeClass : inactiveClass;
+
+            const expenseWrapper = document.getElementById('expenseCategoryWrapper');
+            if (expenseWrapper) {
+                if (view === 'cost') {
+                    expenseWrapper.classList.remove('hidden');
+                } else {
+                    expenseWrapper.classList.add('hidden');
+                    AppState.currentCostCategory = 'all';
+                    const catSelect = document.getElementById('expenseCategoryFilter');
+                    if (catSelect) catSelect.value = 'all';
+                }
+            }
+            debouncedUpdateCharts();
+        };
+
+        window.onExpenseCategoryChange = function() {
+            const catSelect = document.getElementById('expenseCategoryFilter');
+            AppState.currentCostCategory = catSelect ? catSelect.value : 'all';
             debouncedUpdateCharts();
         };
 
@@ -2559,71 +2600,131 @@ function cacheDOMNodes() {
             }, 150);
         }
 
-        function updateCharts() {
+            function updateCharts() {
             if (!DOM.efficiencyChart || typeof Chart === 'undefined') return;
 
             const isDarkMode = document.documentElement.classList.contains('dark');
             const labelColor = isDarkMode ? '#9ca3af' : '#64748b'; 
             const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
 
-            let chartData = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && !['維修保養', '停車費', '通行費', '保險費', '車貸'].includes(r.chargeType));
-            let doughnutData = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
+            const monthFilter = AppState.currentMonthFilter;
+            let periodRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && (monthFilter === 'all' || (r.date && r.date.startsWith(monthFilter))));
 
-            if (AppState.currentMonthFilter !== 'all') {
-                chartData = chartData.filter(rec => rec.date.startsWith(AppState.currentMonthFilter));
-                doughnutData = doughnutData.filter(rec => rec.date.startsWith(AppState.currentMonthFilter));
-            }
+            const isCostView = AppState.currentChartFilter === 'cost';
+            const costCat = AppState.currentCostCategory;
 
-            let periodTotalKm = 0, periodTotalCost = 0, periodEnergyCost = 0, periodConsumedPower = 0;
-            const allPeriodRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && (AppState.currentMonthFilter === 'all' || (r.date && r.date.startsWith(AppState.currentMonthFilter))));
-            allPeriodRecords.forEach(rec => {
+            const matchesCostCategory = (type) => {
+                if (costCat === 'all') return true;
+                if (costCat === 'charging') return type.includes('快充') || type.includes('慢充');
+                return type === costCat;
+            };
+
+            const isPureExpenseMode = isCostView && ['停車費', '通行費', '維修保養', '保險費', '車貸'].includes(costCat);
+
+            let totalKm = 0, totalEnergyCost = 0, totalPower = 0, totalExpense = 0, pureExpenseCount = 0;
+
+            periodRecords.forEach(rec => {
                 const cost = parseFloat(rec.cost) || 0;
-                periodTotalCost += cost;
-                if (!['維修保養', '停車費', '通行費', '保險費', '車貸'].includes(rec.chargeType)) {
-                    periodTotalKm += (parseFloat(rec.distance) || 0);
-                    periodEnergyCost += cost;
-                    periodConsumedPower += AppState.batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
+                const isNonDrive = ['維修保養', '停車費', '通行費', '保險費', '車貸'].includes(rec.chargeType);
+
+                if (isCostView) {
+                    if (matchesCostCategory(rec.chargeType)) {
+                        totalExpense += cost;
+                        pureExpenseCount++;
+                    }
+                } else {
+                    totalExpense += cost;
+                }
+
+                if (!isNonDrive) {
+                    totalKm += parseFloat(rec.distance) || 0;
+                    totalEnergyCost += cost;
+                    totalPower += AppState.batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
                 }
             });
 
-            if (DOM.analysisTotalKm) DOM.analysisTotalKm.textContent = periodTotalKm.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
-            if (DOM.analysisSummaryLabel) DOM.analysisSummaryLabel.textContent = AppState.currentMonthFilter === 'all' ? '累積里程' : `${AppState.currentMonthFilter.replace('-', '/')} 里程`;
-            if (DOM.analysisAvgEfficiency) DOM.analysisAvgEfficiency.textContent = periodConsumedPower > 0 ? (periodTotalKm / periodConsumedPower).toFixed(2) : "0.00";
-            if (DOM.analysisTotalCost) DOM.analysisTotalCost.textContent = periodTotalCost.toLocaleString();
-            if (DOM.analysisCostLabel) DOM.analysisCostLabel.textContent = AppState.currentMonthFilter === 'all' ? '歷史總花費' : `${AppState.currentMonthFilter.replace('-', '/')} 總花費`;
-            if (DOM.analysisCostPerKm) DOM.analysisCostPerKm.textContent = periodTotalKm > 0 ? (periodEnergyCost / periodTotalKm).toFixed(2) : "0.00";
+            const lblSummary = document.getElementById('analysisSummaryLabel');
+            const lblCost = document.getElementById('analysisCostLabel');
+            const kmContainer = DOM.analysisTotalKm ? DOM.analysisTotalKm.parentElement : null;
+
+            if (isPureExpenseMode) {
+                if (lblSummary) lblSummary.textContent = `${costCat} 總筆數`;
+                if (DOM.analysisTotalKm) DOM.analysisTotalKm.textContent = pureExpenseCount;
+                if (kmContainer && kmContainer.lastElementChild) kmContainer.lastElementChild.textContent = '筆';
+
+                if (lblCost) lblCost.textContent = `${costCat} 累計金額`;
+                if (DOM.analysisTotalCost) DOM.analysisTotalCost.textContent = totalExpense.toLocaleString();
+
+                const costLabelEl = document.querySelector('#view-analysis .grid > div:nth-child(4) span:first-child');
+                if (costLabelEl) costLabelEl.textContent = '單筆平均';
+                const avgPerItem = pureExpenseCount > 0 ? (totalExpense / pureExpenseCount).toFixed(0) : "0";
+                if (DOM.analysisCostPerKm) DOM.analysisCostPerKm.textContent = parseInt(avgPerItem).toLocaleString();
+
+                if (DOM.analysisAvgEfficiency) DOM.analysisAvgEfficiency.textContent = "--";
+            } else {
+                if (lblSummary) lblSummary.textContent = monthFilter === 'all' ? '區間累積里程' : `${monthFilter.replace('-', '/')} 里程`;
+                if (DOM.analysisTotalKm) DOM.analysisTotalKm.textContent = totalKm.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
+                if (kmContainer && kmContainer.lastElementChild) kmContainer.lastElementChild.textContent = 'km';
+
+                if (DOM.analysisAvgEfficiency) DOM.analysisAvgEfficiency.textContent = totalPower > 0 ? (totalKm / totalPower).toFixed(2) : "0.00";
+
+                if (lblCost) lblCost.textContent = isCostView && costCat !== 'all' ? `${costCat} 花費` : (monthFilter === 'all' ? '歷史總花費' : `${monthFilter.replace('-', '/')} 總花費`);
+                if (DOM.analysisTotalCost) DOM.analysisTotalCost.textContent = totalExpense.toLocaleString();
+
+                const costLabelEl = document.querySelector('#view-analysis .grid > div:nth-child(4) span:first-child');
+                if (costLabelEl) costLabelEl.textContent = '每公里電費';
+                if (DOM.analysisCostPerKm) DOM.analysisCostPerKm.textContent = totalKm > 0 ? (totalEnergyCost / totalKm).toFixed(2) : "0.00";
+            }
 
             const timeView = document.getElementById('chartTimeView')?.value || 'monthly';
             let labels = [], efficiencies = [], costs = [];
 
-            if (timeView === 'monthly' && AppState.currentMonthFilter === 'all') {
+            const driveRecords = periodRecords.filter(r => !['維修保養', '停車費', '通行費', '保險費', '車貸'].includes(r.chargeType));
+
+            if (timeView === 'monthly' && monthFilter === 'all') {
                 const monthlyMap = {};
-                chartData.forEach(rec => {
+                periodRecords.forEach(rec => {
                     if (!rec.date || rec.date.length < 7) return;
-                    const month = rec.date.substring(0, 7);
-                    if (!monthlyMap[month]) monthlyMap[month] = { distance: 0, cost: 0, consumedPower: 0 };
-                    monthlyMap[month].distance += (parseFloat(rec.distance) || 0);
-                    monthlyMap[month].cost += (parseFloat(rec.cost) || 0);
-                    monthlyMap[month].consumedPower += AppState.batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
+                    const m = rec.date.substring(0, 7);
+                    if (!monthlyMap[m]) monthlyMap[m] = { distance: 0, cost: 0, consumedPower: 0 };
+
+                    const c = parseFloat(rec.cost) || 0;
+                    if (isCostView) {
+                        if (matchesCostCategory(rec.chargeType)) monthlyMap[m].cost += c;
+                    } else {
+                        monthlyMap[m].cost += c;
+                    }
+
+                    if (!['維修保養', '停車費', '通行費', '保險費', '車貸'].includes(rec.chargeType)) {
+                        monthlyMap[m].distance += (parseFloat(rec.distance) || 0);
+                        monthlyMap[m].consumedPower += AppState.batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
+                    }
                 });
+
                 const sortedMonths = Object.keys(monthlyMap).sort();
                 labels = sortedMonths.map(m => m.replace('-', '/'));
                 efficiencies = sortedMonths.map(m => monthlyMap[m].consumedPower > 0 ? parseFloat((monthlyMap[m].distance / monthlyMap[m].consumedPower).toFixed(2)) : 0);
                 costs = sortedMonths.map(m => monthlyMap[m].cost);
             } else {
-                labels = chartData.map(rec => AppState.currentMonthFilter === 'all' ? rec.date.substring(5) : rec.date.substring(8));
-                efficiencies = chartData.map(rec => {
-                    const power = AppState.batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
-                    return power > 0 ? parseFloat((rec.distance / power).toFixed(2)) : 0;
+                const targetRecords = isPureExpenseMode ? periodRecords.filter(r => matchesCostCategory(r.chargeType)) : driveRecords;
+                labels = targetRecords.map(rec => monthFilter === 'all' ? rec.date.substring(5) : rec.date.substring(8));
+                efficiencies = targetRecords.map(rec => {
+                    const pwr = AppState.batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
+                    return pwr > 0 ? parseFloat((rec.distance / pwr).toFixed(2)) : 0;
                 });
-                costs = chartData.map(rec => rec.cost);
+                costs = targetRecords.map(rec => parseFloat(rec.cost) || 0);
             }
 
-            const datasets = [];
-            const scalesConfig = { x: { grid: { display: false }, ticks: { color: labelColor, font: { family: "'SF Mono', monospace", size: window.innerWidth > 768 ? 12 : 10 } } } };
             const ctx = DOM.efficiencyChart.getContext('2d');
+            const datasets = [];
+            const scalesConfig = { 
+                x: { grid: { display: false }, ticks: { color: labelColor, font: { family: "'SF Mono', monospace", size: window.innerWidth > 768 ? 12 : 10 } } } 
+            };
 
-            if (AppState.currentChartFilter === 'all' || AppState.currentChartFilter === 'efficiency') {
+            const showEff = (AppState.currentChartFilter === 'all' || AppState.currentChartFilter === 'efficiency') && !isPureExpenseMode;
+            const showCost = AppState.currentChartFilter === 'all' || AppState.currentChartFilter === 'cost';
+
+            if (showEff) {
                 let gradient = ctx.createLinearGradient(0, 0, 0, 250);
                 gradient.addColorStop(0, isDarkMode ? 'rgba(45, 212, 191, 0.4)' : 'rgba(20, 184, 166, 0.2)'); 
                 gradient.addColorStop(1, 'rgba(45, 212, 191, 0.0)'); 
@@ -2635,16 +2736,31 @@ function cacheDOMNodes() {
                 scalesConfig.yEfficiency = { type: 'linear', position: 'left', ticks: { color: isDarkMode ? '#2dd4bf' : '#0d9488', maxTicksLimit: 6 }, border: { display: false }, grid: { color: gridColor } };
             }
 
-            if (AppState.currentChartFilter === 'all' || AppState.currentChartFilter === 'cost') {
+            if (showCost) {
                 let barGrad = ctx.createLinearGradient(0, 0, 0, 200);
-                barGrad.addColorStop(0, isDarkMode ? 'rgba(251, 191, 36, 0.8)' : 'rgba(245, 158, 11, 0.7)');
-                barGrad.addColorStop(1, isDarkMode ? 'rgba(251, 191, 36, 0.2)' : 'rgba(245, 158, 11, 0.2)');
-                datasets.push({ label: '補給費用 (元)', type: 'bar', data: costs, backgroundColor: barGrad, borderRadius: 4, yAxisID: 'yCost', barThickness: window.innerWidth > 768 ? 16 : 12 });
-                scalesConfig.yCost = { type: 'linear', position: 'right', ticks: { color: isDarkMode ? '#fbbf24' : '#f59e0b', maxTicksLimit: 6 }, border: { display: false }, grid: { display: false } };
+                barGrad.addColorStop(0, isDarkMode ? 'rgba(251, 191, 36, 0.85)' : 'rgba(245, 158, 11, 0.75)');
+                barGrad.addColorStop(1, isDarkMode ? 'rgba(251, 191, 36, 0.15)' : 'rgba(245, 158, 11, 0.15)');
+                datasets.push({ 
+                    label: isCostView && costCat !== 'all' ? `${costCat}支出 (元)` : '費用支出 (元)', 
+                    type: 'bar', 
+                    data: costs, 
+                    backgroundColor: barGrad, 
+                    borderRadius: 4, 
+                    yAxisID: showEff ? 'yCost' : 'yCostSingle', 
+                    barThickness: window.innerWidth > 768 ? 16 : 12 
+                });
+
+                if (showEff) {
+                    scalesConfig.yCost = { type: 'linear', position: 'right', ticks: { color: isDarkMode ? '#fbbf24' : '#f59e0b', maxTicksLimit: 6 }, border: { display: false }, grid: { display: false } };
+                } else {
+                    scalesConfig.yCostSingle = { type: 'linear', position: 'left', ticks: { color: isDarkMode ? '#fbbf24' : '#f59e0b', maxTicksLimit: 6 }, border: { display: false }, grid: { color: gridColor } };
+                }
             }
 
             if (efficiencyChartInstance) {
-                efficiencyChartInstance.data.labels = labels; efficiencyChartInstance.data.datasets = datasets; efficiencyChartInstance.options.scales = scalesConfig;
+                efficiencyChartInstance.data.labels = labels; 
+                efficiencyChartInstance.data.datasets = datasets; 
+                efficiencyChartInstance.options.scales = scalesConfig;
                 efficiencyChartInstance.update();
             } else {
                 efficiencyChartInstance = new Chart(ctx, {
@@ -2658,7 +2774,7 @@ function cacheDOMNodes() {
             }
 
             if (DOM.tempEffChart) {
-                const scatterDataPts = chartData.filter(r => r.temp !== null && r.temp !== undefined && r.distance > 0).map(r => {
+                const scatterDataPts = driveRecords.filter(r => r.temp !== null && r.temp !== undefined && r.distance > 0).map(r => {
                     const pwr = AppState.batteryCapacity * ((r.consumedSocPercent || 0) / 100);
                     return { x: r.temp, y: pwr > 0 ? parseFloat((r.distance/pwr).toFixed(2)) : 0 };
                 }).filter(d => d.y > 0);
@@ -2689,7 +2805,7 @@ function cacheDOMNodes() {
 
             if (DOM.cpRankingList) {
                 const stationStats = {};
-                allPeriodRecords.forEach(r => {
+                periodRecords.forEach(r => {
                     if (!r.chargeType.includes('充') || !r.tag || !(r.cost > 0)) return;
                     const pwr = AppState.batteryCapacity * (Math.abs(r.startSoc - r.endSoc) / 100);
                     if (pwr <= 0) return;
@@ -2712,42 +2828,259 @@ function cacheDOMNodes() {
                 }
             }
 
+            // 6. 成本分佈甜甜圈圖
             if (DOM.costDistributionChart) {
-                let dcCost = 0, acCost = 0, maintCost = 0, parkCost = 0, tollCost = 0, insCost = 0, loanCost = 0;
-                doughnutData.forEach(rec => {
+                let dcCost = 0, acCost = 0, mCost = 0, pCost = 0, tCost = 0, insCost = 0, lCost = 0;
+                periodRecords.forEach(rec => {
                     const cost = parseFloat(rec.cost) || 0;
                     if(rec.chargeType.includes('快充')) dcCost += cost;
                     else if(rec.chargeType.includes('慢充')) acCost += cost;
-                    else if(rec.chargeType === '維修保養') maintCost += cost;
-                    else if(rec.chargeType === '停車費') parkCost += cost;
-                    else if(rec.chargeType === '通行費') tollCost += cost;
+                    else if(rec.chargeType === '維修保養') mCost += cost;
+                    else if(rec.chargeType === '停車費') pCost += cost;
+                    else if(rec.chargeType === '通行費') tCost += cost;
                     else if(rec.chargeType === '保險費') insCost += cost;
-                    else if(rec.chargeType === '車貸') loanCost += cost;
+                    else if(rec.chargeType === '車貸') lCost += cost;
+                });
+
+                const pieLabelToCategoryMap = {
+                    'DC 快充': 'DC-快充',
+                    'AC 慢充': 'AC-慢充',
+                    '保養維修': '維修保養',
+                    '停車費': '停車費',
+                    '通行費': '通行費',
+                    '保險費': '保險費',
+                    '車貸': '車貸'
+                };
+
+                const baseColors = [
+                    isDarkMode ? '#fbbf24' : '#f59e0b',
+                    isDarkMode ? '#2dd4bf' : '#14b8a6', 
+                    isDarkMode ? '#e879f9' : '#d946ef',
+                    isDarkMode ? '#60a5fa' : '#3b82f6', 
+                    isDarkMode ? '#c084fc' : '#a855f7',
+                    isDarkMode ? '#34d399' : '#10b981', 
+                    isDarkMode ? '#fb923c' : '#f97316'
+                ];
+
+                const pieLabels = ['DC 快充', 'AC 慢充', '保養維修', '停車費', '通行費', '保險費', '車貸'];
+                const rawAmounts = [dcCost, acCost, mCost, pCost, tCost, insCost, lCost];
+
+                const currentActiveCat = (AppState.currentChartFilter === 'cost') ? AppState.currentCostCategory : 'all';
+                const hasSelection = currentActiveCat !== 'all';
+
+                const dynamicOffsets = [];
+                const dynamicBgColors = [];
+                const dynamicBorderWidths = [];
+                const dynamicBorderColors = [];
+
+                pieLabels.forEach((label, idx) => {
+                    const mappedCat = pieLabelToCategoryMap[label];
+                    const isSelected = hasSelection && (
+                        (currentActiveCat === 'charging' && (mappedCat === 'DC-快充' || mappedCat === 'AC-慢充')) ||
+                        (mappedCat === currentActiveCat)
+                    );
+
+                    if (isSelected) {
+                        dynamicOffsets.push(14);
+                        dynamicBgColors.push(baseColors[idx]);
+                        dynamicBorderWidths.push(2);
+                        dynamicBorderColors.push(isDarkMode ? '#ffffff' : '#0f172a');
+                    } else if (hasSelection) {
+                        dynamicOffsets.push(0);
+                        dynamicBgColors.push(baseColors[idx] + '33');
+                        dynamicBorderWidths.push(0);
+                        dynamicBorderColors.push('transparent');
+                    } else {
+                        dynamicOffsets.push(0);
+                        dynamicBgColors.push(baseColors[idx]);
+                        dynamicBorderWidths.push(0);
+                        dynamicBorderColors.push('transparent');
+                    }
                 });
 
                 const pieData = {
-                    labels: ['DC 快充', 'AC 慢充', '保養維修', '停車費', '通行費', '保險費', '車貸'],
+                    labels: pieLabels,
                     datasets: [{
-                        data: [dcCost, acCost, maintCost, parkCost, tollCost, insCost, loanCost],
-                        backgroundColor: [
-                            isDarkMode ? '#fbbf24' : '#f59e0b', isDarkMode ? '#2dd4bf' : '#14b8a6', 
-                            isDarkMode ? '#e879f9' : '#d946ef', isDarkMode ? '#60a5fa' : '#3b82f6', 
-                            isDarkMode ? '#c084fc' : '#a855f7', isDarkMode ? '#34d399' : '#10b981',
-                            isDarkMode ? '#fb923c' : '#f97316'
-                        ],
-                        borderWidth: 0, hoverOffset: 4
+                        data: rawAmounts,
+                        backgroundColor: dynamicBgColors,
+                        offset: dynamicOffsets,
+                        borderWidth: dynamicBorderWidths,
+                        borderColor: dynamicBorderColors,
+                        hoverOffset: 6
                     }]
                 };
 
-                if(costDistributionChartInstance) {
+                const doughnutCenterTextPlugin = {
+                    id: 'doughnutCenterText',
+                    beforeDraw(chart) {
+                        const { ctx, chartArea: { top, bottom, left, right } } = chart;
+                        ctx.save();
+
+                        const centerX = (left + right) / 2;
+                        const centerY = (top + bottom) / 2;
+
+                        const totalPeriodCost = rawAmounts.reduce((a, b) => a + b, 0);
+                        const currentCat = (AppState.currentChartFilter === 'cost') ? AppState.currentCostCategory : 'all';
+
+                        let displayTitle = "總支出";
+                        let displayAmount = totalPeriodCost;
+                        let titleColor = isDarkMode ? '#94a3b8' : '#64748b';
+                        let amountColor = isDarkMode ? '#f8fafc' : '#0f172a';
+                        let isFocused = false;
+
+                        if (doughnutHoveredIndex !== null && doughnutHoveredIndex >= 0 && doughnutHoveredIndex < pieLabels.length) {
+                            displayTitle = pieLabels[doughnutHoveredIndex];
+                            displayAmount = rawAmounts[doughnutHoveredIndex];
+                            titleColor = baseColors[doughnutHoveredIndex];
+                            isFocused = true;
+                        } else if (currentCat !== 'all') {
+                            if (currentCat === 'charging') {
+                                displayTitle = "充電補給";
+                                displayAmount = dcCost + acCost;
+                                titleColor = isDarkMode ? '#2dd4bf' : '#0d9488';
+                                isFocused = true;
+                            } else {
+                                const targetIdx = pieLabels.findIndex(l => pieLabelToCategoryMap[l] === currentCat);
+                                if (targetIdx !== -1) {
+                                    displayTitle = pieLabels[targetIdx];
+                                    displayAmount = rawAmounts[targetIdx];
+                                    titleColor = baseColors[targetIdx];
+                                    isFocused = true;
+                                }
+                            }
+                        }
+
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.font = 'bold 11px Fredoka, "Noto Sans TC", sans-serif';
+                        ctx.fillStyle = titleColor;
+                        ctx.fillText(displayTitle, centerX, centerY - 12);
+
+                        ctx.font = '900 16px "SF Mono", "Roboto Mono", monospace';
+                        ctx.fillStyle = amountColor;
+                        ctx.fillText(`$${displayAmount.toLocaleString()}`, centerX, centerY + 8);
+
+                        if (isFocused && totalPeriodCost > 0) {
+                            const pct = Math.round((displayAmount / totalPeriodCost) * 100);
+                            ctx.font = 'bold 9px "SF Mono", monospace';
+                            ctx.fillStyle = isDarkMode ? '#64748b' : '#94a3b8';
+                            ctx.fillText(`${pct}%`, centerX, centerY + 24);
+                        }
+
+                        ctx.restore();
+                    }
+                };
+
+                const handleDoughnutClick = (evt, elements) => {
+                    if (!elements || elements.length === 0) return;
+                    const elementIndex = elements[0].index;
+                    const clickedLabel = pieData.labels[elementIndex];
+                    const targetCategory = pieLabelToCategoryMap[clickedLabel];
+
+                    if (!targetCategory) return;
+
+                    const catSelect = document.getElementById('expenseCategoryFilter');
+
+                    if (AppState.currentChartFilter === 'cost' && AppState.currentCostCategory === targetCategory) {
+                        AppState.currentCostCategory = 'all';
+                        if (catSelect) catSelect.value = 'all';
+                        debouncedUpdateCharts();
+                        showToast(`已重設為全部支出總覽 🔄`);
+                        return;
+                    }
+
+                    setChartMetricView('cost');
+                    if (catSelect) catSelect.value = targetCategory;
+                    AppState.currentCostCategory = targetCategory;
+                    debouncedUpdateCharts();
+
+                    DOM.efficiencyChart?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    showToast(`已鎖定「${clickedLabel}」支出趨勢 📊`);
+                };
+
+                const handleDoughnutHover = (event, chartElement, chart) => {
+                    const target = event.native ? event.native.target : chart.canvas;
+                    if (target) {
+                        target.style.cursor = chartElement && chartElement[0] ? 'pointer' : 'default';
+                    }
+
+                    const newIdx = (chartElement && chartElement[0]) ? chartElement[0].index : null;
+                    if (doughnutHoveredIndex !== newIdx) {
+                        doughnutHoveredIndex = newIdx;
+                        chart.draw();
+                    }
+                };
+
+                const doughnutPluginsConfig = {
+                    legend: { 
+                        position: 'right', 
+                        labels: { color: labelColor, usePointStyle: true, padding: 15, font: { size: window.innerWidth > 768 ? 12 : 10 } },
+                        onClick: (e, legendItem, legend) => {
+                            const clickedLabel = legendItem.text;
+                            const targetCategory = pieLabelToCategoryMap[clickedLabel];
+                            if (!targetCategory) return;
+
+                            const catSelect = document.getElementById('expenseCategoryFilter');
+                            if (AppState.currentChartFilter === 'cost' && AppState.currentCostCategory === targetCategory) {
+                                AppState.currentCostCategory = 'all';
+                                if (catSelect) catSelect.value = 'all';
+                                debouncedUpdateCharts();
+                                showToast(`已重設為全部支出總覽 🔄`);
+                                return;
+                            }
+
+                            setChartMetricView('cost');
+                            if (catSelect) catSelect.value = targetCategory;
+                            AppState.currentCostCategory = targetCategory;
+                            debouncedUpdateCharts();
+
+                            DOM.efficiencyChart?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            showToast(`已鎖定「${clickedLabel}」支出趨勢 📊`);
+                        },
+                        onHover: (e, legendItem, legend) => {
+                            const chart = legend.chart;
+                            const hoveredIdx = legendItem.index;
+
+                            if (doughnutHoveredIndex !== hoveredIdx) {
+                                doughnutHoveredIndex = hoveredIdx;
+                                chart.setActiveElements([{ datasetIndex: 0, index: hoveredIdx }]);
+                                chart.tooltip?.setActiveElements([{ datasetIndex: 0, index: hoveredIdx }], {
+                                    x: (chart.chartArea.left + chart.chartArea.right) / 2,
+                                    y: (chart.chartArea.top + chart.chartArea.bottom) / 2
+                                });
+                                chart.draw();
+                            }
+                            if (e.native?.target) e.native.target.style.cursor = 'pointer';
+                        },
+                        onLeave: (e, legendItem, legend) => {
+                            const chart = legend.chart;
+                            doughnutHoveredIndex = null;
+                            chart.setActiveElements([]);
+                            chart.tooltip?.setActiveElements([], {});
+                            chart.draw();
+                            if (e.native?.target) e.native.target.style.cursor = 'default';
+                        }
+                    }
+                };
+
+                if (costDistributionChartInstance) {
                     costDistributionChartInstance.data = pieData;
+                    costDistributionChartInstance.options.onClick = handleDoughnutClick;
+                    costDistributionChartInstance.options.onHover = handleDoughnutHover;
+                    costDistributionChartInstance.options.plugins.legend = doughnutPluginsConfig.legend;
                     costDistributionChartInstance.update();
                 } else {
                     costDistributionChartInstance = new Chart(DOM.costDistributionChart.getContext('2d'), {
-                        type: 'doughnut', data: pieData,
-                        options: { 
-                            responsive: true, maintainAspectRatio: false, cutout: '70%', 
-                            plugins: { legend: { position: 'right', labels: { color: labelColor, usePointStyle: true, padding: 15, font: {size: window.innerWidth > 768 ? 12 : 10} } } } 
+                        type: 'doughnut',
+                        data: pieData,
+                        plugins: [doughnutCenterTextPlugin],
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: '72%',
+                            onClick: handleDoughnutClick,
+                            onHover: handleDoughnutHover,
+                            plugins: doughnutPluginsConfig
                         }
                     });
                 }
