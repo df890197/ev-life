@@ -120,7 +120,6 @@
             75%, 100% { transform: translateX(var(--marquee-scroll-x, 0px)); }
         }
 
-        /* 🗺️ 徹底消除 Google Maps InfoWindow 頂部預留空隙 */
         .gm-style .gm-style-iw-c {
             padding: 8px 12px !important;
             border-radius: 14px !important;
@@ -447,6 +446,27 @@
                                 <span id="insuranceDaysRemainingBadge" class="text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm"></span>
                             </div>
                         </div>
+
+                        <!-- 🏦 車貸進度模組 -->
+                        <div id="loanProgressContainer" class="hidden mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <span class="text-[11px] font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
+                                    <span class="text-xs">🏦</span> 車貸還款進度
+                                </span>
+                                <div class="text-right">
+                                    <span id="loanMonthsProgressText" class="text-xs font-black font-mono text-orange-500">0 / 0</span>
+                                    <span class="text-[9px] text-slate-500 font-bold">期</span>
+                                </div>
+                            </div>
+                            <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden flex mb-1.5">
+                                <div id="loanProgressBar" class="bg-orange-500 h-1.5 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+                            </div>
+                            <div class="flex justify-between items-center text-[10px] text-slate-400 font-bold">
+                                <span>累計已繳: <span id="loanTotalPaidAmount" class="font-mono text-slate-600 dark:text-slate-300">$0</span></span>
+                                <span>剩餘: <span id="loanRemainingMonths" class="font-mono text-orange-500">0</span> 期</span>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
@@ -490,11 +510,12 @@
                                 </div>
                                 <div class="bg-slate-50 dark:bg-slate-900/30 p-2 rounded-xl border border-slate-100 dark:border-slate-700/50 mt-2">
                                     <div class="text-[10px] font-bold text-slate-400 mb-1.5 px-1">💰 衍生支出</div>
-                                    <div class="grid grid-cols-4 gap-2">
-                                        <button type="button" onclick="selectChargeType('停車費')" id="btnType-停車費" class="charge-type-btn transition-all flex items-center justify-center gap-1 shadow-sm border-2 rounded-lg py-2 text-[10px] md:text-xs"><span class="text-[12px] md:text-sm mt-[-1px]">🅿️</span><span class="hidden sm:inline">停車</span></button>
-                                        <button type="button" onclick="selectChargeType('通行費')" id="btnType-通行費" class="charge-type-btn transition-all flex items-center justify-center gap-1 shadow-sm border-2 rounded-lg py-2 text-[10px] md:text-xs"><span class="text-[12px] md:text-sm mt-[-1px]">🛣️</span><span class="hidden sm:inline">通行</span></button>
-                                        <button type="button" onclick="selectChargeType('維修保養')" id="btnType-維修保養" class="charge-type-btn transition-all flex items-center justify-center gap-1 shadow-sm border-2 rounded-lg py-2 text-[10px] md:text-xs"><span class="text-[12px] md:text-sm mt-[-1px]">🔧</span><span class="hidden sm:inline">保養</span></button>
-                                        <button type="button" onclick="selectChargeType('保險費')" id="btnType-保險費" class="charge-type-btn transition-all flex items-center justify-center gap-1 shadow-sm border-2 rounded-lg py-2 text-[10px] md:text-xs"><span class="text-[12px] md:text-sm mt-[-1px]">🛡️</span><span class="hidden sm:inline">保險</span></button>
+                                    <div class="grid grid-cols-5 gap-1.5">
+                                        <button type="button" onclick="selectChargeType('停車費')" id="btnType-停車費" class="charge-type-btn transition-all flex items-center justify-center gap-0.5 shadow-sm border-2 rounded-lg py-2 text-[10px] md:text-xs"><span class="text-[12px] md:text-sm mt-[-1px]">🅿️</span><span>停車</span></button>
+                                        <button type="button" onclick="selectChargeType('通行費')" id="btnType-通行費" class="charge-type-btn transition-all flex items-center justify-center gap-0.5 shadow-sm border-2 rounded-lg py-2 text-[10px] md:text-xs"><span class="text-[12px] md:text-sm mt-[-1px]">🛣️</span><span>通行</span></button>
+                                        <button type="button" onclick="selectChargeType('維修保養')" id="btnType-維修保養" class="charge-type-btn transition-all flex items-center justify-center gap-0.5 shadow-sm border-2 rounded-lg py-2 text-[10px] md:text-xs"><span class="text-[12px] md:text-sm mt-[-1px]">🔧</span><span>保養</span></button>
+                                        <button type="button" onclick="selectChargeType('保險費')" id="btnType-保險費" class="charge-type-btn transition-all flex items-center justify-center gap-0.5 shadow-sm border-2 rounded-lg py-2 text-[10px] md:text-xs"><span class="text-[12px] md:text-sm mt-[-1px]">🛡️</span><span>保險</span></button>
+                                        <button type="button" onclick="selectChargeType('車貸')" id="btnType-車貸" class="charge-type-btn transition-all flex items-center justify-center gap-0.5 shadow-sm border-2 rounded-lg py-2 text-[10px] md:text-xs"><span class="text-[12px] md:text-sm mt-[-1px]">🏦</span><span>車貸</span></button>
                                     </div>
                                 </div>
                             </div>
@@ -564,7 +585,7 @@
 
                     <div>
                         <label class="text-xs md:text-sm font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">備註 (選填)</label>
-                        <input type="text" id="inputNote" placeholder="例如：帶愛車去兜風 ⚡ / 兩萬公里定保" class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
+                        <input type="text" id="inputNote" placeholder="例如：帶愛車去兜風 ⚡ / 第12期車貸繳款" class="w-full px-4 py-3 bg-slate-50 dark:bg-[#0f172a] border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
                     </div>
 
                     <div class="flex flex-col gap-3 pt-4">
@@ -774,6 +795,14 @@
                                     <label class="text-[10px] md:text-xs font-bold text-slate-400 block mb-1 flex items-center gap-1"><span class="text-[12px]">🛡️</span>保險到期日 (選填)</label>
                                     <input type="date" id="insuranceExpiryInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs md:text-sm font-bold text-left focus:outline-none focus:border-amber-400 appearance-none block">
                                 </div>
+                                <div>
+                                    <label class="text-[10px] md:text-xs font-bold text-slate-400 block mb-1 flex items-center gap-1"><span class="text-[12px]">🏦</span>車貸總期數 (期，選填)</label>
+                                    <input type="number" step="1" id="loanTotalMonthsInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs md:text-sm font-mono font-bold focus:outline-none focus:border-amber-400" placeholder="例如: 60">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] md:text-xs font-bold text-slate-400 block mb-1 flex items-center gap-1"><span class="text-[12px]">💵</span>每月車貸款 (元，選填)</label>
+                                    <input type="number" step="1" id="loanMonthlyPaymentInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs md:text-sm font-mono font-bold focus:outline-none focus:border-amber-400" placeholder="例如: 15000">
+                                </div>
                             </div>
                         </div>
 
@@ -826,7 +855,7 @@
                         </div>
                         <div class="grid grid-cols-2 gap-3 pt-2">
                             <button onclick="syncWithCloud('auto')" class="col-span-2 rpg-btn-primary text-sm md:text-base font-black py-4 rounded-2xl flex justify-center items-center gap-1 shadow-md hover:scale-[1.01] transition-transform">🔄 智慧同步</button>
-                            <button onclick="forceDownload()" class="rpg-btn-secondary text-xs md:text-sm font-bold py-3 md:py-4 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">⬇️ 下載覆蓋本機</button>
+                            <button onclick="forceDownload()" class="rpg-btn-secondary text-xs md:text-sm font-bold py-3 md:py-4 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">⬇️️ 下載覆蓋本機</button>
                             <button onclick="forceUpload()" class="rpg-btn-secondary text-xs md:text-sm font-bold py-3 md:py-4 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">⬆️ 上傳覆蓋雲端</button>
                         </div>
                         <button onclick="saveSyncSettingsOnly()" class="w-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-white text-sm font-bold py-4 rounded-2xl transition active:scale-95 shadow-sm mt-4 hover:bg-slate-300 dark:hover:bg-slate-600">💾 僅儲存設定不雲端同步</button>
@@ -909,7 +938,7 @@
         </div>
     </div>
 
-    <!-- 🗺️ 充電地圖 Modal（上方標題區緊湊化修復） -->
+    <!-- 🗺️ 充電地圖 Modal -->
     <div id="mapModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[120] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
         <div class="bg-white dark:bg-[#1e293b] rounded-[2rem] p-3 md:p-4 shadow-2xl max-w-2xl w-full mx-4 h-[75vh] flex flex-col transform scale-95 transition-all duration-300 border border-slate-100 dark:border-slate-700 relative">
             <div class="flex items-center justify-between px-1 mb-2">
@@ -984,12 +1013,14 @@
             '停車費': { btn: 'border-blue-400 bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400', badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400', icon: '🅿️' },
             '通行費': { btn: 'border-purple-400 bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400', badge: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400', icon: '🛣️' },
             '保險費': { btn: 'border-emerald-400 bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400', badge: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400', icon: '🛡️' },
+            '車貸': { btn: 'border-orange-400 bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400', badge: 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-400', icon: '🏦' },
             'default': { btn: 'border-slate-400 bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200', badge: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400', icon: '📝' }
         };
 
         const AppState = {
             records: [], evName: "LUXGEN n7", batteryCapacity: 57.7, initialOdometer: 0,
-            maintInterval: 20000, nextMaintDate: "",  insuranceExpiryDate: "",
+            maintInterval: 20000, nextMaintDate: "", insuranceExpiryDate: "",
+            loanTotalMonths: 0, loanMonthlyPayment: 0,
             iceEfficiency: 15.0, gasPrice: 30.0, syncUrl: "", syncToken: "",
             editingRecordId: null, currentChartFilter: 'all', currentMonthFilter: 'all', globalAvgEfficiency: 0
         };
@@ -1031,10 +1062,11 @@
              'tagInputArea', 'costLabel', 'startSocLabel', 'endSocLabel', 'recordMobileList', 'noDataPlaceholder', 'homeStatsContainer', 
              'onboardingCard', 'confirmModal', 'confirmModalContent', 'confirmModalTitle', 'confirmModalMessage', 'appSplashScreen', 
              'evNameInput', 'batteryCapacityInput', 'initialOdometerInput', 'maintIntervalInput', 'iceEfficiencyInput', 
-             'gasPriceInput', 'nextMaintDateInput', 'insuranceExpiryInput', 'syncUrlInput', 'syncTokenInput', 'topEvName', 'heroEvName', 'formTitle', 'cancelEditBtn', 
+             'gasPriceInput', 'nextMaintDateInput', 'insuranceExpiryInput', 'loanTotalMonthsInput', 'loanMonthlyPaymentInput', 'syncUrlInput', 'syncTokenInput', 'topEvName', 'heroEvName', 'formTitle', 'cancelEditBtn', 
              'recordForm', 'monthFilterContainer', 'monthFilterContainer_analysis', 'statTotalKm', 'statAvgEfficiency', 'statFuelSavings', 
              'savingsBaseText', 'statCo2Savings', 'statTreesPlanted', 'maintIntervalText', 'maintRemainingText', 'maintProgressBar', 
              'maintDateAlertContainer', 'maintTargetDateStr', 'maintDaysRemainingBadge', 'insuranceDateAlertContainer', 'insuranceTargetDateStr', 'insuranceDaysRemainingBadge',
+             'loanProgressContainer', 'loanMonthsProgressText', 'loanProgressBar', 'loanTotalPaidAmount', 'loanRemainingMonths',
              'efficiencyChart', 'costDistributionChart', 'tempEffChart', 'cpRankingList', 'analysisTotalKm', 'analysisSummaryLabel', 'analysisAvgEfficiency',
              'analysisTotalCost', 'analysisCostLabel', 'analysisCostPerKm', 'heroImageDisplay', 'toggleHighway', 'toggleMountain', 'badgesContainer',
              'recordCalendarContainer', 'recordCalendarView', 'calendarDayRecordsSection', 'calendarDayRecordsTitle', 'calendarDayRecordsList', 'btnDeleteInForm'].forEach(id => {
@@ -1228,6 +1260,14 @@
             if (DOM.nextMaintDateInput) DOM.nextMaintDateInput.value = AppState.nextMaintDate;
             AppState.insuranceExpiryDate = localStorage.getItem('ev_life_insurance_date') || "";
             if (DOM.insuranceExpiryInput) DOM.insuranceExpiryInput.value = AppState.insuranceExpiryDate;
+
+            let storedLoanMonths = parseInt(localStorage.getItem('ev_life_loan_total_months'));
+            AppState.loanTotalMonths = !isNaN(storedLoanMonths) ? storedLoanMonths : 0;
+            if (DOM.loanTotalMonthsInput) DOM.loanTotalMonthsInput.value = AppState.loanTotalMonths || "";
+
+            let storedLoanPayment = parseInt(localStorage.getItem('ev_life_loan_monthly_payment'));
+            AppState.loanMonthlyPayment = !isNaN(storedLoanPayment) ? storedLoanPayment : 0;
+            if (DOM.loanMonthlyPaymentInput) DOM.loanMonthlyPaymentInput.value = AppState.loanMonthlyPayment || "";
 
             if (DOM.topEvName) DOM.topEvName.textContent = AppState.evName; 
             if (DOM.heroEvName) DOM.heroEvName.textContent = AppState.evName;
@@ -1863,7 +1903,7 @@
                 activeBtn.className = `charge-type-btn border-2 rounded-lg py-2 text-[11px] md:text-xs transition-all font-black shadow-sm flex items-center justify-center gap-1 ${styleConfig.btn}`;
             }
 
-            const isNonDrive = ['維修保養', '停車費', '通行費', '保險費'].includes(type);
+            const isNonDrive = ['維修保養', '停車費', '通行費', '保險費', '車貸'].includes(type);
 
             if (isNonDrive) {
                 if(DOM.driveInputsArea) DOM.driveInputsArea.classList.add('hidden');
@@ -1874,7 +1914,13 @@
                 if (DOM.costLabel) DOM.costLabel.textContent = `${type}費用 (元)`;
                 if (DOM.inputCost) {
                     DOM.inputCost.disabled = false; DOM.inputCost.classList.remove('opacity-40');
-                    if (AppState.editingRecordId === null && DOM.inputCost.value === "0") DOM.inputCost.value = "";
+                    if (AppState.editingRecordId === null) {
+                        if (type === '車貸' && AppState.loanMonthlyPayment > 0) {
+                            DOM.inputCost.value = AppState.loanMonthlyPayment;
+                        } else if (DOM.inputCost.value === "0") {
+                            DOM.inputCost.value = "";
+                        }
+                    }
                 }
             } else {
                 if(DOM.driveInputsArea) DOM.driveInputsArea.classList.remove('hidden');
@@ -1904,7 +1950,7 @@
         window.updateConvertedPowerHint = function() {
             if (!DOM.inputChargeType || !DOM.powerHintText) return;
             const type = DOM.inputChargeType.value;
-            if (['維修保養', '停車費', '通行費', '保險費'].includes(type)) return;
+            if (['維修保養', '停車費', '通行費', '保險費', '車貸'].includes(type)) return;
 
             const start = parseFloat(DOM.inputStartSocNum.value) || 0;
             const end = parseFloat(DOM.inputEndSocNum.value) || 0;
@@ -1918,7 +1964,7 @@
             if (!DOM.inputStartSocNum || !DOM.inputChargeType || AppState.editingRecordId !== null) return;
             if (DOM.inputChargeType.value !== "未充電" || DOM.inputStartSocNum.value !== '') return;
 
-            const activeRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && !['維修保養', '停車費', '通行費', '保險費'].includes(r.chargeType));
+            const activeRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && !['維修保養', '停車費', '通行費', '保險費', '車貸'].includes(r.chargeType));
             if (activeRecords.length === 0) return;
 
             const sortedRecords = [...activeRecords].sort((a, b) => new Date(b.date) - new Date(a.date) || parseInt(b.id, 10) - parseInt(a.id, 10));
@@ -1963,7 +2009,7 @@
 
         function calculateRecordStats(activeRecords) {
             let rollingOdo = AppState.initialOdometer;
-            const driveRecords = activeRecords.filter(r => !['維修保養', '停車費', '通行費', '保險費'].includes(r.chargeType));
+            const driveRecords = activeRecords.filter(r => !['維修保養', '停車費', '通行費', '保險費', '車貸'].includes(r.chargeType));
 
             driveRecords.forEach((rec, i) => {
                 let consumedSoc = 0;
@@ -1979,10 +2025,16 @@
             });
 
             let globalKm = 0, globalCost = 0, globalPowerReal = 0, globalMaintCost = 0, totalEnergyCost = 0;
+            let loanPaidCount = 0, loanPaidTotalAmount = 0;
+
             activeRecords.forEach(rec => {
                 const cost = parseFloat(rec.cost) || 0;
-                if (['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType)) {
+                if (['維修保養', '停車費', '通行費', '保險費', '車貸'].includes(rec.chargeType)) {
                     if (rec.chargeType === '維修保養') globalMaintCost += cost;
+                    if (rec.chargeType === '車貸') {
+                        loanPaidCount++;
+                        loanPaidTotalAmount += cost;
+                    }
                     globalCost += cost; 
                 } else {
                     globalKm += parseFloat(rec.distance) || 0;
@@ -2004,7 +2056,7 @@
             const remMaint = maintInterval - (currentTotalKm % maintInterval);
             const progMaint = ((maintInterval - remMaint) / maintInterval) * 100;
 
-            updateStats(globalKm, globalAvgEff, globalCost, globalMaintCost, AppState.initialOdometer, fuelSavings, co2Savings, treesPlanted, remMaint, progMaint);
+            updateStats(globalKm, globalAvgEff, globalCost, globalMaintCost, AppState.initialOdometer, fuelSavings, co2Savings, treesPlanted, remMaint, progMaint, loanPaidCount, loanPaidTotalAmount);
         }
 
         window.calculatePrediction = function() {
@@ -2039,7 +2091,7 @@
         };
 
         function buildRecordCardHtml(rec, isMVP) {
-            const isNonDrive = ['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType);
+            const isNonDrive = ['維修保養', '停車費', '通行費', '保險費', '車貸'].includes(rec.chargeType);
             const dist = parseFloat(rec.distance) || 0;
             const pwr = AppState.batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
             const eff = pwr > 0 ? (dist / pwr).toFixed(2) : "0.00";
@@ -2245,7 +2297,7 @@
             }
 
             const displayRecords = [...filteredRecords].reverse();
-            const scoredRecords = displayRecords.filter(r => !['維修保養', '停車費', '通行費', '保險費'].includes(r.chargeType) && r.distance > 5)
+            const scoredRecords = displayRecords.filter(r => !['維修保養', '停車費', '通行費', '保險費', '車貸'].includes(r.chargeType) && r.distance > 5)
                 .map(r => {
                     const power = AppState.batteryCapacity * ((r.consumedSocPercent || 0) / 100);
                     const eff = power > 0 ? parseFloat((r.distance / power).toFixed(2)) : 0;
@@ -2378,7 +2430,7 @@
             progEl.className = `h-1.5 md:h-2 rounded-full transition-all duration-1000 ease-out ${isRed ? 'bg-rose-500' : isAmber ? 'bg-amber-500' : 'bg-indigo-500'}`;
         }
 
-        function updateStats(km, eff, cost, maintCost, baseOdo, fuelSavings, co2Savings, treesPlanted, remMaint, progMaint) {
+        function updateStats(km, eff, cost, maintCost, baseOdo, fuelSavings, co2Savings, treesPlanted, remMaint, progMaint, loanPaidCount = 0, loanPaidTotalAmount = 0) {
             if(DOM.statTotalKm) DOM.statTotalKm.textContent = (km + baseOdo).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
             if(DOM.statAvgEfficiency) DOM.statAvgEfficiency.textContent = eff.toFixed(2);
 
@@ -2424,6 +2476,23 @@
 
             setupAlert(AppState.nextMaintDate, DOM.maintDateAlertContainer, DOM.maintTargetDateStr, DOM.maintDaysRemainingBadge);
             setupAlert(AppState.insuranceExpiryDate, DOM.insuranceDateAlertContainer, DOM.insuranceTargetDateStr, DOM.insuranceDaysRemainingBadge);
+
+            // 更新車貸還款進度 UI
+            if (DOM.loanProgressContainer) {
+                if (AppState.loanTotalMonths > 0) {
+                    DOM.loanProgressContainer.classList.remove('hidden');
+                    const currentPeriod = Math.min(AppState.loanTotalMonths, loanPaidCount);
+                    const remainingMonths = Math.max(0, AppState.loanTotalMonths - currentPeriod);
+                    const percent = Math.min(100, Math.round((currentPeriod / AppState.loanTotalMonths) * 100));
+
+                    if (DOM.loanMonthsProgressText) DOM.loanMonthsProgressText.textContent = `${currentPeriod} / ${AppState.loanTotalMonths}`;
+                    if (DOM.loanProgressBar) DOM.loanProgressBar.style.width = `${percent}%`;
+                    if (DOM.loanTotalPaidAmount) DOM.loanTotalPaidAmount.textContent = `$${loanPaidTotalAmount.toLocaleString()}`;
+                    if (DOM.loanRemainingMonths) DOM.loanRemainingMonths.textContent = remainingMonths;
+                } else {
+                    DOM.loanProgressContainer.classList.add('hidden');
+                }
+            }
         }
 
         window.setChartFilter = function(filter) {
@@ -2451,7 +2520,7 @@
             const labelColor = isDarkMode ? '#9ca3af' : '#64748b'; 
             const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
 
-            let chartData = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && !['維修保養', '停車費', '通行費', '保險費'].includes(r.chargeType));
+            let chartData = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && !['維修保養', '停車費', '通行費', '保險費', '車貸'].includes(r.chargeType));
             let doughnutData = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA");
 
             if (AppState.currentMonthFilter !== 'all') {
@@ -2464,7 +2533,7 @@
             allPeriodRecords.forEach(rec => {
                 const cost = parseFloat(rec.cost) || 0;
                 periodTotalCost += cost;
-                if (!['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType)) {
+                if (!['維修保養', '停車費', '通行費', '保險費', '車貸'].includes(rec.chargeType)) {
                     periodTotalKm += (parseFloat(rec.distance) || 0);
                     periodEnergyCost += cost;
                     periodConsumedPower += AppState.batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
@@ -2598,7 +2667,7 @@
             }
 
             if (DOM.costDistributionChart) {
-                let dcCost = 0, acCost = 0, maintCost = 0, parkCost = 0, tollCost = 0, insCost = 0;
+                let dcCost = 0, acCost = 0, maintCost = 0, parkCost = 0, tollCost = 0, insCost = 0, loanCost = 0;
                 doughnutData.forEach(rec => {
                     const cost = parseFloat(rec.cost) || 0;
                     if(rec.chargeType.includes('快充')) dcCost += cost;
@@ -2607,16 +2676,18 @@
                     else if(rec.chargeType === '停車費') parkCost += cost;
                     else if(rec.chargeType === '通行費') tollCost += cost;
                     else if(rec.chargeType === '保險費') insCost += cost;
+                    else if(rec.chargeType === '車貸') loanCost += cost;
                 });
 
                 const pieData = {
-                    labels: ['DC 快充', 'AC 慢充', '保養維修', '停車費', '通行費', '保險費'],
+                    labels: ['DC 快充', 'AC 慢充', '保養維修', '停車費', '通行費', '保險費', '車貸'],
                     datasets: [{
-                        data: [dcCost, acCost, maintCost, parkCost, tollCost, insCost],
+                        data: [dcCost, acCost, maintCost, parkCost, tollCost, insCost, loanCost],
                         backgroundColor: [
                             isDarkMode ? '#fbbf24' : '#f59e0b', isDarkMode ? '#2dd4bf' : '#14b8a6', 
                             isDarkMode ? '#e879f9' : '#d946ef', isDarkMode ? '#60a5fa' : '#3b82f6', 
-                            isDarkMode ? '#c084fc' : '#a855f7', isDarkMode ? '#34d399' : '#10b981'
+                            isDarkMode ? '#c084fc' : '#a855f7', isDarkMode ? '#34d399' : '#10b981',
+                            isDarkMode ? '#fb923c' : '#f97316'
                         ],
                         borderWidth: 0, hoverOffset: 4
                     }]
@@ -2649,7 +2720,7 @@
 
             let distance = 0, startSoc = 0, endSoc = 0, powerPercent = 0, power = 0;
 
-            if (!['維修保養', '停車費', '通行費', '保險費'].includes(chargeType)) {
+            if (!['維修保養', '停車費', '通行費', '保險費', '車貸'].includes(chargeType)) {
                 distance = parseFloat(DOM.inputDistance.value); startSoc = parseFloat(DOM.inputStartSocNum.value); endSoc = parseFloat(DOM.inputEndSocNum.value);
                 if (!date || isNaN(distance) || isNaN(startSoc) || isNaN(endSoc)) { showToast("請填寫完整數值！", true); return; }
                 powerPercent = Math.abs(startSoc - endSoc); power = AppState.batteryCapacity * (powerPercent / 100);
@@ -2676,7 +2747,7 @@
             DOM.inputDate.value = rec.date;
             selectChargeType(rec.chargeType);
 
-            if (!['維修保養', '停車費', '通行費', '保險費'].includes(rec.chargeType)) {
+            if (!['維修保養', '停車費', '通行費', '保險費', '車貸'].includes(rec.chargeType)) {
                 if(DOM.inputDistance) DOM.inputDistance.value = rec.distance;
                 if(DOM.inputStartSocNum) DOM.inputStartSocNum.value = rec.startSoc;
                 if(DOM.sliderStartSoc) DOM.sliderStartSoc.value = rec.startSoc;
@@ -2776,7 +2847,7 @@
 
         function setupNumericRestrictions() {
             const blockKey = e => { if(['e','E','+','-'].includes(e.key)) e.preventDefault(); };
-            ['inputDistance', 'inputStartSocNum', 'inputEndSocNum', 'inputCost'].forEach(id => {
+            ['inputDistance', 'inputStartSocNum', 'inputEndSocNum', 'inputCost', 'loanTotalMonthsInput', 'loanMonthlyPaymentInput'].forEach(id => {
                 const el = document.getElementById(id);
                 if(el) { el.addEventListener('keypress', blockKey); if(id !== 'inputDistance') el.addEventListener('input', function() { this.value = this.value.replace(/[^0-9]/g, ''); }); }
             });
@@ -2803,6 +2874,10 @@
             AppState.maintInterval = parseInt(DOM.maintIntervalInput?.value) || 20000; localStorage.setItem('ev_life_maint_interval', AppState.maintInterval);
             AppState.nextMaintDate = DOM.nextMaintDateInput?.value || ""; localStorage.setItem('ev_life_next_maint_date', AppState.nextMaintDate);
             AppState.insuranceExpiryDate = DOM.insuranceExpiryInput?.value || ""; localStorage.setItem('ev_life_insurance_date', AppState.insuranceExpiryDate);
+            
+            AppState.loanTotalMonths = parseInt(DOM.loanTotalMonthsInput?.value) || 0; localStorage.setItem('ev_life_loan_total_months', AppState.loanTotalMonths);
+            AppState.loanMonthlyPayment = parseInt(DOM.loanMonthlyPaymentInput?.value) || 0; localStorage.setItem('ev_life_loan_monthly_payment', AppState.loanMonthlyPayment);
+
             AppState.iceEfficiency = parseFloat(DOM.iceEfficiencyInput?.value) || 15.0; localStorage.setItem('ev_life_ice_efficiency', AppState.iceEfficiency);
             AppState.gasPrice = parseFloat(DOM.gasPriceInput?.value) || 30.0; localStorage.setItem('ev_life_gas_price', AppState.gasPrice);
 
@@ -2835,7 +2910,12 @@
                     }));
                     const configMeta = { 
                         id: "CONFIG_METADATA", date: "", chargeType: "", distance: 0, power: 0, cost: 0, 
-                        note: JSON.stringify({ evName: AppState.evName, batteryCapacity: AppState.batteryCapacity, initialOdometer: AppState.initialOdometer, maintInterval: AppState.maintInterval, nextMaintDate: AppState.nextMaintDate, insuranceExpiryDate: AppState.insuranceExpiryDate, iceEfficiency: AppState.iceEfficiency, gasPrice: AppState.gasPrice }) 
+                        note: JSON.stringify({ 
+                            evName: AppState.evName, batteryCapacity: AppState.batteryCapacity, initialOdometer: AppState.initialOdometer, 
+                            maintInterval: AppState.maintInterval, nextMaintDate: AppState.nextMaintDate, insuranceExpiryDate: AppState.insuranceExpiryDate, 
+                            loanTotalMonths: AppState.loanTotalMonths, loanMonthlyPayment: AppState.loanMonthlyPayment,
+                            iceEfficiency: AppState.iceEfficiency, gasPrice: AppState.gasPrice 
+                        }) 
                     };
                     const postRes = await fetch(urlWithToken, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ token: AppState.syncToken, records: [...uploadRecords, { id: "SYSTEM_METADATA", note: localLastUpdated.toString() }, configMeta] }) });
                     const postResult = await postRes.json();
@@ -2875,12 +2955,18 @@
                         if (cloudConfig.maintInterval) { AppState.maintInterval = parseInt(cloudConfig.maintInterval); localStorage.setItem('ev_life_maint_interval', AppState.maintInterval); }
                         if (cloudConfig.nextMaintDate !== undefined) { AppState.nextMaintDate = cloudConfig.nextMaintDate; localStorage.setItem('ev_life_next_maint_date', AppState.nextMaintDate); }
                         if (cloudConfig.insuranceExpiryDate !== undefined) { AppState.insuranceExpiryDate = cloudConfig.insuranceExpiryDate; localStorage.setItem('ev_life_insurance_date', AppState.insuranceExpiryDate); }
+                        
+                        if (cloudConfig.loanTotalMonths !== undefined) { AppState.loanTotalMonths = parseInt(cloudConfig.loanTotalMonths) || 0; localStorage.setItem('ev_life_loan_total_months', AppState.loanTotalMonths); }
+                        if (cloudConfig.loanMonthlyPayment !== undefined) { AppState.loanMonthlyPayment = parseInt(cloudConfig.loanMonthlyPayment) || 0; localStorage.setItem('ev_life_loan_monthly_payment', AppState.loanMonthlyPayment); }
+
                         if (cloudConfig.iceEfficiency) { AppState.iceEfficiency = parseFloat(cloudConfig.iceEfficiency); localStorage.setItem('ev_life_ice_efficiency', AppState.iceEfficiency); }
                         if (cloudConfig.gasPrice) { AppState.gasPrice = parseFloat(cloudConfig.gasPrice); localStorage.setItem('ev_life_gas_price', AppState.gasPrice); }
 
                         if (DOM.maintIntervalInput) DOM.maintIntervalInput.value = AppState.maintInterval;
                         if (DOM.nextMaintDateInput) DOM.nextMaintDateInput.value = AppState.nextMaintDate;
                         if (DOM.insuranceExpiryInput) DOM.insuranceExpiryInput.value = AppState.insuranceExpiryDate;
+                        if (DOM.loanTotalMonthsInput) DOM.loanTotalMonthsInput.value = AppState.loanTotalMonths || "";
+                        if (DOM.loanMonthlyPaymentInput) DOM.loanMonthlyPaymentInput.value = AppState.loanMonthlyPayment || "";
                         if (DOM.iceEfficiencyInput) DOM.iceEfficiencyInput.value = AppState.iceEfficiency;
                         if (DOM.gasPriceInput) DOM.gasPriceInput.value = AppState.gasPrice;
                     }
