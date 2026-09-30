@@ -141,6 +141,24 @@
         .gm-style .gm-style-iw-tc::after {
             top: -1px;
         }
+        /* 支出選單滑順滑入展開動畫 */
+        .expense-dropdown-enter {
+            max-width: 0;
+            opacity: 0;
+            transform: scale(0.92) translateX(-6px);
+            overflow: hidden;
+            pointer-events: none;
+            transition: max-width 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
+                        opacity 0.25s ease, 
+                        transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .expense-dropdown-enter.active {
+            max-width: 220px;
+            opacity: 1;
+            transform: scale(1) translateX(0);
+            overflow: visible;
+            pointer-events: auto;
+        }
     </style>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -662,18 +680,27 @@
                             <button type="button" onclick="setChartMetricView('cost')" id="btnChartCost" class="px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white font-bold transition-all">支出剖析</button>
                         </div>
 
-                        <div id="expenseCategoryWrapper" class="hidden">
-                            <select id="expenseCategoryFilter" onchange="onExpenseCategoryChange()" class="px-2.5 py-1.5 md:py-2 text-[11px] md:text-xs h-[34px] md:h-[36px] rounded-xl border border-amber-300 dark:border-amber-600/50 bg-amber-50/70 dark:bg-amber-950/30 text-amber-900 dark:text-amber-300 font-bold focus:outline-none cursor-pointer shadow-sm">
-                                <option value="all">💳 全部支出分類</option>
-                                <option value="charging">⚡ 充電補給 (快+慢)</option>
-                                <option value="DC-快充">⚡ DC 快充</option>
-                                <option value="AC-慢充">🔌 AC 慢充</option>
-                                <option value="停車費">🅿️ 停車費</option>
-                                <option value="通行費">🛣️ 國道通行</option>
-                                <option value="維修保養">🔧 維修保養</option>
-                                <option value="保險費">🛡️ 保險支出</option>
-                                <option value="車貸">🏦 車貸還款</option>
-                            </select>
+                        <!-- 費用子維度下鑽 (滑順彈出 + 深淺模式高對比設計) -->
+                        <div id="expenseCategoryWrapper" class="expense-dropdown-enter">
+                            <div class="relative">
+                                <select id="expenseCategoryFilter" onchange="onExpenseCategoryChange()" 
+                                    class="px-3 pr-8 py-1.5 md:py-2 text-[11px] md:text-xs h-[34px] md:h-[36px] rounded-xl border-2 border-amber-400 bg-amber-50 text-amber-950 font-black focus:outline-none cursor-pointer shadow-md transition-all appearance-none
+                                           dark:bg-slate-900 dark:border-amber-400 dark:text-amber-300 dark:shadow-[0_0_12px_rgba(251,191,36,0.25)]">
+                                    <option value="all" class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">💳 全部支出分類</option>
+                                    <option value="charging" class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">⚡ 充電補給 (快+慢)</option>
+                                    <option value="DC-快充" class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">⚡ DC 快充</option>
+                                    <option value="AC-慢充" class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">🔌 AC 慢充</option>
+                                    <option value="停車費" class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">🅿️ 停車費</option>
+                                    <option value="通行費" class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">🛣️ 國道通行</option>
+                                    <option value="維修保養" class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">🔧 維修保養</option>
+                                    <option value="保險費" class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">🛡️ 保險支出</option>
+                                    <option value="車貸" class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">🏦 車貸還款</option>
+                                </select>
+                                <!-- 下拉微箭頭裝飾 -->
+                                <div class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-amber-700 dark:text-amber-400 font-black">
+                                    ▼
+                                </div>
+                            </div>
                         </div>
 
                         <select id="chartTimeView" onchange="debouncedUpdateCharts()" class="px-3 py-1.5 md:py-2 text-[11px] md:text-xs h-[34px] md:h-[36px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold focus:outline-none cursor-pointer shadow-sm flex-shrink-0">
@@ -2560,7 +2587,7 @@ function cacheDOMNodes() {
             }
         }
 
-            window.setChartMetricView = function(view) {
+        window.setChartMetricView = function(view) {
             AppState.currentChartFilter = view;
 
             const activeClass = "px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg bg-white dark:bg-slate-600 shadow-sm text-slate-900 dark:text-white font-black transition-all";
@@ -2576,9 +2603,11 @@ function cacheDOMNodes() {
             const expenseWrapper = document.getElementById('expenseCategoryWrapper');
             if (expenseWrapper) {
                 if (view === 'cost') {
-                    expenseWrapper.classList.remove('hidden');
+                    // 改用 active 觸發 CSS max-width 平滑水平展開
+                    expenseWrapper.classList.add('active');
                 } else {
-                    expenseWrapper.classList.add('hidden');
+                    // 移除 active 觸發平滑收折
+                    expenseWrapper.classList.remove('active');
                     AppState.currentCostCategory = 'all';
                     const catSelect = document.getElementById('expenseCategoryFilter');
                     if (catSelect) catSelect.value = 'all';
