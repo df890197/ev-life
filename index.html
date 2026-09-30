@@ -796,6 +796,22 @@
                                     <input type="date" id="insuranceExpiryInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs md:text-sm font-bold text-left focus:outline-none focus:border-amber-400 appearance-none block">
                                 </div>
                                 <div>
+    <label class="text-[10px] md:text-xs font-bold text-slate-400 block mb-1 flex items-center gap-1"><span class="text-[12px]">🏁</span>預計結清日 / 最後扣款 (選填)</label>
+    <input type="date" id="loanPayoffDateInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs md:text-sm font-bold text-left focus:outline-none focus:border-amber-400 appearance-none block">
+</div>
+<div>
+    <label class="text-[10px] md:text-xs font-bold text-slate-400 block mb-1 flex items-center gap-1"><span class="text-[12px]">🏦</span>車貸總期數 (期，選填)</label>
+    <input type="number" step="1" id="loanTotalMonthsInput" oninput="autoCalcPayoffDate()" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs md:text-sm font-mono font-bold focus:outline-none focus:border-amber-400" placeholder="例如: 60">
+</div>
+<div>
+    <label class="text-[10px] md:text-xs font-bold text-slate-400 block mb-1 flex items-center gap-1"><span class="text-[12px]">💵</span>每月車貸款 (元，選填)</label>
+    <input type="number" step="1" id="loanMonthlyPaymentInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs md:text-sm font-mono font-bold focus:outline-none focus:border-amber-400" placeholder="例如: 15000">
+</div>
+<div>
+    <label class="text-[10px] md:text-xs font-bold text-slate-400 block mb-1 flex items-center gap-1"><span class="text-[12px]">📅</span>首期扣款日 (自動推算結清日)</label>
+    <input type="date" id="loanStartDateInput" onchange="autoCalcPayoffDate()" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs md:text-sm font-bold text-left focus:outline-none focus:border-amber-400 appearance-none block">
+</div>
+                                <div>
                                     <label class="text-[10px] md:text-xs font-bold text-slate-400 block mb-1 flex items-center gap-1"><span class="text-[12px]">🏦</span>車貸總期數 (期，選填)</label>
                                     <input type="number" step="1" id="loanTotalMonthsInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs md:text-sm font-mono font-bold focus:outline-none focus:border-amber-400" placeholder="例如: 60">
                                 </div>
@@ -2893,7 +2909,7 @@
             if (!AppState.syncUrl && !localStorage.getItem('ev_life_sync_dismissed')) { if(dot) dot.classList.remove('hidden'); } else { if(dot) dot.classList.add('hidden'); }
         }
 
-        window.syncWithCloud = async function(mode = 'auto', isSilent = false) {
+window.syncWithCloud = async function(mode = 'auto', isSilent = false) {
             if (!AppState.syncUrl) { if (!isSilent) showToast("請先設定雲端同步網址！", true); return; }
             if (!isSilent) showToast("雲端同步中... 🔄", false, 1500);
             try {
@@ -2914,6 +2930,7 @@
                             evName: AppState.evName, batteryCapacity: AppState.batteryCapacity, initialOdometer: AppState.initialOdometer, 
                             maintInterval: AppState.maintInterval, nextMaintDate: AppState.nextMaintDate, insuranceExpiryDate: AppState.insuranceExpiryDate, 
                             loanTotalMonths: AppState.loanTotalMonths, loanMonthlyPayment: AppState.loanMonthlyPayment,
+                            loanStartDate: AppState.loanStartDate, loanPayoffDate: AppState.loanPayoffDate,
                             iceEfficiency: AppState.iceEfficiency, gasPrice: AppState.gasPrice 
                         }) 
                     };
@@ -2931,11 +2948,11 @@
                 if(!Array.isArray(cloudPayload)) cloudPayload = [];
                 let cloudLastUpdated = 0, cloudRecords = [], cloudConfig = null;
                 cloudPayload.forEach(item => {
-                    if (item?.id === "SYSTEM_METADATA") cloudLastUpdated = parseInt(item.note) || 0;
+                    if (item?.id === "SYSTEM_METADATA") cloudLastUpdated = parseInt(item.note, 10) || 0;
                     else if (item?.id === "CONFIG_METADATA") { try { cloudConfig = JSON.parse(item.note); } catch(err) {} }
                     else if (item) cloudRecords.push(parseRecordSoc(item));
                 });
-                let localLastUpdated = parseInt(localStorage.getItem('ev_life_last_updated')) || 0;
+                let localLastUpdated = parseInt(localStorage.getItem('ev_life_last_updated'), 10) || 0;
                 let shouldDownload = mode === 'download' || (mode === 'auto' && (cloudLastUpdated > localLastUpdated || (AppState.records.length === 0 && cloudRecords.length > 0)));
 
                 if (shouldDownload) {
@@ -2952,12 +2969,14 @@
                         }
                         if (cloudConfig.batteryCapacity) { AppState.batteryCapacity = parseFloat(cloudConfig.batteryCapacity); localStorage.setItem('ev_life_battery_capacity', AppState.batteryCapacity); }
                         if (cloudConfig.initialOdometer !== undefined) { AppState.initialOdometer = parseFloat(cloudConfig.initialOdometer); localStorage.setItem('ev_life_initial_odometer', AppState.initialOdometer); }
-                        if (cloudConfig.maintInterval) { AppState.maintInterval = parseInt(cloudConfig.maintInterval); localStorage.setItem('ev_life_maint_interval', AppState.maintInterval); }
+                        if (cloudConfig.maintInterval) { AppState.maintInterval = parseInt(cloudConfig.maintInterval, 10); localStorage.setItem('ev_life_maint_interval', AppState.maintInterval); }
                         if (cloudConfig.nextMaintDate !== undefined) { AppState.nextMaintDate = cloudConfig.nextMaintDate; localStorage.setItem('ev_life_next_maint_date', AppState.nextMaintDate); }
                         if (cloudConfig.insuranceExpiryDate !== undefined) { AppState.insuranceExpiryDate = cloudConfig.insuranceExpiryDate; localStorage.setItem('ev_life_insurance_date', AppState.insuranceExpiryDate); }
                         
-                        if (cloudConfig.loanTotalMonths !== undefined) { AppState.loanTotalMonths = parseInt(cloudConfig.loanTotalMonths) || 0; localStorage.setItem('ev_life_loan_total_months', AppState.loanTotalMonths); }
-                        if (cloudConfig.loanMonthlyPayment !== undefined) { AppState.loanMonthlyPayment = parseInt(cloudConfig.loanMonthlyPayment) || 0; localStorage.setItem('ev_life_loan_monthly_payment', AppState.loanMonthlyPayment); }
+                        if (cloudConfig.loanTotalMonths !== undefined) { AppState.loanTotalMonths = parseInt(cloudConfig.loanTotalMonths, 10) || 0; localStorage.setItem('ev_life_loan_total_months', AppState.loanTotalMonths); }
+                        if (cloudConfig.loanMonthlyPayment !== undefined) { AppState.loanMonthlyPayment = parseInt(cloudConfig.loanMonthlyPayment, 10) || 0; localStorage.setItem('ev_life_loan_monthly_payment', AppState.loanMonthlyPayment); }
+                        if (cloudConfig.loanStartDate !== undefined) { AppState.loanStartDate = cloudConfig.loanStartDate; localStorage.setItem('ev_life_loan_start_date', AppState.loanStartDate); }
+                        if (cloudConfig.loanPayoffDate !== undefined) { AppState.loanPayoffDate = cloudConfig.loanPayoffDate; localStorage.setItem('ev_life_loan_payoff_date', AppState.loanPayoffDate); }
 
                         if (cloudConfig.iceEfficiency) { AppState.iceEfficiency = parseFloat(cloudConfig.iceEfficiency); localStorage.setItem('ev_life_ice_efficiency', AppState.iceEfficiency); }
                         if (cloudConfig.gasPrice) { AppState.gasPrice = parseFloat(cloudConfig.gasPrice); localStorage.setItem('ev_life_gas_price', AppState.gasPrice); }
@@ -2967,6 +2986,8 @@
                         if (DOM.insuranceExpiryInput) DOM.insuranceExpiryInput.value = AppState.insuranceExpiryDate;
                         if (DOM.loanTotalMonthsInput) DOM.loanTotalMonthsInput.value = AppState.loanTotalMonths || "";
                         if (DOM.loanMonthlyPaymentInput) DOM.loanMonthlyPaymentInput.value = AppState.loanMonthlyPayment || "";
+                        if (DOM.loanStartDateInput) DOM.loanStartDateInput.value = AppState.loanStartDate || "";
+                        if (DOM.loanPayoffDateInput) DOM.loanPayoffDateInput.value = AppState.loanPayoffDate || "";
                         if (DOM.iceEfficiencyInput) DOM.iceEfficiencyInput.value = AppState.iceEfficiency;
                         if (DOM.gasPriceInput) DOM.gasPriceInput.value = AppState.gasPrice;
                     }
