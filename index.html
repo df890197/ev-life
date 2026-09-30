@@ -465,6 +465,13 @@
                                 <span>累計已繳: <span id="loanTotalPaidAmount" class="font-mono text-slate-600 dark:text-slate-300">$0</span></span>
                                 <span>剩餘: <span id="loanRemainingMonths" class="font-mono text-orange-500">0</span> 期</span>
                             </div>
+                            <!-- 新增：預計結清日與剩餘天數提醒 -->
+<div id="loanDateAlertContainer" class="hidden mt-2 pt-2 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
+    <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
+        <span class="text-[10px]">🏁</span> 預計結清: <span id="loanTargetDateStr" class="font-mono text-slate-700 dark:text-slate-300"></span>
+    </span>
+    <span id="loanDaysRemainingBadge" class="text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm"></span>
+</div>
                         </div>
 
                     </div>
@@ -1074,7 +1081,7 @@ function cacheDOMNodes() {
      'loanTotalMonthsInput', 'loanMonthlyPaymentInput', 'loanStartDateInput', 'loanPayoffDateInput', // <-- 補在此處
      'syncUrlInput', 'syncTokenInput', 'topEvName', 'heroEvName', 'formTitle', 'cancelEditBtn', 
      'recordForm', 'monthFilterContainer', 'monthFilterContainer_analysis', 'statTotalKm', 'statAvgEfficiency', 'statFuelSavings', 
-     'savingsBaseText', 'statCo2Savings', 'statTreesPlanted', 'maintIntervalText', 'maintRemainingText', 'maintProgressBar', 
+     'savingsBaseText', 'statCo2Savings', 'statTreesPlanted', 'maintIntervalText', 'maintRemainingText', 'maintProgressBar', 'loanDateAlertContainer', 'loanTargetDateStr', 'loanDaysRemainingBadge',
      'maintDateAlertContainer', 'maintTargetDateStr', 'maintDaysRemainingBadge', 'insuranceDateAlertContainer', 'insuranceTargetDateStr', 'insuranceDaysRemainingBadge',
      'loanProgressContainer', 'loanMonthsProgressText', 'loanProgressBar', 'loanTotalPaidAmount', 'loanRemainingMonths',
      'efficiencyChart', 'costDistributionChart', 'tempEffChart', 'cpRankingList', 'analysisTotalKm', 'analysisSummaryLabel', 'analysisAvgEfficiency',
@@ -2514,6 +2521,7 @@ function cacheDOMNodes() {
 
             setupAlert(AppState.nextMaintDate, DOM.maintDateAlertContainer, DOM.maintTargetDateStr, DOM.maintDaysRemainingBadge);
             setupAlert(AppState.insuranceExpiryDate, DOM.insuranceDateAlertContainer, DOM.insuranceTargetDateStr, DOM.insuranceDaysRemainingBadge);
+            setupAlert(AppState.loanPayoffDate, DOM.loanDateAlertContainer, DOM.loanTargetDateStr, DOM.loanDaysRemainingBadge);
 
             // 更新車貸還款進度 UI
             if (DOM.loanProgressContainer) {
