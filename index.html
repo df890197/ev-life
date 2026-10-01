@@ -1064,20 +1064,26 @@
 
                 <!-- 計算結果面板 -->
                 <div id="abrpResultSection" class="hidden space-y-3">
-                    <div class="grid grid-cols-3 gap-2 text-center">
-                        <div class="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-100 dark:border-slate-700">
-                            <span class="text-[10px] text-slate-400 block font-bold">總里程</span>
-                            <span id="abrpTotalDist" class="text-base font-black font-mono text-slate-800 dark:text-white">0 km</span>
-                        </div>
-                        <div class="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-100 dark:border-slate-700">
-                            <span class="text-[10px] text-slate-400 block font-bold">純行車時間</span>
-                            <span id="abrpDriveDuration" class="text-base font-black font-mono text-slate-800 dark:text-white">0 分</span>
-                        </div>
-                        <div class="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-100 dark:border-slate-700">
-                            <span class="text-[10px] text-slate-400 block font-bold">直達剩餘 SOC</span>
-                            <span id="abrpDirectSoc" class="text-base font-black font-mono">0%</span>
-                        </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="p-2.5 sm:p-3 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center justify-center text-center shadow-sm">
+                        <span class="text-[10px] sm:text-xs text-slate-400 font-bold mb-1 flex items-center gap-1">
+                            <span>🛣️</span> 總里程
+                        </span>
+                        <span id="abrpTotalDist" class="text-sm sm:text-lg font-black font-mono text-slate-800 dark:text-white tracking-tight">0 km</span>
                     </div>
+                    <div class="p-2.5 sm:p-3 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center justify-center text-center shadow-sm">
+                        <span class="text-[10px] sm:text-xs text-slate-400 font-bold mb-1 flex items-center gap-1">
+                            <span>⏱️</span> 行車時間
+                        </span>
+                        <span id="abrpDriveDuration" class="text-sm sm:text-lg font-black font-mono text-slate-800 dark:text-white tracking-tight">0 分</span>
+                    </div>
+                    <div class="p-2.5 sm:p-3 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center justify-center text-center shadow-sm">
+                        <span class="text-[10px] sm:text-xs text-slate-400 font-bold mb-1 flex items-center gap-1">
+                            <span>🔋</span> 直達剩餘
+                        </span>
+                        <span id="abrpDirectSoc" class="text-sm sm:text-lg font-black font-mono tracking-tight">0%</span>
+                    </div>
+                </div>
 
                     <div id="abrpRecommendationCard" class="p-4 rounded-2xl border text-xs leading-relaxed space-y-2"></div>
                 </div>
@@ -3811,6 +3817,7 @@ if(dH) dH.innerHTML = window.location.protocol === 'file:' ? '🔴 本機檔案�
                     }
                 }
 
+// 在關鍵坐標半徑 6 公里內搜尋充電站
                 const placesService = new google.maps.places.PlacesService(abrpMap);
                 placesService.nearbySearch({
                     location: criticalLatLng,
@@ -3825,19 +3832,42 @@ if(dH) dH.innerHTML = window.location.protocol === 'file:' ? '🔴 本機檔案�
                         const neededKwh = AppState.batteryCapacity * ((80 - safeTargetSoc) / 100);
                         const chargingMinutes = Math.round((neededKwh / 85) * 60);
 
+                        // 提取 Google Places 回傳的詳細地址 (vicinity)
+                        const stationAddress = bestStation.vicinity || bestStation.formatted_address || "沿途交流道或服務區周邊";
+                        const stationName = bestStation.name;
+                        const sLat = bestStation.geometry.location.lat();
+                        const sLng = bestStation.geometry.location.lng();
+                        const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(stationName)}&destination_place_id=${bestStation.place_id || ''}`;
+
                         stopDiv.innerHTML = `
-                            <div class="bg-white/80 dark:bg-black/40 p-3 rounded-xl border border-amber-200 dark:border-amber-700/60 mt-1 space-y-1">
-                                <div class="font-black text-amber-800 dark:text-amber-300 text-xs flex items-center justify-between">
-                                    <span>📍 推薦站點：${escapeHTML(bestStation.name)}</span>
-                                    <span class="bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded text-[10px]">補電約 ${chargingMinutes} 分鐘</span>
+                            <div class="bg-white/90 dark:bg-black/50 p-3 sm:p-3.5 rounded-2xl border border-amber-200 dark:border-amber-700/70 mt-1 shadow-sm space-y-2">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="font-black text-amber-900 dark:text-amber-200 text-xs sm:text-sm flex items-center gap-1 truncate">
+                                            <span>⚡</span> <span>${escapeHTML(stationName)}</span>
+                                        </div>
+                                        <div class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-bold flex items-center gap-1 mt-0.5">
+                                            <span>📍</span> <span class="truncate">${escapeHTML(stationAddress)}</span>
+                                        </div>
+                                    </div>
+                                    <span class="bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 px-2 py-1 rounded-lg text-[10px] font-black shrink-0 whitespace-nowrap shadow-sm">
+                                        補電約 ${chargingMinutes} 分
+                                    </span>
                                 </div>
-                                <p class="text-[10px] text-slate-500 dark:text-slate-400">
-                                    建議行駛約 ${Math.round(criticalDistanceKm)} km 時停靠，由 <b>20% 充至 80%</b>，即可安全抵達終點。
-                                </p>
+                                
+                                <div class="pt-1.5 border-t border-amber-100 dark:border-amber-900/40 flex items-center justify-between">
+                                    <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
+                                        建議於里程約 <b>${Math.round(criticalDistanceKm)} km</b> 處停靠，充至 <b>80%</b> 即可抵達。
+                                    </p>
+                                    <a href="${navUrl}" target="_blank" rel="noopener noreferrer" class="ml-2 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 text-[10px] font-black shadow-sm shrink-0 active:scale-95 transition">
+                                        <span>🗺️</span> 導航此站
+                                    </a>
+                                </div>
                             </div>
                         `;
 
-                        new google.maps.Marker({
+                        // 在地圖上放置充電點 Marker 並綁定點擊開啟資訊窗
+                        const marker = new google.maps.Marker({
                             position: bestStation.geometry.location,
                             map: abrpMap,
                             icon: {
@@ -3849,8 +3879,17 @@ if(dH) dH.innerHTML = window.location.protocol === 'file:' ? '🔴 本機檔案�
                                 scale: 1.5,
                                 anchor: new google.maps.Point(12, 22)
                             },
-                            title: `建議停靠：${bestStation.name}`
+                            title: `建議停靠：${stationName}`
                         });
+
+                        const infoWindow = new google.maps.InfoWindow({
+                            content: `<div style="color:#0f172a;padding:2px 0;font-size:12px;font-family:sans-serif;">
+                                <div style="font-weight:900;">${escapeHTML(stationName)}</div>
+                                <div style="font-size:10px;color:#64748b;margin-top:2px;">${escapeHTML(stationAddress)}</div>
+                            </div>`
+                        });
+                        marker.addListener('click', () => infoWindow.open(abrpMap, marker));
+
                     } else {
                         stopDiv.innerHTML = `
                             <p class="text-[11px] text-amber-800 dark:text-amber-300">
