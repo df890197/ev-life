@@ -1066,7 +1066,7 @@
                     <div class="sm:col-span-2 flex items-center justify-between gap-3 pt-1">
                         <div class="flex items-center gap-2">
                             <label class="text-[10px] font-bold text-slate-400">出發電量 SOC:</label>
-                            <input type="number" id="routeStartSoc" min="10" max="100" value="90" class="w-16 px-2 py-1 text-center font-mono font-black text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-black">
+                            <input type="number" id="routeStartSoc" min="1" max="100" step="1" inputmode="numeric" value="90" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(parseInt(this.value) > 100) this.value = '100';" class="w-16 px-2 py-1 text-center font-mono font-black text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-black focus:outline-none focus:border-amber-400">
                             <span class="text-xs font-mono font-black text-slate-500">%</span>
                         </div>
                         <button type="button" onclick="planElectricRoute()" class="rpg-btn-primary px-5 py-2 rounded-xl text-xs font-black shadow-sm active:scale-95 transition">
@@ -3401,10 +3401,17 @@ function cacheDOMNodes() {
         }
 
         function setupNumericRestrictions() {
-            const blockKey = e => { if(['e','E','+','-'].includes(e.key)) e.preventDefault(); };
-            ['inputDistance', 'inputStartSocNum', 'inputEndSocNum', 'inputCost', 'loanTotalMonthsInput', 'loanMonthlyPaymentInput'].forEach(id => {
+            const blockKey = e => { if(['e','E','+','-','.'].includes(e.key)) e.preventDefault(); };
+            ['inputDistance', 'inputStartSocNum', 'inputEndSocNum', 'inputCost', 'loanTotalMonthsInput', 'loanMonthlyPaymentInput', 'routeStartSoc'].forEach(id => {
                 const el = document.getElementById(id);
-                if(el) { el.addEventListener('keypress', blockKey); if(id !== 'inputDistance') el.addEventListener('input', function() { this.value = this.value.replace(/[^0-9]/g, ''); }); }
+                if(el) { 
+                    el.addEventListener('keypress', blockKey); 
+                    if(id !== 'inputDistance') {
+                        el.addEventListener('input', function() { 
+                            this.value = this.value.replace(/[^0-9]/g, ''); 
+                        }); 
+                    }
+                }
             });
         }
 
@@ -3755,13 +3762,18 @@ if(dH) dH.innerHTML = window.location.protocol === 'file:' ? '🔴 本機檔案�
         };
 
         window.autoFillCurrentLocationAsStart = function() {
+window.autoFillCurrentLocationAsStart = function() {
             if (!navigator.geolocation) {
                 showToast("瀏覽器不支援定位功能", true);
                 return;
             }
 
             const startInput = document.getElementById('routeStartInput');
-            if (startInput) startInput.value = "📍 定位中...";
+            if (startInput) {
+                startInput.value = "📍 定位中...";
+                // 狀態 1：顯示定位中時，叫出清除按鈕
+                toggleRouteClearBtn('routeStartInput', 'btnClearStart');
+            }
 
             navigator.geolocation.getCurrentPosition(
                 (position) => {
@@ -3778,20 +3790,25 @@ if(dH) dH.innerHTML = window.location.protocol === 'file:' ? '🔴 本機檔案�
                             } else {
                                 if (startInput) startInput.value = "目前位置";
                             }
+                            // 狀態 2：定位成功並填入地址後，確保清除按鈕顯示
+                            toggleRouteClearBtn('routeStartInput', 'btnClearStart');
+                            showToast("✅ 已自動帶入目前位置為起點！");
                         });
                     } else {
                         if (startInput) startInput.value = "目前位置";
+                        toggleRouteClearBtn('routeStartInput', 'btnClearStart');
+                        showToast("✅ 已自動帶入目前位置為起點！");
                     }
-                    showToast("✅ 已自動帶入目前位置為起點！");
                 },
                 (error) => {
                     if (startInput) startInput.value = "";
+                    // 狀態 3：定位失敗清空文字時，隱藏清除按鈕
+                    toggleRouteClearBtn('routeStartInput', 'btnClearStart');
                     showToast("定位失敗，請手動輸入起點 ⚠️", true);
                 },
                 { timeout: 8000, enableHighAccuracy: true }
             );
         };
-
         function initAbrpAutocomplete() {
             const startInput = document.getElementById('routeStartInput');
             const endInput = document.getElementById('routeEndInput');
