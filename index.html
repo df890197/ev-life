@@ -1081,7 +1081,10 @@
                         <span class="text-[10px] sm:text-xs text-slate-400 font-bold mb-1 flex items-center gap-1">
                             <span>🔋</span> 直達剩餘
                         </span>
-                        <span id="abrpDirectSoc" class="text-sm sm:text-lg font-black font-mono tracking-tight">0%</span>
+                        <span id="abrpDirectSoc" class="text-sm sm:text-base font-black font-mono tracking-tight leading-tight flex flex-col items-center justify-center text-slate-400">
+    <span>0%</span>
+    <span class="text-[9px] font-bold text-slate-400 mt-0.5 tracking-normal">待計算</span>
+</span>
                     </div>
                 </div>
 
@@ -3790,9 +3793,24 @@ if(dH) dH.innerHTML = window.location.protocol === 'file:' ? '🔴 本機檔案�
                     driveDurEl.innerHTML = formattedDuration;
                 }
 
+                // 第三張卡片：上方百分比，下方狀態標籤（綠色安全／紅色告急）
                 const directSocEl = document.getElementById('abrpDirectSoc');
-                directSocEl.textContent = `${directArrivalSoc}%`;
-                directSocEl.className = `text-base font-black font-mono ${directArrivalSoc < 15 ? 'text-rose-500' : 'text-emerald-500'}`;
+                if (directSocEl) {
+                    const isLowSoc = directArrivalSoc < 15;
+                    const statusText = isLowSoc ? '需中途補電' : '安全無虞';
+                    const numColor = isLowSoc ? 'text-rose-500' : 'text-emerald-500';
+                    const statusColor = isLowSoc 
+                        ? 'text-rose-600 dark:text-rose-400 bg-rose-100 dark:bg-rose-900/40' 
+                        : 'text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/40';
+
+                    directSocEl.className = `text-sm sm:text-base font-black font-mono tracking-tight leading-tight flex flex-col items-center justify-center ${numColor}`;
+                    directSocEl.innerHTML = `
+                        <span>${directArrivalSoc}%</span>
+                        <span class="text-[9px] font-black px-1.5 py-0.5 rounded mt-0.5 tracking-normal whitespace-nowrap ${statusColor}">
+                            ${statusText}
+                        </span>
+                    `;
+                }
 
                 const recCard = document.getElementById('abrpRecommendationCard');
 
