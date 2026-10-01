@@ -2252,37 +2252,43 @@ function cacheDOMNodes() {
             updateStats(globalKm, globalAvgEff, globalCost, globalMaintCost, AppState.initialOdometer, fuelSavings, co2Savings, treesPlanted, remMaint, progMaint, loanPaidCount, loanPaidTotalAmount);
         }
 
-        window.calculatePrediction = function() {
-            const distInput = document.getElementById('predictDistance').value;
-            const resultBox = document.getElementById('predictionResult');
-            const isHighway = DOM.toggleHighway ? DOM.toggleHighway.checked : false;
-            const isMountain = DOM.toggleMountain ? DOM.toggleMountain.checked : false;
-            const dist = parseFloat(distInput);
+window.calculatePrediction = function() {
+    const distInput = document.getElementById('predictDistance').value;
+    const resultBox = document.getElementById('predictionResult');
+    const isHighway = DOM.toggleHighway ? DOM.toggleHighway.checked : false;
+    const isMountain = DOM.toggleMountain ? DOM.toggleMountain.checked : false;
+    const dist = parseFloat(distInput);
 
-            if (isNaN(dist) || dist <= 0) { showToast("請輸入有效的預測里程數 🚗", true); return; }
-            if (AppState.globalAvgEfficiency <= 0) { showToast("目前尚無足夠的歷史電耗數據可以預測 📊", true); return; }
+    if (isNaN(dist) || dist <= 0) { showToast("請輸入有效的預測里程數 🚗", true); return; }
+    if (AppState.globalAvgEfficiency <= 0) { showToast("目前尚無足夠的歷史電耗數據可以預測 📊", true); return; }
 
-            let adjustedEfficiency = AppState.globalAvgEfficiency;
-            if (isHighway) adjustedEfficiency *= 0.82;
-            if (isMountain) adjustedEfficiency *= 0.70;
+    // 基準電耗本身就是高速 5.5
+    let adjustedEfficiency = AppState.globalAvgEfficiency;
 
-            const predictedKwh = dist / adjustedEfficiency;
-            const predictedSocPercent = (predictedKwh / AppState.batteryCapacity) * 100;
+    // 只有山區爬坡需要重度打折；若是全程高速則維持 1.0 基準（不需再乘 0.82）
+    if (isMountain) {
+        adjustedEfficiency *= 0.78;
+    } else if (!isHighway) {
+        // 如果「沒有」勾選全程高速（代表是市區/平面混合），反而更省電
+        adjustedEfficiency *= 1.12;
+    }
 
-            const chargeRecords = AppState.records.filter(r => r.chargeType.includes('快充') || r.chargeType.includes('慢充'));
-            let totalChargeCost = 0, totalChargeKwh = 0;
-            chargeRecords.forEach(r => {
-                totalChargeCost += parseFloat(r.cost) || 0;
-                totalChargeKwh += AppState.batteryCapacity * (Math.abs(r.startSoc - r.endSoc) / 100);
-            });
-            const avgKwhCost = totalChargeKwh > 0 ? (totalChargeCost / totalChargeKwh) : 8; 
-            const predictedCost = predictedKwh * avgKwhCost;
+    const predictedKwh = dist / adjustedEfficiency;
+    const predictedSocPercent = (predictedKwh / AppState.batteryCapacity) * 100;
 
-            document.getElementById('predSoc').textContent = predictedSocPercent.toFixed(1);
-            document.getElementById('predCost').textContent = Math.round(predictedCost).toLocaleString();
-            resultBox.classList.remove('hidden');
-        };
+    const chargeRecords = AppState.records.filter(r => r.chargeType.includes('快充') || r.chargeType.includes('慢充'));
+    let totalChargeCost = 0, totalChargeKwh = 0;
+    chargeRecords.forEach(r => {
+        totalChargeCost += parseFloat(r.cost) || 0;
+        totalChargeKwh += AppState.batteryCapacity * (Math.abs(r.startSoc - r.endSoc) / 100);
+    });
+    const avgKwhCost = totalChargeKwh > 0 ? (totalChargeCost / totalChargeKwh) : 8; 
+    const predictedCost = predictedKwh * avgKwhCost;
 
+    document.getElementById('predSoc').textContent = predictedSocPercent.toFixed(1);
+    document.getElementById('predCost').textContent = Math.round(predictedCost).toLocaleString();
+    resultBox.classList.remove('hidden');
+};
         function buildRecordCardHtml(rec, isMVP) {
             const isNonDrive = ['維修保養', '停車費', '通行費', '保險費', '車貸'].includes(rec.chargeType);
             const dist = parseFloat(rec.distance) || 0;
