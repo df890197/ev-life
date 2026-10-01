@@ -3864,8 +3864,49 @@ if(dH) dH.innerHTML = window.location.protocol === 'file:' ? '🔴 本機檔案�
                 const totalDistanceKm = leg.distance.value / 1000;
                 const durationText = leg.duration.text;
 
-                const avgEff = AppState.globalAvgEfficiency > 0 ? AppState.globalAvgEfficiency : 5.8;
-                const totalConsumedKwh = totalDistanceKm / avgEff;
+                // 1. 基礎電耗（若無歷史紀錄則預設 5.5 km/度，因為多數為高速）
+                let baseEff = AppState.globalAvgEfficiency > 0 ? AppState.globalAvgEfficiency : 5.5;
+
+                // 2. 智慧分析路線特性（檢查經過的主要道路與導航摘要）
+                let routeSummary = "";
+                let hasMountain = false;
+                let isPureHighway = true;
+
+                if (route && route.legs) {
+                    route.legs.forEach(leg => {
+                        if (leg.summary) routeSummary += leg.summary + " ";
+                        // 檢查步驟中是否有高度爬坡或國道高速關鍵字
+                        leg.steps.forEach(step => {
+                            const instructions = (step.instructions || "").toLowerCase();
+                            if (instructions.includes('山') || instructions.includes('橫貫公路') || instructions.includes('爬坡') || instructions.includes('彎道')) {
+                                hasMountain = true;
+                            }
+                        });
+                    });
+                }
+
+                // 判斷是否為國道為主（通常包含國道1號、國道3號、國道5號）
+                const isHighwayRoute = routeSummary.includes('國道') || totalDistanceKm > 40;
+
+                // 3. 套用動態電耗係數（考慮你的 9 成高速特性）
+                let routeFactor = 0.90; // 預設 9 成高速，稍微比平均略耗電一點點
+                let routeProfileText = "9成高速流暢";
+
+                if (hasMountain) {
+                    routeFactor = 0.70; // 山區爬坡重度耗電
+                    routeProfileText = "山區爬坡路段 (重度耗電)";
+                } else if (isHighwayRoute) {
+                    routeFactor = 0.88; // 純國道高速巡航（高速風阻大，電耗較差）
+                    routeProfileText = "國道高速巡航為主";
+                } else {
+                    routeFactor = 1.00; // 一般平地平面道路
+                    routeProfileText = "市區/平面混合道路";
+                }
+
+                // 最終計算修正後的即時電耗
+                const adjustedEff = baseEff * routeFactor;
+
+                const totalConsumedKwh = totalDistanceKm / adjustedEff;
                 const totalConsumedSoc = (totalConsumedKwh / AppState.batteryCapacity) * 100;
                 const directArrivalSoc = Math.round(startSoc - totalConsumedSoc);
 
@@ -3911,28 +3952,31 @@ if(dH) dH.innerHTML = window.location.protocol === 'file:' ? '🔴 本機檔案�
 
                 const recCard = document.getElementById('abrpRecommendationCard');
 
-                if (directArrivalSoc >= 15) {
-                    recCard.className = "p-4 rounded-2xl border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/60 dark:bg-emerald-950/30 text-emerald-950 dark:text-emerald-300 space-y-1.5";
-                    recCard.innerHTML = `
-                        <div class="font-black text-sm flex items-center gap-1.5">
-                            <span>🟢</span> 評估：可一桶電直達，無需中途補電！
-                        </div>
-                        <p class="text-[11px] opacity-90 leading-relaxed">
-                            總里程約 ${totalDistanceKm.toFixed(1)} km，預估抵達時仍有約 <b>${directArrivalSoc}%</b> 電量，高於 15% 安全底線。
-                        </p>
-                    `;
-                    return;
-                }
+if (directArrivalSoc >= 15) {
+    recCard.className = "p-4 rounded-2xl border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/60 dark:bg-emerald-950/30 text-emerald-950 dark:text-emerald-300 space-y-1.5";
+    recCard.innerHTML = `
+        <div class="font-black text-sm flex items-center gap-1.5">
+            <span>🟢</span> 評估：可一桶電直達，無需中途補電！
+        </div>
+        <p class="text-[11px] opacity-90 leading-relaxed">
+            總里程約 ${totalDistanceKm.toFixed(1)} km（路況判定：<b>${routeProfileText}</b>），預估抵達時仍有約 <b>${directArrivalSoc}%</b> 電量，高於 15% 安全底線。
+        </p>
+    `;
+    return;
+}
 
-                recCard.className = "p-4 rounded-2xl border border-amber-300 dark:border-amber-700/60 bg-amber-50/80 dark:bg-amber-950/40 text-amber-950 dark:text-amber-200 space-y-2";
-                recCard.innerHTML = `
-                    <div class="font-black text-sm text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
-                        <span>⚠️️</span> 直達電量不足 (預估僅剩 ${directArrivalSoc}%)，建議中途補能！
-                    </div>
-                    <div id="abrpStopRecommendation" class="text-[11px] pt-1">
-                        🔍 正在計算路徑上的最佳快充站點...
-                    </div>
-                `;
+recCard.className = "p-4 rounded-2xl border border-amber-300 dark:border-amber-700/60 bg-amber-50/80 dark:bg-amber-950/40 text-amber-950 dark:text-amber-200 space-y-2";
+    recCard.innerHTML = `
+        <div class="font-black text-sm text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
+            <span>⚠</span> 直達電量不足 (預估僅剩 ${directArrivalSoc}%)，建議中途補能！
+        </div>
+        <div class="text-[11px] opacity-90 leading-relaxed text-slate-600 dark:text-slate-300">
+            路況判定：<b>${routeProfileText}</b>（總里程約 ${totalDistanceKm.toFixed(1)} km）
+        </div>
+        <div id="abrpStopRecommendation" class="text-[11px] pt-1">
+            🔍 正在計算路徑上的最佳快充站點...
+        </div>
+    `;
 
                 const safeTargetSoc = 20;
                 const allowableSocDrop = startSoc - safeTargetSoc;
