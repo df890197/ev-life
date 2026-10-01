@@ -1069,13 +1069,13 @@
                         <span class="text-[10px] sm:text-xs text-slate-400 font-bold mb-1 flex items-center gap-1">
                             <span>🛣️</span> 總里程
                         </span>
-                        <span id="abrpTotalDist" class="text-sm sm:text-lg font-black font-mono text-slate-800 dark:text-white tracking-tight">0 km</span>
+                        <span id="abrpTotalDist" class="text-sm sm:text-base font-black font-mono text-slate-800 dark:text-white tracking-tight leading-tight">0<br><span class="text-xs font-bold text-slate-500 dark:text-slate-400">km</span></span>
                     </div>
-                    <div class="p-2.5 sm:p-3 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center justify-center text-center shadow-sm">
+                    <div class="p-2.5 sm:p-3 min-h-[76px] bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center justify-center text-center shadow-sm">
                         <span class="text-[10px] sm:text-xs text-slate-400 font-bold mb-1 flex items-center gap-1">
                             <span>⏱️</span> 行車時間
                         </span>
-                        <span id="abrpDriveDuration" class="text-sm sm:text-lg font-black font-mono text-slate-800 dark:text-white tracking-tight">0 分</span>
+                        <span id="abrpDriveDuration" class="text-sm sm:text-base font-black font-mono text-slate-800 dark:text-white tracking-tight leading-tight">0 分</span>
                     </div>
                     <div class="p-2.5 sm:p-3 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center justify-center text-center shadow-sm">
                         <span class="text-[10px] sm:text-xs text-slate-400 font-bold mb-1 flex items-center gap-1">
@@ -3770,8 +3770,25 @@ if(dH) dH.innerHTML = window.location.protocol === 'file:' ? '🔴 本機檔案�
                 const directArrivalSoc = Math.round(startSoc - totalConsumedSoc);
 
                 document.getElementById('abrpResultSection')?.classList.remove('hidden');
-                document.getElementById('abrpTotalDist').textContent = `${totalDistanceKm.toFixed(1)} km`;
-                document.getElementById('abrpDriveDuration').textContent = durationText;
+                // 處理時間換行：將「小時」後面斷行，並把後面的分鐘縮小精緻化
+                let formattedDuration = durationText;
+                if (durationText.includes('小時')) {
+                    formattedDuration = durationText
+                        .replace(/小時\s*/, '小時<br><span class="text-xs font-bold text-slate-500 dark:text-slate-400">')
+                        + '</span>';
+                }
+
+                document.getElementById('abrpResultSection')?.classList.remove('hidden');
+                const totalDistEl = document.getElementById('abrpTotalDist');
+                if (totalDistEl) {
+                    totalDistEl.innerHTML = `${totalDistanceKm.toFixed(1)}<br><span class="text-xs font-bold text-slate-500 dark:text-slate-400">km</span>`;
+                }
+                
+                // 改用 innerHTML 渲染 HTML 標籤
+                const driveDurEl = document.getElementById('abrpDriveDuration');
+                if (driveDurEl) {
+                    driveDurEl.innerHTML = formattedDuration;
+                }
 
                 const directSocEl = document.getElementById('abrpDirectSoc');
                 directSocEl.textContent = `${directArrivalSoc}%`;
