@@ -1027,8 +1027,7 @@
             </div>
 
             <div class="overflow-y-auto no-scrollbar space-y-4 pt-3 flex-1">
-                <!-- 路線設定區 -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-900/40 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800">
+                    <!-- 起點輸入框 -->
                     <div>
                         <div class="flex items-center justify-between mb-1">
                             <label class="text-[10px] font-bold text-slate-400">出發地 (起點)</label>
@@ -1037,15 +1036,20 @@
                             </button>
                         </div>
                         <div class="relative">
-                            <input type="text" id="routeStartInput" placeholder="例如: 台北車站 (可輸入或點上方定位)" class="w-full pl-3 pr-8 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-black focus:outline-none focus:border-amber-400">
-                            <button type="button" onclick="document.getElementById('routeStartInput').value=''" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs font-bold">✕</button>
+                            <input type="text" id="routeStartInput" oninput="toggleRouteClearBtn('routeStartInput', 'btnClearStart')" placeholder="例如: 台北車站 (可輸入或點上方定位)" class="w-full pl-3 pr-8 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-black focus:outline-none focus:border-amber-400">
+                            <button type="button" id="btnClearStart" onclick="clearRouteInput('routeStartInput', 'btnClearStart')" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs font-bold active:scale-90 transition">✕</button>
                         </div>
                     </div>
+                    
+                    <!-- 終點輸入框 -->
                     <div>
                         <div class="flex items-center justify-between mb-1">
                             <label class="text-[10px] font-bold text-slate-400">目的地 (終點)</label>
                         </div>
-                        <input type="text" id="routeEndInput" placeholder="例如: 高雄左營高鐵站" class="w-full px-3 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-black focus:outline-none focus:border-amber-400">
+                        <div class="relative">
+                            <input type="text" id="routeEndInput" oninput="toggleRouteClearBtn('routeEndInput', 'btnClearEnd')" placeholder="例如: 高雄左營高鐵站" class="w-full pl-3 pr-8 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-black focus:outline-none focus:border-amber-400">
+                            <button type="button" id="btnClearEnd" onclick="clearRouteInput('routeEndInput', 'btnClearEnd')" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs font-bold active:scale-90 transition">✕</button>
+                        </div>
                     </div>
                     <div class="sm:col-span-2 flex items-center justify-between gap-3 pt-1">
                         <div class="flex items-center gap-2">
@@ -3629,6 +3633,18 @@ if(dH) dH.innerHTML = window.location.protocol === 'file:' ? '🔴 本機檔案�
         let abrpMap = null;
         let abrpDirectionsRenderer = null;
         let currentStartLatLng = null;
+        
+        // 清除起點或終點，並自動聚焦回輸入框
+        window.clearRouteInput = function(inputId) {
+            const el = document.getElementById(inputId);
+            if (el) {
+                el.value = '';
+                el.focus();
+            }
+            if (inputId === 'routeStartInput') {
+                currentStartLatLng = null;
+            }
+        };
 
         window.openAbrpModal = function() {
             const modal = document.getElementById('abrpModal');
