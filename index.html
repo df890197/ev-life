@@ -3741,10 +3741,15 @@ if(dH) dH.innerHTML = window.location.protocol === 'file:' ? '🔴 本機檔案�
                 destination: endLoc,
                 travelMode: google.maps.TravelMode.DRIVING
             }, async (response, status) => {
-                if (status !== 'OK' || !response.routes[0]) {
-                    showToast("無法規劃此路線，請檢查地點名稱 ⚠️", true);
+            // 起點防呆處理：若為自動定位，直接傳遞標準經緯度座標
+            if (startLoc.includes("目前位置") || startLoc.includes("定位中")) {
+                if (currentStartLatLng) {
+                    startLoc = currentStartLatLng;
+                } else {
+                    showToast("尚未取得目前定位，請手動輸入起點名稱 📍", true);
                     return;
                 }
+            }
 
                 abrpDirectionsRenderer.setDirections(response);
 
