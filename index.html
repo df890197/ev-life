@@ -237,7 +237,7 @@
         </div>
     </header>
 
-    <main class="max-w-4xl lg:max-w-6xl mx-auto pb-32 pt-2 md:pt-4 md:pb-24">
+    <main class="max-w-4xl lg:max-w-6xl mx-auto pb-20 pt-2 md:pt-4 md:pb-16">
 
         <!-- 🔹 Tab 1: 首頁 (Home) -->
         <div id="view-home" class="view-section active px-4">
@@ -1119,7 +1119,7 @@
         </div>
     </nav>
 
-    <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-[120] transform -translate-y-10 opacity-0 invisible pointer-events-none transition-all duration-300 bg-slate-900/95 dark:bg-[#1e293b]/95 text-white px-5 py-3 md:py-4 md:px-6 rounded-2xl shadow-lg flex items-center gap-3 text-xs md:text-sm font-bold border border-white/10 w-max max-w-[90vw] md:max-w-[600px] justify-center leading-relaxed">
+    <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-[9999] transform -translate-y-10 opacity-0 invisible pointer-events-none transition-all duration-300 bg-slate-900/95 dark:bg-[#1e293b]/95 text-white px-5 py-3 md:py-4 md:px-6 rounded-2xl shadow-lg flex items-center gap-3 text-xs md:text-sm font-bold border border-white/10 w-max max-w-[90vw] md:max-w-[600px] justify-center leading-relaxed">
         <span id="toastIcon" class="flex-shrink-0 text-base">⚡</span>
         <span id="toastMessage"></span>
     </div>
@@ -1199,11 +1199,13 @@ function cacheDOMNodes() {
      'onboardingCard', 'confirmModal', 'confirmModalContent', 'confirmModalTitle', 'confirmModalMessage', 'appSplashScreen', 
      'evNameInput', 'batteryCapacityInput', 'initialOdometerInput', 'maintIntervalInput', 'iceEfficiencyInput', 
      'gasPriceInput', 'nextMaintDateInput', 'insuranceExpiryInput', 
-     'loanTotalMonthsInput', 'loanMonthlyPaymentInput', 'loanStartDateInput', 'loanPayoffDateInput', // <-- 補在此處
+     'loanTotalMonthsInput', 'loanMonthlyPaymentInput', 'loanStartDateInput', 'loanPayoffDateInput',
      'syncUrlInput', 'syncTokenInput', 'topEvName', 'heroEvName', 'formTitle', 'cancelEditBtn', 
      'recordForm', 'monthFilterContainer', 'monthFilterContainer_analysis', 'statTotalKm', 'statAvgEfficiency', 'statFuelSavings', 
-     'savingsBaseText', 'statCo2Savings', 'statTreesPlanted', 'maintIntervalText', 'maintRemainingText', 'maintProgressBar', 'loanDateAlertContainer', 'loanTargetDateStr', 'loanDaysRemainingBadge',
+     'savingsBaseText', 'statCo2Savings', 'statTreesPlanted', 'maintIntervalText', 'maintRemainingText', 'maintProgressBar',
      'maintDateAlertContainer', 'maintTargetDateStr', 'maintDaysRemainingBadge',
+     'insuranceDateAlertContainer', 'insuranceTargetDateStr', 'insuranceDaysRemainingBadge',
+     'loanDateAlertContainer', 'loanTargetDateStr', 'loanDaysRemainingBadge',
      'loanProgressContainer', 'loanMonthsProgressText', 'loanProgressBar', 'loanTotalPaidAmount', 'loanRemainingMonths',
      'efficiencyChart', 'costDistributionChart', 'tempEffChart', 'cpRankingList', 'analysisTotalKm', 'analysisSummaryLabel', 'analysisAvgEfficiency',
      'analysisTotalCost', 'analysisCostLabel', 'analysisCostPerKm', 'heroImageDisplay', 'toggleHighway', 'toggleMountain', 'badgesContainer',
@@ -1470,7 +1472,7 @@ function cacheDOMNodes() {
             DOM.toastIcon.textContent = isError ? "⚠️" : "⚡";
             const colorClasses = isError ? 'bg-rose-500 text-white' : 'bg-slate-900/95 dark:bg-amber-500 text-white dark:text-slate-900';
 
-            DOM.toast.className = `fixed top-[80px] md:top-[100px] left-1/2 -translate-x-1/2 z-[120] transform transition-all duration-300 px-5 py-3 md:py-3 md:px-6 rounded-2xl shadow-lg flex items-center gap-3 text-xs md:text-sm font-bold border border-white/10 w-max max-w-[90vw] md:max-w-[600px] text-left leading-relaxed ${colorClasses} translate-y-0 opacity-100 visible pointer-events-auto`;
+            DOM.toast.className = `fixed top-[80px] md:top-[100px] left-1/2 -translate-x-1/2 z-[9999] transform transition-all duration-300 px-5 py-3 md:py-3 md:px-6 rounded-2xl shadow-lg flex items-center gap-3 text-xs md:text-sm font-bold border border-white/10 w-max max-w-[90vw] md:max-w-[600px] text-left leading-relaxed ${colorClasses} translate-y-0 opacity-100 visible pointer-events-auto`;
 
             setTimeout(() => {
                 DOM.toast.classList.replace('translate-y-0', '-translate-y-10');
