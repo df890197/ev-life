@@ -1122,21 +1122,21 @@
         </div>
     </div>
     
-    <!-- 主數據三大面板 -->
+<!-- 主數據三大面板 (固定高度徹底杜絕抖動) -->
     <div class="grid grid-cols-3 gap-2">
-        <div class="p-2.5 sm:p-3 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center justify-center text-center shadow-sm">
+        <div class="p-2.5 sm:p-3 min-h-[80px] bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center justify-center text-center shadow-sm">
             <span class="text-[10px] sm:text-xs text-slate-400 font-bold mb-1 flex items-center gap-1">
                 <span>🛣️</span> 總里程
             </span>
             <span id="abrpTotalDist" class="text-sm sm:text-base font-black font-mono text-slate-800 dark:text-white tracking-tight leading-tight">0<br><span class="text-xs font-bold text-slate-500 dark:text-slate-400">km</span></span>
         </div>
-        <div class="p-2.5 sm:p-3 min-h-[76px] bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center justify-center text-center shadow-sm">
+        <div class="p-2.5 sm:p-3 min-h-[80px] bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center justify-center text-center shadow-sm">
             <span class="text-[10px] sm:text-xs text-slate-400 font-bold mb-1 flex items-center gap-1">
                 <span>⏱️</span> 行車時間
             </span>
             <span id="abrpDriveDuration" class="text-sm sm:text-base font-black font-mono text-slate-800 dark:text-white tracking-tight leading-tight">0 分</span>
         </div>
-        <div class="p-2.5 sm:p-3 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center justify-center text-center shadow-sm">
+        <div class="p-2.5 sm:p-3 min-h-[80px] bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center justify-center text-center shadow-sm">
             <span class="text-[10px] sm:text-xs text-slate-400 font-bold mb-1 flex items-center gap-1">
                 <span>🔋</span> 直達剩餘
             </span>
@@ -3912,9 +3912,11 @@ function evaluateRouteWithTraffic(route, startSoc) {
     };
 }
 
-// 切換選中路線（絕對零縮放、零抖動）
 window.selectPkRoute = function(idx) {
     if (!currentPkRoutes?.[idx]) return;
+    
+    // 保持當前視角，僅切換高亮路線
+    abrpDirectionsRenderer.setOptions({ preserveViewport: true });
     abrpDirectionsRenderer.setRouteIndex(idx);
 
     const card0 = document.getElementById('pkCardRoute0');
@@ -3922,7 +3924,6 @@ window.selectPkRoute = function(idx) {
 
     if (card0 && card1) {
         if (idx === 0) {
-            // 只換邊框色與透明度，不碰 shadow，不觸發 Layout Reflow
             card0.classList.add('border-amber-400');
             card0.classList.remove('border-slate-200', 'dark:border-slate-800', 'opacity-60');
             card1.classList.remove('border-amber-400');
@@ -3988,6 +3989,7 @@ window.planElectricRoute = async function() {
             return;
         }
 
+        abrpDirectionsRenderer.setOptions({ preserveViewport: true }); // ⚡ 禁止切換路線時地圖視角跳動閃爍
         abrpDirectionsRenderer.setDirections(response);
         currentPkRoutes = response.routes;
 
