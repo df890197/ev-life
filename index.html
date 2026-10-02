@@ -1078,8 +1078,53 @@
                 <!-- 地圖預覽 -->
                 <div id="abrpMapContainer" class="w-full h-44 md:h-52 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700 overflow-hidden relative"></div>
 
-                <!-- 計算結果面板 -->
-                <div id="abrpResultSection" class="hidden space-y-3">
+<!-- 計算結果面板 -->
+<div id="abrpResultSection" class="hidden space-y-3">
+
+    <!-- ⬇️ 【從這裡插入】🔀 國一 vs 國三 路況能耗 PK 面板 -->
+    <div id="highwayPkContainer" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        <!-- 路線 1 卡片 -->
+        <div id="pkCardRoute0" onclick="selectPkRoute(0)" class="p-3 rounded-2xl border-2 transition-all cursor-pointer relative bg-slate-50 dark:bg-slate-900/60 border-amber-400">
+            <div class="flex items-center justify-between mb-1.5">
+                <span class="text-xs font-black text-slate-800 dark:text-white flex items-center gap-1.5">
+                    <span class="w-4 h-4 rounded-full bg-slate-800 dark:bg-white text-white dark:text-slate-900 text-[10px] flex items-center justify-center font-mono font-black">1</span>
+                    <span id="pkName0" class="truncate max-w-[120px]">國道 1 號</span>
+                </span>
+                <span id="pkTrafficTag0" class="text-[9px] font-black px-1.5 py-0.5 rounded">路況分析中</span>
+            </div>
+            <div class="flex items-baseline justify-between text-xs">
+                <span class="text-slate-400 font-bold">時間: <b id="pkDuration0" class="text-slate-700 dark:text-slate-200 font-mono">-</b></span>
+                <span class="text-slate-400 font-bold">抵達: <b id="pkSoc0" class="font-mono text-emerald-500 font-black">-</b></span>
+            </div>
+            <div class="text-[10px] text-slate-400 font-bold mt-1 flex justify-between">
+                <span>里程: <span id="pkDist0" class="font-mono">-</span> km</span>
+                <span>預估均耗: <span id="pkEff0" class="font-mono text-teal-500">-</span></span>
+            </div>
+        </div>
+
+        <!-- 路線 2 卡片 -->
+        <div id="pkCardRoute1" onclick="selectPkRoute(1)" class="p-3 rounded-2xl border-2 transition-all cursor-pointer relative bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800">
+            <div class="flex items-center justify-between mb-1.5">
+                <span class="text-xs font-black text-slate-800 dark:text-white flex items-center gap-1.5">
+                    <span class="w-4 h-4 rounded-full bg-slate-800 dark:bg-white text-white dark:text-slate-900 text-[10px] flex items-center justify-center font-mono font-black">2</span>
+                    <span id="pkName1" class="truncate max-w-[120px]">國道 3 號</span>
+                </span>
+                <span id="pkTrafficTag1" class="text-[9px] font-black px-1.5 py-0.5 rounded">路況分析中</span>
+            </div>
+            <div class="flex items-baseline justify-between text-xs">
+                <span class="text-slate-400 font-bold">時間: <b id="pkDuration1" class="text-slate-700 dark:text-slate-200 font-mono">-</b></span>
+                <span class="text-slate-400 font-bold">抵達: <b id="pkSoc1" class="font-mono text-emerald-500 font-black">-</b></span>
+            </div>
+            <div class="text-[10px] text-slate-400 font-bold mt-1 flex justify-between">
+                <span>里程: <span id="pkDist1" class="font-mono">-</span> km</span>
+                <span>預估均耗: <span id="pkEff1" class="font-mono text-teal-500">-</span></span>
+            </div>
+        </div>
+    </div>
+    <!-- ⬆️ 【插入結束】 -->
+
+    <div class="grid grid-cols-3 gap-2">
+        <!-- 原有的總里程、行車時間、直達剩餘區塊 -->
                 <div class="grid grid-cols-3 gap-2">
                     <div class="p-2.5 sm:p-3 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center justify-center text-center shadow-sm">
                         <span class="text-[10px] sm:text-xs text-slate-400 font-bold mb-1 flex items-center gap-1">
@@ -3835,6 +3880,45 @@ if(dH) dH.innerHTML = window.location.protocol === 'file:' ? '🔴 本機檔案�
                 new google.maps.places.Autocomplete(endInput, options);
             }
         }
+        /* ============================================================
+   🔀 國道即時路況與動態電耗 PK 輔助函式
+   ============================================================ */
+let currentPkRoutes = [];
+
+function evaluateRouteWithTraffic(route, startSoc) {
+    const leg = route.legs[0];
+    const distKm = leg.distance.value / 1000;
+    const durSec = leg.duration_in_traffic ? leg.duration_in_traffic.value : leg.duration.value;
+    const avgSpeed = durSec > 0 ? (distKm / (durSec / 3600)) : 90;
+
+    let eff = AppState.globalAvgEfficiency > 0 ? AppState.globalAvgEfficiency : 5.5;
+    if (avgSpeed > 105) eff *= 0.88;                       // 國三高速巡航風阻大
+    else if (avgSpeed < 80 && avgSpeed >= 45) eff *= 1.15; // 60~70km/h 慢行省電
+    else if (avgSpeed < 45) eff *= 1.05;                  // 市區走走停停
+
+    const arrivalSoc = Math.round(startSoc - ((distKm / eff) / AppState.batteryCapacity * 100));
+    const delay = leg.duration_in_traffic ? (leg.duration_in_traffic.value - leg.duration.value) : 0;
+    let traffic = { text: "順暢 🟢", class: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" };
+    if (delay > 900) traffic = { text: `塞車 +${Math.round(delay/60)}分 🔴`, class: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300" };
+    else if (delay > 300) traffic = { text: "車多 🟡", class: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300" };
+
+    return { 
+        distKm, 
+        durationText: leg.duration_in_traffic ? leg.duration_in_traffic.text : leg.duration.text, 
+        dynamicEff: eff.toFixed(2), 
+        arrivalSoc, 
+        trafficStatus: traffic 
+    };
+}
+
+window.selectPkRoute = function(idx) {
+    if (!currentPkRoutes?.[idx]) return;
+    abrpDirectionsRenderer.setRouteIndex(idx);
+    document.getElementById('pkCardRoute0')?.classList.toggle('border-amber-400', idx === 0);
+    document.getElementById('pkCardRoute0')?.classList.toggle('border-slate-200', idx !== 0);
+    document.getElementById('pkCardRoute1')?.classList.toggle('border-amber-400', idx === 1);
+    document.getElementById('pkCardRoute1')?.classList.toggle('border-slate-200', idx !== 1);
+};
 
 let abrpChargerMarker = null; // 用於追蹤並清除地圖上的推薦充電站標記
 
@@ -3876,7 +3960,12 @@ window.planElectricRoute = async function() {
     directionsService.route({
         origin: startLoc,
         destination: endLoc,
-        travelMode: google.maps.TravelMode.DRIVING
+        travelMode: google.maps.TravelMode.DRIVING,
+        provideRouteAlternatives: true, // 👈 加這行：取得替代路線
+        drivingOptions: {               // 👈 加這段：啟用即時路況
+            departureTime: new Date(),
+            trafficModel: google.maps.TrafficModel.BEST_GUESS
+        }
     }, async (response, status) => {
         if (status !== google.maps.DirectionsStatus.OK || !response.routes[0]) {
             showToast("無法規劃此路徑，請檢查起訖點地點 ⚠️", true);
@@ -3884,7 +3973,27 @@ window.planElectricRoute = async function() {
         }
 
         abrpDirectionsRenderer.setDirections(response);
-
+        // ⬇️ 【插入這段】如果找到 2 條以上路線，更新 PK 卡片
+        currentPkRoutes = response.routes;
+        const pkBox = document.getElementById('highwayPkContainer');
+        if (response.routes.length >= 2 && pkBox) {
+            pkBox.classList.remove('hidden');
+            response.routes.slice(0, 2).forEach((rt, idx) => {
+                const evalData = evaluateRouteWithTraffic(rt, startSoc);
+                const name = rt.summary || `路線 ${idx + 1}`;
+                document.getElementById(`pkName${idx}`).textContent = name.includes('國道1') ? '國道 1 號' : (name.includes('國道3') ? '國道 3 號' : name);
+                document.getElementById(`pkDist${idx}`).textContent = evalData.distKm.toFixed(1);
+                document.getElementById(`pkDuration${idx}`).textContent = evalData.durationText;
+                document.getElementById(`pkSoc${idx}`).textContent = `${evalData.arrivalSoc}%`;
+                document.getElementById(`pkEff${idx}`).textContent = `${evalData.dynamicEff} km/度`;
+                const tag = document.getElementById(`pkTrafficTag${idx}`);
+                tag.textContent = evalData.trafficStatus.text;
+                tag.className = `text-[9px] font-black px-1.5 py-0.5 rounded ${evalData.trafficStatus.class}`;
+            });
+        } else if (pkBox) {
+            pkBox.classList.add('hidden');
+        }
+        // ⬆️ 【插入結束】  
         const route = response.routes[0];
         const leg = route.legs[0];
         const totalDistanceKm = leg.distance.value / 1000;
