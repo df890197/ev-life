@@ -3920,25 +3920,32 @@ window.selectPkRoute = function(idx) {
     const card0 = document.getElementById('pkCardRoute0');
     const card1 = document.getElementById('pkCardRoute1');
 
-    // 1. 純顏色與透明度切換，絕對不動到陰影 (shadow) 或邊框寬度，杜絕左右縮放抖動
     if (card0 && card1) {
         if (idx === 0) {
             card0.classList.add('border-amber-400');
             card0.classList.remove('border-slate-200', 'dark:border-slate-800', 'opacity-60');
-            
             card1.classList.add('border-slate-200', 'dark:border-slate-800', 'opacity-60');
             card1.classList.remove('border-amber-400');
         } else {
             card1.classList.add('border-amber-400');
             card1.classList.remove('border-slate-200', 'dark:border-slate-800', 'opacity-60');
-            
             card0.classList.add('border-slate-200', 'dark:border-slate-800', 'opacity-60');
             card0.classList.remove('border-amber-400');
         }
     }
 
-    const startSoc = parseFloat(document.getElementById('routeStartSoc')?.value) || 90;
-    processRouteElevationAndCharging(currentPkRoutes[idx], startSoc, idx);
+const startSoc = parseFloat(document.getElementById('routeStartSoc')?.value) || 90;
+    
+    // ⚡ 確保切換卡片時，立即將該路線的數據（總里程、時間、直達剩餘）與快取結果渲染到畫面上
+    if (pkRouteCache[idx]) {
+        const leg = currentPkRoutes[idx].legs[0];
+        const totalDistanceKm = leg.distance.value / 1000;
+        const durationText = leg.duration_in_traffic ? leg.duration_in_traffic.text : leg.duration.text;
+        
+        renderAbrpCalculatedResultsDirect(pkRouteCache[idx], leg, startSoc, idx);
+    } else {
+        processRouteElevationAndCharging(currentPkRoutes[idx], startSoc, idx);
+    }
 };
 
 window.planElectricRoute = async function() {
