@@ -1026,7 +1026,7 @@
                 <button onclick="closeAbrpModal()" class="w-8 h-8 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center text-sm font-bold active:scale-90 text-slate-500">✕</button>
             </div>
 
-            <div class="overflow-y-auto no-scrollbar space-y-4 pt-3 flex shrink-0 flex-col">
+            <div class="overflow-y-auto no-scrollbar space-y-4 pt-3 flex-1 flex flex-col">
                 <!-- 路線設定區 -->
                 <div class="grid grid-cols-1 sm:grid-cols-[1fr,auto,1fr] items-end gap-2 sm:gap-3 bg-slate-50 dark:bg-slate-900/40 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 relative">
                     <!-- 起點輸入框 -->
@@ -3776,48 +3776,55 @@ if(dH) dH.innerHTML = window.location.protocol === 'file:' ? '🔴 本機檔案�
             showToast("🔄 起訖點已對調！");
         };
 
-        window.openAbrpModal = function() {
-            const modal = document.getElementById('abrpModal');
-            if (!modal) return;
+window.openAbrpModal = function() {
+    const modal = document.getElementById('abrpModal');
+    if (!modal) return;
 
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                modal.firstElementChild?.classList.remove('scale-95');
-            }, 10);
+    // 🔒 鎖定背景頁面滾動，防止上下拉動時背景晃動、前景不動
+    document.body.style.overflow = 'hidden';
 
-            setTimeout(() => {
-                if (!abrpMap && window.google?.maps) {
-                    const mapEl = document.getElementById('abrpMapContainer');
-                    abrpMap = new google.maps.Map(mapEl, {
-                        center: { lat: 23.8, lng: 121.0 },
-                        zoom: 7,
-                        disableDefaultUI: true,
-                        styles: document.documentElement.classList.contains('dark') ? [
-                            { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
-                            { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
-                            { featureType: "road", elementType: "geometry", stylers: [{ color: "#38414e" }] }
-                        ] : []
-                    });
-                    abrpDirectionsRenderer = new google.maps.DirectionsRenderer({ map: abrpMap });
-                }
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        modal.firstElementChild?.classList.remove('scale-95');
+    }, 10);
 
-                initAbrpAutocomplete();
+    setTimeout(() => {
+        if (!abrpMap && window.google?.maps) {
+            const mapEl = document.getElementById('abrpMapContainer');
+            abrpMap = new google.maps.Map(mapEl, {
+                center: { lat: 23.8, lng: 121.0 },
+                zoom: 7,
+                disableDefaultUI: true,
+                styles: document.documentElement.classList.contains('dark') ? [
+                    { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+                    { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+                    { elementType: "road", elementType: "geometry", stylers: [{ color: "#38414e" }] }
+                ] : []
+            });
+            abrpDirectionsRenderer = new google.maps.DirectionsRenderer({ map: abrpMap });
+        }
 
-                const startInput = document.getElementById('routeStartInput');
-                if (startInput && !startInput.value.trim()) {
-                    autoFillCurrentLocationAsStart();
-                }
-            }, 250);
-        };
+        initAbrpAutocomplete();
 
-        window.closeAbrpModal = function() {
-            const modal = document.getElementById('abrpModal');
-            if (!modal) return;
-            modal.classList.add('opacity-0');
-            modal.firstElementChild?.classList.add('scale-95');
-            setTimeout(() => modal.classList.add('hidden'), 300);
-        };
+        const startInput = document.getElementById('routeStartInput');
+        if (startInput && !startInput.value.trim()) {
+            autoFillCurrentLocationAsStart();
+        }
+    }, 250);
+};
+
+window.closeAbrpModal = function() {
+    const modal = document.getElementById('abrpModal');
+    if (!modal) return;
+
+    // 🔓 解除背景頁面滾動鎖定
+    document.body.style.overflow = '';
+
+    modal.classList.add('opacity-0');
+    modal.firstElementChild?.classList.add('scale-95');
+    setTimeout(() => modal.classList.add('hidden'), 300);
+};
 
         window.autoFillCurrentLocationAsStart = function() {
             if (!navigator.geolocation) {
@@ -3969,6 +3976,20 @@ window.planElectricRoute = async function() {
         abrpDirectionsRenderer.setOptions({ preserveViewport: false });
         abrpDirectionsRenderer.setDirections(response);
         currentPkRoutes = response.routes;
+        
+        // 🗺️ 在這裡加入自動縮放視角的邏輯
+        if (response.routes[0] && abrpMap) {
+            const bounds = new google.maps.LatLngBounds();
+            response.routes[0].overview_path.forEach(point => {
+                bounds.extend(point);
+            });
+            abrpMap.fitBounds(bounds, {
+                top: 40,
+                bottom: 40,
+                left: 40,
+                right: 40
+            });
+        }
 
         const pkBox = document.getElementById('highwayPkContainer');
         if (response.routes.length >= 2 && pkBox) {
