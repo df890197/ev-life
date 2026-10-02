@@ -3917,13 +3917,19 @@ window.selectPkRoute = function(idx) {
     if (!currentPkRoutes?.[idx]) return;
     abrpDirectionsRenderer.setRouteIndex(idx);
 
-    // 1. 切換卡片高亮樣式
-    document.getElementById('pkCardRoute0')?.classList.toggle('border-amber-400', idx === 0);
-    document.getElementById('pkCardRoute0')?.classList.toggle('border-slate-200', idx !== 0);
-    document.getElementById('pkCardRoute0')?.classList.toggle('opacity-70', idx !== 0);
-    document.getElementById('pkCardRoute1')?.classList.toggle('border-amber-400', idx === 1);
-    document.getElementById('pkCardRoute1')?.classList.toggle('border-slate-200', idx !== 1);
-    document.getElementById('pkCardRoute1')?.classList.toggle('opacity-70', idx !== 1);
+    // 1. 動態切換兩張卡片的選中邊框與透明度高亮
+    const card0 = document.getElementById('pkCardRoute0');
+    const card1 = document.getElementById('pkCardRoute1');
+
+    if (card0 && card1) {
+        if (idx === 0) {
+            card0.className = "p-3 rounded-2xl border-2 transition-all cursor-pointer relative bg-slate-50 dark:bg-slate-900/60 border-amber-400 shadow-sm";
+            card1.className = "p-3 rounded-2xl border-2 transition-all cursor-pointer relative bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 opacity-70";
+        } else {
+            card0.className = "p-3 rounded-2xl border-2 transition-all cursor-pointer relative bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 opacity-70";
+            card1.className = "p-3 rounded-2xl border-2 transition-all cursor-pointer relative bg-slate-50 dark:bg-slate-900/60 border-amber-400 shadow-sm";
+        }
+    }
 
     // 2. 觸發該路線的高程取樣與補電演算法
     const startSoc = parseFloat(document.getElementById('routeStartSoc')?.value) || 90;
@@ -4131,6 +4137,22 @@ function processRouteElevationAndCharging(route, startSoc) {
         }
 
         const placesService = new google.maps.places.PlacesService(abrpMap);
+        
+        // 🛡️ 防呆保護：若 3 秒內 Google Places API 沒有回應，自動解除讀取狀態
+        let searchCompleted = false;
+        const searchTimeout = setTimeout(() => {
+            if (!searchCompleted) {
+                const stopDiv = document.getElementById('abrpStopRecommendation');
+                if (stopDiv && stopDiv.innerHTML.includes('正在計算')) {
+                    stopDiv.innerHTML = `
+                        <p class="text-[11px] text-amber-800 dark:text-amber-300">
+                            建議於行駛約 <b>${Math.round(criticalDistanceKm)} km</b> 附近的國道服務區（如 <b>西螺、清水、湖口服務區</b> 等）停靠補電約 25 分鐘。
+                        </p>
+                    `;
+                }
+            }
+        }, 3000);
+        
         placesService.nearbySearch({
             location: criticalLatLng,
             radius: 8000,
