@@ -1081,7 +1081,7 @@
 <!-- 計算結果面板 -->
 <div id="abrpResultSection" class="hidden space-y-3">
 
-    <!-- ⬇️ 【從這裡插入】🔀 國一 vs 國三 路況能耗 PK 面板 -->
+    <!-- 🔀 國一 vs 國三 路況能耗 PK 面板 -->
     <div id="highwayPkContainer" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-2.5">
         <!-- 路線 1 卡片 -->
         <div id="pkCardRoute0" onclick="selectPkRoute(0)" class="p-3 rounded-2xl border-2 transition-all cursor-pointer relative bg-slate-50 dark:bg-slate-900/60 border-amber-400">
@@ -1121,40 +1121,39 @@
             </div>
         </div>
     </div>
-    <!-- ⬆️ 【插入結束】 -->
 
+    <!-- 主數據三大面板 -->
     <div class="grid grid-cols-3 gap-2">
-        <!-- 原有的總里程、行車時間、直達剩餘區塊 -->
-                <div class="grid grid-cols-3 gap-2">
-                    <div class="p-2.5 sm:p-3 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center justify-center text-center shadow-sm">
-                        <span class="text-[10px] sm:text-xs text-slate-400 font-bold mb-1 flex items-center gap-1">
-                            <span>🛣️</span> 總里程
-                        </span>
-                        <span id="abrpTotalDist" class="text-sm sm:text-base font-black font-mono text-slate-800 dark:text-white tracking-tight leading-tight">0<br><span class="text-xs font-bold text-slate-500 dark:text-slate-400">km</span></span>
-                    </div>
-                    <div class="p-2.5 sm:p-3 min-h-[76px] bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center justify-center text-center shadow-sm">
-                        <span class="text-[10px] sm:text-xs text-slate-400 font-bold mb-1 flex items-center gap-1">
-                            <span>⏱️</span> 行車時間
-                        </span>
-                        <span id="abrpDriveDuration" class="text-sm sm:text-base font-black font-mono text-slate-800 dark:text-white tracking-tight leading-tight">0 分</span>
-                    </div>
-                    <div class="p-2.5 sm:p-3 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center justify-center text-center shadow-sm">
-                        <span class="text-[10px] sm:text-xs text-slate-400 font-bold mb-1 flex items-center gap-1">
-                            <span>🔋</span> 直達剩餘
-                        </span>
-                        <span id="abrpDirectSoc" class="text-sm sm:text-base font-black font-mono tracking-tight leading-tight flex flex-col items-center justify-center text-slate-400">
-    <span>0%</span>
-    <span class="text-[9px] font-bold text-slate-400 mt-0.5 tracking-normal">待計算</span>
-</span>
-                    </div>
-                </div>
-
-                    <div id="abrpRecommendationCard" class="p-4 rounded-2xl border text-xs leading-relaxed space-y-2"></div>
-                </div>
-            </div>
+        <div class="p-2.5 sm:p-3 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center justify-center text-center shadow-sm">
+            <span class="text-[10px] sm:text-xs text-slate-400 font-bold mb-1 flex items-center gap-1">
+                <span>🛣️</span> 總里程
+            </span>
+            <span id="abrpTotalDist" class="text-sm sm:text-base font-black font-mono text-slate-800 dark:text-white tracking-tight leading-tight">0<br><span class="text-xs font-bold text-slate-500 dark:text-slate-400">km</span></span>
+        </div>
+        <div class="p-2.5 sm:p-3 min-h-[76px] bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center justify-center text-center shadow-sm">
+            <span class="text-[10px] sm:text-xs text-slate-400 font-bold mb-1 flex items-center gap-1">
+                <span>⏱️</span> 行車時間
+            </span>
+            <span id="abrpDriveDuration" class="text-sm sm:text-base font-black font-mono text-slate-800 dark:text-white tracking-tight leading-tight">0 分</span>
+        </div>
+        <div class="p-2.5 sm:p-3 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center justify-center text-center shadow-sm">
+            <span class="text-[10px] sm:text-xs text-slate-400 font-bold mb-1 flex items-center gap-1">
+                <span>🔋</span> 直達剩餘
+            </span>
+            <span id="abrpDirectSoc" class="text-sm sm:text-base font-black font-mono tracking-tight leading-tight flex flex-col items-center justify-center text-slate-400">
+                <span>0%</span>
+                <span class="text-[9px] font-bold text-slate-400 mt-0.5 tracking-normal">待計算</span>
+            </span>
         </div>
     </div>
 
+    <div id="abrpRecommendationCard" class="p-4 rounded-2xl border text-xs leading-relaxed space-y-2"></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+    
     <!-- 導航列 -->
     <nav class="fixed left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[calc(100%-2rem)] md:max-w-2xl z-50 rounded-[2rem] ios-27-glass px-2 floating-nav">
         <div class="flex justify-around items-center h-16 md:h-20 max-w-md md:max-w-full mx-auto relative" id="nav-container">
@@ -3880,7 +3879,7 @@ if(dH) dH.innerHTML = window.location.protocol === 'file:' ? '🔴 本機檔案�
                 new google.maps.places.Autocomplete(endInput, options);
             }
         }
-        /* ============================================================
+/* ============================================================
    🔀 國道即時路況與動態電耗 PK 輔助函式
    ============================================================ */
 let currentPkRoutes = [];
@@ -3911,16 +3910,25 @@ function evaluateRouteWithTraffic(route, startSoc) {
     };
 }
 
+let abrpChargerMarker = null; // 用於追蹤並清除地圖上的推薦充電站標記
+
+// 切換選中路線，並重新進行高程分析與中途快充計算
 window.selectPkRoute = function(idx) {
     if (!currentPkRoutes?.[idx]) return;
     abrpDirectionsRenderer.setRouteIndex(idx);
+
+    // 1. 切換卡片高亮樣式
     document.getElementById('pkCardRoute0')?.classList.toggle('border-amber-400', idx === 0);
     document.getElementById('pkCardRoute0')?.classList.toggle('border-slate-200', idx !== 0);
+    document.getElementById('pkCardRoute0')?.classList.toggle('opacity-70', idx !== 0);
     document.getElementById('pkCardRoute1')?.classList.toggle('border-amber-400', idx === 1);
     document.getElementById('pkCardRoute1')?.classList.toggle('border-slate-200', idx !== 1);
-};
+    document.getElementById('pkCardRoute1')?.classList.toggle('opacity-70', idx !== 1);
 
-let abrpChargerMarker = null; // 用於追蹤並清除地圖上的推薦充電站標記
+    // 2. 觸發該路線的高程取樣與補電演算法
+    const startSoc = parseFloat(document.getElementById('routeStartSoc')?.value) || 90;
+    processRouteElevationAndCharging(currentPkRoutes[idx], startSoc);
+};
 
 window.planElectricRoute = async function() {
     let startLoc = document.getElementById('routeStartInput')?.value.trim();
@@ -3937,7 +3945,6 @@ window.planElectricRoute = async function() {
         return;
     }
 
-    // ✅ 修復 1：在發出 Directions 請求前，先完成起點經緯度轉換
     if (typeof startLoc === 'string' && (startLoc.includes("目前位置") || startLoc.includes("定位中"))) {
         if (currentStartLatLng) {
             startLoc = currentStartLatLng;
@@ -3947,7 +3954,6 @@ window.planElectricRoute = async function() {
         }
     }
 
-    // ✅ 修復 2：清除前一次模擬所留下的充電站 Marker
     if (abrpChargerMarker) {
         abrpChargerMarker.setMap(null);
         abrpChargerMarker = null;
@@ -3961,8 +3967,8 @@ window.planElectricRoute = async function() {
         origin: startLoc,
         destination: endLoc,
         travelMode: google.maps.TravelMode.DRIVING,
-        provideRouteAlternatives: true, // 👈 加這行：取得替代路線
-        drivingOptions: {               // 👈 加這段：啟用即時路況
+        provideRouteAlternatives: true,
+        drivingOptions: {
             departureTime: new Date(),
             trafficModel: google.maps.TrafficModel.BEST_GUESS
         }
@@ -3973,8 +3979,8 @@ window.planElectricRoute = async function() {
         }
 
         abrpDirectionsRenderer.setDirections(response);
-        // ⬇️ 【插入這段】如果找到 2 條以上路線，更新 PK 卡片
         currentPkRoutes = response.routes;
+
         const pkBox = document.getElementById('highwayPkContainer');
         if (response.routes.length >= 2 && pkBox) {
             pkBox.classList.remove('hidden');
@@ -3993,232 +3999,223 @@ window.planElectricRoute = async function() {
         } else if (pkBox) {
             pkBox.classList.add('hidden');
         }
-        // ⬆️ 【插入結束】  
-        const route = response.routes[0];
-        const leg = route.legs[0];
-        const totalDistanceKm = leg.distance.value / 1000;
-        const durationText = leg.duration.text;
 
-        // 1. 基礎高速平地電耗（以實測 5.5 km/度 為基準）
-        const baseHighwayEff = AppState.globalAvgEfficiency > 0 ? AppState.globalAvgEfficiency : 5.5;
-
-        // 2. 呼叫 Google ElevationService 取得沿途真實海拔坡度剖面
-        const elevationService = new google.maps.ElevationService();
-        
-        // 沿路線取樣 60 個高程點
-        elevationService.getElevationAlongPath({
-            path: route.overview_path,
-            samples: 60
-        }, (elevations, eStatus) => {
-            let totalClimbMeters = 0;   // 累計爬升高度 (m)
-            let totalDescentMeters = 0; // 累計下降高度 (m)
-            let maxElevation = 0;       // 最高海拔 (m)
-
-            if (eStatus === google.maps.ElevationStatus.OK && elevations?.length > 1) {
-                maxElevation = Math.round(Math.max(...elevations.map(e => e.elevation)));
-                for (let i = 1; i < elevations.length; i++) {
-                    const diff = elevations[i].elevation - elevations[i - 1].elevation;
-                    if (diff > 1.5) totalClimbMeters += diff;
-                    else if (diff < -1.5) totalDescentMeters += Math.abs(diff);
-                }
-            }
-
-            // 3. 仿 Tesla/ABRP 能耗模型演算：
-            // A. 平地巡航基準能耗 (kWh)
-            const flatEnergyKwh = totalDistanceKm / baseHighwayEff;
-
-            // B. 重力位能損益 (n7 車重約 2150kg)
-            // 爬升：每 100m 需約 0.65 kWh；下降：每 100m 經電能回充約補回 0.45 kWh
-            const climbEnergyKwh = (totalClimbMeters / 100) * 0.65;
-            const regenEnergyKwh = (totalDescentMeters / 100) * 0.45;
-            const netElevationEnergyKwh = climbEnergyKwh - regenEnergyKwh;
-
-            // C. 總能耗與等效電耗計算
-            const totalConsumedKwh = Math.max(1, flatEnergyKwh + netElevationEnergyKwh);
-            const totalConsumedSoc = (totalConsumedKwh / AppState.batteryCapacity) * 100;
-            const directArrivalSoc = Math.round(startSoc - totalConsumedSoc);
-            const realEff = totalDistanceKm / totalConsumedKwh; // 真實動態電耗
-
-            // 4. 路況地貌判定描述
-            let routeProfileText = "";
-            if (maxElevation >= 1000 || totalClimbMeters >= 800) {
-                routeProfileText = `高海拔山區 (最高 ${maxElevation}m，爬升 +${Math.round(totalClimbMeters)}m)`;
-            } else if (totalClimbMeters >= 350) {
-                routeProfileText = `丘陵坡道地貌 (最高 ${maxElevation}m，爬升 +${Math.round(totalClimbMeters)}m)`;
-            } else {
-                routeProfileText = `平地巡航路段 (最高 ${maxElevation}m，起伏平緩)`;
-            }
-
-            document.getElementById('abrpResultSection')?.classList.remove('hidden');
-
-            let formattedDuration = durationText;
-            if (durationText.includes('小時')) {
-                formattedDuration = durationText
-                    .replace(/小時\s*/, '小時<br><span class="text-xs font-bold text-slate-500 dark:text-slate-400">')
-                    + '</span>';
-            }
-
-            const totalDistEl = document.getElementById('abrpTotalDist');
-            if (totalDistEl) {
-                totalDistEl.innerHTML = `${totalDistanceKm.toFixed(1)}<br><span class="text-xs font-bold text-slate-500 dark:text-slate-400">km</span>`;
-            }
-
-            const driveDurEl = document.getElementById('abrpDriveDuration');
-            if (driveDurEl) {
-                driveDurEl.innerHTML = formattedDuration;
-            }
-
-            const directSocEl = document.getElementById('abrpDirectSoc');
-            if (directSocEl) {
-                const isLowSoc = directArrivalSoc < 15;
-                const statusText = isLowSoc ? '需中途補電' : '安全無虞';
-                const numColor = isLowSoc ? 'text-rose-500' : 'text-emerald-500';
-                const statusColor = isLowSoc 
-                    ? 'text-rose-600 dark:text-rose-400 bg-rose-100 dark:bg-rose-900/40' 
-                    : 'text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/40';
-
-                directSocEl.className = `text-sm sm:text-base font-black font-mono tracking-tight leading-tight flex flex-col items-center justify-center ${numColor}`;
-                directSocEl.innerHTML = `
-                    <span>${directArrivalSoc}%</span>
-                    <span class="text-[9px] font-black px-1.5 py-0.5 rounded mt-0.5 tracking-normal whitespace-nowrap ${statusColor}">
-                        ${statusText}
-                    </span>
-                `;
-            }
-
-            const recCard = document.getElementById('abrpRecommendationCard');
-
-            if (directArrivalSoc >= 15) {
-                recCard.className = "p-4 rounded-2xl border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/60 dark:bg-emerald-950/30 text-emerald-950 dark:text-emerald-300 space-y-1.5";
-                recCard.innerHTML = `
-                    <div class="font-black text-sm flex items-center gap-1.5">
-                        <span>🟢</span> 評估：可一桶電直達，無需中途補電！
-                    </div>
-                    <p class="text-[11px] opacity-90 leading-relaxed">
-                        總里程約 ${totalDistanceKm.toFixed(1)} km（地形：<b>${routeProfileText}</b>，等效電耗 <b>${realEff.toFixed(2)} km/度</b>），預估抵達剩餘 <b>${directArrivalSoc}%</b> 電量，高於安全底線。
-                    </p>
-                `;
-                return;
-            }
-
-            recCard.className = "p-4 rounded-2xl border border-amber-300 dark:border-amber-700/60 bg-amber-50/80 dark:bg-amber-950/40 text-amber-950 dark:text-amber-200 space-y-2";
-            recCard.innerHTML = `
-                <div class="font-black text-sm text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
-                    <span>⚠️</span> 直達電量不足 (預估僅剩 ${directArrivalSoc}%)，建議中途補能！
-                </div>
-                <div class="text-[11px] opacity-90 leading-relaxed text-slate-600 dark:text-slate-300">
-                    地形判定：<b>${routeProfileText}</b>（等效電耗 <b>${realEff.toFixed(2)} km/度</b>，總里程約 ${totalDistanceKm.toFixed(1)} km）
-                </div>
-                <div id="abrpStopRecommendation" class="text-[11px] pt-1">
-                    🔍 正在計算路徑上的最佳快充站點...
-                </div>
-            `;
-
-            // 計算電量降至 20% 安全線時的臨界里程
-            const safeTargetSoc = 20;
-            const allowableSocDrop = Math.max(0, startSoc - safeTargetSoc);
-            const criticalDistanceKm = (allowableSocDrop / 100) * AppState.batteryCapacity * realEff;
-
-            let accumulatedMeters = 0;
-            let criticalLatLng = leg.steps[0].end_location;
-
-            for (const step of leg.steps) {
-                accumulatedMeters += step.distance.value;
-                if (accumulatedMeters >= criticalDistanceKm * 1000) {
-                    criticalLatLng = step.end_location;
-                    break;
-                }
-            }
-
-            // 搜尋關鍵座標周遭 8km 內的快充站
-            const placesService = new google.maps.places.PlacesService(abrpMap);
-            placesService.nearbySearch({
-                location: criticalLatLng,
-                radius: 8000,
-                keyword: '快充站'
-            }, (stations, pStatus) => {
-                const stopDiv = document.getElementById('abrpStopRecommendation');
-                if (!stopDiv) return;
-
-                // 🛑 僅過濾特斯拉自營站點
-                const validStations = (stations || []).filter(s => {
-                    const name = (s.name || '').toLowerCase();
-                    return !name.includes('tesla') && 
-                           !name.includes('特斯拉') && 
-                           !name.includes('supercharger');
-                });
-
-                if (pStatus === google.maps.places.PlacesServiceStatus.OK && validStations.length > 0) {
-                    const bestStation = validStations[0];
-                    // ✅ 修復 3：補上 neededKwh 定義，修復充電時間計算報錯
-                    const neededKwh = AppState.batteryCapacity * ((80 - safeTargetSoc) / 100);
-                    const chargingMinutes = Math.round((neededKwh / 85) * 60);
-
-                    const stationAddress = bestStation.vicinity || bestStation.formatted_address || "沿途交流道或服務區周邊";
-                    const stationName = bestStation.name;
-                    const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(stationName)}&destination_place_id=${bestStation.place_id || ''}`;
-
-                    stopDiv.innerHTML = `
-                        <div class="bg-white/90 dark:bg-black/50 p-3 sm:p-3.5 rounded-2xl border border-amber-200 dark:border-amber-700/70 mt-1 shadow-sm space-y-2">
-                            <div class="flex items-start justify-between gap-2">
-                                <div class="flex-1 min-w-0">
-                                    <div class="font-black text-amber-900 dark:text-amber-200 text-xs sm:text-sm flex items-center gap-1 truncate">
-                                        <span>⚡</span> <span>${escapeHTML(stationName)}</span>
-                                    </div>
-                                    <div class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-bold flex items-center gap-1 mt-0.5">
-                                        <span>📍</span> <span class="truncate">${escapeHTML(stationAddress)}</span>
-                                    </div>
-                                </div>
-                                <span class="bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 px-2 py-1 rounded-lg text-[10px] font-black shrink-0 whitespace-nowrap shadow-sm">
-                                    補電約 ${chargingMinutes} 分
-                                </span>
-                            </div>
-                            
-                            <div class="pt-1.5 border-t border-amber-100 dark:border-amber-900/40 flex items-center justify-between">
-                                <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
-                                    建議於行駛約 <b>${Math.round(criticalDistanceKm)} km</b> 處停靠，充至 <b>80%</b> 即可安心抵達。
-                                </p>
-                                <a href="${navUrl}" target="_blank" rel="noopener noreferrer" class="ml-2 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 text-[10px] font-black shadow-sm shrink-0 active:scale-95 transition">
-                                    <span>🗺️</span> 導航此站
-                                </a>
-                            </div>
-                        </div>
-                    `;
-
-                    abrpChargerMarker = new google.maps.Marker({
-                        position: bestStation.geometry.location,
-                        map: abrpMap,
-                        icon: {
-                            path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-                            fillColor: '#f59e0b',
-                            fillOpacity: 1,
-                            strokeWeight: 1.5,
-                            strokeColor: '#ffffff',
-                            scale: 1.5,
-                            anchor: new google.maps.Point(12, 22)
-                        },
-                        title: `建議停靠：${stationName}`
-                    });
-
-                    const infoWindow = new google.maps.InfoWindow({
-                        content: `<div style="color:#0f172a;padding:2px 0;font-size:12px;font-family:sans-serif;">
-                            <div style="font-weight:900;">${escapeHTML(stationName)}</div>
-                            <div style="font-size:10px;color:#64748b;margin-top:2px;">${escapeHTML(stationAddress)}</div>
-                        </div>`
-                    });
-                    abrpChargerMarker.addListener('click', () => infoWindow.open(abrpMap, abrpChargerMarker));
-
-                } else {
-                    stopDiv.innerHTML = `
-                        <p class="text-[11px] text-amber-800 dark:text-amber-300">
-                            建議於行駛約 ${Math.round(criticalDistanceKm)} km 附近的國道服務區或交流道停靠補電約 25 分鐘。
-                        </p>
-                    `;
-                }
-            });
-        });
+        selectPkRoute(0);
     });
 };
+
+function processRouteElevationAndCharging(route, startSoc) {
+    const leg = route.legs[0];
+    const totalDistanceKm = leg.distance.value / 1000;
+    const durationText = leg.duration_in_traffic ? leg.duration_in_traffic.text : leg.duration.text;
+    const baseHighwayEff = AppState.globalAvgEfficiency > 0 ? AppState.globalAvgEfficiency : 5.5;
+
+    const elevationService = new google.maps.ElevationService();
+    elevationService.getElevationAlongPath({
+        path: route.overview_path,
+        samples: 60
+    }, (elevations, eStatus) => {
+        let totalClimbMeters = 0;
+        let totalDescentMeters = 0;
+        let maxElevation = 0;
+
+        if (eStatus === google.maps.ElevationStatus.OK && elevations?.length > 1) {
+            maxElevation = Math.round(Math.max(...elevations.map(e => e.elevation)));
+            for (let i = 1; i < elevations.length; i++) {
+                const diff = elevations[i].elevation - elevations[i - 1].elevation;
+                if (diff > 1.5) totalClimbMeters += diff;
+                else if (diff < -1.5) totalDescentMeters += Math.abs(diff);
+            }
+        }
+
+        const flatEnergyKwh = totalDistanceKm / baseHighwayEff;
+        const climbEnergyKwh = (totalClimbMeters / 100) * 0.65;
+        const regenEnergyKwh = (totalDescentMeters / 100) * 0.45;
+        const netElevationEnergyKwh = climbEnergyKwh - regenEnergyKwh;
+
+        const totalConsumedKwh = Math.max(1, flatEnergyKwh + netElevationEnergyKwh);
+        const totalConsumedSoc = (totalConsumedKwh / AppState.batteryCapacity) * 100;
+        const directArrivalSoc = Math.round(startSoc - totalConsumedSoc);
+        const realEff = totalDistanceKm / totalConsumedKwh;
+
+        let routeProfileText = "";
+        if (maxElevation >= 1000 || totalClimbMeters >= 800) {
+            routeProfileText = `高海拔山區 (最高 ${maxElevation}m，爬升 +${Math.round(totalClimbMeters)}m)`;
+        } else if (totalClimbMeters >= 350) {
+            routeProfileText = `丘陵坡道地貌 (最高 ${maxElevation}m，爬升 +${Math.round(totalClimbMeters)}m)`;
+        } else {
+            routeProfileText = `平地巡航路段 (最高 ${maxElevation}m，起伏平緩)`;
+        }
+
+        document.getElementById('abrpResultSection')?.classList.remove('hidden');
+
+        let formattedDuration = durationText;
+        if (durationText.includes('小時')) {
+            formattedDuration = durationText
+                .replace(/小時\s*/, '小時<br><span class="text-xs font-bold text-slate-500 dark:text-slate-400">')
+                + '</span>';
+        }
+
+        const totalDistEl = document.getElementById('abrpTotalDist');
+        if (totalDistEl) {
+            totalDistEl.innerHTML = `${totalDistanceKm.toFixed(1)}<br><span class="text-xs font-bold text-slate-500 dark:text-slate-400">km</span>`;
+        }
+
+        const driveDurEl = document.getElementById('abrpDriveDuration');
+        if (driveDurEl) {
+            driveDurEl.innerHTML = formattedDuration;
+        }
+
+        const directSocEl = document.getElementById('abrpDirectSoc');
+        if (directSocEl) {
+            const isLowSoc = directArrivalSoc < 15;
+            const statusText = isLowSoc ? '需中途補電' : '安全無虞';
+            const numColor = isLowSoc ? 'text-rose-500' : 'text-emerald-500';
+            const statusColor = isLowSoc 
+                ? 'text-rose-600 dark:text-rose-400 bg-rose-100 dark:bg-rose-900/40' 
+                : 'text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/40';
+
+            directSocEl.className = `text-sm sm:text-base font-black font-mono tracking-tight leading-tight flex flex-col items-center justify-center ${numColor}`;
+            directSocEl.innerHTML = `
+                <span>${directArrivalSoc}%</span>
+                <span class="text-[9px] font-black px-1.5 py-0.5 rounded mt-0.5 tracking-normal whitespace-nowrap ${statusColor}">
+                    ${statusText}
+                </span>
+            `;
+        }
+
+        const recCard = document.getElementById('abrpRecommendationCard');
+        if (directArrivalSoc >= 15) {
+            if (abrpChargerMarker) {
+                abrpChargerMarker.setMap(null);
+                abrpChargerMarker = null;
+            }
+            recCard.className = "p-4 rounded-2xl border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/60 dark:bg-emerald-950/30 text-emerald-950 dark:text-emerald-300 space-y-1.5";
+            recCard.innerHTML = `
+                <div class="font-black text-sm flex items-center gap-1.5">
+                    <span>🟢</span> 評估：可一桶電直達，無需中途補電！
+                </div>
+                <p class="text-[11px] opacity-90 leading-relaxed">
+                    總里程約 ${totalDistanceKm.toFixed(1)} km（地形：<b>${routeProfileText}</b>，等效電耗 <b>${realEff.toFixed(2)} km/度</b>），預估抵達剩餘 <b>${directArrivalSoc}%</b> 電量，高於安全底線。
+                </p>
+            `;
+            return;
+        }
+
+        recCard.className = "p-4 rounded-2xl border border-amber-300 dark:border-amber-700/60 bg-amber-50/80 dark:bg-amber-950/40 text-amber-950 dark:text-amber-200 space-y-2";
+        recCard.innerHTML = `
+            <div class="font-black text-sm text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
+                <span>⚠️</span> 直達電量不足 (預估僅剩 ${directArrivalSoc}%)，建議中途補能！
+            </div>
+            <div class="text-[11px] opacity-90 leading-relaxed text-slate-600 dark:text-slate-300">
+                地形判定：<b>${routeProfileText}</b>（等效電耗 <b>${realEff.toFixed(2)} km/度</b>，總里程約 ${totalDistanceKm.toFixed(1)} km）
+            </div>
+            <div id="abrpStopRecommendation" class="text-[11px] pt-1">
+                🔍 正在計算路徑上的最佳快充站點...
+            </div>
+        `;
+
+        const safeTargetSoc = 20;
+        const allowableSocDrop = Math.max(0, startSoc - safeTargetSoc);
+        const criticalDistanceKm = (allowableSocDrop / 100) * AppState.batteryCapacity * realEff;
+
+        let accumulatedMeters = 0;
+        let criticalLatLng = leg.steps[0].end_location;
+
+        for (const step of leg.steps) {
+            accumulatedMeters += step.distance.value;
+            if (accumulatedMeters >= criticalDistanceKm * 1000) {
+                criticalLatLng = step.end_location;
+                break;
+            }
+        }
+
+        const placesService = new google.maps.places.PlacesService(abrpMap);
+        placesService.nearbySearch({
+            location: criticalLatLng,
+            radius: 8000,
+            keyword: '快充站'
+        }, (stations, pStatus) => {
+            const stopDiv = document.getElementById('abrpStopRecommendation');
+            if (!stopDiv) return;
+
+            const validStations = (stations || []).filter(s => {
+                const name = (s.name || '').toLowerCase();
+                return !name.includes('tesla') && 
+                       !name.includes('特斯拉') && 
+                       !name.includes('supercharger');
+            });
+
+            if (pStatus === google.maps.places.PlacesServiceStatus.OK && validStations.length > 0) {
+                const bestStation = validStations[0];
+                const neededKwh = AppState.batteryCapacity * ((80 - safeTargetSoc) / 100);
+                const chargingMinutes = Math.round((neededKwh / 85) * 60);
+
+                const stationAddress = bestStation.vicinity || bestStation.formatted_address || "沿途交流道或服務區周邊";
+                const stationName = bestStation.name;
+                const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(stationName)}&destination_place_id=${bestStation.place_id || ''}`;
+
+                stopDiv.innerHTML = `
+                    <div class="bg-white/90 dark:bg-black/50 p-3 sm:p-3.5 rounded-2xl border border-amber-200 dark:border-amber-700/70 mt-1 shadow-sm space-y-2">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex-1 min-w-0">
+                                <div class="font-black text-amber-900 dark:text-amber-200 text-xs sm:text-sm flex items-center gap-1 truncate">
+                                    <span>⚡</span> <span>${escapeHTML(stationName)}</span>
+                                </div>
+                                <div class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-bold flex items-center gap-1 mt-0.5">
+                                    <span>📍</span> <span class="truncate">${escapeHTML(stationAddress)}</span>
+                                </div>
+                            </div>
+                            <span class="bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 px-2 py-1 rounded-lg text-[10px] font-black shrink-0 whitespace-nowrap shadow-sm">
+                                補電約 ${chargingMinutes} 分
+                            </span>
+                        </div>
+                        
+                        <div class="pt-1.5 border-t border-amber-100 dark:border-amber-900/40 flex items-center justify-between">
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
+                                建議於行駛約 <b>${Math.round(criticalDistanceKm)} km</b> 處停靠，充至 <b>80%</b> 即可安心抵達。
+                            </p>
+                            <a href="${navUrl}" target="_blank" rel="noopener noreferrer" class="ml-2 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 text-[10px] font-black shadow-sm shrink-0 active:scale-95 transition">
+                                <span>🗺️</span> 導航此站
+                            </a>
+                        </div>
+                    </div>
+                `;
+
+                if (abrpChargerMarker) abrpChargerMarker.setMap(null);
+                abrpChargerMarker = new google.maps.Marker({
+                    position: bestStation.geometry.location,
+                    map: abrpMap,
+                    icon: {
+                        path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+                        fillColor: '#f59e0b',
+                        fillOpacity: 1,
+                        strokeWeight: 1.5,
+                        strokeColor: '#ffffff',
+                        scale: 1.5,
+                        anchor: new google.maps.Point(12, 22)
+                    },
+                    title: `建議停靠：${stationName}`
+                });
+
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `<div style="color:#0f172a;padding:2px 0;font-size:12px;font-family:sans-serif;">
+                        <div style="font-weight:900;">${escapeHTML(stationName)}</div>
+                        <div style="font-size:10px;color:#64748b;margin-top:2px;">${escapeHTML(stationAddress)}</div>
+                    </div>`
+                });
+                abrpChargerMarker.addListener('click', () => infoWindow.open(abrpMap, abrpChargerMarker));
+
+            } else {
+                stopDiv.innerHTML = `
+                    <p class="text-[11px] text-amber-800 dark:text-amber-300">
+                        建議於行駛約 ${Math.round(criticalDistanceKm)} km 附近的國道服務區或交流道停靠補電約 25 分鐘。
+                    </p>
+                `;
+            }
+        });
+    });
+}
     </script>
 
     <script src="./achievements.js" onload="if(typeof renderDashboard==='function') renderDashboard();"></script>
