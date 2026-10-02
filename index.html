@@ -1774,12 +1774,23 @@ function cacheDOMNodes() {
 
                         if (places?.length > 0) {
                             places.forEach(place => {
+                                const stationName = place.displayName || '';
+                                const lowerName = stationName.toLowerCase();
+
+                                // 🛑 僅過濾特斯拉自營站點
+                                if (lowerName.includes('tesla') || lowerName.includes('特斯拉') || lowerName.includes('supercharger')) {
+                                    return;
+                                }
+
                                 const pLat = place.location.lat();
                                 const pLng = place.location.lng();
                                 const dist = getDistanceFromLatLonInKm(lat, lng, pLat, pLng);
                                 tempNearbyStations.push({
-                                    name: place.displayName, lat: pLat, lng: pLng,
-                                    distanceKm: dist, distanceM: Math.round(dist * 1000)
+                                    name: stationName,
+                                    lat: pLat,
+                                    lng: pLng,
+                                    distanceKm: dist,
+                                    distanceM: Math.round(dist * 1000)
                                 });
                             });
                             tempNearbyStations.sort((a, b) => a.distanceKm - b.distanceKm);
@@ -4009,21 +4020,27 @@ window.planElectricRoute = async function() {
                 }
             }
 
-            // 搜尋關鍵座標周遭 8km 內的充電站
+// 搜尋關鍵座標周遭 8km 內的快充站
             const placesService = new google.maps.places.PlacesService(abrpMap);
             placesService.nearbySearch({
                 location: criticalLatLng,
                 radius: 8000,
-                keyword: '充電站'
+                keyword: '快充站' // 涵蓋所有第三方 CCS1 / CCS2 快充
             }, (stations, pStatus) => {
                 const stopDiv = document.getElementById('abrpStopRecommendation');
                 if (!stopDiv) return;
 
-                if (pStatus === google.maps.places.PlacesServiceStatus.OK && stations?.length > 0) {
-                    const bestStation = stations[0];
-                    const neededKwh = AppState.batteryCapacity * ((80 - safeTargetSoc) / 100);
-                    const chargingMinutes = Math.round((neededKwh / 85) * 60);
+                // 🛑 僅過濾特斯拉自營站點，其他第三方營運商（CCS1/CCS2 通用）一律保留
+                const validStations = (stations || []).filter(s => {
+                    const name = (s.name || '').toLowerCase();
+                    return !name.includes('tesla') && 
+                           !name.includes('特斯拉') && 
+                           !name.includes('supercharger');
+                });
 
+                if (pStatus === google.maps.places.PlacesServiceStatus.OK && validStations.length > 0) {
+                    const bestStation = validStations[0];
+                    const chargingMinutes = Math.round((neededKwh / 85) * 60);
                     const stationAddress = bestStation.vicinity || bestStation.formatted_address || "沿途交流道或服務區周邊";
                     const stationName = bestStation.name;
                     const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(stationName)}&destination_place_id=${bestStation.place_id || ''}`;
