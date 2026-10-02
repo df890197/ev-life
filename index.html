@@ -4193,7 +4193,7 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx) {
                 </div>
             `;
 
-            // 存入快取並標記為 Ready
+// 存入快取並標記為 Ready
             if (pkRouteCache[routeIdx]) {
                 pkRouteCache[routeIdx].stationCardHtml = stationCardHtml;
                 pkRouteCache[routeIdx].stationLocation = bestStation.geometry.location;
@@ -4202,8 +4202,14 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx) {
                 pkRouteCache[routeIdx].isReady = true;
             }
 
-            if (selectedPkRouteIndex === routeIdx || document.getElementById('highwayPkContainer')) {
-                stopDiv.innerHTML = stationCardHtml;
+            // ⚡ 檢查目前畫面上的地圖渲染器是不是正在顯示這一條路線，若是則立刻把卡片換成充電站
+            const activeRouteIndex = abrpDirectionsRenderer ? abrpDirectionsRenderer.getRouteIndex() : 0;
+            if (activeRouteIndex === routeIdx) {
+                const recCard = document.getElementById('abrpRecommendationCard');
+                if (recCard && recCard.innerHTML.includes('正在尋找')) {
+                    const stopDiv = document.getElementById('abrpStopRecommendation');
+                    if (stopDiv) stopDiv.innerHTML = stationCardHtml;
+                }
             }
 
             if (routeIdx === 0) { // 預設顯示第一條路線的 Marker
