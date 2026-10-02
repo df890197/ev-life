@@ -3836,7 +3836,7 @@ if(dH) dH.innerHTML = window.location.protocol === 'file:' ? '🔴 本機檔案�
             }
         }
 
-let abrpChargerMarker = null;
+let abrpChargerMarker = null; // 用於追蹤並清除地圖上的推薦充電站標記
 
 window.planElectricRoute = async function() {
     let startLoc = document.getElementById('routeStartInput')?.value.trim();
@@ -3853,8 +3853,8 @@ window.planElectricRoute = async function() {
         return;
     }
 
-    // 起點防呆處理
-    if (startLoc.includes("目前位置") || startLoc.includes("定位中")) {
+    // ✅ 修復 1：在發出 Directions 請求前，先完成起點經緯度轉換
+    if (typeof startLoc === 'string' && (startLoc.includes("目前位置") || startLoc.includes("定位中"))) {
         if (currentStartLatLng) {
             startLoc = currentStartLatLng;
         } else {
@@ -3863,6 +3863,7 @@ window.planElectricRoute = async function() {
         }
     }
 
+    // ✅ 修復 2：清除前一次模擬所留下的充電站 Marker
     if (abrpChargerMarker) {
         abrpChargerMarker.setMap(null);
         abrpChargerMarker = null;
@@ -3878,7 +3879,7 @@ window.planElectricRoute = async function() {
         travelMode: google.maps.TravelMode.DRIVING
     }, async (response, status) => {
         if (status !== google.maps.DirectionsStatus.OK || !response.routes[0]) {
-            showToast("無法規劃此路徑，請檢查起訖點地點 ⚠️️", true);
+            showToast("無法規劃此路徑，請檢查起訖點地點 ⚠️", true);
             return;
         }
 
@@ -3889,7 +3890,7 @@ window.planElectricRoute = async function() {
         const totalDistanceKm = leg.distance.value / 1000;
         const durationText = leg.duration.text;
 
-        // 1. 基礎高速平地電耗（以你的實測 5.5 km/度 為基準）
+        // 1. 基礎高速平地電耗（以實測 5.5 km/度 為基準）
         const baseHighwayEff = AppState.globalAvgEfficiency > 0 ? AppState.globalAvgEfficiency : 5.5;
 
         // 2. 呼叫 Google ElevationService 取得沿途真實海拔坡度剖面
@@ -4020,17 +4021,17 @@ window.planElectricRoute = async function() {
                 }
             }
 
-// 搜尋關鍵座標周遭 8km 內的快充站
+            // 搜尋關鍵座標周遭 8km 內的快充站
             const placesService = new google.maps.places.PlacesService(abrpMap);
             placesService.nearbySearch({
                 location: criticalLatLng,
                 radius: 8000,
-                keyword: '快充站' // 涵蓋所有第三方 CCS1 / CCS2 快充
+                keyword: '快充站'
             }, (stations, pStatus) => {
                 const stopDiv = document.getElementById('abrpStopRecommendation');
                 if (!stopDiv) return;
 
-                // 🛑 僅過濾特斯拉自營站點，其他第三方營運商（CCS1/CCS2 通用）一律保留
+                // 🛑 僅過濾特斯拉自營站點
                 const validStations = (stations || []).filter(s => {
                     const name = (s.name || '').toLowerCase();
                     return !name.includes('tesla') && 
@@ -4040,7 +4041,10 @@ window.planElectricRoute = async function() {
 
                 if (pStatus === google.maps.places.PlacesServiceStatus.OK && validStations.length > 0) {
                     const bestStation = validStations[0];
+                    // ✅ 修復 3：補上 neededKwh 定義，修復充電時間計算報錯
+                    const neededKwh = AppState.batteryCapacity * ((80 - safeTargetSoc) / 100);
                     const chargingMinutes = Math.round((neededKwh / 85) * 60);
+
                     const stationAddress = bestStation.vicinity || bestStation.formatted_address || "沿途交流道或服務區周邊";
                     const stationName = bestStation.name;
                     const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(stationName)}&destination_place_id=${bestStation.place_id || ''}`;
