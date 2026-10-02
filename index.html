@@ -1018,7 +1018,7 @@
 
 <!-- ⚡ ABRP 風格：長途補給規劃器 Modal -->
     <div id="abrpModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[125] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-white dark:bg-[#1e293b] rounded-[2rem] p-5 md:p-6 shadow-2xl max-w-xl w-full mx-4 h-[85vh] flex flex-col transform scale-95 transition duration-300 border border-slate-100 dark:border-slate-700">
+        <div class="bg-white dark:bg-[#1e293b] rounded-[2rem] p-4 md:p-6 shadow-2xl max-w-xl w-full mx-4 h-[88vh] max-h-[88vh] flex flex-col overflow-hidden transform scale-95 transition duration-300 border border-slate-100 dark:border-slate-700">
             <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                 <h3 class="text-base md:text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">
                     <span>⚡</span> 長途補給規劃器 <span class="text-[9px] bg-amber-400 text-slate-950 px-2 py-0.5 rounded-full font-black">ABRP 智能演算法</span>
@@ -1026,7 +1026,7 @@
                 <button onclick="closeAbrpModal()" class="w-8 h-8 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center text-sm font-bold active:scale-90 text-slate-500">✕</button>
             </div>
 
-            <div class="overflow-y-auto no-scrollbar space-y-4 pt-3 flex-1">
+            <div class="overflow-y-auto no-scrollbar space-y-4 pt-3 flex shrink-0 flex-col">
                 <!-- 路線設定區 -->
                 <div class="grid grid-cols-1 sm:grid-cols-[1fr,auto,1fr] items-end gap-2 sm:gap-3 bg-slate-50 dark:bg-slate-900/40 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 relative">
                     <!-- 起點輸入框 -->
