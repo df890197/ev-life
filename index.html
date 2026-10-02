@@ -1016,10 +1016,10 @@
         </div>
     </div>
 
-    <!-- ⚡ ABRP 風格：長途補給規劃器 Modal -->
-<div class="bg-white dark:bg-[#1e293b] rounded-[2rem] p-5 md:p-6 shadow-2xl max-w-xl w-full mx-4 h-[85vh] flex flex-col transform scale-95 transition duration-300 border border-slate-100 dark:border-slate-700">
-    <!-- 👇 把 transition-all 拔掉，改為單純的 transition -->
-    <div class="bg-white dark:bg-[#1e293b] rounded-[2rem] p-5 md:p-6 shadow-2xl max-w-xl w-full mx-4 max-h-[90vh] flex flex-col transform scale-95 transition duration-300 border border-slate-100 dark:border-slate-700">            <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+<!-- ⚡ ABRP 風格：長途補給規劃器 Modal -->
+    <div id="abrpModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[125] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white dark:bg-[#1e293b] rounded-[2rem] p-5 md:p-6 shadow-2xl max-w-xl w-full mx-4 h-[85vh] flex flex-col transform scale-95 transition duration-300 border border-slate-100 dark:border-slate-700">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                 <h3 class="text-base md:text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">
                     <span>⚡</span> 長途補給規劃器 <span class="text-[9px] bg-amber-400 text-slate-950 px-2 py-0.5 rounded-full font-black">ABRP 智能演算法</span>
                 </h3>
@@ -1027,7 +1027,7 @@
             </div>
 
             <div class="overflow-y-auto no-scrollbar space-y-4 pt-3 flex-1">
-<!-- 路線設定區 -->
+                <!-- 路線設定區 -->
                 <div class="grid grid-cols-1 sm:grid-cols-[1fr,auto,1fr] items-end gap-2 sm:gap-3 bg-slate-50 dark:bg-slate-900/40 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 relative">
                     <!-- 起點輸入框 -->
                     <div class="w-full">
@@ -1078,83 +1078,78 @@
                 <!-- 地圖預覽 -->
                 <div id="abrpMapContainer" class="w-full h-44 md:h-52 shrink-0 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700 overflow-hidden relative"></div>
 
-<!-- 計算結果面板 -->
-<div id="abrpResultSection" class="hidden space-y-3">
+                <!-- 計算結果面板 -->
+                <div id="abrpResultSection" class="hidden space-y-3">
+                    <!-- 🔀 國一 vs 國三 路況能耗 PK 面板 -->
+                    <div id="highwayPkContainer" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div id="pkCardRoute0" onclick="selectPkRoute(0)" class="p-3 rounded-2xl border-2 border-amber-400 box-border select-none cursor-pointer relative bg-slate-50 dark:bg-slate-900/60 shadow-sm transition-[border-color,opacity] duration-150 will-change-[border-color,opacity]">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <span class="text-xs font-black text-slate-800 dark:text-white flex items-center gap-1.5">
+                                    <span class="w-4 h-4 rounded-full bg-slate-800 dark:bg-white text-white dark:text-slate-900 text-[10px] flex items-center justify-center font-mono font-black">1</span>
+                                    <span id="pkName0" class="truncate max-w-[120px]">國道 1 號</span>
+                                </span>
+                                <span id="pkTrafficTag0" class="text-[9px] font-black px-1.5 py-0.5 rounded">路況分析中</span>
+                            </div>
+                            <div class="flex items-baseline justify-between text-xs">
+                                <span class="text-slate-400 font-bold">時間: <b id="pkDuration0" class="text-slate-700 dark:text-slate-200 font-mono">-</b></span>
+                                <span class="text-slate-400 font-bold">抵達: <b id="pkSoc0" class="font-mono text-emerald-500 font-black">-</b></span>
+                            </div>
+                            <div class="text-[10px] text-slate-400 font-bold mt-1 flex justify-between">
+                                <span>里程: <span id="pkDist0" class="font-mono">-</span> km</span>
+                                <span>預估均耗: <span id="pkEff0" class="font-mono text-teal-500">-</span></span>
+                            </div>
+                        </div>
 
-    <!-- 🔀 國一 vs 國三 路況能耗 PK 面板 (消除左右縮放跳動) -->
-    <div id="highwayPkContainer" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-        <!-- 路線 1 卡片 -->
-        <div id="pkCardRoute0" onclick="selectPkRoute(0)" class="p-3 rounded-2xl border-2 border-amber-400 box-border select-none cursor-pointer relative bg-slate-50 dark:bg-slate-900/60 shadow-sm transition-[border-color,opacity] duration-150 will-change-[border-color,opacity]">
-            <div class="flex items-center justify-between mb-1.5">
-                <span class="text-xs font-black text-slate-800 dark:text-white flex items-center gap-1.5">
-                    <span class="w-4 h-4 rounded-full bg-slate-800 dark:bg-white text-white dark:text-slate-900 text-[10px] flex items-center justify-center font-mono font-black">1</span>
-                    <span id="pkName0" class="truncate max-w-[120px]">國道 1 號</span>
-                </span>
-                <span id="pkTrafficTag0" class="text-[9px] font-black px-1.5 py-0.5 rounded">路況分析中</span>
-            </div>
-            <div class="flex items-baseline justify-between text-xs">
-                <span class="text-slate-400 font-bold">時間: <b id="pkDuration0" class="text-slate-700 dark:text-slate-200 font-mono">-</b></span>
-                <span class="text-slate-400 font-bold">抵達: <b id="pkSoc0" class="font-mono text-emerald-500 font-black">-</b></span>
-            </div>
-            <div class="text-[10px] text-slate-400 font-bold mt-1 flex justify-between">
-                <span>里程: <span id="pkDist0" class="font-mono">-</span> km</span>
-                <span>預估均耗: <span id="pkEff0" class="font-mono text-teal-500">-</span></span>
-            </div>
-        </div>
+                        <div id="pkCardRoute1" onclick="selectPkRoute(1)" class="p-3 rounded-2xl border-2 border-slate-200 dark:border-slate-800 box-border opacity-60 select-none cursor-pointer relative bg-slate-50 dark:bg-slate-900/60 shadow-sm transition-[border-color,opacity] duration-150 will-change-[border-color,opacity]">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <span class="text-xs font-black text-slate-800 dark:text-white flex items-center gap-1.5">
+                                    <span class="w-4 h-4 rounded-full bg-slate-800 dark:bg-white text-white dark:text-slate-900 text-[10px] flex items-center justify-center font-mono font-black">2</span>
+                                    <span id="pkName1" class="truncate max-w-[120px]">國道 3 號</span>
+                                </span>
+                                <span id="pkTrafficTag1" class="text-[9px] font-black px-1.5 py-0.5 rounded">路況分析中</span>
+                            </div>
+                            <div class="flex items-baseline justify-between text-xs">
+                                <span class="text-slate-400 font-bold">時間: <b id="pkDuration1" class="text-slate-700 dark:text-slate-200 font-mono">-</b></span>
+                                <span class="text-slate-400 font-bold">抵達: <b id="pkSoc1" class="font-mono text-emerald-500 font-black">-</b></span>
+                            </div>
+                            <div class="text-[10px] text-slate-400 font-bold mt-1 flex justify-between">
+                                <span>里程: <span id="pkDist1" class="font-mono">-</span> km</span>
+                                <span>預估均耗: <span id="pkEff1" class="font-mono text-teal-500">-</span></span>
+                            </div>
+                        </div>
+                    </div>
 
-        <!-- 路線 2 卡片 -->
-        <div id="pkCardRoute1" onclick="selectPkRoute(1)" class="p-3 rounded-2xl border-2 border-slate-200 dark:border-slate-800 box-border opacity-60 select-none cursor-pointer relative bg-slate-50 dark:bg-slate-900/60 shadow-sm transition-[border-color,opacity] duration-150 will-change-[border-color,opacity]">
-            <div class="flex items-center justify-between mb-1.5">
-                <span class="text-xs font-black text-slate-800 dark:text-white flex items-center gap-1.5">
-                    <span class="w-4 h-4 rounded-full bg-slate-800 dark:bg-white text-white dark:text-slate-900 text-[10px] flex items-center justify-center font-mono font-black">2</span>
-                    <span id="pkName1" class="truncate max-w-[120px]">國道 3 號</span>
-                </span>
-                <span id="pkTrafficTag1" class="text-[9px] font-black px-1.5 py-0.5 rounded">路況分析中</span>
-            </div>
-            <div class="flex items-baseline justify-between text-xs">
-                <span class="text-slate-400 font-bold">時間: <b id="pkDuration1" class="text-slate-700 dark:text-slate-200 font-mono">-</b></span>
-                <span class="text-slate-400 font-bold">抵達: <b id="pkSoc1" class="font-mono text-emerald-500 font-black">-</b></span>
-            </div>
-            <div class="text-[10px] text-slate-400 font-bold mt-1 flex justify-between">
-                <span>里程: <span id="pkDist1" class="font-mono">-</span> km</span>
-                <span>預估均耗: <span id="pkEff1" class="font-mono text-teal-500">-</span></span>
+                    <!-- 主數據三大面板 -->
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="p-2.5 sm:p-3 min-h-[80px] bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center justify-center text-center shadow-sm">
+                            <span class="text-[10px] sm:text-xs text-slate-400 font-bold mb-1 flex items-center gap-1">
+                                <span>🛣️</span> 總里程
+                            </span>
+                            <span id="abrpTotalDist" class="text-sm sm:text-base font-black font-mono text-slate-800 dark:text-white tracking-tight leading-tight">0<br><span class="text-xs font-bold text-slate-500 dark:text-slate-400">km</span></span>
+                        </div>
+                        <div class="p-2.5 sm:p-3 min-h-[80px] bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center justify-center text-center shadow-sm">
+                            <span class="text-[10px] sm:text-xs text-slate-400 font-bold mb-1 flex items-center gap-1">
+                                <span>⏱️</span> 行車時間
+                            </span>
+                            <span id="abrpDriveDuration" class="text-sm sm:text-base font-black font-mono text-slate-800 dark:text-white tracking-tight leading-tight">0 分</span>
+                        </div>
+                        <div class="p-2.5 sm:p-3 min-h-[80px] bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center justify-center text-center shadow-sm">
+                            <span class="text-[10px] sm:text-xs text-slate-400 font-bold mb-1 flex items-center gap-1">
+                                <span>🔋</span> 直達剩餘
+                            </span>
+                            <span id="abrpDirectSoc" class="text-sm sm:text-base font-black font-mono tracking-tight leading-tight flex flex-col items-center justify-center text-slate-400">
+                                <span>0%</span>
+                                <span class="text-[9px] font-bold text-slate-400 mt-0.5 tracking-normal">待計算</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- 建議卡片 -->
+                    <div id="abrpRecommendationCard" class="p-4 rounded-2xl border text-xs leading-relaxed space-y-2 min-h-[136px]"></div>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- 主數據三大面板 (加入 min-h-[80px] 杜絕抖動) -->
-    <div class="grid grid-cols-3 gap-2">
-        <div class="p-2.5 sm:p-3 min-h-[80px] bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center justify-center text-center shadow-sm">
-            <span class="text-[10px] sm:text-xs text-slate-400 font-bold mb-1 flex items-center gap-1">
-                <span>🛣️</span> 總里程
-            </span>
-            <span id="abrpTotalDist" class="text-sm sm:text-base font-black font-mono text-slate-800 dark:text-white tracking-tight leading-tight">0<br><span class="text-xs font-bold text-slate-500 dark:text-slate-400">km</span></span>
-        </div>
-        <div class="p-2.5 sm:p-3 min-h-[80px] bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center justify-center text-center shadow-sm">
-            <span class="text-[10px] sm:text-xs text-slate-400 font-bold mb-1 flex items-center gap-1">
-                <span>⏱️</span> 行車時間
-            </span>
-            <span id="abrpDriveDuration" class="text-sm sm:text-base font-black font-mono text-slate-800 dark:text-white tracking-tight leading-tight">0 分</span>
-        </div>
-        <div class="p-2.5 sm:p-3 min-h-[80px] bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center justify-center text-center shadow-sm">
-            <span class="text-[10px] sm:text-xs text-slate-400 font-bold mb-1 flex items-center gap-1">
-                <span>🔋</span> 直達剩餘
-            </span>
-            <span id="abrpDirectSoc" class="text-sm sm:text-base font-black font-mono tracking-tight leading-tight flex flex-col items-center justify-center text-slate-400">
-                <span>0%</span>
-                <span class="text-[9px] font-bold text-slate-400 mt-0.5 tracking-normal">待計算</span>
-            </span>
-        </div>
-    </div>
-
-    <!-- 補電建議卡片 (加入 min-h-[136px] 撐開高度，杜絕切換時高度塌陷) -->
-    <div id="abrpRecommendationCard" class="p-4 rounded-2xl border text-xs leading-relaxed space-y-2 min-h-[136px]"></div>
-</div>
-                <div id="abrpRecommendationCard" class="p-4 rounded-2xl border text-xs leading-relaxed space-y-2"></div>
-            </div>
-        </div>
-    </div>
-</div>
     
     <!-- 導航列 -->
     <nav class="fixed left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[calc(100%-2rem)] md:max-w-2xl z-50 rounded-[2rem] ios-27-glass px-2 floating-nav">
