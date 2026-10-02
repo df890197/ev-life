@@ -1081,10 +1081,10 @@
 <!-- 計算結果面板 -->
 <div id="abrpResultSection" class="hidden space-y-3">
 
-<!-- 🔀 國一 vs 國三 路況能耗 PK 面板 (消除左右縮放跳動) -->
+<!-- 🔀 國一 vs 國三 路況能耗 PK 面板 (徹底根除首點縮放) -->
     <div id="highwayPkContainer" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-2.5">
         <!-- 路線 1 卡片 -->
-        <div id="pkCardRoute0" onclick="selectPkRoute(0)" class="p-3 rounded-2xl border-2 border-amber-400 box-border select-none cursor-pointer relative bg-slate-50 dark:bg-slate-900/60 shadow-sm transition-opacity duration-150">
+        <div id="pkCardRoute0" onclick="selectPkRoute(0)" class="p-3 rounded-2xl border-2 border-amber-400 box-border select-none cursor-pointer relative bg-slate-50 dark:bg-slate-900/60 shadow-sm transition-[border-color,opacity] duration-150 will-change-[border-color,opacity]">
             <div class="flex items-center justify-between mb-1.5">
                 <span class="text-xs font-black text-slate-800 dark:text-white flex items-center gap-1.5">
                     <span class="w-4 h-4 rounded-full bg-slate-800 dark:bg-white text-white dark:text-slate-900 text-[10px] flex items-center justify-center font-mono font-black">1</span>
@@ -1103,7 +1103,7 @@
         </div>
 
         <!-- 路線 2 卡片 -->
-        <div id="pkCardRoute1" onclick="selectPkRoute(1)" class="p-3 rounded-2xl border-2 border-slate-200 dark:border-slate-800 box-border opacity-60 select-none cursor-pointer relative bg-slate-50 dark:bg-slate-900/60 transition-opacity duration-150">
+        <div id="pkCardRoute1" onclick="selectPkRoute(1)" class="p-3 rounded-2xl border-2 border-slate-200 dark:border-slate-800 box-border opacity-60 select-none cursor-pointer relative bg-slate-50 dark:bg-slate-900/60 shadow-sm transition-[border-color,opacity] duration-150 will-change-[border-color,opacity]">
             <div class="flex items-center justify-between mb-1.5">
                 <span class="text-xs font-black text-slate-800 dark:text-white flex items-center gap-1.5">
                     <span class="w-4 h-4 rounded-full bg-slate-800 dark:bg-white text-white dark:text-slate-900 text-[10px] flex items-center justify-center font-mono font-black">2</span>
@@ -3912,7 +3912,7 @@ function evaluateRouteWithTraffic(route, startSoc) {
     };
 }
 
-// 切換選中路線（純顏色切換，絕不擠壓排版）
+// 切換選中路線（絕對零縮放、零抖動）
 window.selectPkRoute = function(idx) {
     if (!currentPkRoutes?.[idx]) return;
     abrpDirectionsRenderer.setRouteIndex(idx);
@@ -3922,14 +3922,15 @@ window.selectPkRoute = function(idx) {
 
     if (card0 && card1) {
         if (idx === 0) {
-            card0.classList.add('border-amber-400', 'shadow-sm');
+            // 只換邊框色與透明度，不碰 shadow，不觸發 Layout Reflow
+            card0.classList.add('border-amber-400');
             card0.classList.remove('border-slate-200', 'dark:border-slate-800', 'opacity-60');
-            card1.classList.remove('border-amber-400', 'shadow-sm');
+            card1.classList.remove('border-amber-400');
             card1.classList.add('border-slate-200', 'dark:border-slate-800', 'opacity-60');
         } else {
-            card1.classList.add('border-amber-400', 'shadow-sm');
+            card1.classList.add('border-amber-400');
             card1.classList.remove('border-slate-200', 'dark:border-slate-800', 'opacity-60');
-            card0.classList.remove('border-amber-400', 'shadow-sm');
+            card0.classList.remove('border-amber-400');
             card0.classList.add('border-slate-200', 'dark:border-slate-800', 'opacity-60');
         }
     }
