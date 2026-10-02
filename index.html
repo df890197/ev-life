@@ -3911,24 +3911,27 @@ function evaluateRouteWithTraffic(route, startSoc) {
 window.selectPkRoute = function(idx) {
     if (!currentPkRoutes?.[idx]) return;
     
-    // ⚡ 核心修復：禁止地圖切換路線時重新拉扯視角，杜絕地圖閃動
+    // 保持當前視角，禁止切換路線時地圖跳動
     abrpDirectionsRenderer.setOptions({ preserveViewport: true });
     abrpDirectionsRenderer.setRouteIndex(idx);
 
     const card0 = document.getElementById('pkCardRoute0');
     const card1 = document.getElementById('pkCardRoute1');
 
+    // 1. 純顏色與透明度切換，絕對不動到陰影 (shadow) 或邊框寬度，杜絕左右縮放抖動
     if (card0 && card1) {
         if (idx === 0) {
             card0.classList.add('border-amber-400');
             card0.classList.remove('border-slate-200', 'dark:border-slate-800', 'opacity-60');
-            card1.classList.remove('border-amber-400');
+            
             card1.classList.add('border-slate-200', 'dark:border-slate-800', 'opacity-60');
+            card1.classList.remove('border-amber-400');
         } else {
             card1.classList.add('border-amber-400');
             card1.classList.remove('border-slate-200', 'dark:border-slate-800', 'opacity-60');
-            card0.classList.remove('border-amber-400');
+            
             card0.classList.add('border-slate-200', 'dark:border-slate-800', 'opacity-60');
+            card0.classList.remove('border-amber-400');
         }
     }
 
