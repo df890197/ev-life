@@ -319,6 +319,14 @@
             </div>
             <input type="checkbox" id="cfgAudioCheck" checked class="w-4 h-4 accent-amber-400 rounded">
           </label>
+
+          <label class="flex items-center justify-between p-3 bg-slate-950/70 rounded-2xl border border-slate-800 cursor-pointer">
+            <div>
+              <div class="text-xs font-bold text-white">手機搖一搖重擲 (Shake to Roll)</div>
+              <div class="text-[11px] text-slate-400">晃動手機自動洗骰 (若靈敏可關閉)</div>
+            </div>
+            <input type="checkbox" id="cfgShakeCheck" checked class="w-4 h-4 accent-amber-400 rounded">
+          </label>
         </div>
 
       </div>
@@ -542,6 +550,8 @@
       diceCount: 5,
       skinId: 'classic_ivory',
       wildOne: true,
+      shakeEnabled: true,
+      isRolling: false,
       dice: [1, 2, 3, 4, 5],
       isLockedOpen: false,
       isHoldingPeek: false
@@ -654,6 +664,10 @@
   <script>
     // Roll all active dice
     function rollDice() {
+      // Prevent rapid overlapping rolls on Android sensors
+      if (appState.isRolling) return;
+      appState.isRolling = true;
+
       sound.playRattle();
 
       // Trigger cup shake animation
@@ -678,6 +692,7 @@
       setTimeout(() => {
         sound.playCupThud();
         renderUserDice();
+        appState.isRolling = false;
       }, 550);
     }
 
@@ -812,30 +827,48 @@
       }
     }
 
-    // Shake detection using DeviceMotion API
+    // Shake detection using DeviceMotion API with Android calibration & cooldown
     function setupShakeDetection() {
-      let lastX, lastY, lastZ;
+      let lastX = null, lastY = null, lastZ = null;
       let lastTime = 0;
-      const SHAKE_THRESHOLD = 20;
+      let lastShakeTriggerTime = 0;
+      const SHAKE_COOLDOWN_MS = 1500; // 至少間隔 1.5 秒才允許下一次晃動觸發
+      const SHAKE_THRESHOLD = 17;     // 需明顯大力搖動才觸發，過濾自然拿握雜訊
 
       if (window.DeviceMotionEvent) {
         window.addEventListener('devicemotion', (e) => {
-          const current = e.accelerationIncludingGravity;
-          if (!current) return;
+          if (!appState.shakeEnabled || appState.isRolling) return;
 
           const now = Date.now();
-          if ((now - lastTime) > 100) {
-            const diffTime = now - lastTime;
+          if (now - lastShakeTriggerTime < SHAKE_COOLDOWN_MS) return;
+
+          // Prefer linear acceleration (excluding gravity) if available; fallback to with-gravity
+          const acc = (e.acceleration && e.acceleration.x !== null) 
+            ? e.acceleration 
+            : e.accelerationIncludingGravity;
+
+          if (!acc || acc.x === null || acc.y === null || acc.z === null) return;
+
+          if ((now - lastTime) > 120) {
             lastTime = now;
 
-            const speed = Math.abs(current.x + current.y + current.z - (lastX || 0) - (lastY || 0) - (lastZ || 0)) / diffTime * 10000;
-            if (speed > SHAKE_THRESHOLD) {
-              rollDice();
+            if (lastX !== null) {
+              const deltaX = acc.x - lastX;
+              const deltaY = acc.y - lastY;
+              const deltaZ = acc.z - lastZ;
+
+              // Euclidean norm of acceleration change
+              const changeVector = Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
+
+              if (changeVector > SHAKE_THRESHOLD) {
+                lastShakeTriggerTime = now;
+                rollDice();
+              }
             }
 
-            lastX = current.x;
-            lastY = current.y;
-            lastZ = current.z;
+            lastX = acc.x;
+            lastY = acc.y;
+            lastZ = acc.z;
           }
         });
       }
@@ -891,6 +924,7 @@
         document.getElementById('cfgDiceNumVal').textContent = `${appState.diceCount} 顆`;
         document.getElementById('cfgWildOneCheck').checked = appState.wildOne;
         document.getElementById('cfgAudioCheck').checked = sound.enabled;
+        document.getElementById('cfgShakeCheck').checked = appState.shakeEnabled;
         renderSkinOptions();
         updateLiveSkinPreview(appState.skinId);
         modalSettings.classList.remove('hidden');
@@ -908,6 +942,7 @@
         appState.diceCount = parseInt(document.getElementById('cfgDiceRange').value, 10);
         appState.wildOne = document.getElementById('cfgWildOneCheck').checked;
         sound.enabled = document.getElementById('cfgAudioCheck').checked;
+        appState.shakeEnabled = document.getElementById('cfgShakeCheck').checked;
         
         document.getElementById('lblActiveDiceCount').textContent = appState.diceCount;
         document.getElementById('wildStatusTag').innerHTML = appState.wildOne 
