@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>線上版吹牛 (Liar's Dice) - 自訂骰子版</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a2e;
+            color: #e6e6e6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 { color: #f39c12; margin-bottom: 5px; }
+        .game-container {
+            background: #16213e;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+            width: 100%;
+            max-width: 600px;
+            margin-top: 20px;
+        }
+        .status-box {
+            background: #0f3460;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        .dice-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .die {
+            width: 45px;
+            height: 45px;
+            background: #fff;
+            color: #333;
+            font-size: 22px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .control-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0f3460;
+            padding: 10px 15px;
+            border-radius: 6px;
+        }
+        button {
+            background-color: #e94560;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover { background-color: #ff6b81; }
+        button:disabled { background-color: #555; cursor: not-allowed; }
+        select, input {
+            padding: 8px;
+            font-size: 1em;
+            border-radius: 4px;
+            border: none;
+            background: #fff;
+            color: #333;
+        }
+        .log-box {
+            margin-top: 20px;
+            background: #0f3460;
+            padding: 10px;
+            border-radius: 6px;
+            height: 120px;
+            overflow-y: auto;
+            font-size: 0.9em;
+            color: #ccc;
+        }
+        .setup-section {
+            background: #0f3460;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🎲 線上版吹牛 (Liar's Dice)</h1>
+    <p>規則：1點為萬用星。挑戰對手說謊或加碼喊牌！</p>
+
+    <div class="game-container">
+        <!-- 設定每人骰子數量 -->
+        <div class="setup-section" id="setup-section">
+            <span>每人初始骰子數量：</span>
+            <div>
+                <input type="number" id="dice-count-input" value="5" min="1" max="10" style="width: 60px; text-align: center;">
+                <button onclick="startGame()" style="background-color: #27ae60; padding: 6px 15px; margin-left: 10px;">開始新局</button>
+            </div>
+        </div>
+
+        <div id="status" class="status-box" style="display: none;">準備開始遊戲</div>
+
+        <div id="game-area" style="display: none;">
+            <div>
+                <h3 id="player-dice-title">你的手牌：</h3>
+                <div id="player-dice" class="dice-container"></div>
+            </div>
+            
+            <div style="margin-top: 10px; font-size: 0.9em; color: #a0a0a0; text-align: center;" id="ai-status-text">
+                電腦手牌剩餘：5 顆
+            </div>
+        </div>
+
+        <div class="log-box" id="log-box">
+            <div>遊戲記錄：請在上方設定骰子數量後點擊「開始新局」。</div>
+        </div>
+
+        <div class="controls" id="controls" style="display: none;">
+            <div class="control-row">
+                <span>喊牌數量與點數：</span>
+                <div>
+                    數量: <select id="bid-count"></select>
+                    點數: <select id="bid-face">
+                        <option value="2">2 點</option>
+                        <option value="3">3 點</option>
+                        <option value="4">4 點</option>
+                        <option value="5">5 點</option>
+                        <option value="6">6 點</option>
+                        <option value="1">1 點 (不加星)</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="makeBid()" id="btn-bid" style="flex: 1;">喊牌 (Bid)</button>
+                <button onclick="challenge()" id="btn-challenge" style="flex: 1; background-color: #f39c12;">開牌抓吹牛 (Call Liar)</button>
+            </div>
+        </div>
+        
+    </div>
+
+    <script>
+        let gameState = {
+            playerDice: [],
+            aiDice: [],
+            currentTurn: 'player',
+            currentBid: null,
+            gameOver: true,
+            totalDiceCount: 10
+        };
+
+        function log(message) {
+            const box = document.getElementById('log-box');
+            box.innerHTML += `<div>> ${message}</div>`;
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function startGame() {
+            const inputVal = parseInt(document.getElementById('dice-count-input').value);
+            const countPerPerson = isNaN(inputVal) || inputVal < 1 ? 5 : Math.min(inputVal, 10);
+            
+            gameState.playerDice = rollDice(countPerPerson);
+            gameState.aiDice = rollDice(countPerPerson);
+            gameState.totalDiceCount = countPerPerson * 2;
+            gameState.currentTurn = 'player';
+            gameState.currentBid = null;
+            gameState.gameOver = false;
+
+            // 顯示遊戲介面
+            document.getElementById('status').style.display = 'block';
+            document.getElementById('game-area').style.display = 'block';
+            document.getElementById('controls').style.display = 'flex';
+
+            document.getElementById('btn-bid').disabled = false;
+            document.getElementById('btn-challenge').disabled = false;
+            
+            updateBidOptions(1);
+            renderUI();
+            log(`新的一局開始！雙方各有 ${countPerPerson} 顆骰子（總共 ${gameState.totalDiceCount} 顆）。輪到你喊牌。`);
+        }
+
+        function rollDice(count) {
+            let dice = [];
+            for(let i=0; i<count; i++) {
+                dice.push(Math.floor(Math.random() * 6) + 1);
+            }
+            return dice.sort();
+        }
+
+        function renderUI() {
+            // 渲染玩家骰子
+            const container = document.getElementById('player-dice');
+            container.innerHTML = '';
+            gameState.playerDice.forEach(d => {
+                const die = document.createElement('div');
+                die.className = 'die';
+                die.innerText = d;
+                container.appendChild(die);
+            });
+
+            document.getElementById('ai-status-text').innerText = `電腦手牌剩餘：${gameState.aiDice.length} 顆`;
+
+            // 狀態文字
+            let statusText = '';
+            if (gameState.gameOver) {
+                statusText = '遊戲已結束，可在上方調整骰子數量並重新開始。';
+            } else if (gameState.currentBid) {
+                statusText = `目前叫牌：**${gameState.currentBid.count} 個 ${gameState.currentBid.face} 點** (輪到 ${gameState.currentTurn === 'player' ? '你' : '電腦'})`;
+            } else {
+                statusText = `尚未有叫牌，輪到你先喊。`;
+            }
+            document.getElementById('status').innerHTML = statusText;
+        }
+
+        function updateBidOptions(minCount) {
+            const countSelect = document.getElementById('bid-count');
+            countSelect.innerHTML = '';
+            // 最大叫牌數量為雙方總骰子數
+            for(let i = minCount; i <= gameState.totalDiceCount; i++) {
+                let opt = document.createElement('option');
+                opt.value = i;
+                opt.innerText = i + ' 個';
+                countSelect.appendChild(opt);
+            }
+        }
+
+        function makeBid() {
+            const count = parseInt(document.getElementById('bid-count').value);
+            const face = parseInt(document.getElementById('bid-face').value);
+
+            if (gameState.currentBid) {
+                let prevC = gameState.currentBid.count;
+                let prevF = gameState.currentBid.face;
+                
+                if (count < prevC || (count === prevC && face <= prevF)) {
+                    alert('無效的叫牌！必須比上一手的數量更多，或點數更大。');
+                    return;
+                }
+            }
+
+            gameState.currentBid = { count, face };
+            log(`你喊出了：${count} 個 ${face} 點`);
+            
+            gameState.currentTurn = 'ai';
+            renderUI();
+            setTimeout(aiTurn, 1000);
+        }
+
+        function aiTurn() {
+            if (gameState.gameOver) return;
+
+            let shouldChallenge = false;
+            if (gameState.currentBid && gameState.currentBid.count >= Math.ceil(gameState.totalDiceCount * 0.6)) {
+                shouldChallenge = Math.random() < 0.6;
+            }
+
+            if (shouldChallenge || !gameState.currentBid) {
+                if (!gameState.currentBid) {
+                    let face = Math.floor(Math.random() * 5) + 2;
+                    gameState.currentBid = { count: Math.max(1, Math.floor(gameState.totalDiceCount / 4)), face: face };
+                    log(`電腦喊出了：${gameState.currentBid.count} 個 ${face} 點`);
+                    gameState.currentTurn = 'player';
+                    renderUI();
+                } else {
+                    log(`電腦選擇了「抓吹牛 (Call Liar)」！`);
+                    resolveChallenge('ai');
+                }
+            } else {
+                let newCount = gameState.currentBid.count + (Math.random() < 0.5 ? 0 : 1);
+                let newFace = gameState.currentBid.face + 1;
+                if (newFace > 6) {
+                    newFace = 2;
+                    newCount += 1;
+                }
+                if (newCount > gameState.totalDiceCount) newCount = gameState.totalDiceCount;
+
+                gameState.currentBid = { count: newCount, face: newFace };
+                log(`電腦加碼喊出了：${newCount} 個 ${newFace} 點`);
+                gameState.currentTurn = 'player';
+                renderUI();
+            }
+        }
+
+        function challenge() {
+            if (!gameState.currentBid) {
+                alert('目前沒有人叫牌，無法抓！');
+                return;
+            }
+            log(`你選擇了「抓吹牛 (Call Liar)」！`);
+            resolveChallenge('player');
+        }
+
+        function resolveChallenge(challenger) {
+            gameState.gameOver = true;
+            renderUI();
+
+            const targetFace = gameState.currentBid.face;
+            const targetCount = gameState.currentBid.count;
+
+            const allDice = gameState.playerDice.concat(gameState.aiDice);
+            let actualCount = 0;
+            allDice.forEach(d => {
+                if (d === targetFace || d === 1) {
+                    actualCount++;
+                }
+            });
+
+            log(`--- 開牌揭曉 ---`);
+            log(`雙方所有骰子：[ ${allDice.join(', ')} ]`);
+            log(`目標是 ${targetCount} 個 ${targetFace} 點（含 1 點萬用星）。實際共有：**${actualCount} 個**`);
+
+            if (challenger === 'player') {
+                if (actualCount < targetCount) {
+                    log(`🎉 抓成功！電腦吹牛了（實際只有 ${actualCount} 個），**你贏了！**`);
+                } else {
+                    log(`❌ 抓失敗！牌面足夠（實際有 ${actualCount} 個），**你輸了！**`);
+                }
+            } else {
+                if (actualCount < targetCount) {
+                    log(`❌ 被電腦抓中！你吹牛了（實際只有 ${actualCount} 個），**你輸了！**`);
+                } else {
+                    log(`🎉 電腦抓失敗！牌面足夠（實際有 ${actualCount} 個），**你贏了！**`);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
