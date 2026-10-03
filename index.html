@@ -1,1 +1,935 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>吹牛大話骰 - 個人專屬隨身骰盅 | Liar's Dice Cup</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Google Fonts: Inter, Outfit, Noto Sans TC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
 
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Outfit', 'Noto Sans TC', 'sans-serif'],
+          },
+          colors: {
+            gold: {
+              400: '#f6d365',
+              500: '#fda085',
+              600: '#e5a93b',
+              glow: '#ffdf78'
+            }
+          },
+          boxShadow: {
+            'glow-gold': '0 0 25px rgba(229, 169, 59, 0.45)',
+            'glow-emerald': '0 0 25px rgba(16, 185, 129, 0.4)',
+            'inner-deep': 'inset 0 6px 16px rgba(0, 0, 0, 0.8)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 15%, #182234 0%, #0d131e 60%, #06090f 100%);
+      min-height: 100vh;
+      color: #e2e8f0;
+      overflow-x: hidden;
+    }
+
+    /* Bar Table Felt Texture */
+    .felt-surface {
+      background: radial-gradient(ellipse at center, #163625 0%, #0e2419 75%, #081710 100%);
+      box-shadow: inset 0 0 70px rgba(0,0,0,0.85), 0 15px 35px rgba(0,0,0,0.6);
+      border: 6px solid #2d1e14;
+      outline: 2px solid #5d402e;
+    }
+
+    /* 3D Dice styling */
+    .die-face {
+      width: 54px;
+      height: 54px;
+      position: relative;
+      border-radius: 12px;
+      display: grid;
+      grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+      padding: 6px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.45), inset 0 2px 2px rgba(255,255,255,0.4), inset 0 -3px 4px rgba(0,0,0,0.3);
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
+    }
+
+    .die-pip {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      place-self: center;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.55);
+    }
+
+    /* Cup Animations */
+    @keyframes shakeDiceCup {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      15% { transform: translate(-14px, -10px) rotate(-10deg); }
+      30% { transform: translate(16px, 8px) rotate(12deg); }
+      45% { transform: translate(-16px, 6px) rotate(-8deg); }
+      60% { transform: translate(12px, -8px) rotate(9deg); }
+      75% { transform: translate(-10px, -4px) rotate(-5deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
+    }
+
+    .shaking-cup {
+      animation: shakeDiceCup 0.65s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+
+    /* Cup Lift transition */
+    .cup-lid {
+      transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.3s;
+      transform-origin: top center;
+    }
+
+    /* Lifting states */
+    .cup-lid.lifted {
+      transform: translateY(-165px) scale(0.96);
+      opacity: 0.15;
+      pointer-events: none;
+    }
+
+    .cup-lid.peek-half {
+      transform: translateY(-80px) rotate(-4deg);
+      opacity: 0.85;
+    }
+
+    /* Dice roll bounce in */
+    @keyframes diceBounce {
+      0% { transform: scale(0.6) rotate(-25deg); opacity: 0; }
+      70% { transform: scale(1.08) rotate(6deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    .dice-enter {
+      animation: diceBounce 0.4s ease-out;
+    }
+  </style>
+</head>
+<body class="flex flex-col justify-between items-center min-h-screen p-3 sm:p-5">
+
+  <header class="w-full max-w-lg flex items-center justify-between py-2.5 px-4 bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-800 shadow-xl">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-400 flex items-center justify-center text-slate-950 font-black shadow-glow-gold">
+        <i class="fa-solid fa-whiskey-glass text-xl"></i>
+      </div>
+      <div>
+        <h1 class="text-base sm:text-lg font-black tracking-wider text-white flex items-center gap-2">
+          吹牛個人骰盅
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">POCKET</span>
+        </h1>
+        <p class="text-[11px] text-slate-400">各開各的手機 • 防窺偷看 • 聚會必備神器</p>
+      </div>
+    </div>
+
+    <!-- Header Tools -->
+    <div class="flex items-center gap-2">
+      <!-- Sound toggle -->
+      <button id="btnSoundToggle" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 flex items-center justify-center border border-slate-700 text-sm transition">
+        <i id="soundIcon" class="fa-solid fa-volume-high"></i>
+      </button>
+
+      <!-- Customize settings modal button -->
+      <button id="btnOpenSettings" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-black shadow-glow-gold flex items-center gap-1.5 transition">
+        <i class="fa-solid fa-sliders"></i> 自訂
+      </button>
+    </div>
+  </header>
+
+  <main class="w-full max-w-lg my-auto py-3 flex flex-col items-center gap-4">
+
+    <!-- Shake Prompt / Mode Badge -->
+    <div class="flex items-center justify-between w-full px-2">
+      <div class="flex items-center gap-1.5 text-xs text-slate-400">
+        <i class="fa-solid fa-dice-d6 text-amber-400"></i>
+        <span>目前骰數: <strong id="lblActiveDiceCount" class="text-amber-400 font-bold font-mono">5</strong> 顆</span>
+      </div>
+      <div id="wildStatusTag" class="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold flex items-center gap-1">
+        <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i> 1 點為百搭 (可開關)
+      </div>
+    </div>
+
+    <!-- Felt Arena Box with Cup & Dice -->
+    <div id="arenaBox" class="relative w-full rounded-3xl felt-surface p-5 sm:p-7 min-h-[380px] flex flex-col items-center justify-between overflow-hidden shadow-2xl">
+      
+      <!-- Top hint banner inside cup -->
+      <div class="text-center z-10">
+        <span id="peekHintBadge" class="text-[11px] px-3 py-1 rounded-full bg-black/60 backdrop-blur-sm border border-emerald-500/40 text-emerald-300 font-bold uppercase tracking-wider">
+          <i class="fa-solid fa-hand-pointer mr-1"></i> 按住骰盅偷看 / 放開蓋上
+        </span>
+      </div>
+
+      <!-- Center: Dice Mat (Under the Cup) -->
+      <div class="relative w-full my-auto flex items-center justify-center min-h-[170px]">
+        
+        <!-- Dice Tray -->
+        <div id="diceTray" class="flex flex-wrap items-center justify-center gap-3 max-w-[320px] p-2 z-10 transition-all duration-300">
+          <!-- Dice faces injected dynamically -->
+        </div>
+
+        <!-- The 3D Looking Cup Cover (Lid) -->
+        <div id="cupCoverLid" class="cup-lid absolute inset-x-2 -inset-y-3 z-30 flex flex-col items-center justify-center cursor-pointer select-none bg-gradient-to-b from-amber-700 via-amber-900 to-amber-950 rounded-3xl border-4 border-amber-600/80 shadow-[0_20px_50px_rgba(0,0,0,0.85)]">
+          <!-- Leather / Metal Ribs texture -->
+          <div class="w-16 h-2 rounded-full bg-amber-400/70 mb-3 shadow-inner"></div>
+          <div class="w-28 h-28 rounded-full border-4 border-amber-500/30 flex items-center justify-center bg-black/20 backdrop-blur-[1px] mb-2 shadow-inner-deep">
+            <i class="fa-solid fa-dice-d20 text-5xl text-amber-400/90 drop-shadow"></i>
+          </div>
+          <span class="text-sm font-black text-amber-100 tracking-widest uppercase flex items-center gap-2 drop-shadow">
+            <i class="fa-solid fa-eye-slash text-amber-400"></i> 骰盅扣著
+          </span>
+          <span class="text-[10px] text-amber-300/80 mt-1 font-medium bg-black/30 px-3 py-0.5 rounded-full border border-amber-500/20">
+            按住偷看 • 鬆手蓋上
+          </span>
+        </div>
+
+      </div>
+
+      <!-- Bottom Interactive View Controls inside Felt -->
+      <div class="w-full flex items-center justify-between gap-2 z-20 pt-2 border-t border-emerald-800/40">
+        <!-- Persistent Open / Cover Toggle -->
+        <button id="btnLockOpen" class="flex-1 py-2 px-3 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-xs font-bold text-slate-300 border border-slate-700 flex items-center justify-center gap-1.5 transition">
+          <i id="lockOpenIcon" class="fa-solid fa-unlock text-amber-400"></i>
+          <span id="lockOpenText">常駐開盅查看</span>
+        </button>
+
+        <!-- Edit dice manually (for custom values) -->
+        <button id="btnEditDiceModal" class="py-2 px-3 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-xs font-bold text-amber-300 border border-slate-700 flex items-center justify-center gap-1 transition">
+          <i class="fa-solid fa-pen-to-square"></i> 自選點數
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Hand Stats Card (Auto Tally for Easy Calling) -->
+    <div id="statsCard" class="w-full bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-2xl p-3 shadow-xl">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+          <i class="fa-solid fa-chart-pie text-amber-400"></i> 你的手牌統計 (喊牌防呆參考)
+        </span>
+        <span id="fiveKindBadge" class="hidden text-[10px] px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 font-black animate-pulse">
+          ✨ 圍骰 Five of a kind!
+        </span>
+      </div>
+      <div id="statsRow" class="grid grid-cols-6 gap-1.5 text-center">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+    <div class="w-full flex items-center gap-3">
+      <!-- Big Roll / Shake Button -->
+      <button id="btnShakeCup" class="flex-1 py-4 px-5 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 active:scale-95 text-white font-black text-base tracking-wider shadow-lg shadow-emerald-950/60 flex items-center justify-center gap-2.5 transition duration-200">
+        <i class="fa-solid fa-rotate-right text-lg"></i>
+        <span>大力搖骰 (SHAKE)</span>
+      </button>
+
+      <!-- Reveal to Everyone (開盅全覽) -->
+      <button id="btnPublicReveal" class="py-4 px-5 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 active:scale-95 text-slate-950 font-black text-base tracking-wider shadow-glow-gold flex items-center justify-center gap-2 transition duration-200">
+        <i class="fa-solid fa-bullhorn text-lg"></i>
+        <span>公開開盅！</span>
+      </button>
+    </div>
+
+    <!-- Bottom tips for mobile players -->
+    <div class="text-[11px] text-slate-500 text-center flex items-center justify-center gap-3 mt-1">
+      <span><i class="fa-solid fa-mobile-screen-button mr-1"></i>支援手機搖一搖重擲</span>
+      <span>•</span>
+      <span class="hover:text-amber-400 cursor-pointer" id="btnShareTip"><i class="fa-solid fa-share-nodes mr-1"></i>點我複製網址給朋友</span>
+    </div>
+
+  </main>
+
+  <div id="modalSettings" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 hidden">
+    <div class="w-full max-w-md bg-slate-900 border border-slate-700 rounded-3xl p-5 shadow-2xl max-h-[92vh] overflow-y-auto">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h3 class="font-black text-base sm:text-lg text-white flex items-center gap-2">
+          <i class="fa-solid fa-sliders text-amber-400"></i> 自訂骰盅與骰子風格
+        </h3>
+        <button id="btnCloseSettings" class="text-slate-400 hover:text-white text-lg p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="py-4 space-y-5">
+        
+        <!-- 1. Dice Skin Themes -->
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-2 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i> 骰子材質外觀 (Dice Skin)
+          </label>
+          <div class="grid grid-cols-2 gap-2" id="skinSelectorGrid">
+            <!-- Theme cards injected dynamically -->
+          </div>
+          <!-- Live Preview -->
+          <div class="mt-3 p-3 bg-slate-950/70 rounded-2xl border border-slate-800 flex items-center justify-between">
+            <span class="text-xs text-slate-400 font-medium">即時外觀預覽:</span>
+            <div id="skinLivePreview" class="flex gap-1.5 scale-90">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Dice Count Settings -->
+        <div class="bg-slate-950/70 p-4 rounded-2xl border border-slate-800">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-xs text-slate-200 font-bold">你的骰子數量:</span>
+            <span id="cfgDiceNumVal" class="text-sm font-black text-amber-400 font-mono">5 顆</span>
+          </div>
+          <input type="range" id="cfgDiceRange" min="1" max="10" value="5" class="w-full accent-amber-400 cursor-pointer">
+          <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+            <span>1 顆 (單挑骰)</span>
+            <span>5 顆 (標準吹牛)</span>
+            <span>10 顆 (狂歡群骰)</span>
+          </div>
+        </div>
+
+        <!-- 3. Rules & Helpers -->
+        <div class="space-y-3">
+          <label class="flex items-center justify-between p-3 bg-slate-950/70 rounded-2xl border border-slate-800 cursor-pointer">
+            <div>
+              <div class="text-xs font-bold text-white">1 點計為百搭 / 萬能 (Wild 1)</div>
+              <div class="text-[11px] text-slate-400">在手牌統計中將 1 點自動併入其他點數</div>
+            </div>
+            <input type="checkbox" id="cfgWildOneCheck" checked class="w-4 h-4 accent-amber-400 rounded">
+          </label>
+
+          <label class="flex items-center justify-between p-3 bg-slate-950/70 rounded-2xl border border-slate-800 cursor-pointer">
+            <div>
+              <div class="text-xs font-bold text-white">骰盅音效與震動回饋</div>
+              <div class="text-[11px] text-slate-400">搖骰撞盅聲響與手機觸覺震動</div>
+            </div>
+            <input type="checkbox" id="cfgAudioCheck" checked class="w-4 h-4 accent-amber-400 rounded">
+          </label>
+        </div>
+
+      </div>
+
+      <div class="pt-3 border-t border-slate-800 flex justify-end">
+        <button id="btnSaveConfig" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs shadow-glow-gold transition">
+          完成並套用設定
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="modalEditDice" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 hidden">
+    <div class="w-full max-w-sm bg-slate-900 border border-slate-700 rounded-3xl p-5 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h3 class="font-black text-sm sm:text-base text-white flex items-center gap-2">
+          <i class="fa-solid fa-pen-to-square text-amber-400"></i> 手動調整骰子點數
+        </h3>
+        <button id="btnCloseEditDice" class="text-slate-400 hover:text-white text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <p class="text-xs text-slate-400 py-3">
+        點擊任意骰子可逐次更換點數（或單獨重新擲該顆）：
+      </p>
+
+      <div id="editDiceSlotContainer" class="flex flex-wrap items-center justify-center gap-2.5 p-3 bg-slate-950/80 rounded-2xl border border-slate-800 mb-4 min-h-[80px]">
+        <!-- Interactive editable dice faces -->
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+        <button id="btnConfirmManualDice" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-glow-gold transition">
+          確認儲存點數
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastBox" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-950/90 text-amber-300 border border-amber-500/50 px-4 py-2 rounded-full text-xs font-bold shadow-2xl z-50 transition-all opacity-0 pointer-events-none">
+    已複製網址！可直接傳給朋友使用
+  </div>
+
+  <script>
+    class DiceAudioEngine {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) this.ctx = new AudioCtx();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      // Shaking rattling noise
+      playRattle() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const duration = 0.55;
+        const bufferSize = this.ctx.sampleRate * duration;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 1350;
+        filter.Q.value = 2.5;
+
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+        noise.start();
+      }
+
+      // Slam cup onto table
+      playCupThud() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(35, this.ctx.currentTime + 0.16);
+
+        gain.gain.setValueAtTime(0.6, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.16);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.16);
+      }
+
+      // Click / Peek pop sound
+      playClick() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(520, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.05);
+
+        gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.05);
+      }
+
+      // Fanfare when revealed
+      playRevealFanfare() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const freqs = [440, 554, 659, 880];
+        freqs.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.08);
+
+          gain.gain.setValueAtTime(0.15, this.ctx.currentTime + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.08 + 0.28);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(this.ctx.currentTime + idx * 0.08);
+          osc.stop(this.ctx.currentTime + idx * 0.08 + 0.3);
+        });
+      }
+    }
+
+    const sound = new DiceAudioEngine();
+  </script>
+
+  <script>
+    const DICE_SKINS = {
+      classic_ivory: {
+        id: 'classic_ivory',
+        name: '經典象牙紅點 (KTV酒吧必備)',
+        faceBg: '#fefefe',
+        border: '#d6cbbe',
+        pipColor: '#1e293b',
+        specialOnePip: '#e11d48', // Red 1
+        specialFourPip: '#e11d48', // Red 4
+        previewTag: 'bg-stone-100 text-stone-900'
+      },
+      golden_luxury: {
+        id: 'golden_luxury',
+        name: '黑金土豪 (奢華閃爍)',
+        faceBg: 'linear-gradient(135deg, #ffd700 0%, #b8860b 100%)',
+        border: '#fff176',
+        pipColor: '#2b1b00',
+        specialOnePip: '#881337',
+        specialFourPip: '#2b1b00',
+        previewTag: 'bg-amber-400 text-amber-950 font-bold'
+      },
+      cyber_neon: {
+        id: 'cyber_neon',
+        name: '賽博霓虹 (夜店暗黑風)',
+        faceBg: '#090d16',
+        border: '#06b6d4',
+        pipColor: '#22d3ee',
+        specialOnePip: '#f43f5e',
+        specialFourPip: '#a855f7',
+        previewTag: 'bg-slate-900 text-cyan-400 border border-cyan-500'
+      },
+      emerald_jade: {
+        id: 'emerald_jade',
+        name: '帝王翡翠 (東方典雅)',
+        faceBg: 'linear-gradient(135deg, #065f46 0%, #064e3b 100%)',
+        border: '#34d399',
+        pipColor: '#ecfdf5',
+        specialOnePip: '#fbbf24',
+        specialFourPip: '#ecfdf5',
+        previewTag: 'bg-emerald-950 text-emerald-300'
+      },
+      magma_fire: {
+        id: 'magma_fire',
+        name: '熔岩烈焰 (熱血燃燒)',
+        faceBg: 'linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%)',
+        border: '#f87171',
+        pipColor: '#ffedd5',
+        specialOnePip: '#facc15',
+        specialFourPip: '#ffedd5',
+        previewTag: 'bg-rose-950 text-rose-300'
+      }
+    };
+
+    // User State
+    const appState = {
+      diceCount: 5,
+      skinId: 'classic_ivory',
+      wildOne: true,
+      dice: [1, 2, 3, 4, 5],
+      isLockedOpen: false,
+      isHoldingPeek: false
+    };
+  </script>
+
+  <script>
+    // Generates an interactive 3D Die DOM element
+    function createDieDOM(value, skinId = appState.skinId) {
+      const skin = DICE_SKINS[skinId] || DICE_SKINS.classic_ivory;
+      const die = document.createElement('div');
+      die.className = 'die-face dice-enter';
+
+      if (skin.faceBg.includes('gradient')) {
+        die.style.background = skin.faceBg;
+      } else {
+        die.style.backgroundColor = skin.faceBg;
+      }
+      die.style.border = `2.5px solid ${skin.border}`;
+
+      // Pip positions inside 3x3 grid: [row, col]
+      const pipPositions = {
+        1: [[2, 2]],
+        2: [[1, 1], [3, 3]],
+        3: [[1, 1], [2, 2], [3, 3]],
+        4: [[1, 1], [1, 3], [3, 1], [3, 3]],
+        5: [[1, 1], [1, 3], [2, 2], [3, 1], [3, 3]],
+        6: [[1, 1], [1, 3], [2, 1], [2, 3], [3, 1], [3, 3]]
+      };
+
+      const positions = pipPositions[value] || [];
+
+      for (let r = 1; r <= 3; r++) {
+        for (let c = 1; c <= 3; c++) {
+          const isFilled = positions.some(([pr, pc]) => pr === r && pc === c);
+          if (isFilled) {
+            const pip = document.createElement('div');
+            pip.className = 'die-pip';
+            pip.style.gridRow = r;
+            pip.style.gridColumn = c;
+
+            // Highlight 1 or 4 with traditional Chinese bar rules
+            if (value === 1 && skin.specialOnePip) {
+              pip.style.backgroundColor = skin.specialOnePip;
+            } else if (value === 4 && skin.specialFourPip) {
+              pip.style.backgroundColor = skin.specialFourPip;
+            } else {
+              pip.style.backgroundColor = skin.pipColor;
+            }
+            die.appendChild(pip);
+          } else {
+            die.appendChild(document.createElement('div'));
+          }
+        }
+      }
+
+      return die;
+    }
+
+    // Render the user's dice tray
+    function renderUserDice() {
+      const tray = document.getElementById('diceTray');
+      tray.innerHTML = '';
+
+      appState.dice.forEach(d => {
+        tray.appendChild(createDieDOM(d, appState.skinId));
+      });
+
+      updateStatsDisplay();
+    }
+
+    // Update hand tally stats for intelligent calling
+    function updateStatsDisplay() {
+      const statsRow = document.getElementById('statsRow');
+      statsRow.innerHTML = '';
+
+      const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+      appState.dice.forEach(d => {
+        if (counts[d] !== undefined) counts[d]++;
+      });
+
+      // Check for 5 of a kind (圍骰)
+      const hasFiveKind = appState.dice.length >= 5 && Object.values(counts).some(cnt => cnt >= 5);
+      document.getElementById('fiveKindBadge').classList.toggle('hidden', !hasFiveKind);
+
+      const wildCount = appState.wildOne ? counts[1] : 0;
+
+      for (let f = 1; f <= 6; f++) {
+        const rawCount = counts[f];
+        // If 1 is wild, for faces 2..6, total potential = rawCount + wildCount
+        const effectiveCount = (f === 1 || !appState.wildOne) ? rawCount : (rawCount + wildCount);
+
+        const col = document.createElement('div');
+        col.className = 'flex flex-col items-center bg-slate-950/70 p-1.5 rounded-xl border border-slate-800';
+        col.innerHTML = `
+          <div class="flex items-center gap-1 text-[11px] font-bold ${f === 1 ? 'text-rose-400' : 'text-slate-300'}">
+            <i class="fa-solid fa-dice-${['one','two','three','four','five','six'][f-1]}"></i>
+            <span>${f}點</span>
+          </div>
+          <span class="text-base font-black ${effectiveCount > 0 ? 'text-amber-400' : 'text-slate-600'} font-mono mt-0.5">
+            ${effectiveCount}
+          </span>
+          ${(appState.wildOne && f !== 1 && wildCount > 0) ? `<span class="text-[9px] text-emerald-400/80">(含${wildCount}個1)</span>` : '<span class="text-[9px] text-transparent">-</span>'}
+        `;
+        statsRow.appendChild(col);
+      }
+    }
+  </script>
+
+  <script>
+    // Roll all active dice
+    function rollDice() {
+      sound.playRattle();
+
+      // Trigger cup shake animation
+      const arena = document.getElementById('arenaBox');
+      arena.classList.remove('shaking-cup');
+      void arena.offsetWidth; // trigger reflow
+      arena.classList.add('shaking-cup');
+
+      // Vibrate mobile device if available
+      if (navigator.vibrate) {
+        navigator.vibrate([40, 60, 50, 40, 70]);
+      }
+
+      // Generate random faces
+      const newDice = [];
+      for (let i = 0; i < appState.diceCount; i++) {
+        newDice.push(Math.floor(Math.random() * 6) + 1);
+      }
+      newDice.sort((a, b) => a - b);
+      appState.dice = newDice;
+
+      setTimeout(() => {
+        sound.playCupThud();
+        renderUserDice();
+      }, 550);
+    }
+
+    // Set Peek state
+    function setPeeking(isPeeking) {
+      if (appState.isLockedOpen) return;
+      const lid = document.getElementById('cupCoverLid');
+      const hint = document.getElementById('peekHintBadge');
+
+      if (isPeeking) {
+        sound.playClick();
+        lid.classList.add('peek-half');
+        hint.innerHTML = `<i class="fa-solid fa-eye text-emerald-300 mr-1"></i> 正在偷看中 (鬆開即蓋上)`;
+      } else {
+        lid.classList.remove('peek-half');
+        hint.innerHTML = `<i class="fa-solid fa-hand-pointer mr-1"></i> 按住骰盅偷看 / 放開蓋上`;
+      }
+    }
+
+    // Toggle permanent open
+    function toggleLockOpen() {
+      appState.isLockedOpen = !appState.isLockedOpen;
+      const lid = document.getElementById('cupCoverLid');
+      const btn = document.getElementById('btnLockOpen');
+      const text = document.getElementById('lockOpenText');
+      const icon = document.getElementById('lockOpenIcon');
+
+      sound.playClick();
+
+      if (appState.isLockedOpen) {
+        lid.classList.add('lifted');
+        btn.classList.add('bg-amber-500', 'text-slate-950', 'border-amber-400');
+        btn.classList.remove('bg-slate-900/80', 'text-slate-300', 'border-slate-700');
+        icon.className = 'fa-solid fa-lock-open text-slate-950';
+        text.textContent = '蓋上骰盅';
+      } else {
+        lid.classList.remove('lifted');
+        btn.classList.remove('bg-amber-500', 'text-slate-950', 'border-amber-400');
+        btn.classList.add('bg-slate-900/80', 'text-slate-300', 'border-slate-700');
+        icon.className = 'fa-solid fa-unlock text-amber-400';
+        text.textContent = '常駐開盅查看';
+      }
+    }
+
+    // Reveal to everyone at table
+    function publicReveal() {
+      sound.playRevealFanfare();
+      if (!appState.isLockedOpen) {
+        toggleLockOpen();
+      }
+      showToast('🎉 已開盅！亮給全場朋友看！');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toastBox');
+      toast.textContent = msg;
+      toast.classList.remove('opacity-0');
+      toast.classList.add('opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0');
+      }, 2200);
+    }
+  </script>
+
+  <script>
+    // Open Manual Face Editing Modal
+    function openManualDiceEditor() {
+      const modal = document.getElementById('modalEditDice');
+      const container = document.getElementById('editDiceSlotContainer');
+      container.innerHTML = '';
+
+      appState.dice.forEach((val, idx) => {
+        const itemWrap = document.createElement('div');
+        itemWrap.className = 'flex flex-col items-center gap-1 cursor-pointer bg-slate-900 p-2 rounded-xl border border-slate-700 hover:border-amber-400 transition';
+        
+        const dieDom = createDieDOM(val, appState.skinId);
+        itemWrap.appendChild(dieDom);
+
+        const lbl = document.createElement('span');
+        lbl.className = 'text-[10px] text-amber-400 font-bold';
+        lbl.textContent = `點我切換`;
+        itemWrap.appendChild(lbl);
+
+        // Click to cycle 1->2->3->4->5->6->1
+        itemWrap.onclick = () => {
+          sound.playClick();
+          appState.dice[idx] = (appState.dice[idx] % 6) + 1;
+          openManualDiceEditor(); // re-render preview
+        };
+
+        container.appendChild(itemWrap);
+      });
+
+      modal.classList.remove('hidden');
+    }
+
+    // Setup Theme Picker inside Settings Modal
+    function renderSkinOptions() {
+      const container = document.getElementById('skinSelectorGrid');
+      container.innerHTML = '';
+
+      Object.values(DICE_SKINS).forEach(skin => {
+        const card = document.createElement('div');
+        const isSelected = appState.skinId === skin.id;
+        card.className = `p-2.5 rounded-xl cursor-pointer border text-center transition flex items-center gap-2 ${
+          isSelected 
+            ? 'border-amber-400 bg-amber-500/15 shadow-glow-gold' 
+            : 'border-slate-800 bg-slate-950/70 hover:border-slate-700'
+        }`;
+        card.innerHTML = `
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs shadow ${skin.previewTag}">
+            <i class="fa-solid fa-dice-five"></i>
+          </div>
+          <span class="text-xs font-bold text-slate-200 text-left leading-tight">${skin.name}</span>
+        `;
+        card.onclick = () => {
+          sound.playClick();
+          appState.skinId = skin.id;
+          renderSkinOptions();
+          updateLiveSkinPreview(skin.id);
+        };
+        container.appendChild(card);
+      });
+    }
+
+    function updateLiveSkinPreview(skinId) {
+      const preview = document.getElementById('skinLivePreview');
+      preview.innerHTML = '';
+      for (let i = 1; i <= 6; i++) {
+        preview.appendChild(createDieDOM(i, skinId));
+      }
+    }
+
+    // Shake detection using DeviceMotion API
+    function setupShakeDetection() {
+      let lastX, lastY, lastZ;
+      let lastTime = 0;
+      const SHAKE_THRESHOLD = 20;
+
+      if (window.DeviceMotionEvent) {
+        window.addEventListener('devicemotion', (e) => {
+          const current = e.accelerationIncludingGravity;
+          if (!current) return;
+
+          const now = Date.now();
+          if ((now - lastTime) > 100) {
+            const diffTime = now - lastTime;
+            lastTime = now;
+
+            const speed = Math.abs(current.x + current.y + current.z - (lastX || 0) - (lastY || 0) - (lastZ || 0)) / diffTime * 10000;
+            if (speed > SHAKE_THRESHOLD) {
+              rollDice();
+            }
+
+            lastX = current.x;
+            lastY = current.y;
+            lastZ = current.z;
+          }
+        });
+      }
+    }
+
+    // Initialization & Event Bindings
+    window.addEventListener('DOMContentLoaded', () => {
+      // Audio toggle
+      document.getElementById('btnSoundToggle').addEventListener('click', () => {
+        sound.enabled = !sound.enabled;
+        const icon = document.getElementById('soundIcon');
+        icon.className = sound.enabled ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark text-slate-500';
+      });
+
+      // Peeking interactions: Touch & Mouse hold
+      const lid = document.getElementById('cupCoverLid');
+      
+      // Mouse events
+      lid.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        setPeeking(true);
+      });
+      window.addEventListener('mouseup', () => setPeeking(false));
+
+      // Touch events (Mobile optimized)
+      lid.addEventListener('touchstart', (e) => {
+        setPeeking(true);
+      }, { passive: true });
+      window.addEventListener('touchend', () => setPeeking(false));
+      window.addEventListener('touchcancel', () => setPeeking(false));
+
+      // Buttons
+      document.getElementById('btnLockOpen').addEventListener('click', toggleLockOpen);
+      document.getElementById('btnShakeCup').addEventListener('click', rollDice);
+      document.getElementById('btnPublicReveal').addEventListener('click', publicReveal);
+
+      // Manual edit dice
+      document.getElementById('btnEditDiceModal').addEventListener('click', openManualDiceEditor);
+      document.getElementById('btnCloseEditDice').addEventListener('click', () => {
+        document.getElementById('modalEditDice').classList.add('hidden');
+      });
+      document.getElementById('btnConfirmManualDice').addEventListener('click', () => {
+        document.getElementById('modalEditDice').classList.add('hidden');
+        appState.dice.sort((a, b) => a - b);
+        renderUserDice();
+        showToast('已自訂點數！');
+      });
+
+      // Settings Modal
+      const modalSettings = document.getElementById('modalSettings');
+      document.getElementById('btnOpenSettings').addEventListener('click', () => {
+        document.getElementById('cfgDiceRange').value = appState.diceCount;
+        document.getElementById('cfgDiceNumVal').textContent = `${appState.diceCount} 顆`;
+        document.getElementById('cfgWildOneCheck').checked = appState.wildOne;
+        document.getElementById('cfgAudioCheck').checked = sound.enabled;
+        renderSkinOptions();
+        updateLiveSkinPreview(appState.skinId);
+        modalSettings.classList.remove('hidden');
+      });
+
+      document.getElementById('btnCloseSettings').addEventListener('click', () => {
+        modalSettings.classList.add('hidden');
+      });
+
+      document.getElementById('cfgDiceRange').addEventListener('input', (e) => {
+        document.getElementById('cfgDiceNumVal').textContent = `${e.target.value} 顆`;
+      });
+
+      document.getElementById('btnSaveConfig').addEventListener('click', () => {
+        appState.diceCount = parseInt(document.getElementById('cfgDiceRange').value, 10);
+        appState.wildOne = document.getElementById('cfgWildOneCheck').checked;
+        sound.enabled = document.getElementById('cfgAudioCheck').checked;
+        
+        document.getElementById('lblActiveDiceCount').textContent = appState.diceCount;
+        document.getElementById('wildStatusTag').innerHTML = appState.wildOne 
+          ? `<i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i> 1 點為百搭` 
+          : `<i class="fa-solid fa-ban text-[10px]"></i> 1 點非百搭`;
+
+        modalSettings.classList.add('hidden');
+        rollDice();
+      });
+
+      // Share button
+      document.getElementById('btnShareTip').addEventListener('click', () => {
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(window.location.href);
+        }
+        showToast('已複製網址！傳至 LINE 或群組讓大家打開即可各玩一盅！');
+      });
+
+      // Init Hand
+      rollDice();
+      setupShakeDetection();
+    });
+  </script>
+</body>
+</html>
