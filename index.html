@@ -2352,7 +2352,6 @@ window.calculatePrediction = function() {
             const kwhDelta = (AppState.batteryCapacity * (socDelta / 100)).toFixed(1);
             const barWidth = Math.min(100, Math.max(0, socDelta)); //
             const barLeft = Math.min(100, Math.max(0, Math.min(rec.startSoc ?? 0, rec.endSoc ?? 0)));
-            const barWidth = Math.min(100 - barLeft, Math.max(0, socDelta));
 
             const styleConfig = CHARGE_STYLE_MAP[rec.chargeType] || CHARGE_STYLE_MAP['default'];
             const typeBadgeStyle = styleConfig.badge;
