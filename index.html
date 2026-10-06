@@ -1831,7 +1831,9 @@ function cacheDOMNodes() {
                         const distance = Math.abs(tabCenter - indicatorCenter);
                         if (distance < minDistance) { minDistance = distance; nearestTab = tab; }
                     });
-                    if (nearestTab) { switchTab(nearestTab.id.replace('tab-', '')); } 
+                    if (nearestTab) { 
+                        triggerHaptic('medium'); // 👈 吸附定位時給予較扎實的觸覺回饋
+                        switchTab(nearestTab.id.replace('tab-', '')); } 
                     else { const activeTab = document.querySelector('.tab-btn.active'); if(activeTab) updateLiquidIndicator(activeTab.id.replace('tab-', '')); }
                 } else {
                     const activeTab = document.querySelector('.tab-btn.active');
@@ -2516,7 +2518,6 @@ window.calculatePrediction = function() {
             const socDelta = Math.abs((rec.endSoc ?? 0) - (rec.startSoc ?? 0));
             const kwhDelta = (AppState.batteryCapacity * (socDelta / 100)).toFixed(1);
             const barWidth = Math.min(100, Math.max(0, socDelta)); //
-            const barLeft = Math.min(100, Math.max(0, Math.min(rec.startSoc ?? 0, rec.endSoc ?? 0)));
 
             const styleConfig = CHARGE_STYLE_MAP[rec.chargeType] || CHARGE_STYLE_MAP['default'];
             const typeBadgeStyle = styleConfig.badge;
