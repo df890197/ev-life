@@ -2350,6 +2350,7 @@ window.calculatePrediction = function() {
             const isCharging = rec.chargeType.includes('快充') || rec.chargeType.includes('慢充');
             const socDelta = Math.abs((rec.endSoc ?? 0) - (rec.startSoc ?? 0));
             const kwhDelta = (AppState.batteryCapacity * (socDelta / 100)).toFixed(1);
+            const barWidth = Math.min(100, Math.max(0, socDelta)); //
             const barLeft = Math.min(100, Math.max(0, Math.min(rec.startSoc ?? 0, rec.endSoc ?? 0)));
             const barWidth = Math.min(100 - barLeft, Math.max(0, socDelta));
 
@@ -2443,9 +2444,8 @@ window.calculatePrediction = function() {
                                     </span>
                                     <span class="text-[9.5px] font-bold opacity-80">kWh (${socDelta}%)</span>
                                 </div>
-<div class="w-full h-1.5 bg-slate-200 dark:bg-slate-700/80 rounded-full mt-1.5 overflow-hidden relative">
-    <div class="h-full rounded-full ${isCharging ? 'bg-gradient-to-r from-teal-400 to-emerald-500' : 'bg-slate-400'} absolute top-0" 
-         style="left: ${Math.min(100, Math.max(0, Math.min(rec.startSoc ?? 0, rec.endSoc ?? 0)))}%; width: ${Math.min(100, Math.max(0, socDelta))}%;"></div>
+<div class="w-full h-1.5 bg-slate-200 dark:bg-slate-700/80 rounded-full mt-1.5 overflow-hidden">
+    <div class="h-full rounded-full ${isCharging ? 'bg-gradient-to-r from-teal-400 to-emerald-500' : 'bg-slate-400'}" style="width: ${barWidth}%"></div>
 </div>
                             </div>
 
