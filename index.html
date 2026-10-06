@@ -1792,24 +1792,51 @@ function cacheDOMNodes() {
                 tempNearbyStations = [];
                 tempCurrentDistrict = "";
 
-                const fetchDistrict = fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=14&addressdetails=1&accept-language=zh-TW`, { 
-                    headers: { 'User-Agent': 'EvLifePWA/2.0' }
-                }).then(r => r.json()).then(geoData => {
-                    if (geoData?.address) {
-                        const ad = geoData.address;
-                        const city = ad.city || ad.county || "";
-                        const dist = ad.town || ad.district || ad.city_district || ad.suburb || "";
-                        tempCurrentDistrict = dist.startsWith(city) ? dist : `${city}${dist}`.trim();
-                        if (DOM.inputDistrict) DOM.inputDistrict.value = tempCurrentDistrict;
+const fetchDistrict = new Promise((resolve) => {
+    if (window.google?.maps?.Geocoder) {
+        const geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+            if (status === 'OK' && results?.[0]) {
+                let city = '', district = '';
+                
+                // 1. 優先從 Google 地址組件提取「縣市」與「鄉鎮市區」
+                results[0].address_components.forEach(comp => {
+                    if (comp.types.includes('administrative_area_level_1')) {
+                        city = comp.long_name; // 比如：桃園市、台北市
                     }
-                }).catch(e => console.warn("反向地理編碼失敗", e));
+                    if (comp.types.includes('administrative_area_level_2') || comp.types.includes('locality')) {
+                        district = comp.long_name; // 比如：中壢區、大安區
+                    }
+                });
 
-                const fetchWeather = fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`)
-                    .then(r => r.json()).then(data => {
-                        if (data?.current_weather && DOM.inputTemperature) {
-                            DOM.inputTemperature.value = data.current_weather.temperature;
-                        }
-                    }).catch(e => console.warn("氣溫獲取失敗", e));
+                // 2. 若組件沒對齊，從標準格式化地址直接匹配「XX市XX區」
+                if (!city || !district) {
+                    const match = results[0].formatted_address.match(/(..[市縣])(..[區市鎮鄉])/);
+                    if (match) {
+                        city = match[1];
+                        district = match[2];
+                    }
+                }
+
+                tempCurrentDistrict = `${city}${district}`.trim();
+                if (DOM.inputDistrict && tempCurrentDistrict) {
+                    DOM.inputDistrict.value = tempCurrentDistrict;
+                }
+            }
+            resolve();
+        });
+    } else {
+        resolve();
+    }
+}).catch(e => console.warn("Google 反向地理編碼失敗", e));
+
+const fetchWeather = fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m&timezone=auto`)
+    .then(r => r.json()).then(data => {
+        if (data?.current?.temperature_2m !== undefined && DOM.inputTemperature) {
+            // 四捨五入取到小數點後第一位 (例如: 28.6)
+            DOM.inputTemperature.value = (Math.round(data.current.temperature_2m * 10) / 10).toFixed(1);
+        }
+    }).catch(e => console.warn("氣溫獲取失敗", e));
 
                 const fetchGoogleStations = (async () => {
                     if (!window.google?.maps?.places) return;
@@ -3807,11 +3834,13 @@ window.openAbrpModal = function() {
                 center: { lat: 23.8, lng: 121.0 },
                 zoom: 7,
                 disableDefaultUI: true,
-                styles: document.documentElement.classList.contains('dark') ? [
-                    { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
-                    { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
-                    { elementType: "road", elementType: "geometry", stylers: [{ color: "#38414e" }] }
-                ] : []
+styles: document.documentElement.classList.contains('dark') ? [
+    { elementType: "geometry", stylers: [{ color: "#1e293b" }] }, // 陸地底色
+    { featureType: "water", elementType: "geometry", stylers: [{ color: "#0f172a" }] }, // 海洋深色，突顯台灣輪廓
+    { featureType: "road", elementType: "geometry", stylers: [{ color: "#334155" }] }, // 道路
+    { elementType: "labels.text.stroke", stylers: [{ color: "#0f172a" }] }, // 文字描邊
+    { elementType: "labels.text.fill", stylers: [{ color: "#94a3b8" }] } // 文字顏色
+] : []
             });
             abrpDirectionsRenderer = new google.maps.DirectionsRenderer({ map: abrpMap });
         }
