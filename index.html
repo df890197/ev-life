@@ -4323,37 +4323,36 @@ const elevationService = new google.maps.ElevationService();
                 else if (diff < -5.0) totalDescentMeters += Math.abs(diff);
             }
 
-            // 👇👇👇 在這段加上動態 SVG 繪圖 👇👇👇
-                const hudCard = document.getElementById('abrpElevationHudCard');
-                const svgBox = document.getElementById('abrpSvgContainer');
-                if (hudCard && svgBox) {
-                    hudCard.classList.remove('hidden');
-                    const minEl = Math.min(...elevations.map(e => e.elevation));
-                    const maxEl = Math.max(...elevations.map(e => e.elevation), minEl + 10);
-                    const width = 300, height = 55;
-                    const pts = elevations.map((e, idx) => {
-                        const x = (idx / (elevations.length - 1)) * width;
-                        const y = height - ((e.elevation - minEl) / (maxEl - minEl)) * (height - 10) - 5;
-                        return { x: x.toFixed(1), y: y.toFixed(1), ele: Math.round(e.elevation) };
-                    });
-                    const dPath = pts.reduce((acc, p, idx) => `${acc} ${idx === 0 ? 'M' : 'L'} ${p.x} ${p.y}`, '') + ` L ${width} ${height} L 0 ${height} Z`;
-                    const peakPoint = pts.reduce((prev, curr) => (curr.y < prev.y ? curr : prev), pts[0]);
+            // 👇 動態繪製 SVG 海拔曲線
+            const hudCard = document.getElementById('abrpElevationHudCard');
+            const svgBox = document.getElementById('abrpSvgContainer');
+            if (hudCard && svgBox) {
+                hudCard.classList.remove('hidden');
+                const minEl = Math.min(...elevations.map(e => e.elevation));
+                const maxEl = Math.max(...elevations.map(e => e.elevation), minEl + 10);
+                const width = 300, height = 55;
+                const pts = elevations.map((e, idx) => {
+                    const x = (idx / (elevations.length - 1)) * width;
+                    const y = height - ((e.elevation - minEl) / (maxEl - minEl)) * (height - 10) - 5;
+                    return { x: x.toFixed(1), y: y.toFixed(1), ele: Math.round(e.elevation) };
+                });
+                const dPath = pts.reduce((acc, p, idx) => `${acc} ${idx === 0 ? 'M' : 'L'} ${p.x} ${p.y}`, '') + ` L ${width} ${height} L 0 ${height} Z`;
+                const peakPoint = pts.reduce((prev, curr) => (curr.y < prev.y ? curr : prev), pts[0]);
 
-                    svgBox.innerHTML = `
-                        <svg viewBox="0 0 ${width} ${height}" class="w-full h-full stroke-cyan-400 fill-cyan-400/15" preserveAspectRatio="none">
-                            <path d="${dPath}" stroke-width="2.5"></path>
-                            <circle cx="${peakPoint.x}" cy="${peakPoint.y}" r="3.5" fill="#fbc531" class="animate-pulse"></circle>
-                        </svg>
-                    `;
+                svgBox.innerHTML = `
+                    <svg viewBox="0 0 ${width} ${height}" class="w-full h-full stroke-cyan-400 fill-cyan-400/15" preserveAspectRatio="none">
+                        <path d="${dPath}" stroke-width="2.5"></path>
+                        <circle cx="${peakPoint.x}" cy="${peakPoint.y}" r="3.5" fill="#fbc531" class="animate-pulse"></circle>
+                    </svg>
+                `;
 
-                    const startInp = document.getElementById('routeStartInput')?.value || "起點";
-                    const endInp = document.getElementById('routeEndInput')?.value || "終點";
-                    document.getElementById('abrpProfileStartLabel').textContent = `${startInp} (${Math.round(elevations[0].elevation)}m)`;
-                    document.getElementById('abrpProfileEndLabel').textContent = `${endInp} (${Math.round(elevations[elevations.length - 1].elevation)}m)`;
-                    document.getElementById('abrpProfilePeakLabel').textContent = `⛰️ 最高點: ${maxElevation}m`;
-                    document.getElementById('abrpProfileClimbText').textContent = `⚡ 爬坡 +${Math.round(totalClimbMeters)}m`;
-                    document.getElementById('abrpProfileDescentText').textContent = `🔋 下坡 -${Math.round(totalDescentMeters)}m`;
-                }
+                const startInp = document.getElementById('routeStartInput')?.value || "起點";
+                const endInp = document.getElementById('routeEndInput')?.value || "終點";
+                document.getElementById('abrpProfileStartLabel').textContent = `${startInp} (${Math.round(elevations[0].elevation)}m)`;
+                document.getElementById('abrpProfileEndLabel').textContent = `${endInp} (${Math.round(elevations[elevations.length - 1].elevation)}m)`;
+                document.getElementById('abrpProfilePeakLabel').textContent = `⛰️ 最高點: ${maxElevation}m`;
+                document.getElementById('abrpProfileClimbText').textContent = `⚡ 爬坡 +${Math.round(totalClimbMeters)}m`;
+                document.getElementById('abrpProfileDescentText').textContent = `🔋 下坡 -${Math.round(totalDescentMeters)}m`;
             }
         }
 
@@ -4388,8 +4387,8 @@ const elevationService = new google.maps.ElevationService();
 
         // 立即渲染畫面（若直達電量充足，或先顯示 Loading）
         renderAbrpCalculatedResultsDirect(pkRouteCache[routeIdx], leg, startSoc, routeIdx);
-    }
-}
+    }); // 👈 關閉 elevationService.getElevationAlongPath 回呼函式
+} // 👈 關閉 processRouteElevationAndCharging 函式
 
 // 渲染直達或初始化畫面
 function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx) {
