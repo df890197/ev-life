@@ -4311,7 +4311,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
         return;
     }
 
-    const elevationService = new google.maps.ElevationService();
+const elevationService = new google.maps.ElevationService();
     elevationService.getElevationAlongPath({ path: route.overview_path, samples: 60 }, (elevations, eStatus) => {
         let totalClimbMeters = 0, totalDescentMeters = 0, maxElevation = 0;
         if (eStatus === google.maps.ElevationStatus.OK && elevations?.length > 1) {
