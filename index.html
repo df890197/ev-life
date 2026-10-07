@@ -392,7 +392,7 @@
                 </div>
 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                    <div class="neon-border-pulse rpg-card bg-[#fffaf0] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
+                    <div class="rpg-card bg-[#fffaf0] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
                         <div class="text-amber-500 mb-2 flex items-start justify-between">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
                             <span class="text-[9px] font-mono font-black text-cyan-400 bg-cyan-400/10 px-1.5 py-0.5 rounded border border-cyan-400/20">ODO</span>
@@ -4366,6 +4366,12 @@ const elevationService = new google.maps.ElevationService();
         const directArrivalSoc = Math.round(startSoc - totalConsumedSoc);
         const realEff = totalDistanceKm / totalConsumedKwh;
 
+        // 在下方加入這行：
+const profileEffEl = document.getElementById('abrpProfileEffText');
+if (profileEffEl) {
+    profileEffEl.textContent = `均耗 ${realEff.toFixed(2)} km/度`;
+}
+
         let routeProfileText = "";
         if (maxElevation >= 1000 || totalClimbMeters >= 800) routeProfileText = `高海拔山區 (爬升 +${Math.round(totalClimbMeters)}m)`;
         else if (totalClimbMeters >= 350) routeProfileText = `丘陵坡道地貌 (爬升 +${Math.round(totalClimbMeters)}m)`;
@@ -4567,6 +4573,11 @@ function renderAbrpCachedResults(calcData, totalDistanceKm, durationText) {
             ${calcData.stationCardHtml}
         </div>
     `;
+    // 👈 就加在 innerHTML 賦值完之後、判斷 stationLocation 之前！
+    const profileEffEl = document.getElementById('abrpProfileEffText');
+    if (profileEffEl && calcData.realEff) {
+        profileEffEl.textContent = `均耗 ${calcData.realEff.toFixed(2)} km/度`;
+    }
 
     if (calcData.stationLocation) {
         if (abrpChargerMarker) abrpChargerMarker.setMap(null);
