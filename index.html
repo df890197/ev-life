@@ -4355,6 +4355,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
                     document.getElementById('abrpProfileClimbText').textContent = `⚡ 爬坡 +${Math.round(totalClimbMeters)}m`;
                     document.getElementById('abrpProfileDescentText').textContent = `🔋 下坡 -${Math.round(totalDescentMeters)}m`;
                 }
+            }
         }
 
         const flatEnergyKwh = totalDistanceKm / baseHighwayEff;
