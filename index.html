@@ -4383,6 +4383,7 @@ const elevationService = new google.maps.ElevationService();
                 document.getElementById('abrpProfilePeakLabel').textContent = `⛰️ 最高點: ${maxElevation}m`;
                 document.getElementById('abrpProfileClimbText').textContent = `⚡ 爬坡 +${Math.round(totalClimbMeters)}m`;
                 document.getElementById('abrpProfileDescentText').textContent = `🔋 下坡 -${Math.round(totalDescentMeters)}m`;
+                document.getElementById('abrpProfileEffText').textContent = `均耗 ${realEff.toFixed(2)} km/度`;
             }
         }
 
