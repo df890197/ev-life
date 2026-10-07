@@ -4168,20 +4168,58 @@ window.planElectricRoute = async function() {
             });
         }
 
-        const pkBox = document.getElementById('highwayPkContainer');
+const pkBox = document.getElementById('highwayPkContainer');
         if (response.routes.length >= 2 && pkBox) {
             pkBox.classList.remove('hidden');
+            const elevationService = new google.maps.ElevationService();
+            
             response.routes.slice(0, 2).forEach((rt, idx) => {
-                const evalData = evaluateRouteWithTraffic(rt, startSoc);
+                const leg = rt.legs[0];
+                const distKm = leg.distance.value / 1000;
                 const name = rt.summary || `路線 ${idx + 1}`;
+                
+                // 1. 即時路況延遲分析
+                const delay = leg.duration_in_traffic ? (leg.duration_in_traffic.value - leg.duration.value) : 0;
+                let traffic = { text: "順暢 🟢", class: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" };
+                if (delay > 900) traffic = { text: `塞車 +${Math.round(delay/60)}分 🔴`, class: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300" };
+                else if (delay > 300) traffic = { text: "車多 🟡", class: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300" };
+
                 document.getElementById(`pkName${idx}`).textContent = name.includes('國道1') ? '國道 1 號' : (name.includes('國道3') ? '國道 3 號' : name);
-                document.getElementById(`pkDist${idx}`).textContent = evalData.distKm.toFixed(1);
-                document.getElementById(`pkDuration${idx}`).textContent = evalData.durationText;
-                document.getElementById(`pkSoc${idx}`).textContent = `${evalData.arrivalSoc}%`;
-                document.getElementById(`pkEff${idx}`).textContent = `${evalData.dynamicEff} km/度`;
+                document.getElementById(`pkDist${idx}`).textContent = distKm.toFixed(1);
+                document.getElementById(`pkDuration${idx}`).textContent = leg.duration_in_traffic ? leg.duration_in_traffic.text : leg.duration.text;
+                
                 const tag = document.getElementById(`pkTrafficTag${idx}`);
-                tag.textContent = evalData.trafficStatus.text;
-                tag.className = `text-[9px] font-black px-1.5 py-0.5 rounded ${evalData.trafficStatus.class}`;
+                if (tag) {
+                    tag.textContent = traffic.text;
+                    tag.className = `text-[9px] font-black px-1.5 py-0.5 rounded ${traffic.class}`;
+                }
+
+                // 2. 取樣真實海拔起伏，計算與下方一致的爬坡電耗
+                elevationService.getElevationAlongPath({ path: rt.overview_path, samples: 40 }, (elevations, eStatus) => {
+                    let climb = 0, descent = 0;
+                    if (eStatus === google.maps.ElevationStatus.OK && elevations?.length > 1) {
+                        for (let i = 1; i < elevations.length; i++) {
+                            const d = elevations[i].elevation - elevations[i - 1].elevation;
+                            if (d > 5.0) climb += d;
+                            else if (d < -5.0) descent += Math.abs(d);
+                        }
+                    }
+                    const baseEff = AppState.globalAvgEfficiency > 0 ? AppState.globalAvgEfficiency : 5.5;
+                    const flatKwh = distKm / baseEff;
+                    const netElevationKwh = (climb / 100) * 0.65 - (descent / 100) * 0.45;
+                    const totalKwh = Math.max(1, flatKwh + netElevationKwh);
+                    const realEff = distKm / totalKwh;
+                    const arrivalSoc = Math.round(startSoc - (totalKwh / AppState.batteryCapacity * 100));
+
+                    // 同步更新上方 PK 卡片數值
+                    const effEl = document.getElementById(`pkEff${idx}`);
+                    const socEl = document.getElementById(`pkSoc${idx}`);
+                    if (effEl) effEl.textContent = `${realEff.toFixed(2)} km/度`;
+                    if (socEl) {
+                        socEl.textContent = `${arrivalSoc}%`;
+                        socEl.className = arrivalSoc < 15 ? 'font-mono text-rose-500 font-black' : 'font-mono text-emerald-500 font-black';
+                    }
+                });
             });
         } else if (pkBox) {
             pkBox.classList.add('hidden');
@@ -4207,10 +4245,11 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
         let totalClimbMeters = 0, totalDescentMeters = 0, maxElevation = 0;
         if (eStatus === google.maps.ElevationStatus.OK && elevations?.length > 1) {
             maxElevation = Math.round(Math.max(...elevations.map(e => e.elevation)));
+            // 加入 5m 濾波門檻，避免高架/橋樑/路面雜訊被瘋狂累加
             for (let i = 1; i < elevations.length; i++) {
                 const diff = elevations[i].elevation - elevations[i - 1].elevation;
-                if (diff > 1.5) totalClimbMeters += diff;
-                else if (diff < -1.5) totalDescentMeters += Math.abs(diff);
+                if (diff > 5.0) totalClimbMeters += diff;
+                else if (diff < -5.0) totalDescentMeters += Math.abs(diff);
             }
         }
 
