@@ -1458,18 +1458,17 @@ function cacheDOMNodes() {
                 console.error("App initialization error:", err);
                 showToast("部分啟動資料異常，已安全載入", true);
             } finally {
-                if (DOM.appSplashScreen) {
-                    setTimeout(() => { 
-                        DOM.appSplashScreen.style.pointerEvents = 'none';
-                        DOM.appSplashScreen.classList.add('opacity-0'); 
-                        setTimeout(() => {
-                            DOM.appSplashScreen.remove();
-                            const nav = document.querySelector('nav.floating-nav');
-                            if (nav) nav.classList.add('nav-ready');
-                            void document.body.offsetHeight;
-                        }, 250); 
-                    }, 200); 
-                }
+                // 安全防卡死：確保無論是否發生異常，開機畫面一定會消失
+                setTimeout(() => {
+                    const splash = document.getElementById('appSplashScreen');
+                    if (splash) {
+                        splash.style.pointerEvents = 'none';
+                        splash.classList.add('opacity-0');
+                        setTimeout(() => splash.remove(), 250);
+                    }
+                    const nav = document.querySelector('nav.floating-nav');
+                    if (nav) nav.classList.add('nav-ready');
+                }, 300);
             }
         });
 
