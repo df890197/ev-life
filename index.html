@@ -4270,7 +4270,7 @@ window.planElectricRoute = async function() {
         }
 
 const pkBox = document.getElementById('highwayPkContainer');
-        if (response.routes.length >= 2 && pkBox) {
+        if (response.routes.length >= 1 && pkBox) {
             pkBox.classList.remove('hidden');
             const elevationService = new google.maps.ElevationService();
             
