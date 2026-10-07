@@ -215,41 +215,22 @@
             animation: shimmerElectric 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
         }
 
-        /* ⚡ 效果 3：高階電動車品牌風（Executive Obsidian / 豪華純電旗艦風) */
-            .neon-border-pulse {
+        /* ⚡ 新增效果 3：HUD 霓虹邊框微光卡片 */
+        .neon-border-pulse {
             position: relative;
-            background: linear-gradient(135deg, rgba(39, 39, 42, 0.8) 0%, rgba(18, 18, 20, 0.95) 100%) !important;
-            border: 1px solid rgba(234, 179, 8, 0.25) !important; /* 內斂的香檳金微框 */
-            border-radius: 1rem !important;
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(234, 179, 8, 0.12) !important;
         }
-        .neon-border-pulse #statTotalKm,
-        .neon-border-pulse #statAvgEfficiency {
-            color: #fef08a !important; /* 柔和的高雅金白字 */
-            text-shadow: none !important;
-        }
-
-        /* 深色模式：圓角雙層漸層艙體，絕對不跑成方形 */
-        .dark .neon-border-pulse {
-            border: 1.5px solid transparent !important;
-            background: 
-                linear-gradient(145deg, rgba(31, 41, 55, 0.75) 0%, rgba(17, 24, 39, 0.95) 100%) padding-box,
-                linear-gradient(135deg, rgba(0, 242, 254, 0.8), rgba(45, 212, 191, 0.4), rgba(15, 23, 42, 0.1)) border-box !important;
-            box-shadow: 0 0 20px -3px rgba(0, 242, 254, 0.22), 
-                        inset 0 0 15px -4px rgba(45, 212, 191, 0.12) !important;
-        }
-
-        /* 核心大數字 HUD 霓虹高光 */
-        .neon-border-pulse #statTotalKm,
-        .neon-border-pulse #statAvgEfficiency {
-            color: #38bdf8 !important;
-            text-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
-        }
-
-        /* 觸控/懸停微光 */
-        .neon-border-pulse:hover {
-            box-shadow: 0 0 25px 0px rgba(0, 242, 254, 0.35) !important;
-            transform: translateY(-2px);
+        .dark .neon-border-pulse::before {
+            content: '';
+            position: absolute;
+            inset: -1.5px;
+            border-radius: inherit;
+            padding: 1.5px;
+            background: linear-gradient(135deg, #00f2fe, #05ffa1, #7f00ff);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            opacity: 0.75;
         }
 
         /* 3. 滑桿浮動數值氣泡 (Floating Value Bubble) */
@@ -410,64 +391,60 @@
                     <input type="file" id="heroImageUpload" class="hidden" accept="image/*" onchange="handleHeroImageUpload(event)">
                 </div>
 
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-    <!-- 卡片 1：總行駛里程 -->
-    <div class="neon-border-pulse p-5 flex flex-col justify-between text-left h-full">
-        <div class="text-amber-500 mb-2 flex items-start justify-between">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
-            <span class="text-[9px] font-mono font-black text-cyan-400 bg-cyan-400/10 px-1.5 py-0.5 rounded border border-cyan-400/20">ODO</span>
-        </div>
-        <div>
-            <div class="flex items-baseline gap-1 mt-1">
-                <span id="statTotalKm" class="text-2xl md:text-3xl font-black font-mono tracking-tight">0</span>
-                <span class="text-[11px] font-bold text-slate-400">km</span>
-            </div>
-            <div class="text-[11px] md:text-xs font-bold text-slate-400 mt-0.5">總行駛里程</div>
-        </div>
-    </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                    <div class="neon-border-pulse rpg-card bg-[#fffaf0] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
+                        <div class="text-amber-500 mb-2 flex items-start justify-between">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+                            <span class="text-[9px] font-mono font-black text-cyan-400 bg-cyan-400/10 px-1.5 py-0.5 rounded border border-cyan-400/20">ODO</span>
+                        </div>
+                        <div>
+                            <div class="flex items-baseline gap-1 mt-1">
+                                <span id="statTotalKm" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0</span>
+                                <span class="text-[11px] font-bold text-slate-500">km</span>
+                            </div>
+                            <div class="text-[11px] md:text-xs font-bold text-slate-500 mt-0.5">總行駛里程</div>
+                        </div>
+                    </div>
 
-    <!-- 卡片 2：歷史平均電耗 -->
-    <div class="neon-border-pulse p-5 flex flex-col justify-between text-left h-full">
-        <div class="text-teal-400 mb-2 flex items-start justify-between">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-        </div>
-        <div>
-            <div class="flex items-baseline gap-1 mt-1">
-                <span id="statAvgEfficiency" class="text-2xl md:text-3xl font-black font-mono tracking-tight">0.00</span>
-                <span class="text-[11px] font-bold text-slate-400">km/度</span>
-            </div>
-            <div class="text-[11px] md:text-xs font-bold text-slate-400 mt-0.5">歷史平均電耗</div>
-        </div>
-    </div>
+                    <div class="rpg-card bg-[#f0fdfa] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
+                        <div class="text-teal-500 mb-2 flex items-start justify-between">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        </div>
+                        <div>
+                            <div class="flex items-baseline gap-1 mt-1">
+                                <span id="statAvgEfficiency" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0.00</span>
+                                <span class="text-[11px] font-bold text-slate-500">km/度</span>
+                            </div>
+                            <div class="text-[11px] md:text-xs font-bold text-slate-500 mt-0.5">歷史平均電耗</div>
+                        </div>
+                    </div>
 
-    <!-- 卡片 3：省下油錢估算 -->
-    <div class="neon-border-pulse p-5 flex flex-col justify-between text-left h-full">
-        <div class="text-emerald-400 mb-2 flex items-start justify-between">
-            <span class="text-xl">💰</span>
-        </div>
-        <div>
-            <div class="flex items-baseline gap-1 mt-1">
-                <span class="text-sm font-bold text-emerald-400">$</span>
-                <span id="statFuelSavings" class="text-2xl md:text-3xl font-black font-mono tracking-tight text-emerald-400">0</span>
-            </div>
-            <div class="text-[11px] md:text-xs font-bold text-slate-400 mt-0.5">省下油錢估算</div>
-        </div>
-    </div>
+                    <div class="rpg-card bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/10 p-5 rounded-[1.5rem] border border-green-100 dark:border-green-800/50 flex flex-col justify-between text-left h-full">
+                        <div class="text-green-500 mb-2 flex items-start justify-between">
+                            <span class="text-xl">💰</span>
+                        </div>
+                        <div>
+                            <div class="flex items-baseline gap-1 mt-1">
+                                <span class="text-sm font-bold text-green-600 dark:text-green-400">$</span>
+                                <span id="statFuelSavings" class="text-2xl md:text-3xl font-black text-green-600 dark:text-green-400 font-mono tracking-tight">0</span>
+                            </div>
+                            <div class="text-[11px] md:text-xs font-bold text-slate-500 mt-0.5">省下油錢估算</div>
+                        </div>
+                    </div>
 
-    <!-- 卡片 4：碳排與植樹 -->
-    <div class="neon-border-pulse p-5 flex flex-col justify-between text-left h-full">
-        <div class="text-emerald-400 mb-2 flex items-start justify-between">
-            <span class="text-xl">🌳</span>
-        </div>
-        <div>
-            <div class="flex items-baseline gap-1 mt-1">
-                <span id="statCo2Savings" class="text-2xl md:text-3xl font-black font-mono tracking-tight text-emerald-400">0</span>
-                <span class="text-[11px] font-bold text-emerald-400">kg</span>
-            </div>
-            <div class="text-[11px] md:text-xs font-bold text-slate-400 mt-0.5">≒ 種了 <span id="statTreesPlanted" class="font-mono">0</span> 棵樹</div>
-        </div>
-    </div>
-</div>
+                    <div class="rpg-card bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/10 p-5 rounded-[1.5rem] border border-green-100 dark:border-green-800/50 flex flex-col justify-between text-left h-full">
+                        <div class="text-emerald-500 mb-2 flex items-start justify-between">
+                            <span class="text-xl">🌳</span>
+                        </div>
+                        <div>
+                            <div class="flex items-baseline gap-1 mt-1">
+                                <span id="statCo2Savings" class="text-2xl md:text-3xl font-black text-emerald-600 dark:text-emerald-400 font-mono tracking-tight">0</span>
+                                <span class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">kg</span>
+                            </div>
+                            <div class="text-[11px] md:text-xs font-bold text-slate-500 mt-0.5">≒ 種了 <span id="statTreesPlanted" class="font-mono">0</span> 棵樹</div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="text-[10px] text-right text-slate-400 font-bold mb-4 -mt-2 pr-2">
                     環保基準: <span id="savingsBaseText">15 km/L, 30 $/L</span>
@@ -1222,27 +1199,20 @@
                 <!-- 地圖預覽 -->
                 <div id="abrpMapContainer" class="w-full h-44 md:h-52 shrink-0 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700 overflow-hidden relative"></div>
 
-<!-- ⚡ 長途路徑海拔等高剖面 HUD 卡片 (修復版) -->
-<div id="abrpElevationHudCard" class="hidden bg-slate-50 dark:bg-slate-900/80 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-2.5 shadow-inner">
-    <!-- 1. 頂部狀態列：置中獨立最高點，兩側起訖點不互相推擠 -->
-    <div class="flex items-center justify-between gap-2 text-[11px] font-mono font-bold">
-        <span id="abrpProfileStartLabel" class="text-slate-500 dark:text-slate-400 truncate max-w-[32%] text-left">起點</span>
-        <span id="abrpProfilePeakLabel" class="text-amber-500 font-black shrink-0 px-2 py-0.5 rounded-md bg-amber-400/10 border border-amber-400/20 text-center">
-            ⛰️ 最高點: - m
-        </span>
-        <span id="abrpProfileEndLabel" class="text-slate-500 dark:text-slate-400 truncate max-w-[32%] text-right">終點</span>
-    </div>
-
-    <!-- 2. SVG 曲線圖容器 -->
-    <div id="abrpSvgContainer" class="w-full h-16 relative"></div>
-
-    <!-- 3. 底層三欄數據列 -->
-    <div class="grid grid-cols-3 text-center text-[10px] sm:text-[11px] font-bold border-t border-slate-200/60 dark:border-slate-800/80 pt-2">
-        <span id="abrpProfileClimbText" class="text-amber-600 dark:text-amber-400 truncate">⚡ 爬坡 -</span>
-        <span id="abrpProfileDescentText" class="text-emerald-600 dark:text-emerald-400 truncate">🔋 下坡 -</span>
-        <span id="abrpProfileEffText" class="text-teal-600 dark:text-teal-400 font-mono truncate">均耗 - km/度</span>
-    </div>
-</div>
+                <!-- 👇👇👇 效果 4：貼在 abrpMapContainer 下方 👇👇👇 -->
+                    <div id="abrpElevationHudCard" class="hidden bg-slate-50 dark:bg-slate-900/80 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-2 shadow-inner">
+                        <div class="flex items-center justify-between text-[11px] font-mono font-bold text-slate-500 dark:text-slate-400">
+                            <span id="abrpProfileStartLabel" class="truncate max-w-[100px]">起點</span>
+                            <span id="abrpProfilePeakLabel" class="text-amber-500 font-black flex items-center gap-1">⛰️ 最高點: - m</span>
+                            <span id="abrpProfileEndLabel" class="truncate max-w-[100px] text-right">終點</span>
+                        </div>
+                        <div id="abrpSvgContainer" class="w-full h-16 relative"></div>
+                        <div class="flex justify-between items-center text-[10px] text-slate-500 font-bold border-t border-slate-200/60 dark:border-slate-800/80 pt-1.5">
+                            <span id="abrpProfileClimbText" class="text-amber-600 dark:text-amber-400">⚡ 爬坡耗能</span>
+                            <span id="abrpProfileDescentText" class="text-emerald-600 dark:text-emerald-400">🔋 動能回收</span>
+                            <span id="abrpProfileEffText" class="text-teal-600 dark:text-teal-400 font-mono">均耗 - km/度</span>
+                        </div>
+                    </div>
 
                 <!-- 計算結果面板 -->
                 <div id="abrpResultSection" class="hidden space-y-3">
@@ -1488,17 +1458,18 @@ function cacheDOMNodes() {
                 console.error("App initialization error:", err);
                 showToast("部分啟動資料異常，已安全載入", true);
             } finally {
-                // 安全防卡死：確保無論是否發生異常，開機畫面一定會消失
-                setTimeout(() => {
-                    const splash = document.getElementById('appSplashScreen');
-                    if (splash) {
-                        splash.style.pointerEvents = 'none';
-                        splash.classList.add('opacity-0');
-                        setTimeout(() => splash.remove(), 250);
-                    }
-                    const nav = document.querySelector('nav.floating-nav');
-                    if (nav) nav.classList.add('nav-ready');
-                }, 300);
+                if (DOM.appSplashScreen) {
+                    setTimeout(() => { 
+                        DOM.appSplashScreen.style.pointerEvents = 'none';
+                        DOM.appSplashScreen.classList.add('opacity-0'); 
+                        setTimeout(() => {
+                            DOM.appSplashScreen.remove();
+                            const nav = document.querySelector('nav.floating-nav');
+                            if (nav) nav.classList.add('nav-ready');
+                            void document.body.offsetHeight;
+                        }, 250); 
+                    }, 200); 
+                }
             }
         });
 
@@ -4270,7 +4241,7 @@ window.planElectricRoute = async function() {
         }
 
 const pkBox = document.getElementById('highwayPkContainer');
-        if (response.routes.length >= 1 && pkBox) {
+        if (response.routes.length >= 2 && pkBox) {
             pkBox.classList.remove('hidden');
             const elevationService = new google.maps.ElevationService();
             
@@ -4341,7 +4312,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
         return;
     }
 
-const elevationService = new google.maps.ElevationService();
+    const elevationService = new google.maps.ElevationService();
     elevationService.getElevationAlongPath({ path: route.overview_path, samples: 60 }, (elevations, eStatus) => {
         let totalClimbMeters = 0, totalDescentMeters = 0, maxElevation = 0;
         if (eStatus === google.maps.ElevationStatus.OK && elevations?.length > 1) {
@@ -4353,37 +4324,37 @@ const elevationService = new google.maps.ElevationService();
                 else if (diff < -5.0) totalDescentMeters += Math.abs(diff);
             }
 
-            // 👇 動態繪製 SVG 海拔曲線
-            const hudCard = document.getElementById('abrpElevationHudCard');
-            const svgBox = document.getElementById('abrpSvgContainer');
-            if (hudCard && svgBox) {
-                hudCard.classList.remove('hidden');
-                const minEl = Math.min(...elevations.map(e => e.elevation));
-                const maxEl = Math.max(...elevations.map(e => e.elevation), minEl + 10);
-                const width = 300, height = 55;
-                const pts = elevations.map((e, idx) => {
-                    const x = (idx / (elevations.length - 1)) * width;
-                    const y = height - ((e.elevation - minEl) / (maxEl - minEl)) * (height - 10) - 5;
-                    return { x: x.toFixed(1), y: y.toFixed(1), ele: Math.round(e.elevation) };
-                });
-                const dPath = pts.reduce((acc, p, idx) => `${acc} ${idx === 0 ? 'M' : 'L'} ${p.x} ${p.y}`, '') + ` L ${width} ${height} L 0 ${height} Z`;
-                const peakPoint = pts.reduce((prev, curr) => (curr.y < prev.y ? curr : prev), pts[0]);
+            // 👇👇👇 在這段加上動態 SVG 繪圖 👇👇👇
+                const hudCard = document.getElementById('abrpElevationHudCard');
+                const svgBox = document.getElementById('abrpSvgContainer');
+                if (hudCard && svgBox) {
+                    hudCard.classList.remove('hidden');
+                    const minEl = Math.min(...elevations.map(e => e.elevation));
+                    const maxEl = Math.max(...elevations.map(e => e.elevation), minEl + 10);
+                    const width = 300, height = 55;
+                    const pts = elevations.map((e, idx) => {
+                        const x = (idx / (elevations.length - 1)) * width;
+                        const y = height - ((e.elevation - minEl) / (maxEl - minEl)) * (height - 10) - 5;
+                        return { x: x.toFixed(1), y: y.toFixed(1), ele: Math.round(e.elevation) };
+                    });
+                    const dPath = pts.reduce((acc, p, idx) => `${acc} ${idx === 0 ? 'M' : 'L'} ${p.x} ${p.y}`, '') + ` L ${width} ${height} L 0 ${height} Z`;
+                    const peakPoint = pts.reduce((prev, curr) => (curr.y < prev.y ? curr : prev), pts[0]);
 
-                svgBox.innerHTML = `
-                    <svg viewBox="0 0 ${width} ${height}" class="w-full h-full stroke-cyan-400 fill-cyan-400/15" preserveAspectRatio="none">
-                        <path d="${dPath}" stroke-width="2.5"></path>
-                        <circle cx="${peakPoint.x}" cy="${peakPoint.y}" r="3.5" fill="#fbc531" class="animate-pulse"></circle>
-                    </svg>
-                `;
+                    svgBox.innerHTML = `
+                        <svg viewBox="0 0 ${width} ${height}" class="w-full h-full stroke-cyan-400 fill-cyan-400/15" preserveAspectRatio="none">
+                            <path d="${dPath}" stroke-width="2.5"></path>
+                            <circle cx="${peakPoint.x}" cy="${peakPoint.y}" r="3.5" fill="#fbc531" class="animate-pulse"></circle>
+                        </svg>
+                    `;
 
-                const startInp = document.getElementById('routeStartInput')?.value || "起點";
-                const endInp = document.getElementById('routeEndInput')?.value || "終點";
-                document.getElementById('abrpProfileStartLabel').textContent = `${startInp} (${Math.round(elevations[0].elevation)}m)`;
-                document.getElementById('abrpProfileEndLabel').textContent = `${endInp} (${Math.round(elevations[elevations.length - 1].elevation)}m)`;
-                document.getElementById('abrpProfilePeakLabel').textContent = `⛰️ 最高點: ${maxElevation}m`;
-                document.getElementById('abrpProfileClimbText').textContent = `⚡ 爬坡 +${Math.round(totalClimbMeters)}m`;
-                document.getElementById('abrpProfileDescentText').textContent = `🔋 下坡 -${Math.round(totalDescentMeters)}m`;
-                document.getElementById('abrpProfileEffText').textContent = `均耗 ${realEff.toFixed(2)} km/度`;
+                    const startInp = document.getElementById('routeStartInput')?.value || "起點";
+                    const endInp = document.getElementById('routeEndInput')?.value || "終點";
+                    document.getElementById('abrpProfileStartLabel').textContent = `${startInp} (${Math.round(elevations[0].elevation)}m)`;
+                    document.getElementById('abrpProfileEndLabel').textContent = `${endInp} (${Math.round(elevations[elevations.length - 1].elevation)}m)`;
+                    document.getElementById('abrpProfilePeakLabel').textContent = `⛰️ 最高點: ${maxElevation}m`;
+                    document.getElementById('abrpProfileClimbText').textContent = `⚡ 爬坡 +${Math.round(totalClimbMeters)}m`;
+                    document.getElementById('abrpProfileDescentText').textContent = `🔋 下坡 -${Math.round(totalDescentMeters)}m`;
+                }
             }
         }
 
@@ -4418,8 +4389,8 @@ const elevationService = new google.maps.ElevationService();
 
         // 立即渲染畫面（若直達電量充足，或先顯示 Loading）
         renderAbrpCalculatedResultsDirect(pkRouteCache[routeIdx], leg, startSoc, routeIdx);
-    }); // 👈 關閉 elevationService.getElevationAlongPath 回呼函式
-} // 👈 關閉 processRouteElevationAndCharging 函式
+    });
+}
 
 // 渲染直達或初始化畫面
 function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx) {
