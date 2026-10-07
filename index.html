@@ -410,60 +410,64 @@
                     <input type="file" id="heroImageUpload" class="hidden" accept="image/*" onchange="handleHeroImageUpload(event)">
                 </div>
 
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                    <div class="neon-border-pulse rpg-card bg-[#fffaf0] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
-                        <div class="text-amber-500 mb-2 flex items-start justify-between">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
-                            <span class="text-[9px] font-mono font-black text-cyan-400 bg-cyan-400/10 px-1.5 py-0.5 rounded border border-cyan-400/20">ODO</span>
-                        </div>
-                        <div>
-                            <div class="flex items-baseline gap-1 mt-1">
-                                <span id="statTotalKm" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0</span>
-                                <span class="text-[11px] font-bold text-slate-500">km</span>
-                            </div>
-                            <div class="text-[11px] md:text-xs font-bold text-slate-500 mt-0.5">總行駛里程</div>
-                        </div>
-                    </div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+    <!-- 卡片 1：總行駛里程 -->
+    <div class="neon-border-pulse p-5 flex flex-col justify-between text-left h-full">
+        <div class="text-amber-500 mb-2 flex items-start justify-between">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+            <span class="text-[9px] font-mono font-black text-cyan-400 bg-cyan-400/10 px-1.5 py-0.5 rounded border border-cyan-400/20">ODO</span>
+        </div>
+        <div>
+            <div class="flex items-baseline gap-1 mt-1">
+                <span id="statTotalKm" class="text-2xl md:text-3xl font-black font-mono tracking-tight">0</span>
+                <span class="text-[11px] font-bold text-slate-400">km</span>
+            </div>
+            <div class="text-[11px] md:text-xs font-bold text-slate-400 mt-0.5">總行駛里程</div>
+        </div>
+    </div>
 
-                    <div class="neon-border-pulse rpg-card bg-[#f0fdfa] dark:bg-slate-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
-                        <div class="text-teal-500 mb-2 flex items-start justify-between">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        </div>
-                        <div>
-                            <div class="flex items-baseline gap-1 mt-1">
-                                <span id="statAvgEfficiency" class="text-2xl md:text-3xl font-black text-slate-800 dark:text-white font-mono tracking-tight">0.00</span>
-                                <span class="text-[11px] font-bold text-slate-500">km/度</span>
-                            </div>
-                            <div class="text-[11px] md:text-xs font-bold text-slate-500 mt-0.5">歷史平均電耗</div>
-                        </div>
-                    </div>
+    <!-- 卡片 2：歷史平均電耗 -->
+    <div class="neon-border-pulse p-5 flex flex-col justify-between text-left h-full">
+        <div class="text-teal-400 mb-2 flex items-start justify-between">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        </div>
+        <div>
+            <div class="flex items-baseline gap-1 mt-1">
+                <span id="statAvgEfficiency" class="text-2xl md:text-3xl font-black font-mono tracking-tight">0.00</span>
+                <span class="text-[11px] font-bold text-slate-400">km/度</span>
+            </div>
+            <div class="text-[11px] md:text-xs font-bold text-slate-400 mt-0.5">歷史平均電耗</div>
+        </div>
+    </div>
 
-                    <div class="rpg-card bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/10 p-5 rounded-[1.5rem] border border-green-100 dark:border-green-800/50 flex flex-col justify-between text-left h-full">
-                        <div class="text-green-500 mb-2 flex items-start justify-between">
-                            <span class="text-xl">💰</span>
-                        </div>
-                        <div>
-                            <div class="flex items-baseline gap-1 mt-1">
-                                <span class="text-sm font-bold text-green-600 dark:text-green-400">$</span>
-                                <span id="statFuelSavings" class="text-2xl md:text-3xl font-black text-green-600 dark:text-green-400 font-mono tracking-tight">0</span>
-                            </div>
-                            <div class="text-[11px] md:text-xs font-bold text-slate-500 mt-0.5">省下油錢估算</div>
-                        </div>
-                    </div>
+    <!-- 卡片 3：省下油錢估算 -->
+    <div class="neon-border-pulse p-5 flex flex-col justify-between text-left h-full">
+        <div class="text-emerald-400 mb-2 flex items-start justify-between">
+            <span class="text-xl">💰</span>
+        </div>
+        <div>
+            <div class="flex items-baseline gap-1 mt-1">
+                <span class="text-sm font-bold text-emerald-400">$</span>
+                <span id="statFuelSavings" class="text-2xl md:text-3xl font-black font-mono tracking-tight text-emerald-400">0</span>
+            </div>
+            <div class="text-[11px] md:text-xs font-bold text-slate-400 mt-0.5">省下油錢估算</div>
+        </div>
+    </div>
 
-                    <div class="rpg-card bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/10 p-5 rounded-[1.5rem] border border-green-100 dark:border-green-800/50 flex flex-col justify-between text-left h-full">
-                        <div class="text-emerald-500 mb-2 flex items-start justify-between">
-                            <span class="text-xl">🌳</span>
-                        </div>
-                        <div>
-                            <div class="flex items-baseline gap-1 mt-1">
-                                <span id="statCo2Savings" class="text-2xl md:text-3xl font-black text-emerald-600 dark:text-emerald-400 font-mono tracking-tight">0</span>
-                                <span class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">kg</span>
-                            </div>
-                            <div class="text-[11px] md:text-xs font-bold text-slate-500 mt-0.5">≒ 種了 <span id="statTreesPlanted" class="font-mono">0</span> 棵樹</div>
-                        </div>
-                    </div>
-                </div>
+    <!-- 卡片 4：碳排與植樹 -->
+    <div class="neon-border-pulse p-5 flex flex-col justify-between text-left h-full">
+        <div class="text-emerald-400 mb-2 flex items-start justify-between">
+            <span class="text-xl">🌳</span>
+        </div>
+        <div>
+            <div class="flex items-baseline gap-1 mt-1">
+                <span id="statCo2Savings" class="text-2xl md:text-3xl font-black font-mono tracking-tight text-emerald-400">0</span>
+                <span class="text-[11px] font-bold text-emerald-400">kg</span>
+            </div>
+            <div class="text-[11px] md:text-xs font-bold text-slate-400 mt-0.5">≒ 種了 <span id="statTreesPlanted" class="font-mono">0</span> 棵樹</div>
+        </div>
+    </div>
+</div>
 
                 <div class="text-[10px] text-right text-slate-400 font-bold mb-4 -mt-2 pr-2">
                     環保基準: <span id="savingsBaseText">15 km/L, 30 $/L</span>
