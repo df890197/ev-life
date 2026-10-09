@@ -279,8 +279,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAf88sAzYlzVpv6qK6g0rsvDLyz98tCZMU&libraries=places&v=weekly" defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAf88sAzYlzVpv6qK6g0rsvDLyz98tCZMU&libraries=places,geometry&v=weekly" defer></script>
 
     <script>
         (function() {
@@ -4678,8 +4677,21 @@ placesService.nearbySearch({ location: criticalLatLng, radius: 12000, keyword: '
             validStations = interchangeOnly;
         }
     }
+// ⚡ 在 if 判斷前加上這段排序：依距離 criticalLatLng 由近到遠排列
+    validStations.sort((a, b) => {
+        const distA = getDistanceFromLatLonInKm(
+            criticalLatLng.lat(), criticalLatLng.lng(),
+            a.geometry.location.lat(), a.geometry.location.lng()
+        );
+        const distB = getDistanceFromLatLonInKm(
+            criticalLatLng.lat(), criticalLatLng.lng(),
+            b.geometry.location.lat(), b.geometry.location.lng()
+        );
+        return distA - distB;
+    });
+
     if (pStatus === google.maps.places.PlacesServiceStatus.OK && validStations.length > 0) {
-        const bestStation = validStations[0];
+        const bestStation = validStations[0]; // 排序後抓出的第 0 個就會是距離最合理、最近的站點
         const neededKwh = AppState.batteryCapacity * ((80 - safeTargetSoc) / 100);
         const chargingMinutes = Math.round((neededKwh / 85) * 60);
         const stationAddress = bestStation.vicinity || bestStation.formatted_address || "沿途交流道或服務區周邊";
