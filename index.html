@@ -4258,11 +4258,16 @@ window.setAbrpStopPref = function(pref) {
         btnIc.className = pref === 'interchange' ? activeClass : inactiveClass;
     }
 
-    // 若當前已有計算結果，直接切換重新評估站點
     if (currentPkRoutes.length > 0) {
-        const activeIdx = abrpDirectionsRenderer ? abrpDirectionsRenderer.getRouteIndex() : 0;
+        // 清除地圖上既有的站點圖釘
+        if (abrpChargerMarker) {
+            abrpChargerMarker.setMap(null);
+            abrpChargerMarker = null;
+        }
+
+        const activeIdx = abrpDirectionsRenderer ? (abrpDirectionsRenderer.get('routeIndex') || 0) : 0;
         const startSoc = parseFloat(document.getElementById('routeStartSoc')?.value) || 90;
-        // 清除快取的站點 HTML 重新觸發搜尋
+        
         if (pkRouteCache[activeIdx]) {
             pkRouteCache[activeIdx].isReady = false;
             pkRouteCache[activeIdx].stationCardHtml = "";
@@ -4294,10 +4299,14 @@ function evaluateRouteWithTraffic(route, startSoc) {
 window.selectPkRoute = function(idx) {
     if (!currentPkRoutes?.[idx]) return;
     
-    // 保持當前視角，禁止切換路線時地圖跳動（使用正確的 API 屬性）
+    // 保持當前視角，動態變更路線索引
     if (abrpDirectionsRenderer) {
         abrpDirectionsRenderer.preserveViewport = true;
-        abrpDirectionsRenderer.setRouteIndex(idx);
+        if (typeof abrpDirectionsRenderer.setRouteIndex === 'function') {
+            abrpDirectionsRenderer.setRouteIndex(idx);
+        } else {
+            abrpDirectionsRenderer.set('routeIndex', idx);
+        }
     }
 
     const card0 = document.getElementById('pkCardRoute0');
