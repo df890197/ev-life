@@ -4619,8 +4619,78 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, ro
         }
     }
 
+// ⚡ 台灣主要國道服務區快充座標與名稱清單（精準錨定）
+    const TAIWAN_SERVICE_AREAS = [
+        { name: "中壢服務區快充站", lat: 24.9892, lng: 121.2291, highway: "國道1號" },
+        { name: "湖口服務區快充站", lat: 24.8705, lng: 121.0543, highway: "國道1號" },
+        { name: "泰安服務區快充站", lat: 24.3051, lng: 120.7107, highway: "國道1號" },
+        { name: "西螺服務區快充站", lat: 23.7749, lng: 120.4578, highway: "國道1號" },
+        { name: "新營服務區快充站", lat: 23.3197, lng: 120.3013, highway: "國道1號" },
+        { name: "仁德服務區快充站", lat: 22.9525, lng: 120.2458, highway: "國道1號" },
+        { name: "木柵休息站快充站", lat: 24.9897, lng: 121.5746, highway: "國道3號" },
+        { name: "關西服務區快充站", lat: 24.8021, lng: 121.1837, highway: "國道3號" },
+        { name: "西湖服務區快充站", lat: 24.5422, lng: 120.7719, highway: "國道3號" },
+        { name: "清水服務區快充站", lat: 24.2678, lng: 120.6012, highway: "國道3號" },
+        { name: "南投服務區快充站", lat: 23.9063, lng: 120.7077, highway: "國道3號" },
+        { name: "古坑服務區快充站", lat: 23.6394, lng: 120.5756, highway: "國道3號" },
+        { name: "東山服務區快充站", lat: 23.2847, lng: 120.3951, highway: "國道3號" },
+        { name: "關廟服務區快充站", lat: 22.9504, lng: 120.3444, highway: "國道3號" },
+        { name: "蘇澳服務區快充站", lat: 24.6052, lng: 121.8285, highway: "國道5號" },
+        { name: "石碇服務區快充站", lat: 24.9928, lng: 121.6507, highway: "國道5號" }
+    ];
+
     const placesService = new google.maps.places.PlacesService(abrpMap);
-    placesService.nearbySearch({ location: criticalLatLng, radius: 6000, keyword: '快充站' }, (stations, pStatus) => {
+
+    // 檢查是否偏好服務區且不是起點緊急沒電
+    let targetSearchLocation = criticalLatLng;
+    let targetSearchKeyword = '快充站';
+    let targetSearchRadius = 8000;
+
+    if (abrpStopPreference === 'restArea' && !isEmergencyStart) {
+        // 從起點沿路徑計算，找出在 criticalDistanceKm 範圍內「可抵達的最後一個服務區」
+        let candidateArea = null;
+        let candidateDistAlongPath = 0;
+
+        TAIWAN_SERVICE_AREAS.forEach(area => {
+            const areaLatLng = new google.maps.LatLng(area.lat, area.lng);
+            // 檢查該服務區是否在整條路徑 2.5 公里範圍內（確定有經過）
+            let minDistanceToRouteMeters = Infinity;
+            let distanceAlongRouteKm = 0;
+            let tempMeters = 0;
+
+            for (let i = 0; i < path.length; i++) {
+                if (i > 0) {
+                    tempMeters += (window.google?.maps?.geometry?.spherical)
+                        ? google.maps.geometry.spherical.computeDistanceBetween(path[i - 1], path[i])
+                        : getDistanceFromLatLonInKm(path[i - 1].lat(), path[i - 1].lng(), path[i].lat(), path[i].lng()) * 1000;
+                }
+                const distToPoint = (window.google?.maps?.geometry?.spherical)
+                    ? google.maps.geometry.spherical.computeDistanceBetween(path[i], areaLatLng)
+                    : getDistanceFromLatLonInKm(path[i].lat(), path[i].lng(), area.lat, area.lng) * 1000;
+
+                if (distToPoint < minDistanceToRouteMeters) {
+                    minDistanceToRouteMeters = distToPoint;
+                    distanceAlongRouteKm = tempMeters / 1000;
+                }
+            }
+
+            // 條件：在路線旁 2.5 公里內，且在剩餘電量抵達極限之前
+            if (minDistanceToRouteMeters <= 2500 && distanceAlongRouteKm <= (criticalDistanceKm + 10)) {
+                if (distanceAlongRouteKm > candidateDistAlongPath) {
+                    candidateDistAlongPath = distanceAlongRouteKm;
+                    candidateArea = { ...area, distanceAlongRouteKm };
+                }
+            }
+        });
+
+        if (candidateArea) {
+            targetSearchLocation = new google.maps.LatLng(candidateArea.lat, candidateArea.lng);
+            targetSearchKeyword = '服務區 快充站';
+            targetSearchRadius = 3000;
+        }
+    }
+
+    placesService.nearbySearch({ location: targetSearchLocation, radius: targetSearchRadius, keyword: targetSearchKeyword }, (stations, pStatus) => {
         const stopDiv = document.getElementById('abrpStopRecommendation');
         if (!stopDiv) return;
 
@@ -4629,40 +4699,30 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, ro
             return !name.includes('tesla') && !name.includes('特斯拉') && !name.includes('supercharger');
         });
 
-        const REST_AREA_NAMES = [
-            '中壢服務區', '中壢休息站', '楊梅休息站', '湖口服務區', '湖口休息站',
-            '泰安服務區', '泰安休息站', '西螺服務區', '西螺休息站', '新營服務區', '新營休息站', '仁德服務區', '仁德休息站',
-            '木柵休息站', '寶山休息站', '關西服務區', '關西休息站', '西湖服務區', '西湖休息站',
-            '清水服務區', '清水休息站', '南投服務區', '南投休息站', '古坑服務區', '古坑休息站',
-            '東山服務區', '東山休息站', '關廟服務區', '關廟休息站', '石碇服務區', '石碇休息站',
-            '蘇澳服務區', '蘇澳休息站', '東草屯休息站'
-        ];
-
-        const isServiceAreaStation = (name = '', addr = '') => {
-            const text = `${name} ${addr}`.toLowerCase();
-            if (REST_AREA_NAMES.some(area => text.includes(area))) return true;
-            const areaKeywords = ['中壢', '楊梅', '湖口', '泰安', '西螺', '新營', '仁德', '木柵', '寶山', '關西', '西湖', '清水', '南投', '古坑', '東山', '關廟', '石碇', '蘇澳', '東草屯'];
-            return (text.includes('服務區') || text.includes('休息站')) && areaKeywords.some(kw => text.includes(kw));
-        };
-
-        // ⚡ 2. 極低電量（isEmergencyStart）時自動忽略「國道服務區」偏好，就近搜尋起點周邊快充
-        if (abrpStopPreference === 'restArea' && !isEmergencyStart) {
-            const serviceAreaOnly = validStations.filter(s => isServiceAreaStation(s.name, s.vicinity));
-            if (serviceAreaOnly.length > 0) validStations = serviceAreaOnly;
-        } else if (abrpStopPreference === 'interchange') {
-            const interchangeOnly = validStations.filter(s => !isServiceAreaStation(s.name, s.vicinity));
-            if (interchangeOnly.length > 0) validStations = interchangeOnly;
+        // 若搜尋特定服務區無精確結果，退回一般的充電站搜尋
+        if (validStations.length === 0 && targetSearchKeyword !== '快充站') {
+            placesService.nearbySearch({ location: targetSearchLocation, radius: 5000, keyword: '充電站' }, (fallbackStations, fStatus) => {
+                handleDisplayStations(fallbackStations || []);
+            });
+            return;
         }
 
-        if (pStatus === google.maps.places.PlacesServiceStatus.OK && validStations.length > 0) {
-            const bestStation = validStations[0];
+        handleDisplayStations(validStations);
+
+        function handleDisplayStations(stationList) {
+            if (stationList.length === 0) {
+                stopDiv.innerHTML = `<div class="p-3 bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 rounded-xl font-bold">⚠️ 此路段未找到合適站點，建議提早下交流道補電。</div>`;
+                return;
+            }
+
+            const bestStation = stationList[0];
             const targetSocRef = startSoc <= 25 ? 10 : 18;
             const neededKwh = AppState.batteryCapacity * ((80 - targetSocRef) / 100);
             const chargingMinutes = Math.round((neededKwh / 85) * 60);
-            const stationAddress = bestStation.vicinity || bestStation.formatted_address || "沿途交流道或服務區周邊";
+            const stationAddress = bestStation.vicinity || bestStation.formatted_address || "國道服務區或交流道周邊";
             const stationName = bestStation.name;
             const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(stationName)}&destination_place_id=${bestStation.place_id || ''}`;
-            const isRestArea = isServiceAreaStation(stationName, stationAddress);
+            const isRestArea = (stationName.includes('服務區') || stationName.includes('休息站') || stationAddress.includes('服務區'));
 
             const stationCardHtml = `
                 <div class="bg-white/90 dark:bg-black/50 p-3 sm:p-3.5 rounded-2xl border ${isRestArea ? 'border-amber-400 dark:border-amber-500 shadow-[0_0_15px_rgba(251,191,36,0.15)]' : 'border-amber-200 dark:border-amber-700/70'} mt-1 shadow-sm space-y-2.5">
