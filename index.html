@@ -4606,15 +4606,34 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx) {
         </div>
     `;
 
+// === 修正後：精確計算目前電量（出發電量 -> 20% 安全底線）能跑的最大里程 ===
     const safeTargetSoc = 20;
-    const allowableSocDrop = Math.max(0, startSoc - safeTargetSoc);
-    const criticalDistanceKm = (allowableSocDrop / 100) * AppState.batteryCapacity * realEff;
-    let accumulatedMeters = 0;
-    let criticalLatLng = leg.steps[0].end_location;
+    const availableSoc = Math.max(5, startSoc - safeTargetSoc); // 50% - 20% = 30%
+    
+    // 出發前段多為高速公路，預設基準高速電耗（約 5.5 km/度），避免山區低電耗扭曲前半段平地續航
+    const highwayCruiseEff = (AppState.globalAvgEfficiency > 0 ? AppState.globalAvgEfficiency : 5.5);
+    const availableKwh = (availableSoc / 100) * AppState.batteryCapacity;
+    
+    // 計算出發後電量降至 20% 時的實際里程（km）
+    // 以 50% 為例：17.3 kWh * 5.5 = 約 95 km 處就必須停靠
+    let criticalDistanceKm = availableKwh * highwayCruiseEff;
+    
+    // 安全緩衝：提前在 80%~90% 的續航里程處找站點，避免剛好開到沒電
+    criticalDistanceKm = Math.max(30, criticalDistanceKm * 0.85);
 
-    for (const step of leg.steps) {
-        accumulatedMeters += step.distance.value;
-        if (accumulatedMeters >= criticalDistanceKm * 1000) { criticalLatLng = step.end_location; break; }
+    // 沿著實際行駛軌跡（overview_path）精確定位對應里程的座標點
+    let criticalLatLng = route.overview_path[0];
+    const path = route.overview_path;
+    let accumulatedDistMeters = 0;
+    const targetMeters = criticalDistanceKm * 1000;
+
+    for (let i = 1; i < path.length; i++) {
+        const segDist = google.maps.geometry.spherical.computeDistanceBetween(path[i - 1], path[i]);
+        accumulatedDistMeters += segDist;
+        if (accumulatedDistMeters >= targetMeters) {
+            criticalLatLng = path[i];
+            break;
+        }
     }
 
 const placesService = new google.maps.places.PlacesService(abrpMap);
