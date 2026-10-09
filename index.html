@@ -4845,39 +4845,7 @@ function renderAbrpCachedResults(calcData, totalDistanceKm, durationText) {
         });
     }
 }
-        
-// 純快取渲染（零延遲、絕不閃爍）
-function renderAbrpCachedResults(calcData, totalDistanceKm, durationText) {
-    const recCard = document.getElementById('abrpRecommendationCard');
-    if (!recCard) return;
 
-    recCard.className = "p-4 rounded-2xl border border-amber-300 dark:border-amber-700/60 bg-amber-50/80 dark:bg-amber-950/40 text-amber-950 dark:text-amber-200 space-y-2 min-h-[136px]";
-    recCard.innerHTML = `
-        <div class="font-black text-sm text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
-            <span>⚠️</span> 直達電量不足 (預估僅剩 ${calcData.directArrivalSoc}%)，建議中途補能！
-        </div>
-        <div class="text-[11px] opacity-90 leading-relaxed text-slate-600 dark:text-slate-300">
-            地形判定：<b>${calcData.routeProfileText}</b>（均耗 <b>${calcData.realEff.toFixed(2)} km/度</b>，共 ${totalDistanceKm.toFixed(1)} km）
-        </div>
-        <div id="abrpStopRecommendation" class="text-[11px] pt-1">
-            ${calcData.stationCardHtml}
-        </div>
-    `;
-    // 👈 就加在 innerHTML 賦值完之後、判斷 stationLocation 之前！
-    const profileEffEl = document.getElementById('abrpProfileEffText');
-    if (profileEffEl && calcData.realEff) {
-        profileEffEl.textContent = `均耗 ${calcData.realEff.toFixed(2)} km/度`;
-    }
-
-    if (calcData.stationLocation) {
-        if (abrpChargerMarker) abrpChargerMarker.setMap(null);
-        abrpChargerMarker = new google.maps.Marker({
-            position: calcData.stationLocation, map: abrpMap,
-            icon: { path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z", fillColor: '#f59e0b', fillOpacity: 1, strokeWeight: 1.5, strokeColor: '#ffffff', scale: 1.5, anchor: new google.maps.Point(12, 22) },
-            title: calcData.stationTitle
-        });
-    }
-}
     </script>
 
     <script src="./achievements.js" onload="if(typeof renderDashboard==='function') renderDashboard();"></script>
