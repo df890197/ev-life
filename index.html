@@ -2966,6 +2966,15 @@ window.calculatePrediction = function() {
                 if(DOM.statTreesPlanted) DOM.statTreesPlanted.textContent = treesPlanted.toFixed(1);
             }
 
+            // 1. 大保養進度條
+            if(DOM.maintRemainingText) {
+                if(DOM.maintIntervalText) DOM.maintIntervalText.textContent = AppState.maintInterval;
+                DOM.maintRemainingText.textContent = Math.round(remMaint).toLocaleString();
+                if(DOM.maintProgressBar) DOM.maintProgressBar.style.width = `${Math.min(100, progMaint)}%`;
+                updateProgressStyle(DOM.maintRemainingText, DOM.maintProgressBar, remMaint);
+            }
+
+            // 2. 輪胎對調進度條
             if(DOM.tireRemainingText) {
                 if(DOM.tireIntervalText) DOM.tireIntervalText.textContent = AppState.tireInterval;
                 DOM.tireRemainingText.textContent = Math.round(remTire).toLocaleString();
