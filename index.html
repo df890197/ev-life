@@ -549,85 +549,129 @@
                     </div>
                 </div>
 
-                <div class="mb-0">
-                    <div class="rpg-card bg-white dark:bg-slate-800 p-5 rounded-[1.5rem] border border-slate-100 dark:border-slate-700 flex flex-col justify-center">
-                        <div class="flex items-center gap-2 mb-4">
-                            <span class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 w-7 h-7 rounded-full flex items-center justify-center text-xs">🔧</span>
-                            <h3 class="text-xs md:text-sm font-black text-slate-700 dark:text-slate-200">車輛保養與保險</h3>
-                        </div>
-
-                        <div class="mb-3">
-                            <div class="flex justify-between items-end mb-1">
-                                <span class="text-[11px] font-bold text-slate-600 dark:text-slate-300">大保養 (每 <span id="maintIntervalText">20000</span>km)</span>
-                                <div class="text-right">
-                                    <span id="maintRemainingText" class="text-xs font-black font-mono text-indigo-500">0</span>
-                                    <span class="text-[9px] text-slate-500 font-bold">km 剩餘</span>
+<div class="mb-0">
+                    <!-- 🔧 車輛保養、維護與財務總覽 (HUD 模組化升級版) -->
+                    <div class="rpg-card bg-white dark:bg-slate-800/90 p-5 md:p-6 rounded-[2rem] border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
+                        
+                        <!-- 頂部標題與裝飾標籤 -->
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700/60">
+                            <div class="flex items-center gap-2.5">
+                                <span class="bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 w-8 h-8 rounded-xl flex items-center justify-center text-sm shadow-sm">🔧</span>
+                                <div>
+                                    <h3 class="text-xs md:text-sm font-black text-slate-800 dark:text-white">車輛保養與用車排程</h3>
+                                    <p class="text-[10px] text-slate-400 font-bold">即時追蹤里程週期與重要到期日</p>
                                 </div>
                             </div>
-                            <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden flex">
-                                <div id="maintProgressBar" class="bg-indigo-500 h-1.5 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
-                            </div>
+                            <span class="text-[10px] font-mono font-black text-slate-400 bg-slate-100 dark:bg-slate-700/60 px-2.5 py-1 rounded-lg">HEALTH STATUS</span>
                         </div>
 
-                        <!-- 🛞 輪胎對調進度模組 -->
-                    <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
-                        <div class="flex justify-between items-end mb-1">
-                            <span class="text-[11px] font-bold text-slate-600 dark:text-slate-300">🛞 輪胎對調 (每 <span id="tireIntervalText">10000</span>km)</span>
-                            <div class="text-right">
-                                <span id="tireRemainingText" class="text-xs font-black font-mono text-cyan-500">0</span>
-                                <span class="text-[9px] text-slate-500 font-bold">km 剩餘</span>
+                        <!-- 1. 里程健康週期：大保養 + 輪胎對調（手機單欄，平板以上雙欄並排） -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            
+                            <!-- 大保養卡片 -->
+                            <div class="bg-slate-50 dark:bg-slate-900/50 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-xs">⚙️</span>
+                                        <span class="text-xs font-black text-slate-700 dark:text-slate-200">大保養</span>
+                                        <span class="text-[10px] font-bold text-slate-400 font-mono">(每<span id="maintIntervalText">20000</span>km)</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-[10px] text-slate-400 font-bold">剩餘 </span>
+                                        <span id="maintRemainingText" class="text-xs md:text-sm font-black font-mono text-indigo-500">0</span>
+                                        <span class="text-[10px] text-slate-400 font-bold font-mono"> km</span>
+                                    </div>
+                                </div>
+                                <div class="w-full bg-slate-200/80 dark:bg-slate-800 rounded-full h-2 overflow-hidden flex soc-progress-track">
+                                    <div id="maintProgressBar" class="bg-gradient-to-r from-indigo-500 to-cyan-400 h-2 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden flex">
-                            <div id="tireProgressBar" class="bg-cyan-500 h-1.5 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
-                        </div>
-                    </div>
 
-                        <div id="maintDateAlertContainer" class="hidden mt-3 pt-2 border-t border-slate-100 dark:border-slate-700">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1"><span class="text-[10px]">📅</span> 預計進廠: <span id="maintTargetDateStr" class="font-mono text-slate-700 dark:text-slate-300"></span></span>
-                                <span id="maintDaysRemainingBadge" class="text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm"></span>
+                            <!-- 輪胎對調卡片 -->
+                            <div class="bg-slate-50 dark:bg-slate-900/50 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-xs">🛞</span>
+                                        <span class="text-xs font-black text-slate-700 dark:text-slate-200">輪胎對調</span>
+                                        <span class="text-[10px] font-bold text-slate-400 font-mono">(每<span id="tireIntervalText">10000</span>km)</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-[10px] text-slate-400 font-bold">剩餘 </span>
+                                        <span id="tireRemainingText" class="text-xs md:text-sm font-black font-mono text-cyan-500">0</span>
+                                        <span class="text-[10px] text-slate-400 font-bold font-mono"> km</span>
+                                    </div>
+                                </div>
+                                <div class="w-full bg-slate-200/80 dark:bg-slate-800 rounded-full h-2 overflow-hidden flex soc-progress-track">
+                                    <div id="tireProgressBar" class="bg-gradient-to-r from-cyan-500 to-teal-400 h-2 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+                                </div>
                             </div>
+
                         </div>
 
-                        <div id="insuranceDateAlertContainer" class="hidden mt-1 pt-2 border-t border-slate-100 dark:border-slate-700">
+                        <!-- 2. 日期排程警示模組（雙膠囊並排） -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                            
+                            <!-- 預計進廠 -->
+                            <div id="maintDateAlertContainer" class="hidden flex items-center justify-between p-3 rounded-2xl bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-800/50">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-7 h-7 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xs">📅</span>
+                                    <div>
+                                        <div class="text-[10px] text-slate-400 font-bold">預計進廠日期</div>
+                                        <div id="maintTargetDateStr" class="font-mono text-xs font-black text-slate-800 dark:text-slate-200"></div>
+                                    </div>
+                                </div>
+                                <span id="maintDaysRemainingBadge" class="text-[10px] font-black px-2.5 py-1 rounded-lg shadow-sm whitespace-nowrap"></span>
+                            </div>
+
+                            <!-- 保險到期 -->
+                            <div id="insuranceDateAlertContainer" class="hidden flex items-center justify-between p-3 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/20 border border-indigo-200/60 dark:border-indigo-800/50">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-7 h-7 rounded-xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs">🛡️</span>
+                                    <div>
+                                        <div class="text-[10px] text-slate-400 font-bold">保險到期日</div>
+                                        <div id="insuranceTargetDateStr" class="font-mono text-xs font-black text-slate-800 dark:text-slate-200"></div>
+                                    </div>
+                                </div>
+                                <span id="insuranceDaysRemainingBadge" class="text-[10px] font-black px-2.5 py-1 rounded-lg shadow-sm whitespace-nowrap"></span>
+                            </div>
+
+                        </div>
+
+                        <!-- 3. 車貸財務專區（獨立精緻深色卡槽） -->
+                        <div id="loanProgressContainer" class="hidden p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200/80 dark:border-slate-800 space-y-2.5">
+                            
                             <div class="flex items-center justify-between">
-                                <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1"><span class="text-[10px]">🛡️</span> 保險到期: <span id="insuranceTargetDateStr" class="font-mono text-slate-700 dark:text-slate-300"></span></span>
-                                <span id="insuranceDaysRemainingBadge" class="text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm"></span>
-                            </div>
-                        </div>
-
-                        <!-- 🏦 車貸進度模組 -->
-                        <div id="loanProgressContainer" class="hidden mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
-                            <div class="flex items-center justify-between mb-1.5">
-                                <span class="text-[11px] font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
-                                    <span class="text-xs">🏦</span> 車貸還款進度
-                                </span>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-6 h-6 rounded-lg bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 flex items-center justify-center text-xs">🏦</span>
+                                    <span class="text-xs font-black text-slate-800 dark:text-slate-200">車貸還款進度</span>
+                                </div>
                                 <div class="text-right">
-                                    <span id="loanMonthsProgressText" class="text-xs font-black font-mono text-orange-500">0 / 0</span>
-                                    <span class="text-[9px] text-slate-500 font-bold">期</span>
+                                    <span id="loanMonthsProgressText" class="text-xs md:text-sm font-black font-mono text-orange-500">0 / 0</span>
+                                    <span class="text-[10px] text-slate-400 font-bold"> 期</span>
                                 </div>
                             </div>
-                            <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden flex mb-1.5">
-                                <div id="loanProgressBar" class="bg-orange-500 h-1.5 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+
+                            <div class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2 overflow-hidden flex soc-progress-track">
+                                <div id="loanProgressBar" class="bg-gradient-to-r from-amber-500 to-orange-500 h-2 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
                             </div>
-                            <div class="flex justify-between items-center text-[10px] text-slate-400 font-bold">
-                                <span>累計已繳: <span id="loanTotalPaidAmount" class="font-mono text-slate-600 dark:text-slate-300">$0</span></span>
-                                <span>剩餘: <span id="loanRemainingMonths" class="font-mono text-orange-500">0</span> 期</span>
+
+                            <div class="flex justify-between items-center text-[10px] text-slate-400 font-bold pt-0.5">
+                                <span>累計已繳: <b id="loanTotalPaidAmount" class="font-mono text-slate-700 dark:text-slate-200 text-xs">$0</b></span>
+                                <span>剩餘: <b id="loanRemainingMonths" class="font-mono text-orange-500 text-xs">0</b> 期</span>
                             </div>
-                            <!-- 新增：預計結清日與剩餘天數提醒 -->
-<div id="loanDateAlertContainer" class="hidden mt-2 pt-2 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
-    <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
-        <span class="text-[10px]">🏁</span> 預計結清: <span id="loanTargetDateStr" class="font-mono text-slate-700 dark:text-slate-300"></span>
-    </span>
-    <span id="loanDaysRemainingBadge" class="text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm"></span>
-</div>
+
+                            <!-- 預計結清日提醒條 -->
+                            <div id="loanDateAlertContainer" class="hidden pt-2 border-t border-slate-200/60 dark:border-slate-800/80 flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-slate-400 flex items-center gap-1.5">
+                                    <span>🏁</span> 預計結清: <b id="loanTargetDateStr" class="font-mono text-slate-700 dark:text-slate-300"></b>
+                                </span>
+                                <span id="loanDaysRemainingBadge" class="text-[9px] font-black px-2 py-0.5 rounded-md shadow-sm"></span>
+                            </div>
+
                         </div>
 
                     </div>
                 </div>
-
-            </div>
         </div>
 
         <!-- 🔹 Tab 2: 新增/編輯紀錄 (Add/Edit) -->
@@ -2951,8 +2995,17 @@ window.calculatePrediction = function() {
         function updateProgressStyle(remEl, progEl, remainingKm) {
             if(!remEl || !progEl) return;
             const isRed = remainingKm < 1000, isAmber = remainingKm < 3000;
-            remEl.className = `text-xs md:text-sm font-black font-mono ${isRed ? 'text-rose-500' : isAmber ? 'text-amber-500' : 'text-indigo-500'}`;
-            progEl.className = `h-1.5 md:h-2 rounded-full transition-all duration-1000 ease-out ${isRed ? 'bg-rose-500' : isAmber ? 'bg-amber-500' : 'bg-indigo-500'}`;
+            if (isRed) {
+                remEl.className = "text-xs md:text-sm font-black font-mono text-rose-500 animate-pulse";
+                progEl.className = "h-2 rounded-full transition-all duration-1000 ease-out bg-rose-500";
+            } else if (isAmber) {
+                remEl.className = "text-xs md:text-sm font-black font-mono text-amber-500";
+                progEl.className = "h-2 rounded-full transition-all duration-1000 ease-out bg-gradient-to-r from-amber-500 to-orange-400";
+            } else {
+                const isTire = progEl.id === 'tireProgressBar';
+                remEl.className = `text-xs md:text-sm font-black font-mono ${isTire ? 'text-cyan-500' : 'text-indigo-500'}`;
+                progEl.className = `h-2 rounded-full transition-all duration-1000 ease-out ${isTire ? 'bg-gradient-to-r from-cyan-500 to-teal-400' : 'bg-gradient-to-r from-indigo-500 to-cyan-400'}`;
+            }
         }
 
             function updateStats(km, eff, cost, maintCost, baseOdo, fuelSavings, co2Savings, treesPlanted, remMaint, progMaint, loanPaidCount = 0, loanPaidTotalAmount = 0, remTire = 0, progTire = 0) {
