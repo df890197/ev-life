@@ -1246,6 +1246,21 @@
                             <button type="button" id="btnClearEnd" onclick="clearRouteInput('routeEndInput', 'btnClearEnd')" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs font-bold active:scale-90 transition">✕</button>
                         </div>
                     </div>
+
+                    <!-- ⚡ 偏好快充業者膠囊 (可多選) -->
+                    <div class="w-full sm:col-span-3 pt-2 border-t border-slate-200/40 dark:border-slate-800/60">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-[10px] font-bold text-slate-400">⚡ 偏好快充業者 (優先媒合停靠)</span>
+                            <span class="text-[9px] text-slate-400 font-bold">可多選</span>
+                        </div>
+                        <div class="flex flex-wrap gap-1.5" id="abrpBrandPills">
+                            <button type="button" onclick="toggleAbrpBrand(this, 'U-POWER')" class="abrp-brand-btn active px-2.5 py-1 rounded-lg text-[10px] font-black border transition-all bg-amber-400 border-amber-400 text-slate-950 shadow-sm">U-POWER</button>
+                            <button type="button" onclick="toggleAbrpBrand(this, 'EVOASIS')" class="abrp-brand-btn active px-2.5 py-1 rounded-lg text-[10px] font-black border transition-all bg-amber-400 border-amber-400 text-slate-950 shadow-sm">EVOASIS</button>
+                            <button type="button" onclick="toggleAbrpBrand(this, '特爾')" class="abrp-brand-btn active px-2.5 py-1 rounded-lg text-[10px] font-black border transition-all bg-amber-400 border-amber-400 text-slate-950 shadow-sm">特爾 EVALUE</button>
+                            <button type="button" onclick="toggleAbrpBrand(this, 'TAIL')" class="abrp-brand-btn px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500">TAIL 快充</button>
+                            <button type="button" onclick="toggleAbrpBrand(this, '星舟')" class="abrp-brand-btn px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500">星舟快充</button>
+                        </div>
+                    </div>
                     
                     <div class="w-full sm:col-span-3 flex items-center justify-between gap-2 sm:gap-3 pt-1.5 border-t border-slate-200/40 dark:border-slate-800/60 mt-1">
                         <!-- 出發電量輸入區 -->
@@ -4231,6 +4246,20 @@ let currentPkRoutes = [];
 let pkRouteCache = {};
 let abrpChargerMarker = null;
 
+        // 記錄勾選的偏好快充業者（預設選中常去的三家）
+let preferredBrands = ['U-POWER', 'EVOASIS', '特爾'];
+
+window.toggleAbrpBrand = function(btn, brand) {
+    triggerHaptic('light');
+    if (preferredBrands.includes(brand)) {
+        preferredBrands = preferredBrands.filter(b => b !== brand);
+        btn.className = "abrp-brand-btn px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500";
+    } else {
+        preferredBrands.push(brand);
+        btn.className = "abrp-brand-btn active px-2.5 py-1 rounded-lg text-[10px] font-black border transition-all bg-amber-400 border-amber-400 text-slate-950 shadow-sm";
+    }
+};
+
 function evaluateRouteWithTraffic(route, startSoc) {
     const leg = route.legs[0];
     const distKm = leg.distance.value / 1000;
@@ -4576,15 +4605,28 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx) {
         if (accumulatedMeters >= criticalDistanceKm * 1000) { criticalLatLng = step.end_location; break; }
     }
 
-    const placesService = new google.maps.places.PlacesService(abrpMap);
-    placesService.nearbySearch({ location: criticalLatLng, radius: 8000, keyword: '快充站' }, (stations, pStatus) => {
+const placesService = new google.maps.places.PlacesService(abrpMap);
+    placesService.nearbySearch({ location: criticalLatLng, radius: 10000, keyword: '快充站' }, (stations, pStatus) => {
         const stopDiv = document.getElementById('abrpStopRecommendation');
         if (!stopDiv) return;
 
-        const validStations = (stations || []).filter(s => {
+        let validStations = (stations || []).filter(s => {
             const name = (s.name || '').toLowerCase();
             return !name.includes('tesla') && !name.includes('特斯拉') && !name.includes('supercharger');
         });
+
+        // 🎯 優先排序：若站名包含使用者勾選的偏好業者，往前排在第一順位
+        if (preferredBrands.length > 0 && validStations.length > 0) {
+            validStations.sort((a, b) => {
+                const aName = a.name || '';
+                const bName = b.name || '';
+                const aMatches = preferredBrands.some(brand => aName.includes(brand));
+                const bMatches = preferredBrands.some(brand => bName.includes(brand));
+                if (aMatches && !bMatches) return -1;
+                if (!aMatches && bMatches) return 1;
+                return 0;
+            });
+        }
 
         if (pStatus === google.maps.places.PlacesServiceStatus.OK && validStations.length > 0) {
             const bestStation = validStations[0];
