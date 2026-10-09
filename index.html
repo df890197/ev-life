@@ -4058,9 +4058,13 @@ if(dH) dH.innerHTML = window.location.protocol === 'file:' ? '🔴 本機檔案�
         /* ============================================================
            ⚡ ABRP 風格長途路徑與充電補給規劃器
            ============================================================ */
-        let abrpMap = null;
-        let abrpDirectionsRenderer = null;
-        let currentStartLatLng = null;
+let abrpMap = null;
+let abrpDirectionsRenderer = null;
+let currentStartLatLng = null;
+let currentPkRoutes = [];
+let pkRouteCache = {};
+let abrpChargerMarker = null;
+let abrpStopPreference = 'restArea';
         
 // 切換清除按鈕顯示狀態（有字顯示，無字隱藏）
         window.toggleRouteClearBtn = function(inputId, btnId) {
@@ -4236,14 +4240,6 @@ window.closeAbrpModal = function() {
                 new google.maps.places.Autocomplete(endInput, options);
             }
         }
-/* ============================================================
-   🔀 國道即時路況與動態電耗 PK 輔助函式 (終極無縫快取版)
-   ============================================================ */
-let currentPkRoutes = [];
-let pkRouteCache = {};
-let abrpChargerMarker = null;
-        // ⚡ 國道服務區 vs 交流道偏好設定
-let abrpStopPreference = 'restArea'; // 'restArea' 或 'interchange'
 
 window.setAbrpStopPref = function(pref) {
     abrpStopPreference = pref;
