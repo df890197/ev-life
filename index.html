@@ -1253,13 +1253,13 @@
                             <span class="text-[10px] font-bold text-slate-400">⚡ 偏好快充業者 (優先媒合停靠)</span>
                             <span class="text-[9px] text-slate-400 font-bold">可多選</span>
                         </div>
-                        <div class="flex flex-wrap gap-1.5" id="abrpBrandPills">
-                            <button type="button" onclick="toggleAbrpBrand(this, 'U-POWER')" class="abrp-brand-btn active px-2.5 py-1 rounded-lg text-[10px] font-black border transition-all bg-amber-400 border-amber-400 text-slate-950 shadow-sm">U-POWER</button>
-                            <button type="button" onclick="toggleAbrpBrand(this, 'EVOASIS')" class="abrp-brand-btn active px-2.5 py-1 rounded-lg text-[10px] font-black border transition-all bg-amber-400 border-amber-400 text-slate-950 shadow-sm">EVOASIS</button>
-                            <button type="button" onclick="toggleAbrpBrand(this, '特爾')" class="abrp-brand-btn active px-2.5 py-1 rounded-lg text-[10px] font-black border transition-all bg-amber-400 border-amber-400 text-slate-950 shadow-sm">特爾 EVALUE</button>
-                            <button type="button" onclick="toggleAbrpBrand(this, 'TAIL')" class="abrp-brand-btn px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500">TAIL 快充</button>
-                            <button type="button" onclick="toggleAbrpBrand(this, '星舟')" class="abrp-brand-btn px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500">星舟快充</button>
-                        </div>
+<div class="flex flex-wrap gap-1.5 items-center" id="abrpBrandPills" style="-webkit-tap-highlight-color: transparent;">
+    <button type="button" onclick="toggleAbrpBrand(this, 'U-POWER')" class="abrp-brand-btn active px-2.5 py-1 rounded-lg text-[10px] font-bold border box-border select-none shrink-0 transition-colors bg-amber-400 border-amber-400 text-slate-950">U-POWER</button>
+    <button type="button" onclick="toggleAbrpBrand(this, 'EVOASIS')" class="abrp-brand-btn active px-2.5 py-1 rounded-lg text-[10px] font-bold border box-border select-none shrink-0 transition-colors bg-amber-400 border-amber-400 text-slate-950">EVOASIS</button>
+    <button type="button" onclick="toggleAbrpBrand(this, '特爾')" class="abrp-brand-btn active px-2.5 py-1 rounded-lg text-[10px] font-bold border box-border select-none shrink-0 transition-colors bg-amber-400 border-amber-400 text-slate-950">特爾 EVALUE</button>
+    <button type="button" onclick="toggleAbrpBrand(this, 'TAIL')" class="abrp-brand-btn px-2.5 py-1 rounded-lg text-[10px] font-bold border box-border select-none shrink-0 transition-colors bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500">TAIL 快充</button>
+    <button type="button" onclick="toggleAbrpBrand(this, '星舟')" class="abrp-brand-btn px-2.5 py-1 rounded-lg text-[10px] font-bold border box-border select-none shrink-0 transition-colors bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500">星舟快充</button>
+</div>
                     </div>
                     
                     <div class="w-full sm:col-span-3 flex items-center justify-between gap-2 sm:gap-3 pt-1.5 border-t border-slate-200/40 dark:border-slate-800/60 mt-1">
@@ -4257,6 +4257,12 @@ window.toggleAbrpBrand = function(btn, brand) {
     } else {
         preferredBrands.push(brand);
         btn.className = "abrp-brand-btn active px-2.5 py-1 rounded-lg text-[10px] font-black border transition-all bg-amber-400 border-amber-400 text-slate-950 shadow-sm";
+    }
+        .abrp-brand-btn {
+        touch-action: manipulation;
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+        will-change: background-color, border-color, color;
     }
 };
 
