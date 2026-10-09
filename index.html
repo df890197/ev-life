@@ -4610,10 +4610,19 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, ro
         </div>
     `;
 
-    // 依據出發電量精準取樣，避免 steps 跳躍
+// ⚡ 1. 精準計算可跑里程（若電量 <= 10%，判定為起點緊急補電，不再強制墊高到 25km）
+let criticalDistanceKm;
+let isEmergencyStart = false;
+
+if (startSoc <= 10) {
+    isEmergencyStart = true;
+    // 1%~10% 電量只夠跑起點附近 1~15 km
+    criticalDistanceKm = Math.max(1, (startSoc / 100) * AppState.batteryCapacity * realEff);
+} else {
     const targetRemainingSoc = startSoc <= 25 ? 10 : 18;
-    const usableSoc = Math.max(8, startSoc - targetRemainingSoc);
-    const criticalDistanceKm = Math.max(25, (usableSoc / 100) * AppState.batteryCapacity * realEff);
+    const usableSoc = Math.max(5, startSoc - targetRemainingSoc);
+    criticalDistanceKm = Math.max(15, (usableSoc / 100) * AppState.batteryCapacity * realEff);
+}
 
     const path = (route && route.overview_path) ? route.overview_path : currentPkRoutes[routeIdx].overview_path;
     let accumulatedMeters = 0;
@@ -4658,7 +4667,8 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, ro
             return (text.includes('服務區') || text.includes('休息站')) && areaKeywords.some(kw => text.includes(kw));
         };
 
-        if (abrpStopPreference === 'restArea') {
+        // ⚡ 極低電量（isEmergencyStart）時自動忽略「國道服務區」偏好，就近搜尋起點周邊快充
+        if (abrpStopPreference === 'restArea' && !isEmergencyStart) {
             const serviceAreaOnly = validStations.filter(s => isServiceAreaStation(s.name, s.vicinity));
             if (serviceAreaOnly.length > 0) validStations = serviceAreaOnly;
         } else if (abrpStopPreference === 'interchange') {
