@@ -4588,17 +4588,46 @@ placesService.nearbySearch({ location: criticalLatLng, radius: 12000, keyword: '
         return !name.includes('tesla') && !name.includes('特斯拉') && !name.includes('supercharger');
     });
 
-    // 2. 國道服務區識別關鍵字清單（涵蓋國一、國三、國五主要休息站）
-    const SERVICE_AREA_KEYWORDS = [
-        '服務區', '休息站', '中壢', '湖口', '泰安', '西螺', '新營', '仁德', 
-        '木柵', '關西', '西湖', '清水', '南投', '古坑', '東山', '關廟', '石碇', '蘇澳'
+// 2. 完整涵蓋台灣國道（國1、國3、國5、國6）全數服務區與休息站
+    const REST_AREA_NAMES = [
+        // 國道 1 號
+        '中壢服務區', '中壢休息站',
+        '楊梅休息站',
+        '湖口服務區', '湖口休息站',
+        '泰安服務區', '泰安休息站',
+        '西螺服務區', '西螺休息站',
+        '新營服務區', '新營休息站',
+        '仁德服務區', '仁德休息站',
+        // 國道 3 號
+        '木柵休息站',
+        '寶山休息站',
+        '關西服務區', '關西休息站',
+        '西湖服務區', '西湖休息站',
+        '清水服務區', '清水休息站',
+        '南投服務區', '南投休息站',
+        '古坑服務區', '古坑休息站',
+        '東山服務區', '東山休息站',
+        '關廟服務區', '關廟休息站',
+        // 國道 5 號
+        '石碇服務區', '石碇休息站',
+        '蘇澳服務區', '蘇澳休息站',
+        // 國道 6 號
+        '東草屯休息站'
     ];
 
-    const isServiceAreaStation = (name, addr = '') => {
-        const text = (name + ' ' + addr);
-        return SERVICE_AREA_KEYWORDS.some(kw => text.includes(kw) && (text.includes('服務區') || text.includes('休息站')));
-    };
+    const isServiceAreaStation = (name = '', addr = '') => {
+        const text = `${name} ${addr}`.toLowerCase();
+        
+        // 條件 A：直接命中完整服務區/休息站名稱（例：湖口服務區、楊梅休息站）
+        if (REST_AREA_NAMES.some(area => text.includes(area))) return true;
 
+        // 條件 B：含有「服務區」或「休息站」且帶有任一地名關鍵字
+        const areaKeywords = ['中壢', '楊梅', '湖口', '泰安', '西螺', '新營', '仁德', '木柵', '寶山', '關西', '西湖', '清水', '南投', '古坑', '東山', '關廟', '石碇', '蘇澳', '東草屯'];
+        const hasRestWord = text.includes('服務區') || text.includes('休息站') || text.includes('休息區');
+        const hasLocation = areaKeywords.some(kw => text.includes(kw));
+
+        return hasRestWord && hasLocation;
+    };
     // 3. 智能加權排序：若半徑內有「國道服務區」，強制拉到第 1 順位
     if (validStations.length > 0) {
         validStations.sort((a, b) => {
