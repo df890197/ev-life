@@ -672,7 +672,6 @@
 
                     </div>
                 </div>
-        </div>
 
         <!-- 🔹 Tab 2: 新增/編輯紀錄 (Add/Edit) -->
         <div id="view-add" class="view-section px-4">
@@ -1254,11 +1253,12 @@
                             <span class="text-[9px] text-slate-400 font-bold">可多選</span>
                         </div>
 <div class="flex flex-wrap gap-1.5 items-center" id="abrpBrandPills" style="-webkit-tap-highlight-color: transparent;">
-    <button type="button" onclick="toggleAbrpBrand(this, 'U-POWER')" class="abrp-brand-btn active px-2.5 py-1 rounded-lg text-[10px] font-bold border box-border select-none shrink-0 transition-colors bg-amber-400 border-amber-400 text-slate-950">U-POWER</button>
-    <button type="button" onclick="toggleAbrpBrand(this, 'EVOASIS')" class="abrp-brand-btn active px-2.5 py-1 rounded-lg text-[10px] font-bold border box-border select-none shrink-0 transition-colors bg-amber-400 border-amber-400 text-slate-950">EVOASIS</button>
-    <button type="button" onclick="toggleAbrpBrand(this, '特爾')" class="abrp-brand-btn active px-2.5 py-1 rounded-lg text-[10px] font-bold border box-border select-none shrink-0 transition-colors bg-amber-400 border-amber-400 text-slate-950">特爾 EVALUE</button>
-    <button type="button" onclick="toggleAbrpBrand(this, 'TAIL')" class="abrp-brand-btn px-2.5 py-1 rounded-lg text-[10px] font-bold border box-border select-none shrink-0 transition-colors bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500">TAIL 快充</button>
-    <button type="button" onclick="toggleAbrpBrand(this, '星舟')" class="abrp-brand-btn px-2.5 py-1 rounded-lg text-[10px] font-bold border box-border select-none shrink-0 transition-colors bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500">星舟快充</button>
+    <button type="button" onclick="toggleAbrpBrand(this, 'U-POWER')" class="abrp-brand-btn active px-2.5 py-1 rounded-lg text-[10px] font-bold border box-border select-none shrink-0 transition-colors bg-amber-400 border-amber-400 text-slate-950 shadow-sm active:scale-95">U-POWER</button>
+    <button type="button" onclick="toggleAbrpBrand(this, 'EVOASIS')" class="abrp-brand-btn active px-2.5 py-1 rounded-lg text-[10px] font-bold border box-border select-none shrink-0 transition-colors bg-amber-400 border-amber-400 text-slate-950 shadow-sm active:scale-95">EVOASIS</button>
+    <button type="button" onclick="toggleAbrpBrand(this, '特爾')" class="abrp-brand-btn active px-2.5 py-1 rounded-lg text-[10px] font-bold border box-border select-none shrink-0 transition-colors bg-amber-400 border-amber-400 text-slate-950 shadow-sm active:scale-95">特爾電力 TAIL</button>
+    <button type="button" onclick="toggleAbrpBrand(this, 'EVALUE')" class="abrp-brand-btn px-2.5 py-1 rounded-lg text-[10px] font-bold border box-border select-none shrink-0 transition-colors bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 active:scale-95">EVALUE 華城</button>
+    <button type="button" onclick="toggleAbrpBrand(this, '星舟')" class="abrp-brand-btn px-2.5 py-1 rounded-lg text-[10px] font-bold border box-border select-none shrink-0 transition-colors bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 active:scale-95">星舟快充</button>
+    <button type="button" onclick="toggleAbrpBrand(this, 'NHOA')" class="abrp-brand-btn px-2.5 py-1 rounded-lg text-[10px] font-bold border box-border select-none shrink-0 transition-colors bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 active:scale-95">台泥 NHOA</button>
 </div>
                     </div>
                     
@@ -4246,23 +4246,17 @@ let currentPkRoutes = [];
 let pkRouteCache = {};
 let abrpChargerMarker = null;
 
-        // 記錄勾選的偏好快充業者（預設選中常去的三家）
+// 記錄勾選的偏好快充業者（預設選中常去的三家）
 let preferredBrands = ['U-POWER', 'EVOASIS', '特爾'];
 
 window.toggleAbrpBrand = function(btn, brand) {
     triggerHaptic('light');
     if (preferredBrands.includes(brand)) {
         preferredBrands = preferredBrands.filter(b => b !== brand);
-        btn.className = "abrp-brand-btn px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500";
+        btn.className = "abrp-brand-btn px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-colors select-none bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 active:scale-95";
     } else {
         preferredBrands.push(brand);
-        btn.className = "abrp-brand-btn active px-2.5 py-1 rounded-lg text-[10px] font-black border transition-all bg-amber-400 border-amber-400 text-slate-950 shadow-sm";
-    }
-        .abrp-brand-btn {
-        touch-action: manipulation;
-        -webkit-transform: translateZ(0);
-        transform: translateZ(0);
-        will-change: background-color, border-color, color;
+        btn.className = "abrp-brand-btn active px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-colors select-none bg-amber-400 border-amber-400 text-slate-950 shadow-sm active:scale-95";
     }
 };
 
