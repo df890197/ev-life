@@ -569,6 +569,20 @@
                             </div>
                         </div>
 
+                        <!-- 🛞 輪胎對調進度模組 -->
+                    <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
+                        <div class="flex justify-between items-end mb-1">
+                            <span class="text-[11px] font-bold text-slate-600 dark:text-slate-300">🛞 輪胎對調 (每 <span id="tireIntervalText">10000</span>km)</span>
+                            <div class="text-right">
+                                <span id="tireRemainingText" class="text-xs font-black font-mono text-cyan-500">0</span>
+                                <span class="text-[9px] text-slate-500 font-bold">km 剩餘</span>
+                            </div>
+                        </div>
+                        <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden flex">
+                            <div id="tireProgressBar" class="bg-cyan-500 h-1.5 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+                        </div>
+                    </div>
+
                         <div id="maintDateAlertContainer" class="hidden mt-3 pt-2 border-t border-slate-100 dark:border-slate-700">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1"><span class="text-[10px]">📅</span> 預計進廠: <span id="maintTargetDateStr" class="font-mono text-slate-700 dark:text-slate-300"></span></span>
@@ -958,6 +972,14 @@
                                 <div>
                                     <label class="text-[10px] md:text-xs font-bold text-slate-400 block mb-1">大保養間距 (km)</label>
                                     <input type="number" step="1000" id="maintIntervalInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs md:text-sm font-mono font-bold focus:outline-none focus:border-amber-400" placeholder="20000">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] md:text-xs font-bold text-slate-400 block mb-1 flex items-center gap-1"><span class="text-[12px]">🛞</span>調胎週期 (km)</label>
+                                    <input type="number" step="1000" id="tireIntervalInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs md:text-sm font-mono font-bold focus:outline-none focus:border-amber-400" placeholder="10000">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] md:text-xs font-bold text-slate-400 block mb-1 flex items-center gap-1"><span class="text-[12px]">🛞</span>上次調胎總里程 (km)</label>
+                                    <input type="number" step="1" id="lastTireRotationOdoInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-700 rounded-xl text-xs md:text-sm font-mono font-bold focus:outline-none focus:border-amber-400" placeholder="0">
                                 </div>
                                 <div>
                                     <label class="text-[10px] md:text-xs font-bold text-slate-400 block mb-1">預計下次進廠日期 (選填)</label>
@@ -1352,7 +1374,7 @@
 
         const AppState = {
             records: [], evName: "LUXGEN n7", batteryCapacity: 57.7, initialOdometer: 0,
-            maintInterval: 20000, nextMaintDate: "", insuranceExpiryDate: "",
+            maintInterval: 20000, tireInterval: 10000, lastTireRotationOdo: 0, nextMaintDate: "", insuranceExpiryDate: "",
             loanTotalMonths: 0, loanMonthlyPayment: 0,
             iceEfficiency: 15.0, gasPrice: 30.0, syncUrl: "", syncToken: "",
             editingRecordId: null, 
@@ -1408,6 +1430,7 @@ function cacheDOMNodes() {
      'tagInputArea', 'costLabel', 'startSocLabel', 'endSocLabel', 'recordMobileList', 'noDataPlaceholder', 'homeStatsContainer', 
      'onboardingCard', 'confirmModal', 'confirmModalContent', 'confirmModalTitle', 'confirmModalMessage', 'appSplashScreen', 
      'evNameInput', 'batteryCapacityInput', 'initialOdometerInput', 'maintIntervalInput', 'iceEfficiencyInput', 
+     'tireIntervalInput', 'lastTireRotationOdoInput', 'tireIntervalText', 'tireRemainingText', 'tireProgressBar',
      'gasPriceInput', 'nextMaintDateInput', 'insuranceExpiryInput', 
      'loanTotalMonthsInput', 'loanMonthlyPaymentInput', 'loanStartDateInput', 'loanPayoffDateInput',
      'syncUrlInput', 'syncTokenInput', 'topEvName', 'heroEvName', 'formTitle', 'cancelEditBtn', 
@@ -1625,6 +1648,14 @@ function cacheDOMNodes() {
             let storedInterval = parseInt(localStorage.getItem('ev_life_maint_interval'));
             AppState.maintInterval = !isNaN(storedInterval) ? storedInterval : 20000;
             if (DOM.maintIntervalInput) DOM.maintIntervalInput.value = AppState.maintInterval;
+
+            let storedTireInterval = parseInt(localStorage.getItem('ev_life_tire_interval'));
+            AppState.tireInterval = !isNaN(storedTireInterval) ? storedTireInterval : 10000;
+            if (DOM.tireIntervalInput) DOM.tireIntervalInput.value = AppState.tireInterval;
+
+            let storedLastTireOdo = parseFloat(localStorage.getItem('ev_life_last_tire_odo'));
+            AppState.lastTireRotationOdo = !isNaN(storedLastTireOdo) ? storedLastTireOdo : 0;
+            if (DOM.lastTireRotationOdoInput) DOM.lastTireRotationOdoInput.value = AppState.lastTireRotationOdo;
 
             bindSetting('iceEfficiency', 'iceEfficiencyInput', 15.0, true); bindSetting('gasPrice', 'gasPriceInput', 30.0, true);
             AppState.nextMaintDate = localStorage.getItem('ev_life_next_maint_date') || "";
@@ -2538,7 +2569,12 @@ window.setupSocSliders = function() {
             const remMaint = maintInterval - (currentTotalKm % maintInterval);
             const progMaint = ((maintInterval - remMaint) / maintInterval) * 100;
 
-            updateStats(globalKm, globalAvgEff, globalCost, globalMaintCost, AppState.initialOdometer, fuelSavings, co2Savings, treesPlanted, remMaint, progMaint, loanPaidCount, loanPaidTotalAmount);
+            const tireInterval = AppState.tireInterval || 10000;
+            const kmSinceLastTire = Math.max(0, currentTotalKm - (AppState.lastTireRotationOdo || 0));
+            const remTire = Math.max(0, tireInterval - (kmSinceLastTire % tireInterval));
+            const progTire = Math.min(100, ((tireInterval - remTire) / tireInterval) * 100);
+
+            updateStats(globalKm, globalAvgEff, globalCost, globalMaintCost, AppState.initialOdometer, fuelSavings, co2Savings, treesPlanted, remMaint, progMaint, loanPaidCount, loanPaidTotalAmount, remTire, progTire);
         }
 
 window.calculatePrediction = function() {
@@ -2919,7 +2955,7 @@ window.calculatePrediction = function() {
             progEl.className = `h-1.5 md:h-2 rounded-full transition-all duration-1000 ease-out ${isRed ? 'bg-rose-500' : isAmber ? 'bg-amber-500' : 'bg-indigo-500'}`;
         }
 
-        function updateStats(km, eff, cost, maintCost, baseOdo, fuelSavings, co2Savings, treesPlanted, remMaint, progMaint, loanPaidCount = 0, loanPaidTotalAmount = 0) {
+            function updateStats(km, eff, cost, maintCost, baseOdo, fuelSavings, co2Savings, treesPlanted, remMaint, progMaint, loanPaidCount = 0, loanPaidTotalAmount = 0, remTire = 0, progTire = 0) {
             if(DOM.statTotalKm) DOM.statTotalKm.textContent = (km + baseOdo).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
             if(DOM.statAvgEfficiency) DOM.statAvgEfficiency.textContent = eff.toFixed(2);
 
@@ -2930,11 +2966,11 @@ window.calculatePrediction = function() {
                 if(DOM.statTreesPlanted) DOM.statTreesPlanted.textContent = treesPlanted.toFixed(1);
             }
 
-            if(DOM.maintRemainingText) {
-                if(DOM.maintIntervalText) DOM.maintIntervalText.textContent = AppState.maintInterval;
-                DOM.maintRemainingText.textContent = Math.round(remMaint).toLocaleString();
-                if(DOM.maintProgressBar) DOM.maintProgressBar.style.width = `${Math.min(100, progMaint)}%`;
-                updateProgressStyle(DOM.maintRemainingText, DOM.maintProgressBar, remMaint);
+            if(DOM.tireRemainingText) {
+                if(DOM.tireIntervalText) DOM.tireIntervalText.textContent = AppState.tireInterval;
+                DOM.tireRemainingText.textContent = Math.round(remTire).toLocaleString();
+                if(DOM.tireProgressBar) DOM.tireProgressBar.style.width = `${Math.min(100, progTire)}%`;
+                updateProgressStyle(DOM.tireRemainingText, DOM.tireProgressBar, remTire);
             }
 
             const setupAlert = (date, container, textEl, badgeEl) => {
@@ -3699,7 +3735,7 @@ window.calculatePrediction = function() {
 
         function setupNumericRestrictions() {
             const blockKey = e => { if(['e','E','+','-','.'].includes(e.key)) e.preventDefault(); };
-            ['inputDistance', 'inputStartSocNum', 'inputEndSocNum', 'inputCost', 'loanTotalMonthsInput', 'loanMonthlyPaymentInput', 'routeStartSoc'].forEach(id => {
+                ['inputDistance', 'inputStartSocNum', 'inputEndSocNum', 'inputCost', 'loanTotalMonthsInput', 'loanMonthlyPaymentInput', 'routeStartSoc', 'tireIntervalInput', 'lastTireRotationOdoInput'].forEach(id => {
                 const el = document.getElementById(id);
                 if(el) { 
                     el.addEventListener('keypress', blockKey); 
@@ -3731,6 +3767,8 @@ window.calculatePrediction = function() {
             AppState.batteryCapacity = parseFloat(DOM.batteryCapacityInput?.value) || 57.7; localStorage.setItem('ev_life_battery_capacity', AppState.batteryCapacity);
             AppState.initialOdometer = parseFloat(DOM.initialOdometerInput?.value) || 0; localStorage.setItem('ev_life_initial_odometer', AppState.initialOdometer);
             AppState.maintInterval = parseInt(DOM.maintIntervalInput?.value) || 20000; localStorage.setItem('ev_life_maint_interval', AppState.maintInterval);
+            AppState.tireInterval = parseInt(DOM.tireIntervalInput?.value) || 10000; localStorage.setItem('ev_life_tire_interval', AppState.tireInterval);
+            AppState.lastTireRotationOdo = parseFloat(DOM.lastTireRotationOdoInput?.value) || 0; localStorage.setItem('ev_life_last_tire_odo', AppState.lastTireRotationOdo);
             AppState.nextMaintDate = DOM.nextMaintDateInput?.value || ""; localStorage.setItem('ev_life_next_maint_date', AppState.nextMaintDate);
             AppState.insuranceExpiryDate = DOM.insuranceExpiryInput?.value || ""; localStorage.setItem('ev_life_insurance_date', AppState.insuranceExpiryDate);
             
