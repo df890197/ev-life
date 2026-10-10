@@ -1284,6 +1284,28 @@
         </button>
     </div>
 </div>
+    
+    <!-- ⚡ 功率規格複選 (全部 / 慢充 / 60kW+ / 100kW+ / 150kW+) -->
+    <div class="flex items-center justify-between gap-1 bg-slate-100 dark:bg-slate-900/60 p-1 rounded-xl">
+        <span class="text-[10px] font-bold text-slate-400 px-1 shrink-0">⚡ 功率(複選)</span>
+        <div class="flex gap-1 overflow-x-auto no-scrollbar">
+            <button type="button" onclick="toggleAbrpPowerFilter('150')" id="btnPower-150" class="power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-black bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition-all border border-slate-200/50 dark:border-slate-600">
+                ≥150kW <span class="text-[9px] text-amber-500 font-bold">(極速)</span>
+            </button>
+            <button type="button" onclick="toggleAbrpPowerFilter('100')" id="btnPower-100" class="power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-black bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition-all border border-slate-200/50 dark:border-slate-600">
+                ≥100kW
+            </button>
+            <button type="button" onclick="toggleAbrpPowerFilter('60')" id="btnPower-60" class="power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-500 dark:text-slate-400 transition-all border border-transparent">
+                ≥60kW
+            </button>
+            <button type="button" onclick="toggleAbrpPowerFilter('AC')" id="btnPower-AC" class="power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-500 dark:text-slate-400 transition-all border border-transparent">
+                慢充(&lt;50kW)
+            </button>
+            <button type="button" onclick="toggleAbrpPowerFilter('ALL')" id="btnPower-ALL" class="power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-500 dark:text-slate-400 transition-all border border-transparent">
+                全部
+            </button>
+        </div>
+    </div>
 
     <!-- 第三行：路線模擬滿版按鈕 -->
     <button type="button" onclick="planElectricRoute()" class="w-full rpg-btn-primary py-2.5 rounded-xl text-xs font-black shadow-sm active:scale-95 transition flex items-center justify-center gap-1.5">
@@ -4156,6 +4178,50 @@ window.toggleAbrpConnectorFilter = function(type) {
         processRouteElevationAndCharging(currentPkRoutes[activeIdx], startSoc, activeIdx);
     }
 };
+
+        // ⚡ 功率複選狀態管理：預設選取 100kW 與 150kW 高速快充
+let abrpSelectedPowers = new Set(['100', '150']);
+
+window.toggleAbrpPowerFilter = function(type) {
+    triggerHaptic('light');
+
+    if (type === 'ALL') {
+        abrpSelectedPowers.clear();
+        abrpSelectedPowers.add('ALL');
+    } else {
+        abrpSelectedPowers.delete('ALL');
+
+        if (abrpSelectedPowers.has(type)) {
+            abrpSelectedPowers.delete(type);
+        } else {
+            abrpSelectedPowers.add(type);
+        }
+
+        if (abrpSelectedPowers.size === 0) {
+            abrpSelectedPowers.add('ALL');
+        }
+    }
+
+    const activeClass = "power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-black bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition-all border border-slate-200/50 dark:border-slate-600";
+    const inactiveClass = "power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-500 dark:text-slate-400 transition-all border border-transparent";
+
+    ['150', '100', '60', 'AC', 'ALL'].forEach(p => {
+        const btn = document.getElementById('btnPower-' + p);
+        if (btn) {
+            btn.className = abrpSelectedPowers.has(p) ? activeClass : inactiveClass;
+        }
+    });
+
+    if (currentPkRoutes.length > 0) {
+        const activeIdx = abrpDirectionsRenderer ? abrpDirectionsRenderer.getRouteIndex() : 0;
+        const startSoc = parseFloat(document.getElementById('routeStartSoc')?.value) || 90;
+        if (pkRouteCache[activeIdx]) {
+            pkRouteCache[activeIdx].isReady = false;
+            pkRouteCache[activeIdx].stationCardHtml = "";
+        }
+        processRouteElevationAndCharging(currentPkRoutes[activeIdx], startSoc, activeIdx);
+    }
+};
         
 // 切換清除按鈕顯示狀態（有字顯示，無字隱藏）
         window.toggleRouteClearBtn = function(inputId, btnId) {
@@ -4901,16 +4967,32 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, ro
 
         scoredStations.sort((a, b) => a.score - b.score);
 
- // 3. 有了 scoredStations 之後，才依序檢查槍頭規格 (支援複選)
+// 3. 依序向 Places API (New) 請求槍頭規格與功率進行複選篩選
         let selectedCandidate = null;
-        for (const st of scoredStations.slice(0, 8)) {
+        for (const st of scoredStations.slice(0, 10)) {
             const evOptions = await fetchEvChargeDetails(st.station.place_id);
             const specs = parseEvSpecs(evOptions, st.station.name);
 
-            // ⚡ 複選比對：只要充電站含有勾選清單中的任一規格即算符合
+            // ⚡ 1. 槍頭規格複選篩選
             if (!abrpSelectedConnectors.has('ALL')) {
                 const isMatch = specs.connectors.some(c => abrpSelectedConnectors.has(c));
                 if (!isMatch) continue;
+            }
+
+            // ⚡ 2. 充電功率複選篩選
+            if (!abrpSelectedPowers.has('ALL')) {
+                const kw = specs.maxKw > 0 ? specs.maxKw : (specs.isFast ? 120 : 7);
+                
+                // 檢查是否符合勾選的任一功率門檻
+                const matchesPower = Array.from(abrpSelectedPowers).some(p => {
+                    if (p === '150') return kw >= 150;
+                    if (p === '100') return kw >= 100; // 單選 ≥100kW 時，150kW/360kW 也能命中
+                    if (p === '60') return kw >= 50;   // 單選 ≥60kW 時，所有快充都能命中
+                    if (p === 'AC') return kw < 50;    // 慢充
+                    return false;
+                });
+
+                if (!matchesPower) continue; // 功率不符合選取的區間，看下一站
             }
 
             selectedCandidate = { station: st.station, specs };
@@ -4918,8 +5000,9 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, ro
         }
 
         if (!selectedCandidate) {
-            const filterNames = Array.from(abrpSelectedConnectors).join(' / ');
-            stopDiv.innerHTML = `<div class="p-3 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-xl font-bold">⚠️ 極限電量範圍內未找到符合 [${filterNames}] 規格的充電站，建議切換為「全部」！</div>`;
+            const connNames = Array.from(abrpSelectedConnectors).join('/');
+            const powerNames = Array.from(abrpSelectedPowers).join('/');
+            stopDiv.innerHTML = `<div class="p-3 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-xl font-bold">⚠️ 極限電量範圍內未找到符合槍頭 [${connNames}] 與功率 [${powerNames}] 的充電站，建議放寬條件！</div>`;
             return;
         }
 
