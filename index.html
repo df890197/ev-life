@@ -1285,21 +1285,18 @@
     </div>
 </div>
     
-    <!-- ⚡ 功率規格複選 (全部 / 慢充 / 60kW+ / 100kW+ / 150kW+) -->
+<!-- ⚡ 功率規格複選 (全部 / 慢充 / 50~149kW / 150kW+) -->
     <div class="flex items-center justify-between gap-1 bg-slate-100 dark:bg-slate-900/60 p-1 rounded-xl">
         <span class="text-[10px] font-bold text-slate-400 px-1 shrink-0">⚡ 功率(複選)</span>
         <div class="flex gap-1 overflow-x-auto no-scrollbar">
-            <button type="button" onclick="toggleAbrpPowerFilter('150')" id="btnPower-150" class="power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-black bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition-all border border-slate-200/50 dark:border-slate-600">
-                ≥150kW <span class="text-[9px] text-amber-500 font-bold">(極速)</span>
+            <button type="button" onclick="toggleAbrpPowerFilter('FAST_HIGH')" id="btnPower-FAST_HIGH" class="power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-black bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition-all border border-slate-200/50 dark:border-slate-600">
+                超快 (≥150kW)
             </button>
-            <button type="button" onclick="toggleAbrpPowerFilter('100')" id="btnPower-100" class="power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-black bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition-all border border-slate-200/50 dark:border-slate-600">
-                ≥100kW
+            <button type="button" onclick="toggleAbrpPowerFilter('FAST_MID')" id="btnPower-FAST_MID" class="power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-500 dark:text-slate-400 transition-all border border-transparent">
+                快充 (50-149kW)
             </button>
-            <button type="button" onclick="toggleAbrpPowerFilter('60')" id="btnPower-60" class="power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-500 dark:text-slate-400 transition-all border border-transparent">
-                ≥60kW
-            </button>
-            <button type="button" onclick="toggleAbrpPowerFilter('AC')" id="btnPower-AC" class="power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-500 dark:text-slate-400 transition-all border border-transparent">
-                慢充(&lt;50kW)
+            <button type="button" onclick="toggleAbrpPowerFilter('SLOW')" id="btnPower-SLOW" class="power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-500 dark:text-slate-400 transition-all border border-transparent">
+                慢充 (&lt;50kW)
             </button>
             <button type="button" onclick="toggleAbrpPowerFilter('ALL')" id="btnPower-ALL" class="power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-500 dark:text-slate-400 transition-all border border-transparent">
                 全部
@@ -4179,8 +4176,8 @@ window.toggleAbrpConnectorFilter = function(type) {
     }
 };
 
-        // ⚡ 功率複選狀態管理：預設選取 100kW 與 150kW 高速快充
-let abrpSelectedPowers = new Set(['100', '150']);
+// ⚡ 功率複選狀態管理：預設選取 超快(≥150kW)
+let abrpSelectedPowers = new Set(['FAST_HIGH']);
 
 window.toggleAbrpPowerFilter = function(type) {
     triggerHaptic('light');
@@ -4205,7 +4202,7 @@ window.toggleAbrpPowerFilter = function(type) {
     const activeClass = "power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-black bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition-all border border-slate-200/50 dark:border-slate-600";
     const inactiveClass = "power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-500 dark:text-slate-400 transition-all border border-transparent";
 
-    ['150', '100', '60', 'AC', 'ALL'].forEach(p => {
+    ['FAST_HIGH', 'FAST_MID', 'SLOW', 'ALL'].forEach(p => {
         const btn = document.getElementById('btnPower-' + p);
         if (btn) {
             btn.className = abrpSelectedPowers.has(p) ? activeClass : inactiveClass;
@@ -4979,20 +4976,18 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, ro
                 if (!isMatch) continue;
             }
 
-            // ⚡ 2. 充電功率複選篩選
+// ⚡ 2. 充電功率複選篩選（獨立區間）
             if (!abrpSelectedPowers.has('ALL')) {
                 const kw = specs.maxKw > 0 ? specs.maxKw : (specs.isFast ? 120 : 7);
                 
-                // 檢查是否符合勾選的任一功率門檻
                 const matchesPower = Array.from(abrpSelectedPowers).some(p => {
-                    if (p === '150') return kw >= 150;
-                    if (p === '100') return kw >= 100; // 單選 ≥100kW 時，150kW/360kW 也能命中
-                    if (p === '60') return kw >= 50;   // 單選 ≥60kW 時，所有快充都能命中
-                    if (p === 'AC') return kw < 50;    // 慢充
+                    if (p === 'FAST_HIGH') return kw >= 150;           // ≥150kW (360kW 在這裡)
+                    if (p === 'FAST_MID')  return kw >= 50 && kw < 150; // 50~149kW (60/100/120kW 在這裡)
+                    if (p === 'SLOW')      return kw < 50;              // 慢充 (<50kW)
                     return false;
                 });
 
-                if (!matchesPower) continue; // 功率不符合選取的區間，看下一站
+                if (!matchesPower) continue; // 不在勾選的區間內就過濾掉
             }
 
             selectedCandidate = { station: st.station, specs };
