@@ -4651,15 +4651,23 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, ro
     const placesService = new google.maps.places.PlacesService(abrpMap);
 
     // 在即將沒電的極限點 (criticalLatLng) 附近 6 公里內搜尋充電站
-    placesService.nearbySearch({ 
+placesService.nearbySearch({ 
         location: criticalLatLng, 
-        radius: 6000, 
-        keyword: '充電站' 
+        radius: 8000, 
+        keyword: '電動車 快充站' 
     }, (stations, pStatus) => {
         const stopDiv = document.getElementById('abrpStopRecommendation');
         if (!stopDiv) return;
 
-// 1. 基本過濾：排除特斯拉自營站與電動機車/換電站
+        // 台灣主流四輪電動車快充品牌白名單（符合即大幅加分）
+        const EV_CAR_BRANDS = [
+            'evoasis', 'u-power', 'upower', 'tail', '特爾', 
+            'evalue', '華城', 'nhoa', '台泥', 'incharge', 
+            '星舟', '中油', '台亞', '北基', '源點', 'yes!來電', 
+            '馳諾瓦', '泓德', '連網', '快充', '超充', '超級充電'
+        ];
+
+        // 二輪電動機車、換電站與雜項黑名單
         const SCOOTER_BLACKLIST = [
             'gogoro', 'gostation', 'go station', '睿能',
             'ionex', '光陽', 'kymco',
@@ -4670,17 +4678,22 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, ro
         ];
 
         let validStations = (stations || []).filter(s => {
-            const name = (s.name || '').toLowerCase();
+            const name = (s.name || '').toLowerCase().trim();
             const vicinity = (s.vicinity || s.formatted_address || '').toLowerCase();
             const fullText = `${name} ${vicinity}`;
 
-            // 排除特斯拉自營站 (非特車款無法使用)
+            // 1. 排除特斯拉自營站 (非特車款無法使用)
             if (name.includes('tesla') || name.includes('特斯拉') || name.includes('supercharger')) {
                 return false;
             }
 
-            // 排除電動機車與換電站
+            // 2. 排除所有電動機車與換電站關鍵字
             if (SCOOTER_BLACKLIST.some(kw => fullText.includes(kw))) {
+                return false;
+            }
+
+            // 3. 排除無名地標（例如名字只寫「電動車充電站」或「充電站」的模糊地標）
+            if (name === '電動車充電站' || name === '充電站' || name === '汽車充電站') {
                 return false;
             }
 
@@ -4688,13 +4701,14 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, ro
         });
 
         if (validStations.length === 0) {
-            stopDiv.innerHTML = `<div class="p-3 bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 rounded-xl font-bold">⚠️ 極限電量範圍內未找到相容的快充站，請立即尋求救援或插座！</div>`;
+            stopDiv.innerHTML = `<div class="p-3 bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 rounded-xl font-bold">⚠️ 極限電量範圍內未找到明確的四輪快充站，請注意續航安全！</div>`;
             return;
         }
 
-        // 2. ⚡ 核心過濾：計算每個站點與「實際行駛路線(path)」的最短垂直距離
-        const stationsWithRouteDist = validStations.map(st => {
+        // 計算站點與路線的垂直距離，並評估是否為知名快充品牌
+        const scoredStations = validStations.map(st => {
             const stPos = st.geometry.location;
+            const nameLower = (st.name || '').toLowerCase();
             let minMetersToRoute = Infinity;
 
             for (let i = 0; i < path.length; i++) {
@@ -4705,17 +4719,18 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, ro
                     minMetersToRoute = dist;
                 }
             }
-            return { station: st, distToRoute: minMetersToRoute };
+
+            // 知名汽車品牌站點給予距離折減（大幅優先挑選）
+            const isKnownEvBrand = EV_CAR_BRANDS.some(b => nameLower.includes(b));
+            const score = minMetersToRoute - (isKnownEvBrand ? 3000 : 0);
+
+            return { station: st, distToRoute: minMetersToRoute, score, isKnownEvBrand };
         });
 
-        // 3. 只保留距離路線 2 公里內（順路）的站點，並依照「距離路線遠近」排序
-        const onRouteStations = stationsWithRouteDist
-            .filter(item => item.distToRoute <= 2000)
-            .sort((a, b) => a.distToRoute - b.distToRoute);
+        // 依評分排序（最順路且具備知名品牌者最優先）
+        scoredStations.sort((a, b) => a.score - b.score);
 
-        // 如果有順路的就選最貼合路線的；如果真的沒有，才選直線最近的（避免完全沒站）
-        const bestStationData = onRouteStations.length > 0 ? onRouteStations[0] : stationsWithRouteDist.sort((a,b) => a.distToRoute - b.distToRoute)[0];
-        const bestStation = bestStationData.station;
+        const bestStation = scoredStations[0].station;
 
         const stationName = bestStation.name || "沿線推薦充電站";
         const stationAddress = bestStation.vicinity || bestStation.formatted_address || "國道服務區或主要幹道沿線";
