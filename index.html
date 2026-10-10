@@ -4415,42 +4415,86 @@ window.planElectricRoute = async function() {
         selectPkRoute(0);
     });
 };
-        // ⚡ Places API (New) 沿線搜尋充電站 (Search Along Route)
-async function searchStationsAlongRoute(encodedPolyline) {
+// ⚡ Places API (New)：查詢電動車充電專屬規格 (evChargeOptions)
+async function fetchEvChargeDetails(placeId) {
+    if (!placeId) return null;
     const apiKey = "AIzaSyAf88sAzYlzVpv6qK6g0rsvDLyz98tCZMU";
-    const url = "https://places.googleapis.com/v1/places:searchText";
+    const url = `https://places.googleapis.com/v1/places/${placeId}`;
 
     try {
-        const response = await fetch(url, {
-            method: "POST",
+        const res = await fetch(url, {
             headers: {
-                "Content-Type": "application/json",
                 "X-Goog-Api-Key": apiKey,
-                "X-Goog-FieldMask": "places.displayName,places.formattedAddress,places.location"
-            },
-            body: JSON.stringify({
-                textQuery: "充電站",
-                searchAlongRouteParameters: {
-                    polyline: {
-                        encodedPolyline: encodedPolyline
-                    }
-                }
-            })
+                "X-Goog-FieldMask": "evChargeOptions"
+            }
         });
-
-        const data = await response.json();
-        if (data.places && data.places.length > 0) {
-            // 自動過濾非特無法使用的特斯拉超充
-            return data.places.filter(p => {
-                const name = (p.displayName?.text || "").toLowerCase();
-                return !name.includes("tesla") && !name.includes("特斯拉") && !name.includes("supercharger");
-            });
-        }
-        return [];
-    } catch (err) {
-        console.error("沿線搜尋充電站失敗:", err);
-        return [];
+        if (!res.ok) return null;
+        const data = await res.json();
+        return data.evChargeOptions || null;
+    } catch (e) {
+        return null;
     }
+}
+
+// ⚡ 電動車規格解析器：解析槍頭類型與最高功率 (kW)
+function parseEvSpecs(evOptions, stationName = '') {
+    const connectorMap = {
+        'EV_CONNECTOR_TYPE_CCS_COMBO_1': 'CCS1',
+        'EV_CONNECTOR_TYPE_CCS_COMBO_2': 'CCS2',
+        'EV_CONNECTOR_TYPE_J1772': 'J1772',
+        'EV_CONNECTOR_TYPE_TYPE_2': 'Type 2',
+        'EV_CONNECTOR_TYPE_TESLA': 'TPC',
+        'EV_CONNECTOR_TYPE_CHADEMO': 'CHAdeMO'
+    };
+
+    let maxKw = 0;
+    let connectors = [];
+
+    if (evOptions?.connectorAggregation?.length > 0) {
+        evOptions.connectorAggregation.forEach(conn => {
+            const label = connectorMap[conn.type] || conn.type?.replace('EV_CONNECTOR_TYPE_', '');
+            if (label && !connectors.includes(label)) connectors.push(label);
+            if (conn.maxChargeRateKw && conn.maxChargeRateKw > maxKw) {
+                maxKw = conn.maxChargeRateKw;
+            }
+        });
+    }
+
+    const nameLower = stationName.toLowerCase();
+    const isDcBrand = ['evoasis', 'u-power', 'upower', '特爾', 'tail', 'nhoa', '台泥', '中油', 'evalue', '華城', '星舟', '快充', '超充'].some(b => nameLower.includes(b));
+    
+    let isFast = false;
+    let powerLabel = '';
+    let connectorLabel = '';
+
+    if (maxKw > 0) {
+        isFast = maxKw >= 50;
+        powerLabel = `${maxKw} kW`;
+    } else if (isDcBrand) {
+        isFast = true;
+        powerLabel = '120~360 kW (推估)';
+    } else {
+        isFast = false;
+        powerLabel = '功率依現場為準';
+    }
+
+    if (connectors.length > 0) {
+        connectorLabel = connectors.join(' / ');
+    } else if (isDcBrand) {
+        connectorLabel = 'CCS1 / CCS2 (n⁷ 可用)';
+    } else {
+        connectorLabel = '規格依現場標示';
+    }
+
+    const hasCcs1 = connectors.includes('CCS1') || (connectors.length === 0 && isDcBrand);
+
+    return {
+        isFast,
+        maxKw,
+        powerLabel,
+        connectorLabel,
+        hasCcs1
+    };
 }
 
 function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
@@ -4647,19 +4691,18 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, ro
         }
     }
 
-// ⚡ 改回「極限里程點」周圍搜尋，並加上「路線吸附過濾」防止繞路
+// ⚡ 改回「極限里程點」周圍搜尋，結合 Places API (New) 規格查詢與品牌防雜項過濾
     const placesService = new google.maps.places.PlacesService(abrpMap);
 
-    // 在即將沒電的極限點 (criticalLatLng) 附近 6 公里內搜尋充電站
-placesService.nearbySearch({ 
+    placesService.nearbySearch({ 
         location: criticalLatLng, 
         radius: 8000, 
         keyword: '電動車 快充站' 
-    }, (stations, pStatus) => {
+    }, async (stations, pStatus) => {
         const stopDiv = document.getElementById('abrpStopRecommendation');
         if (!stopDiv) return;
 
-        // 台灣主流四輪電動車快充品牌白名單（符合即大幅加分）
+        // 主流四輪電動車品牌
         const EV_CAR_BRANDS = [
             'evoasis', 'u-power', 'upower', 'tail', '特爾', 
             'evalue', '華城', 'nhoa', '台泥', 'incharge', 
@@ -4687,12 +4730,12 @@ placesService.nearbySearch({
                 return false;
             }
 
-            // 2. 排除所有電動機車與換電站關鍵字
+            // 2. 排除所有電動機車與換電站
             if (SCOOTER_BLACKLIST.some(kw => fullText.includes(kw))) {
                 return false;
             }
 
-            // 3. 排除無名地標（例如名字只寫「電動車充電站」或「充電站」的模糊地標）
+            // 3. 排除無名模糊地標
             if (name === '電動車充電站' || name === '充電站' || name === '汽車充電站') {
                 return false;
             }
@@ -4701,7 +4744,7 @@ placesService.nearbySearch({
         });
 
         if (validStations.length === 0) {
-            stopDiv.innerHTML = `<div class="p-3 bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 rounded-xl font-bold">⚠️ 極限電量範圍內未找到明確的四輪快充站，請注意續航安全！</div>`;
+            stopDiv.innerHTML = `<div class="p-3 bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 rounded-xl font-bold">⚠️ 極限電量範圍內未找到明確的四輪充電站，請注意續航安全！</div>`;
             return;
         }
 
@@ -4720,25 +4763,29 @@ placesService.nearbySearch({
                 }
             }
 
-            // 知名汽車品牌站點給予距離折減（大幅優先挑選）
             const isKnownEvBrand = EV_CAR_BRANDS.some(b => nameLower.includes(b));
             const score = minMetersToRoute - (isKnownEvBrand ? 3000 : 0);
 
             return { station: st, distToRoute: minMetersToRoute, score, isKnownEvBrand };
         });
 
-        // 依評分排序（最順路且具備知名品牌者最優先）
         scoredStations.sort((a, b) => a.score - b.score);
-
         const bestStation = scoredStations[0].station;
 
         const stationName = bestStation.name || "沿線推薦充電站";
         const stationAddress = bestStation.vicinity || bestStation.formatted_address || "國道服務區或主要幹道沿線";
         const isRestArea = (stationName.includes('服務區') || stationName.includes('休息站'));
         
+        // ⚡ 向 Places API (New) 請求該站的 evChargeOptions 規格
+        const evOptions = await fetchEvChargeDetails(bestStation.place_id);
+        const specs = parseEvSpecs(evOptions, stationName);
+
         const targetSocRef = startSoc <= 25 ? 10 : 18;
         const neededKwh = AppState.batteryCapacity * ((80 - targetSocRef) / 100);
-        const chargingMinutes = Math.round((neededKwh / 85) * 60);
+        // 依據規格功率動態計算充電時間 (最高採 n⁷ 可承受的 100kW 均值計算)
+        const effectiveKw = specs.maxKw > 0 ? Math.min(specs.maxKw, 100) : 85;
+        const chargingMinutes = Math.round((neededKwh / effectiveKw) * 60);
+
         const stationLoc = bestStation.geometry.location;
         const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(stationName)}&destination_place_id=${bestStation.place_id || ''}`;
 
@@ -4755,6 +4802,17 @@ placesService.nearbySearch({
                         <span>🛣️</span> 順路沿線
                     </span>
                 </div>
+
+                <!-- ⚡ Places API (New) 原生規格膠囊標籤 -->
+                <div class="flex flex-wrap items-center gap-1.5 pt-0.5">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${specs.isFast ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800/50' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'} text-[10px] font-mono font-bold border">
+                        ⚡ 功率: ${specs.powerLabel}
+                    </span>
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${specs.hasCcs1 ? 'bg-teal-100 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 border-teal-200 dark:border-teal-800/50' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'} text-[10px] font-mono font-bold border">
+                        🔌 槍頭: ${specs.connectorLabel}
+                    </span>
+                </div>
+
                 <div class="flex items-center justify-between gap-2 text-[10px] sm:text-[11px]">
                     <div class="text-slate-500 dark:text-slate-400 font-bold flex items-center gap-1 min-w-0">
                         <span class="shrink-0">📍</span>
@@ -4764,8 +4822,9 @@ placesService.nearbySearch({
                         ⏱️ 補電約 ${chargingMinutes} 分
                     </span>
                 </div>
+
                 <div class="pt-2 border-t border-amber-100 dark:border-amber-900/40 flex items-center justify-between gap-2">
-                    <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">建議於極限里程前停靠此站，補至 <b>80%</b> 繼續行程。</p>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">建議於極限里程前停靠，充至 <b>80%</b> 繼續行程。</p>
                     <a href="${navUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-[10px] sm:text-xs font-black shadow-sm shrink-0 active:scale-95 transition">
                         <span>🗺️</span> 導航此站
                     </a>
@@ -4773,7 +4832,6 @@ placesService.nearbySearch({
             </div>
         `;
 
-        // 標記地圖
         if (routeIdx === 0) {
             if (abrpChargerMarker) abrpChargerMarker.setMap(null);
             abrpChargerMarker = new google.maps.Marker({
