@@ -4659,10 +4659,32 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, ro
         const stopDiv = document.getElementById('abrpStopRecommendation');
         if (!stopDiv) return;
 
-        // 1. 基本過濾：排除特斯拉自營站
+// 1. 基本過濾：排除特斯拉自營站與電動機車/換電站
+        const SCOOTER_BLACKLIST = [
+            'gogoro', 'gostation', 'go station', '睿能',
+            'ionex', '光陽', 'kymco',
+            'emoving', 'e-moving', '中華機車',
+            '機車', '電動機車', '二輪',
+            '電池交換', '換電站', '換電', '換電機', '交換站',
+            '自行車', '單車', 'wemo'
+        ];
+
         let validStations = (stations || []).filter(s => {
             const name = (s.name || '').toLowerCase();
-            return !name.includes('tesla') && !name.includes('特斯拉') && !name.includes('supercharger');
+            const vicinity = (s.vicinity || s.formatted_address || '').toLowerCase();
+            const fullText = `${name} ${vicinity}`;
+
+            // 排除特斯拉自營站 (非特車款無法使用)
+            if (name.includes('tesla') || name.includes('特斯拉') || name.includes('supercharger')) {
+                return false;
+            }
+
+            // 排除電動機車與換電站
+            if (SCOOTER_BLACKLIST.some(kw => fullText.includes(kw))) {
+                return false;
+            }
+
+            return true;
         });
 
         if (validStations.length === 0) {
