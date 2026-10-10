@@ -1243,18 +1243,16 @@
                         </div>
                     </div>
                     
-<!-- 出發電量、偏好切換與模擬按鈕 -->
+<!-- 出發電量、偏好切換與規格篩選 -->
 <div class="w-full sm:col-span-3 pt-2.5 border-t border-slate-200/40 dark:border-slate-800/60 mt-1 space-y-2">
-    <!-- 第一行：出發電量 + 偏好切換（左右對齊） -->
+    <!-- 第一行：出發電量 + 偏好切換 -->
     <div class="flex items-center justify-between gap-2">
-        <!-- 出發電量輸入區 -->
         <div class="flex items-center gap-1.5 shrink-0">
             <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">出發電量</label>
             <input type="number" id="routeStartSoc" min="1" max="100" step="1" inputmode="numeric" value="90" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(parseInt(this.value) > 100) this.value = '100';" class="w-12 px-1 py-1 text-center font-mono font-black text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-black focus:outline-none focus:border-amber-400 shadow-sm">
             <span class="text-xs font-mono font-black text-slate-400">%</span>
         </div>
 
-        <!-- ⚡ 補電偏好切換：精簡標籤避免溢出 -->
         <div class="flex items-center bg-slate-200/70 dark:bg-slate-800 p-0.5 rounded-xl text-[10px] font-black shrink-0">
             <button type="button" id="btnPrefRestArea" onclick="setAbrpStopPref('restArea')" class="px-2 py-1 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition-all flex items-center gap-1">
                 <span>☕</span><span>服務區</span>
@@ -1265,7 +1263,26 @@
         </div>
     </div>
 
-    <!-- 第二行：路線模擬滿版按鈕 -->
+    <!-- ⚡ 新增：第二行 槍頭規格篩選 (CCS1 / CCS2 / J1772 / 全部) -->
+    <div class="flex items-center justify-between gap-1 bg-slate-100 dark:bg-slate-900/60 p-1 rounded-xl">
+        <span class="text-[10px] font-bold text-slate-400 px-1 shrink-0">🔌 槍頭規格</span>
+        <div class="flex gap-1 overflow-x-auto no-scrollbar">
+            <button type="button" onclick="setAbrpConnectorFilter('CCS1')" id="btnConn-CCS1" class="conn-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-black bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition-all">
+                CCS1 <span class="text-[9px] text-amber-500 font-bold">(n⁷)</span>
+            </button>
+            <button type="button" onclick="setAbrpConnectorFilter('CCS2')" id="btnConn-CCS2" class="conn-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-500 dark:text-slate-400 transition-all">
+                CCS2
+            </button>
+            <button type="button" onclick="setAbrpConnectorFilter('J1772')" id="btnConn-J1772" class="conn-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-500 dark:text-slate-400 transition-all">
+                J1772
+            </button>
+            <button type="button" onclick="setAbrpConnectorFilter('ALL')" id="btnConn-ALL" class="conn-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-500 dark:text-slate-400 transition-all">
+                全部
+            </button>
+        </div>
+    </div>
+
+    <!-- 第三行：路線模擬滿版按鈕 -->
     <button type="button" onclick="planElectricRoute()" class="w-full rpg-btn-primary py-2.5 rounded-xl text-xs font-black shadow-sm active:scale-95 transition flex items-center justify-center gap-1.5">
         <span>⚡</span><span>開始路線模擬</span>
     </button>
@@ -4090,6 +4107,33 @@ let currentPkRoutes = [];
 let pkRouteCache = {};
 let abrpChargerMarker = null;
 let abrpStopPreference = 'restArea';
+let abrpConnectorFilter = 'CCS1'; // 預設優先篩選 CCS1 (n⁷ 原廠快充規格)
+
+window.setAbrpConnectorFilter = function(type) {
+    abrpConnectorFilter = type;
+    triggerHaptic('light');
+
+    // 更新按鈕樣式
+    document.querySelectorAll('.conn-filter-btn').forEach(btn => {
+        btn.className = "conn-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-500 dark:text-slate-400 transition-all";
+    });
+
+    const activeBtn = document.getElementById('btnConn-' + type);
+    if (activeBtn) {
+        activeBtn.className = "conn-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-black bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition-all";
+    }
+
+    // 若已有規劃路線，清除快取並重新計算推薦站點
+    if (currentPkRoutes.length > 0) {
+        const activeIdx = abrpDirectionsRenderer ? abrpDirectionsRenderer.getRouteIndex() : 0;
+        const startSoc = parseFloat(document.getElementById('routeStartSoc')?.value) || 90;
+        if (pkRouteCache[activeIdx]) {
+            pkRouteCache[activeIdx].isReady = false;
+            pkRouteCache[activeIdx].stationCardHtml = "";
+        }
+        processRouteElevationAndCharging(currentPkRoutes[activeIdx], startSoc, activeIdx);
+    }
+};
         
 // 切換清除按鈕顯示狀態（有字顯示，無字隱藏）
         window.toggleRouteClearBtn = function(inputId, btnId) {
@@ -4492,6 +4536,10 @@ function parseEvSpecs(evOptions, stationName = '') {
 
     const nameLower = stationName.toLowerCase();
     const isDcBrand = ['evoasis', 'u-power', 'upower', '特爾', 'tail', 'nhoa', '台泥', '中油', 'evalue', '華城', '星舟', '快充', '超充'].some(b => nameLower.includes(b));
+
+    if (connectors.length === 0 && isDcBrand) {
+    connectors = ['CCS1', 'CCS2']; // 台灣主流快充品牌標配雙槍，推估包含 CCS1
+}
     
     let isFast = false;
     let powerLabel = '';
@@ -4523,7 +4571,8 @@ function parseEvSpecs(evOptions, stationName = '') {
         maxKw,
         powerLabel,
         connectorLabel,
-        hasCcs1
+        hasCcs1,
+        connectors
     };
 }
         // 自動將長地址精簡為乾淨的地名或地標（例如：「桃園中壢」、「高雄巨蛋」）
@@ -4791,25 +4840,15 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, ro
             '自行車', '單車', 'wemo'
         ];
 
+        // 1. 基礎黑名單過濾
         let validStations = (stations || []).filter(s => {
             const name = (s.name || '').toLowerCase().trim();
             const vicinity = (s.vicinity || s.formatted_address || '').toLowerCase();
             const fullText = `${name} ${vicinity}`;
 
-            // 1. 排除特斯拉自營站 (非特車款無法使用)
-            if (name.includes('tesla') || name.includes('特斯拉') || name.includes('supercharger')) {
-                return false;
-            }
-
-            // 2. 排除所有電動機車與換電站
-            if (SCOOTER_BLACKLIST.some(kw => fullText.includes(kw))) {
-                return false;
-            }
-
-            // 3. 排除無名模糊地標
-            if (name === '電動車充電站' || name === '充電站' || name === '汽車充電站') {
-                return false;
-            }
+            if (name.includes('tesla') || name.includes('特斯拉') || name.includes('supercharger')) return false;
+            if (SCOOTER_BLACKLIST.some(kw => fullText.includes(kw))) return false;
+            if (name === '電動車充電站' || name === '充電站' || name === '汽車充電站') return false;
 
             return true;
         });
@@ -4819,7 +4858,7 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, ro
             return;
         }
 
-        // 計算站點與路線的垂直距離，並評估是否為知名快充品牌
+        // 2. 先計算站點與路線的距離並評分排序 (先宣告 scoredStations)
         const scoredStations = validStations.map(st => {
             const stPos = st.geometry.location;
             const nameLower = (st.name || '').toLowerCase();
@@ -4829,9 +4868,7 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, ro
                 const dist = (window.google?.maps?.geometry?.spherical)
                     ? google.maps.geometry.spherical.computeDistanceBetween(path[i], stPos)
                     : getDistanceFromLatLonInKm(path[i].lat(), path[i].lng(), stPos.lat(), stPos.lng()) * 1000;
-                if (dist < minMetersToRoute) {
-                    minMetersToRoute = dist;
-                }
+                if (dist < minMetersToRoute) minMetersToRoute = dist;
             }
 
             const isKnownEvBrand = EV_CAR_BRANDS.some(b => nameLower.includes(b));
@@ -4841,19 +4878,36 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, ro
         });
 
         scoredStations.sort((a, b) => a.score - b.score);
-        const bestStation = scoredStations[0].station;
+
+        // 3. 有了 scoredStations 之後，才依序檢查槍頭規格
+        let selectedCandidate = null;
+        for (const st of scoredStations.slice(0, 6)) {
+            const evOptions = await fetchEvChargeDetails(st.station.place_id);
+            const specs = parseEvSpecs(evOptions, st.station.name);
+
+            if (abrpConnectorFilter !== 'ALL') {
+                const match = specs.connectors.includes(abrpConnectorFilter);
+                if (!match) continue; // 規格不符，換下一站
+            }
+
+            selectedCandidate = { station: st.station, specs };
+            break; // 找到第一座順路且槍頭符合的站點！
+        }
+
+        if (!selectedCandidate) {
+            stopDiv.innerHTML = `<div class="p-3 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-xl font-bold">⚠️ 極限電量範圍內未找到符合 ${abrpConnectorFilter} 規格的充電站，建議切換為「全部」！</div>`;
+            return;
+        }
+
+        const bestStation = selectedCandidate.station;
+        const specs = selectedCandidate.specs;
 
         const stationName = bestStation.name || "沿線推薦充電站";
         const stationAddress = bestStation.vicinity || bestStation.formatted_address || "國道服務區或主要幹道沿線";
         const isRestArea = (stationName.includes('服務區') || stationName.includes('休息站'));
-        
-        // ⚡ 向 Places API (New) 請求該站的 evChargeOptions 規格
-        const evOptions = await fetchEvChargeDetails(bestStation.place_id);
-        const specs = parseEvSpecs(evOptions, stationName);
 
         const targetSocRef = startSoc <= 25 ? 10 : 18;
         const neededKwh = AppState.batteryCapacity * ((80 - targetSocRef) / 100);
-        // 依據規格功率動態計算充電時間 (最高採 n⁷ 可承受的 100kW 均值計算)
         const effectiveKw = specs.maxKw > 0 ? Math.min(specs.maxKw, 100) : 85;
         const chargingMinutes = Math.round((neededKwh / effectiveKw) * 60);
 
@@ -4874,7 +4928,6 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, ro
                     </span>
                 </div>
 
-                <!-- ⚡ Places API (New) 原生規格膠囊標籤 -->
                 <div class="flex flex-wrap items-center gap-1.5 pt-0.5">
                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${specs.isFast ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800/50' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'} text-[10px] font-mono font-bold border">
                         ⚡ 功率: ${specs.powerLabel}
