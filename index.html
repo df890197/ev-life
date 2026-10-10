@@ -1272,23 +1272,50 @@
 </div>
                 </div>
 
-                <!-- 地圖預覽 -->
+<!-- 地圖預覽 -->
                 <div id="abrpMapContainer" class="w-full h-44 md:h-52 shrink-0 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700 overflow-hidden relative"></div>
 
-                <!-- 👇👇👇 效果 4：貼在 abrpMapContainer 下方 👇👇👇 -->
-                    <div id="abrpElevationHudCard" class="hidden bg-slate-50 dark:bg-slate-900/80 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-2 shadow-inner">
-                        <div class="flex items-center justify-between text-[11px] font-mono font-bold text-slate-500 dark:text-slate-400">
-                            <span id="abrpProfileStartLabel" class="truncate max-w-[100px]">起點</span>
-                            <span id="abrpProfilePeakLabel" class="text-amber-500 font-black flex items-center gap-1">⛰️ 最高點: - m</span>
-                            <span id="abrpProfileEndLabel" class="truncate max-w-[100px] text-right">終點</span>
+                <!-- ⛰️ 高程剖面 HUD 卡片（補回外層容器） -->
+                <div id="abrpElevationHudCard" class="hidden bg-slate-50 dark:bg-slate-900/80 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-2 shadow-inner">
+                    <!-- 頂部三欄地名與海拔高度 -->
+                    <div class="grid grid-cols-3 items-center text-center">
+                        <!-- 起點 -->
+                        <div class="flex flex-col items-start min-w-0 pr-1">
+                            <span class="text-[10px] text-slate-400 font-bold flex items-center gap-1">
+                                <span>📍</span> 起點
+                            </span>
+                            <span id="abrpProfileStartLabel" class="text-xs font-black text-slate-700 dark:text-slate-200 truncate w-full text-left" title="起點">起點</span>
+                            <span id="abrpProfileStartAlt" class="text-[10px] font-mono font-bold text-slate-400 text-left">- m</span>
                         </div>
-                        <div id="abrpSvgContainer" class="w-full h-16 relative"></div>
-                        <div class="flex justify-between items-center text-[10px] text-slate-500 font-bold border-t border-slate-200/60 dark:border-slate-800/80 pt-1.5">
-                            <span id="abrpProfileClimbText" class="text-amber-600 dark:text-amber-400">⚡ 爬坡耗能</span>
-                            <span id="abrpProfileDescentText" class="text-emerald-600 dark:text-emerald-400">🔋 動能回收</span>
-                            <span id="abrpProfileEffText" class="text-teal-600 dark:text-teal-400 font-mono">均耗 - km/度</span>
+
+                        <!-- ⛰️ 最高點 -->
+                        <div class="flex flex-col items-center px-1">
+                            <span class="text-[9px] font-black text-amber-500 bg-amber-500/10 dark:bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-500/20 whitespace-nowrap">
+                                ⛰️ 最高海拔
+                            </span>
+                            <span id="abrpProfilePeakLabel" class="text-sm font-black font-mono text-amber-500 mt-0.5">- m</span>
+                        </div>
+
+                        <!-- 終點 -->
+                        <div class="flex flex-col items-end min-w-0 pl-1">
+                            <span class="text-[10px] text-slate-400 font-bold flex items-center gap-1">
+                                <span>🏁</span> 終點
+                            </span>
+                            <span id="abrpProfileEndLabel" class="text-xs font-black text-slate-700 dark:text-slate-200 truncate w-full text-right" title="終點">終點</span>
+                            <span id="abrpProfileEndAlt" class="text-[10px] font-mono font-bold text-slate-400 text-right">- m</span>
                         </div>
                     </div>
+
+                    <!-- 高程折線圖 SVG -->
+                    <div id="abrpSvgContainer" class="w-full h-16 relative"></div>
+
+                    <!-- 爬坡、下坡能耗數據條 -->
+                    <div class="flex justify-between items-center text-[10px] text-slate-500 font-bold border-t border-slate-200/60 dark:border-slate-800/80 pt-1.5">
+                        <span id="abrpProfileClimbText" class="text-amber-600 dark:text-amber-400">⚡ 爬坡耗能</span>
+                        <span id="abrpProfileDescentText" class="text-emerald-600 dark:text-emerald-400">🔋 動能回收</span>
+                        <span id="abrpProfileEffText" class="text-teal-600 dark:text-teal-400 font-mono">均耗 - km/度</span>
+                    </div>
+                </div>
 
                 <!-- 計算結果面板 -->
                 <div id="abrpResultSection" class="hidden space-y-3">
@@ -4499,6 +4526,29 @@ function parseEvSpecs(evOptions, stationName = '') {
         hasCcs1
     };
 }
+        // 自動將長地址精簡為乾淨的地名或地標（例如：「桃園中壢」、「高雄巨蛋」）
+function getShortLocationName(locStr) {
+    if (!locStr) return '地點';
+    if (locStr.includes('目前位置') || locStr.includes('定位中')) return '目前位置';
+
+    let str = locStr.replace(/^[0-9\s]*台灣\s*/, '').trim();
+
+    // 1. 若最後有獨立的地標名稱（如「...高雄巨蛋」），優先抓取地標
+    const words = str.split(/\s+/);
+    if (words.length > 1 && words[words.length - 1].length >= 2) {
+        return words[words.length - 1].slice(0, 6);
+    }
+
+    // 2. 若為一般地址，萃取「縣市＋區鄉鎮」（如「桃園市中壢區...」->「桃園中壢」）
+    const match = str.match(/(..[市縣])?(..[區市鎮鄉])/);
+    if (match) {
+        const city = match[1] ? match[1].replace(/[市縣]/, '') : '';
+        const dist = match[2];
+        return `${city}${dist}`.slice(0, 6);
+    }
+
+    return str.slice(0, 6);
+}
 
 function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
     const leg = route.legs[0];
@@ -4544,11 +4594,29 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
                     </svg>
                 `;
 
-                const startInp = document.getElementById('routeStartInput')?.value || "起點";
+const startInp = document.getElementById('routeStartInput')?.value || "起點";
                 const endInp = document.getElementById('routeEndInput')?.value || "終點";
-                document.getElementById('abrpProfileStartLabel').textContent = `${startInp} (${Math.round(elevations[0].elevation)}m)`;
-                document.getElementById('abrpProfileEndLabel').textContent = `${endInp} (${Math.round(elevations[elevations.length - 1].elevation)}m)`;
-                document.getElementById('abrpProfilePeakLabel').textContent = `⛰️ 最高點: ${maxElevation}m`;
+
+                // 🟢【步驟三替換以下這段】👇
+                const startName = getShortLocationName(startInp);
+                const endName = getShortLocationName(endInp);
+                const startAlt = Math.round(elevations[0].elevation);
+                const endAlt = Math.round(elevations[elevations.length - 1].elevation);
+
+                const startLbl = document.getElementById('abrpProfileStartLabel');
+                const endLbl = document.getElementById('abrpProfileEndLabel');
+                const startAltEl = document.getElementById('abrpProfileStartAlt');
+                const endAltEl = document.getElementById('abrpProfileEndAlt');
+                const peakLbl = document.getElementById('abrpProfilePeakLabel');
+
+                if (startLbl) { startLbl.textContent = startName; startLbl.title = startInp; }
+                if (startAltEl) startAltEl.textContent = `${startAlt} m`;
+
+                if (endLbl) { endLbl.textContent = endName; endLbl.title = endInp; }
+                if (endAltEl) endAltEl.textContent = `${endAlt} m`;
+
+                if (peakLbl) peakLbl.textContent = `${maxElevation} m`;
+
                 document.getElementById('abrpProfileClimbText').textContent = `⚡ 爬坡 +${Math.round(totalClimbMeters)}m`;
                 document.getElementById('abrpProfileDescentText').textContent = `🔋 下坡 -${Math.round(totalDescentMeters)}m`;
             }
