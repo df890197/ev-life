@@ -4415,6 +4415,43 @@ window.planElectricRoute = async function() {
         selectPkRoute(0);
     });
 };
+        // ⚡ Places API (New) 沿線搜尋充電站 (Search Along Route)
+async function searchStationsAlongRoute(encodedPolyline) {
+    const apiKey = "AIzaSyAf88sAzYlzVpv6qK6g0rsvDLyz98tCZMU";
+    const url = "https://places.googleapis.com/v1/places:searchText";
+
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Goog-Api-Key": apiKey,
+                "X-Goog-FieldMask": "places.displayName,places.formattedAddress,places.location"
+            },
+            body: JSON.stringify({
+                textQuery: "充電站",
+                searchAlongRouteParameters: {
+                    polyline: {
+                        encodedPolyline: encodedPolyline
+                    }
+                }
+            })
+        });
+
+        const data = await response.json();
+        if (data.places && data.places.length > 0) {
+            // 自動過濾非特無法使用的特斯拉超充
+            return data.places.filter(p => {
+                const name = (p.displayName?.text || "").toLowerCase();
+                return !name.includes("tesla") && !name.includes("特斯拉") && !name.includes("supercharger");
+            });
+        }
+        return [];
+    } catch (err) {
+        console.error("沿線搜尋充電站失敗:", err);
+        return [];
+    }
+}
 
 function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
     const leg = route.legs[0];
@@ -4610,188 +4647,97 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, ro
         }
     }
 
-// ⚡ 台灣主要國道服務區快充座標與名稱清單（精準錨定）
-    const TAIWAN_SERVICE_AREAS = [
-        { name: "中壢服務區快充站", lat: 24.9892, lng: 121.2291, highway: "國道1號" },
-        { name: "湖口服務區快充站", lat: 24.8705, lng: 121.0543, highway: "國道1號" },
-        { name: "泰安服務區快充站", lat: 24.3051, lng: 120.7107, highway: "國道1號" },
-        { name: "西螺服務區快充站", lat: 23.7749, lng: 120.4578, highway: "國道1號" },
-        { name: "新營服務區快充站", lat: 23.3197, lng: 120.3013, highway: "國道1號" },
-        { name: "仁德服務區快充站", lat: 22.9525, lng: 120.2458, highway: "國道1號" },
-        { name: "木柵休息站快充站", lat: 24.9897, lng: 121.5746, highway: "國道3號" },
-        { name: "關西服務區快充站", lat: 24.8021, lng: 121.1837, highway: "國道3號" },
-        { name: "西湖服務區快充站", lat: 24.5422, lng: 120.7719, highway: "國道3號" },
-        { name: "清水服務區快充站", lat: 24.2678, lng: 120.6012, highway: "國道3號" },
-        { name: "南投服務區快充站", lat: 23.9063, lng: 120.7077, highway: "國道3號" },
-        { name: "古坑服務區快充站", lat: 23.6394, lng: 120.5756, highway: "國道3號" },
-        { name: "東山服務區快充站", lat: 23.2847, lng: 120.3951, highway: "國道3號" },
-        { name: "關廟服務區快充站", lat: 22.9504, lng: 120.3444, highway: "國道3號" },
-        { name: "蘇澳服務區快充站", lat: 24.6052, lng: 121.8285, highway: "國道5號" },
-        { name: "石碇服務區快充站", lat: 24.9928, lng: 121.6507, highway: "國道5號" }
-    ];
+// ⚡ 改用 Places API (New) 沿線搜尋：直接使用整條路線的 encodedPolyline
+    const encodedPolyline = route.overview_polyline;
 
-    const placesService = new google.maps.places.PlacesService(abrpMap);
-
-    // 檢查是否偏好服務區且不是起點緊急沒電
-    let targetSearchLocation = criticalLatLng;
-    let targetSearchKeyword = '快充站';
-    let targetSearchRadius = 8000;
-
-    if (abrpStopPreference === 'restArea' && !isEmergencyStart) {
-        // 從起點沿路徑計算，找出在 criticalDistanceKm 範圍內「可抵達的最後一個服務區」
-        let candidateArea = null;
-        let candidateDistAlongPath = 0;
-
-        TAIWAN_SERVICE_AREAS.forEach(area => {
-            const areaLatLng = new google.maps.LatLng(area.lat, area.lng);
-            // 檢查該服務區是否在整條路徑 2.5 公里範圍內（確定有經過）
-            let minDistanceToRouteMeters = Infinity;
-            let distanceAlongRouteKm = 0;
-            let tempMeters = 0;
-
-            for (let i = 0; i < path.length; i++) {
-                if (i > 0) {
-                    tempMeters += (window.google?.maps?.geometry?.spherical)
-                        ? google.maps.geometry.spherical.computeDistanceBetween(path[i - 1], path[i])
-                        : getDistanceFromLatLonInKm(path[i - 1].lat(), path[i - 1].lng(), path[i].lat(), path[i].lng()) * 1000;
-                }
-                const distToPoint = (window.google?.maps?.geometry?.spherical)
-                    ? google.maps.geometry.spherical.computeDistanceBetween(path[i], areaLatLng)
-                    : getDistanceFromLatLonInKm(path[i].lat(), path[i].lng(), area.lat, area.lng) * 1000;
-
-                if (distToPoint < minDistanceToRouteMeters) {
-                    minDistanceToRouteMeters = distToPoint;
-                    distanceAlongRouteKm = tempMeters / 1000;
-                }
-            }
-
-            // 條件：在路線旁 2.5 公里內，且在剩餘電量抵達極限之前
-            if (minDistanceToRouteMeters <= 2500 && distanceAlongRouteKm <= (criticalDistanceKm + 10)) {
-                if (distanceAlongRouteKm > candidateDistAlongPath) {
-                    candidateDistAlongPath = distanceAlongRouteKm;
-                    candidateArea = { ...area, distanceAlongRouteKm };
-                }
-            }
-        });
-
-        if (candidateArea) {
-            targetSearchLocation = new google.maps.LatLng(candidateArea.lat, candidateArea.lng);
-            targetSearchKeyword = '服務區 快充站';
-            targetSearchRadius = 3000;
-        }
-    }
-
-    placesService.nearbySearch({ location: targetSearchLocation, radius: targetSearchRadius, keyword: targetSearchKeyword }, (stations, pStatus) => {
+    searchStationsAlongRoute(encodedPolyline).then(stationList => {
         const stopDiv = document.getElementById('abrpStopRecommendation');
         if (!stopDiv) return;
 
-        let validStations = (stations || []).filter(s => {
-            const name = (s.name || '').toLowerCase();
-            return !name.includes('tesla') && !name.includes('特斯拉') && !name.includes('supercharger');
-        });
-
-        // 若搜尋特定服務區無精確結果，退回一般的充電站搜尋
-        if (validStations.length === 0 && targetSearchKeyword !== '快充站') {
-            placesService.nearbySearch({ location: targetSearchLocation, radius: 5000, keyword: '充電站' }, (fallbackStations, fStatus) => {
-                handleDisplayStations(fallbackStations || []);
-            });
+        if (stationList.length === 0) {
+            stopDiv.innerHTML = `<div class="p-3 bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 rounded-xl font-bold">⚠️ 此路線沿途未偵測到相容的充電站點。</div>`;
             return;
         }
 
-        handleDisplayStations(validStations);
+        // 第 1 筆即為 Google 官方演算法計算出「沿途繞路代價最低」的最佳站點
+        const bestStation = stationList[0];
+        const stationName = bestStation.displayName?.text || "沿線推薦充電站";
+        const stationAddress = bestStation.formattedAddress || "國道服務區或主要幹道沿線";
 
-        function handleDisplayStations(stationList) {
-            if (stationList.length === 0) {
-                stopDiv.innerHTML = `<div class="p-3 bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 rounded-xl font-bold">⚠️ 此路段未找到合適站點，建議提早下交流道補電。</div>`;
-                return;
-            }
+        const targetSocRef = startSoc <= 25 ? 10 : 18;
+        const neededKwh = AppState.batteryCapacity * ((80 - targetSocRef) / 100);
+        const chargingMinutes = Math.round((neededKwh / 85) * 60);
+        const stationLoc = new google.maps.LatLng(bestStation.location.latitude, bestStation.location.longitude);
+        const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(stationName)}`;
+        const isRestArea = (stationName.includes('服務區') || stationName.includes('休息站'));
 
-            const bestStation = stationList[0];
-            const targetSocRef = startSoc <= 25 ? 10 : 18;
-            const neededKwh = AppState.batteryCapacity * ((80 - targetSocRef) / 100);
-            const chargingMinutes = Math.round((neededKwh / 85) * 60);
-            const stationAddress = bestStation.vicinity || bestStation.formatted_address || "國道服務區或交流道周邊";
-            const stationName = bestStation.name;
-            const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(stationName)}&destination_place_id=${bestStation.place_id || ''}`;
-            const isRestArea = (stationName.includes('服務區') || stationName.includes('休息站') || stationAddress.includes('服務區'));
-
-            const stationCardHtml = `
-                <div class="bg-white/90 dark:bg-black/50 p-3 sm:p-3.5 rounded-2xl border ${isRestArea ? 'border-amber-400 dark:border-amber-500 shadow-[0_0_15px_rgba(251,191,36,0.15)]' : 'border-amber-200 dark:border-amber-700/70'} mt-1 shadow-sm space-y-2.5">
-                    <div class="flex items-start justify-between gap-2">
-                        <div class="flex items-start gap-1.5 min-w-0">
-                            <span class="text-base shrink-0 leading-snug">${isRestArea ? '☕' : '⚡'}</span>
-                            <div class="font-black text-amber-950 dark:text-amber-200 text-xs sm:text-sm leading-snug break-words line-clamp-2">
-                                ${escapeHTML(stationName)}
-                            </div>
+        const stationCardHtml = `
+            <div class="bg-white/90 dark:bg-black/50 p-3 sm:p-3.5 rounded-2xl border ${isRestArea ? 'border-amber-400 dark:border-amber-500 shadow-[0_0_15px_rgba(251,191,36,0.15)]' : 'border-teal-400'} mt-1 shadow-sm space-y-2.5">
+                <div class="flex items-start justify-between gap-2">
+                    <div class="flex items-start gap-1.5 min-w-0">
+                        <span class="text-base shrink-0 leading-snug">${isRestArea ? '☕' : '⚡'}</span>
+                        <div class="font-black text-amber-950 dark:text-amber-200 text-xs sm:text-sm leading-snug break-words line-clamp-2">
+                            ${escapeHTML(stationName)}
                         </div>
-                        ${isRestArea ? `
-                            <span class="bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 text-[9.5px] font-black px-2 py-0.5 rounded-full shrink-0 shadow-sm flex items-center gap-1">
-                                <span>🛣️</span> 國道服務區
-                            </span>
-                        ` : ''}
                     </div>
-                    <div class="flex items-center justify-between gap-2 text-[10px] sm:text-[11px]">
-                        <div class="text-slate-500 dark:text-slate-400 font-bold flex items-center gap-1 min-w-0">
-                            <span class="shrink-0">📍</span>
-                            <span class="truncate">${escapeHTML(stationAddress)}</span>
-                        </div>
-                        <span class="bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-md font-black shrink-0 whitespace-nowrap shadow-sm">
-                            ⏱️ 補電約 ${chargingMinutes} 分
-                        </span>
-                    </div>
-                    ${isRestArea ? `
-                        <div class="flex items-center gap-2 p-2 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200/60 dark:border-amber-700/30 text-[10.5px] text-amber-900 dark:text-amber-300 font-bold">
-                            <span class="text-sm shrink-0">🚻</span>
-                            <span>下國道免等紅綠燈！補電期間可順道如廁、下車伸展或用餐約 20 分鐘。</span>
-                        </div>
-                    ` : ''}
-                    <div class="pt-2 border-t border-amber-100 dark:border-amber-900/40 flex items-center justify-between gap-2">
-                        <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">建議於約 <b>${Math.round(criticalDistanceKm)} km</b> 處停靠，充至 <b>80%</b> 即可繼續前往。</p>
-                        <a href="${navUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl ${isRestArea ? 'bg-gradient-to-r from-amber-400 to-amber-500' : 'bg-amber-500 hover:bg-amber-400'} text-slate-950 text-[10px] sm:text-xs font-black shadow-sm shrink-0 active:scale-95 transition">
-                            <span>🗺️</span> 導航此站
-                        </a>
-                    </div>
+                    <span class="bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 text-[9.5px] font-black px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1">
+                        <span>🛣️</span> 順路沿線
+                    </span>
                 </div>
-            `;
+                <div class="flex items-center justify-between gap-2 text-[10px] sm:text-[11px]">
+                    <div class="text-slate-500 dark:text-slate-400 font-bold flex items-center gap-1 min-w-0">
+                        <span class="shrink-0">📍</span>
+                        <span class="truncate">${escapeHTML(stationAddress)}</span>
+                    </div>
+                    <span class="bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-md font-black shrink-0 whitespace-nowrap shadow-sm">
+                        ⏱️ 補電約 ${chargingMinutes} 分
+                    </span>
+                </div>
+                <div class="pt-2 border-t border-amber-100 dark:border-amber-900/40 flex items-center justify-between gap-2">
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">中橫山區攻頂前建議於此處補至 <b>80%</b> 再出發。</p>
+                    <a href="${navUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-[10px] sm:text-xs font-black shadow-sm shrink-0 active:scale-95 transition">
+                        <span>🗺️</span> 導航此站
+                    </a>
+                </div>
+            </div>
+        `;
 
-            if (pkRouteCache[routeIdx]) {
-                pkRouteCache[routeIdx].stationCardHtml = stationCardHtml;
-                pkRouteCache[routeIdx].stationLocation = bestStation.geometry.location;
-                pkRouteCache[routeIdx].stationTitle = stationName;
-                pkRouteCache[routeIdx].stationAddress = stationAddress;
-                pkRouteCache[routeIdx].isReady = true;
-            }
+        // 建立地圖圖釘標記
+        if (routeIdx === 0) {
+            if (abrpChargerMarker) abrpChargerMarker.setMap(null);
+            abrpChargerMarker = new google.maps.Marker({
+                position: stationLoc,
+                map: abrpMap,
+                icon: {
+                    path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+                    fillColor: '#10b981',
+                    fillOpacity: 1,
+                    strokeWeight: 1.5,
+                    strokeColor: '#ffffff',
+                    scale: 1.5,
+                    anchor: new google.maps.Point(12, 22)
+                },
+                title: `沿線推薦站點：${stationName}`
+            });
+        }
 
-            const activeRouteIndex = abrpDirectionsRenderer ? abrpDirectionsRenderer.getRouteIndex() : 0;
-            if (activeRouteIndex === routeIdx) {
-                const recCardEl = document.getElementById('abrpRecommendationCard');
-                if (recCardEl && recCardEl.innerHTML.includes('正在尋找')) {
-                    const stopDivEl = document.getElementById('abrpStopRecommendation');
-                    if (stopDivEl) stopDivEl.innerHTML = stationCardHtml;
-                }
-            }
+        // 快取結果並渲染到畫面上
+        if (pkRouteCache[routeIdx]) {
+            pkRouteCache[routeIdx].stationCardHtml = stationCardHtml;
+            pkRouteCache[routeIdx].stationLocation = stationLoc;
+            pkRouteCache[routeIdx].stationTitle = stationName;
+            pkRouteCache[routeIdx].stationAddress = stationAddress;
+            pkRouteCache[routeIdx].isReady = true;
+        }
 
-            if (routeIdx === 0) {
-                if (abrpChargerMarker) abrpChargerMarker.setMap(null);
-                abrpChargerMarker = new google.maps.Marker({
-                    position: bestStation.geometry.location,
-                    map: abrpMap,
-                    icon: {
-                        path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-                        fillColor: isRestArea ? '#f59e0b' : '#0d9488',
-                        fillOpacity: 1,
-                        strokeWeight: 1.5,
-                        strokeColor: '#ffffff',
-                        scale: 1.5,
-                        anchor: new google.maps.Point(12, 22)
-                    },
-                    title: `${isRestArea ? '☕ 休息站：' : '⚡ 建議停靠：'}${stationName}`
-                });
-            }
+        const activeRouteIndex = abrpDirectionsRenderer ? abrpDirectionsRenderer.getRouteIndex() : 0;
+        if (activeRouteIndex === routeIdx) {
+            const stopDivEl = document.getElementById('abrpStopRecommendation');
+            if (stopDivEl) stopDivEl.innerHTML = stationCardHtml;
         }
     });
 }
-
+        
 // 唯一保留的快取渲染函式（支援動態補電次數）
 function renderAbrpCachedResults(calcData, totalDistanceKm, durationText) {
     const recCard = document.getElementById('abrpRecommendationCard');
