@@ -5100,38 +5100,45 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
     const path = (route && route.overview_path) ? route.overview_path : currentPkRoutes[routeIdx].overview_path;
     const isHeadingSouth = path.length > 5 ? (path[0].lat() > path[path.length - 1].lat()) : true;
 
-    // ⚡ 2. 沿路線計算電量即將耗盡前之行駛區間（放寬上限至 1.15 倍，避免服務區剛好在極限點後面 5 公里漏抓）
-    let criticalDistanceKm;
-    if (startSoc <= 10) {
-        criticalDistanceKm = Math.max(1, (startSoc / 100) * AppState.batteryCapacity * realEff);
+// ⚡ 2. 依出發電量精準決定「起點緊急救援」或「長途沿線巡航」
+    const searchAnchorPoints = [];
+    const isEmergencyLowSoc = startSoc <= 15; // 電量 <= 15% 判定為極度危急
+
+    if (isEmergencyLowSoc) {
+        // 🚨 緊急狀況：2% 電量連交流道都上不去，強制只鎖定「起點周遭 1~8km」進行求救型補電
+        searchAnchorPoints.push(path[0]); // 起點本體
+        if (path.length > 5) searchAnchorPoints.push(path[Math.min(5, path.length - 1)]); // 起點出發後的前 2~3km 處
     } else {
+        // 🚗 正常長途：計算出發到電量即將耗盡前之行駛區間
         const targetRemainingSoc = startSoc <= 25 ? 10 : 18;
         const usableSoc = Math.max(5, startSoc - targetRemainingSoc);
-        criticalDistanceKm = Math.max(15, (usableSoc / 100) * AppState.batteryCapacity * realEff);
-    }
+        const criticalDistanceKm = Math.max(15, (usableSoc / 100) * AppState.batteryCapacity * realEff);
 
-    const searchAnchorPoints = [];
-    const minSearchKm = Math.max(10, criticalDistanceKm * 0.4);
-    const maxSearchKm = criticalDistanceKm * 1.18; // 增加 18% 緩衝區間，防止錯過前方剛好抵達的服務區
-    const sampleIntervalKm = Math.max(25, (maxSearchKm - minSearchKm) / 3);
+        const minSearchKm = Math.max(8, criticalDistanceKm * 0.45);
+        const maxSearchKm = criticalDistanceKm * 1.15;
+        const sampleIntervalKm = Math.max(20, (maxSearchKm - minSearchKm) / 3);
 
-    let accumulatedMeters = 0;
-    let nextSampleKm = minSearchKm;
+        let accumulatedMeters = 0;
+        let nextSampleKm = minSearchKm;
 
-    for (let i = 1; i < path.length; i++) {
-        const d = (window.google?.maps?.geometry?.spherical)
-            ? google.maps.geometry.spherical.computeDistanceBetween(path[i - 1], path[i])
-            : getDistanceFromLatLonInKm(path[i - 1].lat(), path[i - 1].lng(), path[i].lat(), path[i].lng()) * 1000;
+        for (let i = 1; i < path.length; i++) {
+            const d = (window.google?.maps?.geometry?.spherical)
+                ? google.maps.geometry.spherical.computeDistanceBetween(path[i - 1], path[i])
+                : getDistanceFromLatLonInKm(path[i - 1].lat(), path[i - 1].lng(), path[i].lat(), path[i].lng()) * 1000;
 
-        accumulatedMeters += d;
-        const currentKm = accumulatedMeters / 1000;
+            accumulatedMeters += d;
+            const currentKm = accumulatedMeters / 1000;
 
-        if (currentKm >= nextSampleKm && currentKm <= maxSearchKm) {
-            searchAnchorPoints.push(path[i]);
-            nextSampleKm += sampleIntervalKm;
+            if (currentKm >= nextSampleKm && currentKm <= maxSearchKm) {
+                searchAnchorPoints.push(path[i]);
+                nextSampleKm += sampleIntervalKm;
+            }
+        }
+        // 若依然未採樣到，保底點為起點後方前段（絕不丟到台中路徑中間）
+        if (searchAnchorPoints.length === 0) {
+            searchAnchorPoints.push(path[Math.min(10, Math.floor(path.length * 0.15))] || path[0]);
         }
     }
-    if (searchAnchorPoints.length === 0) searchAnchorPoints.push(path[Math.floor(path.length / 2)] || path[0]);
 
     // 🎯 3. 搜尋站點（統一使用廣義關鍵字，半徑適度控制，再由程式嚴格打分）
     const placesService = new google.maps.places.PlacesService(abrpMap);
