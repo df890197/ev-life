@@ -1254,35 +1254,35 @@ input[type="number"] {
                     
 <!-- 出發電量、偏好切換與規格篩選 -->
 <div class="w-full sm:col-span-3 pt-2.5 border-t border-slate-200/40 dark:border-slate-800/60 mt-1 space-y-2">
-<!-- 第一行：出發電量 + 偏好切換 (左右 +/- 步進按鈕版) -->
+<!-- 第一行：出發電量 + 偏好切換 (手機緊湊防擠壓版) -->
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-    <!-- 電量設定區 -->
-    <div class="flex items-center justify-between sm:justify-start gap-2.5">
+    <!-- 電量設定區 (縮減間距與尺寸，保證小螢幕不破版) -->
+    <div class="flex items-center justify-start gap-x-2 sm:gap-x-3 overflow-x-auto no-scrollbar">
         <!-- 1. 出發電量 -->
-        <div class="flex items-center gap-1.5">
+        <div class="flex items-center gap-1 shrink-0">
             <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 shrink-0">出發</label>
-            <div class="flex items-center bg-slate-100 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 rounded-xl p-0.5 shadow-inner">
-                <button type="button" onclick="adjustAbrpSoc('routeStartSoc', -5)" class="w-6 h-6 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-black shadow-sm active:scale-90 transition select-none hover:bg-slate-50">-</button>
-                <input type="number" id="routeStartSoc" min="1" max="100" step="1" inputmode="numeric" value="100" oninput="validateSocInput(this, 100)" class="w-10 text-center font-mono font-black text-xs bg-transparent focus:outline-none appearance-none text-slate-800 dark:text-white">
-                <button type="button" onclick="adjustAbrpSoc('routeStartSoc', 5)" class="w-6 h-6 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-black shadow-sm active:scale-90 transition select-none hover:bg-slate-50">+</button>
+            <div class="flex items-center bg-slate-100 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 rounded-xl p-0.5 shadow-inner shrink-0">
+                <button type="button" onclick="adjustAbrpSoc('routeStartSoc', -5)" class="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-black shadow-sm active:scale-90 transition select-none hover:bg-slate-50">-</button>
+                <input type="number" id="routeStartSoc" min="1" max="100" step="1" inputmode="numeric" value="100" oninput="validateSocInput(this, 100)" class="w-8 sm:w-9 text-center font-mono font-black text-xs bg-transparent focus:outline-none appearance-none text-slate-800 dark:text-white">
+                <button type="button" onclick="adjustAbrpSoc('routeStartSoc', 5)" class="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-black shadow-sm active:scale-90 transition select-none hover:bg-slate-50">+</button>
             </div>
-            <span class="text-xs font-mono font-black text-slate-400">%</span>
+            <span class="text-[11px] font-mono font-black text-slate-400 shrink-0">%</span>
         </div>
 
         <!-- 2. 想充電量門檻 -->
-        <div class="flex items-center gap-1.5">
+        <div class="flex items-center gap-1 shrink-0">
             <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 shrink-0">想在剩</label>
-            <div class="flex items-center bg-slate-100 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 rounded-xl p-0.5 shadow-inner">
-                <button type="button" onclick="adjustAbrpSoc('routeTargetMinSoc', -5)" class="w-6 h-6 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-black shadow-sm active:scale-90 transition select-none hover:bg-slate-50">-</button>
-                <input type="number" id="routeTargetMinSoc" min="5" max="50" step="1" inputmode="numeric" value="15" oninput="validateSocInput(this, 50)" class="w-10 text-center font-mono font-black text-xs bg-transparent focus:outline-none appearance-none text-slate-800 dark:text-white">
-                <button type="button" onclick="adjustAbrpSoc('routeTargetMinSoc', 5)" class="w-6 h-6 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-black shadow-sm active:scale-90 transition select-none hover:bg-slate-50">+</button>
+            <div class="flex items-center bg-slate-100 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 rounded-xl p-0.5 shadow-inner shrink-0">
+                <button type="button" onclick="adjustAbrpSoc('routeTargetMinSoc', -5)" class="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-black shadow-sm active:scale-90 transition select-none hover:bg-slate-50">-</button>
+                <input type="number" id="routeTargetMinSoc" min="5" max="50" step="1" inputmode="numeric" value="15" oninput="validateSocInput(this, 50)" class="w-8 sm:w-9 text-center font-mono font-black text-xs bg-transparent focus:outline-none appearance-none text-slate-800 dark:text-white">
+                <button type="button" onclick="adjustAbrpSoc('routeTargetMinSoc', 5)" class="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-black shadow-sm active:scale-90 transition select-none hover:bg-slate-50">+</button>
             </div>
-            <span class="text-xs font-mono font-black text-slate-400">% 充</span>
+            <span class="text-[11px] font-bold text-slate-400 shrink-0 whitespace-nowrap">% 充</span>
         </div>
     </div>
 
     <!-- 偏好切換按鈕 -->
-    <div class="flex items-center justify-between sm:justify-end gap-2">
+    <div class="flex items-center justify-between sm:justify-end gap-2 pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-200/40 dark:border-slate-800/60">
         <span class="text-[10px] font-bold text-slate-400 sm:hidden">偏好停靠</span>
         <div class="flex items-center bg-slate-200/70 dark:bg-slate-800 p-0.5 rounded-xl text-[10px] font-black shrink-0">
             <button type="button" id="btnPrefRestArea" onclick="setAbrpStopPref('restArea')" class="px-3 py-1 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition-all flex items-center gap-1">
