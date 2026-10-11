@@ -5267,9 +5267,9 @@ const minSearchKm = Math.max(10, criticalDistanceKm * 0.3); // 讓 100km 出頭�
 
     scoredStations.sort((a, b) => a.score - b.score);
 
-    // 6. 依序向 Places API 請求槍頭規格與功率進行複選篩選
-    let selectedCandidate = null;
-    for (const st of scoredStations.slice(0, 10)) {
+// 6. 依序向 Places API 請求槍頭規格與功率，並按行駛順序保留「當前推薦站」與「下一可用站」
+    const validCandidates = [];
+    for (const st of scoredStations.slice(0, 15)) {
         const evOptions = await fetchEvChargeDetails(st.station.place_id);
         const specs = parseEvSpecs(evOptions, st.station.name);
 
@@ -5289,44 +5289,124 @@ const minSearchKm = Math.max(10, criticalDistanceKm * 0.3); // 讓 100km 出頭�
             if (!matchesPower) continue;
         }
 
-        selectedCandidate = { station: st.station, specs };
-        break;
+        // 依據在路線路徑 (path) 上的投影點，計算出該站距離出發點的行駛里程 (km)
+        let minDistToPath = Infinity;
+        let matchedPathIndex = 0;
+        const stLoc = st.station.geometry.location;
+        for (let pi = 0; pi < path.length; pi++) {
+            const pDist = getDistanceFromLatLonInKm(path[pi].lat(), path[pi].lng(), stLoc.lat(), stLoc.lng());
+            if (pDist < minDistToPath) {
+                minDistToPath = pDist;
+                matchedPathIndex = pi;
+            }
+        }
+        let kmFromStart = 0;
+        for (let pi = 1; pi <= matchedPathIndex; pi++) {
+            kmFromStart += getDistanceFromLatLonInKm(path[pi - 1].lat(), path[pi - 1].lng(), path[pi].lat(), path[pi].lng());
+        }
+
+        validCandidates.push({ station: st.station, specs, kmFromStart, score: st.score });
     }
 
-    if (!selectedCandidate) {
+    if (validCandidates.length === 0) {
         const connNames = Array.from(abrpSelectedConnectors).join('/');
         const powerNames = Array.from(abrpSelectedPowers).join('/');
-        if (stopDiv) stopDiv.innerHTML = `<div class="p-3 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-xl font-bold">⚠️ 極限電量範圍內未找到符合槍頭 [${connNames}] 與功率 [${powerNames}] 的充電站，建議放寬條件！</div>`;
+        if (stopDiv) stopDiv.innerHTML = `<div class="p-3 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-xl font-bold">⚠️ 極限電量範圍內未找到符合條件的充電站，建議放寬條件！</div>`;
         return;
     }
 
+    // 依行駛里程由近到遠排序，精準掌握前後站關係
+    validCandidates.sort((a, b) => a.kmFromStart - b.kmFromStart);
+
+    // 優先挑選最符合偏好的推薦首選站
+    let bestCandidateIdx = 0;
+    let minScore = Infinity;
+    validCandidates.forEach((cand, idx) => {
+        if (cand.score < minScore) {
+            minScore = cand.score;
+            bestCandidateIdx = idx;
+        }
+    });
+
+    const selectedCandidate = validCandidates[bestCandidateIdx];
     const bestStation = selectedCandidate.station;
     const specs = selectedCandidate.specs;
 
+    // 尋找在當前推薦站之後的下一座可用快充站
+    const nextCandidate = validCandidates.slice(bestCandidateIdx + 1).find(c => c.kmFromStart > selectedCandidate.kmFromStart + 15);
+
+    // ⚡ 判定是否為「非充不可」的關鍵邏輯
+    let isMustCharge = false;
+    let nextStationName = "";
+    let estSocAtNext = 0;
+
+    if (!nextCandidate) {
+        // 後方已無其他可用快充站，不充就無法到達終點
+        isMustCharge = true;
+    } else {
+        // 計算開到下一站所需的電量與抵達時剩餘電量
+        const distToNextStation = nextCandidate.kmFromStart;
+        const kwhNeededToNext = distToNextStation / (realEff > 0 ? realEff : 5.5);
+        estSocAtNext = Math.round(startSoc - ((kwhNeededToNext / AppState.batteryCapacity) * 100));
+
+        // 若略過本站直接開去下一站，電量低於安全底線 (10%)，判定為必充站
+        if (estSocAtNext < 10) {
+            isMustCharge = true;
+        } else {
+            nextStationName = nextCandidate.station.name || "下一快充站";
+        }
+    }
+
     const stationName = bestStation.name || "沿線推薦充電站";
     const stationAddress = bestStation.vicinity || bestStation.formatted_address || "國道服務區或主要幹道沿線";
-const isRestArea = (stationName.includes('服務區') || stationName.includes('休息站'));
+    const isRestArea = (stationName.includes('服務區') || stationName.includes('休息站'));
 
-            // 🎯 判斷是國道服務區還是交流道站，並給予對應的標籤顏色與圖示
-            const stopTypeBadge = isRestArea
-                ? `<span class="bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700/60 text-[9.5px] font-black px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1 shadow-sm">
-                        <span>☕</span> 服務區站
-                   </span>`
-                : `<span class="bg-sky-100 dark:bg-sky-900/60 text-sky-900 dark:text-sky-200 border border-sky-300 dark:border-sky-700/60 text-[9.5px] font-black px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1 shadow-sm">
-                        <span>🛣️</span> 交流道站
-                   </span>`;
+    // 🎯 判斷是國道服務區還是交流道站
+    const stopTypeBadge = isRestArea
+        ? `<span class="bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700/60 text-[9.5px] font-black px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1 shadow-sm">
+                <span>☕</span> 服務區站
+            </span>`
+        : `<span class="bg-sky-100 dark:bg-sky-900/60 text-sky-900 dark:text-sky-200 border border-sky-300 dark:border-sky-700/60 text-[9.5px] font-black px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1 shadow-sm">
+                <span>🛣️</span> 交流道站
+            </span>`;
 
-            const targetSocRef = startSoc <= 25 ? 10 : 18;
-            const neededKwh = AppState.batteryCapacity * ((80 - targetSocRef) / 100);
-            const effectiveKw = specs.maxKw > 0 ? Math.min(specs.maxKw, 100) : 85;
-            const chargingMinutes = Math.round((neededKwh / effectiveKw) * 60);
+    // 🚦 依據判定結果產生警示條 HTML
+    const urgencyNoticeHtml = isMustCharge
+        ? `<div class="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 space-y-1">
+               <div class="flex items-center justify-between">
+                   <span class="font-black text-xs flex items-center gap-1.5">
+                       <span class="text-sm">🚨</span> 必充警戒：最後補電站！
+                   </span>
+                   <span class="text-[9px] font-black bg-rose-500 text-white px-1.5 py-0.5 rounded">不可略過</span>
+               </div>
+               <p class="text-[10px] text-rose-600 dark:text-rose-400 font-bold leading-tight">
+                   經過此站後已無足夠電量可抵達下一座快充站或終點，<b>請務必在此進站補電</b>！
+               </p>
+           </div>`
+        : `<div class="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 space-y-1">
+               <div class="flex items-center justify-between">
+                   <span class="font-black text-xs flex items-center gap-1.5">
+                       <span class="text-sm">💡</span> 彈性推薦：可下一站再充
+                   </span>
+                   <span class="text-[9px] font-black bg-emerald-600 text-white px-1.5 py-0.5 rounded">電量安全</span>
+               </div>
+               <p class="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold leading-tight">
+                   若此站人多或暫不想停，電量仍足夠行駛至【<b>${escapeHTML(nextStationName)}</b>】（預估剩 <b>${estSocAtNext}%</b>）再充。
+               </p>
+           </div>`;
 
-            const stationLoc = bestStation.geometry.location;
-            const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(stationName)}&destination_place_id=${bestStation.place_id || ''}`;
+    const targetSocRef = startSoc <= 25 ? 10 : 18;
+    const neededKwh = AppState.batteryCapacity * ((80 - targetSocRef) / 100);
+    const effectiveKw = specs.maxKw > 0 ? Math.min(specs.maxKw, 100) : 85;
+    const chargingMinutes = Math.round((neededKwh / effectiveKw) * 60);
+
+    const stationLoc = bestStation.geometry.location;
+    const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(stationName)}&destination_place_id=${bestStation.place_id || ''}`;
 
             const stationCardHtml = `
-                <div class="bg-white/90 dark:bg-black/50 p-3 sm:p-3.5 rounded-2xl border ${isRestArea ? 'border-amber-400 dark:border-amber-500 shadow-[0_0_15px_rgba(251,191,36,0.15)]' : 'border-teal-400'} mt-1 shadow-sm space-y-2.5">
-                    <div class="flex items-start justify-between gap-2">
+                <div class="bg-white/90 dark:bg-black/50 p-3 sm:p-3.5 rounded-2xl border ${isMustCharge ? 'border-rose-400 dark:border-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.18)]' : (isRestArea ? 'border-amber-400 dark:border-amber-500' : 'border-teal-400')} mt-1 shadow-sm space-y-2.5">
+                    ${urgencyNoticeHtml}
+                    <div class="flex items-start justify-between gap-2 pt-0.5">
                         <div class="flex items-start gap-1.5 min-w-0">
                             <span class="text-base shrink-0 leading-snug">${isRestArea ? '☕' : '⚡'}</span>
                             <div class="font-black text-amber-950 dark:text-amber-200 text-xs sm:text-sm leading-snug break-words line-clamp-2">
