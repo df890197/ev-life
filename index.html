@@ -5469,26 +5469,31 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
 
 const validCandidates = [];
 
-    // 🧭 行車方向向量分析（整趟路徑：緯度下降 = 南下，緯度上升 = 北上）
-    const startLat = path[0].lat();
-    const endLat = path[path.length - 1].lat();
-    const isSouthbound = endLat < startLat;
-    const dirTag = isSouthbound ? "南站" : "北站";
+// 🧭 1. 嚴格提取經緯度數值（相容函式 lat() 與屬性 lat），精準判定南下/北上
+    const getLatVal = (pt) => (pt ? (typeof pt.lat === 'function' ? pt.lat() : pt.lat) : 0);
+    const startLatVal = getLatVal(path[0]);
+    const endLatVal = getLatVal(path[path.length - 1]);
+    
+    // 緯度變小（例如 25.0 -> 22.6）絕對是南下
+    const isSouthbound = endLatVal < startLatVal;
 
-// 🎯 1. 偏好為「服務區」：直接比對 15 處高公局服務區（快速、零卡頓、方向精準）
+    // 🎯 2. 偏好為「服務區」：直接對準行車方向取站點
     if (abrpStopPreference === 'restArea') {
         TAIWAN_REST_AREA_CHARGERS.forEach(ra => {
             let targetPoint = ra;
+
+            // ⚠️ 關鍵修正：若有區分南北向，南下強制鎖定 south，北上強制鎖定 north
             if (ra.hasDirection) {
-                // 南下必取 south，北上必取 north
                 targetPoint = isSouthbound ? (ra.south || ra) : (ra.north || ra);
             }
 
+            // 以該向的實際樁位座標計算偏離主線距離
             const proj = getStationRouteProjection(targetPoint.lat, targetPoint.lng);
-            // 只要該向站點離主線 2.5 公里內，代表行車方向有經過
+
+            // 只要離主線 2.5 公里以內，代表行車方向順路經過
             if (proj.distToRouteMeters <= 2500) {
                 validCandidates.push({
-                    name: targetPoint.name,
+                    name: targetPoint.name, // 這裡就會 100% 帶入「新營服務區南站」
                     address: `${ra.highway} 服務區停車場`,
                     lat: targetPoint.lat,
                     lng: targetPoint.lng,
