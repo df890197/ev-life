@@ -5546,7 +5546,7 @@ const validCandidates = [];
 // 🧭 取得整趟路線主要行進向量（南下 vs 北上）
         const isSouthboundRoute = path[path.length - 1].lat() < path[0].lat();
 
-        for (const st of rawResults.slice(0, 10)) {
+for (const st of rawResults.slice(0, 10)) {
             const n = (st.name || '').toLowerCase();
             const addr = (st.vicinity || st.formatted_address || '').toLowerCase();
             const fullName = `${n} ${addr}`;
@@ -5601,7 +5601,16 @@ const validCandidates = [];
                         isFast: true,
                         maxKw: 180,
                         powerLabel: "120~360 kW (快充)",
-                        connectorLabel: "CCS1 / CCS2
+                        connectorLabel: "CCS1 / CCS2",
+                        hasCcs1: true
+                    },
+                    kmFromStart: proj.kmFromStart,
+                    detourDistKm: roadDetour.detourDistKm,
+                    detourDurationText: roadDetour.detourDurationText,
+                    detourDurationSec: roadDetour.detourDurationSec
+                });
+            }
+        }
 
         // 🏆 交流道模式下，優先以「真實下交流道車程時間最短」排序
         if (abrpStopPreference === 'interchange') {
@@ -5639,8 +5648,8 @@ const validCandidates = [];
         }
     });
 
-const selectedStation = validCandidates[bestIdx];
-
+    const selectedStation = validCandidates[bestIdx];
+    
 // 🏷️ 1. 服務區智慧座標反查：若站名模糊，比對是否實際上坐落於國道服務區內
     let matchedRestAreaName = "";
     TAIWAN_REST_AREA_CHARGERS.forEach(ra => {
