@@ -5294,29 +5294,36 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
 
     const stationName = bestStation.name || "沿線推薦充電站";
     const stationAddress = bestStation.vicinity || bestStation.formatted_address || "國道服務區或主要幹道沿線";
-    const isRestArea = (stationName.includes('服務區') || stationName.includes('休息站'));
+const isRestArea = (stationName.includes('服務區') || stationName.includes('休息站'));
 
-    const targetSocRef = startSoc <= 25 ? 10 : 18;
-    const neededKwh = AppState.batteryCapacity * ((80 - targetSocRef) / 100);
-    const effectiveKw = specs.maxKw > 0 ? Math.min(specs.maxKw, 100) : 85;
-    const chargingMinutes = Math.round((neededKwh / effectiveKw) * 60);
+            // 🎯 判斷是國道服務區還是交流道站，並給予對應的標籤顏色與圖示
+            const stopTypeBadge = isRestArea
+                ? `<span class="bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700/60 text-[9.5px] font-black px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1 shadow-sm">
+                        <span>☕</span> 服務區站
+                   </span>`
+                : `<span class="bg-sky-100 dark:bg-sky-900/60 text-sky-900 dark:text-sky-200 border border-sky-300 dark:border-sky-700/60 text-[9.5px] font-black px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1 shadow-sm">
+                        <span>🛣️</span> 交流道站
+                   </span>`;
 
-    const stationLoc = bestStation.geometry.location;
-    const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(stationName)}&destination_place_id=${bestStation.place_id || ''}`;
+            const targetSocRef = startSoc <= 25 ? 10 : 18;
+            const neededKwh = AppState.batteryCapacity * ((80 - targetSocRef) / 100);
+            const effectiveKw = specs.maxKw > 0 ? Math.min(specs.maxKw, 100) : 85;
+            const chargingMinutes = Math.round((neededKwh / effectiveKw) * 60);
 
-    const stationCardHtml = `
-        <div class="bg-white/90 dark:bg-black/50 p-3 sm:p-3.5 rounded-2xl border ${isRestArea ? 'border-amber-400 dark:border-amber-500 shadow-[0_0_15px_rgba(251,191,36,0.15)]' : 'border-teal-400'} mt-1 shadow-sm space-y-2.5">
-            <div class="flex items-start justify-between gap-2">
-                <div class="flex items-start gap-1.5 min-w-0">
-                    <span class="text-base shrink-0 leading-snug">${isRestArea ? '☕' : '⚡'}</span>
-                    <div class="font-black text-amber-950 dark:text-amber-200 text-xs sm:text-sm leading-snug break-words line-clamp-2">
-                        ${escapeHTML(stationName)}
+            const stationLoc = bestStation.geometry.location;
+            const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(stationName)}&destination_place_id=${bestStation.place_id || ''}`;
+
+            const stationCardHtml = `
+                <div class="bg-white/90 dark:bg-black/50 p-3 sm:p-3.5 rounded-2xl border ${isRestArea ? 'border-amber-400 dark:border-amber-500 shadow-[0_0_15px_rgba(251,191,36,0.15)]' : 'border-teal-400'} mt-1 shadow-sm space-y-2.5">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="flex items-start gap-1.5 min-w-0">
+                            <span class="text-base shrink-0 leading-snug">${isRestArea ? '☕' : '⚡'}</span>
+                            <div class="font-black text-amber-950 dark:text-amber-200 text-xs sm:text-sm leading-snug break-words line-clamp-2">
+                                ${escapeHTML(stationName)}
+                            </div>
+                        </div>
+                        ${stopTypeBadge}
                     </div>
-                </div>
-                <span class="bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 text-[9.5px] font-black px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1">
-                    <span>🛣️</span> 順路沿線
-                </span>
-            </div>
 
             <div class="flex flex-wrap items-center gap-1.5 pt-0.5">
                 <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${specs.isFast ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800/50' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'} text-[10px] font-mono font-bold border">
