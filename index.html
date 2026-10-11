@@ -4393,14 +4393,32 @@ window.closeAbrpModal = function() {
                 { timeout: 8000, enableHighAccuracy: true }
             );
         };
-        function initAbrpAutocomplete() {
+function initAbrpAutocomplete() {
             const startInput = document.getElementById('routeStartInput');
             const endInput = document.getElementById('routeEndInput');
 
             if (window.google?.maps?.places && startInput && endInput) {
                 const options = { componentRestrictions: { country: "tw" }, fields: ["name", "formatted_address", "geometry"] };
-                new google.maps.places.Autocomplete(startInput, options);
-                new google.maps.places.Autocomplete(endInput, options);
+                const startAuto = new google.maps.places.Autocomplete(startInput, options);
+                const endAuto = new google.maps.places.Autocomplete(endInput, options);
+
+                // 🎯 起點選取後，強制保留地標景點名稱（避免被 Google 覆寫成純地址）
+                startAuto.addListener("place_changed", () => {
+                    const place = startAuto.getPlace();
+                    if (place && place.name) {
+                        startInput.value = place.name;
+                    }
+                    toggleRouteClearBtn('routeStartInput', 'btnClearStart');
+                });
+
+                // 🎯 終點選取後，強制保留地標景點名稱
+                endAuto.addListener("place_changed", () => {
+                    const place = endAuto.getPlace();
+                    if (place && place.name) {
+                        endInput.value = place.name;
+                    }
+                    toggleRouteClearBtn('routeEndInput', 'btnClearEnd');
+                });
             }
         }
 
@@ -4840,29 +4858,36 @@ function parseEvSpecs(evOptions, stationName = '') {
         connectors
     };
 }
-// 自動萃取地名：若有明確地標/景點名稱優先保留，僅在純長地址時才精簡
+        
+// 自動萃取地名：即便帶有縣市區，優先剝除前綴萃取真正的景點名
 function getShortLocationName(locStr) {
     if (!locStr) return '目的地';
     if (locStr.includes('目前位置') || locStr.includes('定位中')) return '目前位置';
 
     let str = locStr.replace(/^[0-9\s]*台灣\s*/, '').trim();
 
-    // 1. 若使用者輸入的本身就是明確的景點/地標（不含詳細路名號碼），直接完整呈現
-    const isPureAddress = /([路街道巷弄號段]|[\d-]+號)/.test(str);
-    if (!isPureAddress && str.length <= 15) {
-        return str; // 直接保留完整景點名，如「福壽山農場」、「清境農場」
+    // 1. 剝除前綴「縣市＋行政區＋村里」（例如「台中市和平區福壽山農場」->「福壽山農場」）
+    const stripAdmin = str.replace(/^(?:..[市縣])?(?:..[區市鎮鄉])?(?:..[村里])?/, '').trim();
+    if (stripAdmin && stripAdmin.length >= 2 && !/^([路街道巷弄號段]|[\d-]+號)/.test(stripAdmin)) {
+        return stripAdmin.slice(0, 12);
     }
 
-    // 2. 若輸入的是長地址，優先抓取最後面的地標名稱（例如「台中市和平區...福壽山農場」-> 抓「福壽山農場」）
+    // 2. 若為長地址且最後帶有地標（如「...福壽路29號福壽山農場」-> 提取「福壽山農場」）
+    const afterNumberMatch = str.match(/[\d-]+號\s*([^\d\s]{2,15})$/);
+    if (afterNumberMatch && afterNumberMatch[1]) {
+        return afterNumberMatch[1].slice(0, 12);
+    }
+
+    // 3. 空格分詞取最後景點詞
     const words = str.split(/\s+/);
     if (words.length > 1) {
         const lastWord = words[words.length - 1];
-        if (lastWord.length >= 2 && !/^\d+/.test(lastWord)) {
-            return lastWord.slice(0, 10);
+        if (lastWord.length >= 2 && !/^\d+/.test(lastWord) && !/([路街道巷弄號段])$/.test(lastWord)) {
+            return lastWord.slice(0, 12);
         }
     }
 
-    // 3. 若為純門牌號碼地址且無地標，才退回「縣市＋行政區」
+    // 4. 僅在完全沒有景點名時，才退回「縣市行政區」
     const match = str.match(/(..[市縣])?(..[區市鎮鄉])/);
     if (match) {
         const city = match[1] ? match[1].replace(/[市縣]/, '') : '';
