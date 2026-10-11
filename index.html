@@ -5377,77 +5377,11 @@ const validCandidates = [];
     const isSouthbound = endLat < startLat;
     const dirTag = isSouthbound ? "南站" : "北站";
 
-    // 🎯 1. 沿路線取樣搜尋點（精準定位在車輛預估電量需要補給的區間）
-    const anchorKm = Math.min(totalDistanceKm - 10, Math.max(15, criticalDistanceKm * 0.9));
-    let accM = 0;
-    let searchPoint = path[Math.floor(path.length / 2)];
-    for (let i = 1; i < path.length; i++) {
-        accM += getDistanceFromLatLonInKm(path[i - 1].lat(), path[i - 1].lng(), path[i].lat(), path[i].lng()) * 1000;
-        if (accM / 1000 >= anchorKm) {
-            searchPoint = path[i];
-            break;
-        }
-    }
-
-    // 🎯 2. 動態調用 Google Places API（即時探索線上最新地標）
-    const placesService = new google.maps.places.PlacesService(abrpMap);
-    const searchKeyword = abrpStopPreference === 'restArea' ? '服務區 充電站' : '快充站';
-    const searchRadius = abrpStopPreference === 'restArea' ? 12000 : 8000;
-
-    const placesPromise = new Promise(resolve => {
-        placesService.nearbySearch({
-            location: searchPoint,
-            radius: searchRadius,
-            keyword: searchKeyword
-        }, (results, status) => {
-            resolve((status === google.maps.places.PlacesServiceStatus.OK && results) ? results : []);
-        });
-    });
-
-    const timeoutPromise = new Promise(resolve => setTimeout(() => resolve([]), 3500));
-    const dynamicResults = await Promise.race([placesPromise, timeoutPromise]);
-
-    // 🎯 3. 清洗與補強動態搜尋結果
-    for (const st of dynamicResults.slice(0, 10)) {
-        const n = (st.name || '').toLowerCase();
-        // 排除不相容站點
-        if (n.includes('tesla') || n.includes('特斯拉') || n.includes('supercharger') || n.includes('volvo') || n.includes('富豪')) continue;
-        if (n.includes('gogoro') || n.includes('機車') || n.includes('換電')) continue;
-
-        const stLoc = st.geometry.location;
-        const proj = getStationRouteProjection(stLoc.lat(), stLoc.lng());
-
-        // 依據偏好過濾離主線距離：服務區 2.5km 內、交流道 6km 內
-        const maxAllowedDist = abrpStopPreference === 'restArea' ? 2500 : 6000;
-        if (proj.distToRouteMeters <= maxAllowedDist) {
-            let stationName = st.name;
-            const isRestAreaPoi = n.includes('服務區') || n.includes('休息站');
-
-            // ⚡ 方向自動修正：若是服務區且名稱未帶「南」或「北」，自動依行向補上
-            if (isRestAreaPoi && !stationName.includes('南') && !stationName.includes('北')) {
-                stationName = `${stationName} (${dirTag})`;
-            }
-
-            const evOptions = await fetchEvChargeDetails(st.place_id);
-            const specs = parseEvSpecs(evOptions, stationName);
-
-            validCandidates.push({
-                name: stationName,
-                address: st.vicinity || st.formatted_address || (isRestAreaPoi ? "國道服務區停車場" : "交流道沿線"),
-                lat: stLoc.lat(),
-                lng: stLoc.lng(),
-                place_id: st.place_id,
-                isRestArea: isRestAreaPoi,
-                specs: specs,
-                kmFromStart: proj.kmFromStart
-            });
-        }
-    }
-
-    // 🎯 4. 靜態資料庫保底機制（Fallback）：若線上 API 漏抓或無回應，自動無縫接手
-    if (validCandidates.length === 0 && abrpStopPreference === 'restArea') {
+    // 🎯 1. 偏好為「服務區」：直接比對 15 處高公局服務區（快速、零卡頓、方向精準）
+    if (abrpStopPreference === 'restArea') {
         TAIWAN_REST_AREA_CHARGERS.forEach(ra => {
             const proj = getStationRouteProjection(ra.lat, ra.lng);
+            // 只要服務區離路線 2.5 公里內，代表路線確實經過
             if (proj.distToRouteMeters <= 2500) {
                 let finalName = ra.name;
                 let finalLat = ra.lat;
@@ -5473,7 +5407,7 @@ const validCandidates = [];
                     isRestArea: true,
                     specs: {
                         isFast: true,
-                        maxKw: parseInt(ra.power),
+                        maxKw: parseInt(ra.power) || 350,
                         powerLabel: ra.power,
                         connectorLabel: ra.conn,
                         hasCcs1: true
@@ -5484,6 +5418,60 @@ const validCandidates = [];
         });
     }
 
+    // 🎯 2. 偏好為「交流道」或該路段無服務區充電站：調用 Places API 探測交流道周邊快充
+    if (validCandidates.length === 0) {
+        const placesService = new google.maps.places.PlacesService(abrpMap);
+        const anchorKm = Math.min(totalDistanceKm - 10, Math.max(15, criticalDistanceKm * 0.85));
+        let accM = 0;
+        let searchPoint = path[Math.floor(path.length / 2)];
+        for (let i = 1; i < path.length; i++) {
+            accM += getDistanceFromLatLonInKm(path[i - 1].lat(), path[i - 1].lng(), path[i].lat(), path[i].lng()) * 1000;
+            if (accM / 1000 >= anchorKm) {
+                searchPoint = path[i];
+                break;
+            }
+        }
+
+        const placesPromise = new Promise(resolve => {
+            placesService.nearbySearch({
+                location: searchPoint,
+                radius: 10000,
+                keyword: '快充站'
+            }, (results, status) => {
+                resolve((status === google.maps.places.PlacesServiceStatus.OK && results) ? results : []);
+            });
+        });
+
+        const timeoutPromise = new Promise(resolve => setTimeout(() => resolve([]), 2500));
+        const rawResults = await Promise.race([placesPromise, timeoutPromise]);
+
+        for (const st of rawResults.slice(0, 8)) {
+            const n = (st.name || '').toLowerCase();
+            if (n.includes('tesla') || n.includes('特斯拉') || n.includes('supercharger') || n.includes('volvo') || n.includes('富豪')) continue;
+            if (n.includes('gogoro') || n.includes('機車') || n.includes('換電')) continue;
+
+            const stLoc = st.geometry.location;
+            const proj = getStationRouteProjection(stLoc.lat(), stLoc.lng());
+            if (proj.distToRouteMeters <= 6000) {
+                validCandidates.push({
+                    name: st.name,
+                    address: st.vicinity || st.formatted_address || "交流道沿線",
+                    lat: stLoc.lat(),
+                    lng: stLoc.lng(),
+                    place_id: st.place_id,
+                    isRestArea: false,
+                    specs: {
+                        isFast: true,
+                        maxKw: 180,
+                        powerLabel: "120~360 kW (快充)",
+                        connectorLabel: "CCS1 / CCS2",
+                        hasCcs1: true
+                    },
+                    kmFromStart: proj.kmFromStart
+                });
+            }
+        }
+    }
     const stopDiv = document.getElementById('abrpStopRecommendation');
 
     if (validCandidates.length === 0) {
