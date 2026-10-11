@@ -5155,66 +5155,79 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
     }
     if (searchAnchorPoints.length === 0) searchAnchorPoints.push(path[Math.floor(path.length / 2)] || path[0]);
 
-    // 🎯 3. 沿著路線錨點並行搜尋站點
+// 🎯 3. 沿著路線錨點並行搜尋站點（支援服務區內部充電樁直搜）
     const placesService = new google.maps.places.PlacesService(abrpMap);
     const stopDiv = document.getElementById('abrpStopRecommendation');
 
-    // 原本：const searchKeyword = (abrpStopPreference === 'restArea') ? '服務區 充電站' : '電動車 快充站';
-    const searchKeyword = (abrpStopPreference === 'restArea') ? '服務區' : '快充站';
-    const pointRadius = (abrpStopPreference === 'restArea') ? 15000 : 6000;
+    let rawStations = [];
+    const seenPlaceIds = new Set();
 
-    const searchPromises = searchAnchorPoints.map(point => {
-        return new Promise(resolve => {
-            placesService.nearbySearch({
-                location: point,
-                radius: pointRadius,
-                keyword: searchKeyword
-            }, (results, status) => {
-                resolve((status === google.maps.places.PlacesServiceStatus.OK && results) ? results : []);
+    if (abrpStopPreference === 'restArea') {
+        // 🟢 服務區情境：第一步先找到沿線的「服務區主建築」
+        const restAreaPromises = searchAnchorPoints.map(point => {
+            return new Promise(resolve => {
+                placesService.nearbySearch({
+                    location: point,
+                    radius: 18000,
+                    keyword: '服務區'
+                }, (results, status) => {
+                    resolve((status === google.maps.places.PlacesServiceStatus.OK && results) ? results : []);
+                });
             });
         });
-    });
+        const restResults = await Promise.all(restAreaPromises);
+        const candidateRestAreas = [].concat(...restResults).filter(r => {
+            const n = r.name || '';
+            // 排除加油站，只保留純「服務區/休息站」本體地標
+            return (n.includes('服務區') || n.includes('休息站')) && !n.includes('加油站');
+        });
 
-    const resultsByPoint = await Promise.all(searchPromises);
-    let rawStations = [].concat(...resultsByPoint);
+        // 🟢 第二步：以服務區為核心（半徑 600m 內），直接搜尋裡面的充電樁（如 iCharging, YES! 來電）
+        const insideStationPromises = candidateRestAreas.slice(0, 5).map(ra => {
+            return new Promise(resolve => {
+                placesService.nearbySearch({
+                    location: ra.geometry.location,
+                    radius: 700, // 服務區停車場範圍約 500~700 公尺
+                    keyword: '充電站'
+                }, (results, status) => {
+                    if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+                        // 為該充電站加上所屬服務區標記，清楚顯示！
+                        results.forEach(st => { st.restAreaBelong = ra.name; });
+                        resolve(results);
+                    } else {
+                        resolve([]);
+                    }
+                });
+            });
+        });
+        const insideResults = await Promise.all(insideStationPromises);
+        rawStations = [].concat(...insideResults);
+    }
 
-    // 依據 place_id 去除沿線重複站點
-    const seenPlaceIds = new Set();
+    // 若選交流道，或該段服務區內未設有快充站，回退直搜國道沿線快充
+    if (rawStations.length === 0) {
+        const searchPromises = searchAnchorPoints.map(point => {
+            return new Promise(resolve => {
+                placesService.nearbySearch({
+                    location: point,
+                    radius: 8000,
+                    keyword: '快充站'
+                }, (results, status) => {
+                    resolve((status === google.maps.places.PlacesServiceStatus.OK && results) ? results : []);
+                });
+            });
+        });
+        const resultsByPoint = await Promise.all(searchPromises);
+        rawStations = [].concat(...resultsByPoint);
+    }
+
+    // 去除重複站點
     rawStations = rawStations.filter(st => {
         const id = st.place_id || st.name;
         if (seenPlaceIds.has(id)) return false;
         seenPlaceIds.add(id);
         return true;
     });
-
-    // 保底：若選服務區但該路段沿線無站點，自動回退改搜交流道快充
-    if (abrpStopPreference === 'restArea' && rawStations.length === 0) {
-        const fallbackPromises = searchAnchorPoints.map(point => {
-            return new Promise(resolve => {
-                placesService.nearbySearch({
-                    location: point,
-                    radius: 8000,
-                    keyword: '電動車 快充站'
-                }, (results, status) => {
-                    resolve((status === google.maps.places.PlacesServiceStatus.OK && results) ? results : []);
-                });
-            });
-        });
-        const fallbackResults = await Promise.all(fallbackPromises);
-        rawStations = [].concat(...fallbackResults).filter(st => {
-            const id = st.place_id || st.name;
-            if (seenPlaceIds.has(id)) return false;
-            seenPlaceIds.add(id);
-            return true;
-        });
-    }
-
-    const EV_CAR_BRANDS = [
-        'evoasis', 'u-power', 'upower', 'tail', '特爾', 
-        'evalue', '華城', 'nhoa', '台泥', 'incharge', 
-        '星舟', '中油', '台亞', '北基', '源點', 'yes!來電', 
-        '馳諾瓦', '泓德', '連網', '快充', '超充', '超級充電'
-    ];
 
     const SCOOTER_BLACKLIST = [
         'gogoro', 'gostation', 'go station', '睿能',
@@ -5225,7 +5238,7 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         '自行車', '單車', 'wemo'
     ];
 
-    // 4. 基礎黑名單過濾
+    // 4. 基礎黑名單過濾（排除特斯拉、Volvo 及加油站本體）
     let validStations = rawStations.filter(s => {
         const name = (s.name || '').toLowerCase().trim();
         const vicinity = (s.vicinity || s.formatted_address || '').toLowerCase();
@@ -5233,7 +5246,8 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
 
         if (name.includes('tesla') || name.includes('特斯拉') || name.includes('supercharger') || name.includes('volvo') || name.includes('富豪')) return false;
         if (SCOOTER_BLACKLIST.some(kw => fullText.includes(kw))) return false;
-        if (name === '電動車充電站' || name === '充電站' || name === '汽車充電站') return false;
+        // 如果抓到純加油站地標且名字沒標充電，排除之
+        if (name.includes('加油站') && !name.includes('充電') && !name.includes('charging')) return false;
 
         return true;
     });
@@ -5393,7 +5407,10 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         }
     }
 
-    const stationName = bestStation.name || "沿線推薦充電站";
+// 如果是服務區內的站點，標註服務區名稱，例如：「清水服務區 - iCharging 充電站」
+const stationName = bestStation.restAreaBelong 
+    ? `${bestStation.restAreaBelong} - ${bestStation.name}` 
+    : (bestStation.name || "沿線推薦充電站");
     const stationAddress = bestStation.vicinity || bestStation.formatted_address || "國道服務區或主要幹道沿線";
     const isRestArea = (stationName.includes('服務區') || stationName.includes('休息站'));
 
