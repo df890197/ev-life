@@ -4625,7 +4625,7 @@ function isTouristOrPoiDestination(placeName = '', placeTypes = []) {
     return hasMatchingType || hasMatchingKeyword;
 }
 
-// 🎯 2. 探測目的地周邊 600m 停車場/充電樁
+// 🎯 2. 探測目的地周邊 800m 停車場/充電樁（排除特斯拉、支援槍頭相容性、區分快慢充情境）
 function searchDestinationCharging(destLatLng, destName) {
     const cardEl = document.getElementById('abrpDestPoiCard');
     if (!cardEl || !abrpMap || !window.google?.maps?.places) return;
@@ -4634,7 +4634,7 @@ function searchDestinationCharging(destLatLng, destName) {
 
     placesService.nearbySearch({
         location: destLatLng,
-        radius: 600, // 步行 5~8 分鐘生活圈
+        radius: 800, // 目的地周邊 800 公尺
         keyword: '充電站'
     }, async (stations, status) => {
         if (status !== google.maps.places.PlacesServiceStatus.OK || !stations || stations.length === 0) {
@@ -4643,10 +4643,19 @@ function searchDestinationCharging(destLatLng, destName) {
             return;
         }
 
-        // 過濾二輪換電站
+        // 🛑 1. 嚴格過濾：徹底排除特斯拉超充與二輪機車換電站
         const valid = stations.filter(s => {
             const n = (s.name || '').toLowerCase();
-            return !n.includes('gogoro') && !n.includes('ionex') && !n.includes('換電') && !n.includes('機車');
+            const v = (s.vicinity || s.formatted_address || '').toLowerCase();
+            const full = `${n} ${v}`;
+
+            // 排除特斯拉自營站（n⁷ 為 CCS1，無法使用 Tesla 專屬超充）
+            if (full.includes('tesla') || full.includes('特斯拉') || full.includes('supercharger')) return false;
+
+            // 排除二輪電動機車與換電站
+            if (full.includes('gogoro') || full.includes('ionex') || full.includes('換電') || full.includes('機車')) return false;
+
+            return true;
         });
 
         if (valid.length === 0) {
@@ -4655,24 +4664,53 @@ function searchDestinationCharging(destLatLng, destName) {
             return;
         }
 
-        const bestDestStation = valid[0];
+        // 🛑 2. 尋找 n⁷ 相容站點（優先相容 J1772 / Type 2 / CCS1）
+        let bestDestStation = null;
+        let bestSpecs = null;
+
+        for (const st of valid.slice(0, 5)) {
+            const evOptions = await fetchEvChargeDetails(st.place_id);
+            const specs = parseEvSpecs(evOptions, st.name);
+
+            // 若站點僅有 CCS2/TPC 且無 AC 慢充或 CCS1，則 n⁷ 無法充電，過濾掉
+            const isCompatible = specs.hasCcs1 || specs.connectors.some(c => ['J1772', 'Type 2', 'CCS1'].includes(c)) || specs.connectors.length === 0;
+            if (!isCompatible) continue;
+
+            bestDestStation = st;
+            bestSpecs = specs;
+            break;
+        }
+
+        if (!bestDestStation || !bestSpecs) {
+            cardEl.classList.add('hidden');
+            cardEl.innerHTML = '';
+            return;
+        }
+
         const distM = Math.round(getDistanceFromLatLonInKm(destLatLng.lat(), destLatLng.lng(), bestDestStation.geometry.location.lat(), bestDestStation.geometry.location.lng()) * 1000);
 
-        // 查詢詳細充電規格
-        const evOptions = await fetchEvChargeDetails(bestDestStation.place_id);
-        const specs = parseEvSpecs(evOptions, bestDestStation.name);
+        // 🛑 3. 分流快充與慢充的真實補電情境
+        let estSocAdd = 0;
+        let chargingScenarioText = "";
 
-        // 估算停留 2.5 小時 (車等人) 的補電效益 (以 n7 57.7度電池計算)
-        const isAc = specs.maxKw < 50;
-        const estKwh = isAc ? (7 * 2.5) : (Math.min(specs.maxKw || 60, 60) * 0.5);
-        const estSocAdd = Math.min(100, Math.round((estKwh / AppState.batteryCapacity) * 100));
+        if (bestSpecs.isFast) {
+            // 快充情境（DC 樁）：充 30～40 分鐘即飽，提醒移車避免超時佔用費
+            const fastKwh = Math.min(bestSpecs.maxKw || 120, 100) * 0.5; // 計算約 30 分鐘度數
+            estSocAdd = Math.min(80, Math.round((fastKwh / AppState.batteryCapacity) * 100));
+            chargingScenarioText = `具備 <b>快充 (${bestSpecs.powerLabel})</b>。約 <b>30～40 分鐘</b> 即可快速補進 <b>+${estSocAdd}%</b> 電量（請注意充電完成後需移車避免佔用費）！`;
+        } else {
+            // 慢充情境（AC 樁）：真正適合景點車等人，停 2.5 小時無佔用費
+            const slowKwh = 7.0 * 2.5; 
+            estSocAdd = Math.min(100, Math.round((slowKwh / AppState.batteryCapacity) * 100));
+            chargingScenarioText = `具備 <b>慢充 (${bestSpecs.powerLabel})</b>。在此停留遊玩 <b>2～3 小時</b>，預估可無痛補進 <b>+${estSocAdd}%</b> 電量，回程無需再至國道排快充！`;
+        }
 
-        renderDestinationChargingCard(bestDestStation, specs, estSocAdd, destName, distM);
+        renderDestinationChargingCard(bestDestStation, bestSpecs, chargingScenarioText, destName, distM);
     });
 }
 
-// 🎯 3. 渲染目的地景點「車等人」推薦卡片
-function renderDestinationChargingCard(station, specs, estSocAdd, destName, distM) {
+// 🎯 3. 渲染目的地景點「車等人」推薦卡片（吃專屬情境文字、加強底部外邊距避免被遮擋）
+function renderDestinationChargingCard(station, specs, chargingScenarioText, destName, distM) {
     const cardEl = document.getElementById('abrpDestPoiCard');
     if (!cardEl) return;
 
@@ -4704,12 +4742,13 @@ function renderDestinationChargingCard(station, specs, estSocAdd, destName, dist
         </div>
 
         <div class="p-2 rounded-xl bg-white/70 dark:bg-slate-900/60 border border-teal-200/50 dark:border-teal-800/40 text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
-            ⚡ 提供 <b>${specs.powerLabel} (${specs.connectorLabel})</b>。<br>
-            若在景點停留約 <b>2～3 小時</b>，預估可無痛補進 <b>+${estSocAdd}%</b> 電量，回程無需再至國道排快充！
+            ⚡ 規格：${specs.powerLabel} (${specs.connectorLabel})。<br>
+            ${chargingScenarioText}
         </div>
     `;
     cardEl.classList.remove('hidden');
 }
+        
 // ⚡ Places API (New)：查詢電動車充電專屬規格 (evChargeOptions)
 async function fetchEvChargeDetails(placeId) {
     if (!placeId) return null;
