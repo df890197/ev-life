@@ -5096,7 +5096,7 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         </div>
     `;
 
-// ⚡ 1. 沿路線計算電量即將耗盡前之「行駛區間」（沿線搜站核心）
+    // ⚡ 1. 沿路線計算電量即將耗盡前之「行駛區間」（沿線搜站核心）
     let criticalDistanceKm;
     if (startSoc <= 10) {
         criticalDistanceKm = Math.max(1, (startSoc / 100) * AppState.batteryCapacity * realEff);
@@ -5108,10 +5108,10 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
 
     const path = (route && route.overview_path) ? route.overview_path : currentPkRoutes[routeIdx].overview_path;
 
-    // 🎯 2. 沿預定行駛路線取樣 3~4 個路徑錨點（沿著國道路線一路搜尋，徹底廢棄單點定錨）
+    // 🎯 2. 沿預定行駛路線取樣 3~4 個路徑錨點
     const searchAnchorPoints = [];
-    const minSearchKm = Math.max(10, criticalDistanceKm * 0.45); // 從可跑里程的 45% 開始找（預留安全電量進站）
-    const maxSearchKm = criticalDistanceKm;                      // 最遠到極限耗盡點
+    const minSearchKm = Math.max(10, criticalDistanceKm * 0.45);
+    const maxSearchKm = criticalDistanceKm;
     const sampleIntervalKm = Math.max(25, (maxSearchKm - minSearchKm) / 3);
 
     let accumulatedMeters = 0;
@@ -5130,7 +5130,6 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
             nextSampleKm += sampleIntervalKm;
         }
     }
-    // 若採樣點過少，將起點後或極限點作為保底
     if (searchAnchorPoints.length === 0) searchAnchorPoints.push(path[Math.floor(path.length / 2)] || path[0]);
 
     // 🎯 3. 沿著路線錨點並行搜尋站點
@@ -5138,7 +5137,7 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
     const stopDiv = document.getElementById('abrpStopRecommendation');
 
     const searchKeyword = (abrpStopPreference === 'restArea') ? '服務區 充電站' : '電動車 快充站';
-    const pointRadius = (abrpStopPreference === 'restArea') ? 15000 : 6000; // 沿著路線各點取小範圍，精準貼齊國道
+    const pointRadius = (abrpStopPreference === 'restArea') ? 15000 : 6000;
 
     const searchPromises = searchAnchorPoints.map(point => {
         return new Promise(resolve => {
@@ -5155,7 +5154,7 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
     const resultsByPoint = await Promise.all(searchPromises);
     let rawStations = [].concat(...resultsByPoint);
 
-    // 依據 place_id 去除沿線重複搜尋到的站點
+    // 依據 place_id 去除沿線重複站點
     const seenPlaceIds = new Set();
     rawStations = rawStations.filter(st => {
         const id = st.place_id || st.name;
@@ -5164,7 +5163,7 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         return true;
     });
 
-    // 保底：若選服務區但該國道路段沿線無服務區站點，自動回退改搜交流道快充
+    // 保底：若選服務區但該路段沿線無站點，自動回退改搜交流道快充
     if (abrpStopPreference === 'restArea' && rawStations.length === 0) {
         const fallbackPromises = searchAnchorPoints.map(point => {
             return new Promise(resolve => {
@@ -5186,7 +5185,6 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         });
     }
 
-    // 主流四輪電動車品牌
     const EV_CAR_BRANDS = [
         'evoasis', 'u-power', 'upower', 'tail', '特爾', 
         'evalue', '華城', 'nhoa', '台泥', 'incharge', 
@@ -5194,7 +5192,6 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         '馳諾瓦', '泓德', '連網', '快充', '超充', '超級充電'
     ];
 
-    // 二輪電動機車、換電站與雜項黑名單
     const SCOOTER_BLACKLIST = [
         'gogoro', 'gostation', 'go station', '睿能',
         'ionex', '光陽', 'kymco',
@@ -5222,13 +5219,12 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         return;
     }
 
-    // 5. 計算站點與「行駛路線 polyline」的最短垂直距離並評分排序
+    // 5. 計算站點與路線的最短距離並評分排序
     const scoredStations = validStations.map(st => {
         const stPos = st.geometry.location;
         const nameLower = (st.name || '').toLowerCase();
         let minMetersToRoute = Infinity;
 
-        // 計算站點離整條路線有多近（確保是真正順路的站）
         for (let i = 0; i < path.length; i++) {
             const dist = (window.google?.maps?.geometry?.spherical)
                 ? google.maps.geometry.spherical.computeDistanceBetween(path[i], stPos)
@@ -5241,7 +5237,6 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
 
         let score = minMetersToRoute;
 
-        // 偏好權重：選服務區時給予壓倒性優先權；選交流道時排除服務區
         if (abrpStopPreference === 'restArea') {
             if (isStationRestArea) {
                 score -= 30000;
@@ -5259,135 +5254,129 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         return { station: st, distToRoute: minMetersToRoute, score, isKnownEvBrand, isStationRestArea };
     });
 
-    // 依據偏好權重後的 score 嚴格排序
     scoredStations.sort((a, b) => a.score - b.score);
 
-// 3. 依序向 Places API (New) 請求槍頭規格與功率進行複選篩選
-        let selectedCandidate = null;
-        for (const st of scoredStations.slice(0, 10)) {
-            const evOptions = await fetchEvChargeDetails(st.station.place_id);
-            const specs = parseEvSpecs(evOptions, st.station.name);
+    // 6. 依序向 Places API 請求槍頭規格與功率進行複選篩選
+    let selectedCandidate = null;
+    for (const st of scoredStations.slice(0, 10)) {
+        const evOptions = await fetchEvChargeDetails(st.station.place_id);
+        const specs = parseEvSpecs(evOptions, st.station.name);
 
-            // ⚡ 1. 槍頭規格複選篩選
-            if (!abrpSelectedConnectors.has('ALL')) {
-                const isMatch = specs.connectors.some(c => abrpSelectedConnectors.has(c));
-                if (!isMatch) continue;
-            }
-
-// ⚡ 2. 充電功率複選篩選（獨立區間）
-            if (!abrpSelectedPowers.has('ALL')) {
-                const kw = specs.maxKw > 0 ? specs.maxKw : (specs.isFast ? 120 : 7);
-                
-                const matchesPower = Array.from(abrpSelectedPowers).some(p => {
-                    if (p === 'FAST_HIGH') return kw >= 150;           // ≥150kW (360kW 在這裡)
-                    if (p === 'FAST_MID')  return kw >= 50 && kw < 150; // 50~149kW (60/100/120kW 在這裡)
-                    if (p === 'SLOW')      return kw < 50;              // 慢充 (<50kW)
-                    return false;
-                });
-
-                if (!matchesPower) continue; // 不在勾選的區間內就過濾掉
-            }
-
-            selectedCandidate = { station: st.station, specs };
-            break;
+        if (!abrpSelectedConnectors.has('ALL')) {
+            const isMatch = specs.connectors.some(c => abrpSelectedConnectors.has(c));
+            if (!isMatch) continue;
         }
 
-        if (!selectedCandidate) {
-            const connNames = Array.from(abrpSelectedConnectors).join('/');
-            const powerNames = Array.from(abrpSelectedPowers).join('/');
-            stopDiv.innerHTML = `<div class="p-3 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-xl font-bold">⚠️ 極限電量範圍內未找到符合槍頭 [${connNames}] 與功率 [${powerNames}] 的充電站，建議放寬條件！</div>`;
-            return;
-        }
-
-        const bestStation = selectedCandidate.station;
-        const specs = selectedCandidate.specs;
-
-        const stationName = bestStation.name || "沿線推薦充電站";
-        const stationAddress = bestStation.vicinity || bestStation.formatted_address || "國道服務區或主要幹道沿線";
-        const isRestArea = (stationName.includes('服務區') || stationName.includes('休息站'));
-
-        const targetSocRef = startSoc <= 25 ? 10 : 18;
-        const neededKwh = AppState.batteryCapacity * ((80 - targetSocRef) / 100);
-        const effectiveKw = specs.maxKw > 0 ? Math.min(specs.maxKw, 100) : 85;
-        const chargingMinutes = Math.round((neededKwh / effectiveKw) * 60);
-
-        const stationLoc = bestStation.geometry.location;
-        const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(stationName)}&destination_place_id=${bestStation.place_id || ''}`;
-
-        const stationCardHtml = `
-            <div class="bg-white/90 dark:bg-black/50 p-3 sm:p-3.5 rounded-2xl border ${isRestArea ? 'border-amber-400 dark:border-amber-500 shadow-[0_0_15px_rgba(251,191,36,0.15)]' : 'border-teal-400'} mt-1 shadow-sm space-y-2.5">
-                <div class="flex items-start justify-between gap-2">
-                    <div class="flex items-start gap-1.5 min-w-0">
-                        <span class="text-base shrink-0 leading-snug">${isRestArea ? '☕' : '⚡'}</span>
-                        <div class="font-black text-amber-950 dark:text-amber-200 text-xs sm:text-sm leading-snug break-words line-clamp-2">
-                            ${escapeHTML(stationName)}
-                        </div>
-                    </div>
-                    <span class="bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 text-[9.5px] font-black px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1">
-                        <span>🛣️</span> 順路沿線
-                    </span>
-                </div>
-
-                <div class="flex flex-wrap items-center gap-1.5 pt-0.5">
-                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${specs.isFast ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800/50' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'} text-[10px] font-mono font-bold border">
-                        ⚡ 功率: ${specs.powerLabel}
-                    </span>
-                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${specs.hasCcs1 ? 'bg-teal-100 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 border-teal-200 dark:border-teal-800/50' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'} text-[10px] font-mono font-bold border">
-                        🔌 槍頭: ${specs.connectorLabel}
-                    </span>
-                </div>
-
-                <div class="flex items-center justify-between gap-2 text-[10px] sm:text-[11px]">
-                    <div class="text-slate-500 dark:text-slate-400 font-bold flex items-center gap-1 min-w-0">
-                        <span class="shrink-0">📍</span>
-                        <span class="truncate">${escapeHTML(stationAddress)}</span>
-                    </div>
-                    <span class="bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-md font-black shrink-0 whitespace-nowrap shadow-sm">
-                        ⏱️ 補電約 ${chargingMinutes} 分
-                    </span>
-                </div>
-
-                <div class="pt-2 border-t border-amber-100 dark:border-amber-900/40 flex items-center justify-between gap-2">
-                    <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">建議於極限里程前停靠，充至 <b>80%</b> 繼續行程。</p>
-                    <a href="${navUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-[10px] sm:text-xs font-black shadow-sm shrink-0 active:scale-95 transition">
-                        <span>🗺️</span> 導航此站
-                    </a>
-                </div>
-            </div>
-        `;
-
-        if (routeIdx === 0) {
-            if (abrpChargerMarker) abrpChargerMarker.setMap(null);
-            abrpChargerMarker = new google.maps.Marker({
-                position: stationLoc,
-                map: abrpMap,
-                icon: {
-                    path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-                    fillColor: '#10b981',
-                    fillOpacity: 1,
-                    strokeWeight: 1.5,
-                    strokeColor: '#ffffff',
-                    scale: 1.5,
-                    anchor: new google.maps.Point(12, 22)
-                },
-                title: `沿線推薦充電站：${stationName}`
+        if (!abrpSelectedPowers.has('ALL')) {
+            const kw = specs.maxKw > 0 ? specs.maxKw : (specs.isFast ? 120 : 7);
+            const matchesPower = Array.from(abrpSelectedPowers).some(p => {
+                if (p === 'FAST_HIGH') return kw >= 150;
+                if (p === 'FAST_MID')  return kw >= 50 && kw < 150;
+                if (p === 'SLOW')      return kw < 50;
+                return false;
             });
+            if (!matchesPower) continue;
         }
 
-        if (pkRouteCache[routeIdx]) {
-            pkRouteCache[routeIdx].stationCardHtml = stationCardHtml;
-            pkRouteCache[routeIdx].stationLocation = stationLoc;
-            pkRouteCache[routeIdx].stationTitle = stationName;
-            pkRouteCache[routeIdx].stationAddress = stationAddress;
-            pkRouteCache[routeIdx].isReady = true;
-        }
+        selectedCandidate = { station: st.station, specs };
+        break;
+    }
 
-        const activeRouteIndex = abrpDirectionsRenderer ? abrpDirectionsRenderer.getRouteIndex() : 0;
-        if (activeRouteIndex === routeIdx) {
-            const stopDivEl = document.getElementById('abrpStopRecommendation');
-            if (stopDivEl) stopDivEl.innerHTML = stationCardHtml;
-        }
-    });
+    if (!selectedCandidate) {
+        const connNames = Array.from(abrpSelectedConnectors).join('/');
+        const powerNames = Array.from(abrpSelectedPowers).join('/');
+        if (stopDiv) stopDiv.innerHTML = `<div class="p-3 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-xl font-bold">⚠️ 極限電量範圍內未找到符合槍頭 [${connNames}] 與功率 [${powerNames}] 的充電站，建議放寬條件！</div>`;
+        return;
+    }
+
+    const bestStation = selectedCandidate.station;
+    const specs = selectedCandidate.specs;
+
+    const stationName = bestStation.name || "沿線推薦充電站";
+    const stationAddress = bestStation.vicinity || bestStation.formatted_address || "國道服務區或主要幹道沿線";
+    const isRestArea = (stationName.includes('服務區') || stationName.includes('休息站'));
+
+    const targetSocRef = startSoc <= 25 ? 10 : 18;
+    const neededKwh = AppState.batteryCapacity * ((80 - targetSocRef) / 100);
+    const effectiveKw = specs.maxKw > 0 ? Math.min(specs.maxKw, 100) : 85;
+    const chargingMinutes = Math.round((neededKwh / effectiveKw) * 60);
+
+    const stationLoc = bestStation.geometry.location;
+    const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(stationName)}&destination_place_id=${bestStation.place_id || ''}`;
+
+    const stationCardHtml = `
+        <div class="bg-white/90 dark:bg-black/50 p-3 sm:p-3.5 rounded-2xl border ${isRestArea ? 'border-amber-400 dark:border-amber-500 shadow-[0_0_15px_rgba(251,191,36,0.15)]' : 'border-teal-400'} mt-1 shadow-sm space-y-2.5">
+            <div class="flex items-start justify-between gap-2">
+                <div class="flex items-start gap-1.5 min-w-0">
+                    <span class="text-base shrink-0 leading-snug">${isRestArea ? '☕' : '⚡'}</span>
+                    <div class="font-black text-amber-950 dark:text-amber-200 text-xs sm:text-sm leading-snug break-words line-clamp-2">
+                        ${escapeHTML(stationName)}
+                    </div>
+                </div>
+                <span class="bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 text-[9.5px] font-black px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1">
+                    <span>🛣️</span> 順路沿線
+                </span>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-1.5 pt-0.5">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${specs.isFast ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800/50' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'} text-[10px] font-mono font-bold border">
+                    ⚡ 功率: ${specs.powerLabel}
+                </span>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${specs.hasCcs1 ? 'bg-teal-100 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 border-teal-200 dark:border-teal-800/50' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'} text-[10px] font-mono font-bold border">
+                    🔌 槍頭: ${specs.connectorLabel}
+                </span>
+            </div>
+
+            <div class="flex items-center justify-between gap-2 text-[10px] sm:text-[11px]">
+                <div class="text-slate-500 dark:text-slate-400 font-bold flex items-center gap-1 min-w-0">
+                    <span class="shrink-0">📍</span>
+                    <span class="truncate">${escapeHTML(stationAddress)}</span>
+                </div>
+                <span class="bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-md font-black shrink-0 whitespace-nowrap shadow-sm">
+                    ⏱️ 補電約 ${chargingMinutes} 分
+                </span>
+            </div>
+
+            <div class="pt-2 border-t border-amber-100 dark:border-amber-900/40 flex items-center justify-between gap-2">
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">建議於極限里程前停靠，充至 <b>80%</b> 繼續行程。</p>
+                <a href="${navUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-[10px] sm:text-xs font-black shadow-sm shrink-0 active:scale-95 transition">
+                    <span>🗺️</span> 導航此站
+                </a>
+            </div>
+        </div>
+    `;
+
+    if (routeIdx === 0) {
+        if (abrpChargerMarker) abrpChargerMarker.setMap(null);
+        abrpChargerMarker = new google.maps.Marker({
+            position: stationLoc,
+            map: abrpMap,
+            icon: {
+                path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+                fillColor: '#10b981',
+                fillOpacity: 1,
+                strokeWeight: 1.5,
+                strokeColor: '#ffffff',
+                scale: 1.5,
+                anchor: new google.maps.Point(12, 22)
+            },
+            title: `沿線推薦充電站：${stationName}`
+        });
+    }
+
+    if (pkRouteCache[routeIdx]) {
+        pkRouteCache[routeIdx].stationCardHtml = stationCardHtml;
+        pkRouteCache[routeIdx].stationLocation = stationLoc;
+        pkRouteCache[routeIdx].stationTitle = stationName;
+        pkRouteCache[routeIdx].stationAddress = stationAddress;
+        pkRouteCache[routeIdx].isReady = true;
+    }
+
+    const activeRouteIndex = abrpDirectionsRenderer ? abrpDirectionsRenderer.getRouteIndex() : 0;
+    if (activeRouteIndex === routeIdx) {
+        const stopDivEl = document.getElementById('abrpStopRecommendation');
+        if (stopDivEl) stopDivEl.innerHTML = stationCardHtml;
+    }
 }
         
 // 唯一保留的快取渲染函式（支援動態補電次數）
