@@ -5270,10 +5270,14 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         </div>
     `;
 
-// ⚡ 台灣國道服務區完整快充資料庫 (高公局全線 15 處服務區 + 東草屯 100% 覆蓋版)
+// ⚡ 台灣國道服務區完整快充資料庫 (依高公局官方站點清單 100% 對齊版)
     const TAIWAN_REST_AREA_CHARGERS = [
         // 🔹 國道 1 號
-        { name: "中壢服務區 (iCharging 快充站)", lat: 24.9806, lng: 121.2294, highway: "國道1號", power: "350 kW", conn: "CCS1 / CCS2" },
+        { 
+            name: "中壢服務區 (EVOASIS 快充站)", 
+            lat: 24.9806, lng: 121.2294, 
+            highway: "國道1號", power: "360 kW", conn: "CCS1 / CCS2" 
+        },
         { 
             name: "湖口服務區", 
             hasDirection: true,
@@ -5291,32 +5295,30 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         { 
             name: "西螺服務區", 
             hasDirection: true,
-            south: { name: "西螺服務區南站 (EVOASIS 快充站)", lat: 23.7735, lng: 120.4568 },
-            north: { name: "西螺服務區北站 (EVOASIS 快充站)", lat: 23.7758, lng: 120.4589 },
-            lat: 23.7745, lng: 120.4578, highway: "國道1號", power: "360 kW", conn: "CCS1 / CCS2" 
+            south: { name: "西螺服務區南站 (iCharging 快充站)", lat: 23.7735, lng: 120.4568 },
+            north: { name: "西螺服務區北站 (iCharging 快充站)", lat: 23.7758, lng: 120.4589 },
+            lat: 23.7745, lng: 120.4578, highway: "國道1號", power: "350 kW", conn: "CCS1 / CCS2" 
         },
         { 
             name: "新營服務區", 
             hasDirection: true,
-            south: { name: "新營服務區南站 (特爾電力 快充站)", lat: 23.3086, lng: 120.3005 },
-            north: { name: "新營服務區北站 (特爾電力 快充站)", lat: 23.3116, lng: 120.3025 },
-            lat: 23.3101, lng: 120.3015, highway: "國道1號", power: "350 kW", conn: "CCS1 / CCS2" 
+            south: { name: "新營服務區南站 (iCharging 快充站)", lat: 23.3086, lng: 120.3005 },
+            north: { name: "新營服務區北站 (iCharging 快充站)", lat: 23.3116, lng: 120.3025 },
+            lat: 23.3101, lng: 120.3015, highway: "國道1號", power: "200 kW", conn: "CCS1 / CCS2" 
         },
         { 
             name: "仁德服務區", 
             hasDirection: true,
-            south: { name: "仁德服務區南站 (特爾電力 快充站)", lat: 22.9555, lng: 120.2498 },
-            north: { name: "仁德服務區北站 (特爾電力 快充站)", lat: 22.9580, lng: 120.2512 },
-            lat: 22.9567, lng: 120.2505, highway: "國道1號", power: "200 kW", conn: "CCS1 / CCS2" 
+            south: { name: "仁德服務區南站 (iCharging 快充站)", lat: 22.9555, lng: 120.2498 },
+            north: { name: "仁德服務區北站 (iCharging 快充站)", lat: 22.9580, lng: 120.2512 },
+            lat: 22.9567, lng: 120.2505, highway: "國道1號", power: "350 kW", conn: "CCS1 / CCS2" 
         },
 
         // 🔹 國道 3 號
         { 
-            name: "關西服務區", 
-            hasDirection: true,
-            south: { name: "關西服務區南下 (iCharging 快充站)", lat: 24.8008, lng: 121.1818 },
-            north: { name: "關西服務區北上 (iCharging 快充站)", lat: 24.8025, lng: 121.1832 },
-            lat: 24.8016, lng: 121.1824, highway: "國道3號", power: "350 kW", conn: "CCS1 / CCS2" 
+            name: "關西服務區 (iCharging 快充站)", 
+            lat: 24.8016, lng: 121.1824, 
+            highway: "國道3號", power: "350 kW", conn: "CCS1 / CCS2" 
         },
         { 
             name: "西湖服務區", 
@@ -5325,10 +5327,26 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
             north: { name: "西湖服務區北站 (EVOASIS 快充站)", lat: 24.5415, lng: 120.7648 },
             lat: 24.5428, lng: 120.7634, highway: "國道3號", power: "360 kW", conn: "CCS1 / CCS2" 
         },
-        { name: "清水服務區 (iCharging / Yes Energy 快充站)", lat: 24.2694, lng: 120.5969, highway: "國道3號", power: "350 kW", conn: "CCS1 / CCS2" },
-        { name: "南投服務區 (iCharging 快充站)", lat: 23.9019, lng: 120.7121, highway: "國道3號", power: "350 kW", conn: "CCS1 / CCS2" },
-        { name: "古坑服務區 (EVOASIS 快充站)", lat: 23.6339, lng: 120.5732, highway: "國道3號", power: "360 kW", conn: "CCS1 / CCS2" },
-        { name: "東山服務區 (EVOASIS 快充站)", lat: 23.3082, lng: 120.4079, highway: "國道3號", power: "360 kW", conn: "CCS1 / CCS2" },
+        { 
+            name: "清水服務區 (iCharging 快充站)", 
+            lat: 24.2694, lng: 120.5969, 
+            highway: "國道3號", power: "350 kW", conn: "CCS1 / CCS2" 
+        },
+        { 
+            name: "南投服務區 (EVOASIS 快充站)", 
+            lat: 23.9019, lng: 120.7121, 
+            highway: "國道3號", power: "360 kW", conn: "CCS1 / CCS2" 
+        },
+        { 
+            name: "古坑服務區 (iCharging 快充站)", 
+            lat: 23.6339, lng: 120.5732, 
+            highway: "國道3號", power: "350 kW", conn: "CCS1 / CCS2" 
+        },
+        { 
+            name: "東山服務區 (iCharging 快充站)", 
+            lat: 23.3082, lng: 120.4079, 
+            highway: "國道3號", power: "350 kW", conn: "CCS1 / CCS2" 
+        },
         { 
             name: "關廟服務區", 
             hasDirection: true,
@@ -5338,11 +5356,23 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         },
 
         // 🔹 國道 5 號
-        { name: "石碇服務區 (iCharging 快充站)", lat: 24.9942, lng: 121.6425, highway: "國道5號", power: "200 kW", conn: "CCS1 / CCS2" },
-        { name: "蘇澳服務區 (EVOASIS 快充站)", lat: 24.6025, lng: 121.8295, highway: "國道5號", power: "360 kW", conn: "CCS1 / CCS2" },
+        { 
+            name: "石碇服務區 (iCharging 快充站)", 
+            lat: 24.9942, lng: 121.6425, 
+            highway: "國道5號", power: "60 kW", conn: "CCS1 / CCS2" 
+        },
+        { 
+            name: "蘇澳服務區 (iCharging 快充站)", 
+            lat: 24.6025, lng: 121.8295, 
+            highway: "國道5號", power: "350 kW", conn: "CCS1 / CCS2" 
+        },
 
         // 🔹 國道 6 號
-        { name: "東草屯休息站 (EVOASIS 快充站)", lat: 23.9982, lng: 120.7516, highway: "國道6號", power: "360 kW", conn: "CCS1 / CCS2" }
+        { 
+            name: "東草屯休息站 (EVOASIS 快充站)", 
+            lat: 23.9982, lng: 120.7516, 
+            highway: "國道6號", power: "360 kW", conn: "CCS1 / CCS2" 
+        }
     ];
 
     // ⚡ 1. 讀取自訂充電門檻，計算行駛到該電量時的行駛里程 (criticalDistanceKm)
