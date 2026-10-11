@@ -4594,16 +4594,19 @@ window.planElectricRoute = async function() {
                 destPoiCard.innerHTML = '';
             }
 
+            // 優先取得處理後的景點/地標名稱
+            const cleanDestTitle = getShortLocationName(destName);
+
             // 優先比對地名關鍵字（反應最快且最準確）
             if (isTouristOrPoiDestination(destName, [])) {
-                searchDestinationCharging(destLeg.end_location, getShortLocationName(destName));
+                searchDestinationCharging(destLeg.end_location, cleanDestTitle);
             } else {
                 // 名稱未直接命中時，透過反查地點類型進行二次檢驗
                 const geocoder = new google.maps.Geocoder();
                 geocoder.geocode({ location: destLeg.end_location }, (results, gStatus) => {
                     const placeTypes = (gStatus === 'OK' && results?.[0]?.types) ? results[0].types : [];
                     if (isTouristOrPoiDestination(destName, placeTypes)) {
-                        searchDestinationCharging(destLeg.end_location, getShortLocationName(destName));
+                        searchDestinationCharging(destLeg.end_location, cleanDestTitle);
                     }
                 });
             }
@@ -4837,20 +4840,29 @@ function parseEvSpecs(evOptions, stationName = '') {
         connectors
     };
 }
-        // 自動將長地址精簡為乾淨的地名或地標（例如：「桃園中壢」、「高雄巨蛋」）
+// 自動萃取地名：若有明確地標/景點名稱優先保留，僅在純長地址時才精簡
 function getShortLocationName(locStr) {
-    if (!locStr) return '地點';
+    if (!locStr) return '目的地';
     if (locStr.includes('目前位置') || locStr.includes('定位中')) return '目前位置';
 
     let str = locStr.replace(/^[0-9\s]*台灣\s*/, '').trim();
 
-    // 1. 若最後有獨立的地標名稱（如「...高雄巨蛋」），優先抓取地標
-    const words = str.split(/\s+/);
-    if (words.length > 1 && words[words.length - 1].length >= 2) {
-        return words[words.length - 1].slice(0, 6);
+    // 1. 若使用者輸入的本身就是明確的景點/地標（不含詳細路名號碼），直接完整呈現
+    const isPureAddress = /([路街道巷弄號段]|[\d-]+號)/.test(str);
+    if (!isPureAddress && str.length <= 15) {
+        return str; // 直接保留完整景點名，如「福壽山農場」、「清境農場」
     }
 
-    // 2. 若為一般地址，萃取「縣市＋區鄉鎮」（如「桃園市中壢區...」->「桃園中壢」）
+    // 2. 若輸入的是長地址，優先抓取最後面的地標名稱（例如「台中市和平區...福壽山農場」-> 抓「福壽山農場」）
+    const words = str.split(/\s+/);
+    if (words.length > 1) {
+        const lastWord = words[words.length - 1];
+        if (lastWord.length >= 2 && !/^\d+/.test(lastWord)) {
+            return lastWord.slice(0, 10);
+        }
+    }
+
+    // 3. 若為純門牌號碼地址且無地標，才退回「縣市＋行政區」
     const match = str.match(/(..[市縣])?(..[區市鎮鄉])/);
     if (match) {
         const city = match[1] ? match[1].replace(/[市縣]/, '') : '';
@@ -4858,7 +4870,7 @@ function getShortLocationName(locStr) {
         return `${city}${dist}`.slice(0, 6);
     }
 
-    return str.slice(0, 6);
+    return str.slice(0, 8);
 }
 
 function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
