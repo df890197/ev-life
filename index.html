@@ -5532,8 +5532,21 @@ const validCandidates = [];
         }
     });
 
-    const selectedStation = validCandidates[bestIdx];
+const selectedStation = validCandidates[bestIdx];
     const nextCandidate = validCandidates[bestIdx + 1] || null;
+
+    // 🔋 1. 精準對準選定站點 (selectedStation) 計算抵達電量
+    const distToCurrent = selectedStation.kmFromStart || 0;
+    const kwhToCurrent = distToCurrent / (realEff > 0 ? realEff : 5.5);
+    const estSocAtCurrent = Math.max(0, Math.round(startSoc - ((kwhToCurrent / AppState.batteryCapacity) * 100)));
+
+    // 🎨 2. 依據抵達電量決定標籤顏色 (≤10% 紅色必充警戒、11~20% 黃色提醒、>20% 綠色安心)
+    let currentSocBadgeClass = "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700/60";
+    if (estSocAtCurrent <= 10) {
+        currentSocBadgeClass = "bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-700/60";
+    } else if (estSocAtCurrent <= 20) {
+        currentSocBadgeClass = "bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-700/60";
+    }
 
     // ⚡ 判定是否為「🚨 必充警戒」
     let isMustCharge = false;
@@ -5601,7 +5614,7 @@ const validCandidates = [];
                 <span>🛣️</span> 交流道站
             </span>`;
 
-            const stationCardHtml = `
+const stationCardHtml = `
                 <div class="bg-white/90 dark:bg-black/50 p-3 sm:p-3.5 rounded-2xl border ${isMustCharge ? 'border-rose-400 dark:border-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.18)]' : (isRestArea ? 'border-amber-400 dark:border-amber-500' : 'border-teal-400')} mt-1 shadow-sm space-y-2.5">
                     ${urgencyNoticeHtml}
                     <div class="flex items-start justify-between gap-2 pt-0.5">
@@ -5613,34 +5626,42 @@ const validCandidates = [];
                         </div>
                         ${stopTypeBadge}
                     </div>
+                    
+                    <!-- 規格標籤橫排列 (電量 + 功率 + 槍頭三者並列) -->
+                    <div class="flex flex-wrap items-center gap-1.5 pt-0.5">
+                        <!-- 🔋 抵達預估電量標籤 -->
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-black border ${currentSocBadgeClass} shadow-sm">
+                            <span>🔋</span>
+                            <span>抵達約 ${estSocAtCurrent}%</span>
+                        </span>
+                        <!-- ⚡ 功率標籤 -->
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${specs.isFast ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800/50' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'} text-[10px] font-mono font-bold border">
+                            ⚡ 功率: ${specs.powerLabel}
+                        </span>
+                        <!-- 🔌 槍頭標籤 -->
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${specs.hasCcs1 ? 'bg-teal-100 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 border-teal-200 dark:border-teal-800/50' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'} text-[10px] font-mono font-bold border">
+                            🔌 槍頭: ${specs.connectorLabel}
+                        </span>
+                    </div>
 
-            <div class="flex flex-wrap items-center gap-1.5 pt-0.5">
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${specs.isFast ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800/50' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'} text-[10px] font-mono font-bold border">
-                    ⚡ 功率: ${specs.powerLabel}
-                </span>
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${specs.hasCcs1 ? 'bg-teal-100 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 border-teal-200 dark:border-teal-800/50' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'} text-[10px] font-mono font-bold border">
-                    🔌 槍頭: ${specs.connectorLabel}
-                </span>
-            </div>
+                    <div class="flex items-center justify-between gap-2 text-[10px] sm:text-[11px]">
+                        <div class="text-slate-500 dark:text-slate-400 font-bold flex items-center gap-1 min-w-0">
+                            <span class="shrink-0">📍</span>
+                            <span class="truncate">${escapeHTML(stationAddress)}</span>
+                        </div>
+                        <span class="bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-md font-black shrink-0 whitespace-nowrap shadow-sm">
+                            ⏱️ 補電約 ${chargingMinutes} 分
+                        </span>
+                    </div>
 
-            <div class="flex items-center justify-between gap-2 text-[10px] sm:text-[11px]">
-                <div class="text-slate-500 dark:text-slate-400 font-bold flex items-center gap-1 min-w-0">
-                    <span class="shrink-0">📍</span>
-                    <span class="truncate">${escapeHTML(stationAddress)}</span>
+                    <div class="pt-2 border-t border-amber-100 dark:border-amber-900/40 flex items-center justify-between gap-2">
+                        <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">建議於極限里程前停靠，充至 <b>80%</b> 繼續行程。</p>
+                        <a href="${navUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-[10px] sm:text-xs font-black shadow-sm shrink-0 active:scale-95 transition">
+                            <span>🗺️</span> 導航此站
+                        </a>
+                    </div>
                 </div>
-                <span class="bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-md font-black shrink-0 whitespace-nowrap shadow-sm">
-                    ⏱️ 補電約 ${chargingMinutes} 分
-                </span>
-            </div>
-
-            <div class="pt-2 border-t border-amber-100 dark:border-amber-900/40 flex items-center justify-between gap-2">
-                <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">建議於極限里程前停靠，充至 <b>80%</b> 繼續行程。</p>
-                <a href="${navUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-[10px] sm:text-xs font-black shadow-sm shrink-0 active:scale-95 transition">
-                    <span>🗺️</span> 導航此站
-                </a>
-            </div>
-        </div>
-    `;
+            `;
 
     if (routeIdx === 0) {
         if (abrpChargerMarker) abrpChargerMarker.setMap(null);
