@@ -4552,7 +4552,7 @@ window.planElectricRoute = async function() {
                     tag.className = `text-[9px] font-black px-1.5 py-0.5 rounded ${traffic.class}`;
                 }
 
-                elevationService.getElevationAlongPath({ path: rt.overview_path, samples: 40 }, (elevations, eStatus) => {
+                    elevationService.getElevationAlongPath({ path: rt.overview_path, samples: 40 }, (elevations, eStatus) => {
                     let climb = 0, descent = 0;
                     if (eStatus === google.maps.ElevationStatus.OK && elevations?.length > 1) {
                         for (let i = 1; i < elevations.length; i++) {
@@ -4562,15 +4562,17 @@ window.planElectricRoute = async function() {
                         }
                     }
                     const baseEff = AppState.globalAvgEfficiency > 0 ? AppState.globalAvgEfficiency : 5.5;
-                    const flatKwh = distKm / baseEff;
+                    const isDown = (descent > climb * 2 && descent > 300);
+                    const effBase = isDown ? Math.max(baseEff, 7.5) : baseEff;
+                    const flatKwh = distKm / effBase;
                     const netElevationKwh = (climb / 100) * 0.65 - (descent / 100) * 0.45;
-                    const totalKwh = Math.max(1, flatKwh + netElevationKwh);
-                    const realEff = distKm / totalKwh;
-                    const arrivalSoc = Math.round(startSoc - (totalKwh / AppState.batteryCapacity * 100));
+                    const totalKwh = flatKwh + netElevationKwh;
+                    const realEff = totalKwh > 0 ? (distKm / totalKwh) : 0;
+                    const arrivalSoc = Math.min(100, Math.round(startSoc - (totalKwh / AppState.batteryCapacity * 100)));
 
                     const effEl = document.getElementById(`pkEff${idx}`);
                     const socEl = document.getElementById(`pkSoc${idx}`);
-                    if (effEl) effEl.textContent = `${realEff.toFixed(2)} km/度`;
+                    if (effEl) effEl.textContent = totalKwh <= 0 ? '動能回充中' : `${realEff.toFixed(2)} km/度`;
                     if (socEl) {
                         socEl.textContent = `${arrivalSoc}%`;
                         socEl.className = arrivalSoc < 15 ? 'font-mono text-rose-500 font-black' : 'font-mono text-emerald-500 font-black';
@@ -4931,20 +4933,21 @@ const startInp = document.getElementById('routeStartInput')?.value || "起點";
             }
         }
 
-        const flatEnergyKwh = totalDistanceKm / baseHighwayEff;
+        // 判定是否為連續大下坡路段（下坡低速滑行，平路阻力顯著降低）
+        const isSteepDownhill = (totalDescentMeters > totalClimbMeters * 2 && totalDescentMeters > 300);
+        const effectiveHighwayEff = isSteepDownhill ? Math.max(baseHighwayEff, 7.5) : baseHighwayEff;
+
+        const flatEnergyKwh = totalDistanceKm / effectiveHighwayEff;
         const climbEnergyKwh = (totalClimbMeters / 100) * 0.65;
         const regenEnergyKwh = (totalDescentMeters / 100) * 0.45;
         const netElevationEnergyKwh = climbEnergyKwh - regenEnergyKwh;
 
-        // ⚡ 淨耗電度數：允許負值（負值代表下坡回充大於平路滾阻耗能）
-        const netConsumedKwh = flatEnergyKwh + netElevationEnergyKwh;
-        const consumedSocPercent = (netConsumedKwh / AppState.batteryCapacity) * 100;
-        
-        // 抵達電量上限為 100%
-        const directArrivalSoc = Math.min(100, Math.max(0, Math.round(startSoc - consumedSocPercent)));
-        
-        // 均耗顯示：若全趟是淨回充，顯示回充均耗
-        const realEff = netConsumedKwh > 0 ? (totalDistanceKm / netConsumedKwh) : (totalDistanceKm / Math.abs(netConsumedKwh || 1));
+        // 移除 Math.max(1, ...)，允許能耗為負數（即動能回充電量）
+        const totalConsumedKwh = flatEnergyKwh + netElevationEnergyKwh;
+        const totalConsumedSoc = (totalConsumedKwh / AppState.batteryCapacity) * 100;
+        // 電量回充時上限不超過 100%
+        const directArrivalSoc = Math.min(100, Math.round(startSoc - totalConsumedSoc));
+        const realEff = totalConsumedKwh > 0 ? (totalDistanceKm / totalConsumedKwh) : 0;
 
         const currentAvailKwh = (startSoc / 100) * AppState.batteryCapacity;
         const deficitKwh = totalConsumedKwh - currentAvailKwh;
@@ -4952,7 +4955,14 @@ const startInp = document.getElementById('routeStartInput')?.value || "起點";
         const neededStops = deficitKwh > 0 ? Math.ceil(deficitKwh / singleChargeKwh) : 0;
 
         const profileEffEl = document.getElementById('abrpProfileEffText');
-        if (profileEffEl) profileEffEl.textContent = `均耗 ${realEff.toFixed(2)} km/度`;
+        if (profileEffEl) {
+            if (totalConsumedKwh <= 0) {
+                const gained = directArrivalSoc - startSoc;
+                profileEffEl.textContent = gained > 0 ? `均耗 動能回充 +${gained}%` : `均耗 動能回充中`;
+            } else {
+                profileEffEl.textContent = `均耗 ${realEff.toFixed(2)} km/度`;
+            }
+        }
 
         let routeProfileText = "";
         if (maxElevation >= 1000 || totalClimbMeters >= 800) routeProfileText = `高海拔山區 (爬升 +${Math.round(totalClimbMeters)}m)`;
@@ -4994,21 +5004,13 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, ro
 
     const directSocEl = document.getElementById('abrpDirectSoc');
     if (directSocEl) {
-        const isRegen = directArrivalSoc > startSoc;
         const isLowSoc = directArrivalSoc < 15;
-        let statusText = '安全無虞';
-        let numColor = 'text-emerald-500';
-        let statusColor = 'text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/40';
+        const isRegen = directArrivalSoc > startSoc;
+        let statusText = isLowSoc ? '需中途補電' : '安全無虞';
+        if (isRegen) statusText = `回充 +${directArrivalSoc - startSoc}%`;
 
-        if (isRegen) {
-            statusText = `動能倒充 +${directArrivalSoc - startSoc}%`;
-            numColor = 'text-cyan-400 font-black';
-            statusColor = 'text-cyan-600 dark:text-cyan-300 bg-cyan-100 dark:bg-cyan-900/40 border border-cyan-400/30';
-        } else if (isLowSoc) {
-            statusText = '需中途補電';
-            numColor = 'text-rose-500';
-            statusColor = 'text-rose-600 dark:text-rose-400 bg-rose-100 dark:bg-rose-900/40';
-        }
+        const numColor = isLowSoc ? 'text-rose-500' : 'text-emerald-500';
+        const statusColor = isLowSoc ? 'text-rose-600 dark:text-rose-400 bg-rose-100 dark:bg-rose-900/40' : 'text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/40';
         directSocEl.className = `text-sm sm:text-base font-black font-mono tracking-tight leading-tight flex flex-col items-center justify-center ${numColor}`;
         directSocEl.innerHTML = `<span>${directArrivalSoc}%</span><span class="text-[9px] font-black px-1.5 py-0.5 rounded mt-0.5 tracking-normal whitespace-nowrap ${statusColor}">${statusText}</span>`;
     }
