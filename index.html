@@ -4402,7 +4402,7 @@ function initAbrpAutocomplete() {
                 const startAuto = new google.maps.places.Autocomplete(startInput, options);
                 const endAuto = new google.maps.places.Autocomplete(endInput, options);
 
-                // 🎯 起點選取後，強制保留地標景點名稱（避免被 Google 覆寫成純地址）
+                // 🎯 起點點選下拉選單時，強制保留使用者選取的「地標/車站名稱」
                 startAuto.addListener("place_changed", () => {
                     const place = startAuto.getPlace();
                     if (place && place.name) {
@@ -4411,7 +4411,7 @@ function initAbrpAutocomplete() {
                     toggleRouteClearBtn('routeStartInput', 'btnClearStart');
                 });
 
-                // 🎯 終點選取後，強制保留地標景點名稱
+                // 🎯 終點點選下拉選單時，強制保留使用者選取的「地標/車站名稱」
                 endAuto.addListener("place_changed", () => {
                     const place = endAuto.getPlace();
                     if (place && place.name) {
@@ -4859,35 +4859,38 @@ function parseEvSpecs(evOptions, stationName = '') {
     };
 }
         
-// 自動萃取地名：即便帶有縣市區，優先剝除前綴萃取真正的景點名
+// 自動萃取地名：車站、景點地標一律完整保留，只有純門牌地址時才退回行政區
 function getShortLocationName(locStr) {
     if (!locStr) return '目的地';
     if (locStr.includes('目前位置') || locStr.includes('定位中')) return '目前位置';
 
     let str = locStr.replace(/^[0-9\s]*台灣\s*/, '').trim();
 
-    // 1. 剝除前綴「縣市＋行政區＋村里」（例如「台中市和平區福壽山農場」->「福壽山農場」）
-    const stripAdmin = str.replace(/^(?:..[市縣])?(?:..[區市鎮鄉])?(?:..[村里])?/, '').trim();
-    if (stripAdmin && stripAdmin.length >= 2 && !/^([路街道巷弄號段]|[\d-]+號)/.test(stripAdmin)) {
-        return stripAdmin.slice(0, 12);
+    // 🎯 1. 核心白名單：若包含車站、機場、轉運站或知名景點關鍵字，精準抓取該名稱並完整保留
+    const landmarkMatch = str.match(/(?:[\u4e00-\u9fa5]{2,6})?(?:火車站|高鐵站|轉運站|捷運站|車站|機場|碼頭|農場|園區|遊樂|森林|步道|風景區|水庫|漁港|糖廠|牧場|飯店|民宿|商場|Outlet|夜市|老街)/);
+    if (landmarkMatch && landmarkMatch[0]) {
+        // 剝除可能黏在前綴的縣市區（例如「桃園市桃園火車站」->「桃園火車站」）
+        const cleanName = landmarkMatch[0].replace(/^(?:..[市縣])?(?:..[區市鎮鄉])?/, '');
+        if (cleanName.length >= 2) return cleanName.slice(0, 10);
+        return landmarkMatch[0].slice(0, 10);
     }
 
-    // 2. 若為長地址且最後帶有地標（如「...福壽路29號福壽山農場」-> 提取「福壽山農場」）
-    const afterNumberMatch = str.match(/[\d-]+號\s*([^\d\s]{2,15})$/);
-    if (afterNumberMatch && afterNumberMatch[1]) {
-        return afterNumberMatch[1].slice(0, 12);
+    // 2. 若本身是不含路名號碼的短地標名稱（如「福壽山」），直接保留
+    if (!/([路街道巷弄號段]|[\d-]+號)/.test(str) && str.length <= 15) {
+        const cleanAdmin = str.replace(/^(?:..[市縣])?(?:..[區市鎮鄉])?/, '').trim();
+        return (cleanAdmin.length >= 2 ? cleanAdmin : str).slice(0, 10);
     }
 
-    // 3. 空格分詞取最後景點詞
+    // 3. 若為長地址且末尾附帶地標名稱（例如「...中正路1號 桃園火車站」）
     const words = str.split(/\s+/);
     if (words.length > 1) {
         const lastWord = words[words.length - 1];
         if (lastWord.length >= 2 && !/^\d+/.test(lastWord) && !/([路街道巷弄號段])$/.test(lastWord)) {
-            return lastWord.slice(0, 12);
+            return lastWord.slice(0, 10);
         }
     }
 
-    // 4. 僅在完全沒有景點名時，才退回「縣市行政區」
+    // 4. 只有在完全沒有地標資訊的純地址時，才顯示「縣市＋行政區」
     const match = str.match(/(..[市縣])?(..[區市鎮鄉])/);
     if (match) {
         const city = match[1] ? match[1].replace(/[市縣]/, '') : '';
