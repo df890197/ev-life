@@ -5270,9 +5270,9 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         </div>
     `;
 
-// ⚡ 台灣國道服務區完整快充資料庫 (全線精準營運商校對 + 支援南北向自動辨識版)
+// ⚡ 台灣國道服務區完整快充資料庫 (高公局全線 15 處服務區 + 東草屯 100% 覆蓋版)
     const TAIWAN_REST_AREA_CHARGERS = [
-        // 國道 1 號
+        // 🔹 國道 1 號
         { name: "中壢服務區 (iCharging 快充站)", lat: 24.9806, lng: 121.2294, highway: "國道1號", power: "350 kW", conn: "CCS1 / CCS2" },
         { 
             name: "湖口服務區", 
@@ -5288,7 +5288,13 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
             north: { name: "泰安服務區北站 (iCharging 快充站)", lat: 24.3060, lng: 120.7202 },
             lat: 24.3045, lng: 120.7188, highway: "國道1號", power: "350 kW", conn: "CCS1 / CCS2" 
         },
-        { name: "西螺服務區 (EVOASIS 快充站)", lat: 23.7745, lng: 120.4578, highway: "國道1號", power: "360 kW", conn: "CCS1 / CCS2" },
+        { 
+            name: "西螺服務區", 
+            hasDirection: true,
+            south: { name: "西螺服務區南站 (EVOASIS 快充站)", lat: 23.7735, lng: 120.4568 },
+            north: { name: "西螺服務區北站 (EVOASIS 快充站)", lat: 23.7758, lng: 120.4589 },
+            lat: 23.7745, lng: 120.4578, highway: "國道1號", power: "360 kW", conn: "CCS1 / CCS2" 
+        },
         { 
             name: "新營服務區", 
             hasDirection: true,
@@ -5304,9 +5310,14 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
             lat: 22.9567, lng: 120.2505, highway: "國道1號", power: "200 kW", conn: "CCS1 / CCS2" 
         },
 
-        // 國道 3 號
-        { name: "木柵休息站 (iCharging 快充站)", lat: 24.9882, lng: 121.5796, highway: "國道3號", power: "200 kW", conn: "CCS1 / CCS2" },
-        { name: "關西服務區 (iCharging 快充站)", lat: 24.8016, lng: 121.1824, highway: "國道3號", power: "350 kW", conn: "CCS1 / CCS2" },
+        // 🔹 國道 3 號
+        { 
+            name: "關西服務區", 
+            hasDirection: true,
+            south: { name: "關西服務區南下 (iCharging 快充站)", lat: 24.8008, lng: 121.1818 },
+            north: { name: "關西服務區北上 (iCharging 快充站)", lat: 24.8025, lng: 121.1832 },
+            lat: 24.8016, lng: 121.1824, highway: "國道3號", power: "350 kW", conn: "CCS1 / CCS2" 
+        },
         { 
             name: "西湖服務區", 
             hasDirection: true,
@@ -5318,11 +5329,20 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         { name: "南投服務區 (iCharging 快充站)", lat: 23.9019, lng: 120.7121, highway: "國道3號", power: "350 kW", conn: "CCS1 / CCS2" },
         { name: "古坑服務區 (EVOASIS 快充站)", lat: 23.6339, lng: 120.5732, highway: "國道3號", power: "360 kW", conn: "CCS1 / CCS2" },
         { name: "東山服務區 (EVOASIS 快充站)", lat: 23.3082, lng: 120.4079, highway: "國道3號", power: "360 kW", conn: "CCS1 / CCS2" },
-        { name: "關廟服務區 (EVOASIS 快充站)", lat: 22.9465, lng: 120.3402, highway: "國道3號", power: "360 kW", conn: "CCS1 / CCS2" },
+        { 
+            name: "關廟服務區", 
+            hasDirection: true,
+            south: { name: "關廟服務區南站 (EVOASIS 快充站)", lat: 22.9452, lng: 120.3395 },
+            north: { name: "關廟服務區北站 (EVOASIS 快充站)", lat: 22.9478, lng: 120.3410 },
+            lat: 22.9465, lng: 120.3402, highway: "國道3號", power: "360 kW", conn: "CCS1 / CCS2" 
+        },
 
-        // 國道 5 號
+        // 🔹 國道 5 號
         { name: "石碇服務區 (iCharging 快充站)", lat: 24.9942, lng: 121.6425, highway: "國道5號", power: "200 kW", conn: "CCS1 / CCS2" },
-        { name: "蘇澳服務區 (EVOASIS 快充站)", lat: 24.6025, lng: 121.8295, highway: "國道5號", power: "360 kW", conn: "CCS1 / CCS2" }
+        { name: "蘇澳服務區 (EVOASIS 快充站)", lat: 24.6025, lng: 121.8295, highway: "國道5號", power: "360 kW", conn: "CCS1 / CCS2" },
+
+        // 🔹 國道 6 號
+        { name: "東草屯休息站 (EVOASIS 快充站)", lat: 23.9982, lng: 120.7516, highway: "國道6號", power: "360 kW", conn: "CCS1 / CCS2" }
     ];
 
     // ⚡ 1. 讀取自訂充電門檻，計算行駛到該電量時的行駛里程 (criticalDistanceKm)
@@ -5349,24 +5369,91 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         return { kmFromStart, distToRouteMeters: minDist };
     }
 
-    const validCandidates = [];
+const validCandidates = [];
 
-// 🎯 2. 偏好為「服務區」時，直接比對國道資料庫（支援南北向自動辨識）
-    if (abrpStopPreference === 'restArea') {
+    // 🧭 行車方向向量分析（整趟路徑：緯度下降 = 南下，緯度上升 = 北上）
+    const startLat = path[0].lat();
+    const endLat = path[path.length - 1].lat();
+    const isSouthbound = endLat < startLat;
+    const dirTag = isSouthbound ? "南站" : "北站";
+
+    // 🎯 1. 沿路線取樣搜尋點（精準定位在車輛預估電量需要補給的區間）
+    const anchorKm = Math.min(totalDistanceKm - 10, Math.max(15, criticalDistanceKm * 0.9));
+    let accM = 0;
+    let searchPoint = path[Math.floor(path.length / 2)];
+    for (let i = 1; i < path.length; i++) {
+        accM += getDistanceFromLatLonInKm(path[i - 1].lat(), path[i - 1].lng(), path[i].lat(), path[i].lng()) * 1000;
+        if (accM / 1000 >= anchorKm) {
+            searchPoint = path[i];
+            break;
+        }
+    }
+
+    // 🎯 2. 動態調用 Google Places API（即時探索線上最新地標）
+    const placesService = new google.maps.places.PlacesService(abrpMap);
+    const searchKeyword = abrpStopPreference === 'restArea' ? '服務區 充電站' : '快充站';
+    const searchRadius = abrpStopPreference === 'restArea' ? 12000 : 8000;
+
+    const placesPromise = new Promise(resolve => {
+        placesService.nearbySearch({
+            location: searchPoint,
+            radius: searchRadius,
+            keyword: searchKeyword
+        }, (results, status) => {
+            resolve((status === google.maps.places.PlacesServiceStatus.OK && results) ? results : []);
+        });
+    });
+
+    const timeoutPromise = new Promise(resolve => setTimeout(() => resolve([]), 3500));
+    const dynamicResults = await Promise.race([placesPromise, timeoutPromise]);
+
+    // 🎯 3. 清洗與補強動態搜尋結果
+    for (const st of dynamicResults.slice(0, 10)) {
+        const n = (st.name || '').toLowerCase();
+        // 排除不相容站點
+        if (n.includes('tesla') || n.includes('特斯拉') || n.includes('supercharger') || n.includes('volvo') || n.includes('富豪')) continue;
+        if (n.includes('gogoro') || n.includes('機車') || n.includes('換電')) continue;
+
+        const stLoc = st.geometry.location;
+        const proj = getStationRouteProjection(stLoc.lat(), stLoc.lng());
+
+        // 依據偏好過濾離主線距離：服務區 2.5km 內、交流道 6km 內
+        const maxAllowedDist = abrpStopPreference === 'restArea' ? 2500 : 6000;
+        if (proj.distToRouteMeters <= maxAllowedDist) {
+            let stationName = st.name;
+            const isRestAreaPoi = n.includes('服務區') || n.includes('休息站');
+
+            // ⚡ 方向自動修正：若是服務區且名稱未帶「南」或「北」，自動依行向補上
+            if (isRestAreaPoi && !stationName.includes('南') && !stationName.includes('北')) {
+                stationName = `${stationName} (${dirTag})`;
+            }
+
+            const evOptions = await fetchEvChargeDetails(st.place_id);
+            const specs = parseEvSpecs(evOptions, stationName);
+
+            validCandidates.push({
+                name: stationName,
+                address: st.vicinity || st.formatted_address || (isRestAreaPoi ? "國道服務區停車場" : "交流道沿線"),
+                lat: stLoc.lat(),
+                lng: stLoc.lng(),
+                place_id: st.place_id,
+                isRestArea: isRestAreaPoi,
+                specs: specs,
+                kmFromStart: proj.kmFromStart
+            });
+        }
+    }
+
+    // 🎯 4. 靜態資料庫保底機制（Fallback）：若線上 API 漏抓或無回應，自動無縫接手
+    if (validCandidates.length === 0 && abrpStopPreference === 'restArea') {
         TAIWAN_REST_AREA_CHARGERS.forEach(ra => {
             const proj = getStationRouteProjection(ra.lat, ra.lng);
-            // 只要充電站位於行駛路線 2.5 公里內，代表路線確實經過該服務區
             if (proj.distToRouteMeters <= 2500) {
                 let finalName = ra.name;
                 let finalLat = ra.lat;
                 let finalLng = ra.lng;
 
-                // 🧭 若該服務區有分南北站，根據整趟路徑的起訖點緯度判斷南下或北上
                 if (ra.hasDirection) {
-                    const startLat = path[0].lat();
-                    const endLat = path[path.length - 1].lat();
-                    const isSouthbound = endLat < startLat; // 終點緯度較小 = 南下
-
                     if (isSouthbound && ra.south) {
                         finalName = ra.south.name;
                         finalLat = ra.south.lat;
@@ -5395,63 +5482,6 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
                 });
             }
         });
-    }
-
-    // 🎯 3. 若選「交流道」或該路段無服務區充電站，則調用 Places API 尋找交流道周邊快充
-    if (validCandidates.length === 0) {
-        const placesService = new google.maps.places.PlacesService(abrpMap);
-        
-        // 沿路線取樣搜尋點（集中在電量目標區間前後）
-        const anchorKm = Math.min(totalDistanceKm - 10, Math.max(15, criticalDistanceKm * 0.85));
-        let accM = 0;
-        let searchPoint = path[Math.floor(path.length / 2)];
-        for (let i = 1; i < path.length; i++) {
-            accM += getDistanceFromLatLonInKm(path[i - 1].lat(), path[i - 1].lng(), path[i].lat(), path[i].lng()) * 1000;
-            if (accM / 1000 >= anchorKm) {
-                searchPoint = path[i];
-                break;
-            }
-        }
-
-        const placesPromise = new Promise(resolve => {
-            placesService.nearbySearch({
-                location: searchPoint,
-                radius: 10000,
-                keyword: '快充站'
-            }, (results, status) => {
-                resolve((status === google.maps.places.PlacesServiceStatus.OK && results) ? results : []);
-            });
-        });
-
-        const timeoutPromise = new Promise(resolve => setTimeout(() => resolve([]), 3500));
-        const rawResults = await Promise.race([placesPromise, timeoutPromise]);
-
-        for (const st of rawResults.slice(0, 8)) {
-            const n = (st.name || '').toLowerCase();
-            if (n.includes('tesla') || n.includes('特斯拉') || n.includes('supercharger') || n.includes('volvo') || n.includes('富豪')) continue;
-            if (n.includes('gogoro') || n.includes('機車') || n.includes('換電')) continue;
-
-            const stLoc = st.geometry.location;
-            const proj = getStationRouteProjection(stLoc.lat(), stLoc.lng());
-            if (proj.distToRouteMeters <= 6000) {
-                validCandidates.push({
-                    name: st.name,
-                    address: st.vicinity || st.formatted_address || "交流道沿線",
-                    lat: stLoc.lat(),
-                    lng: stLoc.lng(),
-                    place_id: st.place_id,
-                    isRestArea: false,
-                    specs: {
-                        isFast: true,
-                        maxKw: 180,
-                        powerLabel: "120~360 kW (快充)",
-                        connectorLabel: "CCS1 / CCS2",
-                        hasCcs1: true
-                    },
-                    kmFromStart: proj.kmFromStart
-                });
-            }
-        }
     }
 
     const stopDiv = document.getElementById('abrpStopRecommendation');
