@@ -4397,25 +4397,40 @@ function initAbrpAutocomplete() {
             const startInput = document.getElementById('routeStartInput');
             const endInput = document.getElementById('routeEndInput');
 
+            // 輔助函式：防止 Google API 回傳過於簡短的站名（如「桃園」-> 自動補正為「桃園車站」）
+            const getRefinedStationName = (rawInputVal, place) => {
+                if (!place || !place.name) return rawInputVal;
+                let name = place.name.trim();
+                const types = place.types || [];
+                const isTransit = types.includes('train_station') || types.includes('transit_station') || types.includes('subway_station');
+
+                // 若是車站類型或使用者原本就輸入「火車站/車站」，但 Google 回傳名稱未帶「站」字（例如僅回傳「桃園」）
+                if ((isTransit || /(火車站|車站)/.test(rawInputVal)) && !name.endsWith('站')) {
+                    name = `${name}車站`;
+                }
+                return name;
+            };
+
             if (window.google?.maps?.places && startInput && endInput) {
-                const options = { componentRestrictions: { country: "tw" }, fields: ["name", "formatted_address", "geometry"] };
+                // 在 fields 增加 types 以便精準識別火車站
+                const options = { componentRestrictions: { country: "tw" }, fields: ["name", "formatted_address", "geometry", "types"] };
                 const startAuto = new google.maps.places.Autocomplete(startInput, options);
                 const endAuto = new google.maps.places.Autocomplete(endInput, options);
 
-                // 🎯 起點點選下拉選單時，強制保留使用者選取的「地標/車站名稱」
+                // 🎯 起點點選下拉選單時，智慧校正站名
                 startAuto.addListener("place_changed", () => {
                     const place = startAuto.getPlace();
-                    if (place && place.name) {
-                        startInput.value = place.name;
+                    if (place) {
+                        startInput.value = getRefinedStationName(startInput.value, place);
                     }
                     toggleRouteClearBtn('routeStartInput', 'btnClearStart');
                 });
 
-                // 🎯 終點點選下拉選單時，強制保留使用者選取的「地標/車站名稱」
+                // 🎯 終點點選下拉選單時，智慧校正站名
                 endAuto.addListener("place_changed", () => {
                     const place = endAuto.getPlace();
-                    if (place && place.name) {
-                        endInput.value = place.name;
+                    if (place) {
+                        endInput.value = getRefinedStationName(endInput.value, place);
                     }
                     toggleRouteClearBtn('routeEndInput', 'btnClearEnd');
                 });
