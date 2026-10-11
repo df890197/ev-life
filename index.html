@@ -5187,11 +5187,32 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, ro
             }
 
             const isKnownEvBrand = EV_CAR_BRANDS.some(b => nameLower.includes(b));
-            const score = minMetersToRoute - (isKnownEvBrand ? 3000 : 0);
+            const isStationRestArea = nameLower.includes('服務區') || nameLower.includes('休息站');
 
-            return { station: st, distToRoute: minMetersToRoute, score, isKnownEvBrand };
+            let score = minMetersToRoute;
+
+            // 🎯 核心判斷：依據使用者偏好給予決定性權重
+            if (abrpStopPreference === 'restArea') {
+                if (isStationRestArea) {
+                    // 若偏好「服務區」，給予強烈優先權（虛擬距離減 15000 公尺，必定置頂）
+                    score -= 15000;
+                } else if (isKnownEvBrand) {
+                    score -= 2000;
+                }
+            } else if (abrpStopPreference === 'interchange') {
+                if (isStationRestArea) {
+                    // 若偏好「交流道」，服務區直接給予懲罰分（後移）
+                    score += 10000;
+                } else if (isKnownEvBrand) {
+                    // 交流道外專用大站強烈優先
+                    score -= 8000;
+                }
+            }
+
+            return { station: st, distToRoute: minMetersToRoute, score, isKnownEvBrand, isStationRestArea };
         });
 
+        // 依據偏好權重後的 score 嚴格排序
         scoredStations.sort((a, b) => a.score - b.score);
 
 // 3. 依序向 Places API (New) 請求槍頭規格與功率進行複選篩選
