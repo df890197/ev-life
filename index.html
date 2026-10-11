@@ -27,17 +27,6 @@
         }
         html.dark #appSplashScreen { background-color: #111827 !important; }
 
-        /* 隱藏 Chrome, Safari, Edge, Opera 的數字微調箭頭 */
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-/* 隱藏 Firefox 的數字微調箭頭 */
-input[type="number"] {
-    -moz-appearance: textfield;
-}
-
         input[type="date"] { position: relative; -webkit-appearance: none; appearance: none; }
         input[type="date"]::-webkit-date-and-time-value { margin: 0; padding: 0; text-align: left; }
         input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0 !important; cursor: pointer; position: absolute; right: 0; top: 0; width: 100%; height: 100%; z-index: 30; }
@@ -1258,19 +1247,19 @@ input[type="number"] {
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
     <!-- 電量設定區 (手機置中/均勻分佈) -->
     <div class="flex items-center justify-between sm:justify-start gap-3">
-<!-- 出發電量 -->
-<div class="flex items-center gap-1.5">
-    <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">出發</label>
-    <input type="number" id="routeStartSoc" min="1" max="100" step="1" inputmode="numeric" value="90" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(parseInt(this.value) > 100) this.value = '100';" class="w-14 px-1.5 py-1 text-center font-mono font-black text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-black focus:outline-none focus:border-amber-400 shadow-sm">
-    <span class="text-xs font-mono font-black text-slate-400">%</span>
-</div>
+        <!-- 出發電量 -->
+        <div class="flex items-center gap-1.5">
+            <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">出發</label>
+            <input type="number" id="routeStartSoc" min="1" max="100" step="1" inputmode="numeric" value="90" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(parseInt(this.value) > 100) this.value = '100';" class="w-12 px-1 py-1 text-center font-mono font-black text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-black focus:outline-none focus:border-amber-400 shadow-sm">
+            <span class="text-xs font-mono font-black text-slate-400">%</span>
+        </div>
 
-<!-- 自訂低電量充電門檻 -->
-<div class="flex items-center gap-1.5">
-    <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">想在剩</label>
-    <input type="number" id="routeTargetMinSoc" min="5" max="50" step="1" inputmode="numeric" value="15" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(parseInt(this.value) > 50) this.value = '50';" placeholder="15" class="w-14 px-1.5 py-1 text-center font-mono font-black text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-black focus:outline-none focus:border-amber-400 shadow-sm">
-    <span class="text-xs font-mono font-black text-slate-400">% 充</span>
-</div>
+        <!-- 自訂低電量充電門檻 -->
+        <div class="flex items-center gap-1.5">
+            <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400">想在剩</label>
+            <input type="number" id="routeTargetMinSoc" min="5" max="50" step="1" inputmode="numeric" value="15" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(parseInt(this.value) > 50) this.value = '50';" placeholder="15" class="w-12 px-1 py-1 text-center font-mono font-black text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-black focus:outline-none focus:border-amber-400 shadow-sm">
+            <span class="text-xs font-mono font-black text-slate-400">% 充</span>
+        </div>
     </div>
 
     <!-- 偏好切換按鈕 (手機上佔滿或靠右對齊，完整露出兩顆按鈕) -->
