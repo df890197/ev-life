@@ -2144,10 +2144,10 @@ const fetchWeather = fetch(`https://api.open-meteo.com/v1/forecast?latitude=${la
                                 const stationName = place.displayName || '';
                                 const lowerName = stationName.toLowerCase();
 
-                                // 🛑 僅過濾特斯拉自營站點
-                                if (lowerName.includes('tesla') || lowerName.includes('特斯拉') || lowerName.includes('supercharger')) {
-                                    return;
-                                }
+                               // 🛑 過濾特斯拉自營站與 Volvo 專屬站點
+if (lowerName.includes('tesla') || lowerName.includes('特斯拉') || lowerName.includes('supercharger') || lowerName.includes('volvo') || lowerName.includes('富豪')) {
+    return;
+}
 
                                 const pLat = place.location.lat();
                                 const pLng = place.location.lng();
@@ -4673,7 +4673,7 @@ function searchDestinationCharging(destLatLng, destName) {
             const full = `${n} ${v}`;
 
             // 排除特斯拉自營站（n⁷ 為 CCS1，無法使用 Tesla 專屬超充）
-            if (full.includes('tesla') || full.includes('特斯拉') || full.includes('supercharger')) return false;
+            if (full.includes('tesla') || full.includes('特斯拉') || full.includes('supercharger') || full.includes('volvo') || full.includes('富豪')) return false;
 
             // 排除二輪電動機車與換電站
             if (full.includes('gogoro') || full.includes('ionex') || full.includes('換電') || full.includes('機車')) return false;
@@ -5218,7 +5218,7 @@ const minSearchKm = Math.max(10, criticalDistanceKm * 0.3); // 讓 100km 出頭�
         const vicinity = (s.vicinity || s.formatted_address || '').toLowerCase();
         const fullText = `${name} ${vicinity}`;
 
-        if (name.includes('tesla') || name.includes('特斯拉') || name.includes('supercharger')) return false;
+        if (name.includes('tesla') || name.includes('特斯拉') || name.includes('supercharger') || name.includes('volvo') || name.includes('富豪')) return false;
         if (SCOOTER_BLACKLIST.some(kw => fullText.includes(kw))) return false;
         if (name === '電動車充電站' || name === '充電站' || name === '汽車充電站') return false;
 
