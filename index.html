@@ -4936,10 +4936,15 @@ const startInp = document.getElementById('routeStartInput')?.value || "起點";
         const regenEnergyKwh = (totalDescentMeters / 100) * 0.45;
         const netElevationEnergyKwh = climbEnergyKwh - regenEnergyKwh;
 
-        const totalConsumedKwh = Math.max(1, flatEnergyKwh + netElevationEnergyKwh);
-        const totalConsumedSoc = (totalConsumedKwh / AppState.batteryCapacity) * 100;
-        const directArrivalSoc = Math.round(startSoc - totalConsumedSoc);
-        const realEff = totalDistanceKm / totalConsumedKwh;
+        // ⚡ 淨耗電度數：允許負值（負值代表下坡回充大於平路滾阻耗能）
+        const netConsumedKwh = flatEnergyKwh + netElevationEnergyKwh;
+        const consumedSocPercent = (netConsumedKwh / AppState.batteryCapacity) * 100;
+        
+        // 抵達電量上限為 100%
+        const directArrivalSoc = Math.min(100, Math.max(0, Math.round(startSoc - consumedSocPercent)));
+        
+        // 均耗顯示：若全趟是淨回充，顯示回充均耗
+        const realEff = netConsumedKwh > 0 ? (totalDistanceKm / netConsumedKwh) : (totalDistanceKm / Math.abs(netConsumedKwh || 1));
 
         const currentAvailKwh = (startSoc / 100) * AppState.batteryCapacity;
         const deficitKwh = totalConsumedKwh - currentAvailKwh;
@@ -4989,10 +4994,21 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, ro
 
     const directSocEl = document.getElementById('abrpDirectSoc');
     if (directSocEl) {
+        const isRegen = directArrivalSoc > startSoc;
         const isLowSoc = directArrivalSoc < 15;
-        const statusText = isLowSoc ? '需中途補電' : '安全無虞';
-        const numColor = isLowSoc ? 'text-rose-500' : 'text-emerald-500';
-        const statusColor = isLowSoc ? 'text-rose-600 dark:text-rose-400 bg-rose-100 dark:bg-rose-900/40' : 'text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/40';
+        let statusText = '安全無虞';
+        let numColor = 'text-emerald-500';
+        let statusColor = 'text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/40';
+
+        if (isRegen) {
+            statusText = `動能倒充 +${directArrivalSoc - startSoc}%`;
+            numColor = 'text-cyan-400 font-black';
+            statusColor = 'text-cyan-600 dark:text-cyan-300 bg-cyan-100 dark:bg-cyan-900/40 border border-cyan-400/30';
+        } else if (isLowSoc) {
+            statusText = '需中途補電';
+            numColor = 'text-rose-500';
+            statusColor = 'text-rose-600 dark:text-rose-400 bg-rose-100 dark:bg-rose-900/40';
+        }
         directSocEl.className = `text-sm sm:text-base font-black font-mono tracking-tight leading-tight flex flex-col items-center justify-center ${numColor}`;
         directSocEl.innerHTML = `<span>${directArrivalSoc}%</span><span class="text-[9px] font-black px-1.5 py-0.5 rounded mt-0.5 tracking-normal whitespace-nowrap ${statusColor}">${statusText}</span>`;
     }
