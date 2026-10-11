@@ -5543,17 +5543,52 @@ const validCandidates = [];
         const timeoutPromise = new Promise(resolve => setTimeout(() => resolve([]), 2500));
         const rawResults = await Promise.race([placesPromise, timeoutPromise]);
 
-        for (const st of rawResults.slice(0, 6)) {
+// 🧭 取得整趟路線主要行進向量（南下 vs 北上）
+        const isSouthboundRoute = path[path.length - 1].lat() < path[0].lat();
+
+        for (const st of rawResults.slice(0, 10)) {
             const n = (st.name || '').toLowerCase();
-            if (n.includes('tesla') || n.includes('特斯拉') || n.includes('supercharger') || n.includes('volvo') || n.includes('富豪')) continue;
-            if (n.includes('gogoro') || n.includes('機車') || n.includes('換電')) continue;
+            const addr = (st.vicinity || st.formatted_address || '').toLowerCase();
+            const fullName = `${n} ${addr}`;
+
+            // 🛑 1. 基本品牌過濾
+            if (fullName.includes('tesla') || fullName.includes('特斯拉') || fullName.includes('supercharger') || fullName.includes('volvo') || fullName.includes('富豪')) continue;
+            if (fullName.includes('gogoro') || fullName.includes('機車') || fullName.includes('換電')) continue;
+
+            // 🛑 2. 方向性防呆：南下絕對不選「北站/北向/北上」，北上絕對不選「南站/南向/南下」
+            if (isSouthboundRoute && (fullName.includes('北站') || fullName.includes('北向') || fullName.includes('北上'))) continue;
+            if (!isSouthboundRoute && (fullName.includes('南站') || fullName.includes('南向') || fullName.includes('南下'))) continue;
 
             const stLoc = st.geometry.location;
             const proj = getStationRouteProjection(stLoc.lat(), stLoc.lng());
+
+            // 🛑 3. 幾何側向判定（禁止跨越高速公路選到對向站點）
+            const refIdx = proj.bestPointIndex || 0;
+            const pCurrent = path[refIdx];
+            const pNext = path[Math.min(path.length - 1, refIdx + 2)];
+
+            // 計算行車向量與站點向量的外積：判斷站點是在路線右側還是左側
+            const dx = pNext.lng() - pCurrent.lng();
+            const dy = pNext.lat() - pCurrent.lat();
+            const sx = stLoc.lng() - pCurrent.lng();
+            const sy = stLoc.lat() - pCurrent.lat();
+            const crossProduct = (dx * sy) - (dy * sx);
+
+            // 台灣靠右行駛，順向出口/服務區通常位於行車方向右側 (crossProduct < 0)
+            // 若站點極度偏向對側車道 (crossProduct > 0.00015 且距離主線很近)，判定為對向封閉站點並排除
+            if (crossProduct > 0.00015 && proj.distToRouteMeters < 1200) {
+                continue;
+            }
+
             if (proj.distToRouteMeters <= 5000) {
                 // 🛣️ 計算真實道路車程與行駛距離
                 const highwayAnchor = path[proj.bestPointIndex] || searchPoint;
                 const roadDetour = await getRealRoadDetour(highwayAnchor, stLoc);
+
+                // 🛑 4. 繞路時間防呆：若下交流道車程異常（例如需要開超過 12 分鐘或迴轉繞大圈），判定非順路站點
+                if (roadDetour.detourDurationSec && roadDetour.detourDurationSec > 720) {
+                    continue;
+                }
 
                 validCandidates.push({
                     name: st.name,
@@ -5566,16 +5601,7 @@ const validCandidates = [];
                         isFast: true,
                         maxKw: 180,
                         powerLabel: "120~360 kW (快充)",
-                        connectorLabel: "CCS1 / CCS2",
-                        hasCcs1: true
-                    },
-                    kmFromStart: proj.kmFromStart,
-                    detourDistKm: roadDetour.detourDistKm,
-                    detourDurationText: roadDetour.detourDurationText,
-                    detourDurationSec: roadDetour.detourDurationSec
-                });
-            }
-        }
+                        connectorLabel: "CCS1 / CCS2
 
         // 🏆 交流道模式下，優先以「真實下交流道車程時間最短」排序
         if (abrpStopPreference === 'interchange') {
