@@ -2176,13 +2176,38 @@ const fetchDistrict = new Promise((resolve) => {
     }
 }).catch(e => console.warn("Google 反向地理編碼失敗", e));
 
-const fetchWeather = fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m&timezone=auto`)
-    .then(r => r.json()).then(data => {
-        if (data?.current?.temperature_2m !== undefined && DOM.inputTemperature) {
-            // 四捨五入取到小數點後第一位 (例如: 28.6)
-            DOM.inputTemperature.value = (Math.round(data.current.temperature_2m * 10) / 10).toFixed(1);
+// ⚡ 調用 Google Maps 官方 Weather API 取得超在地精準氣溫 (支援自動保底)
+const GOOGLE_MAPS_KEY = "AIzaSyAf88sAzYlzVpv6qK6g0rsvDLyz98tCZMU";
+const googleWeatherUrl = `https://weather.googleapis.com/v1/currentConditions:lookup?key=${GOOGLE_MAPS_KEY}&location.latitude=${lat}&location.longitude=${lng}&languageCode=zh-TW`;
+
+const fetchWeather = (async () => {
+    try {
+        const res = await fetch(googleWeatherUrl);
+        if (res.ok) {
+            const data = await res.json();
+            // Google Weather API 預設回傳攝氏溫度 (degrees)
+            if (data?.temperature?.degrees !== undefined && DOM.inputTemperature) {
+                DOM.inputTemperature.value = data.temperature.degrees.toFixed(1);
+                return;
+            }
+        } else {
+            console.warn("Google Weather API 回傳異常，狀態碼:", res.status);
         }
-    }).catch(e => console.warn("氣溫獲取失敗", e));
+    } catch (err) {
+        console.warn("Google Weather API 連線失敗，切換至備用氣象源", err);
+    }
+
+    // 🛡️ 保底機制：若 Google 金鑰限制尚未生效或暫時無回應，自動無縫切換備用源，確保欄位不空白
+    try {
+        const fallbackRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m&timezone=auto`);
+        const fbData = await fallbackRes.json();
+        if (fbData?.current?.temperature_2m !== undefined && DOM.inputTemperature) {
+            DOM.inputTemperature.value = (Math.round(fbData.current.temperature_2m * 10) / 10).toFixed(1);
+        }
+    } catch (e) {
+        console.warn("氣溫獲取失敗", e);
+    }
+})();
 
                 const fetchGoogleStations = (async () => {
                     if (!window.google?.maps?.places) return;
