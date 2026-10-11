@@ -5041,33 +5041,57 @@ function parseEvSpecs(evOptions, stationName = '') {
     };
 }
 
-        // 🚗 計算從國道路線主線開到交流道充電站的「實際車程時間與里程」
+// 🚗 計算從國道路線主線開到交流道充電站的「實際車程時間與里程」
 function getRealRoadDetour(highwayPoint, stationLocation) {
     return new Promise((resolve) => {
-        if (!window.google?.maps?.DistanceMatrixService) {
+        // 確保座標為乾淨的 LatLng 物件，避免字串或函式格式錯誤
+        const orig = (highwayPoint && typeof highwayPoint.lat === 'function') 
+            ? { lat: highwayPoint.lat(), lng: highwayPoint.lng() } 
+            : highwayPoint;
+        const dest = (stationLocation && typeof stationLocation.lat === 'function') 
+            ? { lat: stationLocation.lat(), lng: stationLocation.lng() } 
+            : stationLocation;
+
+        if (!orig || !dest) {
             resolve({ detourDistKm: null, detourDurationText: null, detourDurationSec: 9999 });
+            return;
+        }
+
+        if (!window.google?.maps?.DistanceMatrixService) {
+            const dKm = getDistanceFromLatLonInKm(orig.lat, orig.lng, dest.lat, dest.lng) * 1.3;
+            const estMin = Math.max(2, Math.round((dKm / 30) * 60));
+            resolve({
+                detourDistKm: dKm.toFixed(1),
+                detourDurationText: `${estMin} 分鐘`,
+                detourDurationSec: estMin * 60
+            });
             return;
         }
 
         const distanceMatrix = new google.maps.DistanceMatrixService();
         distanceMatrix.getDistanceMatrix({
-            origins: [highwayPoint],
-            destinations: [stationLocation],
-            travelMode: google.maps.TravelMode.DRIVING,
-            drivingOptions: {
-                departureTime: new Date(),
-                trafficModel: google.maps.TrafficModel.BEST_GUESS
-            }
+            origins: [orig],
+            destinations: [dest],
+            travelMode: google.maps.TravelMode.DRIVING
         }, (response, status) => {
             if (status === 'OK' && response?.rows?.[0]?.elements?.[0]?.status === 'OK') {
                 const element = response.rows[0].elements[0];
+                const distKm = (element.distance.value / 1000).toFixed(1);
+                const durMin = Math.max(1, Math.round(element.duration.value / 60));
                 resolve({
-                    detourDistKm: (element.distance.value / 1000).toFixed(1),
-                    detourDurationText: element.duration_in_traffic ? element.duration_in_traffic.text : element.duration.text,
-                    detourDurationSec: element.duration_in_traffic ? element.duration_in_traffic.value : element.duration.value
+                    detourDistKm: distKm,
+                    detourDurationText: `${durMin} 分鐘`,
+                    detourDurationSec: element.duration.value
                 });
             } else {
-                resolve({ detourDistKm: null, detourDurationText: null, detourDurationSec: 9999 });
+                // 🛡️ 保底估算：若 API 回傳異常，依直線距離與市區均速 30km/h 換算，確保一定有數據顯示
+                const dKm = getDistanceFromLatLonInKm(orig.lat, orig.lng, dest.lat, dest.lng) * 1.3;
+                const estMin = Math.max(2, Math.round((dKm / 30) * 60));
+                resolve({
+                    detourDistKm: dKm.toFixed(1),
+                    detourDurationText: `${estMin} 分鐘`,
+                    detourDurationSec: estMin * 60
+                });
             }
         });
     });
@@ -5590,14 +5614,28 @@ const validCandidates = [];
     });
 
 const selectedStation = validCandidates[bestIdx];
-    const nextCandidate = validCandidates[bestIdx + 1] || null;
 
-    // 🔋 1. 精準對準選定站點 (selectedStation) 計算抵達電量
+    // 🏷️ 1. 站名防呆清洗：若名稱只有「充電站」或過於簡略，自動從地址抓取區名與路名補強
+    if (selectedStation.name === '充電站' || selectedStation.name === '快充站') {
+        const roadMatch = (selectedStation.address || '').match(/..[區市鎮鄉]([^\d\s]+)/);
+        selectedStation.name = roadMatch ? `${roadMatch[1]}快充站` : (selectedStation.address || '交流道快充站');
+    }
+
+    // 🔍 2. 尋找「真正有里程間隔的下一站」（至少距離本站 15 公里以上，避免抓到同區域站點）
+    let nextCandidate = null;
+    for (let k = bestIdx + 1; k < validCandidates.length; k++) {
+        if ((validCandidates[k].kmFromStart - selectedStation.kmFromStart) >= 15) {
+            nextCandidate = validCandidates[k];
+            break;
+        }
+    }
+
+    // 🔋 3. 計算抵達本推薦站時的預估電量
     const distToCurrent = selectedStation.kmFromStart || 0;
     const kwhToCurrent = distToCurrent / (realEff > 0 ? realEff : 5.5);
     const estSocAtCurrent = Math.max(0, Math.round(startSoc - ((kwhToCurrent / AppState.batteryCapacity) * 100)));
 
-    // 🎨 2. 依據抵達電量決定標籤顏色 (≤10% 紅色必充警戒、11~20% 黃色提醒、>20% 綠色安心)
+    // 🎨 4. 依據抵達電量決定標籤顏色
     let currentSocBadgeClass = "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700/60";
     if (estSocAtCurrent <= 10) {
         currentSocBadgeClass = "bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-700/60";
@@ -5605,7 +5643,7 @@ const selectedStation = validCandidates[bestIdx];
         currentSocBadgeClass = "bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-700/60";
     }
 
-    // ⚡ 判定是否為「🚨 必充警戒」
+    // ⚡ 5. 判定是否為「🚨 必充警戒」
     let isMustCharge = false;
     let nextStationName = "";
     let estSocAtNext = 0;
@@ -5617,11 +5655,16 @@ const selectedStation = validCandidates[bestIdx];
         const kwhToNext = distToNext / (realEff > 0 ? realEff : 5.5);
         estSocAtNext = Math.round(startSoc - ((kwhToNext / AppState.batteryCapacity) * 100));
 
-        // ⚡ 只有在略過本站直接開去下一站，電量低於安全底線 (10%) 時，才亮紅燈必充警戒
-        if (estSocAtNext < 10) {
+        // 清洗下一站的名稱，徹底避免出現【充電站】這種空洞文字
+        nextStationName = nextCandidate.name;
+        if (nextStationName === '充電站' || nextStationName === '快充站') {
+            const rMatch = (nextCandidate.address || '').match(/..[區市鎮鄉]([^\d\s]+)/);
+            nextStationName = rMatch ? `${rMatch[1]}快充站` : (nextCandidate.address || '後續快充站');
+        }
+
+        // ⚡ 略過本站開往下一站電量低於安全底線 (12%) 時，亮紅燈必充警戒
+        if (estSocAtNext < 12) {
             isMustCharge = true;
-        } else {
-            nextStationName = nextCandidate.name;
         }
     }
 
