@@ -5129,16 +5129,35 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, ro
         }
     }
 
-// ⚡ 改回「極限里程點」周圍搜尋，結合 Places API (New) 規格查詢與品牌防雜項過濾
+// ⚡ 依據使用者偏好動態決定搜尋關鍵字與搜尋半徑
     const placesService = new google.maps.places.PlacesService(abrpMap);
+
+    // 服務區間距平均 50~70km，若選服務區需將半徑擴大至 28km 才能精準跨站命中
+    const searchRadius = (abrpStopPreference === 'restArea') ? 28000 : 10000;
+    const searchKeyword = (abrpStopPreference === 'restArea') ? '服務區 充電站' : '電動車 快充站';
 
     placesService.nearbySearch({ 
         location: criticalLatLng, 
-        radius: 8000, 
-        keyword: '電動車 快充站' 
+        radius: searchRadius, 
+        keyword: searchKeyword 
     }, async (stations, pStatus) => {
         const stopDiv = document.getElementById('abrpStopRecommendation');
         if (!stopDiv) return;
+
+        // 若搜尋服務區但該範圍完全無服務區，自動退回擴大搜尋交流道快充
+        let rawStations = stations || [];
+        if (abrpStopPreference === 'restArea' && rawStations.length === 0) {
+            await new Promise(resolve => {
+                placesService.nearbySearch({
+                    location: criticalLatLng,
+                    radius: 12000,
+                    keyword: '電動車 快充站'
+                }, (fallbackStations) => {
+                    rawStations = fallbackStations || [];
+                    resolve();
+                });
+            });
+        }
 
         // 主流四輪電動車品牌
         const EV_CAR_BRANDS = [
@@ -5158,8 +5177,8 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, ro
             '自行車', '單車', 'wemo'
         ];
 
-        // 1. 基礎黑名單過濾
-        let validStations = (stations || []).filter(s => {
+        // 1. 基礎黑名單過濾（改吃 rawStations）
+        let validStations = rawStations.filter(s => {
             const name = (s.name || '').toLowerCase().trim();
             const vicinity = (s.vicinity || s.formatted_address || '').toLowerCase();
             const fullText = `${name} ${vicinity}`;
@@ -5197,17 +5216,16 @@ function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, ro
             // 🎯 核心判斷：依據使用者偏好給予決定性權重
             if (abrpStopPreference === 'restArea') {
                 if (isStationRestArea) {
-                    // 若偏好「服務區」，給予強烈優先權（虛擬距離減 15000 公尺，必定置頂）
-                    score -= 15000;
+                    // 只要名字帶服務區或休息站，給予壓倒性優先權（減 35km 虛擬距離，保證排名第一）
+                    score -= 35000;
                 } else if (isKnownEvBrand) {
-                    score -= 2000;
+                    score -= 1000;
                 }
             } else if (abrpStopPreference === 'interchange') {
                 if (isStationRestArea) {
-                    // 若偏好「交流道」，服務區直接給予懲罰分（後移）
-                    score += 10000;
+                    // 若偏好交流道，服務區大幅加罰往後排
+                    score += 25000;
                 } else if (isKnownEvBrand) {
-                    // 交流道外專用大站強烈優先
                     score -= 8000;
                 }
             }
