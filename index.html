@@ -5270,20 +5270,50 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         </div>
     `;
 
-// ⚡ 台灣國道服務區完整快充資料庫 (全線涵蓋，100% 免猜測、免清洗)
+// ⚡ 台灣國道服務區完整快充資料庫 (全線精準營運商校對 + 支援南北向自動辨識版)
     const TAIWAN_REST_AREA_CHARGERS = [
         // 國道 1 號
         { name: "中壢服務區 (iCharging 快充站)", lat: 24.9806, lng: 121.2294, highway: "國道1號", power: "350 kW", conn: "CCS1 / CCS2" },
-        { name: "湖口服務區 (iCharging 快充站)", lat: 24.8797, lng: 121.0345, highway: "國道1號", power: "350 kW", conn: "CCS1 / CCS2" },
-        { name: "泰安服務區 (iCharging 快充站)", lat: 24.3045, lng: 120.7188, highway: "國道1號", power: "350 kW", conn: "CCS1 / CCS2" },
+        { 
+            name: "湖口服務區", 
+            hasDirection: true,
+            south: { name: "湖口服務區南站 (iCharging 快充站)", lat: 24.8785, lng: 121.0336 },
+            north: { name: "湖口服務區北站 (iCharging 快充站)", lat: 24.8812, lng: 121.0354 },
+            lat: 24.8797, lng: 121.0345, highway: "國道1號", power: "350 kW", conn: "CCS1 / CCS2" 
+        },
+        { 
+            name: "泰安服務區", 
+            hasDirection: true,
+            south: { name: "泰安服務區南站 (iCharging 快充站)", lat: 24.3032, lng: 120.7176 },
+            north: { name: "泰安服務區北站 (iCharging 快充站)", lat: 24.3060, lng: 120.7202 },
+            lat: 24.3045, lng: 120.7188, highway: "國道1號", power: "350 kW", conn: "CCS1 / CCS2" 
+        },
         { name: "西螺服務區 (EVOASIS 快充站)", lat: 23.7745, lng: 120.4578, highway: "國道1號", power: "360 kW", conn: "CCS1 / CCS2" },
-        { name: "新營服務區 (特爾電力 快充站)", lat: 23.3101, lng: 120.3015, highway: "國道1號", power: "350 kW", conn: "CCS1 / CCS2" },
-        { name: "仁德服務區 (特爾電力 快充站)", lat: 22.9567, lng: 120.2505, highway: "國道1號", power: "200 kW", conn: "CCS1 / CCS2" },
+        { 
+            name: "新營服務區", 
+            hasDirection: true,
+            south: { name: "新營服務區南站 (特爾電力 快充站)", lat: 23.3086, lng: 120.3005 },
+            north: { name: "新營服務區北站 (特爾電力 快充站)", lat: 23.3116, lng: 120.3025 },
+            lat: 23.3101, lng: 120.3015, highway: "國道1號", power: "350 kW", conn: "CCS1 / CCS2" 
+        },
+        { 
+            name: "仁德服務區", 
+            hasDirection: true,
+            south: { name: "仁德服務區南站 (特爾電力 快充站)", lat: 22.9555, lng: 120.2498 },
+            north: { name: "仁德服務區北站 (特爾電力 快充站)", lat: 22.9580, lng: 120.2512 },
+            lat: 22.9567, lng: 120.2505, highway: "國道1號", power: "200 kW", conn: "CCS1 / CCS2" 
+        },
 
         // 國道 3 號
         { name: "木柵休息站 (iCharging 快充站)", lat: 24.9882, lng: 121.5796, highway: "國道3號", power: "200 kW", conn: "CCS1 / CCS2" },
         { name: "關西服務區 (iCharging 快充站)", lat: 24.8016, lng: 121.1824, highway: "國道3號", power: "350 kW", conn: "CCS1 / CCS2" },
-        { name: "西湖服務區 (iCharging 快充站)", lat: 24.5428, lng: 120.7634, highway: "國道3號", power: "350 kW", conn: "CCS1 / CCS2" },
+        { 
+            name: "西湖服務區", 
+            hasDirection: true,
+            south: { name: "西湖服務區南站 (EVOASIS 快充站)", lat: 24.5441, lng: 120.7621 },
+            north: { name: "西湖服務區北站 (EVOASIS 快充站)", lat: 24.5415, lng: 120.7648 },
+            lat: 24.5428, lng: 120.7634, highway: "國道3號", power: "360 kW", conn: "CCS1 / CCS2" 
+        },
         { name: "清水服務區 (iCharging / Yes Energy 快充站)", lat: 24.2694, lng: 120.5969, highway: "國道3號", power: "350 kW", conn: "CCS1 / CCS2" },
         { name: "南投服務區 (iCharging 快充站)", lat: 23.9019, lng: 120.7121, highway: "國道3號", power: "350 kW", conn: "CCS1 / CCS2" },
         { name: "古坑服務區 (EVOASIS 快充站)", lat: 23.6339, lng: 120.5732, highway: "國道3號", power: "360 kW", conn: "CCS1 / CCS2" },
@@ -5321,17 +5351,38 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
 
     const validCandidates = [];
 
-    // 🎯 2. 偏好為「服務區」時，直接比對國道資料庫（精確、快速、零 API 延遲）
+// 🎯 2. 偏好為「服務區」時，直接比對國道資料庫（支援南北向自動辨識）
     if (abrpStopPreference === 'restArea') {
         TAIWAN_REST_AREA_CHARGERS.forEach(ra => {
             const proj = getStationRouteProjection(ra.lat, ra.lng);
             // 只要充電站位於行駛路線 2.5 公里內，代表路線確實經過該服務區
             if (proj.distToRouteMeters <= 2500) {
+                let finalName = ra.name;
+                let finalLat = ra.lat;
+                let finalLng = ra.lng;
+
+                // 🧭 若該服務區有分南北站，根據整趟路徑的起訖點緯度判斷南下或北上
+                if (ra.hasDirection) {
+                    const startLat = path[0].lat();
+                    const endLat = path[path.length - 1].lat();
+                    const isSouthbound = endLat < startLat; // 終點緯度較小 = 南下
+
+                    if (isSouthbound && ra.south) {
+                        finalName = ra.south.name;
+                        finalLat = ra.south.lat;
+                        finalLng = ra.south.lng;
+                    } else if (!isSouthbound && ra.north) {
+                        finalName = ra.north.name;
+                        finalLat = ra.north.lat;
+                        finalLng = ra.north.lng;
+                    }
+                }
+
                 validCandidates.push({
-                    name: ra.name,
+                    name: finalName,
                     address: `${ra.highway} 服務區停車場`,
-                    lat: ra.lat,
-                    lng: ra.lng,
+                    lat: finalLat,
+                    lng: finalLng,
                     isRestArea: true,
                     specs: {
                         isFast: true,
