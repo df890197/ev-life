@@ -5114,9 +5114,10 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         const usableSoc = Math.max(5, startSoc - targetRemainingSoc);
         const criticalDistanceKm = Math.max(15, (usableSoc / 100) * AppState.batteryCapacity * realEff);
 
-        const minSearchKm = Math.max(8, criticalDistanceKm * 0.45);
-        const maxSearchKm = criticalDistanceKm * 1.15;
-        const sampleIntervalKm = Math.max(20, (maxSearchKm - minSearchKm) / 3);
+        // 🎯 集中在即將耗盡電量前的最後區間（避免在還有50%電量時過早採樣）
+        const minSearchKm = Math.max(15, criticalDistanceKm * 0.70); // 從極限里程的 70% 處才開始找站
+        const maxSearchKm = criticalDistanceKm * 1.05;               // 上限不超過極限的 105%
+        const sampleIntervalKm = Math.max(15, (maxSearchKm - minSearchKm) / 3);
 
         let accumulatedMeters = 0;
         let nextSampleKm = minSearchKm;
@@ -5209,26 +5210,46 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         return;
     }
 
-    // 5. 強化服務區判定（名稱 + 地址）與「行車方向防呆」
+// 🎯 5. 改算「實際行駛路線里程」：計算從起點開到各站點的實跑里程與預估剩餘 SOC
     const scoredStations = validStations.map(st => {
         const stPos = st.geometry.location;
         const nameLower = (st.name || '').toLowerCase();
         const vicinityLower = (st.vicinity || st.formatted_address || '').toLowerCase();
         const fullText = `${nameLower} ${vicinityLower}`;
 
-        let minMetersToRoute = Infinity;
+        // 沿著行駛軌跡逐段累加，找出離該站最近的路徑點，並求得「起點到此站的實際行駛公里數」
+        let minDetourMeters = Infinity;
+        let bestPathIndex = 0;
+        let cumulativeKm = 0;
+        let stationDrivingKm = 0;
+
         for (let i = 0; i < path.length; i++) {
-            const dist = (window.google?.maps?.geometry?.spherical)
+            if (i > 0) {
+                const segDist = (window.google?.maps?.geometry?.spherical)
+                    ? google.maps.geometry.spherical.computeDistanceBetween(path[i - 1], path[i])
+                    : getDistanceFromLatLonInKm(path[i - 1].lat(), path[i - 1].lng(), path[i].lat(), path[i].lng()) * 1000;
+                cumulativeKm += segDist / 1000;
+            }
+
+            const detourDist = (window.google?.maps?.geometry?.spherical)
                 ? google.maps.geometry.spherical.computeDistanceBetween(path[i], stPos)
                 : getDistanceFromLatLonInKm(path[i].lat(), path[i].lng(), stPos.lat(), stPos.lng()) * 1000;
-            if (dist < minMetersToRoute) minMetersToRoute = dist;
+
+            if (detourDist < minDetourMeters) {
+                minDetourMeters = detourDist;
+                bestPathIndex = i;
+                stationDrivingKm = cumulativeKm; // 記錄從起點沿著實際路線開到這座站點的真實里程！
+            }
         }
 
+        // 實際消耗電量與抵達該站時的真實剩餘 SOC
+        const kwhToStation = stationDrivingKm / realEff;
+        const arrivalSocAtStation = Math.round(startSoc - (kwhToStation / AppState.batteryCapacity * 100));
+
         const isKnownEvBrand = EV_CAR_BRANDS.some(b => nameLower.includes(b));
-        // 同時檢查名稱與地址是否為服務區
         const isStationRestArea = fullText.includes('服務區') || fullText.includes('休息站');
 
-        // 🎯 方向防呆：南下車輛應避開「北上 / 北站」，北上車輛應避開「南下 / 南站」
+        // 方向防呆：南下車避開北向站，北上車避開南向站
         let isOppositeDirection = false;
         if (isHeadingSouth && (fullText.includes('北上') || fullText.includes('北向') || fullText.includes('北站'))) {
             isOppositeDirection = true;
@@ -5236,28 +5257,54 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
             isOppositeDirection = true;
         }
 
-        let score = minMetersToRoute;
+        // 🎯 核心計分：以「進站剩餘電量」為基準（目標為 12% ~ 22% 黃金續航區間）
+        let score = 0;
 
-        // 若方向相反，給予極大懲罰分（推至排序最後）
-        if (isOppositeDirection) {
-            score += 50000;
+        if (arrivalSocAtStation < 8) {
+            // 開不到（抵達剩不到 8%），給予極大懲罰分避免拋錨
+            score += 80000 + Math.abs(arrivalSocAtStation) * 1000;
+        } else if (arrivalSocAtStation < 12) {
+            // 電量偏緊（8%~12%），微幅加罰
+            score += (12 - arrivalSocAtStation) * 2000;
+        } else if (arrivalSocAtStation <= 22) {
+            // 🌟 黃金進站區間（12%~22%）：分數最好！給予獎勵
+            score -= 10000;
+        } else {
+            // ⚠️ 太早進站（電量還剩一大半）：每多剩 1% 電量就加罰 600 分，電量越多罰越重！
+            score += (arrivalSocAtStation - 22) * 600;
         }
 
+        // 加上下交流道繞路的實質距離懲罰（繞路越遠越後排）
+        score += minDetourMeters;
+
+        // 對向服務區重度加罰
+        if (isOppositeDirection) score += 60000;
+
+        // 使用者偏好權重
         if (abrpStopPreference === 'restArea') {
             if (isStationRestArea) {
-                score -= 35000; // 順向服務區必定置頂
+                score -= 35000; // 順向服務區保證最優先
             } else if (isKnownEvBrand) {
                 score -= 1000;
             }
         } else if (abrpStopPreference === 'interchange') {
             if (isStationRestArea) {
-                score += 30000; // 偏好交流道時，排擠服務區
+                score += 30000; // 偏好交流道時排除服務區
             } else if (isKnownEvBrand) {
                 score -= 8000;
             }
         }
 
-        return { station: st, distToRoute: minMetersToRoute, score, isKnownEvBrand, isStationRestArea, isOppositeDirection };
+        return { 
+            station: st, 
+            drivingKm: stationDrivingKm,
+            arrivalSocAtStation,
+            distToRoute: minDetourMeters, 
+            score, 
+            isKnownEvBrand, 
+            isStationRestArea, 
+            isOppositeDirection 
+        };
     });
 
     scoredStations.sort((a, b) => a.score - b.score);
