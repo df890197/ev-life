@@ -5648,37 +5648,12 @@ for (const st of rawResults.slice(0, 12)) {
         }
     });
 
-    const selectedStation = validCandidates[bestIdx];
-    
-// 🏷️ 1. 服務區智慧座標反查：若站名模糊，比對是否實際上坐落於國道服務區內
-    let matchedRestAreaName = "";
-    TAIWAN_REST_AREA_CHARGERS.forEach(ra => {
-        if (matchedRestAreaName) return;
-        const checkPoints = [];
-        if (ra.hasDirection) {
-            if (ra.south) checkPoints.push(ra.south);
-            if (ra.north) checkPoints.push(ra.north);
-        } else {
-            checkPoints.push(ra);
-        }
+const selectedStation = validCandidates[bestIdx];
 
-        checkPoints.forEach(pt => {
-            const dMeters = getDistanceFromLatLonInKm(selectedStation.lat, selectedStation.lng, pt.lat, pt.lng) * 1000;
-            // 800 公尺內代表該 Google 地標實質上就是該服務區的快充樁
-            if (dMeters <= 800) {
-                matchedRestAreaName = pt.name;
-            }
-        });
-    });
-
-    if (matchedRestAreaName) {
-        selectedStation.name = matchedRestAreaName;
-        selectedStation.isRestArea = true; // 同步更正為服務區屬性
-    } else if (selectedStation.name === '充電站' || selectedStation.name === '快充站' || selectedStation.name === 'iCharging 充電站') {
-        // 若不是服務區，但站名依然過於籠統，則取地址的路名與品牌進行命名
+    // 🏷️ 站名防呆清洗（僅在名稱為「充電站/快充站」這類模糊詞時修飾，不再反查服務區覆蓋名稱）
+    if (selectedStation.name === '充電站' || selectedStation.name === '快充站') {
         const roadMatch = (selectedStation.address || '').match(/..[區市鎮鄉]([^\d\s]+)/);
-        const brandPrefix = selectedStation.name.includes('iCharging') ? 'iCharging ' : '';
-        selectedStation.name = roadMatch ? `${brandPrefix}${roadMatch[1]}快充站` : selectedStation.name;
+        selectedStation.name = roadMatch ? `${roadMatch[1]}快充站` : (selectedStation.address || '交流道快充站');
     }
 
     // 🔍 2. 尋找「真正有里程間隔的下一站」（至少距離本站 15 公里以上，避免抓到同區域站點）
