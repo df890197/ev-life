@@ -1550,6 +1550,18 @@ input[type="number"] {
             'default': { btn: 'border-slate-400 bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200', badge: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400', icon: '📝' }
         };
 
+        // ⚡ LUXGEN n⁷ 漫遊支援「隨插即充」的 9 大快充品牌比對清單
+        const N7_AUTO_CHARGE_OPERATORS = [
+            'evoasis', 'tail', '特爾', 'u-power', 'upower',
+            'icharging', 'evalue', '華城', 'yes', '裕電',
+            'charging blok', '區快充', 'star charger', '星舟', 'mycharge'
+        ];
+
+        function isN7AutoChargeStation(stationName = '') {
+            const lower = stationName.toLowerCase();
+            return N7_AUTO_CHARGE_OPERATORS.some(key => lower.includes(key));
+        }
+
         const AppState = {
             records: [], evName: "LUXGEN n7", batteryCapacity: 57.7, initialOdometer: 0,
             maintInterval: 20000, tireInterval: 10000, lastTireRotationOdo: 0, nextMaintDate: "", insuranceExpiryDate: "",
@@ -5642,6 +5654,11 @@ const stationCardHtml = `
                         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${specs.hasCcs1 ? 'bg-teal-100 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 border-teal-200 dark:border-teal-800/50' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'} text-[10px] font-mono font-bold border">
                             🔌 槍頭: ${specs.connectorLabel}
                         </span>
+                        ${isN7AutoChargeStation(stationName) ? `
+                        <!-- ⚡ n⁷ 隨插即充標籤 -->
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-400/40 text-[10px] font-mono font-black shadow-sm">
+                            <span>⚡</span> 隨插即充
+                        </span>` : ''}
                     </div>
 
                     <div class="flex items-center justify-between gap-2 text-[10px] sm:text-[11px]">
