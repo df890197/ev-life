@@ -5198,7 +5198,6 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
     ];
 
     // ⚡ 1. 讀取自訂充電門檻，計算行駛到該電量時的行駛里程 (criticalDistanceKm)
-    const userTargetSoc = Math.min(startSoc - 5, Math.max(5, parseFloat(document.getElementById('routeTargetMinSoc')?.value) || 15));
     const usableSoc = Math.max(5, startSoc - userTargetSoc);
     const criticalDistanceKm = Math.max(20, (usableSoc / 100) * AppState.batteryCapacity * (realEff > 0 ? realEff : 5.5));
 
