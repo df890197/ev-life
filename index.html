@@ -1424,6 +1424,8 @@
 
                     <!-- 建議卡片 -->
                     <div id="abrpRecommendationCard" class="p-4 rounded-2xl border text-xs leading-relaxed space-y-2 min-h-[136px]"></div>
+                    <!-- 🎯 目的地景點充電專用推薦卡片 (預設隱藏，若目的地為景點且有充電站才亮出) -->
+                    <div id="abrpDestPoiCard" class="hidden"></div>
                 </div>
             </div>
         </div>
@@ -4276,6 +4278,13 @@ window.toggleAbrpPowerFilter = function(type) {
             toggleRouteClearBtn('routeStartInput', 'btnClearStart');
             toggleRouteClearBtn('routeEndInput', 'btnClearEnd');
 
+            // 🎯 清除先前的目的地景點推薦卡片，避免對調後殘留舊資訊
+            const destPoiCard = document.getElementById('abrpDestPoiCard');
+            if (destPoiCard) {
+                destPoiCard.classList.add('hidden');
+                destPoiCard.innerHTML = '';
+            }
+
             // 5. 旋轉圖示動畫 (每次點擊旋轉 180 度)
             if (swapIcon) {
                 swapRotationDeg += 180;
@@ -4572,8 +4581,135 @@ window.planElectricRoute = async function() {
             pkBox.classList.add('hidden');
         }
         selectPkRoute(0);
+
+        // 🎯 觸發目的地景點補電判斷
+        const destLeg = response.routes[0]?.legs[0];
+        if (destLeg && destLeg.end_location) {
+            const destName = document.getElementById('routeEndInput')?.value.trim() || "目的地";
+            const destPoiCard = document.getElementById('abrpDestPoiCard');
+            if (destPoiCard) {
+                destPoiCard.classList.add('hidden');
+                destPoiCard.innerHTML = '';
+            }
+
+            // 優先比對地名關鍵字（反應最快且最準確）
+            if (isTouristOrPoiDestination(destName, [])) {
+                searchDestinationCharging(destLeg.end_location, getShortLocationName(destName));
+            } else {
+                // 名稱未直接命中時，透過反查地點類型進行二次檢驗
+                const geocoder = new google.maps.Geocoder();
+                geocoder.geocode({ location: destLeg.end_location }, (results, gStatus) => {
+                    const placeTypes = (gStatus === 'OK' && results?.[0]?.types) ? results[0].types : [];
+                    if (isTouristOrPoiDestination(destName, placeTypes)) {
+                        searchDestinationCharging(destLeg.end_location, getShortLocationName(destName));
+                    }
+                });
+            }
+        }
     });
 };
+
+        // 🎯 1. 判斷目的地是否屬於「景點 / 商圈 / 飯店 / 休憩遊樂地」
+function isTouristOrPoiDestination(placeName = '', placeTypes = []) {
+    const attractionTypes = [
+        'tourist_attraction', 'amusement_park', 'park', 'museum',
+        'campground', 'zoo', 'aquarium', 'shopping_mall', 'department_store',
+        'lodging', 'resort_hotel', 'national_park'
+    ];
+    const hasMatchingType = placeTypes.some(t => attractionTypes.includes(t));
+
+    // 台灣熱門遊憩在地關鍵字比對
+    const twKeywordRegex = /(景點|老街|夜市|農場|園區|遊樂|森林|步道|瀑布|風景區|水庫|碼頭|漁港|糖廠|牧場|古蹟|渡假|飯店|民宿|露營|商場|Outlet|生態|寺|廟)/i;
+    const hasMatchingKeyword = twKeywordRegex.test(placeName);
+
+    return hasMatchingType || hasMatchingKeyword;
+}
+
+// 🎯 2. 探測目的地周邊 600m 停車場/充電樁
+function searchDestinationCharging(destLatLng, destName) {
+    const cardEl = document.getElementById('abrpDestPoiCard');
+    if (!cardEl || !abrpMap || !window.google?.maps?.places) return;
+
+    const placesService = new google.maps.places.PlacesService(abrpMap);
+
+    placesService.nearbySearch({
+        location: destLatLng,
+        radius: 600, // 步行 5~8 分鐘生活圈
+        keyword: '充電站'
+    }, async (stations, status) => {
+        if (status !== google.maps.places.PlacesServiceStatus.OK || !stations || stations.length === 0) {
+            cardEl.classList.add('hidden');
+            cardEl.innerHTML = '';
+            return;
+        }
+
+        // 過濾二輪換電站
+        const valid = stations.filter(s => {
+            const n = (s.name || '').toLowerCase();
+            return !n.includes('gogoro') && !n.includes('ionex') && !n.includes('換電') && !n.includes('機車');
+        });
+
+        if (valid.length === 0) {
+            cardEl.classList.add('hidden');
+            cardEl.innerHTML = '';
+            return;
+        }
+
+        const bestDestStation = valid[0];
+        const distM = Math.round(getDistanceFromLatLonInKm(destLatLng.lat(), destLatLng.lng(), bestDestStation.geometry.location.lat(), bestDestStation.geometry.location.lng()) * 1000);
+
+        // 查詢詳細充電規格
+        const evOptions = await fetchEvChargeDetails(bestDestStation.place_id);
+        const specs = parseEvSpecs(evOptions, bestDestStation.name);
+
+        // 估算停留 2.5 小時 (車等人) 的補電效益 (以 n7 57.7度電池計算)
+        const isAc = specs.maxKw < 50;
+        const estKwh = isAc ? (7 * 2.5) : (Math.min(specs.maxKw || 60, 60) * 0.5);
+        const estSocAdd = Math.min(100, Math.round((estKwh / AppState.batteryCapacity) * 100));
+
+        renderDestinationChargingCard(bestDestStation, specs, estSocAdd, destName, distM);
+    });
+}
+
+// 🎯 3. 渲染目的地景點「車等人」推薦卡片
+function renderDestinationChargingCard(station, specs, estSocAdd, destName, distM) {
+    const cardEl = document.getElementById('abrpDestPoiCard');
+    if (!cardEl) return;
+
+    const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(station.name)}&destination_place_id=${station.place_id || ''}`;
+
+    cardEl.className = "p-3.5 rounded-2xl bg-teal-50/90 dark:bg-teal-950/40 border border-teal-300 dark:border-teal-700/60 mt-2 space-y-2 text-xs shadow-sm";
+    cardEl.innerHTML = `
+        <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-teal-800 dark:text-teal-300 flex items-center gap-1.5">
+                <span>🎯</span> 目的地景點補電推薦 (車等人)
+            </span>
+            <span class="text-[9px] font-black px-2 py-0.5 rounded-full bg-teal-200 dark:bg-teal-900/80 text-teal-950 dark:text-teal-200">
+                邊玩邊充
+            </span>
+        </div>
+
+        <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0">
+                <div class="font-black text-slate-800 dark:text-slate-100 text-xs sm:text-sm truncate">
+                    📍 ${escapeHTML(station.name)}
+                </div>
+                <div class="text-[10px] text-slate-400 font-bold mt-0.5">
+                    距離【${escapeHTML(destName)}】約 ${distM} 公尺 (步行約 ${Math.ceil(distM / 70)} 分鐘)
+                </div>
+            </div>
+            <a href="${navUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-teal-600 hover:bg-teal-500 text-white text-[10px] font-black shrink-0 shadow-sm active:scale-95 transition">
+                導航此站
+            </a>
+        </div>
+
+        <div class="p-2 rounded-xl bg-white/70 dark:bg-slate-900/60 border border-teal-200/50 dark:border-teal-800/40 text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+            ⚡ 提供 <b>${specs.powerLabel} (${specs.connectorLabel})</b>。<br>
+            若在景點停留約 <b>2～3 小時</b>，預估可無痛補進 <b>+${estSocAdd}%</b> 電量，回程無需再至國道排快充！
+        </div>
+    `;
+    cardEl.classList.remove('hidden');
+}
 // ⚡ Places API (New)：查詢電動車充電專屬規格 (evChargeOptions)
 async function fetchEvChargeDetails(placeId) {
     if (!placeId) return null;
