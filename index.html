@@ -5040,6 +5040,38 @@ function parseEvSpecs(evOptions, stationName = '') {
         connectors
     };
 }
+
+        // 🚗 計算從國道路線主線開到交流道充電站的「實際車程時間與里程」
+function getRealRoadDetour(highwayPoint, stationLocation) {
+    return new Promise((resolve) => {
+        if (!window.google?.maps?.DistanceMatrixService) {
+            resolve({ detourDistKm: null, detourDurationText: null, detourDurationSec: 9999 });
+            return;
+        }
+
+        const distanceMatrix = new google.maps.DistanceMatrixService();
+        distanceMatrix.getDistanceMatrix({
+            origins: [highwayPoint],
+            destinations: [stationLocation],
+            travelMode: google.maps.TravelMode.DRIVING,
+            drivingOptions: {
+                departureTime: new Date(),
+                trafficModel: google.maps.TrafficModel.BEST_GUESS
+            }
+        }, (response, status) => {
+            if (status === 'OK' && response?.rows?.[0]?.elements?.[0]?.status === 'OK') {
+                const element = response.rows[0].elements[0];
+                resolve({
+                    detourDistKm: (element.distance.value / 1000).toFixed(1),
+                    detourDurationText: element.duration_in_traffic ? element.duration_in_traffic.text : element.duration.text,
+                    detourDurationSec: element.duration_in_traffic ? element.duration_in_traffic.value : element.duration.value
+                });
+            } else {
+                resolve({ detourDistKm: null, detourDurationText: null, detourDurationSec: 9999 });
+            }
+        });
+    });
+}
         
 // 自動萃取地名：即便帶有縣市區，優先剝除前綴萃取真正的景點名
 function getShortLocationName(locStr) {
@@ -5393,7 +5425,7 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
 
     const path = (route && route.overview_path) ? route.overview_path : currentPkRoutes[routeIdx].overview_path;
 
-    // 輔助函式：計算某座標投影在路線上的累計里程 (km) 與偏離主線距離 (m)
+// 輔助函式：計算某座標投影在路線上的累計里程 (km) 與偏離主線距離 (m)
     function getStationRouteProjection(stLat, stLng) {
         let minDist = Infinity;
         let bestIdx = 0;
@@ -5408,7 +5440,7 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         for (let i = 1; i <= bestIdx; i++) {
             kmFromStart += getDistanceFromLatLonInKm(path[i - 1].lat(), path[i - 1].lng(), path[i].lat(), path[i].lng());
         }
-        return { kmFromStart, distToRouteMeters: minDist };
+        return { kmFromStart, distToRouteMeters: minDist, bestPointIndex: bestIdx };
     }
 
 const validCandidates = [];
@@ -5460,7 +5492,7 @@ const validCandidates = [];
         });
     }
 
-    // 🎯 2. 偏好為「交流道」或該路段無服務區充電站：調用 Places API 探測交流道周邊快充
+// 🎯 2. 偏好為「交流道」或該路段無服務區充電站：調用 Places API 探測交流道周邊快充
     if (validCandidates.length === 0) {
         const placesService = new google.maps.places.PlacesService(abrpMap);
         const anchorKm = Math.min(totalDistanceKm - 10, Math.max(15, criticalDistanceKm * 0.85));
@@ -5487,14 +5519,18 @@ const validCandidates = [];
         const timeoutPromise = new Promise(resolve => setTimeout(() => resolve([]), 2500));
         const rawResults = await Promise.race([placesPromise, timeoutPromise]);
 
-        for (const st of rawResults.slice(0, 8)) {
+        for (const st of rawResults.slice(0, 6)) {
             const n = (st.name || '').toLowerCase();
             if (n.includes('tesla') || n.includes('特斯拉') || n.includes('supercharger') || n.includes('volvo') || n.includes('富豪')) continue;
             if (n.includes('gogoro') || n.includes('機車') || n.includes('換電')) continue;
 
             const stLoc = st.geometry.location;
             const proj = getStationRouteProjection(stLoc.lat(), stLoc.lng());
-            if (proj.distToRouteMeters <= 6000) {
+            if (proj.distToRouteMeters <= 5000) {
+                // 🛣️ 計算真實道路車程與行駛距離
+                const highwayAnchor = path[proj.bestPointIndex] || searchPoint;
+                const roadDetour = await getRealRoadDetour(highwayAnchor, stLoc);
+
                 validCandidates.push({
                     name: st.name,
                     address: st.vicinity || st.formatted_address || "交流道沿線",
@@ -5509,11 +5545,20 @@ const validCandidates = [];
                         connectorLabel: "CCS1 / CCS2",
                         hasCcs1: true
                     },
-                    kmFromStart: proj.kmFromStart
+                    kmFromStart: proj.kmFromStart,
+                    detourDistKm: roadDetour.detourDistKm,
+                    detourDurationText: roadDetour.detourDurationText,
+                    detourDurationSec: roadDetour.detourDurationSec
                 });
             }
         }
+
+        // 🏆 交流道模式下，優先以「真實下交流道車程時間最短」排序
+        if (abrpStopPreference === 'interchange') {
+            validCandidates.sort((a, b) => (a.detourDurationSec || 9999) - (b.detourDurationSec || 9999));
+        }
     }
+    
     const stopDiv = document.getElementById('abrpStopRecommendation');
 
     if (validCandidates.length === 0) {
@@ -5666,9 +5711,17 @@ const stationCardHtml = `
                             <span class="shrink-0">📍</span>
                             <span class="truncate">${escapeHTML(stationAddress)}</span>
                         </div>
-                        <span class="bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-md font-black shrink-0 whitespace-nowrap shadow-sm">
-                            ⏱️ 補電約 ${chargingMinutes} 分
-                        </span>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            ${(!isRestArea && selectedStation.detourDurationText) ? `
+                                <!-- 🛣️ 真實下交流道車程標籤 -->
+                                <span class="bg-sky-100 dark:bg-sky-900/60 text-sky-800 dark:text-sky-300 px-2 py-0.5 rounded-md font-black shadow-sm">
+                                    🛣️ 離道約 ${selectedStation.detourDurationText} (${selectedStation.detourDistKm}km)
+                                </span>
+                            ` : ''}
+                            <span class="bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-md font-black shrink-0 whitespace-nowrap shadow-sm">
+                                ⏱️ 補電約 ${chargingMinutes} 分
+                            </span>
+                        </div>
                     </div>
 
                     <div class="pt-2 border-t border-amber-100 dark:border-amber-900/40 flex items-center justify-between gap-2">
