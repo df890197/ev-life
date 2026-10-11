@@ -5024,7 +5024,7 @@ const startInp = document.getElementById('routeStartInput')?.value || "起點";
     });
 }
 
-function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, route) {
+async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, route) {
     const { directArrivalSoc, totalDistanceKm, durationText, realEff, routeProfileText, neededStops } = calcData;
     document.getElementById('abrpResultSection')?.classList.remove('hidden');
 
