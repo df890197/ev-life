@@ -5090,13 +5090,17 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         <div id="abrpStopRecommendation" class="text-[11px] pt-1">
             <div class="min-h-[90px] flex items-center justify-center bg-white/50 dark:bg-black/20 rounded-xl border border-amber-200/50 dark:border-amber-700/30 p-3">
                 <div class="animate-pulse flex items-center gap-2 text-amber-700 dark:text-amber-400 font-bold">
-                    <span class="animate-spin text-base">⏳</span> 正在尋找路徑上的最佳快充站點...
+                    <span class="animate-spin text-base">⏳</span> 正在依偏好智能尋找沿線最佳站點...
                 </div>
             </div>
         </div>
     `;
 
-    // ⚡ 1. 沿路線計算電量即將耗盡前之「行駛區間」（沿線搜站核心）
+    // ⚡ 1. 估算車輛行駛方向（南下 vs 北上）
+    const path = (route && route.overview_path) ? route.overview_path : currentPkRoutes[routeIdx].overview_path;
+    const isHeadingSouth = path.length > 5 ? (path[0].lat() > path[path.length - 1].lat()) : true;
+
+    // ⚡ 2. 沿路線計算電量即將耗盡前之行駛區間（放寬上限至 1.15 倍，避免服務區剛好在極限點後面 5 公里漏抓）
     let criticalDistanceKm;
     if (startSoc <= 10) {
         criticalDistanceKm = Math.max(1, (startSoc / 100) * AppState.batteryCapacity * realEff);
@@ -5106,12 +5110,9 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         criticalDistanceKm = Math.max(15, (usableSoc / 100) * AppState.batteryCapacity * realEff);
     }
 
-    const path = (route && route.overview_path) ? route.overview_path : currentPkRoutes[routeIdx].overview_path;
-
-    // 🎯 2. 沿預定行駛路線取樣 3~4 個路徑錨點
     const searchAnchorPoints = [];
-    const minSearchKm = Math.max(10, criticalDistanceKm * 0.45);
-    const maxSearchKm = criticalDistanceKm;
+    const minSearchKm = Math.max(10, criticalDistanceKm * 0.4);
+    const maxSearchKm = criticalDistanceKm * 1.18; // 增加 18% 緩衝區間，防止錯過前方剛好抵達的服務區
     const sampleIntervalKm = Math.max(25, (maxSearchKm - minSearchKm) / 3);
 
     let accumulatedMeters = 0;
@@ -5132,29 +5133,32 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
     }
     if (searchAnchorPoints.length === 0) searchAnchorPoints.push(path[Math.floor(path.length / 2)] || path[0]);
 
-    // 🎯 3. 沿著路線錨點並行搜尋站點
+    // 🎯 3. 搜尋站點（統一使用廣義關鍵字，半徑適度控制，再由程式嚴格打分）
     const placesService = new google.maps.places.PlacesService(abrpMap);
     const stopDiv = document.getElementById('abrpStopRecommendation');
 
-    const searchKeyword = (abrpStopPreference === 'restArea') ? '服務區 充電站' : '電動車 快充站';
-    const pointRadius = (abrpStopPreference === 'restArea') ? 15000 : 6000;
+    // 搜尋詞兼顧服務區與快充站，避免 Places API 漏網
+    const searchKeywords = (abrpStopPreference === 'restArea') ? ['服務區 充電站', '高速公路 快充'] : ['電動車 快充站'];
 
-    const searchPromises = searchAnchorPoints.map(point => {
-        return new Promise(resolve => {
-            placesService.nearbySearch({
-                location: point,
-                radius: pointRadius,
-                keyword: searchKeyword
-            }, (results, status) => {
-                resolve((status === google.maps.places.PlacesServiceStatus.OK && results) ? results : []);
-            });
+    const searchPromises = [];
+    searchAnchorPoints.forEach(point => {
+        searchKeywords.forEach(kw => {
+            searchPromises.push(new Promise(resolve => {
+                placesService.nearbySearch({
+                    location: point,
+                    radius: (abrpStopPreference === 'restArea') ? 16000 : 7000,
+                    keyword: kw
+                }, (results, status) => {
+                    resolve((status === google.maps.places.PlacesServiceStatus.OK && results) ? results : []);
+                });
+            }));
         });
     });
 
     const resultsByPoint = await Promise.all(searchPromises);
     let rawStations = [].concat(...resultsByPoint);
 
-    // 依據 place_id 去除沿線重複站點
+    // 依據 place_id 去重
     const seenPlaceIds = new Set();
     rawStations = rawStations.filter(st => {
         const id = st.place_id || st.name;
@@ -5163,33 +5167,12 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         return true;
     });
 
-    // 保底：若選服務區但該路段沿線無站點，自動回退改搜交流道快充
-    if (abrpStopPreference === 'restArea' && rawStations.length === 0) {
-        const fallbackPromises = searchAnchorPoints.map(point => {
-            return new Promise(resolve => {
-                placesService.nearbySearch({
-                    location: point,
-                    radius: 8000,
-                    keyword: '電動車 快充站'
-                }, (results, status) => {
-                    resolve((status === google.maps.places.PlacesServiceStatus.OK && results) ? results : []);
-                });
-            });
-        });
-        const fallbackResults = await Promise.all(fallbackPromises);
-        rawStations = [].concat(...fallbackResults).filter(st => {
-            const id = st.place_id || st.name;
-            if (seenPlaceIds.has(id)) return false;
-            seenPlaceIds.add(id);
-            return true;
-        });
-    }
-
     const EV_CAR_BRANDS = [
         'evoasis', 'u-power', 'upower', 'tail', '特爾', 
         'evalue', '華城', 'nhoa', '台泥', 'incharge', 
         '星舟', '中油', '台亞', '北基', '源點', 'yes!來電', 
-        '馳諾瓦', '泓德', '連網', '快充', '超充', '超級充電'
+        '馳諾瓦', '泓德', '連網', '快充', '超充', '超級充電',
+        '服務區', '休息站' // 納入服務區作為合格電動車設施關鍵字
     ];
 
     const SCOOTER_BLACKLIST = [
@@ -5219,12 +5202,14 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         return;
     }
 
-    // 5. 計算站點與路線的最短距離並評分排序
+    // 5. 強化服務區判定（名稱 + 地址）與「行車方向防呆」
     const scoredStations = validStations.map(st => {
         const stPos = st.geometry.location;
         const nameLower = (st.name || '').toLowerCase();
-        let minMetersToRoute = Infinity;
+        const vicinityLower = (st.vicinity || st.formatted_address || '').toLowerCase();
+        const fullText = `${nameLower} ${vicinityLower}`;
 
+        let minMetersToRoute = Infinity;
         for (let i = 0; i < path.length; i++) {
             const dist = (window.google?.maps?.geometry?.spherical)
                 ? google.maps.geometry.spherical.computeDistanceBetween(path[i], stPos)
@@ -5233,25 +5218,39 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         }
 
         const isKnownEvBrand = EV_CAR_BRANDS.some(b => nameLower.includes(b));
-        const isStationRestArea = nameLower.includes('服務區') || nameLower.includes('休息站');
+        // 同時檢查名稱與地址是否為服務區
+        const isStationRestArea = fullText.includes('服務區') || fullText.includes('休息站');
+
+        // 🎯 方向防呆：南下車輛應避開「北上 / 北站」，北上車輛應避開「南下 / 南站」
+        let isOppositeDirection = false;
+        if (isHeadingSouth && (fullText.includes('北上') || fullText.includes('北向') || fullText.includes('北站'))) {
+            isOppositeDirection = true;
+        } else if (!isHeadingSouth && (fullText.includes('南下') || fullText.includes('南向') || fullText.includes('南站'))) {
+            isOppositeDirection = true;
+        }
 
         let score = minMetersToRoute;
 
+        // 若方向相反，給予極大懲罰分（推至排序最後）
+        if (isOppositeDirection) {
+            score += 50000;
+        }
+
         if (abrpStopPreference === 'restArea') {
             if (isStationRestArea) {
-                score -= 30000;
+                score -= 35000; // 順向服務區必定置頂
             } else if (isKnownEvBrand) {
                 score -= 1000;
             }
         } else if (abrpStopPreference === 'interchange') {
             if (isStationRestArea) {
-                score += 25000;
+                score += 30000; // 偏好交流道時，排擠服務區
             } else if (isKnownEvBrand) {
                 score -= 8000;
             }
         }
 
-        return { station: st, distToRoute: minMetersToRoute, score, isKnownEvBrand, isStationRestArea };
+        return { station: st, distToRoute: minMetersToRoute, score, isKnownEvBrand, isStationRestArea, isOppositeDirection };
     });
 
     scoredStations.sort((a, b) => a.score - b.score);
@@ -5261,6 +5260,17 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
     for (const st of scoredStations.slice(0, 10)) {
         const evOptions = await fetchEvChargeDetails(st.station.place_id);
         const specs = parseEvSpecs(evOptions, st.station.name);
+
+        // 🎯 核心補正：只要是國道服務區，台灣標案皆為 ≥180kW~360kW 之高壓快充，標配 CCS1+CCS2
+        if (st.isStationRestArea) {
+            specs.isFast = true;
+            if (specs.maxKw === 0) specs.maxKw = 200; // 預設給予 200kW 快充保底
+            if (!specs.connectors.includes('CCS1')) specs.connectors.push('CCS1');
+            if (!specs.connectors.includes('CCS2')) specs.connectors.push('CCS2');
+            specs.hasCcs1 = true;
+            if (!specs.powerLabel || specs.powerLabel.includes('依現場')) specs.powerLabel = '200~360 kW (國道超充)';
+            if (!specs.connectorLabel || specs.connectorLabel.includes('依現場')) specs.connectorLabel = 'CCS1 / CCS2 (n⁷可用)';
+        }
 
         if (!abrpSelectedConnectors.has('ALL')) {
             const isMatch = specs.connectors.some(c => abrpSelectedConnectors.has(c));
@@ -5278,7 +5288,7 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
             if (!matchesPower) continue;
         }
 
-        selectedCandidate = { station: st.station, specs };
+        selectedCandidate = { station: st.station, specs, isStationRestArea: st.isStationRestArea };
         break;
     }
 
@@ -5291,39 +5301,41 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
 
     const bestStation = selectedCandidate.station;
     const specs = selectedCandidate.specs;
+    const isRestArea = selectedCandidate.isStationRestArea;
 
     const stationName = bestStation.name || "沿線推薦充電站";
     const stationAddress = bestStation.vicinity || bestStation.formatted_address || "國道服務區或主要幹道沿線";
-const isRestArea = (stationName.includes('服務區') || stationName.includes('休息站'));
 
-            // 🎯 判斷是國道服務區還是交流道站，並給予對應的標籤顏色與圖示
-            const stopTypeBadge = isRestArea
-                ? `<span class="bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700/60 text-[9.5px] font-black px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1 shadow-sm">
-                        <span>☕</span> 服務區站
-                   </span>`
-                : `<span class="bg-sky-100 dark:bg-sky-900/60 text-sky-900 dark:text-sky-200 border border-sky-300 dark:border-sky-700/60 text-[9.5px] font-black px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1 shadow-sm">
-                        <span>🛣️</span> 交流道站
-                   </span>`;
+    // 🎯 若偏好服務區但最後退回交流道站，提示小貼籤
+    const isFallbackToInterchange = (abrpStopPreference === 'restArea' && !isRestArea);
 
-            const targetSocRef = startSoc <= 25 ? 10 : 18;
-            const neededKwh = AppState.batteryCapacity * ((80 - targetSocRef) / 100);
-            const effectiveKw = specs.maxKw > 0 ? Math.min(specs.maxKw, 100) : 85;
-            const chargingMinutes = Math.round((neededKwh / effectiveKw) * 60);
+    const stopTypeBadge = isRestArea
+        ? `<span class="bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700/60 text-[9.5px] font-black px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1 shadow-sm">
+                <span>☕</span> 服務區站
+           </span>`
+        : `<span class="bg-sky-100 dark:bg-sky-900/60 text-sky-900 dark:text-sky-200 border border-sky-300 dark:border-sky-700/60 text-[9.5px] font-black px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1 shadow-sm">
+                <span>🛣️</span> ${isFallbackToInterchange ? '無服務區·替補交流道' : '交流道站'}
+           </span>`;
 
-            const stationLoc = bestStation.geometry.location;
-            const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(stationName)}&destination_place_id=${bestStation.place_id || ''}`;
+    const targetSocRef = startSoc <= 25 ? 10 : 18;
+    const neededKwh = AppState.batteryCapacity * ((80 - targetSocRef) / 100);
+    const effectiveKw = specs.maxKw > 0 ? Math.min(specs.maxKw, 100) : 85;
+    const chargingMinutes = Math.round((neededKwh / effectiveKw) * 60);
 
-            const stationCardHtml = `
-                <div class="bg-white/90 dark:bg-black/50 p-3 sm:p-3.5 rounded-2xl border ${isRestArea ? 'border-amber-400 dark:border-amber-500 shadow-[0_0_15px_rgba(251,191,36,0.15)]' : 'border-teal-400'} mt-1 shadow-sm space-y-2.5">
-                    <div class="flex items-start justify-between gap-2">
-                        <div class="flex items-start gap-1.5 min-w-0">
-                            <span class="text-base shrink-0 leading-snug">${isRestArea ? '☕' : '⚡'}</span>
-                            <div class="font-black text-amber-950 dark:text-amber-200 text-xs sm:text-sm leading-snug break-words line-clamp-2">
-                                ${escapeHTML(stationName)}
-                            </div>
-                        </div>
-                        ${stopTypeBadge}
+    const stationLoc = bestStation.geometry.location;
+    const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(stationName)}&destination_place_id=${bestStation.place_id || ''}`;
+
+    const stationCardHtml = `
+        <div class="bg-white/90 dark:bg-black/50 p-3 sm:p-3.5 rounded-2xl border ${isRestArea ? 'border-amber-400 dark:border-amber-500 shadow-[0_0_15px_rgba(251,191,36,0.15)]' : 'border-teal-400'} mt-1 shadow-sm space-y-2.5">
+            <div class="flex items-start justify-between gap-2">
+                <div class="flex items-start gap-1.5 min-w-0">
+                    <span class="text-base shrink-0 leading-snug">${isRestArea ? '☕' : '⚡'}</span>
+                    <div class="font-black text-amber-950 dark:text-amber-200 text-xs sm:text-sm leading-snug break-words line-clamp-2">
+                        ${escapeHTML(stationName)}
                     </div>
+                </div>
+                ${stopTypeBadge}
+            </div>
 
             <div class="flex flex-wrap items-center gap-1.5 pt-0.5">
                 <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${specs.isFast ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800/50' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'} text-[10px] font-mono font-bold border">
