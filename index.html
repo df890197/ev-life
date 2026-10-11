@@ -5475,33 +5475,23 @@ const validCandidates = [];
     const isSouthbound = endLat < startLat;
     const dirTag = isSouthbound ? "南站" : "北站";
 
-    // 🎯 1. 偏好為「服務區」：直接比對 15 處高公局服務區（快速、零卡頓、方向精準）
+// 🎯 1. 偏好為「服務區」：直接比對 15 處高公局服務區（快速、零卡頓、方向精準）
     if (abrpStopPreference === 'restArea') {
         TAIWAN_REST_AREA_CHARGERS.forEach(ra => {
-            const proj = getStationRouteProjection(ra.lat, ra.lng);
-            // 只要服務區離路線 2.5 公里內，代表路線確實經過
+            let targetPoint = ra;
+            if (ra.hasDirection) {
+                // 南下必取 south，北上必取 north
+                targetPoint = isSouthbound ? (ra.south || ra) : (ra.north || ra);
+            }
+
+            const proj = getStationRouteProjection(targetPoint.lat, targetPoint.lng);
+            // 只要該向站點離主線 2.5 公里內，代表行車方向有經過
             if (proj.distToRouteMeters <= 2500) {
-                let finalName = ra.name;
-                let finalLat = ra.lat;
-                let finalLng = ra.lng;
-
-                if (ra.hasDirection) {
-                    if (isSouthbound && ra.south) {
-                        finalName = ra.south.name;
-                        finalLat = ra.south.lat;
-                        finalLng = ra.south.lng;
-                    } else if (!isSouthbound && ra.north) {
-                        finalName = ra.north.name;
-                        finalLat = ra.north.lat;
-                        finalLng = ra.north.lng;
-                    }
-                }
-
                 validCandidates.push({
-                    name: finalName,
+                    name: targetPoint.name,
                     address: `${ra.highway} 服務區停車場`,
-                    lat: finalLat,
-                    lng: finalLng,
+                    lat: targetPoint.lat,
+                    lng: targetPoint.lng,
                     isRestArea: true,
                     specs: {
                         isFast: true,
@@ -5546,7 +5536,7 @@ const validCandidates = [];
 // 🧭 取得整趟路線主要行進向量（南下 vs 北上）
         const isSouthboundRoute = path[path.length - 1].lat() < path[0].lat();
 
-for (const st of rawResults.slice(0, 10)) {
+for (const st of rawResults.slice(0, 12)) {
             const n = (st.name || '').toLowerCase();
             const addr = (st.vicinity || st.formatted_address || '').toLowerCase();
             const fullName = `${n} ${addr}`;
@@ -5555,37 +5545,42 @@ for (const st of rawResults.slice(0, 10)) {
             if (fullName.includes('tesla') || fullName.includes('特斯拉') || fullName.includes('supercharger') || fullName.includes('volvo') || fullName.includes('富豪')) continue;
             if (fullName.includes('gogoro') || fullName.includes('機車') || fullName.includes('換電')) continue;
 
-            // 🛑 2. 方向性防呆：南下絕對不選「北站/北向/北上」，北上絕對不選「南站/南向/南下」
-            if (isSouthboundRoute && (fullName.includes('北站') || fullName.includes('北向') || fullName.includes('北上'))) continue;
-            if (!isSouthboundRoute && (fullName.includes('南站') || fullName.includes('南向') || fullName.includes('南下'))) continue;
-
             const stLoc = st.geometry.location;
-            const proj = getStationRouteProjection(stLoc.lat(), stLoc.lng());
 
-            // 🛑 3. 幾何側向判定（禁止跨越高速公路選到對向站點）
-            const refIdx = proj.bestPointIndex || 0;
-            const pCurrent = path[refIdx];
-            const pNext = path[Math.min(path.length - 1, refIdx + 2)];
-
-            // 計算行車向量與站點向量的外積：判斷站點是在路線右側還是左側
-            const dx = pNext.lng() - pCurrent.lng();
-            const dy = pNext.lat() - pCurrent.lat();
-            const sx = stLoc.lng() - pCurrent.lng();
-            const sy = stLoc.lat() - pCurrent.lat();
-            const crossProduct = (dx * sy) - (dy * sx);
-
-            // 台灣靠右行駛，順向出口/服務區通常位於行車方向右側 (crossProduct < 0)
-            // 若站點極度偏向對側車道 (crossProduct > 0.00015 且距離主線很近)，判定為對向封閉站點並排除
-            if (crossProduct > 0.00015 && proj.distToRouteMeters < 1200) {
-                continue;
+            // 🛑 2. 精準排除服務區本體（250m 極核心停車場 + 地址關鍵字聯防，絕不誤殺牆外站點）
+            let isInsideRestArea = false;
+            
+            // A. 地址或名稱已明寫是服務區/休息站（精確命中，無距離限制）
+            if (fullName.includes('服務區') || fullName.includes('休息站')) {
+                isInsideRestArea = true;
+            } else {
+                // B. 名稱未明寫時，只針對 250 公尺極核心（停車場內）進行比對
+                TAIWAN_REST_AREA_CHARGERS.forEach(ra => {
+                    if (isInsideRestArea) return;
+                    const pts = ra.hasDirection ? [ra.south, ra.north].filter(Boolean) : [ra];
+                    pts.forEach(p => {
+                        const distM = getDistanceFromLatLonInKm(stLoc.lat(), stLoc.lng(), p.lat, p.lng) * 1000;
+                        if (distM < 250) {
+                            isInsideRestArea = true; // 250 公尺內代表就在該服務區停車格內
+                        }
+                    });
+                });
             }
+
+            if (isInsideRestArea) continue;
+
+            // 🛑 3. 方向性防呆
+            if (isSouthbound && (fullName.includes('北站') || fullName.includes('北向') || fullName.includes('北上'))) continue;
+            if (!isSouthbound && (fullName.includes('南站') || fullName.includes('南向') || fullName.includes('南下'))) continue;
+
+            const proj = getStationRouteProjection(stLoc.lat(), stLoc.lng());
 
             if (proj.distToRouteMeters <= 5000) {
                 // 🛣️ 計算真實道路車程與行駛距離
                 const highwayAnchor = path[proj.bestPointIndex] || searchPoint;
                 const roadDetour = await getRealRoadDetour(highwayAnchor, stLoc);
 
-                // 🛑 4. 繞路時間防呆：若下交流道車程異常（例如需要開超過 12 分鐘或迴轉繞大圈），判定非順路站點
+                // 🛑 4. 繞路時間防呆：若需要下交流道開超過 12 分鐘，代表逆向或不順路
                 if (roadDetour.detourDurationSec && roadDetour.detourDurationSec > 720) {
                     continue;
                 }
