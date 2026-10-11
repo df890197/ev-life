@@ -1254,17 +1254,29 @@ input[type="number"] {
                     
 <!-- 出發電量、偏好切換與規格篩選 -->
 <div class="w-full sm:col-span-3 pt-2.5 border-t border-slate-200/40 dark:border-slate-800/60 mt-1 space-y-2">
-<!-- 第一行：出發電量 + 偏好切換 (手機緊湊防擠壓版) -->
+<!-- 第一行：出發電量 + 偏好切換 (支援單擊與長按連續版) -->
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-    <!-- 電量設定區 (縮減間距與尺寸，保證小螢幕不破版) -->
+    <!-- 電量設定區 -->
     <div class="flex items-center justify-start gap-x-2 sm:gap-x-3 overflow-x-auto no-scrollbar">
         <!-- 1. 出發電量 -->
         <div class="flex items-center gap-1 shrink-0">
             <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 shrink-0">出發</label>
-            <div class="flex items-center bg-slate-100 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 rounded-xl p-0.5 shadow-inner shrink-0">
-                <button type="button" onclick="adjustAbrpSoc('routeStartSoc', -5)" class="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-black shadow-sm active:scale-90 transition select-none hover:bg-slate-50">-</button>
+            <div class="flex items-center bg-slate-100 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 rounded-xl p-0.5 shadow-inner shrink-0 select-none">
+                <!-- 出發 -1 按鈕 -->
+                <button type="button" 
+                        onpointerdown="startAbrpHold(event, 'routeStartSoc', -1)"
+                        onpointerup="stopAbrpHold()"
+                        onpointerleave="stopAbrpHold()"
+                        oncontextmenu="return false;"
+                        class="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-black shadow-sm active:scale-90 transition select-none hover:bg-slate-50 touch-manipulation">-</button>
                 <input type="number" id="routeStartSoc" min="1" max="100" step="1" inputmode="numeric" value="100" oninput="validateSocInput(this, 100)" class="w-8 sm:w-9 text-center font-mono font-black text-xs bg-transparent focus:outline-none appearance-none text-slate-800 dark:text-white">
-                <button type="button" onclick="adjustAbrpSoc('routeStartSoc', 5)" class="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-black shadow-sm active:scale-90 transition select-none hover:bg-slate-50">+</button>
+                <!-- 出發 +1 按鈕 -->
+                <button type="button" 
+                        onpointerdown="startAbrpHold(event, 'routeStartSoc', 1)"
+                        onpointerup="stopAbrpHold()"
+                        onpointerleave="stopAbrpHold()"
+                        oncontextmenu="return false;"
+                        class="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-black shadow-sm active:scale-90 transition select-none hover:bg-slate-50 touch-manipulation">+</button>
             </div>
             <span class="text-[11px] font-mono font-black text-slate-400 shrink-0">%</span>
         </div>
@@ -1272,10 +1284,22 @@ input[type="number"] {
         <!-- 2. 想充電量門檻 -->
         <div class="flex items-center gap-1 shrink-0">
             <label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 shrink-0">想在剩</label>
-            <div class="flex items-center bg-slate-100 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 rounded-xl p-0.5 shadow-inner shrink-0">
-                <button type="button" onclick="adjustAbrpSoc('routeTargetMinSoc', -5)" class="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-black shadow-sm active:scale-90 transition select-none hover:bg-slate-50">-</button>
+            <div class="flex items-center bg-slate-100 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 rounded-xl p-0.5 shadow-inner shrink-0 select-none">
+                <!-- 想充 -1 按鈕 -->
+                <button type="button" 
+                        onpointerdown="startAbrpHold(event, 'routeTargetMinSoc', -1)"
+                        onpointerup="stopAbrpHold()"
+                        onpointerleave="stopAbrpHold()"
+                        oncontextmenu="return false;"
+                        class="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-black shadow-sm active:scale-90 transition select-none hover:bg-slate-50 touch-manipulation">-</button>
                 <input type="number" id="routeTargetMinSoc" min="5" max="50" step="1" inputmode="numeric" value="15" oninput="validateSocInput(this, 50)" class="w-8 sm:w-9 text-center font-mono font-black text-xs bg-transparent focus:outline-none appearance-none text-slate-800 dark:text-white">
-                <button type="button" onclick="adjustAbrpSoc('routeTargetMinSoc', 5)" class="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-black shadow-sm active:scale-90 transition select-none hover:bg-slate-50">+</button>
+                <!-- 想充 +1 按鈕 -->
+                <button type="button" 
+                        onpointerdown="startAbrpHold(event, 'routeTargetMinSoc', 1)"
+                        onpointerup="stopAbrpHold()"
+                        onpointerleave="stopAbrpHold()"
+                        oncontextmenu="return false;"
+                        class="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-black shadow-sm active:scale-90 transition select-none hover:bg-slate-50 touch-manipulation">+</button>
             </div>
             <span class="text-[11px] font-bold text-slate-400 shrink-0 whitespace-nowrap">% 充</span>
         </div>
@@ -4454,11 +4478,16 @@ function initAbrpAutocomplete() {
             }
         }
 
-        // ⚡ ABRP 電量步進控制 (+/- 按鈕點擊)
-window.adjustAbrpSoc = function(inputId, delta) {
+// ⚡ ABRP 電量步進控制（支援單擊即動 + 長按連續極速微調）
+let abrpHoldTimer = null;
+let abrpRepeatInterval = null;
+let isAbrpHolding = false;
+
+window.adjustAbrpSocValueOnly = function(inputId, delta) {
     const el = document.getElementById(inputId);
-    if (!el) return;
+    if (!el) return false;
     let val = parseInt(el.value, 10) || 0;
+    const oldVal = val;
     val += delta;
 
     if (inputId === 'routeStartSoc') {
@@ -4466,9 +4495,17 @@ window.adjustAbrpSoc = function(inputId, delta) {
     } else {
         val = Math.max(5, Math.min(50, val));
     }
-    el.value = val;
-    triggerHaptic('light');
 
+    if (val !== oldVal) {
+        el.value = val;
+        triggerHaptic('light');
+        return true;
+    }
+    return false;
+};
+
+// 重新計算路線（放開按鈕或單擊後才觸發，避免長按連續時手機卡死）
+window.triggerAbrpRouteRecalculate = function() {
     if (currentPkRoutes && currentPkRoutes.length > 0) {
         const activeIdx = abrpDirectionsRenderer ? abrpDirectionsRenderer.getRouteIndex() : 0;
         const startSoc = parseFloat(document.getElementById('routeStartSoc')?.value) || 90;
@@ -4477,6 +4514,42 @@ window.adjustAbrpSoc = function(inputId, delta) {
         }
         processRouteElevationAndCharging(currentPkRoutes[activeIdx], startSoc, activeIdx);
     }
+};
+
+// 長按開始
+window.startAbrpHold = function(event, inputId, delta) {
+    if (event.cancelable) event.preventDefault();
+
+    isAbrpHolding = false;
+    window.stopAbrpHold();
+
+    // 1. 按下的瞬間立即執行一次 +1 或 -1
+    adjustAbrpSocValueOnly(inputId, delta);
+
+    // 2. 按住超過 350 毫秒後，啟動連續快速調整
+    abrpHoldTimer = setTimeout(() => {
+        isAbrpHolding = true;
+        abrpRepeatInterval = setInterval(() => {
+            const changed = adjustAbrpSocValueOnly(inputId, delta);
+            if (!changed) {
+                window.stopAbrpHold(); // 達到 100% 或 5% 極限時自動停止
+            }
+        }, 80); // 每 80 毫秒跳 1%
+    }, 350);
+};
+
+// 放開按鈕或滑出按鈕時停止
+window.stopAbrpHold = function() {
+    if (abrpHoldTimer) {
+        clearTimeout(abrpHoldTimer);
+        abrpHoldTimer = null;
+    }
+    if (abrpRepeatInterval) {
+        clearInterval(abrpRepeatInterval);
+        abrpRepeatInterval = null;
+    }
+    // 手指放開時才執行一次路線重新計算
+    window.triggerAbrpRouteRecalculate();
 };
 
 window.validateSocInput = function(el, maxVal) {
