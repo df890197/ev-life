@@ -5114,10 +5114,10 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         const usableSoc = Math.max(5, startSoc - targetRemainingSoc);
         const criticalDistanceKm = Math.max(15, (usableSoc / 100) * AppState.batteryCapacity * realEff);
 
-        // 🎯 集中在即將耗盡電量前的最後區間（避免在還有50%電量時過早採樣）
-        const minSearchKm = Math.max(15, criticalDistanceKm * 0.70); // 從極限里程的 70% 處才開始找站
-        const maxSearchKm = criticalDistanceKm * 1.05;               // 上限不超過極限的 105%
-        const sampleIntervalKm = Math.max(15, (maxSearchKm - minSearchKm) / 3);
+        // 🎯 採樣覆蓋極限續航前 55% ~ 102% 之區間，確保苗栗、台中、彰化沿途大站全數納入候選池
+        const minSearchKm = Math.max(20, criticalDistanceKm * 0.55);
+        const maxSearchKm = criticalDistanceKm * 1.02;
+        const sampleIntervalKm = Math.max(20, (maxSearchKm - minSearchKm) / 4);
 
         let accumulatedMeters = 0;
         let nextSampleKm = minSearchKm;
@@ -5261,17 +5261,19 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         let score = 0;
 
         if (arrivalSocAtStation < 8) {
-            // 開不到（抵達剩不到 8%），給予極大懲罰分避免拋錨
-            score += 80000 + Math.abs(arrivalSocAtStation) * 1000;
+            // 🚨 開不到（抵達剩不到 8%），極大懲罰分避免拋錨
+            score += 100000 + Math.abs(arrivalSocAtStation) * 2000;
         } else if (arrivalSocAtStation < 12) {
-            // 電量偏緊（8%~12%），微幅加罰
-            score += (12 - arrivalSocAtStation) * 2000;
+            // ⚠️ 電量偏緊（8%~12%），輕微加罰
+            score += (12 - arrivalSocAtStation) * 2500;
         } else if (arrivalSocAtStation <= 22) {
-            // 🌟 黃金進站區間（12%~22%）：分數最好！給予獎勵
-            score -= 10000;
+            // 🌟 黃金進站區間（12%~22%）：滿分獎勵！
+            score -= 20000;
         } else {
-            // ⚠️ 太早進站（電量還剩一大半）：每多剩 1% 電量就加罰 600 分，電量越多罰越重！
-            score += (arrivalSocAtStation - 22) * 600;
+            // 🛑 太早進站（電量還剩一大半）：平方級加罰！
+            // 當剩餘 50% 電量時，多剩 28% -> 加罰 28 * 1800 = 50,400 分，直接壓過服務區的 -35000 優惠！
+            const excessSoc = arrivalSocAtStation - 22;
+            score += excessSoc * 1800;
         }
 
         // 加上下交流道繞路的實質距離懲罰（繞路越遠越後排）
