@@ -1251,6 +1251,16 @@ input[type="number"] {
                             <button type="button" id="btnClearEnd" onclick="clearRouteInput('routeEndInput', 'btnClearEnd')" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs font-bold active:scale-90 transition">✕</button>
                         </div>
                     </div>
+
+                    <!-- ➕ 多中繼點動態容器與新增按鈕 -->
+                    <div class="w-full sm:col-span-3 space-y-2">
+                        <div id="abrpWaypointsList" class="space-y-2"></div>
+                        <div class="flex justify-start">
+                            <button type="button" onclick="addAbrpWaypointInput()" class="text-[10px] font-bold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 border border-teal-200 dark:border-teal-800/60 px-2.5 py-1 rounded-lg flex items-center gap-1 active:scale-95 transition">
+                                <span>➕</span> 新增中繼停靠點 (最多 3 處)
+                            </button>
+                        </div>
+                    </div>
                     
 <!-- 出發電量、偏好切換與規格篩選 -->
 <div class="w-full sm:col-span-3 pt-2.5 border-t border-slate-200/40 dark:border-slate-800/60 mt-1 space-y-2">
@@ -4730,11 +4740,17 @@ window.planElectricRoute = async function() {
     showToast("🧭 正在規劃純電路徑與地貌高程取樣...", false, 2000);
     const directionsService = new google.maps.DirectionsService();
 
+    // 🚦 整理有效的中繼停靠點
+    const activeWaypoints = (typeof abrpWaypoints !== 'undefined' ? abrpWaypoints : [])
+        .filter(w => w.location && w.location.trim().length > 0)
+        .map(w => ({ location: w.location.trim(), stopover: true }));
+
     directionsService.route({
         origin: startLoc,
         destination: endLoc,
+        waypoints: activeWaypoints, // 👈 支援起點 ➔ 停靠點 A ➔ 停靠點 B ➔ 終點
         travelMode: google.maps.TravelMode.DRIVING,
-        provideRouteAlternatives: true,
+        provideRouteAlternatives: activeWaypoints.length === 0, // 有多中繼點時 Google API 不支援替代路線，自動切換
         drivingOptions: { departureTime: new Date(), trafficModel: google.maps.TrafficModel.BEST_GUESS }
     }, async (response, status) => {
         if (status !== google.maps.DirectionsStatus.OK || !response.routes[0]) {
@@ -5074,6 +5090,92 @@ function parseEvSpecs(evOptions, stationName = '') {
         connectors
     };
 }
+
+        // 🏪 探測充電站周邊步行 3~5 分鐘 (350m) 內的生活設施標籤
+async function fetchStationAmenities(lat, lng) {
+    if (!abrpMap || !window.google?.maps?.places) return [];
+    const service = new google.maps.places.PlacesService(abrpMap);
+    const loc = new google.maps.LatLng(lat, lng);
+
+    const searchNearby = (types) => new Promise(resolve => {
+        service.nearbySearch({
+            location: loc,
+            radius: 350,
+            type: types
+        }, (res, status) => {
+            resolve((status === google.maps.places.PlacesServiceStatus.OK && res) ? res : []);
+        });
+    });
+
+    try {
+        const [stores, food, toilets] = await Promise.all([
+            searchNearby(['convenience_store', 'supermarket']),
+            searchNearby(['restaurant', 'cafe', 'fast_food_restaurant']),
+            searchNearby(['rest_stop', 'gas_station'])
+        ]);
+
+        const amenities = [];
+        if (stores.length > 0) amenities.push({ icon: '🏪', label: '便利超商/賣場' });
+        if (food.length > 0) amenities.push({ icon: '🍔', label: '餐飲/咖啡' });
+        if (toilets.length > 0) amenities.push({ icon: '🚻', label: '洗手間' });
+        
+        return amenities;
+    } catch (e) {
+        return [];
+    }
+}
+
+// 🗺️ 中繼點管理狀態
+let abrpWaypoints = [];
+
+window.addAbrpWaypointInput = function() {
+    if (abrpWaypoints.length >= 3) {
+        showToast("最多支援 3 處中繼停靠點喔！📍", true);
+        return;
+    }
+    const id = Date.now();
+    abrpWaypoints.push({ id, location: '' });
+    renderAbrpWaypoints();
+};
+
+window.removeAbrpWaypoint = function(id) {
+    abrpWaypoints = abrpWaypoints.filter(w => w.id !== id);
+    renderAbrpWaypoints();
+};
+
+function renderAbrpWaypoints() {
+    const container = document.getElementById('abrpWaypointsList');
+    if (!container) return;
+
+    container.innerHTML = abrpWaypoints.map((wp, idx) => `
+        <div class="flex items-center gap-2 bg-white dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700">
+            <span class="text-[10px] font-mono font-black text-amber-500 shrink-0">停靠 ${String.fromCharCode(65 + idx)}</span>
+            <input type="text" id="wpInput-${wp.id}" value="${escapeHTML(wp.location)}" oninput="updateWaypointValue(${wp.id}, this.value)" placeholder="例如: 審計新村 / 景點" class="flex-1 bg-transparent text-xs font-bold text-slate-800 dark:text-white focus:outline-none">
+            <button type="button" onclick="removeAbrpWaypoint(${wp.id})" class="text-slate-400 hover:text-rose-500 text-xs font-bold px-1.5 active:scale-90 transition">✕</button>
+        </div>
+    `).join('');
+
+    // 自動綁定 Google Autocomplete
+    abrpWaypoints.forEach(wp => {
+        const inp = document.getElementById(`wpInput-${wp.id}`);
+        if (inp && window.google?.maps?.places && !inp.dataset.autocompleteBound) {
+            const auto = new google.maps.places.Autocomplete(inp, { componentRestrictions: { country: "tw" }, fields: ["name"] });
+            auto.addListener("place_changed", () => {
+                const place = auto.getPlace();
+                if (place?.name) {
+                    inp.value = place.name;
+                    updateWaypointValue(wp.id, place.name);
+                }
+            });
+            inp.dataset.autocompleteBound = "true";
+        }
+    });
+}
+
+window.updateWaypointValue = function(id, val) {
+    const target = abrpWaypoints.find(w => w.id === id);
+    if (target) target.location = val;
+};
 
 // 🚗 計算從國道路線主線開到交流道充電站的「實際車程時間與里程」
 function getRealRoadDetour(highwayPoint, stationLocation) {
@@ -5684,6 +5786,9 @@ for (const st of rawResults.slice(0, 12)) {
 
 const selectedStation = validCandidates[bestIdx];
 
+    // 🏪 抓取周邊 350m 生活機能標籤
+    const stationAmenities = await fetchStationAmenities(selectedStation.lat, selectedStation.lng);
+
     // 🏷️ 站名防呆清洗（僅在名稱為「充電站/快充站」這類模糊詞時修飾，不再反查服務區覆蓋名稱）
     if (selectedStation.name === '充電站' || selectedStation.name === '快充站') {
         const roadMatch = (selectedStation.address || '').match(/..[區市鎮鄉]([^\d\s]+)/);
@@ -5822,6 +5927,17 @@ const stationCardHtml = `
                         <div class="text-slate-500 dark:text-slate-400 font-bold flex items-center gap-1 min-w-0">
                             <span class="shrink-0">📍</span>
                             <span class="truncate">${escapeHTML(stationAddress)}</span>
+                            <!-- 🏪 充電站步行 3~5 分鐘周邊生活機能標籤 -->
+                    ${stationAmenities.length > 0 ? `
+                        <div class="flex items-center gap-1.5 flex-wrap pt-0.5">
+                            <span class="text-[9.5px] font-bold text-slate-400">步程生活圈:</span>
+                            ${stationAmenities.map(a => `
+                                <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50 text-[9.5px] font-black">
+                                    <span>${a.icon}</span><span>${a.label}</span>
+                                </span>
+                            `).join('')}
+                        </div>
+                    ` : ''}
                         </div>
                         <div class="flex items-center gap-1.5 shrink-0">
                             ${(!isRestArea && selectedStation.detourDurationText) ? `
