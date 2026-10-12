@@ -2019,7 +2019,15 @@ function cacheDOMNodes() {
         }
 
         window.switchTab = function(tabId) {
-            triggerHaptic('light'); // 👈 加在第一行
+            triggerHaptic('light');
+
+            // 🔒 新手防護鎖：未完成初始化設定前，僅允許查看「首頁」與「設定」
+            const isSetupDone = localStorage.getItem('ev_life_setup_completed') === 'true' || AppState.records.length > 0;
+            if (!isSetupDone && tabId !== 'home' && tabId !== 'settings') {
+                showToast("請先前往「設定」完成愛車參數確認 ⚙️", true, 2500);
+                tabId = 'settings'; // 自動跳轉至設定頁
+            }
+
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             const activeBtn = document.getElementById('tab-' + tabId);
             if (activeBtn && tabId !== 'add') activeBtn.classList.add('active'); 
@@ -3023,8 +3031,20 @@ window.calculatePrediction = function() {
                 DOM.homeStatsContainer.classList.toggle('hidden', isFirstTimeUser);
             }
 
+            // 🔒 視覺鎖定：新用戶狀態下，將紀錄、新增、分析按鈕反灰
+            ['tab-records', 'tab-add', 'tab-analysis'].forEach(btnId => {
+                const btn = document.getElementById(btnId);
+                if (btn) {
+                    if (isFirstTimeUser) {
+                        btn.classList.add('opacity-30', 'grayscale');
+                    } else {
+                        btn.classList.remove('opacity-30', 'grayscale');
+                    }
+                }
+            });
+
             if (isFirstTimeUser) {
-                return; // 新手未設定前，不渲染後續統計數據，徹底保護個人隱私
+                return; // 新手未設定前，不渲染後續統計數據
             }
 
             renderMonthFilters();
