@@ -5091,40 +5091,42 @@ function parseEvSpecs(evOptions, stationName = '') {
     };
 }
 
-        // 🏪 探測充電站周邊步行 3~5 分鐘 (350m) 內的生活設施標籤
-async function fetchStationAmenities(lat, lng) {
-    if (!abrpMap || !window.google?.maps?.places) return [];
-    const service = new google.maps.places.PlacesService(abrpMap);
-    const loc = new google.maps.LatLng(lat, lng);
+// 🏪 探測充電站周邊生活設施標籤（內建 1.5 秒安全超時，防卡死）
+function fetchStationAmenities(lat, lng) {
+    return new Promise((resolve) => {
+        if (!abrpMap || !window.google?.maps?.places) {
+            resolve([]);
+            return;
+        }
 
-    const searchNearby = (types) => new Promise(resolve => {
-        service.nearbySearch({
-            location: loc,
-            radius: 350,
-            type: types
-        }, (res, status) => {
-            resolve((status === google.maps.places.PlacesServiceStatus.OK && res) ? res : []);
-        });
+        const timer = setTimeout(() => resolve([]), 1500); // 1.5 秒沒結果強制放行，避免卡死
+
+        try {
+            const service = new google.maps.places.PlacesService(abrpMap);
+            const loc = new google.maps.LatLng(lat, lng);
+
+            service.nearbySearch({
+                location: loc,
+                radius: 350,
+                type: 'convenience_store' // 修正：傳單一合法字串，不再傳陣列
+            }, (results, status) => {
+                clearTimeout(timer);
+                if (status === google.maps.places.PlacesServiceStatus.OK && results && results.length > 0) {
+                    resolve([
+                        { icon: '🏪', label: '超商賣場' },
+                        { icon: '🚻', label: '洗手間' }
+                    ]);
+                } else {
+                    resolve([]);
+                }
+            });
+        } catch (err) {
+            clearTimeout(timer);
+            resolve([]);
+        }
     });
-
-    try {
-        const [stores, food, toilets] = await Promise.all([
-            searchNearby(['convenience_store', 'supermarket']),
-            searchNearby(['restaurant', 'cafe', 'fast_food_restaurant']),
-            searchNearby(['rest_stop', 'gas_station'])
-        ]);
-
-        const amenities = [];
-        if (stores.length > 0) amenities.push({ icon: '🏪', label: '便利超商/賣場' });
-        if (food.length > 0) amenities.push({ icon: '🍔', label: '餐飲/咖啡' });
-        if (toilets.length > 0) amenities.push({ icon: '🚻', label: '洗手間' });
-        
-        return amenities;
-    } catch (e) {
-        return [];
-    }
 }
-
+        
 // 🗺️ 中繼點管理狀態
 let abrpWaypoints = [];
 
@@ -5786,10 +5788,18 @@ for (const st of rawResults.slice(0, 12)) {
 
 const selectedStation = validCandidates[bestIdx];
 
-    // 🏪 抓取周邊 350m 生活機能標籤
-    const stationAmenities = await fetchStationAmenities(selectedStation.lat, selectedStation.lng);
+    // 🏪 安全呼叫生活機能，若 1 秒內無回應直接以空陣列繼續渲染
+    let stationAmenities = [];
+    try {
+        stationAmenities = await Promise.race([
+            fetchStationAmenities(selectedStation.lat, selectedStation.lng),
+            new Promise(res => setTimeout(() => res([]), 1000))
+        ]);
+    } catch (e) {
+        stationAmenities = [];
+    }
 
-    // 🏷️ 站名防呆清洗（僅在名稱為「充電站/快充站」這類模糊詞時修飾，不再反查服務區覆蓋名稱）
+    // 🏷️ 站名防呆清洗
     if (selectedStation.name === '充電站' || selectedStation.name === '快充站') {
         const roadMatch = (selectedStation.address || '').match(/..[區市鎮鄉]([^\d\s]+)/);
         selectedStation.name = roadMatch ? `${roadMatch[1]}快充站` : (selectedStation.address || '交流道快充站');
