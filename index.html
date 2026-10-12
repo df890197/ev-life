@@ -3014,6 +3014,19 @@ window.calculatePrediction = function() {
             const activeRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.date);
             activeRecords.sort((a, b) => new Date(a.date) - new Date(b.date) || parseInt(a.id, 10) - parseInt(a.id, 10));
 
+            // 🛡️ 新手防護與引導：若沒有任何行駛紀錄且尚未自訂車輛，強制顯示起始引導卡並隱藏數據儀表板
+            const isFirstTimeUser = activeRecords.length === 0 && !localStorage.getItem('ev_life_setup_completed');
+            if (DOM.onboardingCard) {
+                DOM.onboardingCard.classList.toggle('hidden', !isFirstTimeUser);
+            }
+            if (DOM.homeStatsContainer) {
+                DOM.homeStatsContainer.classList.toggle('hidden', isFirstTimeUser);
+            }
+
+            if (isFirstTimeUser) {
+                return; // 新手未設定前，不渲染後續統計數據，徹底保護個人隱私
+            }
+
             renderMonthFilters();
             calculateRecordStats(activeRecords);
 
@@ -3998,6 +4011,7 @@ window.calculatePrediction = function() {
             updateAppTitle();
 
             AppState.batteryCapacity = parseFloat(DOM.batteryCapacityInput?.value) || 57.7; localStorage.setItem('ev_life_battery_capacity', AppState.batteryCapacity);
+            localStorage.setItem('ev_life_setup_completed', 'true'); // 👈 加在這一行！
             AppState.initialOdometer = parseFloat(DOM.initialOdometerInput?.value) || 0; localStorage.setItem('ev_life_initial_odometer', AppState.initialOdometer);
             AppState.maintInterval = parseInt(DOM.maintIntervalInput?.value) || 20000; localStorage.setItem('ev_life_maint_interval', AppState.maintInterval);
             AppState.tireInterval = parseInt(DOM.tireIntervalInput?.value) || 10000; localStorage.setItem('ev_life_tire_interval', AppState.tireInterval);
