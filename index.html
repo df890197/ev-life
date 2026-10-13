@@ -5324,7 +5324,9 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
             stationAddress: ""
         };
 
-        renderAbrpCalculatedResultsDirect(pkRouteCache[routeIdx], leg, startSoc, routeIdx, route);
+        if (currentActiveIdx === routeIdx) {
+            renderAbrpCalculatedResultsDirect(pkRouteCache[routeIdx], leg, startSoc, routeIdx, route);
+        }
     });
 }
         
