@@ -4781,7 +4781,7 @@ window.planElectricRoute = async function() {
                     tag.className = `text-[9px] font-black px-1.5 py-0.5 rounded ${traffic.class}`;
                 }
 
-                // 設定初始佔位狀態，由 processRouteElevationAndCharging 統一計算並填入，避免兩個請求互相打架覆蓋
+                // 先給初始載入狀態
                 const effEl = document.getElementById(`pkEff${idx}`);
                 const socEl = document.getElementById(`pkSoc${idx}`);
                 if (effEl) effEl.textContent = "計算中...";
@@ -4790,8 +4790,19 @@ window.planElectricRoute = async function() {
         } else if (pkBox) {
             pkBox.classList.add('hidden');
         }
-        // 確保以路線 0 進行唯一的主高程計算
+
+        // 1. 優先計算並渲染選中的「路線 0」（主畫面、折線圖、沿線充電站）
         selectPkRoute(0);
+
+        // 2. ⚡ 若有第 2 條路線（路線 1），在背景靜默預算，完成後自動更新右邊卡片數值
+        if (response.routes.length >= 2) {
+            setTimeout(() => {
+                const rt1 = response.routes[1];
+                if (!pkRouteCache[1]?.isReady) {
+                    processRouteElevationAndCharging(rt1, startSoc, 1);
+                }
+            }, 150);
+        }
 
         // 🎯 觸發目的地景點補電判斷
         const destLeg = response.routes[0]?.legs[0];
@@ -5245,8 +5256,11 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
             startSoc
         };
 
-        // 立即更新高程卡片
-        updateElevationHudUi(elevationData);
+        // 🌟 只有當計算的路線是當前選中的路線時，才更新中央高程卡片（避免路線 1 在背景計算時搶走折線圖）
+        const currentActiveIdx = abrpDirectionsRenderer ? abrpDirectionsRenderer.getRouteIndex() : 0;
+        if (currentActiveIdx === routeIdx) {
+            updateElevationHudUi(elevationData);
+        }
 
         // 🔄 同步上方 PK 卡片的抵達電量
         const pkSocEl = document.getElementById(`pkSoc${routeIdx}`);
