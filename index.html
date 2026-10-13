@@ -5179,15 +5179,17 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
     const durationText = durHours > 0 ? `${durHours} 小時 ${durMins} 分鐘` : `${durMins} 分鐘`;
     const baseHighwayEff = AppState.globalAvgEfficiency > 0 ? AppState.globalAvgEfficiency : 5.5;
 
-    // ⚡ 若此路線已有快取，直接切換顯示並更新高程卡片
     if (pkRouteCache[routeIdx]?.isReady && pkRouteCache[routeIdx]?.elevationData) {
-        updateElevationHudUi(pkRouteCache[routeIdx].elevationData);
+        const currentActiveIdx = abrpDirectionsRenderer ? abrpDirectionsRenderer.getRouteIndex() : 0;
+        if (currentActiveIdx === routeIdx) {
+            updateElevationHudUi(pkRouteCache[routeIdx].elevationData);
+        }
         renderAbrpCachedResults(pkRouteCache[routeIdx], totalDistanceKm, durationText);
         return;
     }
 
-    // 動態取樣密度：長途路線提高採樣點，精確描繪路線起伏
-    const sampleCount = Math.min(256, Math.max(80, Math.round(totalDistanceKm * 0.8)));
+    // 依路線長度動態調整取樣點數（長途高達 200 點以上，確保細節充足）
+    const sampleCount = Math.min(256, Math.max(100, Math.round(totalDistanceKm * 0.9)));
 
     const elevationService = new google.maps.ElevationService();
     elevationService.getElevationAlongPath({ path: route.overview_path, samples: sampleCount }, (elevations, eStatus) => {
@@ -5195,47 +5197,79 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
         let smoothedElevations = [];
 
         if (eStatus === google.maps.ElevationStatus.OK && elevations?.length > 1) {
-            smoothedElevations = [elevations[0].elevation];
-            for (let i = 1; i < elevations.length; i++) {
-                const prevEle = smoothedElevations[i - 1];
-                const rawEle = elevations[i].elevation;
-                const p1 = elevations[i - 1].location;
-                const p2 = elevations[i].location;
-                const segDistM = getDistanceFromLatLonInKm(p1.lat(), p1.lng(), p2.lat(), p2.lng()) * 1000;
+            const raw = elevations.map(e => e.elevation);
+            const n = raw.length;
+            smoothedElevations = [...raw];
 
-                // 🚗 物理極限坡度約 12%（0.12）：
-                // 1. 開武嶺時（距離長、坡度約 8%），全部如實累積，最高點依然能達 3269m。
-                // 2. 開雪隧/蘇花改時（短距離垂直暴衝 800m），超標的假山脊會被削平，不再衝出 1223m 的荒謬山頭！
-                const maxStep = Math.max(15, segDistM * 0.12);
-                const diff = rawEle - prevEle;
-                const clampedDiff = Math.max(-maxStep, Math.min(maxStep, diff));
-                const filteredEle = prevEle + clampedDiff;
-                smoothedElevations.push(filteredEle);
+            // 🚇 演算法核心 1：穿山隧道假山尖刺雙向識別（消除雪隧/蘇花改異常山頭）
+            // 掃描視窗約 12 個取樣點（約 10~15 公里長度以內）
+            for (let i = 0; i < n; i++) {
+                for (let win = 3; win <= 14; win++) {
+                    const j = i + win;
+                    if (j >= n) break;
 
-                if (clampedDiff > 1.5) {
-                    totalClimbMeters += clampedDiff;
-                } else if (clampedDiff < -1.5) {
-                    totalDescentMeters += Math.abs(clampedDiff);
+                    const dDist = getDistanceFromLatLonInKm(
+                        elevations[i].location.lat(), elevations[i].location.lng(),
+                        elevations[j].location.lat(), elevations[j].location.lng()
+                    );
+
+                    // 隧道跨度通常在 1.5 ~ 14 公里之內
+                    if (dDist >= 1.5 && dDist <= 14.0) {
+                        const portAltDiff = Math.abs(raw[j] - raw[i]);
+                        // 入口與出口標高落差在 250 公尺以內（公路隧道進出落差不會過大）
+                        if (portAltDiff <= 250) {
+                            let maxInside = -Infinity;
+                            for (let k = i + 1; k < j; k++) {
+                                if (raw[k] > maxInside) maxInside = raw[k];
+                            }
+                            const basePort = Math.max(raw[i], raw[j]);
+                            // 中間突然高出入口 450 公尺以上，100% 是穿山隧道頭頂上的山脊假訊號！
+                            if (maxInside - basePort > 450) {
+                                // 採用路面線性拉平，精確還原隧道內部實體高度
+                                for (let k = i + 1; k < j; k++) {
+                                    const ratio = (k - i) / (j - i);
+                                    smoothedElevations[k] = raw[i] + (raw[j] - raw[i]) * ratio;
+                                }
+                                i = j - 1; // 跳過此隧道段
+                                break;
+                            }
+                        }
+                    }
                 }
             }
+
+            // 🚗 演算法核心 2：精算真實路面爬坡與下坡（去除碎石波紋雜訊）
+            for (let i = 1; i < n; i++) {
+                const diff = smoothedElevations[i] - smoothedElevations[i - 1];
+                if (diff > 1.2) {
+                    totalClimbMeters += diff;
+                } else if (diff < -1.2) {
+                    totalDescentMeters += Math.abs(diff);
+                }
+            }
+
+            // 終點保真：確保抵達終點時的海拔精準對齊 Google 原始量測
+            smoothedElevations[n - 1] = raw[n - 1];
         } else {
             smoothedElevations = [100, 100];
         }
 
-        // 🌟 取平滑削平假山頭後的最高海拔（蘇花改恢復為 200~300m，武嶺依然維持 3269m）
         const maxElevation = Math.round(Math.max(...smoothedElevations));
         const startAlt = Math.round(smoothedElevations[0]);
         const endAlt = Math.round(smoothedElevations[smoothedElevations.length - 1]);
 
-        // 判定大下坡路段（如武嶺下山、阿里山下山）
+        // 🔋 演算法核心 3：n⁷ 真實能耗物理模型
         const isSteepDownhill = (totalDescentMeters > totalClimbMeters * 2 && totalDescentMeters > 300);
         const effectiveHighwayEff = isSteepDownhill ? Math.max(baseHighwayEff, 7.5) : baseHighwayEff;
 
+        // 1. 平路基礎能耗
         const flatEnergyKwh = totalDistanceKm / effectiveHighwayEff;
+        // 2. 爬坡位能消耗（2 噸車重每 100m 約 0.65 kWh）
         const climbEnergyKwh = (totalClimbMeters / 100) * 0.65;
+        // 3. 長下坡動能回充（每 100m 約可回收 0.45 kWh）
         const regenEnergyKwh = (totalDescentMeters / 100) * 0.45;
-        const netElevationEnergyKwh = climbEnergyKwh - regenEnergyKwh;
 
+        const netElevationEnergyKwh = climbEnergyKwh - regenEnergyKwh;
         const totalConsumedKwh = flatEnergyKwh + netElevationEnergyKwh;
         const totalConsumedSoc = (totalConsumedKwh / AppState.batteryCapacity) * 100;
         const directArrivalSoc = Math.min(100, Math.round(startSoc - totalConsumedSoc));
@@ -5258,13 +5292,12 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
             startSoc
         };
 
-        // 🌟 只有當計算的路線是當前選中的路線時，才更新中央高程卡片（避免路線 1 在背景計算時搶走折線圖）
+        // 僅在當前路線與畫面選取一致時才更新折線圖，防止多路線背景預算時畫面閃動
         const currentActiveIdx = abrpDirectionsRenderer ? abrpDirectionsRenderer.getRouteIndex() : 0;
         if (currentActiveIdx === routeIdx) {
             updateElevationHudUi(elevationData);
         }
 
-        // 🔄 同步上方 PK 卡片的抵達電量
         const pkSocEl = document.getElementById(`pkSoc${routeIdx}`);
         const pkEffEl = document.getElementById(`pkEff${routeIdx}`);
         if (pkSocEl) {
@@ -5293,6 +5326,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
         renderAbrpCalculatedResultsDirect(pkRouteCache[routeIdx], leg, startSoc, routeIdx, route);
     });
 }
+        
 // 🖼️ 專門負責更新中段高程卡片 UI（包含平滑化 SVG 折線圖）
 function updateElevationHudUi(data) {
     const hudCard = document.getElementById('abrpElevationHudCard');
