@@ -5197,7 +5197,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
         return;
     }
 
-    // 📐 動態決定取樣點數：里程越長給予越多點，確保點距不失真（最多 256 點，符合 Google 最佳配額）
+    // 動態取樣密度：長途路線提高採樣點，精確描繪路線起伏
     const sampleCount = Math.min(256, Math.max(80, Math.round(totalDistanceKm * 0.8)));
 
     const elevationService = new google.maps.ElevationService();
@@ -5206,35 +5206,32 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
         let smoothedElevations = [];
 
         if (eStatus === google.maps.ElevationStatus.OK && elevations?.length > 1) {
-            smoothedElevations = [elevations[0].elevation];
+            // 🎯 直接以 Google 回傳的真實海拔做為基底，不人為壓低山峰
+            smoothedElevations = elevations.map(e => e.elevation);
+
             for (let i = 1; i < elevations.length; i++) {
-                const prevEle = smoothedElevations[i - 1];
+                const prevEle = elevations[i - 1].elevation;
                 const rawEle = elevations[i].elevation;
                 const p1 = elevations[i - 1].location;
                 const p2 = elevations[i].location;
                 const segDistM = getDistanceFromLatLonInKm(p1.lat(), p1.lng(), p2.lat(), p2.lng()) * 1000;
 
-                // 🚗 實際道路物理限制：
-                // 台灣省道高山公路設計極限坡度約 12% (0.12)
-                // 只要坡度在 12% 以內，皆視為實體道路爬坡，完整保留；
-                // 只有隧道上方山脊（坡度 > 20%~50% 暴衝）才會被平滑削平。
-                const maxRealisticChange = Math.max(20, segDistM * 0.12);
                 const diff = rawEle - prevEle;
-                const clampedDiff = Math.max(-maxRealisticChange, Math.min(maxRealisticChange, diff));
-                const filteredEle = prevEle + clampedDiff;
-                smoothedElevations.push(filteredEle);
+                // 台灣法規公路極限坡度約 12%~14%，若兩點間斜率超過 15% 必定是長隧道穿越山脊的假地表
+                const maxHighwayClimb = Math.max(25, segDistM * 0.15);
 
-                // 排除 1.5m 以內的微小起伏噪訊，精確累計真實爬坡/下坡
-                if (clampedDiff > 1.5) {
-                    totalClimbMeters += clampedDiff;
-                } else if (clampedDiff < -1.5) {
-                    totalDescentMeters += Math.abs(clampedDiff);
+                if (diff > 1.5) {
+                    // 若爬坡過於陡峭（超過公路物理極限），代表車在隧道內，削去虛假爬坡
+                    totalClimbMeters += Math.min(diff, maxHighwayClimb);
+                } else if (diff < -1.5) {
+                    totalDescentMeters += Math.min(Math.abs(diff), maxHighwayClimb);
                 }
             }
         } else {
             smoothedElevations = [100, 100];
         }
 
+        // 🌟 100% 忠實反映 Google 回傳的真實最高海拔、起點海拔與終點海拔！
         const maxElevation = Math.round(Math.max(...smoothedElevations));
         const startAlt = Math.round(smoothedElevations[0]);
         const endAlt = Math.round(smoothedElevations[smoothedElevations.length - 1]);
@@ -5273,7 +5270,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
         // 立即更新高程卡片
         updateElevationHudUi(elevationData);
 
-        // 🔄 同步上方 PK 卡片的抵達電量，確保上下數值一致
+        // 🔄 同步上方 PK 卡片的抵達電量
         const pkSocEl = document.getElementById(`pkSoc${routeIdx}`);
         const pkEffEl = document.getElementById(`pkEff${routeIdx}`);
         if (pkSocEl) {
@@ -5302,7 +5299,6 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
         renderAbrpCalculatedResultsDirect(pkRouteCache[routeIdx], leg, startSoc, routeIdx, route);
     });
 }
-
 // 🖼️ 專門負責更新中段高程卡片 UI（包含平滑化 SVG 折線圖）
 function updateElevationHudUi(data) {
     const hudCard = document.getElementById('abrpElevationHudCard');
