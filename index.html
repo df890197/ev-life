@@ -4398,8 +4398,10 @@ window.toggleAbrpPowerFilter = function(type) {
             startInput.value = endInput.value;
             endInput.value = tempVal;
 
-            // 3. 重設定位暫存 (避免原起點座標影響新終點)
+            // 3. 重設定位暫存與快取 (避免原起點座標影響新終點)
             currentStartLatLng = null;
+            pkRouteCache = {};
+            currentPkRoutes = [];
 
             // 4. 同步更新兩側的「✕」清除按鈕顯示狀態
             toggleRouteClearBtn('routeStartInput', 'btnClearStart');
@@ -4759,7 +4761,6 @@ window.planElectricRoute = async function() {
         const pkBox = document.getElementById('highwayPkContainer');
         if (response.routes.length >= 2 && pkBox) {
             pkBox.classList.remove('hidden');
-            const elevationService = new google.maps.ElevationService();
             
             response.routes.slice(0, 2).forEach((rt, idx) => {
                 const leg = rt.legs[0];
@@ -5651,10 +5652,7 @@ const validCandidates = [];
         const timeoutPromise = new Promise(resolve => setTimeout(() => resolve([]), 2500));
         const rawResults = await Promise.race([placesPromise, timeoutPromise]);
 
-// 🧭 取得整趟路線主要行進向量（南下 vs 北上）
-        const isSouthboundRoute = path[path.length - 1].lat() < path[0].lat();
-
-for (const st of rawResults.slice(0, 12)) {
+            for (const st of rawResults.slice(0, 12)) {
             const n = (st.name || '').toLowerCase();
             const addr = (st.vicinity || st.formatted_address || '').toLowerCase();
             const fullName = `${n} ${addr}`;
