@@ -5195,32 +5195,34 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
         let smoothedElevations = [];
 
         if (eStatus === google.maps.ElevationStatus.OK && elevations?.length > 1) {
-            // 🎯 直接以 Google 回傳的真實海拔做為基底，不人為壓低山峰
-            smoothedElevations = elevations.map(e => e.elevation);
-
+            smoothedElevations = [elevations[0].elevation];
             for (let i = 1; i < elevations.length; i++) {
-                const prevEle = elevations[i - 1].elevation;
+                const prevEle = smoothedElevations[i - 1];
                 const rawEle = elevations[i].elevation;
                 const p1 = elevations[i - 1].location;
                 const p2 = elevations[i].location;
                 const segDistM = getDistanceFromLatLonInKm(p1.lat(), p1.lng(), p2.lat(), p2.lng()) * 1000;
 
+                // 🚗 物理極限坡度約 12%（0.12）：
+                // 1. 開武嶺時（距離長、坡度約 8%），全部如實累積，最高點依然能達 3269m。
+                // 2. 開雪隧/蘇花改時（短距離垂直暴衝 800m），超標的假山脊會被削平，不再衝出 1223m 的荒謬山頭！
+                const maxStep = Math.max(15, segDistM * 0.12);
                 const diff = rawEle - prevEle;
-                // 台灣法規公路極限坡度約 12%~14%，若兩點間斜率超過 15% 必定是長隧道穿越山脊的假地表
-                const maxHighwayClimb = Math.max(25, segDistM * 0.15);
+                const clampedDiff = Math.max(-maxStep, Math.min(maxStep, diff));
+                const filteredEle = prevEle + clampedDiff;
+                smoothedElevations.push(filteredEle);
 
-                if (diff > 1.5) {
-                    // 若爬坡過於陡峭（超過公路物理極限），代表車在隧道內，削去虛假爬坡
-                    totalClimbMeters += Math.min(diff, maxHighwayClimb);
-                } else if (diff < -1.5) {
-                    totalDescentMeters += Math.min(Math.abs(diff), maxHighwayClimb);
+                if (clampedDiff > 1.5) {
+                    totalClimbMeters += clampedDiff;
+                } else if (clampedDiff < -1.5) {
+                    totalDescentMeters += Math.abs(clampedDiff);
                 }
             }
         } else {
             smoothedElevations = [100, 100];
         }
 
-        // 🌟 100% 忠實反映 Google 回傳的真實最高海拔、起點海拔與終點海拔！
+        // 🌟 取平滑削平假山頭後的最高海拔（蘇花改恢復為 200~300m，武嶺依然維持 3269m）
         const maxElevation = Math.round(Math.max(...smoothedElevations));
         const startAlt = Math.round(smoothedElevations[0]);
         const endAlt = Math.round(smoothedElevations[smoothedElevations.length - 1]);
