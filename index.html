@@ -4780,15 +4780,11 @@ window.planElectricRoute = async function() {
                     elevationService.getElevationAlongPath({ path: rt.overview_path, samples: 40 }, (elevations, eStatus) => {
                     let climb = 0, descent = 0;
                     if (eStatus === google.maps.ElevationStatus.OK && elevations?.length > 1) {
-for (let i = 1; i < elevations.length; i++) {
-    const diff = elevations[i].elevation - elevations[i - 1].elevation;
-    // 忽略過小雜訊（< 8m），同時單段如果暴衝超過 150m（隧道山體誤差）進行壓制
-    if (diff > 8.0 && diff < 150.0) {
-        totalClimbMeters += diff;
-    } else if (diff < -8.0 && diff > -150.0) {
-        totalDescentMeters += Math.abs(diff);
-    }
-}
+                        for (let i = 1; i < elevations.length; i++) {
+                            const d = elevations[i].elevation - elevations[i - 1].elevation;
+                            if (d > 5.0) climb += d;
+                            else if (d < -5.0) descent += Math.abs(d);
+                        }
                     }
                     const baseEff = AppState.globalAvgEfficiency > 0 ? AppState.globalAvgEfficiency : 5.5;
                     const isDown = (descent > climb * 2 && descent > 300);
@@ -5187,25 +5183,13 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
 
     const elevationService = new google.maps.ElevationService();
     elevationService.getElevationAlongPath({ path: route.overview_path, samples: 60 }, (elevations, eStatus) => {
-for (let i = 1; i < elevations.length; i++) {
-                const rawDiff = elevations[i].elevation - elevations[i - 1].elevation;
-                
-                // 計算相鄰取樣點之間的水平距離 (公尺)
-                const p1 = elevations[i - 1].location;
-                const p2 = elevations[i].location;
-                const segDistM = getDistanceFromLatLonInKm(p1.lat(), p1.lng(), p2.lat(), p2.lng()) * 1000;
-                
-                // 依公路工程法規：最大坡度限制在 6% (每行駛 100m 上升最多 6m)
-                const maxAllowedSlopeHeight = Math.max(8, segDistM * 0.06);
-
-                // 削平長隧道（雪隧、觀音、谷風）穿山時抓到山頂地表的假爬坡
-                const realisticDiff = Math.max(-maxAllowedSlopeHeight, Math.min(maxAllowedSlopeHeight, rawDiff));
-
-                if (realisticDiff > 3.0) {
-                    totalClimbMeters += realisticDiff;
-                } else if (realisticDiff < -3.0) {
-                    totalDescentMeters += Math.abs(realisticDiff);
-                }
+        let totalClimbMeters = 0, totalDescentMeters = 0, maxElevation = 0;
+        if (eStatus === google.maps.ElevationStatus.OK && elevations?.length > 1) {
+            maxElevation = Math.round(Math.max(...elevations.map(e => e.elevation)));
+            for (let i = 1; i < elevations.length; i++) {
+                const diff = elevations[i].elevation - elevations[i - 1].elevation;
+                if (diff > 5.0) totalClimbMeters += diff;
+                else if (diff < -5.0) totalDescentMeters += Math.abs(diff);
             }
 
             const hudCard = document.getElementById('abrpElevationHudCard');
