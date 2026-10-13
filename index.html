@@ -4781,9 +4781,15 @@ window.planElectricRoute = async function() {
                     let climb = 0, descent = 0;
                     if (eStatus === google.maps.ElevationStatus.OK && elevations?.length > 1) {
                         for (let i = 1; i < elevations.length; i++) {
-                            const d = elevations[i].elevation - elevations[i - 1].elevation;
-                            if (d > 5.0) climb += d;
-                            else if (d < -5.0) descent += Math.abs(d);
+                            const rawDiff = elevations[i].elevation - elevations[i - 1].elevation;
+                            const p1 = elevations[i - 1].location;
+                            const p2 = elevations[i].location;
+                            const segDistM = getDistanceFromLatLonInKm(p1.lat(), p1.lng(), p2.lat(), p2.lng()) * 1000;
+                            const maxAllowedSlope = Math.max(8, segDistM * 0.06);
+                            const realisticDiff = Math.max(-maxAllowedSlope, Math.min(maxAllowedSlope, rawDiff));
+
+                            if (realisticDiff > 3.0) climb += realisticDiff;
+                            else if (realisticDiff < -3.0) descent += Math.abs(realisticDiff);
                         }
                     }
                     const baseEff = AppState.globalAvgEfficiency > 0 ? AppState.globalAvgEfficiency : 5.5;
@@ -5187,9 +5193,24 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
         if (eStatus === google.maps.ElevationStatus.OK && elevations?.length > 1) {
             maxElevation = Math.round(Math.max(...elevations.map(e => e.elevation)));
             for (let i = 1; i < elevations.length; i++) {
-                const diff = elevations[i].elevation - elevations[i - 1].elevation;
-                if (diff > 5.0) totalClimbMeters += diff;
-                else if (diff < -5.0) totalDescentMeters += Math.abs(diff);
+                const rawDiff = elevations[i].elevation - elevations[i - 1].elevation;
+                
+                // 計算相鄰兩點間的行駛水平距離 (公尺)
+                const p1 = elevations[i - 1].location;
+                const p2 = elevations[i].location;
+                const segDistM = getDistanceFromLatLonInKm(p1.lat(), p1.lng(), p2.lat(), p2.lng()) * 1000;
+                
+                // 依公路法規標準：公路坡度上限 6% (每行駛 100m 上升最多 6m)
+                const maxAllowedSlopeHeight = Math.max(8, segDistM * 0.06);
+
+                // 雙向壓制：同時削平雪隧與蘇花改穿山時抓到山頂地表的假爬坡與假下坡
+                const realisticDiff = Math.max(-maxAllowedSlopeHeight, Math.min(maxAllowedSlopeHeight, rawDiff));
+
+                if (realisticDiff > 3.0) {
+                    totalClimbMeters += realisticDiff;
+                } else if (realisticDiff < -3.0) {
+                    totalDescentMeters += Math.abs(realisticDiff);
+                }
             }
 
             const hudCard = document.getElementById('abrpElevationHudCard');
