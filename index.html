@@ -5198,13 +5198,13 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
     }
 
     const elevationService = new google.maps.ElevationService();
-    // 取樣點增加至 80 點，提高取樣密度
+    // 取樣點提高至 80 點
     elevationService.getElevationAlongPath({ path: route.overview_path, samples: 80 }, (elevations, eStatus) => {
         let totalClimbMeters = 0, totalDescentMeters = 0;
         let smoothedElevations = [];
 
         if (eStatus === google.maps.ElevationStatus.OK && elevations?.length > 1) {
-            // 🛡️ 實體公路高程平滑濾波（強制消除隧道山脊誤差）
+            // 🛡️ 實體公路高程平滑濾波（消除隧道上方山脊誤差）
             smoothedElevations = [elevations[0].elevation];
             for (let i = 1; i < elevations.length; i++) {
                 const prevEle = smoothedElevations[i - 1];
@@ -5213,7 +5213,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
                 const p2 = elevations[i].location;
                 const segDistM = getDistanceFromLatLonInKm(p1.lat(), p1.lng(), p2.lat(), p2.lng()) * 1000;
 
-                // 單一取樣點最大爬升/下降上限限制為 35m（直接削平雪隧與蘇花改假山頭）
+                // 單一取樣點最大爬升/下降限制為 35m（削平長隧道假山頭）
                 const maxStep = Math.min(35, Math.max(5, segDistM * 0.05));
                 const diff = rawEle - prevEle;
                 const clampedDiff = Math.max(-maxStep, Math.min(maxStep, diff));
@@ -5285,80 +5285,9 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
             directArrivalSoc,
             realEff,
             routeProfileText,
-            neededStops: (totalConsumedKwh - (startSoc / 1
-
-const startInp = document.getElementById('routeStartInput')?.value || "起點";
-                const endInp = document.getElementById('routeEndInput')?.value || "終點";
-
-                // 🟢【步驟三替換以下這段】👇
-                const startName = getShortLocationName(startInp);
-                const endName = getShortLocationName(endInp);
-                const startAlt = Math.round(elevations[0].elevation);
-                const endAlt = Math.round(elevations[elevations.length - 1].elevation);
-
-                const startLbl = document.getElementById('abrpProfileStartLabel');
-                const endLbl = document.getElementById('abrpProfileEndLabel');
-                const startAltEl = document.getElementById('abrpProfileStartAlt');
-                const endAltEl = document.getElementById('abrpProfileEndAlt');
-                const peakLbl = document.getElementById('abrpProfilePeakLabel');
-
-                if (startLbl) { startLbl.textContent = startName; startLbl.title = startInp; }
-                if (startAltEl) startAltEl.textContent = `${startAlt} m`;
-
-                if (endLbl) { endLbl.textContent = endName; endLbl.title = endInp; }
-                if (endAltEl) endAltEl.textContent = `${endAlt} m`;
-
-                if (peakLbl) peakLbl.textContent = `${maxElevation} m`;
-
-                document.getElementById('abrpProfileClimbText').textContent = `⚡ 爬坡 +${Math.round(totalClimbMeters)}m`;
-                document.getElementById('abrpProfileDescentText').textContent = `🔋 下坡 -${Math.round(totalDescentMeters)}m`;
-            }
-        }
-
-        // 判定是否為連續大下坡路段（下坡低速滑行，平路阻力顯著降低）
-        const isSteepDownhill = (totalDescentMeters > totalClimbMeters * 2 && totalDescentMeters > 300);
-        const effectiveHighwayEff = isSteepDownhill ? Math.max(baseHighwayEff, 7.5) : baseHighwayEff;
-
-        const flatEnergyKwh = totalDistanceKm / effectiveHighwayEff;
-        const climbEnergyKwh = (totalClimbMeters / 100) * 0.65;
-        const regenEnergyKwh = (totalDescentMeters / 100) * 0.45;
-        const netElevationEnergyKwh = climbEnergyKwh - regenEnergyKwh;
-
-        // 移除 Math.max(1, ...)，允許能耗為負數（即動能回充電量）
-        const totalConsumedKwh = flatEnergyKwh + netElevationEnergyKwh;
-        const totalConsumedSoc = (totalConsumedKwh / AppState.batteryCapacity) * 100;
-        // 電量回充時上限不超過 100%
-        const directArrivalSoc = Math.min(100, Math.round(startSoc - totalConsumedSoc));
-        const realEff = totalConsumedKwh > 0 ? (totalDistanceKm / totalConsumedKwh) : 0;
-
-        const currentAvailKwh = (startSoc / 100) * AppState.batteryCapacity;
-        const deficitKwh = totalConsumedKwh - currentAvailKwh;
-        const singleChargeKwh = AppState.batteryCapacity * 0.6;
-        const neededStops = deficitKwh > 0 ? Math.ceil(deficitKwh / singleChargeKwh) : 0;
-
-        const profileEffEl = document.getElementById('abrpProfileEffText');
-        if (profileEffEl) {
-            if (totalConsumedKwh <= 0) {
-                const gained = directArrivalSoc - startSoc;
-                profileEffEl.textContent = gained > 0 ? `均耗 動能回充 +${gained}%` : `均耗 動能回充中`;
-            } else {
-                profileEffEl.textContent = `均耗 ${realEff.toFixed(2)} km/度`;
-            }
-        }
-
-        let routeProfileText = "";
-        if (maxElevation >= 1000 || totalClimbMeters >= 800) routeProfileText = `高海拔山區 (爬升 +${Math.round(totalClimbMeters)}m)`;
-        else if (totalClimbMeters >= 350) routeProfileText = `丘陵坡道地貌 (爬升 +${Math.round(totalClimbMeters)}m)`;
-        else routeProfileText = `平地巡航路段 (起伏平緩)`;
-
-        pkRouteCache[routeIdx] = {
-            totalDistanceKm,
-            durationText,
-            directArrivalSoc,
-            realEff,
-            routeProfileText,
-            neededStops,
+            neededStops: (totalConsumedKwh - (startSoc / 100) * AppState.batteryCapacity) > 0 ? 1 : 0,
             isReady: false,
+            elevationData,
             stationCardHtml: "",
             stationLocation: null,
             stationTitle: "",
@@ -5367,6 +5296,54 @@ const startInp = document.getElementById('routeStartInput')?.value || "起點";
 
         renderAbrpCalculatedResultsDirect(pkRouteCache[routeIdx], leg, startSoc, routeIdx, route);
     });
+}
+
+// 🖼️ 專門負責更新中段高程卡片 UI（包含平滑化 SVG 折線圖）
+function updateElevationHudUi(data) {
+    const hudCard = document.getElementById('abrpElevationHudCard');
+    const svgBox = document.getElementById('abrpSvgContainer');
+    if (!hudCard || !svgBox) return;
+
+    hudCard.classList.remove('hidden');
+
+    const startInp = document.getElementById('routeStartInput')?.value || "起點";
+    const endInp = document.getElementById('routeEndInput')?.value || "終點";
+    const startLbl = document.getElementById('abrpProfileStartLabel');
+    const endLbl = document.getElementById('abrpProfileEndLabel');
+    const startAltEl = document.getElementById('abrpProfileStartAlt');
+    const endAltEl = document.getElementById('abrpProfileEndAlt');
+    const peakLbl = document.getElementById('abrpProfilePeakLabel');
+
+    if (startLbl) { startLbl.textContent = getShortLocationName(startInp); startLbl.title = startInp; }
+    if (endLbl) { endLbl.textContent = getShortLocationName(endInp); endLbl.title = endInp; }
+    if (startAltEl) startAltEl.textContent = `${data.startAlt} m`;
+    if (endAltEl) endAltEl.textContent = `${data.endAlt} m`;
+    if (peakLbl) peakLbl.textContent = `${data.maxElevation} m`;
+
+    document.getElementById('abrpProfileClimbText').textContent = `⚡ 爬坡 +${data.totalClimbMeters}m`;
+    document.getElementById('abrpProfileDescentText').textContent = `🔋 下坡 -${data.totalDescentMeters}m`;
+    
+    const effEl = document.getElementById('abrpProfileEffText');
+    if (effEl) effEl.textContent = `均耗 ${data.realEff} km/度`;
+
+    // 繪製去除隧道尖峰後的平滑 SVG
+    const width = 300, height = 55;
+    const minEl = Math.min(...data.smoothedElevations);
+    const maxEl = Math.max(...data.smoothedElevations, minEl + 10);
+    const pts = data.smoothedElevations.map((e, idx) => {
+        const x = (idx / (data.smoothedElevations.length - 1)) * width;
+        const y = height - ((e - minEl) / (maxEl - minEl)) * (height - 12) - 6;
+        return { x: x.toFixed(1), y: y.toFixed(1) };
+    });
+    const dPath = pts.reduce((acc, p, idx) => `${acc} ${idx === 0 ? 'M' : 'L'} ${p.x} ${p.y}`, '') + ` L ${width} ${height} L 0 ${height} Z`;
+    const peakPoint = pts.reduce((prev, curr) => (parseFloat(curr.y) < parseFloat(prev.y) ? curr : prev), pts[0]);
+
+    svgBox.innerHTML = `
+        <svg viewBox="0 0 ${width} ${height}" class="w-full h-full stroke-cyan-400 fill-cyan-400/15" preserveAspectRatio="none">
+            <path d="${dPath}" stroke-width="2.5"></path>
+            <circle cx="${peakPoint.x}" cy="${peakPoint.y}" r="3.5" fill="#fbc531" class="animate-pulse"></circle>
+        </svg>
+    `;
 }
 
 async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, route) {
