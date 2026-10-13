@@ -4704,6 +4704,10 @@ window.selectPkRoute = function(idx) {
     
     // ⚡ 確保切換卡片時完整帶入參數渲染
     if (pkRouteCache[idx]) {
+        // 🌟 關鍵修正：從快取切換回路線時，同步刷回該路線的高程剖面與海拔
+        if (pkRouteCache[idx].elevationData) {
+            updateElevationHudUi(pkRouteCache[idx].elevationData);
+        }
         const leg = currentPkRoutes[idx].legs[0];
         renderAbrpCalculatedResultsDirect(pkRouteCache[idx], leg, startSoc, idx, currentPkRoutes[idx]);
     } else {
