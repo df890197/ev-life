@@ -5201,10 +5201,10 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
             const n = raw.length;
             smoothedElevations = [...raw];
 
-            // 🚇 演算法核心 1：穿山隧道假山尖刺雙向識別（消除雪隧/蘇花改異常山頭）
-            // 掃描視窗約 12 個取樣點（約 10~15 公里長度以內）
+            // 🚇 穿山隧道識別修復（精準涵蓋雪隧 12.9km 與蘇花改隧道群）
             for (let i = 0; i < n; i++) {
-                for (let win = 3; win <= 14; win++) {
+                // 放寬視窗至 20 個取樣點（涵蓋 2~18 公里長隧道）
+                for (let win = 3; win <= 20; win++) {
                     const j = i + win;
                     if (j >= n) break;
 
@@ -5213,24 +5213,24 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
                         elevations[j].location.lat(), elevations[j].location.lng()
                     );
 
-                    // 隧道跨度通常在 1.5 ~ 14 公里之內
-                    if (dDist >= 1.5 && dDist <= 14.0) {
+                    // 隧道跨度 1.5 ~ 18 公里
+                    if (dDist >= 1.5 && dDist <= 18.0) {
                         const portAltDiff = Math.abs(raw[j] - raw[i]);
-                        // 入口與出口標高落差在 250 公尺以內（公路隧道進出落差不會過大）
-                        if (portAltDiff <= 250) {
+                        // 兩端洞口落差放寬至 350m（符合雪隧南端到蘭陽平原的高低落差）
+                        if (portAltDiff <= 350) {
                             let maxInside = -Infinity;
                             for (let k = i + 1; k < j; k++) {
                                 if (raw[k] > maxInside) maxInside = raw[k];
                             }
                             const basePort = Math.max(raw[i], raw[j]);
-                            // 中間突然高出入口 450 公尺以上，100% 是穿山隧道頭頂上的山脊假訊號！
-                            if (maxInside - basePort > 450) {
-                                // 採用路面線性拉平，精確還原隧道內部實體高度
+                            // 中間地表暴衝超過 300 公尺以上，判定為車頂上方的山脊
+                            if (maxInside - basePort > 300) {
+                                // 採用路面線性插值拉平，還原隧道內平坦路面
                                 for (let k = i + 1; k < j; k++) {
                                     const ratio = (k - i) / (j - i);
                                     smoothedElevations[k] = raw[i] + (raw[j] - raw[i]) * ratio;
                                 }
-                                i = j - 1; // 跳過此隧道段
+                                i = j - 1;
                                 break;
                             }
                         }
