@@ -5197,14 +5197,15 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
         return;
     }
 
-const elevationService = new google.maps.ElevationService();
-    // ⚡ 取樣點提升至 200 點，確保長途高山陡坡解析度足夠
-    elevationService.getElevationAlongPath({ path: route.overview_path, samples: 200 }, (elevations, eStatus) => {
+    // 📐 動態決定取樣點數：里程越長給予越多點，確保點距不失真（最多 256 點，符合 Google 最佳配額）
+    const sampleCount = Math.min(256, Math.max(80, Math.round(totalDistanceKm * 0.8)));
+
+    const elevationService = new google.maps.ElevationService();
+    elevationService.getElevationAlongPath({ path: route.overview_path, samples: sampleCount }, (elevations, eStatus) => {
         let totalClimbMeters = 0, totalDescentMeters = 0;
         let smoothedElevations = [];
 
         if (eStatus === google.maps.ElevationStatus.OK && elevations?.length > 1) {
-            // 🛡️ 實體公路高程平滑濾波（相容台灣山路 10%~12% 極限坡度，同時削平隧道山脊）
             smoothedElevations = [elevations[0].elevation];
             for (let i = 1; i < elevations.length; i++) {
                 const prevEle = smoothedElevations[i - 1];
@@ -5213,13 +5214,17 @@ const elevationService = new google.maps.ElevationService();
                 const p2 = elevations[i].location;
                 const segDistM = getDistanceFromLatLonInKm(p1.lat(), p1.lng(), p2.lat(), p2.lng()) * 1000;
 
-                // 公路合理極限坡度約 12% (0.12)，放寬單點上限至 200m，避免長途爬大山被硬砍
-                const maxStep = Math.max(15, Math.min(250, segDistM * 0.12));
+                // 🚗 實際道路物理限制：
+                // 台灣省道高山公路設計極限坡度約 12% (0.12)
+                // 只要坡度在 12% 以內，皆視為實體道路爬坡，完整保留；
+                // 只有隧道上方山脊（坡度 > 20%~50% 暴衝）才會被平滑削平。
+                const maxRealisticChange = Math.max(20, segDistM * 0.12);
                 const diff = rawEle - prevEle;
-                const clampedDiff = Math.max(-maxStep, Math.min(maxStep, diff));
+                const clampedDiff = Math.max(-maxRealisticChange, Math.min(maxRealisticChange, diff));
                 const filteredEle = prevEle + clampedDiff;
                 smoothedElevations.push(filteredEle);
 
+                // 排除 1.5m 以內的微小起伏噪訊，精確累計真實爬坡/下坡
                 if (clampedDiff > 1.5) {
                     totalClimbMeters += clampedDiff;
                 } else if (clampedDiff < -1.5) {
@@ -5234,7 +5239,7 @@ const elevationService = new google.maps.ElevationService();
         const startAlt = Math.round(smoothedElevations[0]);
         const endAlt = Math.round(smoothedElevations[smoothedElevations.length - 1]);
 
-        // 判定大下坡路段
+        // 判定大下坡路段（如武嶺下山、阿里山下山）
         const isSteepDownhill = (totalDescentMeters > totalClimbMeters * 2 && totalDescentMeters > 300);
         const effectiveHighwayEff = isSteepDownhill ? Math.max(baseHighwayEff, 7.5) : baseHighwayEff;
 
@@ -5268,7 +5273,7 @@ const elevationService = new google.maps.ElevationService();
         // 立即更新高程卡片
         updateElevationHudUi(elevationData);
 
-        // 🔄 同步上方 PK 卡片的抵達電量，確保上下數值 100% 一致
+        // 🔄 同步上方 PK 卡片的抵達電量，確保上下數值一致
         const pkSocEl = document.getElementById(`pkSoc${routeIdx}`);
         const pkEffEl = document.getElementById(`pkEff${routeIdx}`);
         if (pkSocEl) {
