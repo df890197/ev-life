@@ -5948,12 +5948,18 @@ const stationCardHtml = `
         pkRouteCache[routeIdx].isReady = true;
     }
 
-    const activeRouteIndex = abrpDirectionsRenderer ? abrpDirectionsRenderer.getRouteIndex() : 0;
-    if (activeRouteIndex === routeIdx) {
+    // 🌟 核心修復：如果目前畫面上選中的卡片就是這條路線（以卡片樣式為準，最為穩固）
+    // 或者路線 0 剛模擬完成且使用者還沒切換時，立即將充電站卡片填入畫面！
+    const card0 = document.getElementById('pkCardRoute0');
+    const isCard0Active = card0 ? card0.classList.contains('border-amber-400') : true;
+    const currentActiveRoute = isCard0Active ? 0 : 1;
+
+    if (currentActiveRoute === routeIdx || (routeIdx === 0 && isCard0Active)) {
         const stopDivEl = document.getElementById('abrpStopRecommendation');
-        if (stopDivEl) stopDivEl.innerHTML = stationCardHtml;
+        if (stopDivEl) {
+            stopDivEl.innerHTML = stationCardHtml;
+        }
     }
-}
         
 // 唯一保留的快取渲染函式（支援動態補電次數）
 function renderAbrpCachedResults(calcData, totalDistanceKm, durationText) {
