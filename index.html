@@ -4781,42 +4781,16 @@ window.planElectricRoute = async function() {
                     tag.className = `text-[9px] font-black px-1.5 py-0.5 rounded ${traffic.class}`;
                 }
 
-                    elevationService.getElevationAlongPath({ path: rt.overview_path, samples: 40 }, (elevations, eStatus) => {
-                    let climb = 0, descent = 0;
-                    if (eStatus === google.maps.ElevationStatus.OK && elevations?.length > 1) {
-                        for (let i = 1; i < elevations.length; i++) {
-                            const rawDiff = elevations[i].elevation - elevations[i - 1].elevation;
-                            const p1 = elevations[i - 1].location;
-                            const p2 = elevations[i].location;
-                            const segDistM = getDistanceFromLatLonInKm(p1.lat(), p1.lng(), p2.lat(), p2.lng()) * 1000;
-                            const maxAllowedSlope = Math.max(8, segDistM * 0.06);
-                            const realisticDiff = Math.max(-maxAllowedSlope, Math.min(maxAllowedSlope, rawDiff));
-
-                            if (realisticDiff > 3.0) climb += realisticDiff;
-                            else if (realisticDiff < -3.0) descent += Math.abs(realisticDiff);
-                        }
-                    }
-                    const baseEff = AppState.globalAvgEfficiency > 0 ? AppState.globalAvgEfficiency : 5.5;
-                    const isDown = (descent > climb * 2 && descent > 300);
-                    const effBase = isDown ? Math.max(baseEff, 7.5) : baseEff;
-                    const flatKwh = distKm / effBase;
-                    const netElevationKwh = (climb / 100) * 0.65 - (descent / 100) * 0.45;
-                    const totalKwh = flatKwh + netElevationKwh;
-                    const realEff = totalKwh > 0 ? (distKm / totalKwh) : 0;
-                    const arrivalSoc = Math.min(100, Math.round(startSoc - (totalKwh / AppState.batteryCapacity * 100)));
-
-                    const effEl = document.getElementById(`pkEff${idx}`);
-                    const socEl = document.getElementById(`pkSoc${idx}`);
-                    if (effEl) effEl.textContent = totalKwh <= 0 ? '動能回充中' : `${realEff.toFixed(2)} km/度`;
-                    if (socEl) {
-                        socEl.textContent = `${arrivalSoc}%`;
-                        socEl.className = arrivalSoc < 15 ? 'font-mono text-rose-500 font-black' : 'font-mono text-emerald-500 font-black';
-                    }
-                });
+                // 設定初始佔位狀態，由 processRouteElevationAndCharging 統一計算並填入，避免兩個請求互相打架覆蓋
+                const effEl = document.getElementById(`pkEff${idx}`);
+                const socEl = document.getElementById(`pkSoc${idx}`);
+                if (effEl) effEl.textContent = "計算中...";
+                if (socEl) socEl.textContent = "...";
             });
         } else if (pkBox) {
             pkBox.classList.add('hidden');
         }
+        // 確保以路線 0 進行唯一的主高程計算
         selectPkRoute(0);
 
         // 🎯 觸發目的地景點補電判斷
