@@ -5197,14 +5197,14 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
         return;
     }
 
-    const elevationService = new google.maps.ElevationService();
-    // 取樣點提高至 80 點
-    elevationService.getElevationAlongPath({ path: route.overview_path, samples: 80 }, (elevations, eStatus) => {
+const elevationService = new google.maps.ElevationService();
+    // ⚡ 取樣點提升至 200 點，確保長途高山陡坡解析度足夠
+    elevationService.getElevationAlongPath({ path: route.overview_path, samples: 200 }, (elevations, eStatus) => {
         let totalClimbMeters = 0, totalDescentMeters = 0;
         let smoothedElevations = [];
 
         if (eStatus === google.maps.ElevationStatus.OK && elevations?.length > 1) {
-            // 🛡️ 實體公路高程平滑濾波（消除隧道上方山脊誤差）
+            // 🛡️ 實體公路高程平滑濾波（相容台灣山路 10%~12% 極限坡度，同時削平隧道山脊）
             smoothedElevations = [elevations[0].elevation];
             for (let i = 1; i < elevations.length; i++) {
                 const prevEle = smoothedElevations[i - 1];
@@ -5213,16 +5213,16 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
                 const p2 = elevations[i].location;
                 const segDistM = getDistanceFromLatLonInKm(p1.lat(), p1.lng(), p2.lat(), p2.lng()) * 1000;
 
-                // 單一取樣點最大爬升/下降限制為 35m（削平長隧道假山頭）
-                const maxStep = Math.min(35, Math.max(5, segDistM * 0.05));
+                // 公路合理極限坡度約 12% (0.12)，放寬單點上限至 200m，避免長途爬大山被硬砍
+                const maxStep = Math.max(15, Math.min(250, segDistM * 0.12));
                 const diff = rawEle - prevEle;
                 const clampedDiff = Math.max(-maxStep, Math.min(maxStep, diff));
                 const filteredEle = prevEle + clampedDiff;
                 smoothedElevations.push(filteredEle);
 
-                if (clampedDiff > 2.0) {
+                if (clampedDiff > 1.5) {
                     totalClimbMeters += clampedDiff;
-                } else if (clampedDiff < -2.0) {
+                } else if (clampedDiff < -1.5) {
                     totalDescentMeters += Math.abs(clampedDiff);
                 }
             }
