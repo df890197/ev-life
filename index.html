@@ -4780,11 +4780,15 @@ window.planElectricRoute = async function() {
                     elevationService.getElevationAlongPath({ path: rt.overview_path, samples: 40 }, (elevations, eStatus) => {
                     let climb = 0, descent = 0;
                     if (eStatus === google.maps.ElevationStatus.OK && elevations?.length > 1) {
-                        for (let i = 1; i < elevations.length; i++) {
-                            const d = elevations[i].elevation - elevations[i - 1].elevation;
-                            if (d > 5.0) climb += d;
-                            else if (d < -5.0) descent += Math.abs(d);
-                        }
+for (let i = 1; i < elevations.length; i++) {
+    const diff = elevations[i].elevation - elevations[i - 1].elevation;
+    // 忽略過小雜訊（< 8m），同時單段如果暴衝超過 150m（隧道山體誤差）進行壓制
+    if (diff > 8.0 && diff < 150.0) {
+        totalClimbMeters += diff;
+    } else if (diff < -8.0 && diff > -150.0) {
+        totalDescentMeters += Math.abs(diff);
+    }
+}
                     }
                     const baseEff = AppState.globalAvgEfficiency > 0 ? AppState.globalAvgEfficiency : 5.5;
                     const isDown = (descent > climb * 2 && descent > 300);
