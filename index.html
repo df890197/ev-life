@@ -4001,7 +4001,7 @@ window.calculatePrediction = function() {
 
         function setupNumericRestrictions() {
             const blockKey = e => { if(['e','E','+','-','.'].includes(e.key)) e.preventDefault(); };
-                ['inputDistance', 'inputStartSocNum', 'inputEndSocNum', 'inputCost', 'loanTotalMonthsInput', 'loanMonthlyPaymentInput', 'routeStartSoc', 'tireIntervalInput', 'lastTireRotationOdoInput'].forEach(id => {
+                ['inputDistance', 'inputStartSocNum', 'inputEndSocNum', 'inputCost', 'loanTotalMonthsInput', 'loanMonthlyPaymentInput', 'routeStartSoc', 'routeTargetMinSoc', 'tireIntervalInput', 'lastTireRotationOdoInput'].forEach(id => {
                 const el = document.getElementById(id);
                 if(el) { 
                     el.addEventListener('keypress', blockKey); 
@@ -4080,7 +4080,7 @@ window.syncWithCloud = async function(mode = 'auto', isSilent = false) {
                         id: "CONFIG_METADATA", date: "", chargeType: "", distance: 0, power: 0, cost: 0, 
                         note: JSON.stringify({ 
                             evName: AppState.evName, batteryCapacity: AppState.batteryCapacity, initialOdometer: AppState.initialOdometer, 
-                            maintInterval: AppState.maintInterval, nextMaintDate: AppState.nextMaintDate, insuranceExpiryDate: AppState.insuranceExpiryDate, 
+                            maintInterval: AppState.maintInterval, tireInterval: AppState.tireInterval, lastTireRotationOdo: AppState.lastTireRotationOdo, nextMaintDate: AppState.nextMaintDate, 
                             loanTotalMonths: AppState.loanTotalMonths, loanMonthlyPayment: AppState.loanMonthlyPayment,
                             loanStartDate: AppState.loanStartDate, loanPayoffDate: AppState.loanPayoffDate,
                             iceEfficiency: AppState.iceEfficiency, gasPrice: AppState.gasPrice 
@@ -4122,6 +4122,9 @@ window.syncWithCloud = async function(mode = 'auto', isSilent = false) {
                         if (cloudConfig.batteryCapacity) { AppState.batteryCapacity = parseFloat(cloudConfig.batteryCapacity); localStorage.setItem('ev_life_battery_capacity', AppState.batteryCapacity); }
                         if (cloudConfig.initialOdometer !== undefined) { AppState.initialOdometer = parseFloat(cloudConfig.initialOdometer); localStorage.setItem('ev_life_initial_odometer', AppState.initialOdometer); }
                         if (cloudConfig.maintInterval) { AppState.maintInterval = parseInt(cloudConfig.maintInterval, 10); localStorage.setItem('ev_life_maint_interval', AppState.maintInterval); }
+                        // 👇 補上這兩行，讓雲端下載時也能還原調胎設定與輸入框
+                        if (cloudConfig.tireInterval) { AppState.tireInterval = parseInt(cloudConfig.tireInterval, 10); localStorage.setItem('ev_life_tire_interval', AppState.tireInterval); if (DOM.tireIntervalInput) DOM.tireIntervalInput.value = AppState.tireInterval; }
+                        if (cloudConfig.lastTireRotationOdo !== undefined) { AppState.lastTireRotationOdo = parseFloat(cloudConfig.lastTireRotationOdo); localStorage.setItem('ev_life_last_tire_odo', AppState.lastTireRotationOdo); if (DOM.lastTireRotationOdoInput) DOM.lastTireRotationOdoInput.value = AppState.lastTireRotationOdo; }
                         if (cloudConfig.nextMaintDate !== undefined) { AppState.nextMaintDate = cloudConfig.nextMaintDate; localStorage.setItem('ev_life_next_maint_date', AppState.nextMaintDate); }
                         if (cloudConfig.insuranceExpiryDate !== undefined) { AppState.insuranceExpiryDate = cloudConfig.insuranceExpiryDate; localStorage.setItem('ev_life_insurance_date', AppState.insuranceExpiryDate); }
                         
