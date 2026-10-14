@@ -4053,8 +4053,8 @@ window.calculatePrediction = function() {
             AppState.syncToken = DOM.syncTokenInput?.value.trim() || ""; localStorage.setItem('ev_life_sync_token', AppState.syncToken);
 
             updateSyncUiStatus(); switchTab('home'); renderDashboard(); 
-            if (AppState.syncUrl) { syncWithCloud('upload', false); } else { showToast("設定已儲存 💾"); }
-        };
+            showToast("設定已儲存至本機 💾");
+         };
 
         function updateSyncUiStatus() {
             const dot = document.getElementById('syncStatusDot');
