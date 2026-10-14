@@ -4080,7 +4080,7 @@ window.syncWithCloud = async function(mode = 'auto', isSilent = false) {
                         id: "CONFIG_METADATA", date: "", chargeType: "", distance: 0, power: 0, cost: 0, 
                         note: JSON.stringify({ 
                             evName: AppState.evName, batteryCapacity: AppState.batteryCapacity, initialOdometer: AppState.initialOdometer, 
-                            maintInterval: AppState.maintInterval, tireInterval: AppState.tireInterval, lastTireRotationOdo: AppState.lastTireRotationOdo, nextMaintDate: AppState.nextMaintDate, 
+                            maintInterval: AppState.maintInterval, tireInterval: AppState.tireInterval, lastTireRotationOdo: AppState.lastTireRotationOdo, nextMaintDate: AppState.nextMaintDate, insuranceExpiryDate: AppState.insuranceExpiryDate, 
                             loanTotalMonths: AppState.loanTotalMonths, loanMonthlyPayment: AppState.loanMonthlyPayment,
                             loanStartDate: AppState.loanStartDate, loanPayoffDate: AppState.loanPayoffDate,
                             iceEfficiency: AppState.iceEfficiency, gasPrice: AppState.gasPrice 
@@ -5737,6 +5737,7 @@ const validCandidates = [];
     const stopDiv = document.getElementById('abrpStopRecommendation');
 
     if (validCandidates.length === 0) {
+        if (abrpChargerMarker) { abrpChargerMarker.setMap(null); abrpChargerMarker = null; }
         if (stopDiv) stopDiv.innerHTML = `<div class="p-3 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded-xl font-bold">⚠️ 行駛路線區間未找到合適的充電站，請注意續航安全！</div>`;
         return;
     }
