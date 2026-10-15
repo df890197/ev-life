@@ -4167,8 +4167,17 @@ window.syncWithCloud = async function(mode = 'auto', isSilent = false) {
             }
         };
 
-        window.forceDownload = function() { showConfirmModal("以「試算表」為主？", "將下載雲端資料並「覆蓋」本機記錄。", function() { syncWithCloud('download'); }); };
-        window.forceUpload = function() { showConfirmModal("以「本機」為主？", "將上傳本機資料並「覆蓋」雲端記錄。", function() { syncWithCloud('upload'); }); };
+        window.forceDownload = function() { 
+    showConfirmModal("以「試算表」為主？", "將下載雲端資料並「覆蓋」本機記錄。", function() { syncWithCloud('download'); }); 
+};
+
+window.forceUpload = function() { 
+    // 🌟 關鍵修正：強制在彈出確認框前或確認後，把畫面上的最新設定（如 12、32）讀進來！
+    applySettingsFromInputs();
+    showConfirmModal("以「本機」為主？", "將上傳本機資料並「覆蓋」雲端記錄。", function() { 
+        syncWithCloud('upload'); 
+    }); 
+};
 
         window.exportToCSV = function() {
             if (AppState.records.length === 0) { showToast("目前沒有紀錄可以匯出喔！", true); return; }
