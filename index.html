@@ -4025,13 +4025,14 @@ window.calculatePrediction = function() {
             if (!isMain) updatePwaDiagnostic();
         };
 
-        window.saveSyncSettingsOnly = function() {
+        // 新增：統一將設定頁輸入框的數值寫入 AppState 與本機儲存
+        function applySettingsFromInputs() {
             AppState.evName = DOM.evNameInput?.value || "LUXGEN n7"; localStorage.setItem('ev_life_ev_name', AppState.evName);
             if(DOM.topEvName) DOM.topEvName.textContent = AppState.evName; if(DOM.heroEvName) DOM.heroEvName.textContent = AppState.evName;
             updateAppTitle();
 
             AppState.batteryCapacity = parseFloat(DOM.batteryCapacityInput?.value) || 57.7; localStorage.setItem('ev_life_battery_capacity', AppState.batteryCapacity);
-            localStorage.setItem('ev_life_setup_completed', 'true'); // 👈 加在這一行！
+            localStorage.setItem('ev_life_setup_completed', 'true');
             AppState.initialOdometer = parseFloat(DOM.initialOdometerInput?.value) || 0; localStorage.setItem('ev_life_initial_odometer', AppState.initialOdometer);
             AppState.maintInterval = parseInt(DOM.maintIntervalInput?.value) || 20000; localStorage.setItem('ev_life_maint_interval', AppState.maintInterval);
             AppState.tireInterval = parseInt(DOM.tireIntervalInput?.value) || 10000; localStorage.setItem('ev_life_tire_interval', AppState.tireInterval);
@@ -4042,7 +4043,6 @@ window.calculatePrediction = function() {
             AppState.loanTotalMonths = parseInt(DOM.loanTotalMonthsInput?.value) || 0; localStorage.setItem('ev_life_loan_total_months', AppState.loanTotalMonths);
             AppState.loanMonthlyPayment = parseInt(DOM.loanMonthlyPaymentInput?.value) || 0; localStorage.setItem('ev_life_loan_monthly_payment', AppState.loanMonthlyPayment);
 
-            // 新增：儲存首期扣款日與結清日
             AppState.loanStartDate = DOM.loanStartDateInput?.value || ""; localStorage.setItem('ev_life_loan_start_date', AppState.loanStartDate);
             AppState.loanPayoffDate = DOM.loanPayoffDateInput?.value || ""; localStorage.setItem('ev_life_loan_payoff_date', AppState.loanPayoffDate);
 
@@ -4051,10 +4051,13 @@ window.calculatePrediction = function() {
 
             AppState.syncUrl = DOM.syncUrlInput?.value.trim() || ""; localStorage.setItem('ev_life_sync_url', AppState.syncUrl);
             AppState.syncToken = DOM.syncTokenInput?.value.trim() || ""; localStorage.setItem('ev_life_sync_token', AppState.syncToken);
+        }
 
+        window.saveSyncSettingsOnly = function() {
+            applySettingsFromInputs();
             updateSyncUiStatus(); switchTab('home'); renderDashboard(); 
             showToast("設定已儲存至本機 💾");
-         };
+        };
 
         function updateSyncUiStatus() {
             const dot = document.getElementById('syncStatusDot');
@@ -4136,6 +4139,11 @@ window.syncWithCloud = async function(mode = 'auto', isSilent = false) {
                         if (cloudConfig.iceEfficiency) { AppState.iceEfficiency = parseFloat(cloudConfig.iceEfficiency); localStorage.setItem('ev_life_ice_efficiency', AppState.iceEfficiency); }
                         if (cloudConfig.gasPrice) { AppState.gasPrice = parseFloat(cloudConfig.gasPrice); localStorage.setItem('ev_life_gas_price', AppState.gasPrice); }
 
+                        // 👇 在 if (DOM.maintIntervalInput) 上方補上這三行，讓雲端下載後設定頁輸入框也即時更新
+                        if (DOM.evNameInput) DOM.evNameInput.value = AppState.evName;
+                        if (DOM.batteryCapacityInput) DOM.batteryCapacityInput.value = AppState.batteryCapacity;
+                        if (DOM.initialOdometerInput) DOM.initialOdometerInput.value = AppState.initialOdometer;
+                        if (DOM.maintIntervalInput) DOM.maintIntervalInput.value = AppState.maintInterval;
                         if (DOM.maintIntervalInput) DOM.maintIntervalInput.value = AppState.maintInterval;
                         if (DOM.nextMaintDateInput) DOM.nextMaintDateInput.value = AppState.nextMaintDate;
                         if (DOM.insuranceExpiryInput) DOM.insuranceExpiryInput.value = AppState.insuranceExpiryDate;
