@@ -5355,12 +5355,14 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
         const regenEnergyKwh = (totalDescentMeters / 100) * 0.45;
 
         const netElevationEnergyKwh = climbEnergyKwh - regenEnergyKwh;
+        
+        // 🌟 真實淨消耗度數 (不作假，保留真正的負數)
         const totalConsumedKwh = flatEnergyKwh + netElevationEnergyKwh;
         const totalConsumedSoc = (totalConsumedKwh / AppState.batteryCapacity) * 100;
         const directArrivalSoc = Math.min(100, Math.round(startSoc - totalConsumedSoc));
-        // 🌟 修改：確保耗電量不會為負數或零，並封頂最高電耗顯示為 999.99 km/度
-        const safeConsumedKwh = Math.max(0.1, totalConsumedKwh); 
-        const realEff = Math.min(999.99, totalDistanceKm / safeConsumedKwh);
+        
+        // 🌟 拔除所有防呆上限，還原真實除法 (支援負數與無限大)
+        const realEff = totalConsumedKwh === 0 ? Infinity : (totalDistanceKm / totalConsumedKwh);
 
         let routeProfileText = "";
         if (maxElevation >= 1000 || totalClimbMeters >= 800) routeProfileText = `高海拔山區 (爬升 +${Math.round(totalClimbMeters)}m)`;
@@ -5374,7 +5376,8 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
             maxElevation,
             startAlt,
             endAlt,
-            realEff: realEff.toFixed(2),
+            // 確保 Infinity 不會因為 toFixed 報錯
+            realEff: realEff === Infinity ? "Infinity" : realEff.toFixed(2),
             directArrivalSoc,
             startSoc
         };
