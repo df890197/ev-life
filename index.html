@@ -5280,38 +5280,39 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
             const n = raw.length;
             smoothedElevations = [...raw];
 
-            // 🚇 穿山隧道識別修復（加寬視窗，完美攔截 12.9km 雪隧與蘇花改）
-            for (let i = 0; i < n; i++) {
-                // 將視窗放寬到 45 個點（足以涵蓋長達 15~20 公里的特長隧道）
-                for (let win = 3; win <= 45; win++) {
+            // 🚇 穿山隧道識別修復（終極進化：由大到小掃描，確保抓到完整隧道頭尾）
+            for (let i = 0; i < n - 3; i++) {
+                // 🌟 關鍵修正：將 win 的迴圈反過來，從最大極限 45 往下遞減到 3
+                // 這樣才能確保優先抓取「整座山脈/整條長隧道」的頭尾，而不是只切掉山坡一小塊
+                for (let win = 45; win >= 3; win--) {
                     const j = i + win;
-                    if (j >= n) break;
+                    if (j >= n) continue;
 
                     const dDist = getDistanceFromLatLonInKm(
                         elevations[i].location.lat(), elevations[i].location.lng(),
                         elevations[j].location.lat(), elevations[j].location.lng()
                     );
 
-                    // 隧道跨度 1.5 ~ 20.0 公里以內
-                    if (dDist >= 1.5 && dDist <= 20.0) {
+                    // 隧道跨度放寬至 1.0 ~ 25.0 公里以內 (涵蓋所有長隧道)
+                    if (dDist >= 1.0 && dDist <= 25.0) {
                         const portAltDiff = Math.abs(raw[j] - raw[i]);
-                        // 兩端洞口落差放寬至 350m (符合雪隧雙邊洞口高低差)
-                        if (portAltDiff <= 350) {
+                        // 兩端洞口落差放寬至 400m
+                        if (portAltDiff <= 400) {
                             let maxInside = -Infinity;
                             for (let k = i + 1; k < j; k++) {
                                 if (raw[k] > maxInside) maxInside = raw[k];
                             }
                             const basePort = Math.max(raw[i], raw[j]);
                             
-                            // 只要中間地表暴衝超過 150 公尺，就判定為車頂上的大山 (觸發隧道抹平)
-                            if (maxInside - basePort > 150) {
+                            // 只要中間地表暴衝超過 120 公尺，就判定為車頂上的大山
+                            if (maxInside - basePort > 120) {
                                 // 採用路面線性插值，直接在山脈下方「挖」出一條平坦隧道
                                 for (let k = i + 1; k < j; k++) {
                                     const ratio = (k - i) / (j - i);
                                     smoothedElevations[k] = raw[i] + (raw[j] - raw[i]) * ratio;
                                 }
-                                i = j - 1; // 跳過這段已修復的隧道區間
-                                break;
+                                i = j - 1; // 成功抹平整座大山，跳過這段區間
+                                break;     // 跳出 win 迴圈，繼續往後掃描下一個隧道
                             }
                         }
                     }
