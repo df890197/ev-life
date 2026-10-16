@@ -5393,9 +5393,17 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
         }
         
         if (pkEffEl) {
-            pkEffEl.textContent = `${realEff.toFixed(2)} km/度`;
-            // 當均耗大於 100 km/度 時，依然保持綠色高光特效
-            pkEffEl.className = realEff > 100 ? "font-mono text-emerald-500 font-black" : "font-mono text-teal-500";
+            if (realEff === Infinity) {
+                pkEffEl.textContent = "∞ km/度";
+                pkEffEl.className = "font-mono text-emerald-500 font-black";
+            } else if (realEff < 0) {
+                // 🌟 加上絕對值拔除負號，文字標示改為「回充」
+                pkEffEl.textContent = `${Math.abs(realEff).toFixed(2)} km/度 (回充)`;
+                pkEffEl.className = "font-mono text-emerald-500 font-black";
+            } else {
+                pkEffEl.textContent = `${realEff.toFixed(2)} km/度`;
+                pkEffEl.className = "font-mono text-teal-500";
+            }
         }
 
         pkRouteCache[routeIdx] = {
@@ -5446,10 +5454,17 @@ function updateElevationHudUi(data) {
     
     const effEl = document.getElementById('abrpProfileEffText');
     if (effEl) {
-        if (parseFloat(data.realEff) > 100) {
-            effEl.innerHTML = `均耗 <span class="text-emerald-500 font-black">${data.realEff} km/度</span>`;
+        if (data.realEff === "Infinity") {
+            effEl.innerHTML = `均耗 <span class="text-emerald-500 font-black">∞ km/度</span>`;
         } else {
-            effEl.textContent = `均耗 ${data.realEff} km/度`;
+            // 解析傳進來的字串轉為數字
+            const effValue = parseFloat(data.realEff);
+            if (effValue < 0) {
+                // 🌟 改變前綴字眼為「回充效率」，並顯示絕對值
+                effEl.innerHTML = `回充效率 <span class="text-emerald-500 font-black">${Math.abs(effValue).toFixed(2)} km/度</span>`;
+            } else {
+                effEl.textContent = `均耗 ${effValue.toFixed(2)} km/度`;
+            }
         }
     }
 
