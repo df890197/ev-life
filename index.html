@@ -5352,7 +5352,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
     }
 
     // 峰值 = 平滑後最大值，不要再用 5x5 最大值放大
-    const maxElevation = Math.round(Math.max(...smoothed));
+    const maxElevation = Math.round(Math.max(...smoothed, startAlt, endAlt));
     const { climb: totalClimbMeters, descent: totalDescentMeters } = calcClimbDescent(smoothed, 10);
 
     // 能耗：拿掉舊版 isSteepDownhill 重複計算，直接用淨高程能
