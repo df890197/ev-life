@@ -5349,6 +5349,20 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
             smoothedElevations = [100, 100];
         }
 
+        // 🎯 智慧型平滑：只有當終點是低海拔平地（< 500m）時，才啟動尾端平滑
+        // 這樣上合歡山、阿里山時，最後的真實爬坡就不會被誤殺！
+        const finalAlt = smoothedElevations[smoothedElevations.length - 1]; 
+        if (finalAlt < 500 && smoothedElevations.length > 10) {
+            const n = smoothedElevations.length;
+            const tailStartIndex = Math.floor(n * 0.92);
+            const startTailAlt = smoothedElevations[tailStartIndex];
+
+            for (let k = tailStartIndex; k < n; k++) {
+                const ratio = (k - tailStartIndex) / (n - 1 - tailStartIndex);
+                smoothedElevations[k] = startTailAlt + (finalAlt - startTailAlt) * ratio;
+            }
+        }
+
         const maxElevation = Math.round(Math.max(...smoothedElevations));
         const startAlt = Math.round(smoothedElevations[0]);
         const endAlt = Math.round(smoothedElevations[smoothedElevations.length - 1]);
