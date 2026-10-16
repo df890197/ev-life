@@ -5186,6 +5186,29 @@ function getShortLocationName(locStr) {
     return str.slice(0, 8);
 }
 
+        // 🏔️ 動態雷達探測：向四周 30 公尺撒網，抓出真實最高海拔 (Promise 版，確保非同步計算不卡死)
+function getCalibratedElevation(lat, lng) {
+    return new Promise((resolve) => {
+        const offset = 0.0003; 
+        const searchPoints = [
+            { lat: lat, lng: lng },
+            { lat: lat + offset, lng: lng },
+            { lat: lat - offset, lng: lng },
+            { lat: lat, lng: lng + offset },
+            { lat: lat, lng: lng - offset }
+        ];
+
+        const elevator = new google.maps.ElevationService();
+        elevator.getElevationForLocations({ locations: searchPoints }, (results, status) => {
+            if (status === 'OK' && results && results.length > 0) {
+                resolve(Math.max(...results.map(r => r.elevation)));
+            } else {
+                resolve(null);
+            }
+        });
+    });
+}
+
 function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
     const leg = route.legs[0];
     let totalMeters = 0;
@@ -5213,11 +5236,22 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
     const sampleCount = Math.min(512, Math.max(150, Math.round(totalDistanceKm * 15)));
 
     const elevationService = new google.maps.ElevationService();
-    elevationService.getElevationAlongPath({ path: route.overview_path, samples: sampleCount }, (elevations, eStatus) => {
+    // 🌟 1. 這裡加上 async，讓程式可以等待雷達校正完成
+    elevationService.getElevationAlongPath({ path: route.overview_path, samples: sampleCount }, async (elevations, eStatus) => {
         let totalClimbMeters = 0, totalDescentMeters = 0;
         let smoothedElevations = [];
 
         if (eStatus === google.maps.ElevationStatus.OK && elevations?.length > 1) {
+            
+            // 🌟 2. 發動雷達探測：針對最後一個點 (終點) 進行周邊最高海拔校正
+            let endLoc = elevations[elevations.length - 1].location;
+            let realEndElev = await getCalibratedElevation(endLoc.lat(), endLoc.lng());
+            
+            // 如果探測到的最高點大於原本的網格平均值，就強制覆蓋
+            if (realEndElev !== null && realEndElev > elevations[elevations.length - 1].elevation) {
+                elevations[elevations.length - 1].elevation = realEndElev;
+            }
+
             const raw = elevations.map(e => e.elevation);
             const n = raw.length;
             smoothedElevations = [...raw];
