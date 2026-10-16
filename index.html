@@ -5379,12 +5379,21 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
 
         const pkSocEl = document.getElementById(`pkSoc${routeIdx}`);
         const pkEffEl = document.getElementById(`pkEff${routeIdx}`);
+        
         if (pkSocEl) {
             pkSocEl.textContent = `${directArrivalSoc}%`;
             pkSocEl.className = directArrivalSoc < 15 ? 'font-mono text-rose-500 font-black' : 'font-mono text-emerald-500 font-black';
         }
+        
+        // 🌟 替換這裡：加入無限大 (純回充) 的判斷
         if (pkEffEl) {
-            pkEffEl.textContent = `${realEff.toFixed(2)} km/度`;
+            if (realEff <= 0) {
+                pkEffEl.textContent = "∞ (純回充)";
+                pkEffEl.className = "font-mono text-emerald-500 font-black"; // 換成綠色凸顯回充
+            } else {
+                pkEffEl.textContent = `${realEff.toFixed(2)} km/度`;
+                pkEffEl.className = "font-mono text-teal-500"; // 恢復原本的顏色
+            }
         }
 
         pkRouteCache[routeIdx] = {
@@ -5434,7 +5443,13 @@ function updateElevationHudUi(data) {
     document.getElementById('abrpProfileDescentText').textContent = `🔋 下坡 -${data.totalDescentMeters}m`;
     
     const effEl = document.getElementById('abrpProfileEffText');
-    if (effEl) effEl.textContent = `均耗 ${data.realEff} km/度`;
+    if (effEl) {
+        if (data.realEff <= 0) {
+            effEl.innerHTML = `均耗 <span class="text-emerald-500 font-black">∞ (純回充)</span>`;
+        } else {
+            effEl.textContent = `均耗 ${data.realEff} km/度`;
+        }
+    }
 
     // 繪製去除隧道尖峰後的平滑 SVG
     const width = 300, height = 55;
