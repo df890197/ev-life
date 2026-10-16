@@ -5390,10 +5390,20 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
 
         const pkSocEl = document.getElementById(`pkSoc${routeIdx}`);
         const pkEffEl = document.getElementById(`pkEff${routeIdx}`);
+        const pkDistEl = document.getElementById(`pkDist${routeIdx}`); // 🌟 抓取里程 UI
         
         if (pkSocEl) {
             pkSocEl.textContent = `${directArrivalSoc}%`;
             pkSocEl.className = directArrivalSoc < 15 ? 'font-mono text-rose-500 font-black' : 'font-mono text-emerald-500 font-black';
+        }
+
+        // 🌟 新增：把真實物理的「淨消耗度數」顯示在里程旁邊，證明算式無誤
+        if (pkDistEl) {
+            if (totalConsumedKwh < 0) {
+                pkDistEl.innerHTML = `${totalDistanceKm.toFixed(1)} <span class="text-emerald-500 text-[9px]">(發電 ${Math.abs(totalConsumedKwh).toFixed(2)}度)</span>`;
+            } else {
+                pkDistEl.innerHTML = `${totalDistanceKm.toFixed(1)} <span class="text-rose-400 text-[9px]">(淨耗 ${totalConsumedKwh.toFixed(2)}度)</span>`;
+            }
         }
         
         if (pkEffEl) {
@@ -5401,15 +5411,15 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
                 pkEffEl.textContent = "∞ km/度";
                 pkEffEl.className = "font-mono text-emerald-500 font-black";
             } else if (realEff < 0) {
-                // 🌟 加上絕對值拔除負號，文字標示改為「回充」
                 pkEffEl.textContent = `${Math.abs(realEff).toFixed(2)} km/度 (回充)`;
                 pkEffEl.className = "font-mono text-emerald-500 font-black";
             } else {
                 pkEffEl.textContent = `${realEff.toFixed(2)} km/度`;
-                pkEffEl.className = "font-mono text-teal-500";
+                // 🌟 讓 100 以上的極端省電數字，也一併套用神級綠色高光
+                pkEffEl.className = realEff > 100 ? "font-mono text-emerald-500 font-black" : "font-mono text-teal-500";
             }
         }
-
+        
         pkRouteCache[routeIdx] = {
             totalDistanceKm,
             durationText,
