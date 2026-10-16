@@ -5295,15 +5295,26 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
                 }
             }
 
-            // 🔍 2. 尋找真實最高點
+            // 🔍 2. 尋找真實最高點（防呆：排除最後 10% 里程的市區高架橋與引道干擾）
             let maxIdx = 0;
             let currentMaxElev = -Infinity;
-            smoothedElevations.forEach((elev, idx) => {
-                if (elev > currentMaxElev) {
-                    currentMaxElev = elev;
+            const safeLimitIdx = Math.floor(n * 0.9); // 只在前 90% 的路段中尋找真正的高山
+
+            for (let idx = 0; idx < safeLimitIdx; idx++) {
+                if (smoothedElevations[idx] > currentMaxElev) {
+                    currentMaxElev = smoothedElevations[idx];
                     maxIdx = idx;
                 }
-            });
+            }
+            // 如果整條路很短，退回全面尋找
+            if (currentMaxElev === -Infinity) {
+                smoothedElevations.forEach((elev, idx) => {
+                    if (elev > currentMaxElev) {
+                        currentMaxElev = elev;
+                        maxIdx = idx;
+                    }
+                });
+            }
 
             // 📡 3. 平行發動 5x5 矩陣探測
             let endLoc = elevations[n - 1].location;
