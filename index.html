@@ -5186,17 +5186,21 @@ function getShortLocationName(locStr) {
     return str.slice(0, 8);
 }
 
-        // 🏔️ 動態雷達探測：向四周 30 公尺撒網，抓出真實最高海拔 (Promise 版，確保非同步計算不卡死)
+// 🏔️ 動態矩陣雷達：不依賴字典，自動生成 5x5 (25點) 高密度座標網，掃描局部真實高點
 function getCalibratedElevation(lat, lng) {
     return new Promise((resolve) => {
-        const offset = 0.0003; 
-        const searchPoints = [
-            { lat: lat, lng: lng },
-            { lat: lat + offset, lng: lng },
-            { lat: lat - offset, lng: lng },
-            { lat: lat, lng: lng + offset },
-            { lat: lat, lng: lng - offset }
-        ];
+        const searchPoints = [];
+        const step = 0.00015; // 步伐：約 15~16 公尺
+        const steps = 2; // 中心向外延伸 2 步，形成 5x5 矩陣
+
+        for (let i = -steps; i <= steps; i++) {
+            for (let j = -steps; j <= steps; j++) {
+                searchPoints.push({
+                    lat: lat + (i * step),
+                    lng: lng + (j * step)
+                });
+            }
+        }
 
         const elevator = new google.maps.ElevationService();
         elevator.getElevationForLocations({ locations: searchPoints }, (results, status) => {
@@ -5236,21 +5240,41 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
     const sampleCount = Math.min(512, Math.max(150, Math.round(totalDistanceKm * 15)));
 
     const elevationService = new google.maps.ElevationService();
-    // 🌟 1. 這裡加上 async，讓程式可以等待雷達校正完成
+    // 🌟 加上 async，讓程式可以等待雷達校正完成
     elevationService.getElevationAlongPath({ path: route.overview_path, samples: sampleCount }, async (elevations, eStatus) => {
         let totalClimbMeters = 0, totalDescentMeters = 0;
         let smoothedElevations = [];
 
         if (eStatus === google.maps.ElevationStatus.OK && elevations?.length > 1) {
             
-            // 🌟 2. 發動雷達探測：針對最後一個點 (終點) 進行周邊最高海拔校正
+            // 🚀🚀🚀 矩陣微地形掃描 (開始) 🚀🚀🚀
+            let maxIdx = 0;
+            let currentMaxElev = -Infinity;
+            // 找出 Google 原始數據中的最高點
+            elevations.forEach((e, idx) => {
+                if (e.elevation > currentMaxElev) {
+                    currentMaxElev = e.elevation;
+                    maxIdx = idx;
+                }
+            });
+
             let endLoc = elevations[elevations.length - 1].location;
-            let realEndElev = await getCalibratedElevation(endLoc.lat(), endLoc.lng());
-            
-            // 如果探測到的最高點大於原本的網格平均值，就強制覆蓋
+            let peakLoc = elevations[maxIdx].location;
+
+            // 平行發動 5x5 矩陣探測 (同時掃描終點與最高點)
+            let [realEndElev, realPeakElev] = await Promise.all([
+                getCalibratedElevation(endLoc.lat(), endLoc.lng()),
+                getCalibratedElevation(peakLoc.lat(), peakLoc.lng())
+            ]);
+
+            // 強制覆蓋被拉低的數值
             if (realEndElev !== null && realEndElev > elevations[elevations.length - 1].elevation) {
                 elevations[elevations.length - 1].elevation = realEndElev;
             }
+            if (realPeakElev !== null && realPeakElev > elevations[maxIdx].elevation) {
+                elevations[maxIdx].elevation = realPeakElev;
+            }
+            // 🚀🚀🚀 矩陣微地形掃描 (結束) 🚀🚀🚀
 
             const raw = elevations.map(e => e.elevation);
             const n = raw.length;
