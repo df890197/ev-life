@@ -5362,7 +5362,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
     const regenEnergyKwh = (totalDescentMeters / 100) * 0.40;
     const totalConsumedKwh = flatEnergyKwh + climbEnergyKwh - regenEnergyKwh;
     const totalConsumedSoc = (totalConsumedKwh / AppState.batteryCapacity) * 100;
-    const directArrivalSoc = Math.min(100, Math.max(0, Math.round(startSoc - totalConsumedSoc)));
+    const directArrivalSoc = Math.min(100, Math.round(startSoc - totalConsumedSoc));
     const realEff = totalConsumedKwh <= 0 ? Infinity : (totalDistanceKm / totalConsumedKwh);
 
     let routeProfileText = "";
