@@ -4202,7 +4202,7 @@ window.forceUpload = function() {
         };
 
         window.generateSWContent = function() {
-            return `const CACHE_NAME = 'ev-life-cache-v6';
+            return `const CACHE_NAME = 'ev-life-cache-v7';
 const ASSETS_TO_CACHE = ['./', './index.html', './manifest.json', './achievements.js'];
 
 self.addEventListener('install', event => {
@@ -4276,6 +4276,22 @@ let abrpDirectionsRenderer = null;
 let currentStartLatLng = null;
 let currentPkRoutes = [];
 let pkRouteCache = {};
+// v7: 高程請求 token，防舊請求覆蓋新結果。每次呼叫 processRouteElevationAndCharging 都發新 token，
+// 舊請求在每一個 await 之後檢查 token，過期就直接 return，不更新 UI / 快取。
+let elevationRequestSeq = 0;
+let elevationRequestTokenByRoute = {};
+function nextElevationRequestToken(routeIdx) {
+  elevationRequestSeq += 1;
+  elevationRequestTokenByRoute[routeIdx] = elevationRequestSeq;
+  return elevationRequestSeq;
+}
+function isCurrentElevationRequest(routeIdx, token) {
+  return elevationRequestTokenByRoute[routeIdx] === token;
+}
+function invalidateAllElevationRequests() {
+  elevationRequestSeq += 1;
+  elevationRequestTokenByRoute = {};
+}
 let abrpChargerMarker = null;
 let abrpStopPreference = 'restArea';
 
@@ -4421,6 +4437,7 @@ window.toggleAbrpPowerFilter = function(type) {
             // 3. 重設定位暫存與快取 (避免原起點座標影響新終點)
             currentStartLatLng = null;
             pkRouteCache = {};
+            invalidateAllElevationRequests();
             currentPkRoutes = [];
 
             // 4. 同步更新兩側的「✕」清除按鈕顯示狀態
@@ -4739,6 +4756,7 @@ window.selectPkRoute = function(idx) {
 
 window.planElectricRoute = async function() {
     pkRouteCache = {}; // 每次點擊模擬新規劃時重設快取
+    invalidateAllElevationRequests();
     let startLoc = document.getElementById('routeStartInput')?.value.trim();
     const endLoc = document.getElementById('routeEndInput')?.value.trim();
     const startSoc = parseFloat(document.getElementById('routeStartSoc')?.value) || 90;
@@ -5298,21 +5316,30 @@ function cleanElevations(raw, totalDistanceKm) {
 // ---------- 單點高程：起 / 終點只用這一個點 ----------
 // 舊版 getCalibratedElevation 用 5x5 取最大是元兇，改用單點
 function getSingleElevation(lat, lng) {
+  // v7: 永不 reject，失敗一律 resolve(null)，避免 Promise.all 變成未處理 rejection。
   return new Promise((resolve) => {
-    new google.maps.ElevationService().getElevationForLocations({
-      locations: [{ lat, lng }]
-    }, (res, status) => {
-      resolve(status === 'OK' && res?.[0] ? res[0].elevation : null);
-    });
+    try {
+      new google.maps.ElevationService().getElevationForLocations({
+        locations: [{ lat, lng }]
+      }, (res, status) => {
+        try {
+          resolve(status === 'OK' && res?.[0] ? res[0].elevation : null);
+        } catch (_) {
+          resolve(null);
+        }
+      });
+    } catch (_) {
+      resolve(null);
+    }
   });
 }
 
-// ---------- v6：詳細路徑 + 高程查詢（含失敗退回） ----------
+// ---------- v7：詳細路徑 + 高程查詢（含失敗退回） ----------
 // Diag 實測（2026-10-17，東大門夜市→吉長街）：overviewLen=24、detailedLen=82，
 // overview / detailed-full / detailed-150 / detailed-100 四種全部 eStatus=OK、max 皆 24.5m。
 // 結論：短程詳細路徑本身不會讓 API 失敗，v5 變 0 是因為「失敗時無退回、無失敗 log」。
-// v6 因此不賭詳細路徑一定成功：精簡到 200 點、try/catch、詳細失敗退回 overview、
-// 雙失敗改用起終點單點高程，任何情況下都不讓 smoothed 停在 [0,0]。
+// v7 因此不賭詳細路徑一定成功：精簡到 200 點、try/catch、詳細失敗退回 overview、
+// v7：雙失敗改用起終點單點高程；若單點也失敗，顯示「高程資料不可用」，不再用 0 假裝。
 function latOf(p) { return typeof p.lat === 'function' ? p.lat() : p.lat; }
 function lngOf(p) { return typeof p.lng === 'function' ? p.lng() : p.lng; }
 
@@ -5349,13 +5376,76 @@ function buildDetailedPath(route) {
 }
 
 function fetchElevationAlongPath(path, samples) {
+  // v7: 永不 reject，同步例外也轉成 { elevations: null, eStatus: 'ERROR' }，由呼叫端走退回流程。
   return new Promise((resolve) => {
-    new google.maps.ElevationService().getElevationAlongPath({ path, samples }, (elevations, eStatus) => {
-      resolve({ elevations, eStatus });
-    });
+    try {
+      new google.maps.ElevationService().getElevationAlongPath({ path, samples }, (elevations, eStatus) => {
+        resolve({ elevations, eStatus });
+      });
+    } catch (err) {
+      console.warn('[EvLife] elevation fetchElevationAlongPath 同步例外', err);
+      resolve({ elevations: null, eStatus: 'ERROR' });
+    }
   });
 }
 
+
+// v7: 高程不可用時的統一顯示。絕不使用 0m / 假 [startAlt, endAlt] 去算 SOC，
+// 也不寫入 pkRouteCache，避免下一次切換路線時又拿假資料來渲染。
+function showElevationUnavailable(routeIdx, startSoc, totalDistanceKm, durationText) {
+  const elevationData = {
+    smoothedElevations: [],
+    totalClimbMeters: null,
+    totalDescentMeters: null,
+    maxElevation: null,
+    startAlt: null,
+    endAlt: null,
+    realEff: null,
+    directArrivalSoc: null,
+    startSoc,
+    rawMax: null,
+    rawMaxIdx: -1,
+    cleanedMaxIdx: -1,
+    usedDetailedPath: false,
+    usedPathLabel: 'unavailable',
+    elevationUnavailable: true
+  };
+  const pkSocEl = document.getElementById(`pkSoc${routeIdx}`);
+  if (pkSocEl) {
+    pkSocEl.textContent = '—';
+    pkSocEl.className = 'font-mono text-slate-400 font-black';
+  }
+  const pkEffEl = document.getElementById(`pkEff${routeIdx}`);
+  if (pkEffEl) {
+    pkEffEl.textContent = '高程不可用';
+    pkEffEl.className = 'font-mono text-slate-400 font-black';
+  }
+  const curIdx = abrpDirectionsRenderer ? abrpDirectionsRenderer.getRouteIndex() : 0;
+  if (curIdx !== routeIdx) return;
+  updateElevationHudUi(elevationData);
+  document.getElementById('abrpResultSection')?.classList.remove('hidden');
+  const totalDistEl = document.getElementById('abrpTotalDist');
+  if (totalDistEl && isFinite(totalDistanceKm)) totalDistEl.innerHTML = `${totalDistanceKm.toFixed(1)}<br><span class="text-xs font-bold text-slate-500 dark:text-slate-400">km</span>`;
+  const driveDurEl = document.getElementById('abrpDriveDuration');
+  if (driveDurEl && durationText) driveDurEl.textContent = durationText;
+  const directSocEl = document.getElementById('abrpDirectSoc');
+  if (directSocEl) {
+    directSocEl.className = 'text-sm sm:text-base font-black font-mono tracking-tight leading-tight flex flex-col items-center justify-center text-slate-400';
+    directSocEl.innerHTML = '<span>—</span><span class="text-[9px] font-black px-1.5 py-0.5 rounded mt-0.5 tracking-normal whitespace-nowrap text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800">高程資料不可用</span>';
+  }
+  const recCard = document.getElementById('abrpRecommendationCard');
+  if (recCard) {
+    recCard.className = "p-4 rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 text-slate-700 dark:text-slate-200 space-y-2 min-h-[136px]";
+    recCard.innerHTML = `
+        <div class="font-black text-sm flex items-center gap-1.5">
+            <span>⚠️</span> 高程資料不可用，無法計算抵達電量
+        </div>
+        <p class="text-[11px] opacity-90 leading-relaxed">
+            沿線高程與起終點單點高程都查詢失敗，因此不顯示 0m，也不會用假高程估算爬升 / 下降與抵達電量。請檢查網路後重新規劃，或稍後再試。
+        </p>
+    `;
+  }
+}
 
 // ---------- 主函式：取代原本的 processRouteElevationAndCharging ----------
 function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
@@ -5372,7 +5462,15 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
   const durationText = durHours > 0 ? `${durHours} 小時 ${durMins} 分鐘` : `${durMins} 分鐘`;
   const baseHighwayEff = AppState.globalAvgEfficiency > 0 ? AppState.globalAvgEfficiency : 5.5;
 
+  // v7: 每一次呼叫都發新 token。即使是快取命中也要先發新 token，讓還在飛的舊請求過期。
+  const requestToken = nextElevationRequestToken(routeIdx);
+
   if (pkRouteCache[routeIdx]?.isReady && pkRouteCache[routeIdx]?.elevationData) {
+    if (pkRouteCache[routeIdx].elevationData.elevationUnavailable) {
+      const curCached = abrpDirectionsRenderer ? abrpDirectionsRenderer.getRouteIndex() : 0;
+      if (curCached === routeIdx) showElevationUnavailable(routeIdx, startSoc, totalDistanceKm, durationText);
+      return;
+    }
     const cur = abrpDirectionsRenderer ? abrpDirectionsRenderer.getRouteIndex() : 0;
     if (cur === routeIdx) updateElevationHudUi(pkRouteCache[routeIdx].elevationData);
     renderAbrpCachedResults(pkRouteCache[routeIdx], totalDistanceKm, durationText);
@@ -5382,10 +5480,13 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
   // 取樣密度：約 125m 一點，舊版 15 點/km 太密只會放大雜訊
   const sampleCount = Math.min(512, Math.max(80, Math.round(totalDistanceKm * 8)));
 
-  // v6：先試詳細路徑，失敗就退回 overview_path；雙失敗也不留 0，改用起終點單點。
+  // v7：先試詳細路徑，失敗就退回 overview_path；雙失敗且單點也失敗 → 顯示「高程資料不可用」，不顯示 0、不算 SOC。
   // 注意：process 內部用 await，因此把原本的 callback 改成 async IIFE，避免呼叫端要改。
+  // v7 頂層 try/catch：IIFE 內任何同步 / 非同步例外都不會變成未處理 rejection，UI 會顯示不可用而非卡在計算中。
   (async () => {
+    try {
     let smoothed = [0, 0];
+    let elevationUnavailable = false;
     let startAlt = 0, endAlt = 0;
     let rawMax = null, rawMaxIdx = -1, cleanedMaxIdx = -1;
     let usedPathLabel = 'none';
@@ -5402,9 +5503,11 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
     }
 
     let { elevations, eStatus } = await fetchElevationAlongPath(elevationPath, sampleCount);
+    if (!isCurrentElevationRequest(routeIdx, requestToken)) return;
     if (eStatus !== google.maps.ElevationStatus.OK || !elevations || elevations.length <= 1) {
       console.warn(`[EvLife] elevation detailed failed eStatus=${eStatus} count=${elevations ? elevations.length : 0}，退回 overview_path`);
       const retry = await fetchElevationAlongPath(route.overview_path, sampleCount);
+      if (!isCurrentElevationRequest(routeIdx, requestToken)) return;
       elevations = retry.elevations; eStatus = retry.eStatus;
       usedDetailedPath = false;
       if (eStatus !== google.maps.ElevationStatus.OK || !elevations || elevations.length <= 1) {
@@ -5431,22 +5534,39 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
         getSingleElevation(sLoc.lat(), sLoc.lng()),
         getSingleElevation(eLoc.lat(), eLoc.lng())
       ]);
+      if (!isCurrentElevationRequest(routeIdx, requestToken)) return;
       startAlt = Math.round(sSingle ?? smoothed[0]);
       endAlt = Math.round(eSingle ?? smoothed[smoothed.length - 1]);
     } else {
-      // 雙失敗：只用起終點單點，smoothed 至少是 [startAlt, endAlt]，HUD 絕不顯示 0。
+      // v7 雙失敗：必須起終點單點都拿到才可用。任一點拿不到就標記高程不可用，
+      // 不再用 0 或「已知點複製成另一點」假裝是 [startAlt, endAlt] 去算 SOC。
       try {
         const sLoc = leg.start_location, eLoc = leg.end_location;
         const [sSingle, eSingle] = await Promise.all([
           getSingleElevation(sLoc.lat(), sLoc.lng()),
           getSingleElevation(eLoc.lat(), eLoc.lng())
         ]);
-        startAlt = Math.round(sSingle ?? 0);
-        endAlt = Math.round(eSingle ?? startAlt);
-        smoothed = [startAlt, endAlt];
+        if (!isCurrentElevationRequest(routeIdx, requestToken)) return;
+        if (sSingle == null || eSingle == null) {
+          elevationUnavailable = true;
+          console.error('[EvLife] elevation 沿線與起終點單點皆不可用，顯示高程資料不可用，不以 0m 計算 SOC');
+        } else {
+          startAlt = Math.round(sSingle);
+          endAlt = Math.round(eSingle);
+          smoothed = [startAlt, endAlt];
+        }
       } catch (err) {
         console.error('[EvLife] elevation 起終點單點也失敗', err);
+        elevationUnavailable = true;
       }
+    }
+
+    // v7：高程不可用時直接顯示，不寫入假的 elevationData / pkRouteCache，不計算 SOC。
+    if (elevationUnavailable) {
+      if (isCurrentElevationRequest(routeIdx, requestToken)) {
+        showElevationUnavailable(routeIdx, startSoc, totalDistanceKm, durationText);
+      }
+      return;
     }
 
     // 峰值 = 平滑後最大值，不要再用 5x5 最大值放大
@@ -5476,9 +5596,10 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
       realEff: realEff === Infinity ? "Infinity" : realEff.toFixed(2),
       directArrivalSoc, startSoc,
       rawMax: rawMax === null ? null : Math.round(rawMax),
-      rawMaxIdx, cleanedMaxIdx, usedDetailedPath, usedPathLabel
+      rawMaxIdx, cleanedMaxIdx, usedDetailedPath, usedPathLabel, elevationUnavailable: false
     };
 
+    if (!isCurrentElevationRequest(routeIdx, requestToken)) return;
     const curIdx = abrpDirectionsRenderer ? abrpDirectionsRenderer.getRouteIndex() : 0;
     if (curIdx === routeIdx) updateElevationHudUi(elevationData);
 
@@ -5504,6 +5625,13 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
     if (curIdx === routeIdx) {
       renderAbrpCalculatedResultsDirect(pkRouteCache[routeIdx], leg, startSoc, routeIdx, route);
     }
+    } catch (err) {
+      console.error('[EvLife] elevation 計算例外', err);
+      if (!isCurrentElevationRequest(routeIdx, requestToken)) return;
+      // 若快取已寫入本次的有效高程（例如 render 階段才拋錯），不要用「不可用」覆蓋正確結果。
+      if (pkRouteCache[routeIdx]?.elevationData && !pkRouteCache[routeIdx].elevationData.elevationUnavailable) return;
+      showElevationUnavailable(routeIdx, startSoc, totalDistanceKm, durationText);
+    }
   })();
 }
 
@@ -5516,6 +5644,28 @@ function updateElevationHudUi(data) {
 
     hudCard.classList.remove('hidden');
 
+    // v7: 高程不可用時不顯示 0m / null m，不畫假的剖面圖。
+    if (data?.elevationUnavailable) {
+        const startAltUnavailableEl = document.getElementById('abrpProfileStartAlt');
+        const endAltUnavailableEl = document.getElementById('abrpProfileEndAlt');
+        const peakUnavailableLbl = document.getElementById('abrpProfilePeakLabel');
+        const climbUnavailableEl = document.getElementById('abrpProfileClimbText');
+        const descentUnavailableEl = document.getElementById('abrpProfileDescentText');
+        const effUnavailableEl = document.getElementById('abrpProfileEffText');
+        if (startAltUnavailableEl) startAltUnavailableEl.textContent = '高程資料不可用';
+        if (endAltUnavailableEl) endAltUnavailableEl.textContent = '高程資料不可用';
+        if (peakUnavailableLbl) peakUnavailableLbl.textContent = '高程資料不可用';
+        if (climbUnavailableEl) climbUnavailableEl.textContent = '⚡ 爬坡 高程資料不可用';
+        if (descentUnavailableEl) descentUnavailableEl.textContent = '🔋 下坡 高程資料不可用';
+        if (effUnavailableEl) effUnavailableEl.textContent = '均耗 高程資料不可用';
+        svgBox.innerHTML = `<div class="w-full h-full flex items-center justify-center text-[11px] font-bold text-slate-500 dark:text-slate-400 px-2 text-center">高程資料不可用，無法繪製剖面圖</div>`;
+        return;
+    }
+    if (!data?.smoothedElevations || data.smoothedElevations.length === 0) {
+        svgBox.innerHTML = `<div class="w-full h-full flex items-center justify-center text-[11px] font-bold text-slate-500 dark:text-slate-400 px-2 text-center">高程資料不可用</div>`;
+        return;
+    }
+
     const startInp = document.getElementById('routeStartInput')?.value || "起點";
     const endInp = document.getElementById('routeEndInput')?.value || "終點";
     const startLbl = document.getElementById('abrpProfileStartLabel');
@@ -5526,12 +5676,12 @@ function updateElevationHudUi(data) {
 
     if (startLbl) { startLbl.textContent = getShortLocationName(startInp); startLbl.title = startInp; }
     if (endLbl) { endLbl.textContent = getShortLocationName(endInp); endLbl.title = endInp; }
-    if (startAltEl) startAltEl.textContent = `${data.startAlt} m`;
-    if (endAltEl) endAltEl.textContent = `${data.endAlt} m`;
-    if (peakLbl) peakLbl.textContent = `${data.maxElevation} m`;
+    if (startAltEl) startAltEl.textContent = data.startAlt == null ? '—' : `${data.startAlt} m`;
+    if (endAltEl) endAltEl.textContent = data.endAlt == null ? '—' : `${data.endAlt} m`;
+    if (peakLbl) peakLbl.textContent = data.maxElevation == null ? '—' : `${data.maxElevation} m`;
 
-    document.getElementById('abrpProfileClimbText').textContent = `⚡ 爬坡 +${data.totalClimbMeters}m`;
-    document.getElementById('abrpProfileDescentText').textContent = `🔋 下坡 -${data.totalDescentMeters}m`;
+    document.getElementById('abrpProfileClimbText').textContent = data.totalClimbMeters == null ? '⚡ 爬坡 高程資料不可用' : `⚡ 爬坡 +${data.totalClimbMeters}m`;
+    document.getElementById('abrpProfileDescentText').textContent = data.totalDescentMeters == null ? '🔋 下坡 高程資料不可用' : `🔋 下坡 -${data.totalDescentMeters}m`;
     
     const effEl = document.getElementById('abrpProfileEffText');
     if (effEl) {
@@ -5570,6 +5720,11 @@ function updateElevationHudUi(data) {
 }
 
 async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, route) {
+    // v7: 高程不可用時不拿 null SOC 去算直達 / 補電判斷。
+    if (calcData?.elevationUnavailable) {
+        showElevationUnavailable(routeIdx, startSoc, calcData.totalDistanceKm, calcData.durationText);
+        return;
+    }
     const { directArrivalSoc, totalDistanceKm, durationText, realEff, routeProfileText, neededStops } = calcData;
     document.getElementById('abrpResultSection')?.classList.remove('hidden');
 
@@ -6158,6 +6313,10 @@ const stationCardHtml = `
         
 // 唯一保留的快取渲染函式（支援動態補電次數）
 function renderAbrpCachedResults(calcData, totalDistanceKm, durationText) {
+    // v7: 高程不可用時不拿 null SOC 去渲染。
+    if (calcData?.elevationUnavailable) {
+        return;
+    }
     const recCard = document.getElementById('abrpRecommendationCard');
     if (!recCard) return;
 
