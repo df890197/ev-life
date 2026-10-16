@@ -5236,11 +5236,9 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
         return;
     }
 
-    // 兼具「短途陡坡山路」與「長途極致解析度」的黃金公式
     const sampleCount = Math.min(512, Math.max(150, Math.round(totalDistanceKm * 15)));
 
     const elevationService = new google.maps.ElevationService();
-    // 🌟 加上 async，讓程式可以等待雷達校正完成
     elevationService.getElevationAlongPath({ path: route.overview_path, samples: sampleCount }, async (elevations, eStatus) => {
         let totalClimbMeters = 0, totalDescentMeters = 0;
         let smoothedElevations = [];
@@ -5250,18 +5248,15 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
             const n = raw.length;
             smoothedElevations = [...raw];
 
-            // 🚇 1. 穿山隧道識別修復（終極進化：大跨度優先掃描 + 曲折度過濾）
             const stepDist = totalDistanceKm / (n - 1); 
-            const isSmoothed = new Array(n).fill(false); // 標記已夷平的區段
+            const isSmoothed = new Array(n).fill(false);
             
-            // 🌟 核心修正：將 win 放外迴圈，從最大跨度 (約 60km) 開始往下找
-            // 這樣保證優先抓到整條雪隧或蘇花改，不會被小山坡提前誤判截斷！
             const maxWin = Math.min(n - 1, 150); 
             for (let win = maxWin; win >= 3; win--) {
-                for (let i = 0; i <= n - win; i++) {
+                // 🐛 核心 Bug 修正：小於 ( < ) 而不是小於等於 ( <= )，避免 j 觸碰陣列邊界報錯
+                for (let i = 0; i < n - win; i++) {
                     const j = i + win;
 
-                    // 如果這段區間已經被更大的隧道給夷平了，就跳過
                     let overlap = false;
                     for (let k = i; k <= j; k++) {
                         if (isSmoothed[k]) { overlap = true; break; }
@@ -5274,20 +5269,17 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
                     );
                     
                     const roadDist = win * stepDist; 
-                    // 🌟 曲折度 (Tortuosity)：道路長度 ÷ 直線距離
                     const tortuosity = dDist > 0 ? (roadDist / dDist) : Infinity;
 
-                    // 隧道特徵：直線跨度 0.8~40 公里，且道路筆直 (曲折度 <= 1.6)
                     if (dDist >= 0.8 && dDist <= 40.0 && tortuosity <= 1.6) {
                         const portAltDiff = Math.abs(raw[j] - raw[i]);
-                        if (portAltDiff <= 500) { // 兩端洞口高低差允許至 500m
+                        if (portAltDiff <= 500) {
                             let maxInside = -Infinity;
                             for (let k = i + 1; k < j; k++) {
                                 if (raw[k] > maxInside) maxInside = raw[k];
                             }
                             const basePort = Math.max(raw[i], raw[j]);
                             
-                            // 山脈頂端高過洞口 80m，判定為假山，啟動鑽頭抹平！
                             if (maxInside - basePort > 80) {
                                 for (let k = i + 1; k < j; k++) {
                                     const ratio = (k - i) / (j - i);
@@ -5296,14 +5288,14 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
                                 }
                                 isSmoothed[i] = true;
                                 isSmoothed[j] = true;
-                                i = j - 1; // 成功抹平，加速跳過已修復的區段
+                                i = j - 1; 
                             }
                         }
                     }
                 }
             }
 
-            // 🔍 2. 尋找真實最高點：在「已經剷除假山」的地貌中，找出真正的最高點
+            // 🔍 2. 尋找真實最高點
             let maxIdx = 0;
             let currentMaxElev = -Infinity;
             smoothedElevations.forEach((elev, idx) => {
@@ -5313,7 +5305,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
                 }
             });
 
-            // 📡 3. 平行發動 5x5 矩陣探測 (同時掃描終點與真實最高點)
+            // 📡 3. 平行發動 5x5 矩陣探測
             let endLoc = elevations[n - 1].location;
             let peakLoc = elevations[maxIdx].location;
 
@@ -5322,7 +5314,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
                 getCalibratedElevation(peakLoc.lat(), peakLoc.lng())
             ]);
 
-            // 🎯 4. 強制覆蓋被拉低的數值 (雷達校正)
+            // 🎯 4. 強制覆蓋
             if (realEndElev !== null && realEndElev > smoothedElevations[n - 1]) {
                 smoothedElevations[n - 1] = realEndElev;
             }
@@ -5330,7 +5322,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
                 smoothedElevations[maxIdx] = realPeakElev;
             }
 
-            // 🚗 5. 演算法核心：精算真實路面爬坡與下坡（過濾高架橋微小抖動噪訊）
+            // 🚗 5. 精算真實路面爬坡與下坡
             let currentAlt = smoothedElevations[0];
             for (let i = 1; i < n; i++) {
                 const diff = smoothedElevations[i] - currentAlt;
@@ -5350,25 +5342,18 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
         const startAlt = Math.round(smoothedElevations[0]);
         const endAlt = Math.round(smoothedElevations[smoothedElevations.length - 1]);
 
-        // 🔋 演算法核心 3：n⁷ 真實能耗物理模型
         const isSteepDownhill = (totalDescentMeters > totalClimbMeters * 2 && totalDescentMeters > 300);
         const effectiveHighwayEff = isSteepDownhill ? Math.max(baseHighwayEff, 7.5) : baseHighwayEff;
 
-        // 1. 平路基礎能耗
         const flatEnergyKwh = totalDistanceKm / effectiveHighwayEff;
-        // 2. 爬坡位能消耗（2 噸車重每 100m 約 0.65 kWh）
         const climbEnergyKwh = (totalClimbMeters / 100) * 0.65;
-        // 3. 長下坡動能回充（每 100m 約可回收 0.45 kWh）
         const regenEnergyKwh = (totalDescentMeters / 100) * 0.45;
 
         const netElevationEnergyKwh = climbEnergyKwh - regenEnergyKwh;
-        
-        // 🌟 真實淨消耗度數 (不作假，保留真正的負數)
         const totalConsumedKwh = flatEnergyKwh + netElevationEnergyKwh;
         const totalConsumedSoc = (totalConsumedKwh / AppState.batteryCapacity) * 100;
         const directArrivalSoc = Math.min(100, Math.round(startSoc - totalConsumedSoc));
         
-        // 🌟 拔除所有防呆上限，還原真實除法 (支援負數與無限大)
         const realEff = totalConsumedKwh === 0 ? Infinity : (totalDistanceKm / totalConsumedKwh);
 
         let routeProfileText = "";
@@ -5383,13 +5368,11 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
             maxElevation,
             startAlt,
             endAlt,
-            // 確保 Infinity 不會因為 toFixed 報錯
             realEff: realEff === Infinity ? "Infinity" : realEff.toFixed(2),
             directArrivalSoc,
             startSoc
         };
 
-        // 僅在當前路線與畫面選取一致時才更新折線圖，防止多路線背景預算時畫面閃動
         const currentActiveIdx = abrpDirectionsRenderer ? abrpDirectionsRenderer.getRouteIndex() : 0;
         if (currentActiveIdx === routeIdx) {
             updateElevationHudUi(elevationData);
@@ -5397,14 +5380,13 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
 
         const pkSocEl = document.getElementById(`pkSoc${routeIdx}`);
         const pkEffEl = document.getElementById(`pkEff${routeIdx}`);
-        const pkDistEl = document.getElementById(`pkDist${routeIdx}`); // 🌟 抓取里程 UI
+        const pkDistEl = document.getElementById(`pkDist${routeIdx}`); 
         
         if (pkSocEl) {
             pkSocEl.textContent = `${directArrivalSoc}%`;
             pkSocEl.className = directArrivalSoc < 15 ? 'font-mono text-rose-500 font-black' : 'font-mono text-emerald-500 font-black';
         }
 
-        // 🌟 新增：把真實物理的「淨消耗度數」顯示在里程旁邊，證明算式無誤
         if (pkDistEl) {
             if (totalConsumedKwh < 0) {
                 pkDistEl.innerHTML = `${totalDistanceKm.toFixed(1)} <span class="text-emerald-500 text-[9px]">(發電 ${Math.abs(totalConsumedKwh).toFixed(2)}度)</span>`;
@@ -5422,11 +5404,10 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
                 pkEffEl.className = "font-mono text-emerald-500 font-black";
             } else {
                 pkEffEl.textContent = `${realEff.toFixed(2)} km/度`;
-                // 🌟 讓 100 以上的極端省電數字，也一併套用神級綠色高光
                 pkEffEl.className = realEff > 100 ? "font-mono text-emerald-500 font-black" : "font-mono text-teal-500";
             }
         }
-        
+
         pkRouteCache[routeIdx] = {
             totalDistanceKm,
             durationText,
