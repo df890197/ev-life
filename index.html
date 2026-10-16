@@ -5246,84 +5246,94 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
         let smoothedElevations = [];
 
         if (eStatus === google.maps.ElevationStatus.OK && elevations?.length > 1) {
-            
-            // 🚀🚀🚀 矩陣微地形掃描 (開始) 🚀🚀🚀
-            let maxIdx = 0;
-            let currentMaxElev = -Infinity;
-            // 找出 Google 原始數據中的最高點
-            elevations.forEach((e, idx) => {
-                if (e.elevation > currentMaxElev) {
-                    currentMaxElev = e.elevation;
-                    maxIdx = idx;
-                }
-            });
-
-            let endLoc = elevations[elevations.length - 1].location;
-            let peakLoc = elevations[maxIdx].location;
-
-            // 平行發動 5x5 矩陣探測 (同時掃描終點與最高點)
-            let [realEndElev, realPeakElev] = await Promise.all([
-                getCalibratedElevation(endLoc.lat(), endLoc.lng()),
-                getCalibratedElevation(peakLoc.lat(), peakLoc.lng())
-            ]);
-
-            // 強制覆蓋被拉低的數值
-            if (realEndElev !== null && realEndElev > elevations[elevations.length - 1].elevation) {
-                elevations[elevations.length - 1].elevation = realEndElev;
-            }
-            if (realPeakElev !== null && realPeakElev > elevations[maxIdx].elevation) {
-                elevations[maxIdx].elevation = realPeakElev;
-            }
-            // 🚀🚀🚀 矩陣微地形掃描 (結束) 🚀🚀🚀
-
             const raw = elevations.map(e => e.elevation);
             const n = raw.length;
             smoothedElevations = [...raw];
 
-            // 🚇 穿山隧道識別修復（終極進化：由大到小掃描，確保抓到完整隧道頭尾）
-            for (let i = 0; i < n - 3; i++) {
-                // 🌟 關鍵修正：將 win 的迴圈反過來，從最大極限 45 往下遞減到 3
-                // 這樣才能確保優先抓取「整座山脈/整條長隧道」的頭尾，而不是只切掉山坡一小塊
-                for (let win = 45; win >= 3; win--) {
+            // 🚇 1. 穿山隧道識別修復（終極進化：大跨度優先掃描 + 曲折度過濾）
+            const stepDist = totalDistanceKm / (n - 1); 
+            const isSmoothed = new Array(n).fill(false); // 標記已夷平的區段
+            
+            // 🌟 核心修正：將 win 放外迴圈，從最大跨度 (約 60km) 開始往下找
+            // 這樣保證優先抓到整條雪隧或蘇花改，不會被小山坡提前誤判截斷！
+            const maxWin = Math.min(n - 1, 150); 
+            for (let win = maxWin; win >= 3; win--) {
+                for (let i = 0; i <= n - win; i++) {
                     const j = i + win;
-                    if (j >= n) continue;
 
+                    // 如果這段區間已經被更大的隧道給夷平了，就跳過
+                    let overlap = false;
+                    for (let k = i; k <= j; k++) {
+                        if (isSmoothed[k]) { overlap = true; break; }
+                    }
+                    if (overlap) continue;
+                    
                     const dDist = getDistanceFromLatLonInKm(
                         elevations[i].location.lat(), elevations[i].location.lng(),
                         elevations[j].location.lat(), elevations[j].location.lng()
                     );
+                    
+                    const roadDist = win * stepDist; 
+                    // 🌟 曲折度 (Tortuosity)：道路長度 ÷ 直線距離
+                    const tortuosity = dDist > 0 ? (roadDist / dDist) : Infinity;
 
-                    // 隧道跨度放寬至 1.0 ~ 25.0 公里以內 (涵蓋所有長隧道)
-                    if (dDist >= 1.0 && dDist <= 25.0) {
+                    // 隧道特徵：直線跨度 0.8~40 公里，且道路筆直 (曲折度 <= 1.6)
+                    if (dDist >= 0.8 && dDist <= 40.0 && tortuosity <= 1.6) {
                         const portAltDiff = Math.abs(raw[j] - raw[i]);
-                        // 兩端洞口落差放寬至 400m
-                        if (portAltDiff <= 400) {
+                        if (portAltDiff <= 500) { // 兩端洞口高低差允許至 500m
                             let maxInside = -Infinity;
                             for (let k = i + 1; k < j; k++) {
                                 if (raw[k] > maxInside) maxInside = raw[k];
                             }
                             const basePort = Math.max(raw[i], raw[j]);
                             
-                            // 只要中間地表暴衝超過 120 公尺，就判定為車頂上的大山
-                            if (maxInside - basePort > 120) {
-                                // 採用路面線性插值，直接在山脈下方「挖」出一條平坦隧道
+                            // 山脈頂端高過洞口 80m，判定為假山，啟動鑽頭抹平！
+                            if (maxInside - basePort > 80) {
                                 for (let k = i + 1; k < j; k++) {
                                     const ratio = (k - i) / (j - i);
                                     smoothedElevations[k] = raw[i] + (raw[j] - raw[i]) * ratio;
+                                    isSmoothed[k] = true;
                                 }
-                                i = j - 1; // 成功抹平整座大山，跳過這段區間
-                                break;     // 跳出 win 迴圈，繼續往後掃描下一個隧道
+                                isSmoothed[i] = true;
+                                isSmoothed[j] = true;
+                                i = j - 1; // 成功抹平，加速跳過已修復的區段
                             }
                         }
                     }
                 }
             }
 
-            // 🚗 演算法核心 2：精算真實路面爬坡與下坡（進化版：過濾高架橋微小抖動噪訊）
+            // 🔍 2. 尋找真實最高點：在「已經剷除假山」的地貌中，找出真正的最高點
+            let maxIdx = 0;
+            let currentMaxElev = -Infinity;
+            smoothedElevations.forEach((elev, idx) => {
+                if (elev > currentMaxElev) {
+                    currentMaxElev = elev;
+                    maxIdx = idx;
+                }
+            });
+
+            // 📡 3. 平行發動 5x5 矩陣探測 (同時掃描終點與真實最高點)
+            let endLoc = elevations[n - 1].location;
+            let peakLoc = elevations[maxIdx].location;
+
+            let [realEndElev, realPeakElev] = await Promise.all([
+                getCalibratedElevation(endLoc.lat(), endLoc.lng()),
+                getCalibratedElevation(peakLoc.lat(), peakLoc.lng())
+            ]);
+
+            // 🎯 4. 強制覆蓋被拉低的數值 (雷達校正)
+            if (realEndElev !== null && realEndElev > smoothedElevations[n - 1]) {
+                smoothedElevations[n - 1] = realEndElev;
+            }
+            if (realPeakElev !== null && realPeakElev > smoothedElevations[maxIdx]) {
+                smoothedElevations[maxIdx] = realPeakElev;
+            }
+
+            // 🚗 5. 演算法核心：精算真實路面爬坡與下坡（過濾高架橋微小抖動噪訊）
             let currentAlt = smoothedElevations[0];
             for (let i = 1; i < n; i++) {
                 const diff = smoothedElevations[i] - currentAlt;
-                // 累積起伏超過 3.5 公尺才算一次有效爬坡 (完美過濾 Google 圖資的鋸齒波紋)
                 if (diff > 3.5) {
                     totalClimbMeters += diff;
                     currentAlt = smoothedElevations[i];
@@ -5332,9 +5342,6 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
                     currentAlt = smoothedElevations[i];
                 }
             }
-            
-            // 終點保真：確保抵達終點時的海拔精準對齊 Google 原始量測
-            smoothedElevations[n - 1] = raw[n - 1];
         } else {
             smoothedElevations = [100, 100];
         }
