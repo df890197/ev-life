@@ -5209,8 +5209,8 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
         return;
     }
 
-    // 依路線長度動態調整取樣點數（長途高達 200 點以上，確保細節充足）
-    const sampleCount = Math.min(256, Math.max(100, Math.round(totalDistanceKm * 0.9)));
+    // 兼具「短途陡坡山路」與「長途極致解析度」的黃金公式
+    const sampleCount = Math.min(512, Math.max(150, Math.round(totalDistanceKm * 15)));
 
     const elevationService = new google.maps.ElevationService();
     elevationService.getElevationAlongPath({ path: route.overview_path, samples: sampleCount }, (elevations, eStatus) => {
