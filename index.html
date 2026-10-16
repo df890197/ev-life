@@ -5186,273 +5186,227 @@ function getShortLocationName(locStr) {
     return str.slice(0, 8);
 }
 
-// 🏔️ 動態矩陣雷達：不依賴字典，自動生成 5x5 (25點) 高密度座標網，掃描局部真實高點
-function getCalibratedElevation(lat, lng) {
-    return new Promise((resolve) => {
-        const searchPoints = [];
-        const step = 0.00015; // 步伐：約 15~16 公尺
-        const steps = 2; // 中心向外延伸 2 步，形成 5x5 矩陣
-
-        for (let i = -steps; i <= steps; i++) {
-            for (let j = -steps; j <= steps; j++) {
-                searchPoints.push({
-                    lat: lat + (i * step),
-                    lng: lng + (j * step)
-                });
-            }
-        }
-
-        const elevator = new google.maps.ElevationService();
-        elevator.getElevationForLocations({ locations: searchPoints }, (results, status) => {
-            if (status === 'OK' && results && results.length > 0) {
-                resolve(Math.max(...results.map(r => r.elevation)));
-            } else {
-                resolve(null);
-            }
-        });
-    });
+// ---------- 工具：中位數 ----------
+function medianValue(arr) {
+  const s = [...arr].sort((a, b) => a - b);
+  const mid = Math.floor(s.length / 2);
+  return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
 }
 
-function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
-    const leg = route.legs[0];
-    let totalMeters = 0;
-    let totalSeconds = 0;
-    route.legs.forEach(l => {
-        totalMeters += l.distance ? l.distance.value : 0;
-        totalSeconds += (l.duration_in_traffic ? l.duration_in_traffic.value : (l.duration ? l.duration.value : 0));
-    });
-    const totalDistanceKm = totalMeters / 1000;
-    const durHours = Math.floor(totalSeconds / 3600);
-    const durMins = Math.round((totalSeconds % 3600) / 60);
-    const durationText = durHours > 0 ? `${durHours} 小時 ${durMins} 分鐘` : `${durMins} 分鐘`;
-    const baseHighwayEff = AppState.globalAvgEfficiency > 0 ? AppState.globalAvgEfficiency : 5.5;
+// ---------- 工具：中位數濾波（殺單點尖峰） ----------
+function medianFilter(arr, win) {
+  const half = Math.floor(win / 2);
+  return arr.map((_, i) => {
+    const slice = [];
+    for (let k = -half; k <= half; k++) {
+      const idx = Math.min(arr.length - 1, Math.max(0, i + k));
+      slice.push(arr[idx]);
+    }
+    return medianValue(slice);
+  });
+}
 
-    if (pkRouteCache[routeIdx]?.isReady && pkRouteCache[routeIdx]?.elevationData) {
-        const currentActiveIdx = abrpDirectionsRenderer ? abrpDirectionsRenderer.getRouteIndex() : 0;
-        if (currentActiveIdx === routeIdx) {
-            updateElevationHudUi(pkRouteCache[routeIdx].elevationData);
-        }
-        renderAbrpCachedResults(pkRouteCache[routeIdx], totalDistanceKm, durationText);
-        return;
+// ---------- 工具：移動平均（磨平雜訊） ----------
+function movingAverage(arr, win = 9) {
+  const half = Math.floor(win / 2);
+  return arr.map((_, i) => {
+    let sum = 0, cnt = 0;
+    for (let k = -half; k <= half; k++) {
+      const idx = i + k;
+      if (idx >= 0 && idx < arr.length) { sum += arr[idx]; cnt++; }
+    }
+    return sum / cnt;
+  });
+}
+
+// ---------- 工具：遲滯法算爬升 / 下坡 ----------
+// 只有累積超過 threshold（預設 10m）才計入，10m 以下來回抖動忽略
+function calcClimbDescent(elevs, threshold = 10) {
+  let climb = 0, descent = 0;
+  if (elevs.length < 2) return { climb, descent };
+  let anchor = elevs[0], peak = elevs[0], valley = elevs[0], dir = 0;
+  for (let i = 1; i < elevs.length; i++) {
+    const e = elevs[i];
+    if (dir === 0) {
+      if (e - anchor >= threshold) { dir = 1; peak = e; }
+      else if (anchor - e >= threshold) { dir = -1; valley = e; }
+    } else if (dir === 1) {
+      if (e > peak) peak = e;
+      else if (peak - e >= threshold) { climb += peak - anchor; anchor = peak; dir = -1; valley = e; }
+    } else {
+      if (e < valley) valley = e;
+      else if (e - valley >= threshold) { descent += anchor - valley; anchor = valley; dir = 1; peak = e; }
+    }
+  }
+  if (dir === 1 && peak - anchor >= threshold) climb += peak - anchor;
+  if (dir === -1 && anchor - valley >= threshold) descent += anchor - valley;
+  return { climb, descent };
+}
+
+// ---------- 核心：高程清洗 ----------
+// 第 1 關：跳變偵測 — 道路坡度絕對上限 30%，單點跳變超過上限即為橋/隧道假高程
+// 第 2 關：基線中位數 — 抓殘留的短尖峰群
+// 第 3 關：中位數濾波 + 移動平均 — 磨平剩餘雜訊
+function cleanElevations(raw, totalDistanceKm) {
+  const n = raw.length;
+  if (n < 2) return [...raw];
+  const spacingM = (totalDistanceKm * 1000) / Math.max(1, n - 1);
+  // 間距感知：長途取樣間距大，每點真實爬升也大，閾值要跟著放大，否則會誤殺真山
+  const jumpThreshold = Math.max(60, spacingM * 0.30);
+
+  // --- 第 1 關：跳變偵測 ---
+  const step1 = [...raw];
+  let i = 1;
+  while (i < step1.length) {
+    const diff = step1[i] - step1[i - 1];
+    if (diff > jumpThreshold) {
+      let j = -1;
+      for (let k = i; k < Math.min(step1.length, i + 40); k++) {
+        if (step1[k] - step1[k - 1] < -jumpThreshold) { j = k; break; }
+      }
+      if (j !== -1) {
+        const leftVal = step1[i - 1], rightVal = step1[j], span = j - (i - 1);
+        for (let k = i; k < j; k++) step1[k] = leftVal + (rightVal - leftVal) * ((k - (i - 1)) / span);
+        i = j + 1; continue;
+      }
+    }
+    i++;
+  }
+
+  // --- 第 2 關：基線中位數殘留清理 ---
+  const baseline = medianFilter(step1, 21);
+  const step2 = [...step1];
+  let p = 0;
+  while (p < step1.length) {
+    if (Math.abs(step1[p] - baseline[p]) > 80) {
+      let q = p;
+      while (q < step1.length && Math.abs(step1[q] - baseline[q]) > 80) q++;
+      if (q - p <= 20) {
+        const li = Math.max(0, p - 1), ri = Math.min(step1.length - 1, q);
+        for (let k = p; k < q; k++) step2[k] = baseline[li] + (baseline[ri] - baseline[li]) * ((k - li) / Math.max(1, ri - li));
+      }
+      p = q;
+    } else p++;
+  }
+
+  // --- 第 3 關：平滑 ---
+  return movingAverage(medianFilter(step2, 5), 9);
+}
+
+// ---------- 單點高程：起 / 終點只用這一個點 ----------
+// 舊版 getCalibratedElevation 用 5x5 取最大是元兇，改用單點
+function getSingleElevation(lat, lng) {
+  return new Promise((resolve) => {
+    new google.maps.ElevationService().getElevationForLocations({
+      locations: [{ lat, lng }]
+    }, (res, status) => {
+      resolve(status === 'OK' && res?.[0] ? res[0].elevation : null);
+    });
+  });
+}
+
+
+// ---------- 主函式：取代原本的 processRouteElevationAndCharging ----------
+function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
+  const leg = route.legs[0];
+  let totalMeters = 0;
+  let totalSeconds = 0;
+  route.legs.forEach(l => {
+    totalMeters += l.distance ? l.distance.value : 0;
+    totalSeconds += (l.duration_in_traffic ? l.duration_in_traffic.value : (l.duration ? l.duration.value : 0));
+  });
+  const totalDistanceKm = totalMeters / 1000;
+  const durHours = Math.floor(totalSeconds / 3600);
+  const durMins = Math.round((totalSeconds % 3600) / 60);
+  const durationText = durHours > 0 ? `${durHours} 小時 ${durMins} 分鐘` : `${durMins} 分鐘`;
+  const baseHighwayEff = AppState.globalAvgEfficiency > 0 ? AppState.globalAvgEfficiency : 5.5;
+
+  if (pkRouteCache[routeIdx]?.isReady && pkRouteCache[routeIdx]?.elevationData) {
+    const cur = abrpDirectionsRenderer ? abrpDirectionsRenderer.getRouteIndex() : 0;
+    if (cur === routeIdx) updateElevationHudUi(pkRouteCache[routeIdx].elevationData);
+    renderAbrpCachedResults(pkRouteCache[routeIdx], totalDistanceKm, durationText);
+    return;
+  }
+
+  // 取樣密度：約 125m 一點，舊版 15 點/km 太密只會放大雜訊
+  const sampleCount = Math.min(256, Math.max(80, Math.round(totalDistanceKm * 8)));
+
+  new google.maps.ElevationService().getElevationAlongPath({
+    path: route.overview_path, samples: sampleCount
+  }, async (elevations, eStatus) => {
+    let smoothed = [0, 0];
+    let startAlt = 0, endAlt = 0;
+
+    if (eStatus === google.maps.ElevationStatus.OK && elevations?.length > 1) {
+      const raw = elevations.map(e => e.elevation);
+      smoothed = cleanElevations(raw, totalDistanceKm);
+
+      // 起終點用單點高程校正，不用 alongPath 頭尾點（會偏移）
+      const sLoc = leg.start_location, eLoc = leg.end_location;
+      const [sSingle, eSingle] = await Promise.all([
+        getSingleElevation(sLoc.lat(), sLoc.lng()),
+        getSingleElevation(eLoc.lat(), eLoc.lng())
+      ]);
+      startAlt = Math.round(sSingle ?? smoothed[0]);
+      endAlt = Math.round(eSingle ?? smoothed[smoothed.length - 1]);
     }
 
-    const sampleCount = Math.min(512, Math.max(150, Math.round(totalDistanceKm * 15)));
+    // 峰值 = 平滑後最大值，不要再用 5x5 最大值放大
+    const maxElevation = Math.round(Math.max(...smoothed));
+    const { climb: totalClimbMeters, descent: totalDescentMeters } = calcClimbDescent(smoothed, 10);
 
-    const elevationService = new google.maps.ElevationService();
-    elevationService.getElevationAlongPath({ path: route.overview_path, samples: sampleCount }, async (elevations, eStatus) => {
-        let totalClimbMeters = 0, totalDescentMeters = 0;
-        let smoothedElevations = [];
+    // 能耗：拿掉舊版 isSteepDownhill 重複計算，直接用淨高程能
+    // 0.65 / 0.45 經物理驗算正確：2000kg 車重，100m 爬升需 0.545kWh，除以效率即得
+    const flatEnergyKwh = totalDistanceKm / baseHighwayEff;
+    const climbEnergyKwh = (totalClimbMeters / 100) * 0.65;
+    const regenEnergyKwh = (totalDescentMeters / 100) * 0.45;
+    const totalConsumedKwh = flatEnergyKwh + climbEnergyKwh - regenEnergyKwh;
+    const totalConsumedSoc = (totalConsumedKwh / AppState.batteryCapacity) * 100;
+    const directArrivalSoc = Math.min(100, Math.max(0, Math.round(startSoc - totalConsumedSoc)));
+    const realEff = totalConsumedKwh <= 0 ? Infinity : (totalDistanceKm / totalConsumedKwh);
 
-        if (eStatus === google.maps.ElevationStatus.OK && elevations?.length > 1) {
-            const raw = elevations.map(e => e.elevation);
-            const n = raw.length;
-            smoothedElevations = [...raw];
+    let routeProfileText = "";
+    if (maxElevation >= 1000 || totalClimbMeters >= 800) routeProfileText = `高海拔山區 (爬升 +${Math.round(totalClimbMeters)}m)`;
+    else if (totalClimbMeters >= 350) routeProfileText = `丘陵坡道地貌 (爬升 +${Math.round(totalClimbMeters)}m)`;
+    else routeProfileText = `平地巡航路段 (起伏平緩)`;
 
-            const stepDist = totalDistanceKm / (n - 1); 
-            const isSmoothed = new Array(n).fill(false);
-            
-            const maxWin = Math.min(n - 1, 150); 
-            for (let win = maxWin; win >= 3; win--) {
-                // 🐛 核心 Bug 修正：小於 ( < ) 而不是小於等於 ( <= )，避免 j 觸碰陣列邊界報錯
-                for (let i = 0; i < n - win; i++) {
-                    const j = i + win;
+    const elevationData = {
+      smoothedElevations: smoothed,
+      totalClimbMeters: Math.round(totalClimbMeters),
+      totalDescentMeters: Math.round(totalDescentMeters),
+      maxElevation, startAlt, endAlt,
+      realEff: realEff === Infinity ? "Infinity" : realEff.toFixed(2),
+      directArrivalSoc, startSoc
+    };
 
-                    let overlap = false;
-                    for (let k = i; k <= j; k++) {
-                        if (isSmoothed[k]) { overlap = true; break; }
-                    }
-                    if (overlap) continue;
-                    
-                    const dDist = getDistanceFromLatLonInKm(
-                        elevations[i].location.lat(), elevations[i].location.lng(),
-                        elevations[j].location.lat(), elevations[j].location.lng()
-                    );
-                    
-                    const roadDist = win * stepDist; 
-                    const tortuosity = dDist > 0 ? (roadDist / dDist) : Infinity;
+    const curIdx = abrpDirectionsRenderer ? abrpDirectionsRenderer.getRouteIndex() : 0;
+    if (curIdx === routeIdx) updateElevationHudUi(elevationData);
 
-                    if (dDist >= 0.8 && dDist <= 40.0 && tortuosity <= 1.6) {
-                        const portAltDiff = Math.abs(raw[j] - raw[i]);
-                        if (portAltDiff <= 500) {
-                            let maxInside = -Infinity;
-                            for (let k = i + 1; k < j; k++) {
-                                if (raw[k] > maxInside) maxInside = raw[k];
-                            }
-                            const basePort = Math.max(raw[i], raw[j]);
-                            
-                            if (maxInside - basePort > 80) {
-                                for (let k = i + 1; k < j; k++) {
-                                    const ratio = (k - i) / (j - i);
-                                    smoothedElevations[k] = raw[i] + (raw[j] - raw[i]) * ratio;
-                                    isSmoothed[k] = true;
-                                }
-                                isSmoothed[i] = true;
-                                isSmoothed[j] = true;
-                                i = j - 1; 
-                            }
-                        }
-                    }
-                }
-            }
+    const pkSocEl = document.getElementById(`pkSoc${routeIdx}`);
+    if (pkSocEl) {
+      pkSocEl.textContent = `${directArrivalSoc}%`;
+      pkSocEl.className = directArrivalSoc < 15 ? 'font-mono text-rose-500 font-black' : 'font-mono text-emerald-500 font-black';
+    }
+    const pkEffEl = document.getElementById(`pkEff${routeIdx}`);
+    if (pkEffEl) {
+      if (realEff === Infinity) { pkEffEl.textContent = "∞ km/度"; pkEffEl.className = "font-mono text-emerald-500 font-black"; }
+      else { pkEffEl.textContent = `${realEff.toFixed(2)} km/度`; pkEffEl.className = "font-mono text-teal-500"; }
+    }
 
-            // 🔍 2. 尋找真實最高點（防呆：排除最後 10% 里程的市區高架橋與引道干擾）
-            let maxIdx = 0;
-            let currentMaxElev = -Infinity;
-            const safeLimitIdx = Math.floor(n * 0.9); // 只在前 90% 的路段中尋找真正的高山
+    pkRouteCache[routeIdx] = {
+      totalDistanceKm, durationText, directArrivalSoc, realEff,
+      routeProfileText,
+      neededStops: totalConsumedKwh > (startSoc / 100) * AppState.batteryCapacity ? 1 : 0,
+      isReady: false, elevationData, stationCardHtml: "",
+      stationLocation: null, stationTitle: "", stationAddress: ""
+    };
 
-            for (let idx = 0; idx < safeLimitIdx; idx++) {
-                if (smoothedElevations[idx] > currentMaxElev) {
-                    currentMaxElev = smoothedElevations[idx];
-                    maxIdx = idx;
-                }
-            }
-            // 如果整條路很短，退回全面尋找
-            if (currentMaxElev === -Infinity) {
-                smoothedElevations.forEach((elev, idx) => {
-                    if (elev > currentMaxElev) {
-                        currentMaxElev = elev;
-                        maxIdx = idx;
-                    }
-                });
-            }
-
-            // 📡 3. 平行發動 5x5 矩陣探測
-            let endLoc = elevations[n - 1].location;
-            let peakLoc = elevations[maxIdx].location;
-
-            let [realEndElev, realPeakElev] = await Promise.all([
-                getCalibratedElevation(endLoc.lat(), endLoc.lng()),
-                getCalibratedElevation(peakLoc.lat(), peakLoc.lng())
-            ]);
-
-            // 🎯 4. 強制覆蓋
-            if (realEndElev !== null && realEndElev > smoothedElevations[n - 1]) {
-                smoothedElevations[n - 1] = realEndElev;
-            }
-            if (realPeakElev !== null && realPeakElev > smoothedElevations[maxIdx]) {
-                smoothedElevations[maxIdx] = realPeakElev;
-            }
-
-            // 🚗 5. 精算真實路面爬坡與下坡
-            let currentAlt = smoothedElevations[0];
-            for (let i = 1; i < n; i++) {
-                const diff = smoothedElevations[i] - currentAlt;
-                if (diff > 3.5) {
-                    totalClimbMeters += diff;
-                    currentAlt = smoothedElevations[i];
-                } else if (diff < -3.5) {
-                    totalDescentMeters += Math.abs(diff);
-                    currentAlt = smoothedElevations[i];
-                }
-            }
-        } else {
-            smoothedElevations = [100, 100];
-        }
-
-        // 🎯 智慧型平滑：只有當終點是低海拔平地（< 500m）時，才啟動尾端平滑
-        // 這樣上合歡山、阿里山時，最後的真實爬坡就不會被誤殺！
-        const finalAlt = smoothedElevations[smoothedElevations.length - 1]; 
-        if (finalAlt < 500 && smoothedElevations.length > 10) {
-            const n = smoothedElevations.length;
-            const tailStartIndex = Math.floor(n * 0.92);
-            const startTailAlt = smoothedElevations[tailStartIndex];
-
-            for (let k = tailStartIndex; k < n; k++) {
-                const ratio = (k - tailStartIndex) / (n - 1 - tailStartIndex);
-                smoothedElevations[k] = startTailAlt + (finalAlt - startTailAlt) * ratio;
-            }
-        }
-
-        const maxElevation = Math.round(Math.max(...smoothedElevations));
-        const startAlt = Math.round(smoothedElevations[0]);
-        const endAlt = Math.round(smoothedElevations[smoothedElevations.length - 1]);
-
-        const isSteepDownhill = (totalDescentMeters > totalClimbMeters * 2 && totalDescentMeters > 300);
-        const effectiveHighwayEff = isSteepDownhill ? Math.max(baseHighwayEff, 7.5) : baseHighwayEff;
-
-        const flatEnergyKwh = totalDistanceKm / effectiveHighwayEff;
-        const climbEnergyKwh = (totalClimbMeters / 100) * 0.65;
-        const regenEnergyKwh = (totalDescentMeters / 100) * 0.45;
-
-        const netElevationEnergyKwh = climbEnergyKwh - regenEnergyKwh;
-        const totalConsumedKwh = flatEnergyKwh + netElevationEnergyKwh;
-        const totalConsumedSoc = (totalConsumedKwh / AppState.batteryCapacity) * 100;
-        const directArrivalSoc = Math.min(100, Math.round(startSoc - totalConsumedSoc));
-        
-        const realEff = totalConsumedKwh === 0 ? Infinity : (totalDistanceKm / totalConsumedKwh);
-
-        let routeProfileText = "";
-        if (maxElevation >= 1000 || totalClimbMeters >= 800) routeProfileText = `高海拔山區 (爬升 +${Math.round(totalClimbMeters)}m)`;
-        else if (totalClimbMeters >= 350) routeProfileText = `丘陵坡道地貌 (爬升 +${Math.round(totalClimbMeters)}m)`;
-        else routeProfileText = `平地巡航路段 (起伏平緩)`;
-
-        const elevationData = {
-            smoothedElevations,
-            totalClimbMeters: Math.round(totalClimbMeters),
-            totalDescentMeters: Math.round(totalDescentMeters),
-            maxElevation,
-            startAlt,
-            endAlt,
-            realEff: realEff === Infinity ? "Infinity" : realEff.toFixed(2),
-            directArrivalSoc,
-            startSoc
-        };
-
-        const currentActiveIdx = abrpDirectionsRenderer ? abrpDirectionsRenderer.getRouteIndex() : 0;
-        if (currentActiveIdx === routeIdx) {
-            updateElevationHudUi(elevationData);
-        }
-
-        const pkSocEl = document.getElementById(`pkSoc${routeIdx}`);
-        const pkEffEl = document.getElementById(`pkEff${routeIdx}`);
-        const pkDistEl = document.getElementById(`pkDist${routeIdx}`); 
-        
-        if (pkSocEl) {
-            pkSocEl.textContent = `${directArrivalSoc}%`;
-            pkSocEl.className = directArrivalSoc < 15 ? 'font-mono text-rose-500 font-black' : 'font-mono text-emerald-500 font-black';
-        }
-
-        if (pkDistEl) {
-            if (totalConsumedKwh < 0) {
-                pkDistEl.innerHTML = `${totalDistanceKm.toFixed(1)} <span class="text-emerald-500 text-[9px]">(發電 ${Math.abs(totalConsumedKwh).toFixed(2)}度)</span>`;
-            } else {
-                pkDistEl.innerHTML = `${totalDistanceKm.toFixed(1)} <span class="text-rose-400 text-[9px]">(淨耗 ${totalConsumedKwh.toFixed(2)}度)</span>`;
-            }
-        }
-        
-        if (pkEffEl) {
-            if (realEff === Infinity) {
-                pkEffEl.textContent = "∞ km/度";
-                pkEffEl.className = "font-mono text-emerald-500 font-black";
-            } else if (realEff < 0) {
-                pkEffEl.textContent = `${Math.abs(realEff).toFixed(2)} km/度 (回充)`;
-                pkEffEl.className = "font-mono text-emerald-500 font-black";
-            } else {
-                pkEffEl.textContent = `${realEff.toFixed(2)} km/度`;
-                pkEffEl.className = realEff > 100 ? "font-mono text-emerald-500 font-black" : "font-mono text-teal-500";
-            }
-        }
-
-        pkRouteCache[routeIdx] = {
-            totalDistanceKm,
-            durationText,
-            directArrivalSoc,
-            realEff,
-            routeProfileText,
-            neededStops: (totalConsumedKwh - (startSoc / 100) * AppState.batteryCapacity) > 0 ? 1 : 0,
-            isReady: false,
-            elevationData,
-            stationCardHtml: "",
-            stationLocation: null,
-            stationTitle: "",
-            stationAddress: ""
-        };
-
-        if (currentActiveIdx === routeIdx) {
-            renderAbrpCalculatedResultsDirect(pkRouteCache[routeIdx], leg, startSoc, routeIdx, route);
-        }
-    });
+    if (curIdx === routeIdx) {
+      renderAbrpCalculatedResultsDirect(pkRouteCache[routeIdx], leg, startSoc, routeIdx, route);
+    }
+  });
 }
+
         
 // 🖼️ 專門負責更新中段高程卡片 UI（包含平滑化 SVG 折線圖）
 function updateElevationHudUi(data) {
