@@ -5274,8 +5274,6 @@ function cleanElevations(raw, totalDistanceKm) {
   }
 
   // --- 第 2 關：基線中位數殘留清理（v5：距離制） ---
-  // 舊版 q-p <= 20 是「點數」，512 點時 20 點代表的物理距離會隨總距離改變。
-  // 改為固定物理寬度 3000m：間距 125m 時約 24 點，間距 178m 時約 17 點，語意一致。
   const MAX_SPIKE_WIDTH_M = 3000;
   const maxSpikePoints = Math.max(8, Math.round(MAX_SPIKE_WIDTH_M / Math.max(1, spacingM)));
   const baseline = medianFilter(step1, 21);
@@ -5309,12 +5307,22 @@ function getSingleElevation(lat, lng) {
   });
 }
 
-// ---------- v5 新增：由每個 leg/step 的詳細路徑組成高程查詢路徑 ----------
-// overview_path 是 Directions 回傳的簡化線段（點很少、直線連接），彎道會被切直，
-// 直線若切過道路旁山坡，Elevation API 就會回傳山坡海拔，造成寬型假峰。
-// step.path 才是真正貼著道路的折線，必須用它。
+// ---------- v6：詳細路徑 + 高程查詢（含失敗退回） ----------
+// Diag 實測（2026-10-17，東大門夜市→吉長街）：overviewLen=24、detailedLen=82，
+// overview / detailed-full / detailed-150 / detailed-100 四種全部 eStatus=OK、max 皆 24.5m。
+// 結論：短程詳細路徑本身不會讓 API 失敗，v5 變 0 是因為「失敗時無退回、無失敗 log」。
+// v6 因此不賭詳細路徑一定成功：精簡到 200 點、try/catch、詳細失敗退回 overview、
+// 雙失敗改用起終點單點高程，任何情況下都不讓 smoothed 停在 [0,0]。
 function latOf(p) { return typeof p.lat === 'function' ? p.lat() : p.lat; }
 function lngOf(p) { return typeof p.lng === 'function' ? p.lng() : p.lng; }
+
+function thinPathUniform(path, maxPoints) {
+  if (path.length <= maxPoints) return path;
+  const out = [];
+  const stride = (path.length - 1) / (maxPoints - 1);
+  for (let k = 0; k < maxPoints; k++) out.push(path[Math.round(k * stride)]);
+  return out;
+}
 
 function buildDetailedPath(route) {
   const path = [];
@@ -5330,17 +5338,22 @@ function buildDetailedPath(route) {
       });
     });
   });
-  if (path.length > 1000) {
-    const thinned = [];
-    const stride = (path.length - 1) / 999;
-    for (let k = 0; k < 1000; k++) thinned.push(path[Math.round(k * stride)]);
-    return thinned;
-  }
-  if (path.length < 2) {
-    console.warn('[EvLife] elevation: step.path 不足，退回 overview_path（假峰風險較高）');
+  // 精簡到 200 點：Diag 證明 100 點已足夠（82 點全路徑 OK），200 點留有餘裕，
+  // 同時避免長程（91km）詳細路徑上千點把請求撐爆。取樣仍由 samples 決定。
+  const thinned = thinPathUniform(path, 200);
+  if (thinned.length < 2) {
+    console.warn('[EvLife] elevation: step.path 不足，退回 overview_path');
     return route.overview_path;
   }
-  return path;
+  return thinned;
+}
+
+function fetchElevationAlongPath(path, samples) {
+  return new Promise((resolve) => {
+    new google.maps.ElevationService().getElevationAlongPath({ path, samples }, (elevations, eStatus) => {
+      resolve({ elevations, eStatus });
+    });
+  });
 }
 
 
@@ -5369,16 +5382,40 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
   // 取樣密度：約 125m 一點，舊版 15 點/km 太密只會放大雜訊
   const sampleCount = Math.min(512, Math.max(80, Math.round(totalDistanceKm * 8)));
 
-  // v5 關鍵：高程查詢改用詳細路徑，不再用 route.overview_path
-  const elevationPath = buildDetailedPath(route);
-  const usedDetailedPath = elevationPath !== route.overview_path;
-
-  new google.maps.ElevationService().getElevationAlongPath({
-    path: elevationPath, samples: sampleCount
-  }, async (elevations, eStatus) => {
+  // v6：先試詳細路徑，失敗就退回 overview_path；雙失敗也不留 0，改用起終點單點。
+  // 注意：process 內部用 await，因此把原本的 callback 改成 async IIFE，避免呼叫端要改。
+  (async () => {
     let smoothed = [0, 0];
     let startAlt = 0, endAlt = 0;
     let rawMax = null, rawMaxIdx = -1, cleanedMaxIdx = -1;
+    let usedPathLabel = 'none';
+
+    let elevationPath = route.overview_path;
+    let usedDetailedPath = false;
+    try {
+      elevationPath = buildDetailedPath(route);
+      usedDetailedPath = elevationPath !== route.overview_path;
+    } catch (err) {
+      console.warn('[EvLife] elevation buildDetailedPath 例外，退回 overview_path', err);
+      elevationPath = route.overview_path;
+      usedDetailedPath = false;
+    }
+
+    let { elevations, eStatus } = await fetchElevationAlongPath(elevationPath, sampleCount);
+    if (eStatus !== google.maps.ElevationStatus.OK || !elevations || elevations.length <= 1) {
+      console.warn(`[EvLife] elevation detailed failed eStatus=${eStatus} count=${elevations ? elevations.length : 0}，退回 overview_path`);
+      const retry = await fetchElevationAlongPath(route.overview_path, sampleCount);
+      elevations = retry.elevations; eStatus = retry.eStatus;
+      usedDetailedPath = false;
+      if (eStatus !== google.maps.ElevationStatus.OK || !elevations || elevations.length <= 1) {
+        usedPathLabel = 'single-only';
+        console.error(`[EvLife] elevation overview 也失敗 eStatus=${eStatus}，改用起終點單點高程，不顯示 0`);
+      } else {
+        usedPathLabel = 'overview';
+      }
+    } else {
+      usedPathLabel = usedDetailedPath ? 'detailed' : 'overview';
+    }
 
     if (eStatus === google.maps.ElevationStatus.OK && elevations?.length > 1) {
       const raw = elevations.map(e => e.elevation);
@@ -5386,7 +5423,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
       rawMaxIdx = raw.indexOf(rawMax);
       smoothed = cleanElevations(raw, totalDistanceKm);
       cleanedMaxIdx = smoothed.indexOf(Math.max(...smoothed));
-      console.log(`[EvLife] elevation route${routeIdx} dist=${totalDistanceKm.toFixed(1)}km samples=${raw.length} detailedPath=${usedDetailedPath} rawMax=${rawMax.toFixed(0)}m@${rawMaxIdx} cleanedMax=${Math.max(...smoothed).toFixed(0)}m@${cleanedMaxIdx} start=${raw[0].toFixed(0)} end=${raw[raw.length - 1].toFixed(0)}`);
+      console.log(`[EvLife] elevation route${routeIdx} dist=${totalDistanceKm.toFixed(1)}km samples=${raw.length} path=${usedPathLabel} rawMax=${rawMax.toFixed(0)}m@${rawMaxIdx} cleanedMax=${Math.max(...smoothed).toFixed(0)}m@${cleanedMaxIdx} start=${raw[0].toFixed(0)} end=${raw[raw.length - 1].toFixed(0)}`);
 
       // 起終點用單點高程校正，不用 alongPath 頭尾點（會偏移）
       const sLoc = leg.start_location, eLoc = leg.end_location;
@@ -5396,6 +5433,20 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
       ]);
       startAlt = Math.round(sSingle ?? smoothed[0]);
       endAlt = Math.round(eSingle ?? smoothed[smoothed.length - 1]);
+    } else {
+      // 雙失敗：只用起終點單點，smoothed 至少是 [startAlt, endAlt]，HUD 絕不顯示 0。
+      try {
+        const sLoc = leg.start_location, eLoc = leg.end_location;
+        const [sSingle, eSingle] = await Promise.all([
+          getSingleElevation(sLoc.lat(), sLoc.lng()),
+          getSingleElevation(eLoc.lat(), eLoc.lng())
+        ]);
+        startAlt = Math.round(sSingle ?? 0);
+        endAlt = Math.round(eSingle ?? startAlt);
+        smoothed = [startAlt, endAlt];
+      } catch (err) {
+        console.error('[EvLife] elevation 起終點單點也失敗', err);
+      }
     }
 
     // 峰值 = 平滑後最大值，不要再用 5x5 最大值放大
@@ -5425,7 +5476,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
       realEff: realEff === Infinity ? "Infinity" : realEff.toFixed(2),
       directArrivalSoc, startSoc,
       rawMax: rawMax === null ? null : Math.round(rawMax),
-      rawMaxIdx, cleanedMaxIdx, usedDetailedPath
+      rawMaxIdx, cleanedMaxIdx, usedDetailedPath, usedPathLabel
     };
 
     const curIdx = abrpDirectionsRenderer ? abrpDirectionsRenderer.getRouteIndex() : 0;
@@ -5453,7 +5504,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
     if (curIdx === routeIdx) {
       renderAbrpCalculatedResultsDirect(pkRouteCache[routeIdx], leg, startSoc, routeIdx, route);
     }
-  });
+  })();
 }
 
         
