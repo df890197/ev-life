@@ -5329,7 +5329,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
   }
 
   // 取樣密度：約 125m 一點，舊版 15 點/km 太密只會放大雜訊
-  const sampleCount = Math.min(256, Math.max(80, Math.round(totalDistanceKm * 8)));
+  const sampleCount = Math.min(512, Math.max(80, Math.round(totalDistanceKm * 8)));
 
   new google.maps.ElevationService().getElevationAlongPath({
     path: route.overview_path, samples: sampleCount
