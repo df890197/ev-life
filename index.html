@@ -3020,7 +3020,7 @@ window.calculatePrediction = function() {
 
         function renderDashboard() {
             const activeRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.date);
-            activeRecords.sort((a, b) => new Date(a.date) - new Date(b.date) || parseInt(a.id, 10) - parseInt(a.id, 10));
+            activeRecords.sort((a, b) => new Date(a.date) - new Date(b.date) || parseInt(a.id, 10) - parseInt(b.id, 10)); // v8: 同日期時按 id 升冪，舊版第二項是 a-a 恆為 0
 
             // 🛡️ 新手防護與引導：若沒有任何行駛紀錄且尚未自訂車輛，強制顯示起始引導卡並隱藏數據儀表板
             const isFirstTimeUser = activeRecords.length === 0 && !localStorage.getItem('ev_life_setup_completed');
@@ -4143,8 +4143,7 @@ window.syncWithCloud = async function(mode = 'auto', isSilent = false) {
                         if (DOM.evNameInput) DOM.evNameInput.value = AppState.evName;
                         if (DOM.batteryCapacityInput) DOM.batteryCapacityInput.value = AppState.batteryCapacity;
                         if (DOM.initialOdometerInput) DOM.initialOdometerInput.value = AppState.initialOdometer;
-                        if (DOM.maintIntervalInput) DOM.maintIntervalInput.value = AppState.maintInterval;
-                        if (DOM.maintIntervalInput) DOM.maintIntervalInput.value = AppState.maintInterval;
+                        if (DOM.maintIntervalInput) DOM.maintIntervalInput.value = AppState.maintInterval; // v8: 刪除重複的一行
                         if (DOM.nextMaintDateInput) DOM.nextMaintDateInput.value = AppState.nextMaintDate;
                         if (DOM.insuranceExpiryInput) DOM.insuranceExpiryInput.value = AppState.insuranceExpiryDate;
                         if (DOM.loanTotalMonthsInput) DOM.loanTotalMonthsInput.value = AppState.loanTotalMonths || "";
@@ -4202,7 +4201,7 @@ window.forceUpload = function() {
         };
 
         window.generateSWContent = function() {
-            return `const CACHE_NAME = 'ev-life-cache-v7';
+            return `const CACHE_NAME = 'ev-life-cache-v8';
 const ASSETS_TO_CACHE = ['./', './index.html', './manifest.json', './achievements.js'];
 
 self.addEventListener('install', event => {
@@ -4559,7 +4558,11 @@ window.closeAbrpModal = function() {
                 { timeout: 8000, enableHighAccuracy: true }
             );
         };
+// v8: Autocomplete 只建一次。Google Places Autocomplete 沒有 destroy API，重複建立會讓 place_changed 重複觸發。
+let abrpAutocompleteInstances = null;
 function initAbrpAutocomplete() {
+            // 已建過就直接返回；若第一次因 google 未載入而沒建，instances 仍是 null，下次開 Modal 會再試。
+            if (abrpAutocompleteInstances) return;
             const startInput = document.getElementById('routeStartInput');
             const endInput = document.getElementById('routeEndInput');
 
@@ -4567,6 +4570,7 @@ function initAbrpAutocomplete() {
                 const options = { componentRestrictions: { country: "tw" }, fields: ["name", "formatted_address", "geometry"] };
                 const startAuto = new google.maps.places.Autocomplete(startInput, options);
                 const endAuto = new google.maps.places.Autocomplete(endInput, options);
+                abrpAutocompleteInstances = { startAuto, endAuto };
 
                 // 🎯 起點選取後，強制保留地標景點名稱（避免被 Google 覆寫成純地址）
                 startAuto.addListener("place_changed", () => {
@@ -4592,6 +4596,15 @@ function initAbrpAutocomplete() {
 let abrpHoldTimer = null;
 let abrpRepeatInterval = null;
 let isAbrpHolding = false;
+// v8: 長按狀態。abrpHoldActive=這次按壓是否還在進行；abrpHoldValueChanged=這次按壓是否有改到數值。
+let abrpHoldActive = false;
+let abrpHoldValueChanged = false;
+// v8: 只清計時器，不觸發重算。按下開始時用這個，避免舊版 stopAbrpHold() 在按下瞬間先用舊數值重算一次。
+function clearAbrpHoldTimers() {
+    if (abrpHoldTimer) { clearTimeout(abrpHoldTimer); abrpHoldTimer = null; }
+    if (abrpRepeatInterval) { clearInterval(abrpRepeatInterval); abrpRepeatInterval = null; }
+    isAbrpHolding = false;
+}
 
 window.adjustAbrpSocValueOnly = function(inputId, delta) {
     const el = document.getElementById(inputId);
@@ -4626,40 +4639,42 @@ window.triggerAbrpRouteRecalculate = function() {
     }
 };
 
-// 長按開始
+// 長按開始（v8：按下時只清計時器、不重算；放開時若有變化才重算一次）
 window.startAbrpHold = function(event, inputId, delta) {
     if (event.cancelable) event.preventDefault();
 
+    clearAbrpHoldTimers();
+    abrpHoldActive = true;
+    abrpHoldValueChanged = false;
     isAbrpHolding = false;
-    window.stopAbrpHold();
 
     // 1. 按下的瞬間立即執行一次 +1 或 -1
-    adjustAbrpSocValueOnly(inputId, delta);
+    if (adjustAbrpSocValueOnly(inputId, delta)) abrpHoldValueChanged = true;
 
     // 2. 按住超過 350 毫秒後，啟動連續快速調整
     abrpHoldTimer = setTimeout(() => {
         isAbrpHolding = true;
         abrpRepeatInterval = setInterval(() => {
             const changed = adjustAbrpSocValueOnly(inputId, delta);
-            if (!changed) {
+            if (changed) {
+                abrpHoldValueChanged = true;
+            } else {
                 window.stopAbrpHold(); // 達到 100% 或 5% 極限時自動停止
             }
         }, 80); // 每 80 毫秒跳 1%
     }, 350);
 };
 
-// 放開按鈕或滑出按鈕時停止
+// 放開按鈕或滑出按鈕時停止（v8：只清計時器 + 有變化才重算一次；pointerup + pointerleave 雙重觸發也不會重算兩次）
 window.stopAbrpHold = function() {
-    if (abrpHoldTimer) {
-        clearTimeout(abrpHoldTimer);
-        abrpHoldTimer = null;
-    }
-    if (abrpRepeatInterval) {
-        clearInterval(abrpRepeatInterval);
-        abrpRepeatInterval = null;
-    }
-    // 手指放開時才執行一次路線重新計算
-    window.triggerAbrpRouteRecalculate();
+    const hadActive = abrpHoldActive;
+    const hadChange = abrpHoldValueChanged;
+    abrpHoldActive = false;
+    abrpHoldValueChanged = false;
+    clearAbrpHoldTimers();
+    // 沒有按壓、也沒有變化（例如按下時誤觸、或已在極限值）就不重算。
+    if (!hadActive && !hadChange) return;
+    if (hadChange) window.triggerAbrpRouteRecalculate();
 };
 
 window.validateSocInput = function(el, maxVal) {
