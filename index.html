@@ -5280,10 +5280,10 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
             const n = raw.length;
             smoothedElevations = [...raw];
 
-            // 🚇 穿山隧道識別修復（精準涵蓋雪隧 12.9km 與蘇花改隧道群）
+            // 🚇 穿山隧道識別修復（加寬視窗，完美攔截 12.9km 雪隧與蘇花改）
             for (let i = 0; i < n; i++) {
-                // 放寬視窗至 20 個取樣點（涵蓋 2~18 公里長隧道）
-                for (let win = 3; win <= 20; win++) {
+                // 將視窗放寬到 45 個點（足以涵蓋長達 15~20 公里的特長隧道）
+                for (let win = 3; win <= 45; win++) {
                     const j = i + win;
                     if (j >= n) break;
 
@@ -5292,24 +5292,25 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
                         elevations[j].location.lat(), elevations[j].location.lng()
                     );
 
-                    // 隧道跨度 1.5 ~ 18 公里
-                    if (dDist >= 1.5 && dDist <= 18.0) {
+                    // 隧道跨度 1.5 ~ 20.0 公里以內
+                    if (dDist >= 1.5 && dDist <= 20.0) {
                         const portAltDiff = Math.abs(raw[j] - raw[i]);
-                        // 兩端洞口落差放寬至 350m（符合雪隧南端到蘭陽平原的高低落差）
+                        // 兩端洞口落差放寬至 350m (符合雪隧雙邊洞口高低差)
                         if (portAltDiff <= 350) {
                             let maxInside = -Infinity;
                             for (let k = i + 1; k < j; k++) {
                                 if (raw[k] > maxInside) maxInside = raw[k];
                             }
                             const basePort = Math.max(raw[i], raw[j]);
-                            // 中間地表暴衝超過 300 公尺以上，判定為車頂上方的山脊
-                            if (maxInside - basePort > 300) {
-                                // 採用路面線性插值拉平，還原隧道內平坦路面
+                            
+                            // 只要中間地表暴衝超過 150 公尺，就判定為車頂上的大山 (觸發隧道抹平)
+                            if (maxInside - basePort > 150) {
+                                // 採用路面線性插值，直接在山脈下方「挖」出一條平坦隧道
                                 for (let k = i + 1; k < j; k++) {
                                     const ratio = (k - i) / (j - i);
                                     smoothedElevations[k] = raw[i] + (raw[j] - raw[i]) * ratio;
                                 }
-                                i = j - 1;
+                                i = j - 1; // 跳過這段已修復的隧道區間
                                 break;
                             }
                         }
@@ -5317,16 +5318,20 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
                 }
             }
 
-            // 🚗 演算法核心 2：精算真實路面爬坡與下坡（去除碎石波紋雜訊）
+            // 🚗 演算法核心 2：精算真實路面爬坡與下坡（進化版：過濾高架橋微小抖動噪訊）
+            let currentAlt = smoothedElevations[0];
             for (let i = 1; i < n; i++) {
-                const diff = smoothedElevations[i] - smoothedElevations[i - 1];
-                if (diff > 1.2) {
+                const diff = smoothedElevations[i] - currentAlt;
+                // 累積起伏超過 3.5 公尺才算一次有效爬坡 (完美過濾 Google 圖資的鋸齒波紋)
+                if (diff > 3.5) {
                     totalClimbMeters += diff;
-                } else if (diff < -1.2) {
+                    currentAlt = smoothedElevations[i];
+                } else if (diff < -3.5) {
                     totalDescentMeters += Math.abs(diff);
+                    currentAlt = smoothedElevations[i];
                 }
             }
-
+            
             // 終點保真：確保抵達終點時的海拔精準對齊 Google 原始量測
             smoothedElevations[n - 1] = raw[n - 1];
         } else {
@@ -5352,7 +5357,9 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
         const totalConsumedKwh = flatEnergyKwh + netElevationEnergyKwh;
         const totalConsumedSoc = (totalConsumedKwh / AppState.batteryCapacity) * 100;
         const directArrivalSoc = Math.min(100, Math.round(startSoc - totalConsumedSoc));
-        const realEff = totalConsumedKwh > 0 ? (totalDistanceKm / totalConsumedKwh) : 0;
+        // 🌟 修改：確保耗電量不會為負數或零，並封頂最高電耗顯示為 999.99 km/度
+        const safeConsumedKwh = Math.max(0.1, totalConsumedKwh); 
+        const realEff = Math.min(999.99, totalDistanceKm / safeConsumedKwh);
 
         let routeProfileText = "";
         if (maxElevation >= 1000 || totalClimbMeters >= 800) routeProfileText = `高海拔山區 (爬升 +${Math.round(totalClimbMeters)}m)`;
@@ -5385,15 +5392,10 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
             pkSocEl.className = directArrivalSoc < 15 ? 'font-mono text-rose-500 font-black' : 'font-mono text-emerald-500 font-black';
         }
         
-        // 🌟 替換這裡：加入無限大 (純回充) 的判斷
         if (pkEffEl) {
-            if (realEff <= 0) {
-                pkEffEl.textContent = "∞ (純回充)";
-                pkEffEl.className = "font-mono text-emerald-500 font-black"; // 換成綠色凸顯回充
-            } else {
-                pkEffEl.textContent = `${realEff.toFixed(2)} km/度`;
-                pkEffEl.className = "font-mono text-teal-500"; // 恢復原本的顏色
-            }
+            pkEffEl.textContent = `${realEff.toFixed(2)} km/度`;
+            // 當均耗大於 100 km/度 時，依然保持綠色高光特效
+            pkEffEl.className = realEff > 100 ? "font-mono text-emerald-500 font-black" : "font-mono text-teal-500";
         }
 
         pkRouteCache[routeIdx] = {
@@ -5444,8 +5446,8 @@ function updateElevationHudUi(data) {
     
     const effEl = document.getElementById('abrpProfileEffText');
     if (effEl) {
-        if (data.realEff <= 0) {
-            effEl.innerHTML = `均耗 <span class="text-emerald-500 font-black">∞ (純回充)</span>`;
+        if (parseFloat(data.realEff) > 100) {
+            effEl.innerHTML = `均耗 <span class="text-emerald-500 font-black">${data.realEff} km/度</span>`;
         } else {
             effEl.textContent = `均耗 ${data.realEff} km/度`;
         }
