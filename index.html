@@ -61,20 +61,20 @@ input[type="number"] {
         }
 
         .ios-27-glass { 
-            background: rgba(255, 255, 255, 0.22); 
-            backdrop-filter: blur(12px) saturate(120%); 
-            -webkit-backdrop-filter: blur(12px) saturate(120%); 
+            background: transparent; 
+            backdrop-filter: blur(4px) saturate(110%); 
+            -webkit-backdrop-filter: blur(4px) saturate(110%); 
             border: 1px solid rgba(255, 255, 255, 0.4); 
-            border-top: 1px solid rgba(255, 255, 255, 0.5); 
+            border-top: 1px solid rgba(255, 255, 255, 0.8); 
             border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
             box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), inset 0 1px 3px rgba(255, 255, 255, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.15); 
         }
         .dark .ios-27-glass { 
-            background: rgba(15, 18, 25, 0.35); 
-            backdrop-filter: blur(12px) saturate(120%); 
-            -webkit-backdrop-filter: blur(12px) saturate(120%); 
+            background: transparent; 
+            backdrop-filter: blur(4px) saturate(110%); 
+            -webkit-backdrop-filter: blur(4px) saturate(110%); 
             border: 1px solid rgba(255, 255, 255, 0.15); 
-            border-top: 1px solid rgba(255, 255, 255, 0.3); 
+            border-top: 1px solid rgba(255, 255, 255, 0.4); 
             border-bottom: 1px solid rgba(255, 255, 255, 0.02); 
             box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.08); 
         }
@@ -97,12 +97,10 @@ input[type="number"] {
             .floating-nav { bottom: 6px !important; }
         }
 
-        .liquid-indicator { position: absolute; height: 52px; border-radius: 26px; background: linear-gradient(180deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.10)); backdrop-filter: blur(8px) saturate(140%) brightness(1.15); -webkit-backdrop-filter: blur(8px) saturate(140%) brightness(1.15); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), inset 0 4px 10px rgba(255, 255, 255, 0.5), 0 4px 12px rgba(0, 0, 0, 0.08); transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), width 0.25s cubic-bezier(0.25, 1, 0.5, 1), height 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease, box-shadow 0.25s ease; z-index: 5; pointer-events: none; will-change: transform, width, height; overflow: hidden; }
-        .liquid-indicator::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 55%); pointer-events: none; }
-        .dark .liquid-indicator { background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.06)); backdrop-filter: blur(8px) saturate(140%) brightness(1.2); -webkit-backdrop-filter: blur(8px) saturate(140%) brightness(1.2); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25), inset 0 4px 15px rgba(255, 255, 255, 0.15), 0 6px 15px rgba(0, 0, 0, 0.2); }
-        .dark .liquid-indicator::before { background: linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 55%); }
+        .liquid-indicator { position: absolute; height: 52px; border-radius: 26px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(16px) saturate(180%) brightness(1.15); -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), inset 0 4px 10px rgba(255, 255, 255, 0.5), 0 4px 12px rgba(0, 0, 0, 0.08); transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.4s ease, backdrop-filter 0.4s ease; z-index: 5; pointer-events: none; will-change: transform, width; }
+        .dark .liquid-indicator { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(16px) saturate(150%) brightness(1.2); -webkit-backdrop-filter: blur(16px) saturate(150%) brightness(1.2); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25), inset 0 4px 15px rgba(255, 255, 255, 0.15), 0 6px 15px rgba(0, 0, 0, 0.2); }
 
-        .tab-btn { position: relative; z-index: 2; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease; will-change: transform, opacity; -webkit-tap-highlight-color: transparent; cursor: pointer; }
+        .tab-btn { position: relative; z-index: 2; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); will-change: transform, opacity; -webkit-tap-highlight-color: transparent; cursor: pointer; }
         .tab-btn.active { color: #0d9488; font-weight: 900; transform: translateY(-2px) scale(1.1); z-index: 10; }
         .dark .tab-btn.active { color: #2dd4bf; }
 
@@ -1457,7 +1455,7 @@ input[type="number"] {
     </div>
     
     <!-- 導航列 -->
-    <nav class="fixed left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[calc(100%-2rem)] md:max-w-2xl z-50 rounded-[1.5rem] ios-27-glass px-2 floating-nav">
+    <nav class="fixed left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[calc(100%-2rem)] md:max-w-2xl z-50 rounded-[2rem] ios-27-glass px-2 floating-nav">
         <div class="flex justify-around items-center h-16 md:h-20 max-w-md md:max-w-full mx-auto relative" id="nav-container">
             <div id="liquid-indicator" class="liquid-indicator opacity-0 absolute top-1/2 -translate-y-1/2 left-0 w-14 md:h-16 md:rounded-full"></div>
 
@@ -1999,13 +1997,12 @@ function cacheDOMNodes() {
 
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             const activeBtn = document.getElementById('tab-' + tabId);
-            if (activeBtn && tabId !== 'add') activeBtn.classList.add('active');
-            // v19：先切分頁＋立即回頂（不要平滑捲動，避免「點了卡一下才換」），指標下一幀再動
+            if (activeBtn && tabId !== 'add') activeBtn.classList.add('active'); 
+            updateLiquidIndicator(tabId);
             document.querySelectorAll('.view-section').forEach(view => { view.classList.remove('active'); });
             const view = document.getElementById('view-' + tabId);
             if (view) view.classList.add('active');
-            window.scrollTo(0, 0);
-            requestAnimationFrame(() => updateLiquidIndicator(tabId));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
 
             if (tabId === 'analysis') debouncedUpdateCharts();
             if (tabId === 'settings') {
@@ -2035,58 +2032,48 @@ function cacheDOMNodes() {
                 isDragging = true; moved = false;
                 tabs.forEach(btn => { btn.classList.remove('active'); btn.style.transition = 'transform 0.1s ease-out, opacity 0.2s ease-out'; });
                 indicator.classList.add('dragging');
-                indicator.style.transition = 'box-shadow 0.3s ease';
+                indicator.style.transition = 'box-shadow 0.3s ease, backdrop-filter 0.3s ease';
                 startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-                tabCenters = validTabs.map(t => t.offsetLeft + t.offsetWidth / 2);
                 initialWidth = indicator.offsetWidth;
                 const match = indicator.style.transform.match(/translate\(([-\d.]+)px/);
                 initialTranslate = match ? parseFloat(match[1]) : 0;
             }
 
-            // v18：拖曳用 rAF 節流 + 快取 tab 中心，避免每幀讀 layout 又寫 style（iPhone 卡頓主因）
-            let dragRaf = 0, pendingClientX = 0, tabCenters = [];
-            function applyDrag(clientX) {
+            function handleDragMove(e) {
+                if (!isDragging) return;
+                const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
                 const deltaX = clientX - startX;
-                if (Math.abs(deltaX) > 2) {
-                    moved = true;
-                    let stretch = Math.min(Math.abs(deltaX) * 0.55, 65);
+                if (Math.abs(deltaX) > 2) { 
+                    moved = true; if(e.cancelable) e.preventDefault(); 
+                    let stretch = Math.min(Math.abs(deltaX) * 0.55, 65); 
                     let targetX = deltaX > 0 ? (initialTranslate + deltaX - stretch) : (initialTranslate + deltaX);
                     let targetWidth = initialWidth + stretch;
                     let maxTranslate = navContainer.offsetWidth - targetWidth;
                     targetX = Math.max(0, Math.min(targetX, maxTranslate));
-                    indicator.style.width = `${targetWidth}px`;
-                    indicator.style.transform = `translate(${targetX}px, -50%)`;
-                    // v10 液態體積守恆：拉寬時壓扁高度（52 -> 46px），放開彈回 52px
-                    indicator.style.height = `${52 - 6 * (stretch / 65)}px`;
+
+                    indicator.style.width = `${targetWidth}px`; 
+                    indicator.style.transform = `translate(${targetX}px, -50%)`; 
                     indicator.dataset.currentX = targetX;
                     const indicatorCenter = targetX + targetWidth / 2;
-                    validTabs.forEach((tab, i) => {
-                        const distance = Math.abs(tabCenters[i] - indicatorCenter);
+                    validTabs.forEach(tab => {
+                        const tabCenter = tab.offsetLeft + tab.offsetWidth / 2;
+                        const distance = Math.abs(tabCenter - indicatorCenter);
                         if (distance < 45) {
-                            tab.style.transform = `scale(${1 + 0.35 * (1 - distance / 45)})`;
+                            tab.style.transform = `scale(${1 + 0.35 * (1 - distance / 45)})`; 
                             tab.style.opacity = '1';
-                        } else {
-                            tab.style.transform = `scale(1)`;
-                            tab.style.opacity = '0.5';
+                        } else { 
+                            tab.style.transform = `scale(1)`; 
+                            tab.style.opacity = '0.5'; 
                         }
                     });
                 }
             }
-            function handleDragMove(e) {
-                if (!isDragging) return;
-                const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-                if (Math.abs(clientX - startX) > 2 && e.cancelable) e.preventDefault();
-                pendingClientX = clientX;
-                if (!dragRaf) dragRaf = requestAnimationFrame(() => { dragRaf = 0; applyDrag(pendingClientX); });
-            }
 
             function handleDragEnd() {
                 if (!isDragging) return;
-                if (dragRaf) { cancelAnimationFrame(dragRaf); dragRaf = 0; }
                 isDragging = false;
                 indicator.classList.remove('dragging');
-                indicator.style.transition = 'transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), width 0.25s cubic-bezier(0.25, 1, 0.5, 1), height 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease, box-shadow 0.25s ease';
-                indicator.style.height = '52px';
+                indicator.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.4s ease, backdrop-filter 0.4s ease';
                 validTabs.forEach(tab => { tab.style.transition = ''; tab.style.transform = ''; tab.style.opacity = ''; });
 
                 if (moved) {
@@ -4144,7 +4131,7 @@ window.forceUpload = function() {
         };
 
         window.generateSWContent = function() {
-            return `const CACHE_NAME = 'ev-life-cache-v19';
+            return `const CACHE_NAME = 'ev-life-cache-v21';
 const ASSETS_TO_CACHE = ['./', './index.html', './manifest.json', './achievements.js'];
 
 self.addEventListener('install', event => {
