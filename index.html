@@ -22,7 +22,7 @@
         body { line-height: 1.65; letter-spacing: 0.01em; }
         :focus-visible { outline: 2px solid rgba(15, 118, 110, 0.5); outline-offset: 2px; border-radius: 0.5rem; }
         ::selection { background: rgba(20, 184, 166, 0.25); }
-        /* v12 任務流條：出發前 / 路上 / 回顧（捷徑，底部導覽仍保留完整功能） */
+        /* v12 任務流條：規劃 / 上路 / 回顧（捷徑，底部導覽仍保留完整功能） */
         .flow-task { position:relative; display:flex; background:rgba(231,229,228,.55); border:1px solid rgba(231,229,228,.9); border-radius:999px; padding:4px; }
         .dark .flow-task { background:rgba(68,64,60,.55); border-color:rgba(255,255,255,.08); }
         .flow-task button { flex:1; position:relative; z-index:2; border:0; background:transparent; color:#78716c; font-size:13px; font-weight:800; padding:9px 0; border-radius:999px; cursor:pointer; }
@@ -379,11 +379,11 @@ input[type="number"] {
         <div class="px-4 mb-3">
             <div class="flow-task" id="flowTaskBar">
                 <div class="flow-task-ind" id="flowTaskInd"></div>
-                <button data-flow-task="plan" class="active" onclick="switchFlowTask('plan')">出發前</button>
-                <button data-flow-task="drive" onclick="switchFlowTask('drive')">路上</button>
+                <button data-flow-task="plan" class="active" onclick="switchFlowTask('plan')">規劃</button>
+                <button data-flow-task="drive" onclick="switchFlowTask('drive')">上路</button>
                 <button data-flow-task="review" onclick="switchFlowTask('review')">回顧</button>
             </div>
-            <div class="text-[10px] text-stone-400 font-bold text-center mt-1">出發前＝首頁規劃 · 路上＝路線＋地圖＋海拔 · 回顧＝紀錄</div>
+            <div class="text-[10px] text-stone-400 font-bold text-center mt-1">規劃＝首頁＋路線 · 上路＝地圖＋海拔＋充電 · 回顧＝紀錄</div>
         </div>
 
         <!-- 🔹 Tab 1: 首頁 (Home) -->
@@ -492,51 +492,6 @@ input[type="number"] {
                     </div>
                     <div id="badgesContainer" class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
                         <div class="text-[10px] text-stone-400 font-bold px-2">持續紀錄旅程來解鎖專屬成就！</div>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <div class="rpg-card bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/10 p-5 rounded-[1.5rem] border border-indigo-100 dark:border-indigo-800/50">
-                        <div class="flex items-center justify-between mb-3">
-<div class="flex items-center gap-2">
-    <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 w-7 h-7 rounded-full flex items-center justify-center text-xs">🔮</span>
-    <span class="text-xs md:text-sm font-extrabold text-stone-600 dark:text-stone-300">旅程預測器</span>
-</div>
-<button type="button" onclick="openAbrpModal()" class="text-[10px] bg-gradient-to-r from-amber-400 to-amber-500 text-stone-950 px-2.5 py-1 rounded-lg font-extrabold shadow-sm active:scale-95 transition flex items-center gap-1">
-    🗺️ ABRP 補給規劃
-</button>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="flex-1">
-                                <div class="relative">
-                                    <input type="number" id="predictDistance" placeholder="預計里程..." class="w-full px-4 py-2.5 bg-white dark:bg-stone-800 border border-indigo-200 dark:border-indigo-700/50 rounded-xl text-sm font-bold focus:outline-none focus:border-indigo-400 transition-colors pl-12">
-                                    <div class="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-extrabold text-indigo-400">km</div>
-                                </div>
-                            </div>
-                            <button onclick="calculatePrediction()" class="bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs md:text-sm font-extrabold shadow-sm active:scale-95 transition-transform flex-shrink-0">預測</button>
-                        </div>
-
-                        <div class="flex items-center gap-4 mt-3 mb-1">
-                            <label class="flex items-center gap-1.5 cursor-pointer">
-                                <input type="checkbox" id="toggleHighway" class="w-4 h-4 rounded text-indigo-500 focus:ring-indigo-500 bg-white border-stone-300 dark:border-stone-600 dark:bg-stone-700">
-                                <span class="text-[11px] font-bold text-stone-600 dark:text-stone-300">全程高速 (8折)</span>
-                            </label>
-                            <label class="flex items-center gap-1.5 cursor-pointer">
-                                <input type="checkbox" id="toggleMountain" class="w-4 h-4 rounded text-indigo-500 focus:ring-indigo-500 bg-white border-stone-300 dark:border-stone-600 dark:bg-stone-700">
-                                <span class="text-[11px] font-bold text-stone-600 dark:text-stone-300">連續爬坡 (7折)</span>
-                            </label>
-                        </div>
-
-                        <div id="predictionResult" class="hidden mt-3 pt-3 border-t border-indigo-200/50 dark:border-indigo-800/30 grid grid-cols-2 gap-2">
-                            <div class="bg-white/60 dark:bg-stone-800/60 p-2 rounded-lg text-center border border-indigo-100 dark:border-indigo-800/30">
-                                <div class="text-[10px] text-stone-500 font-bold">預估消耗電量</div>
-                                <div class="font-mono font-extrabold text-indigo-600 dark:text-indigo-400 text-lg"><span id="predSoc">0</span>%</div>
-                            </div>
-                            <div class="bg-white/60 dark:bg-stone-800/60 p-2 rounded-lg text-center border border-indigo-100 dark:border-indigo-800/30">
-                                <div class="text-[10px] text-stone-500 font-bold">預估花費</div>
-                                <div class="font-mono font-extrabold text-indigo-600 dark:text-indigo-400 text-lg">$<span id="predCost">0</span></div>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -1660,7 +1615,7 @@ function cacheDOMNodes() {
      'loanDateAlertContainer', 'loanTargetDateStr', 'loanDaysRemainingBadge',
      'loanProgressContainer', 'loanMonthsProgressText', 'loanProgressBar', 'loanTotalPaidAmount', 'loanRemainingMonths',
      'efficiencyChart', 'costDistributionChart', 'tempEffChart', 'cpRankingList', 'analysisTotalKm', 'analysisSummaryLabel', 'analysisAvgEfficiency',
-     'analysisTotalCost', 'analysisCostLabel', 'analysisCostPerKm', 'heroImageDisplay', 'toggleHighway', 'toggleMountain', 'badgesContainer',
+     'analysisTotalCost', 'analysisCostLabel', 'analysisCostPerKm', 'heroImageDisplay', 'badgesContainer',
      'recordCalendarContainer', 'recordCalendarView', 'calendarDayRecordsSection', 'calendarDayRecordsTitle', 'calendarDayRecordsList', 'btnDeleteInForm'].forEach(id => {
         const el = document.getElementById(id);
         if (el) DOM[id] = el;
@@ -2832,43 +2787,6 @@ window.setupSocSliders = function() {
             updateStats(globalKm, globalAvgEff, globalCost, globalMaintCost, AppState.initialOdometer, fuelSavings, co2Savings, treesPlanted, remMaint, progMaint, loanPaidCount, loanPaidTotalAmount, remTire, progTire);
         }
 
-window.calculatePrediction = function() {
-    const distInput = document.getElementById('predictDistance').value;
-    const resultBox = document.getElementById('predictionResult');
-    const isHighway = DOM.toggleHighway ? DOM.toggleHighway.checked : false;
-    const isMountain = DOM.toggleMountain ? DOM.toggleMountain.checked : false;
-    const dist = parseFloat(distInput);
-
-    if (isNaN(dist) || dist <= 0) { showToast("請輸入有效的預測里程數 🚗", true); return; }
-    if (AppState.globalAvgEfficiency <= 0) { showToast("目前尚無足夠的歷史電耗數據可以預測 📊", true); return; }
-
-    // 基準電耗本身就是高速 5.5
-    let adjustedEfficiency = AppState.globalAvgEfficiency;
-
-    // 只有山區爬坡需要重度打折；若是全程高速則維持 1.0 基準（不需再乘 0.82）
-    if (isMountain) {
-        adjustedEfficiency *= 0.78;
-    } else if (!isHighway) {
-        // 如果「沒有」勾選全程高速（代表是市區/平面混合），反而更省電
-        adjustedEfficiency *= 1.12;
-    }
-
-    const predictedKwh = dist / adjustedEfficiency;
-    const predictedSocPercent = (predictedKwh / AppState.batteryCapacity) * 100;
-
-    const chargeRecords = AppState.records.filter(r => r.chargeType.includes('快充') || r.chargeType.includes('慢充'));
-    let totalChargeCost = 0, totalChargeKwh = 0;
-    chargeRecords.forEach(r => {
-        totalChargeCost += parseFloat(r.cost) || 0;
-        totalChargeKwh += AppState.batteryCapacity * (Math.abs(r.startSoc - r.endSoc) / 100);
-    });
-    const avgKwhCost = totalChargeKwh > 0 ? (totalChargeCost / totalChargeKwh) : 8; 
-    const predictedCost = predictedKwh * avgKwhCost;
-
-    document.getElementById('predSoc').textContent = predictedSocPercent.toFixed(1);
-    document.getElementById('predCost').textContent = Math.round(predictedCost).toLocaleString();
-    resultBox.classList.remove('hidden');
-};
         function buildRecordCardHtml(rec, isMVP) {
             const isNonDrive = ['維修保養', '停車費', '通行費', '保險費', '車貸'].includes(rec.chargeType);
             const dist = parseFloat(rec.distance) || 0;
@@ -4233,7 +4151,7 @@ window.forceUpload = function() {
         };
 
         window.generateSWContent = function() {
-            return `const CACHE_NAME = 'ev-life-cache-v13';
+            return `const CACHE_NAME = 'ev-life-cache-v14';
 const ASSETS_TO_CACHE = ['./', './index.html', './manifest.json', './achievements.js'];
 
 self.addEventListener('install', event => {
