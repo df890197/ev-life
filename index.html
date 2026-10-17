@@ -98,7 +98,7 @@ input[type="number"] {
         }
 
         /* v30：指標拿掉 backdrop-filter。會動的毛玻璃每幀都要重算模糊，是切換最貴的成本；拿掉後指標仍是同形狀、同底色、同陰影、同 0.6s 彈簧滑動，只是從玻璃感變平面半透明。 */
-        .liquid-indicator { position: absolute; height: 52px; border-radius: 26px; background: rgba(255, 255, 255, 0.15); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), inset 0 4px 10px rgba(255, 255, 255, 0.5), 0 4px 12px rgba(0, 0, 0, 0.08); transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.4s ease; z-index: 5; pointer-events: none; will-change: transform, width; }
+        .liquid-indicator { position: absolute; height: 52px; border-radius: 26px; background: rgba(255, 255, 255, 0.15); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), inset 0 4px 10px rgba(255, 255, 255, 0.5), 0 4px 12px rgba(0, 0, 0, 0.08); transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.4s ease; z-index: 5; pointer-events: none; will-change: transform, width; }
         .dark .liquid-indicator { background: rgba(255, 255, 255, 0.08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25), inset 0 4px 15px rgba(255, 255, 255, 0.15), 0 6px 15px rgba(0, 0, 0, 0.2); }
 
         .tab-btn { position: relative; z-index: 2; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease, color 0.2s ease; will-change: transform, opacity; -webkit-tap-highlight-color: transparent; cursor: pointer; }
@@ -657,7 +657,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v34</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v35</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1099,7 +1099,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v34</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v35</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1597,7 +1597,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v34';
+        const APP_VERSION = 'v35';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -2109,7 +2109,7 @@ function cacheDOMNodes() {
                 indicator.style.transform = `translate(${endLeft}px, -50%) scale(1)`;
                 return;
             }
-            indicatorAnim = indicator.animate(keyframes, { duration: 550, fill: 'none' });
+            indicatorAnim = indicator.animate(keyframes, { duration: 380, fill: 'none' }); // v35：bar 動畫加速 550ms -> 380ms
             indicatorAnim.onfinish = () => { indicator.style.transition = ''; indicatorAnim = null; };
             indicatorAnim.oncancel = () => { indicator.style.transition = ''; indicatorAnim = null; };
         }
@@ -2221,7 +2221,7 @@ function cacheDOMNodes() {
                 if (!isDragging) return;
                 isDragging = false;
                 indicator.classList.remove('dragging');
-                indicator.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.4s ease';
+                indicator.style.transition = 'transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.4s ease'; // v35：同步加速
                 validTabs.forEach(tab => { tab.style.transition = ''; tab.style.transform = ''; tab.style.opacity = ''; });
 
                 if (moved) {
@@ -4353,7 +4353,7 @@ self.addEventListener('fetch', event => {
             window.location.href = window.location.pathname + '?v=' + Date.now();
         };
 
-        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v34 是 JS 萬一沒跑起來的備援顯示）
+        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v35 是 JS 萬一沒跑起來的備援顯示）
         function updateAppVersionLabels() {
             document.querySelectorAll('.app-version-label').forEach(el => { el.textContent = APP_VERSION; });
         }
