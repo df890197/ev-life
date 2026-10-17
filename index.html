@@ -370,10 +370,6 @@ input[type="number"] {
 
         <!-- 🔹 Tab 1: 首頁 (Home) -->
         <div id="view-home" class="view-section active px-4">
-            <!-- v16：路線模擬僅在首頁出現（只有一開始打開會用到），不 sticky，次要樣式不搶眼 -->
-            <button onclick="openAbrpModal()" class="w-full bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 py-2.5 rounded-xl text-xs font-extrabold text-teal-700 dark:text-teal-400 shadow-sm active:scale-[0.98] transition flex items-center justify-center gap-2 mb-3">
-                🗺️ 路線模擬 <span class="text-[10px] font-bold opacity-80">ABRP · 海拔＋充電規劃</span>
-            </button>
             <div id="onboardingCard" class="hidden mb-6 rpg-card bg-gradient-to-br from-teal-50 to-white dark:from-teal-900/30 dark:to-stone-800 p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-teal-100 dark:border-teal-800/50">
                 <div class="text-center mb-5 md:mb-8">
                     <span class="text-5xl md:text-6xl block mb-3">🌱</span>
@@ -402,6 +398,9 @@ input[type="number"] {
                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                     <div class="absolute bottom-5 left-6 right-6 flex justify-between items-end">
                         <h1 id="heroEvName" class="text-white text-3xl md:text-5xl font-extrabold tracking-widest drop-shadow-md">LUXGEN n7</h1>
+                        <button onclick="openAbrpModal()" class="bg-white/20 backdrop-blur-md border border-white/30 text-white px-3 py-1.5 rounded-full text-[11px] font-extrabold shadow-sm active:scale-95 transition flex items-center gap-1 shrink-0">
+                            🗺️ 路線模擬
+                        </button>
                     </div>
                     <button onclick="document.getElementById('heroImageUpload').click()" class="absolute top-4 right-4 w-10 h-10 md:w-12 md:h-12 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white transition active:scale-95 shadow-lg border border-white/20">
                         <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -4137,7 +4136,7 @@ window.forceUpload = function() {
         };
 
         window.generateSWContent = function() {
-            return `const CACHE_NAME = 'ev-life-cache-v16';
+            return `const CACHE_NAME = 'ev-life-cache-v17';
 const ASSETS_TO_CACHE = ['./', './index.html', './manifest.json', './achievements.js'];
 
 self.addEventListener('install', event => {
@@ -6341,7 +6340,7 @@ function renderAbrpCachedResults(calcData, totalDistanceKm, durationText) {
 
     <script src="./achievements.js" onload="if(typeof renderDashboard==='function') renderDashboard();"></script>
 <script>
-// v16 地圖優先（路線模擬僅在首頁出現，不 sticky；不改既有功能與高程邏輯）
+// v17 地圖優先（路線模擬為 Hero 右下小膠囊；不改既有功能與高程邏輯）
 // v12 地圖優先：海拔剖面滑桿 <-> 地圖標記同步（僅視覺對照，不參與能耗計算）
 function updateAbrpElevScrub(pct) {
   const d = window._abrpElevScrubData;
