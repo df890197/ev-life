@@ -366,15 +366,14 @@ input[type="number"] {
 
     <main class="max-w-4xl lg:max-w-6xl mx-auto pb-20 pt-2 md:pt-4 md:pb-16">
 
-        <!-- v15：任務流條移除（規劃＝首頁、回顧＝紀錄，與底部導覽重複），僅留一個路線模擬 -->
-        <div class="px-4 mb-3" style="position: sticky; top: 64px; z-index: 30;">
-            <button onclick="openAbrpModal()" class="w-full rpg-btn-primary py-3.5 rounded-2xl text-sm font-extrabold shadow-md active:scale-[0.98] transition flex items-center justify-center gap-2">
-                🗺️ 路線模擬 <span class="text-[11px] font-bold opacity-90">ABRP · 海拔＋充電規劃</span>
-            </button>
-        </div>
+
 
         <!-- 🔹 Tab 1: 首頁 (Home) -->
         <div id="view-home" class="view-section active px-4">
+            <!-- v16：路線模擬僅在首頁出現（只有一開始打開會用到），不 sticky，次要樣式不搶眼 -->
+            <button onclick="openAbrpModal()" class="w-full bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 py-2.5 rounded-xl text-xs font-extrabold text-teal-700 dark:text-teal-400 shadow-sm active:scale-[0.98] transition flex items-center justify-center gap-2 mb-3">
+                🗺️ 路線模擬 <span class="text-[10px] font-bold opacity-80">ABRP · 海拔＋充電規劃</span>
+            </button>
             <div id="onboardingCard" class="hidden mb-6 rpg-card bg-gradient-to-br from-teal-50 to-white dark:from-teal-900/30 dark:to-stone-800 p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-teal-100 dark:border-teal-800/50">
                 <div class="text-center mb-5 md:mb-8">
                     <span class="text-5xl md:text-6xl block mb-3">🌱</span>
@@ -4138,7 +4137,7 @@ window.forceUpload = function() {
         };
 
         window.generateSWContent = function() {
-            return `const CACHE_NAME = 'ev-life-cache-v15';
+            return `const CACHE_NAME = 'ev-life-cache-v16';
 const ASSETS_TO_CACHE = ['./', './index.html', './manifest.json', './achievements.js'];
 
 self.addEventListener('install', event => {
@@ -6342,7 +6341,7 @@ function renderAbrpCachedResults(calcData, totalDistanceKm, durationText) {
 
     <script src="./achievements.js" onload="if(typeof renderDashboard==='function') renderDashboard();"></script>
 <script>
-// v15 地圖優先（任務流條已移除，僅留路線模擬按鈕；不改既有功能與高程邏輯）
+// v16 地圖優先（路線模擬僅在首頁出現，不 sticky；不改既有功能與高程邏輯）
 // v12 地圖優先：海拔剖面滑桿 <-> 地圖標記同步（僅視覺對照，不參與能耗計算）
 function updateAbrpElevScrub(pct) {
   const d = window._abrpElevScrubData;
