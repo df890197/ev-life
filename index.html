@@ -657,7 +657,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v32</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v33</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1099,7 +1099,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v32</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v33</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1593,7 +1593,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v32';
+        const APP_VERSION = 'v33';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -2040,19 +2040,67 @@ function cacheDOMNodes() {
                 if (btn) tabMetricsCache[tabId] = { width: btn.offsetWidth, left: btn.offsetLeft };
             });
         }
+        // v33：Q 彈膠囊。點按切換時用 WAAPI 三段 keyframes（起點 → 中段拉伸＋壓扁 → 終點回彈），
+        // 做出像液體一樣流過去的感覺；只動 transform／width，不加 blur。
+        // lite 模式走短版 CSS transition（0.15s），不跑拉伸；拖曳開始時會取消動畫並定在當下位置。
+        let indicatorAnim = null;
+        function getIndicatorVisual() {
+            const indicator = document.getElementById('liquid-indicator');
+            if (!indicator) return { left: 0, width: 0 };
+            const cs = window.getComputedStyle(indicator);
+            let left = 0;
+            const m = /matrix(?:3d)?\(([^)]+)\)/.exec(cs.transform || '');
+            if (m) {
+                const parts = m[1].split(',').map(Number);
+                left = parts.length === 16 ? parts[12] : parts[4];
+            }
+            const width = parseFloat(cs.width);
+            return { left: isFinite(left) ? left : 0, width: isFinite(width) ? width : indicator.offsetWidth };
+        }
         function updateLiquidIndicator(tabId) {
             const btn = document.getElementById('tab-' + tabId);
             const indicator = document.getElementById('liquid-indicator');
-            if (btn && indicator && tabId !== 'add') {
-                indicator.style.opacity = '1';
-                const cached = tabMetricsCache[tabId];
-                const width = cached ? cached.width : btn.offsetWidth;
-                const left = cached ? cached.left : btn.offsetLeft;
-                indicator.style.width = `${width}px`;
-                indicator.style.transform = `translate(${left}px, -50%) scale(1)`;
-            } else if (tabId === 'add' && indicator) {
+            if (!btn || !indicator) return;
+            if (tabId === 'add') {
+                if (indicatorAnim) { indicatorAnim.cancel(); indicatorAnim = null; }
                 indicator.style.opacity = '0';
+                return;
             }
+            const cached = tabMetricsCache[tabId];
+            const endWidth = cached ? cached.width : btn.offsetWidth;
+            const endLeft = cached ? cached.left : btn.offsetLeft;
+            indicator.style.opacity = '1';
+            // 還沒定位過（初始化）或 lite 模式：直接設終點，交給 CSS transition（lite 是 0.15s 短版）。
+            if (!indicator.style.transform || document.documentElement.classList.contains('lite')) {
+                if (indicatorAnim) { indicatorAnim.cancel(); indicatorAnim = null; }
+                indicator.style.width = `${endWidth}px`;
+                indicator.style.transform = `translate(${endLeft}px, -50%) scale(1)`;
+                return;
+            }
+            // 起點用目前畫面上的實際位置（getComputedStyle 會反映跑到一半的動畫），先讀再取消舊動畫，避免連點時跳。
+            const start = getIndicatorVisual();
+            if (indicatorAnim) { indicatorAnim.cancel(); indicatorAnim = null; }
+            if (Math.abs(start.left - endLeft) < 0.5 && Math.abs(start.width - endWidth) < 0.5) {
+                indicator.style.width = `${endWidth}px`;
+                indicator.style.transform = `translate(${endLeft}px, -50%) scale(1)`;
+                return;
+            }
+            const dist = endLeft - start.left;
+            const stretch = Math.min(Math.abs(dist) * 0.55, 90);
+            const midWidth = Math.max(start.width, endWidth) + stretch;
+            const midLeft = start.left + dist * 0.35;
+            const keyframes = [
+                { transform: `translate(${start.left}px, -50%) scale(1)`, width: `${start.width}px`, easing: 'ease-out' },
+                { transform: `translate(${midLeft}px, -50%) scaleY(0.92)`, width: `${midWidth}px`, offset: 0.45, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' },
+                { transform: `translate(${endLeft}px, -50%) scale(1)`, width: `${endWidth}px` }
+            ];
+            // 先把 inline 樣式定在終點、關掉 CSS transition，再跑 WAAPI；動畫結束後 inline 已是終點，不會跳。
+            indicator.style.transition = 'none';
+            indicator.style.width = `${endWidth}px`;
+            indicator.style.transform = `translate(${endLeft}px, -50%) scale(1)`;
+            indicatorAnim = indicator.animate(keyframes, { duration: 550, fill: 'none' });
+            indicatorAnim.onfinish = () => { indicator.style.transition = ''; indicatorAnim = null; };
+            indicatorAnim.oncancel = () => { indicator.style.transition = ''; indicatorAnim = null; };
         }
 
         let switchTabIndicatorRaf = 0;
@@ -2111,6 +2159,14 @@ function cacheDOMNodes() {
             function handleDragStart(e) {
                 if (e.target.closest('#add-btn-wrapper')) return;
                 isDragging = true; moved = false;
+                // v33：若 Q 彈動畫還在跑，先把目前畫面上的實際位置定為 inline 樣式再取消，
+                // 避免放開後跳回動畫終點；之後既有的 initialWidth／initialTranslate 讀到的就是當下位置。
+                if (indicatorAnim) {
+                    const v = getIndicatorVisual();
+                    indicator.style.transform = `translate(${v.left}px, -50%)`;
+                    indicator.style.width = `${v.width}px`;
+                    indicatorAnim.cancel(); indicatorAnim = null;
+                }
                 tabs.forEach(btn => { btn.classList.remove('active'); btn.style.transition = 'transform 0.1s ease-out, opacity 0.2s ease-out'; });
                 indicator.classList.add('dragging');
                 indicator.style.transition = 'box-shadow 0.3s ease';
@@ -4286,7 +4342,7 @@ self.addEventListener('fetch', event => {
             window.location.href = window.location.pathname + '?v=' + Date.now();
         };
 
-        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v32 是 JS 萬一沒跑起來的備援顯示）
+        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v33 是 JS 萬一沒跑起來的備援顯示）
         function updateAppVersionLabels() {
             document.querySelectorAll('.app-version-label').forEach(el => { el.textContent = APP_VERSION; });
         }
