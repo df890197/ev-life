@@ -22,15 +22,6 @@
         body { line-height: 1.65; letter-spacing: 0.01em; }
         :focus-visible { outline: 2px solid rgba(15, 118, 110, 0.5); outline-offset: 2px; border-radius: 0.5rem; }
         ::selection { background: rgba(20, 184, 166, 0.25); }
-        /* v12 任務流條：規劃 / 上路 / 回顧（捷徑，底部導覽仍保留完整功能） */
-        .flow-task { position:relative; display:flex; background:rgba(231,229,228,.55); border:1px solid rgba(231,229,228,.9); border-radius:999px; padding:4px; }
-        .dark .flow-task { background:rgba(68,64,60,.55); border-color:rgba(255,255,255,.08); }
-        .flow-task button { flex:1; position:relative; z-index:2; border:0; background:transparent; color:#78716c; font-size:13px; font-weight:800; padding:9px 0; border-radius:999px; cursor:pointer; }
-        .dark .flow-task button { color:#a8a29e; }
-        .flow-task button.active { color:#0f766e; }
-        .dark .flow-task button.active { color:#2dd4bf; }
-        .flow-task-ind { position:absolute; top:4px; bottom:4px; border-radius:999px; background:#fff; box-shadow:0 4px 14px -4px rgba(60,50,40,.25); border:1px solid rgba(231,229,228,.9); transition:left .45s cubic-bezier(.34,1.56,.64,1), width .45s cubic-bezier(.34,1.56,.64,1); z-index:1; }
-        .dark .flow-task-ind { background:#292524; border-color:rgba(255,255,255,.08); }
         html.dark, html.dark body { background-color: #1c1917 !important; }
         
         #appSplashScreen { 
@@ -375,15 +366,11 @@ input[type="number"] {
 
     <main class="max-w-4xl lg:max-w-6xl mx-auto pb-20 pt-2 md:pt-4 md:pb-16">
 
-        <!-- v12 任務流：出發前 / 路上 / 回顧（捷徑，底部導覽仍保留完整功能） -->
-        <div class="px-4 mb-3">
-            <div class="flow-task" id="flowTaskBar">
-                <div class="flow-task-ind" id="flowTaskInd"></div>
-                <button data-flow-task="plan" class="active" onclick="switchFlowTask('plan')">規劃</button>
-                <button data-flow-task="drive" onclick="switchFlowTask('drive')">上路</button>
-                <button data-flow-task="review" onclick="switchFlowTask('review')">回顧</button>
-            </div>
-            <div class="text-[10px] text-stone-400 font-bold text-center mt-1">規劃＝首頁＋路線 · 上路＝地圖＋海拔＋充電 · 回顧＝紀錄</div>
+        <!-- v15：任務流條移除（規劃＝首頁、回顧＝紀錄，與底部導覽重複），僅留一個路線模擬 -->
+        <div class="px-4 mb-3" style="position: sticky; top: 64px; z-index: 30;">
+            <button onclick="openAbrpModal()" class="w-full rpg-btn-primary py-3.5 rounded-2xl text-sm font-extrabold shadow-md active:scale-[0.98] transition flex items-center justify-center gap-2">
+                🗺️ 路線模擬 <span class="text-[11px] font-bold opacity-90">ABRP · 海拔＋充電規劃</span>
+            </button>
         </div>
 
         <!-- 🔹 Tab 1: 首頁 (Home) -->
@@ -4151,7 +4138,7 @@ window.forceUpload = function() {
         };
 
         window.generateSWContent = function() {
-            return `const CACHE_NAME = 'ev-life-cache-v14';
+            return `const CACHE_NAME = 'ev-life-cache-v15';
 const ASSETS_TO_CACHE = ['./', './index.html', './manifest.json', './achievements.js'];
 
 self.addEventListener('install', event => {
@@ -6355,19 +6342,7 @@ function renderAbrpCachedResults(calcData, totalDistanceKm, durationText) {
 
     <script src="./achievements.js" onload="if(typeof renderDashboard==='function') renderDashboard();"></script>
 <script>
-// v12 任務流 + 地圖優先（附加，不改既有功能與高程邏輯）
-function switchFlowTask(flow) {
-  updateFlowBar(flow);
-  if (flow === 'plan') { if (typeof window.switchTab === 'function') window.switchTab('home'); }
-  else if (flow === 'drive') { if (typeof window.openAbrpModal === 'function') window.openAbrpModal(); }
-  else if (flow === 'review') { if (typeof window.switchTab === 'function') window.switchTab('records'); }
-}
-function updateFlowBar(flow) {
-  document.querySelectorAll('[data-flow-task]').forEach(b => b.classList.toggle('active', b.dataset.flowTask === flow));
-  const btn = document.querySelector(`[data-flow-task="${flow}"]`);
-  const ind = document.getElementById('flowTaskInd');
-  if (btn && ind) { ind.style.left = btn.offsetLeft + 'px'; ind.style.width = btn.offsetWidth + 'px'; }
-}
+// v15 地圖優先（任務流條已移除，僅留路線模擬按鈕；不改既有功能與高程邏輯）
 // v12 地圖優先：海拔剖面滑桿 <-> 地圖標記同步（僅視覺對照，不參與能耗計算）
 function updateAbrpElevScrub(pct) {
   const d = window._abrpElevScrubData;
@@ -6398,17 +6373,6 @@ function updateAbrpElevScrub(pct) {
     } else { window._abrpScrubMarker.setPosition(latLng); window._abrpScrubMarker.setMap(abrpMap); }
   } catch (e) { /* 地圖標記失敗不影響剖面，靜默 */ }
 }
-// 底部導覽切換時，同步任務流條（捷徑，不改既有 switchTab）
-(function () {
-  const flowMap = { 'tab-home': 'plan', 'tab-records': 'review', 'tab-analysis': 'review' };
-  Object.entries(flowMap).forEach(([id, flow]) => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('click', () => updateFlowBar(flow));
-  });
-  document.querySelectorAll('[onclick*="openAbrpModal"]').forEach(el => el.addEventListener('click', () => updateFlowBar('drive')));
-  requestAnimationFrame(() => updateFlowBar('plan'));
-  window.addEventListener('resize', () => { const cur = document.querySelector('[data-flow-task].active'); if (cur) updateFlowBar(cur.dataset.flowTask); });
-})();
 </script>
 </body>
 </html>
