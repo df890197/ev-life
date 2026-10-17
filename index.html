@@ -640,7 +640,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v27</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v28</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1082,7 +1082,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-[#1c1917] p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v27</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v28</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1560,7 +1560,7 @@ input[type="number"] {
         };
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v27';
+        const APP_VERSION = 'v28';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -2002,6 +2002,7 @@ function cacheDOMNodes() {
             }
         }
 
+        let switchTabIndicatorRaf = 0;
         window.switchTab = function(tabId) {
             triggerHaptic('light');
 
@@ -2012,14 +2013,22 @@ function cacheDOMNodes() {
                 tabId = 'settings'; // 自動跳轉至設定頁
             }
 
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            const activeBtn = document.getElementById('tab-' + tabId);
-            if (activeBtn && tabId !== 'add') activeBtn.classList.add('active'); 
-            updateLiquidIndicator(tabId);
+            // v28 切換順序：先切分頁內容＋立即回頂，讓新分頁下一幀就出現；
+            // 指標下一幀再用 rAF 更新，不跟內容切換搶同一幀。
+            // （v19 的順序是對的，但它同時把指標動畫改成 0.25s，bar 外觀變了才被還原；
+            //  這次只拿回順序，指標動畫維持 v5 的 0.6s 彈簧，bar 外觀完全不變。）
+            // 原順序是指標先動（讀 offset 強制 reflow＋0.6s 動畫）再切分頁，
+            // 再加平滑捲動慢慢捲到頂，三件事疊在一起才會覺得「點了卡一下才換過去」。
             document.querySelectorAll('.view-section').forEach(view => { view.classList.remove('active'); });
             const view = document.getElementById('view-' + tabId);
             if (view) view.classList.add('active');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo(0, 0);
+
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.getElementById('tab-' + tabId);
+            if (activeBtn && tabId !== 'add') activeBtn.classList.add('active');
+            if (switchTabIndicatorRaf) cancelAnimationFrame(switchTabIndicatorRaf);
+            switchTabIndicatorRaf = requestAnimationFrame(() => { switchTabIndicatorRaf = 0; updateLiquidIndicator(tabId); });
 
             if (tabId === 'analysis') debouncedUpdateCharts();
             if (tabId === 'settings') {
@@ -4219,7 +4228,7 @@ self.addEventListener('fetch', event => {
             window.location.href = window.location.pathname + '?v=' + Date.now();
         };
 
-        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v27 是 JS 萬一沒跑起來的備援顯示）
+        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v28 是 JS 萬一沒跑起來的備援顯示）
         function updateAppVersionLabels() {
             document.querySelectorAll('.app-version-label').forEach(el => { el.textContent = APP_VERSION; });
         }
