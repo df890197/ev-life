@@ -57,20 +57,20 @@ input[type="number"] {
         }
 
         .ios-27-glass { 
-            background: transparent; 
-            backdrop-filter: blur(4px) saturate(110%); 
-            -webkit-backdrop-filter: blur(4px) saturate(110%); 
+            background: rgba(255, 255, 255, 0.22); 
+            backdrop-filter: blur(18px) saturate(140%); 
+            -webkit-backdrop-filter: blur(18px) saturate(140%); 
             border: 1px solid rgba(255, 255, 255, 0.4); 
-            border-top: 1px solid rgba(255, 255, 255, 0.8); 
+            border-top: 1px solid rgba(255, 255, 255, 0.5); 
             border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
             box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), inset 0 1px 3px rgba(255, 255, 255, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.15); 
         }
         .dark .ios-27-glass { 
-            background: transparent; 
-            backdrop-filter: blur(4px) saturate(110%); 
-            -webkit-backdrop-filter: blur(4px) saturate(110%); 
+            background: rgba(15, 18, 25, 0.35); 
+            backdrop-filter: blur(18px) saturate(130%); 
+            -webkit-backdrop-filter: blur(18px) saturate(130%); 
             border: 1px solid rgba(255, 255, 255, 0.15); 
-            border-top: 1px solid rgba(255, 255, 255, 0.4); 
+            border-top: 1px solid rgba(255, 255, 255, 0.3); 
             border-bottom: 1px solid rgba(255, 255, 255, 0.02); 
             box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.08); 
         }
@@ -93,8 +93,10 @@ input[type="number"] {
             .floating-nav { bottom: 6px !important; }
         }
 
-        .liquid-indicator { position: absolute; height: 52px; border-radius: 26px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(16px) saturate(180%) brightness(1.15); -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), inset 0 4px 10px rgba(255, 255, 255, 0.5), 0 4px 12px rgba(0, 0, 0, 0.08); transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.4s ease, backdrop-filter 0.4s ease; z-index: 5; pointer-events: none; will-change: transform, width; }
-        .dark .liquid-indicator { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(16px) saturate(150%) brightness(1.2); -webkit-backdrop-filter: blur(16px) saturate(150%) brightness(1.2); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25), inset 0 4px 15px rgba(255, 255, 255, 0.15), 0 6px 15px rgba(0, 0, 0, 0.2); }
+        .liquid-indicator { position: absolute; height: 52px; border-radius: 26px; background: linear-gradient(180deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.10)); backdrop-filter: blur(16px) saturate(180%) brightness(1.15); -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), inset 0 4px 10px rgba(255, 255, 255, 0.5), 0 4px 12px rgba(0, 0, 0, 0.08); transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), height 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.4s ease, backdrop-filter 0.4s ease; z-index: 5; pointer-events: none; will-change: transform, width, height; overflow: hidden; }
+        .liquid-indicator::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 55%); pointer-events: none; }
+        .dark .liquid-indicator { background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.06)); backdrop-filter: blur(16px) saturate(150%) brightness(1.2); -webkit-backdrop-filter: blur(16px) saturate(150%) brightness(1.2); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25), inset 0 4px 15px rgba(255, 255, 255, 0.15), 0 6px 15px rgba(0, 0, 0, 0.2); }
+        .dark .liquid-indicator::before { background: linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 55%); }
 
         .tab-btn { position: relative; z-index: 2; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); will-change: transform, opacity; -webkit-tap-highlight-color: transparent; cursor: pointer; }
         .tab-btn.active { color: #0d9488; font-weight: 900; transform: translateY(-2px) scale(1.1); z-index: 10; }
@@ -2086,6 +2088,8 @@ function cacheDOMNodes() {
 
                     indicator.style.width = `${targetWidth}px`; 
                     indicator.style.transform = `translate(${targetX}px, -50%)`; 
+                    // v10 液態體積守恆：拉寬時壓扁高度（52 -> 46px），放開彈回 52px
+                    indicator.style.height = `${52 - 6 * (stretch / 65)}px`;
                     indicator.dataset.currentX = targetX;
                     const indicatorCenter = targetX + targetWidth / 2;
                     validTabs.forEach(tab => {
@@ -2106,7 +2110,8 @@ function cacheDOMNodes() {
                 if (!isDragging) return;
                 isDragging = false;
                 indicator.classList.remove('dragging');
-                indicator.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.4s ease, backdrop-filter 0.4s ease';
+                indicator.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), height 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.4s ease, backdrop-filter 0.4s ease';
+                indicator.style.height = '52px';
                 validTabs.forEach(tab => { tab.style.transition = ''; tab.style.transform = ''; tab.style.opacity = ''; });
 
                 if (moved) {
@@ -4201,7 +4206,7 @@ window.forceUpload = function() {
         };
 
         window.generateSWContent = function() {
-            return `const CACHE_NAME = 'ev-life-cache-v9';
+            return `const CACHE_NAME = 'ev-life-cache-v10';
 const ASSETS_TO_CACHE = ['./', './index.html', './manifest.json', './achievements.js'];
 
 self.addEventListener('install', event => {
