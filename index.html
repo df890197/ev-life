@@ -129,7 +129,8 @@ input[type="number"] {
         html.lite .rpg-card { transition: none !important; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important; }
         html.dark.lite .rpg-card { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important; }
         html.lite .marquee-content { animation: none !important; }
-        html.lite #recordMobileList > *, html.lite #calendarDayRecordsList > * { content-visibility: auto; contain-intrinsic-size: auto 150px; }
+        /* v41：content-visibility 開給全部模式（v32 只開 lite）。畫面外卡片不排版不上色，切到紀錄時不再一次算全部；跑馬燈已改滑到才量（見 measureAndAdjustMarquees），不受影響。 */
+        #recordMobileList > *, #calendarDayRecordsList > * { content-visibility: auto; contain-intrinsic-size: auto 150px; }
 
         .rpg-card { background: #ffffff; border: 1px solid rgba(231, 229, 228, 0.85); box-shadow: 0 8px 24px -12px rgba(60, 50, 40, 0.08); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease; position: relative; overflow: hidden; }
         /* v27 流暢優化：深色卡片拿掉 backdrop-filter（每張卡捲動時都要重算模糊），漸層底色已接近不透，視覺幾乎不變 */
@@ -664,7 +665,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v40</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v42</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1106,7 +1107,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v40</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v42</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1604,7 +1605,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v40';
+        const APP_VERSION = 'v42';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -2112,6 +2113,7 @@ function cacheDOMNodes() {
             const activeBtn = document.querySelector('.tab-btn.active');
             if (activeBtn) updateLiquidIndicator(activeBtn.id.replace('tab-', ''));
             cacheTabMetrics(); // v32
+            resetMarqueeObserver(); // v41：寬度變了，跑馬燈溢出值重算
             measureAndAdjustMarquees();
         });
 
@@ -2888,8 +2890,8 @@ window.setupSocSliders = function() {
             const safeTag = escapeHTML(rec.tag || '');
 
             const cardWrapperClass = (isMVP
-                ? "bg-gradient-to-br from-amber-50/80 via-white to-amber-50/20 dark:from-amber-950/30 dark:via-neutral-900 dark:to-neutral-900 p-2.5 sm:p-4 rounded-[1.5rem] border-2 border-amber-400 dark:border-amber-500 shadow-md relative w-full flex flex-col justify-between"
-                : "bg-white dark:bg-neutral-900 p-2.5 sm:p-4 rounded-[1.5rem] border border-stone-200/80 dark:border-stone-800 shadow-sm relative w-full flex flex-col justify-between"
+                ? "bg-gradient-to-br from-amber-50/80 via-white to-amber-50/20 dark:from-amber-950/30 dark:via-neutral-900 dark:to-neutral-900 p-2.5 sm:p-4 rounded-[1.5rem] border-2 border-amber-400 dark:border-amber-500 shadow-md relative w-full flex flex-col justify-between overflow-hidden"
+                : "bg-white dark:bg-neutral-900 p-2.5 sm:p-4 rounded-[1.5rem] border border-stone-200/80 dark:border-stone-800 shadow-sm relative w-full flex flex-col justify-between overflow-hidden"
             ) + " cursor-pointer transition active:scale-[0.99] hover:border-amber-300 dark:hover:border-amber-500/50";
 
             return `
@@ -3022,35 +3024,120 @@ window.setupSocSliders = function() {
                 </div>
 
                 ${safeNote ? `
-                <div class="mt-2 pt-2 border-t border-stone-100 dark:border-stone-800/80 text-[10.5px] sm:text-xs text-stone-500 dark:text-stone-400 font-bold flex items-start gap-1.5 leading-relaxed">
+                <div class="mt-2 pt-2 border-t border-stone-100 dark:border-stone-800/80 text-[10.5px] sm:text-xs text-stone-500 dark:text-stone-400 font-bold flex items-start gap-1.5 leading-relaxed min-w-0">
                     <span class="w-4 flex justify-center text-stone-400 shrink-0">📝</span>
-                    <span class="break-words">${safeNote}</span>
+                    <span class="min-w-0 flex-1 break-words [overflow-wrap:anywhere]">${safeNote}</span>
                 </div>` : ''}
             </div>`;
         }
 
+        // v41：跑馬燈改滑到才量。content-visibility 讓畫面外卡片不渲染，量不到正確寬度，所以改用 IntersectionObserver：
+        // 卡片進畫面才量它那一張，量完取消觀察；resize 時全部重設再觀察（寬度變了，溢出值也要重算）。
+        let marqueeObserver = null;
+        function applyMarqueeForBox(box) {
+            const content = box.querySelector('.marquee-content');
+            if (!content) return;
+            const overflow = content.scrollWidth - box.clientWidth;
+            if (overflow > 4) {
+                content.style.setProperty('--marquee-scroll-x', `-${Math.ceil(overflow) + 3}px`);
+                content.style.setProperty('--marquee-duration', `${Math.max(3.2, (2.0 + overflow * 0.045)).toFixed(2)}s`);
+                content.classList.add('marquee-active');
+            } else {
+                content.classList.remove('marquee-active');
+                content.style.removeProperty('--marquee-scroll-x');
+                content.style.removeProperty('--marquee-duration');
+            }
+        }
+        function resetMarqueeObserver() {
+            if (marqueeObserver) marqueeObserver.disconnect();
+            document.querySelectorAll('.marquee-box').forEach(box => { delete box.dataset.marqueeDone; });
+        }
         function measureAndAdjustMarquees() {
-            // v32：lite 模式下跑馬燈已停用（CSS animation: none），且 content-visibility 會讓畫面外卡片量不到正確寬度，直接跳過。
+            // v32：lite 模式下跑馬燈已停用（CSS animation: none），直接跳過。
             if (document.documentElement.classList.contains('lite')) return;
-            // v38：兩段式（先全部讀、再全部寫），避免讀寫交錯造成 layout thrash；紀錄頁卡多時在 iOS 上特別明顯。
-            const jobs = [];
+            if (!('IntersectionObserver' in window)) {
+                // 極舊瀏覽器 fallback：一次量全部（這些瀏覽器也不支援 content-visibility，所以量得到正確寬度）。
+                // v38 兩段式（先全部讀、再全部寫），避免讀寫交錯造成 layout thrash；寫入邏輯與 applyMarqueeForBox 相同。
+                const jobs = [];
+                document.querySelectorAll('.marquee-box').forEach(box => {
+                    const content = box.querySelector('.marquee-content');
+                    if (!content) return;
+                    jobs.push({ content, overflow: content.scrollWidth - box.clientWidth });
+                });
+                jobs.forEach(({ content, overflow }) => {
+                    if (overflow > 4) {
+                        content.style.setProperty('--marquee-scroll-x', `-${Math.ceil(overflow) + 3}px`);
+                        content.style.setProperty('--marquee-duration', `${Math.max(3.2, (2.0 + overflow * 0.045)).toFixed(2)}s`);
+                        content.classList.add('marquee-active');
+                    } else {
+                        content.classList.remove('marquee-active');
+                        content.style.removeProperty('--marquee-scroll-x');
+                        content.style.removeProperty('--marquee-duration');
+                    }
+                });
+                return;
+            }
+            if (!marqueeObserver) {
+                marqueeObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (!entry.isIntersecting) return;
+                        const box = entry.target;
+                        marqueeObserver.unobserve(box);
+                        box.dataset.marqueeDone = '1';
+                        applyMarqueeForBox(box);
+                    });
+                });
+            }
             document.querySelectorAll('.marquee-box').forEach(box => {
-                const content = box.querySelector('.marquee-content');
-                if (!content) return;
-                jobs.push({ content, overflow: content.scrollWidth - box.clientWidth });
-            });
-            jobs.forEach(({ content, overflow }) => {
-                if (overflow > 4) {
-                    content.style.setProperty('--marquee-scroll-x', `-${Math.ceil(overflow) + 3}px`);
-                    content.style.setProperty('--marquee-duration', `${Math.max(3.2, (2.0 + overflow * 0.045)).toFixed(2)}s`);
-                    content.classList.add('marquee-active');
-                } else {
-                    content.classList.remove('marquee-active');
-                    content.style.removeProperty('--marquee-scroll-x');
-                    content.style.removeProperty('--marquee-duration');
-                }
+                if (!box.dataset.marqueeDone) marqueeObserver.observe(box);
             });
         }
+
+        // v41：紀錄分頁載入。切到紀錄時一次只渲染第一頁（15 筆），滑到底再追加，避免一次排版全部卡片。
+        // recordPagedRecords 是目前篩選後的完整清單；recordListSignature 變化（換月份／增刪紀錄）時回到第一頁，否則保留已載入頁數。
+        const RECORD_PAGE_SIZE = 15;
+        let recordVisibleCount = RECORD_PAGE_SIZE;
+        let recordListSignature = '';
+        let recordPagedRecords = [];
+
+        function recordSentinelHtml() {
+            const total = recordPagedRecords.length;
+            if (recordVisibleCount >= total) {
+                return total > RECORD_PAGE_SIZE ? `<div class="col-span-full text-center text-[11px] text-stone-400 dark:text-stone-500 py-2">已顯示全部 ${total} 筆紀錄</div>` : '';
+            }
+            return `<button type="button" id="recordLoadMoreBtn" onclick="loadMoreRecords()" class="col-span-full mx-auto mt-1 mb-2 px-4 py-2 rounded-full text-xs font-bold bg-white dark:bg-neutral-900 border border-stone-200 dark:border-stone-700 shadow-sm active:scale-95 transition">載入更多紀錄（還有 ${total - recordVisibleCount} 筆）</button>`;
+        }
+
+        function buildRecordListPageHtml() {
+            const page = recordPagedRecords.slice(0, recordVisibleCount);
+            return page.map(rec => buildRecordCardHtml(rec, mvpGlobalId && rec.id === mvpGlobalId)).join('') + recordSentinelHtml();
+        }
+
+        let recordSentinelObserver = null;
+        function observeRecordSentinel() {
+            const btn = document.getElementById('recordLoadMoreBtn');
+            if (!btn || !('IntersectionObserver' in window)) return;
+            if (!recordSentinelObserver) {
+                recordSentinelObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting && entry.target.isConnected) loadMoreRecords();
+                    });
+                }, { rootMargin: '200px' }); // 快到底前 200px 就先載入，滑起來不頓
+            }
+            recordSentinelObserver.observe(btn);
+        }
+
+        window.loadMoreRecords = function() {
+            const list = DOM.recordMobileList;
+            if (!list || recordVisibleCount >= recordPagedRecords.length) return;
+            const btn = document.getElementById('recordLoadMoreBtn');
+            if (btn) { if (recordSentinelObserver) recordSentinelObserver.unobserve(btn); btn.remove(); }
+            const next = recordPagedRecords.slice(recordVisibleCount, recordVisibleCount + RECORD_PAGE_SIZE);
+            recordVisibleCount += next.length;
+            list.insertAdjacentHTML('beforeend', next.map(rec => buildRecordCardHtml(rec, mvpGlobalId && rec.id === mvpGlobalId)).join('') + recordSentinelHtml());
+            observeRecordSentinel();
+            measureAndAdjustMarquees();
+        };
 
         function renderDashboard() {
             const activeRecords = AppState.records.filter(r => r.id !== "SYSTEM_METADATA" && r.id !== "CONFIG_METADATA" && r.date);
@@ -3094,6 +3181,7 @@ window.setupSocSliders = function() {
             }
 
             if (filteredRecords.length === 0) {
+                recordPagedRecords = [];
                 if(DOM.recordMobileList) DOM.recordMobileList.innerHTML = '';
                 if(DOM.noDataPlaceholder) DOM.noDataPlaceholder.classList.remove('hidden');
                 if(document.getElementById('ecoScoreContainer')) document.getElementById('ecoScoreContainer').classList.add('hidden');
@@ -3133,8 +3221,13 @@ window.setupSocSliders = function() {
                 if(ecoContainer) ecoContainer.classList.add('hidden');
             }
 
+            // v41 分頁：篩選條件或總筆數變了 → 回到第一頁；否則保留已載入頁數（避免捲到一半被重算打回第一頁）。
+            const recordSig = `${AppState.currentMonthFilter}|${AppState.records.length}`;
+            if (recordSig !== recordListSignature) { recordListSignature = recordSig; recordVisibleCount = RECORD_PAGE_SIZE; }
+            recordPagedRecords = displayRecords;
             if(DOM.recordMobileList) {
-                DOM.recordMobileList.innerHTML = displayRecords.map(rec => buildRecordCardHtml(rec, mvpGlobalId && rec.id === mvpGlobalId)).join('');
+                DOM.recordMobileList.innerHTML = buildRecordListPageHtml();
+                observeRecordSentinel();
                 setTimeout(measureAndAdjustMarquees, 50);
             }
             if (currentViewMode === 'calendar') {
@@ -4307,7 +4400,7 @@ self.addEventListener('fetch', event => {
             window.location.href = window.location.pathname + '?v=' + Date.now();
         };
 
-        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v40 是 JS 萬一沒跑起來的備援顯示）
+        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v42 是 JS 萬一沒跑起來的備援顯示）
         function updateAppVersionLabels() {
             document.querySelectorAll('.app-version-label').forEach(el => { el.textContent = APP_VERSION; });
         }
