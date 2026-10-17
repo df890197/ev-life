@@ -108,19 +108,13 @@ input[type="number"] {
         .dark .tab-btn.active { color: #2dd4bf; }
 
         .view-section { display: none; }
-        /* v30：過場拿掉，回到即時切換。v29 的輕量過場（0.22s）仍要整頁每幀合成，
-           與指標滑動疊加還是會卡；使用者選「兩個都做」，所以連它一起拿掉。 */
-        .view-section.active { display: block; animation: viewFadeRise 0.22s ease-out both; }
-
-        /* v37 iOS 風格過場：整頁淡入＋輕微上浮，只動 opacity／transform，不加 blur／scale。
-           取代 v36 的卡片 stagger（整頁一起淡入更像 iOS 原生分頁，長列表也不會拖時間）。lite 模式不跑過場。 */
-        @keyframes viewFadeRise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* v40：完整還原舊版過場（v23 visionSpatialReveal）。使用者明確選「完整舊版照做，0.75s＋模糊＋縮放」，
+           所以連紀錄頁也一起用舊過場（v38 的紀錄排除移除）；整頁每幀算模糊，iPhone 紀錄頁可能又會卡，屬使用者知情選擇。
+           只有 lite 模式（減少動態效果／低記憶體）保留不跑過場，那是使用者系統層的無障礙設定。 */
+        .view-section { display: none; opacity: 0; }
+        .view-section.active { display: block; opacity: 1; animation: visionSpatialReveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards; transform-origin: center bottom; will-change: transform, opacity, filter; }
+        @keyframes visionSpatialReveal { 0% { opacity: 0; transform: translateY(40px) scale(0.9); filter: blur(15px); } 100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); } }
         html.lite .view-section.active { animation: none; }
-        /* v38：紀錄頁跳過整頁過場。紀錄是全 App 最高的頁面（N 張卡片，每張都有漸層／陰影／跑馬燈／電流光紋），
-           在 iOS WebKit 上整頁淡入要每幀合成一整張高圖層，只有紀錄頁會卡；首頁／分析／設定都很短，保留 iOS 淡入。
-           Android Chrome 的分塊光柵化比較能扛大圖層，所以只有 iPhone 會卡；這不是手機不夠快，是 WebKit 的渲染路徑問題。
-           紀錄頁改回即時出現，但下面膠囊還是會 Q 彈過去，不會覺得完全沒動畫。 */
-        #view-records.view-section.active { animation: none; }
 
         /* v32 低效能模式：只有 html 帶 lite class 時生效。v34 起自動偵測只用：減少動態效果／記憶體 <= 2GB（不再用 CPU 核數，見 shouldUseLiteMode）。
            高效機完全不受影響。拖曳 JS 寫的 inline transition 也會被這裡的 !important 蓋掉，所以拖曳不用另外改。 */
@@ -670,7 +664,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v39</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v40</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1112,7 +1106,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v39</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v40</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1610,7 +1604,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v39';
+        const APP_VERSION = 'v40';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -4313,7 +4307,7 @@ self.addEventListener('fetch', event => {
             window.location.href = window.location.pathname + '?v=' + Date.now();
         };
 
-        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v39 是 JS 萬一沒跑起來的備援顯示）
+        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v40 是 JS 萬一沒跑起來的備援顯示）
         function updateAppVersionLabels() {
             document.querySelectorAll('.app-version-label').forEach(el => { el.textContent = APP_VERSION; });
         }
