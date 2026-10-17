@@ -670,7 +670,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v46</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v47</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1113,7 +1113,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v46</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v47</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1211,8 +1211,8 @@ input[type="number"] {
 
 <!-- ⚡ ABRP 風格：長途補給規劃器 Modal -->
     <div id="abrpModal" class="fixed inset-0 bg-stone-900/80 backdrop-blur-md z-[125] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-white dark:bg-neutral-900 rounded-[1.5rem] p-4 md:p-6 shadow-2xl max-w-xl w-full mx-4 h-[88vh] max-h-[88vh] flex flex-col overflow-hidden transform scale-95 transition duration-300 border border-stone-100 dark:border-stone-600">
-            <div class="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-stone-700">
+        <div class="bg-white dark:bg-neutral-900 rounded-[1.5rem] p-4 md:p-6 shadow-2xl max-w-xl w-full mx-4 h-[88vh] max-h-[88vh] flex flex-col overflow-hidden transform scale-95 transition duration-300 border border-stone-100 dark:border-stone-700">
+            <div class="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-stone-800">
                 <h3 class="text-base md:text-lg font-extrabold text-stone-800 dark:text-white flex items-center gap-2">
                     <span>⚡</span> 長途補給規劃器 <span class="text-[9px] bg-amber-400 text-stone-950 px-2 py-0.5 rounded-full font-extrabold">ABRP 智能演算法</span>
                 </h3>
@@ -1221,24 +1221,24 @@ input[type="number"] {
 
             <div class="overflow-y-auto no-scrollbar space-y-4 pt-3 pb-6 flex-1 flex flex-col">
     <!-- 路線設定區 -->
-                <div class="grid grid-cols-1 sm:grid-cols-[1fr,auto,1fr] items-end gap-2 sm:gap-3 bg-stone-50 dark:bg-neutral-800/60 p-3.5 rounded-2xl border border-stone-200/60 dark:border-stone-700 relative">
+                <div class="grid grid-cols-1 sm:grid-cols-[1fr,auto,1fr] items-end gap-2 sm:gap-3 bg-stone-50 dark:bg-black/40 p-3.5 rounded-2xl border border-stone-200/60 dark:border-stone-800 relative">
                     <!-- 起點輸入框 -->
                     <div class="w-full">
                         <div class="flex items-center justify-between mb-1">
-                            <label class="text-[10px] font-bold text-stone-300">出發地 (起點)</label>
+                            <label class="text-[10px] font-bold text-stone-400">出發地 (起點)</label>
                             <button type="button" onclick="autoFillCurrentLocationAsStart()" class="text-[10px] bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300 px-2 py-0.5 rounded-md font-bold active:scale-95 transition flex items-center gap-1">
                                 📍 目前位置
                             </button>
                         </div>
                         <div class="relative">
-                            <input type="text" id="routeStartInput" oninput="toggleRouteClearBtn('routeStartInput', 'btnClearStart')" placeholder="例如: 台北車站" class="w-full pl-3 pr-8 py-2 text-xs font-bold rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-neutral-800 dark:placeholder:text-stone-400 focus:outline-none focus:border-amber-400">
-                            <button type="button" id="btnClearStart" onclick="clearRouteInput('routeStartInput', 'btnClearStart')" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-300 hover:text-stone-600 dark:hover:text-stone-200 text-xs font-bold active:scale-90 transition">✕</button>
+                            <input type="text" id="routeStartInput" oninput="toggleRouteClearBtn('routeStartInput', 'btnClearStart')" placeholder="例如: 台北車站" class="w-full pl-3 pr-8 py-2 text-xs font-bold rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-black focus:outline-none focus:border-amber-400">
+                            <button type="button" id="btnClearStart" onclick="clearRouteInput('routeStartInput', 'btnClearStart')" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-xs font-bold active:scale-90 transition">✕</button>
                         </div>
                     </div>
 
                     <!-- ⇅ 一鍵對調按鈕 (Swap) -->
                     <div class="flex justify-center -my-1 sm:my-0 sm:pb-0.5">
-                        <button type="button" id="btnSwapRoute" onclick="swapRouteEndpoints()" title="對調起點與終點" class="w-8 h-8 rounded-full bg-white dark:bg-neutral-900 border border-stone-200 dark:border-stone-600 text-stone-600 dark:text-stone-300 hover:text-amber-500 dark:hover:text-amber-400 flex items-center justify-center shadow-sm active:scale-90 transition-all duration-300">
+                        <button type="button" id="btnSwapRoute" onclick="swapRouteEndpoints()" title="對調起點與終點" class="w-8 h-8 rounded-full bg-white dark:bg-neutral-900 border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:text-amber-500 dark:hover:text-amber-400 flex items-center justify-center shadow-sm active:scale-90 transition-all duration-300">
                             <svg id="swapIconSvg" class="w-4 h-4 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 4v12m0 0l4-4m-4 4l-4-4"></path>
                             </svg>
@@ -1248,24 +1248,24 @@ input[type="number"] {
                     <!-- 終點輸入框 -->
                     <div class="w-full">
                         <div class="flex items-center justify-between mb-1">
-                            <label class="text-[10px] font-bold text-stone-300">目的地 (終點)</label>
+                            <label class="text-[10px] font-bold text-stone-400">目的地 (終點)</label>
                         </div>
                         <div class="relative">
-                            <input type="text" id="routeEndInput" oninput="toggleRouteClearBtn('routeEndInput', 'btnClearEnd')" placeholder="例如: 高雄左營高鐵站" class="w-full pl-3 pr-8 py-2 text-xs font-bold rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-neutral-800 dark:placeholder:text-stone-400 focus:outline-none focus:border-amber-400">
-                            <button type="button" id="btnClearEnd" onclick="clearRouteInput('routeEndInput', 'btnClearEnd')" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-300 hover:text-stone-600 dark:hover:text-stone-200 text-xs font-bold active:scale-90 transition">✕</button>
+                            <input type="text" id="routeEndInput" oninput="toggleRouteClearBtn('routeEndInput', 'btnClearEnd')" placeholder="例如: 高雄左營高鐵站" class="w-full pl-3 pr-8 py-2 text-xs font-bold rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-black focus:outline-none focus:border-amber-400">
+                            <button type="button" id="btnClearEnd" onclick="clearRouteInput('routeEndInput', 'btnClearEnd')" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-xs font-bold active:scale-90 transition">✕</button>
                         </div>
                     </div>
                     
 <!-- 出發電量、偏好切換與規格篩選 -->
-<div class="w-full sm:col-span-3 pt-2.5 border-t border-stone-200/40 dark:border-stone-700/60 mt-1 space-y-2">
+<div class="w-full sm:col-span-3 pt-2.5 border-t border-stone-200/40 dark:border-stone-800/60 mt-1 space-y-2">
 <!-- 第一行：出發電量 + 偏好切換 (支援單擊與長按連續版) -->
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
     <!-- 電量設定區 -->
     <div class="flex items-center justify-start gap-x-2 sm:gap-x-3 overflow-x-auto no-scrollbar">
         <!-- 1. 出發電量 -->
         <div class="flex items-center gap-1 shrink-0">
-            <label class="text-[11px] font-bold text-stone-600 dark:text-stone-300 shrink-0">出發</label>
-            <div class="flex items-center bg-stone-100 dark:bg-neutral-800 border border-stone-200/80 dark:border-stone-600 rounded-xl p-0.5 shadow-inner shrink-0 select-none">
+            <label class="text-[11px] font-bold text-stone-500 dark:text-stone-400 shrink-0">出發</label>
+            <div class="flex items-center bg-stone-100 dark:bg-black border border-stone-200/80 dark:border-stone-700 rounded-xl p-0.5 shadow-inner shrink-0 select-none">
                 <!-- 出發 -1 按鈕 -->
                 <button type="button" 
                         onpointerdown="startAbrpHold(event, 'routeStartSoc', -1)"
@@ -1282,13 +1282,13 @@ input[type="number"] {
                         oncontextmenu="return false;"
                         class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-white dark:bg-neutral-900 text-stone-700 dark:text-stone-200 text-xs font-extrabold shadow-sm active:scale-90 transition select-none hover:bg-stone-50 touch-manipulation">+</button>
             </div>
-            <span class="text-[11px] font-mono font-extrabold text-stone-300 shrink-0">%</span>
+            <span class="text-[11px] font-mono font-extrabold text-stone-400 shrink-0">%</span>
         </div>
 
         <!-- 2. 想充電量門檻 -->
         <div class="flex items-center gap-1 shrink-0">
-            <label class="text-[11px] font-bold text-stone-600 dark:text-stone-300 shrink-0">想在剩</label>
-            <div class="flex items-center bg-stone-100 dark:bg-neutral-800 border border-stone-200/80 dark:border-stone-600 rounded-xl p-0.5 shadow-inner shrink-0 select-none">
+            <label class="text-[11px] font-bold text-stone-500 dark:text-stone-400 shrink-0">想在剩</label>
+            <div class="flex items-center bg-stone-100 dark:bg-black border border-stone-200/80 dark:border-stone-700 rounded-xl p-0.5 shadow-inner shrink-0 select-none">
                 <!-- 想充 -1 按鈕 -->
                 <button type="button" 
                         onpointerdown="startAbrpHold(event, 'routeTargetMinSoc', -1)"
@@ -1305,18 +1305,18 @@ input[type="number"] {
                         oncontextmenu="return false;"
                         class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-white dark:bg-neutral-900 text-stone-700 dark:text-stone-200 text-xs font-extrabold shadow-sm active:scale-90 transition select-none hover:bg-stone-50 touch-manipulation">+</button>
             </div>
-            <span class="text-[11px] font-bold text-stone-300 shrink-0 whitespace-nowrap">% 充</span>
+            <span class="text-[11px] font-bold text-stone-400 shrink-0 whitespace-nowrap">% 充</span>
         </div>
     </div>
 
 <!-- 偏好切換按鈕 -->
-    <div class="flex items-center justify-between sm:justify-end gap-2 pt-1 sm:pt-0 border-t sm:border-t-0 border-stone-200/40 dark:border-stone-700/60">
-        <span class="text-[10px] font-bold text-stone-300 sm:hidden">偏好停靠</span>
-        <div class="flex items-center bg-stone-200/70 dark:bg-neutral-800 p-0.5 rounded-xl text-[10px] font-extrabold shrink-0">
+    <div class="flex items-center justify-between sm:justify-end gap-2 pt-1 sm:pt-0 border-t sm:border-t-0 border-stone-200/40 dark:border-stone-800/60">
+        <span class="text-[10px] font-bold text-stone-400 sm:hidden">偏好停靠</span>
+        <div class="flex items-center bg-stone-200/70 dark:bg-neutral-900 p-0.5 rounded-xl text-[10px] font-extrabold shrink-0">
             <button type="button" id="btnPrefRestArea" onclick="setAbrpStopPref('restArea')" class="px-2.5 py-1 rounded-lg bg-white dark:bg-neutral-800 text-stone-900 dark:text-white shadow-sm transition-colors flex items-center justify-center gap-1">
                 <span>☕</span><span>服務區</span>
             </button>
-            <button type="button" id="btnPrefInterchange" onclick="setAbrpStopPref('interchange')" class="px-2.5 py-1 rounded-lg text-stone-600 dark:text-stone-300 transition-colors flex items-center justify-center gap-1 hover:text-stone-900 dark:hover:text-white">
+            <button type="button" id="btnPrefInterchange" onclick="setAbrpStopPref('interchange')" class="px-2.5 py-1 rounded-lg text-stone-500 dark:text-stone-400 transition-colors flex items-center justify-center gap-1 hover:text-stone-900 dark:hover:text-white">
                 <span>🛣️</span><span>交流道</span>
             </button>
         </div>
@@ -1324,41 +1324,41 @@ input[type="number"] {
 </div>
 
 <!-- ⚡ 槍頭規格複選 (CCS1 / CCS2 / J1772 / Type 2 / 全部) -->
-<div class="flex items-center justify-between gap-1 bg-stone-100 dark:bg-neutral-800/70 p-1 rounded-xl">
-    <span class="text-[10px] font-bold text-stone-300 px-1 shrink-0">🔌 規格(複選)</span>
+<div class="flex items-center justify-between gap-1 bg-stone-100 dark:bg-black/60 p-1 rounded-xl">
+    <span class="text-[10px] font-bold text-stone-400 px-1 shrink-0">🔌 規格(複選)</span>
     <div class="flex gap-1 overflow-x-auto no-scrollbar">
         <button type="button" onclick="toggleAbrpConnectorFilter('CCS1')" id="btnConn-CCS1" class="conn-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-white dark:bg-neutral-800 text-stone-900 dark:text-white shadow-sm transition-all border border-stone-200/50 dark:border-stone-600">
             CCS1 <span class="text-[9px] text-amber-500 font-bold">(n⁷)</span>
         </button>
-        <button type="button" onclick="toggleAbrpConnectorFilter('CCS2')" id="btnConn-CCS2" class="conn-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-stone-600 dark:text-stone-300 transition-all border border-stone-300/50 dark:border-stone-600">
+        <button type="button" onclick="toggleAbrpConnectorFilter('CCS2')" id="btnConn-CCS2" class="conn-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-stone-500 dark:text-stone-400 transition-all border border-transparent">
             CCS2
         </button>
-        <button type="button" onclick="toggleAbrpConnectorFilter('J1772')" id="btnConn-J1772" class="conn-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-stone-600 dark:text-stone-300 transition-all border border-stone-300/50 dark:border-stone-600">
+        <button type="button" onclick="toggleAbrpConnectorFilter('J1772')" id="btnConn-J1772" class="conn-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-stone-500 dark:text-stone-400 transition-all border border-transparent">
             J1772
         </button>
-        <button type="button" onclick="toggleAbrpConnectorFilter('Type 2')" id="btnConn-Type2" class="conn-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-stone-600 dark:text-stone-300 transition-all border border-stone-300/50 dark:border-stone-600">
+        <button type="button" onclick="toggleAbrpConnectorFilter('Type 2')" id="btnConn-Type2" class="conn-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-stone-500 dark:text-stone-400 transition-all border border-transparent">
             Type 2
         </button>
-        <button type="button" onclick="toggleAbrpConnectorFilter('ALL')" id="btnConn-ALL" class="conn-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-stone-600 dark:text-stone-300 transition-all border border-stone-300/50 dark:border-stone-600">
+        <button type="button" onclick="toggleAbrpConnectorFilter('ALL')" id="btnConn-ALL" class="conn-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-stone-500 dark:text-stone-400 transition-all border border-transparent">
             全部
         </button>
     </div>
 </div>
     
 <!-- ⚡ 功率規格複選 (全部 / 慢充 / 50~149kW / 150kW+) -->
-    <div class="flex items-center justify-between gap-1 bg-stone-100 dark:bg-neutral-800/70 p-1 rounded-xl">
-        <span class="text-[10px] font-bold text-stone-300 px-1 shrink-0">⚡ 功率(複選)</span>
+    <div class="flex items-center justify-between gap-1 bg-stone-100 dark:bg-black/60 p-1 rounded-xl">
+        <span class="text-[10px] font-bold text-stone-400 px-1 shrink-0">⚡ 功率(複選)</span>
         <div class="flex gap-1 overflow-x-auto no-scrollbar">
             <button type="button" onclick="toggleAbrpPowerFilter('FAST_HIGH')" id="btnPower-FAST_HIGH" class="power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-white dark:bg-neutral-800 text-stone-900 dark:text-white shadow-sm transition-all border border-stone-200/50 dark:border-stone-600">
                 超快 (≥150kW)
             </button>
-            <button type="button" onclick="toggleAbrpPowerFilter('FAST_MID')" id="btnPower-FAST_MID" class="power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-stone-600 dark:text-stone-300 transition-all border border-stone-300/50 dark:border-stone-600">
+            <button type="button" onclick="toggleAbrpPowerFilter('FAST_MID')" id="btnPower-FAST_MID" class="power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-stone-500 dark:text-stone-400 transition-all border border-transparent">
                 快充 (50-149kW)
             </button>
-            <button type="button" onclick="toggleAbrpPowerFilter('SLOW')" id="btnPower-SLOW" class="power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-stone-600 dark:text-stone-300 transition-all border border-stone-300/50 dark:border-stone-600">
+            <button type="button" onclick="toggleAbrpPowerFilter('SLOW')" id="btnPower-SLOW" class="power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-stone-500 dark:text-stone-400 transition-all border border-transparent">
                 慢充 (&lt;50kW)
             </button>
-            <button type="button" onclick="toggleAbrpPowerFilter('ALL')" id="btnPower-ALL" class="power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-stone-600 dark:text-stone-300 transition-all border border-stone-300/50 dark:border-stone-600">
+            <button type="button" onclick="toggleAbrpPowerFilter('ALL')" id="btnPower-ALL" class="power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-stone-500 dark:text-stone-400 transition-all border border-transparent">
                 全部
             </button>
         </div>
@@ -1372,19 +1372,19 @@ input[type="number"] {
                 </div>
 
 <!-- 地圖預覽 -->
-                <div id="abrpMapContainer" class="w-full h-56 md:h-64 shrink-0 rounded-2xl bg-stone-100 dark:bg-neutral-900 border border-stone-200/50 dark:border-stone-600 overflow-hidden relative"></div>
+                <div id="abrpMapContainer" class="w-full h-56 md:h-64 shrink-0 rounded-2xl bg-stone-100 dark:bg-neutral-900 border border-stone-200/50 dark:border-stone-700 overflow-hidden relative"></div>
 
                 <!-- ⛰️ 高程剖面 HUD 卡片（補回外層容器） -->
-                <div id="abrpElevationHudCard" class="hidden bg-stone-50 dark:bg-neutral-800/80 p-3.5 rounded-2xl border border-stone-200/80 dark:border-stone-700 space-y-2 shadow-inner">
+                <div id="abrpElevationHudCard" class="hidden bg-stone-50 dark:bg-black/80 p-3.5 rounded-2xl border border-stone-200/80 dark:border-stone-800 space-y-2 shadow-inner">
                     <!-- 頂部三欄地名與海拔高度 -->
                     <div class="grid grid-cols-3 items-center text-center">
                         <!-- 起點 -->
                         <div class="flex flex-col items-start min-w-0 pr-1">
-                            <span class="text-[10px] text-stone-300 font-bold flex items-center gap-1">
+                            <span class="text-[10px] text-stone-400 font-bold flex items-center gap-1">
                                 <span>📍</span> 起點
                             </span>
                             <span id="abrpProfileStartLabel" class="text-xs font-extrabold text-stone-700 dark:text-stone-200 truncate w-full text-left" title="起點">起點</span>
-                            <span id="abrpProfileStartAlt" class="text-[10px] font-mono font-bold text-stone-300 text-left">- m</span>
+                            <span id="abrpProfileStartAlt" class="text-[10px] font-mono font-bold text-stone-400 text-left">- m</span>
                         </div>
 
                         <!-- ⛰️ 最高點 -->
@@ -1397,11 +1397,11 @@ input[type="number"] {
 
                         <!-- 終點 -->
                         <div class="flex flex-col items-end min-w-0 pl-1">
-                            <span class="text-[10px] text-stone-300 font-bold flex items-center gap-1">
+                            <span class="text-[10px] text-stone-400 font-bold flex items-center gap-1">
                                 <span>🏁</span> 終點
                             </span>
                             <span id="abrpProfileEndLabel" class="text-xs font-extrabold text-stone-700 dark:text-stone-200 truncate w-full text-right" title="終點">終點</span>
-                            <span id="abrpProfileEndAlt" class="text-[10px] font-mono font-bold text-stone-300 text-right">- m</span>
+                            <span id="abrpProfileEndAlt" class="text-[10px] font-mono font-bold text-stone-400 text-right">- m</span>
                         </div>
                     </div>
 
@@ -1415,7 +1415,7 @@ input[type="number"] {
                     </div>
 
                     <!-- 爬坡、下坡能耗數據條 -->
-                    <div class="flex justify-between items-center text-[10px] text-stone-500 font-bold border-t border-stone-200/60 dark:border-stone-700/80 pt-1.5">
+                    <div class="flex justify-between items-center text-[10px] text-stone-500 font-bold border-t border-stone-200/60 dark:border-stone-800/80 pt-1.5">
                         <span id="abrpProfileClimbText" class="text-amber-600 dark:text-amber-400">⚡ 爬坡耗能</span>
                         <span id="abrpProfileDescentText" class="text-emerald-600 dark:text-emerald-400">🔋 動能回收</span>
                         <span id="abrpProfileEffText" class="text-teal-600 dark:text-teal-400 font-mono">均耗 - km/度</span>
@@ -1426,7 +1426,7 @@ input[type="number"] {
                 <div id="abrpResultSection" class="hidden space-y-3">
                     <!-- 🔀 國一 vs 國三 路況能耗 PK 面板 -->
                     <div id="highwayPkContainer" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                        <div id="pkCardRoute0" onclick="selectPkRoute(0)" class="p-3 rounded-2xl border-2 border-amber-400 box-border select-none cursor-pointer relative bg-stone-50 dark:bg-neutral-800/70 shadow-sm transition-[border-color,opacity] duration-150 will-change-[border-color,opacity]">
+                        <div id="pkCardRoute0" onclick="selectPkRoute(0)" class="p-3 rounded-2xl border-2 border-amber-400 box-border select-none cursor-pointer relative bg-stone-50 dark:bg-black/60 shadow-sm transition-[border-color,opacity] duration-150 will-change-[border-color,opacity]">
                             <div class="flex items-center justify-between mb-1.5">
                                 <span class="text-xs font-extrabold text-stone-800 dark:text-white flex items-center gap-1.5">
                                     <span class="w-4 h-4 rounded-full bg-stone-800 dark:bg-white text-white dark:text-stone-900 text-[10px] flex items-center justify-center font-mono font-extrabold">1</span>
@@ -1435,16 +1435,16 @@ input[type="number"] {
                                 <span id="pkTrafficTag0" class="text-[9px] font-extrabold px-1.5 py-0.5 rounded">路況分析中</span>
                             </div>
                             <div class="flex items-baseline justify-between text-xs">
-                                <span class="text-stone-300 font-bold">時間: <b id="pkDuration0" class="text-stone-700 dark:text-stone-200 font-mono">-</b></span>
-                                <span class="text-stone-300 font-bold">抵達: <b id="pkSoc0" class="font-mono text-emerald-500 font-extrabold">-</b></span>
+                                <span class="text-stone-400 font-bold">時間: <b id="pkDuration0" class="text-stone-700 dark:text-stone-200 font-mono">-</b></span>
+                                <span class="text-stone-400 font-bold">抵達: <b id="pkSoc0" class="font-mono text-emerald-500 font-extrabold">-</b></span>
                             </div>
-                            <div class="text-[10px] text-stone-300 font-bold mt-1 flex justify-between">
+                            <div class="text-[10px] text-stone-400 font-bold mt-1 flex justify-between">
                                 <span>里程: <span id="pkDist0" class="font-mono">-</span> km</span>
                                 <span>預估均耗: <span id="pkEff0" class="font-mono text-teal-500">-</span></span>
                             </div>
                         </div>
 
-                        <div id="pkCardRoute1" onclick="selectPkRoute(1)" class="p-3 rounded-2xl border-2 border-stone-200 dark:border-stone-700 box-border opacity-60 select-none cursor-pointer relative bg-stone-50 dark:bg-neutral-800/70 shadow-sm transition-[border-color,opacity] duration-150 will-change-[border-color,opacity]">
+                        <div id="pkCardRoute1" onclick="selectPkRoute(1)" class="p-3 rounded-2xl border-2 border-stone-200 dark:border-stone-800 box-border opacity-60 select-none cursor-pointer relative bg-stone-50 dark:bg-black/60 shadow-sm transition-[border-color,opacity] duration-150 will-change-[border-color,opacity]">
                             <div class="flex items-center justify-between mb-1.5">
                                 <span class="text-xs font-extrabold text-stone-800 dark:text-white flex items-center gap-1.5">
                                     <span class="w-4 h-4 rounded-full bg-stone-800 dark:bg-white text-white dark:text-stone-900 text-[10px] flex items-center justify-center font-mono font-extrabold">2</span>
@@ -1453,10 +1453,10 @@ input[type="number"] {
                                 <span id="pkTrafficTag1" class="text-[9px] font-extrabold px-1.5 py-0.5 rounded">路況分析中</span>
                             </div>
                             <div class="flex items-baseline justify-between text-xs">
-                                <span class="text-stone-300 font-bold">時間: <b id="pkDuration1" class="text-stone-700 dark:text-stone-200 font-mono">-</b></span>
-                                <span class="text-stone-300 font-bold">抵達: <b id="pkSoc1" class="font-mono text-emerald-500 font-extrabold">-</b></span>
+                                <span class="text-stone-400 font-bold">時間: <b id="pkDuration1" class="text-stone-700 dark:text-stone-200 font-mono">-</b></span>
+                                <span class="text-stone-400 font-bold">抵達: <b id="pkSoc1" class="font-mono text-emerald-500 font-extrabold">-</b></span>
                             </div>
-                            <div class="text-[10px] text-stone-300 font-bold mt-1 flex justify-between">
+                            <div class="text-[10px] text-stone-400 font-bold mt-1 flex justify-between">
                                 <span>里程: <span id="pkDist1" class="font-mono">-</span> km</span>
                                 <span>預估均耗: <span id="pkEff1" class="font-mono text-teal-500">-</span></span>
                             </div>
@@ -1465,25 +1465,25 @@ input[type="number"] {
 
                     <!-- 主數據三大面板 -->
                     <div class="grid grid-cols-3 gap-2">
-                        <div class="p-2.5 sm:p-3 min-h-[80px] bg-stone-50 dark:bg-neutral-800/70 rounded-2xl border border-stone-200/60 dark:border-stone-600/60 flex flex-col items-center justify-center text-center shadow-sm">
-                            <span class="text-[10px] sm:text-xs text-stone-300 font-bold mb-1 flex items-center gap-1">
+                        <div class="p-2.5 sm:p-3 min-h-[80px] bg-stone-50 dark:bg-neutral-900/60 rounded-2xl border border-stone-200/60 dark:border-stone-700/60 flex flex-col items-center justify-center text-center shadow-sm">
+                            <span class="text-[10px] sm:text-xs text-stone-400 font-bold mb-1 flex items-center gap-1">
                                 <span>🛣️</span> 總里程
                             </span>
-                            <span id="abrpTotalDist" class="text-sm sm:text-base font-extrabold font-mono text-stone-800 dark:text-white tracking-tight leading-tight">0<br><span class="text-xs font-bold text-stone-600 dark:text-stone-300">km</span></span>
+                            <span id="abrpTotalDist" class="text-sm sm:text-base font-extrabold font-mono text-stone-800 dark:text-white tracking-tight leading-tight">0<br><span class="text-xs font-bold text-stone-500 dark:text-stone-400">km</span></span>
                         </div>
-                        <div class="p-2.5 sm:p-3 min-h-[80px] bg-stone-50 dark:bg-neutral-800/70 rounded-2xl border border-stone-200/60 dark:border-stone-600/60 flex flex-col items-center justify-center text-center shadow-sm">
-                            <span class="text-[10px] sm:text-xs text-stone-300 font-bold mb-1 flex items-center gap-1">
+                        <div class="p-2.5 sm:p-3 min-h-[80px] bg-stone-50 dark:bg-neutral-900/60 rounded-2xl border border-stone-200/60 dark:border-stone-700/60 flex flex-col items-center justify-center text-center shadow-sm">
+                            <span class="text-[10px] sm:text-xs text-stone-400 font-bold mb-1 flex items-center gap-1">
                                 <span>⏱️</span> 行車時間
                             </span>
                             <span id="abrpDriveDuration" class="text-sm sm:text-base font-extrabold font-mono text-stone-800 dark:text-white tracking-tight leading-tight">0 分</span>
                         </div>
-                        <div class="p-2.5 sm:p-3 min-h-[80px] bg-stone-50 dark:bg-neutral-800/70 rounded-2xl border border-stone-200/60 dark:border-stone-600/60 flex flex-col items-center justify-center text-center shadow-sm">
-                            <span class="text-[10px] sm:text-xs text-stone-300 font-bold mb-1 flex items-center gap-1">
+                        <div class="p-2.5 sm:p-3 min-h-[80px] bg-stone-50 dark:bg-neutral-900/60 rounded-2xl border border-stone-200/60 dark:border-stone-700/60 flex flex-col items-center justify-center text-center shadow-sm">
+                            <span class="text-[10px] sm:text-xs text-stone-400 font-bold mb-1 flex items-center gap-1">
                                 <span>🔋</span> 直達剩餘
                             </span>
-                            <span id="abrpDirectSoc" class="text-sm sm:text-base font-extrabold font-mono tracking-tight leading-tight flex flex-col items-center justify-center text-stone-300">
+                            <span id="abrpDirectSoc" class="text-sm sm:text-base font-extrabold font-mono tracking-tight leading-tight flex flex-col items-center justify-center text-stone-400">
                                 <span>0%</span>
-                                <span class="text-[9px] font-bold text-stone-300 mt-0.5 tracking-normal">待計算</span>
+                                <span class="text-[9px] font-bold text-stone-400 mt-0.5 tracking-normal">待計算</span>
                             </span>
                         </div>
                     </div>
@@ -1531,7 +1531,7 @@ input[type="number"] {
         </div>
     </nav>
 
-    <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-[9999] transform -translate-y-10 opacity-0 invisible pointer-events-none transition-all duration-300 bg-white/70 dark:bg-neutral-900/70 backdrop-blur-md text-stone-900 dark:text-white px-5 py-3 md:py-4 md:px-6 rounded-2xl shadow-xl flex items-center gap-3 text-xs md:text-sm font-bold border border-white/40 dark:border-white/15 w-max max-w-[90vw] md:max-w-[600px] justify-center leading-relaxed">
+    <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-[9999] transform -translate-y-10 opacity-0 invisible pointer-events-none transition-all duration-300 bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md text-stone-900 dark:text-white px-5 py-3 md:py-4 md:px-6 rounded-2xl shadow-xl flex items-center gap-3 text-xs md:text-sm font-bold border border-white/40 dark:border-white/30 w-max max-w-[90vw] md:max-w-[600px] justify-center leading-relaxed">
         <span id="toastIcon" class="flex-shrink-0 text-base">⚡</span>
         <span id="toastMessage"></span>
     </div>
@@ -1611,7 +1611,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v46';
+        const APP_VERSION = 'v47';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -1943,7 +1943,7 @@ function cacheDOMNodes() {
             DOM.toastMessage.innerHTML = message; 
             if (isLoading) { DOM.toastIcon.innerHTML = '<span class="toast-spinner"></span>'; }
             else { DOM.toastIcon.textContent = isError ? "⚠️" : "⚡"; }
-            const colorClasses = isError ? 'bg-rose-500/90 backdrop-blur-md text-white border-white/25' : 'bg-white/70 dark:bg-neutral-900/70 backdrop-blur-md text-stone-900 dark:text-white border-white/40 dark:border-white/15';
+            const colorClasses = isError ? 'bg-rose-500/90 backdrop-blur-md text-white border-white/25' : 'bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md text-stone-900 dark:text-white border-white/40 dark:border-white/30';
 
             DOM.toast.className = `fixed top-[80px] md:top-[100px] left-1/2 -translate-x-1/2 z-[9999] transform transition-all duration-300 px-5 py-3 md:py-3 md:px-6 rounded-2xl shadow-xl flex items-center gap-3 text-xs md:text-sm font-bold border w-max max-w-[90vw] md:max-w-[600px] text-left leading-relaxed ${colorClasses} translate-y-0 opacity-100 visible pointer-events-auto`;
 
@@ -4406,7 +4406,7 @@ self.addEventListener('fetch', event => {
             window.location.href = window.location.pathname + '?v=' + Date.now();
         };
 
-        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v46 是 JS 萬一沒跑起來的備援顯示）
+        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v47 是 JS 萬一沒跑起來的備援顯示）
         function updateAppVersionLabels() {
             document.querySelectorAll('.app-version-label').forEach(el => { el.textContent = APP_VERSION; });
         }
@@ -4474,7 +4474,7 @@ window.toggleAbrpConnectorFilter = function(type) {
     }
 
     const activeClass = "conn-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-white dark:bg-neutral-800 text-stone-900 dark:text-white shadow-sm transition-all border border-stone-200/50 dark:border-stone-600";
-    const inactiveClass = "conn-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-stone-600 dark:text-stone-300 transition-all border border-stone-300/50 dark:border-stone-600";
+    const inactiveClass = "conn-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-stone-500 dark:text-stone-400 transition-all border border-transparent";
 
     const allKeys = ['CCS1', 'CCS2', 'J1772', 'Type 2', 'ALL'];
     allKeys.forEach(key => {
@@ -4520,7 +4520,7 @@ window.toggleAbrpPowerFilter = function(type) {
     }
 
     const activeClass = "power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-white dark:bg-neutral-800 text-stone-900 dark:text-white shadow-sm transition-all border border-stone-200/50 dark:border-stone-600";
-    const inactiveClass = "power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-stone-600 dark:text-stone-300 transition-all border border-stone-300/50 dark:border-stone-600";
+    const inactiveClass = "power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-stone-500 dark:text-stone-400 transition-all border border-transparent";
 
     ['FAST_HIGH', 'FAST_MID', 'SLOW', 'ALL'].forEach(p => {
         const btn = document.getElementById('btnPower-' + p);
@@ -4846,7 +4846,7 @@ window.setAbrpStopPref = function(pref) {
     const btnRest = document.getElementById('btnPrefRestArea');
     const btnIc = document.getElementById('btnPrefInterchange');
     const activeClass = "px-2.5 py-1 rounded-lg bg-white dark:bg-neutral-800 text-stone-900 dark:text-white shadow-sm transition-colors flex items-center justify-center gap-1";
-    const inactiveClass = "px-2.5 py-1 rounded-lg text-stone-600 dark:text-stone-300 transition-colors flex items-center justify-center gap-1 hover:text-stone-900 dark:hover:text-white";
+    const inactiveClass = "px-2.5 py-1 rounded-lg text-stone-500 dark:text-stone-400 transition-colors flex items-center justify-center gap-1 hover:text-stone-900 dark:hover:text-white";
 
     if (btnRest && btnIc) {
         btnRest.className = pref === 'restArea' ? activeClass : inactiveClass;
