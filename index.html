@@ -60,23 +60,23 @@ input[type="number"] {
             -webkit-tap-highlight-color: transparent;
         }
 
-        .ios-27-glass { 
-            background: transparent; 
-            backdrop-filter: blur(4px) saturate(110%); 
-            -webkit-backdrop-filter: blur(4px) saturate(110%); 
-            border: 1px solid rgba(255, 255, 255, 0.4); 
-            border-top: 1px solid rgba(255, 255, 255, 0.8); 
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
-            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), inset 0 1px 3px rgba(255, 255, 255, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.15); 
+        .ios-27-glass {
+            background: rgba(255, 255, 255, 0.22);
+            backdrop-filter: blur(18px) saturate(140%);
+            -webkit-backdrop-filter: blur(18px) saturate(140%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-top: 1px solid rgba(255, 255, 255, 0.5);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), inset 0 1px 3px rgba(255, 255, 255, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.15);
         }
-        .dark .ios-27-glass { 
-            background: transparent; 
-            backdrop-filter: blur(4px) saturate(110%); 
-            -webkit-backdrop-filter: blur(4px) saturate(110%); 
-            border: 1px solid rgba(255, 255, 255, 0.15); 
-            border-top: 1px solid rgba(255, 255, 255, 0.4); 
-            border-bottom: 1px solid rgba(255, 255, 255, 0.02); 
-            box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.08); 
+        .dark .ios-27-glass {
+            background: rgba(15, 18, 25, 0.35);
+            backdrop-filter: blur(18px) saturate(130%);
+            -webkit-backdrop-filter: blur(18px) saturate(130%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+            box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
         }
 
         .floating-nav { 
@@ -97,9 +97,11 @@ input[type="number"] {
             .floating-nav { bottom: 6px !important; }
         }
 
-        /* v30：指標拿掉 backdrop-filter。會動的毛玻璃每幀都要重算模糊，是切換最貴的成本；拿掉後指標仍是同形狀、同底色、同陰影、同 0.6s 彈簧滑動，只是從玻璃感變平面半透明。 */
-        .liquid-indicator { position: absolute; height: 52px; border-radius: 26px; background: rgba(255, 255, 255, 0.15); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), inset 0 4px 10px rgba(255, 255, 255, 0.5), 0 4px 12px rgba(0, 0, 0, 0.08); transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.4s ease; z-index: 5; pointer-events: none; will-change: transform, width; }
-        .dark .liquid-indicator { background: rgba(255, 255, 255, 0.08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25), inset 0 4px 15px rgba(255, 255, 255, 0.15), 0 6px 15px rgba(0, 0, 0, 0.2); }
+        /* v39：完整還原液態玻璃 bar（v10）。指標回到漸層＋鏡面高光＋毛玻璃；Q 彈 WAAPI 移除，回到 CSS 0.6s 彈簧滑動。 */
+        .liquid-indicator { position: absolute; height: 52px; border-radius: 26px; background: linear-gradient(180deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.10)); backdrop-filter: blur(16px) saturate(180%) brightness(1.15); -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.15); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), inset 0 4px 10px rgba(255, 255, 255, 0.5), 0 4px 12px rgba(0, 0, 0, 0.08); transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), height 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.4s ease, backdrop-filter 0.4s ease; z-index: 5; pointer-events: none; will-change: transform, width, height; overflow: hidden; }
+        .liquid-indicator::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 55%); pointer-events: none; }
+        .dark .liquid-indicator { background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.06)); backdrop-filter: blur(16px) saturate(150%) brightness(1.2); -webkit-backdrop-filter: blur(16px) saturate(150%) brightness(1.2); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25), inset 0 4px 15px rgba(255, 255, 255, 0.15), 0 6px 15px rgba(0, 0, 0, 0.2); }
+        .dark .liquid-indicator::before { background: linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 55%); }
 
         .tab-btn { position: relative; z-index: 2; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease, color 0.2s ease; will-change: transform, opacity; -webkit-tap-highlight-color: transparent; cursor: pointer; }
         .tab-btn.active { color: #0d9488; font-weight: 900; transform: translateY(-2px) scale(1.1); z-index: 10; }
@@ -114,6 +116,11 @@ input[type="number"] {
            取代 v36 的卡片 stagger（整頁一起淡入更像 iOS 原生分頁，長列表也不會拖時間）。lite 模式不跑過場。 */
         @keyframes viewFadeRise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         html.lite .view-section.active { animation: none; }
+        /* v38：紀錄頁跳過整頁過場。紀錄是全 App 最高的頁面（N 張卡片，每張都有漸層／陰影／跑馬燈／電流光紋），
+           在 iOS WebKit 上整頁淡入要每幀合成一整張高圖層，只有紀錄頁會卡；首頁／分析／設定都很短，保留 iOS 淡入。
+           Android Chrome 的分塊光柵化比較能扛大圖層，所以只有 iPhone 會卡；這不是手機不夠快，是 WebKit 的渲染路徑問題。
+           紀錄頁改回即時出現，但下面膠囊還是會 Q 彈過去，不會覺得完全沒動畫。 */
+        #view-records.view-section.active { animation: none; }
 
         /* v32 低效能模式：只有 html 帶 lite class 時生效。v34 起自動偵測只用：減少動態效果／記憶體 <= 2GB（不再用 CPU 核數，見 shouldUseLiteMode）。
            高效機完全不受影響。拖曳 JS 寫的 inline transition 也會被這裡的 !important 蓋掉，所以拖曳不用另外改。 */
@@ -121,6 +128,7 @@ input[type="number"] {
         html.lite .ios-27-glass { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; background: rgba(255, 255, 255, 0.92); }
         html.dark.lite .ios-27-glass { background: rgba(0, 0, 0, 0.88); }
         html.lite .liquid-indicator { transition: transform 0.15s ease-out, width 0.15s ease-out, opacity 0.15s ease-out !important; }
+        html.lite .liquid-indicator { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; } /* v39：lite 下指標不跑毛玻璃 */
         html.lite .tab-btn { transition: none !important; }
         html.lite .tab-btn.active { transform: none; }
         html.lite .floating-nav { transition: none !important; }
@@ -662,7 +670,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v37</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v39</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1104,7 +1112,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v37</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v39</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1602,7 +1610,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v37';
+        const APP_VERSION = 'v39';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -2049,29 +2057,13 @@ function cacheDOMNodes() {
                 if (btn) tabMetricsCache[tabId] = { width: btn.offsetWidth, left: btn.offsetLeft };
             });
         }
-        // v33：Q 彈膠囊。點按切換時用 WAAPI 三段 keyframes（起點 → 中段拉伸＋壓扁 → 終點回彈），
-        // 做出像液體一樣流過去的感覺；只動 transform／width，不加 blur。
-        // lite 模式走短版 CSS transition（0.15s），不跑拉伸；拖曳開始時會取消動畫並定在當下位置。
-        let indicatorAnim = null;
-        function getIndicatorVisual() {
-            const indicator = document.getElementById('liquid-indicator');
-            if (!indicator) return { left: 0, width: 0 };
-            const cs = window.getComputedStyle(indicator);
-            let left = 0;
-            const m = /matrix(?:3d)?\(([^)]+)\)/.exec(cs.transform || '');
-            if (m) {
-                const parts = m[1].split(',').map(Number);
-                left = parts.length === 16 ? parts[12] : parts[4];
-            }
-            const width = parseFloat(cs.width);
-            return { left: isFinite(left) ? left : 0, width: isFinite(width) ? width : indicator.offsetWidth };
-        }
+        // v39：完整還原液態玻璃 bar（v10）。指標回到 CSS 0.6s 彈簧滑動（靠 .liquid-indicator 的 transition），
+        // Q 彈 WAAPI（v33）＋ getIndicatorVisual／indicatorAnim 整組移除；tab 座標快取（v32）保留，只影響讀值不影響外觀。
         function updateLiquidIndicator(tabId) {
             const btn = document.getElementById('tab-' + tabId);
             const indicator = document.getElementById('liquid-indicator');
             if (!btn || !indicator) return;
             if (tabId === 'add') {
-                if (indicatorAnim) { indicatorAnim.cancel(); indicatorAnim = null; }
                 indicator.style.opacity = '0';
                 return;
             }
@@ -2079,44 +2071,8 @@ function cacheDOMNodes() {
             const endWidth = cached ? cached.width : btn.offsetWidth;
             const endLeft = cached ? cached.left : btn.offsetLeft;
             indicator.style.opacity = '1';
-            // 還沒定位過（初始化）或 lite 模式：直接設終點，交給 CSS transition（lite 是 0.15s 短版）。
-            if (!indicator.style.transform || document.documentElement.classList.contains('lite')) {
-                if (indicatorAnim) { indicatorAnim.cancel(); indicatorAnim = null; }
-                indicator.style.width = `${endWidth}px`;
-                indicator.style.transform = `translate(${endLeft}px, -50%) scale(1)`;
-                return;
-            }
-            // 起點用目前畫面上的實際位置（getComputedStyle 會反映跑到一半的動畫），先讀再取消舊動畫，避免連點時跳。
-            const start = getIndicatorVisual();
-            if (indicatorAnim) { indicatorAnim.cancel(); indicatorAnim = null; }
-            if (Math.abs(start.left - endLeft) < 0.5 && Math.abs(start.width - endWidth) < 0.5) {
-                indicator.style.width = `${endWidth}px`;
-                indicator.style.transform = `translate(${endLeft}px, -50%) scale(1)`;
-                return;
-            }
-            const dist = endLeft - start.left;
-            const stretch = Math.min(Math.abs(dist) * 0.30, 36); // v34：拉伸縮短（舊 0.55/上限 90 在 Android 上看起來太長）
-            const midWidth = Math.max(start.width, endWidth) + stretch;
-            const midLeft = start.left + dist * 0.35;
-            const keyframes = [
-                { transform: `translate(${start.left}px, -50%) scale(1)`, width: `${start.width}px`, easing: 'ease-out' },
-                { transform: `translate(${midLeft}px, -50%) scaleY(0.95)`, width: `${midWidth}px`, offset: 0.45, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' },
-                { transform: `translate(${endLeft}px, -50%) scale(1)`, width: `${endWidth}px` }
-            ];
-            // 先把 inline 樣式定在終點、關掉 CSS transition，再跑 WAAPI；動畫結束後 inline 已是終點，不會跳。
-            indicator.style.transition = 'none';
             indicator.style.width = `${endWidth}px`;
             indicator.style.transform = `translate(${endLeft}px, -50%) scale(1)`;
-            // v34 跨裝置 fallback：沒有 Element.animate 的舊瀏覽器退回 CSS transition 直設終點，不會卡住。
-            if (typeof indicator.animate !== 'function') {
-                indicator.style.transition = '';
-                indicator.style.width = `${endWidth}px`;
-                indicator.style.transform = `translate(${endLeft}px, -50%) scale(1)`;
-                return;
-            }
-            indicatorAnim = indicator.animate(keyframes, { duration: 380, fill: 'none' }); // v35：bar 動畫加速 550ms -> 380ms
-            indicatorAnim.onfinish = () => { indicator.style.transition = ''; indicatorAnim = null; };
-            indicatorAnim.oncancel = () => { indicator.style.transition = ''; indicatorAnim = null; };
         }
 
         let switchTabIndicatorRaf = 0;
@@ -2175,17 +2131,9 @@ function cacheDOMNodes() {
             function handleDragStart(e) {
                 if (e.target.closest('#add-btn-wrapper')) return;
                 isDragging = true; moved = false;
-                // v33：若 Q 彈動畫還在跑，先把目前畫面上的實際位置定為 inline 樣式再取消，
-                // 避免放開後跳回動畫終點；之後既有的 initialWidth／initialTranslate 讀到的就是當下位置。
-                if (indicatorAnim) {
-                    const v = getIndicatorVisual();
-                    indicator.style.transform = `translate(${v.left}px, -50%)`;
-                    indicator.style.width = `${v.width}px`;
-                    indicatorAnim.cancel(); indicatorAnim = null;
-                }
                 tabs.forEach(btn => { btn.classList.remove('active'); btn.style.transition = 'transform 0.1s ease-out, opacity 0.2s ease-out'; });
                 indicator.classList.add('dragging');
-                indicator.style.transition = 'box-shadow 0.3s ease';
+                indicator.style.transition = 'box-shadow 0.3s ease, backdrop-filter 0.3s ease';
                 startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
                 initialWidth = indicator.offsetWidth;
                 const match = indicator.style.transform.match(/translate\(([-\d.]+)px/);
@@ -2198,14 +2146,16 @@ function cacheDOMNodes() {
                 const deltaX = clientX - startX;
                 if (Math.abs(deltaX) > 2) { 
                     moved = true; if(e.cancelable) e.preventDefault(); 
-                    let stretch = Math.min(Math.abs(deltaX) * 0.30, 36); // v34：與點按 Q 彈同步縮短 
+                    let stretch = Math.min(Math.abs(deltaX) * 0.55, 65); // v39：還原 v10 拖曳拉伸 
                     let targetX = deltaX > 0 ? (initialTranslate + deltaX - stretch) : (initialTranslate + deltaX);
                     let targetWidth = initialWidth + stretch;
                     let maxTranslate = navContainer.offsetWidth - targetWidth;
                     targetX = Math.max(0, Math.min(targetX, maxTranslate));
 
                     indicator.style.width = `${targetWidth}px`; 
-                    indicator.style.transform = `translate(${targetX}px, -50%)`; 
+                    indicator.style.transform = `translate(${targetX}px, -50%)`;
+                    // v39：還原 v10 液態體積守恆：拉寬時壓扁高度（52 -> 46px），放開彈回 52px
+                    indicator.style.height = `${52 - 6 * (stretch / 65)}px`; 
                     indicator.dataset.currentX = targetX;
                     const indicatorCenter = targetX + targetWidth / 2;
                     validTabs.forEach(tab => {
@@ -2226,7 +2176,8 @@ function cacheDOMNodes() {
                 if (!isDragging) return;
                 isDragging = false;
                 indicator.classList.remove('dragging');
-                indicator.style.transition = 'transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.4s ease'; // v35：同步加速
+                indicator.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), height 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.4s ease, backdrop-filter 0.4s ease';
+                indicator.style.height = '52px'; // v39：還原 v10 放開彈回 52px
                 validTabs.forEach(tab => { tab.style.transition = ''; tab.style.transform = ''; tab.style.opacity = ''; });
 
                 if (moved) {
@@ -3087,10 +3038,14 @@ window.setupSocSliders = function() {
         function measureAndAdjustMarquees() {
             // v32：lite 模式下跑馬燈已停用（CSS animation: none），且 content-visibility 會讓畫面外卡片量不到正確寬度，直接跳過。
             if (document.documentElement.classList.contains('lite')) return;
+            // v38：兩段式（先全部讀、再全部寫），避免讀寫交錯造成 layout thrash；紀錄頁卡多時在 iOS 上特別明顯。
+            const jobs = [];
             document.querySelectorAll('.marquee-box').forEach(box => {
                 const content = box.querySelector('.marquee-content');
                 if (!content) return;
-                const overflow = content.scrollWidth - box.clientWidth;
+                jobs.push({ content, overflow: content.scrollWidth - box.clientWidth });
+            });
+            jobs.forEach(({ content, overflow }) => {
                 if (overflow > 4) {
                     content.style.setProperty('--marquee-scroll-x', `-${Math.ceil(overflow) + 3}px`);
                     content.style.setProperty('--marquee-duration', `${Math.max(3.2, (2.0 + overflow * 0.045)).toFixed(2)}s`);
@@ -4358,7 +4313,7 @@ self.addEventListener('fetch', event => {
             window.location.href = window.location.pathname + '?v=' + Date.now();
         };
 
-        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v37 是 JS 萬一沒跑起來的備援顯示）
+        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v39 是 JS 萬一沒跑起來的備援顯示）
         function updateAppVersionLabels() {
             document.querySelectorAll('.app-version-label').forEach(el => { el.textContent = APP_VERSION; });
         }
