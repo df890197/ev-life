@@ -108,14 +108,12 @@ input[type="number"] {
         .view-section { display: none; }
         /* v30：過場拿掉，回到即時切換。v29 的輕量過場（0.22s）仍要整頁每幀合成，
            與指標滑動疊加還是會卡；使用者選「兩個都做」，所以連它一起拿掉。 */
-        .view-section.active { display: block; }
+        .view-section.active { display: block; animation: viewFadeRise 0.22s ease-out both; }
 
-        /* v36 卡片逐張浮現：切換分頁時，新分頁的卡片間隔 40ms 逐張淡入＋上浮，只動 opacity／transform，不加 blur／scale。
-           紀錄卡不是 .rpg-card（動態模板自帶樣式），JS 會另外把 #recordMobileList／#calendarDayRecordsList 的直屬卡片也納入。
-           lite 模式（減少動態效果／低記憶體）不跑 stagger，避免低效能裝置變慢。 */
-        @keyframes cardStaggerIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-        .view-section.active .stagger-in { animation: cardStaggerIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: var(--stagger-delay, 0ms); }
-        html.lite .view-section.active .stagger-in { animation: none !important; }
+        /* v37 iOS 風格過場：整頁淡入＋輕微上浮，只動 opacity／transform，不加 blur／scale。
+           取代 v36 的卡片 stagger（整頁一起淡入更像 iOS 原生分頁，長列表也不會拖時間）。lite 模式不跑過場。 */
+        @keyframes viewFadeRise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        html.lite .view-section.active { animation: none; }
 
         /* v32 低效能模式：只有 html 帶 lite class 時生效。v34 起自動偵測只用：減少動態效果／記憶體 <= 2GB（不再用 CPU 核數，見 shouldUseLiteMode）。
            高效機完全不受影響。拖曳 JS 寫的 inline transition 也會被這裡的 !important 蓋掉，所以拖曳不用另外改。 */
@@ -664,7 +662,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v36</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v37</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1106,7 +1104,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v36</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v37</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1604,7 +1602,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v36';
+        const APP_VERSION = 'v37';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -2121,35 +2119,6 @@ function cacheDOMNodes() {
             indicatorAnim.oncancel = () => { indicator.style.transition = ''; indicatorAnim = null; };
         }
 
-        // v36 卡片逐張浮現：切換分頁時，新分頁的卡片間隔 40ms 逐張淡入＋上浮。
-        // 目標：.rpg-card（首頁／分析／設定靜態卡）＋ 紀錄動態卡（#recordMobileList／#calendarDayRecordsList 直屬子元素，非 .rpg-card）
-        // ＋ #recordCalendarView（日曆面板）。只動 opacity／transform；lite 模式跳過；延遲封頂 240ms，避免長列表排到一秒以上。
-        let staggerCleanupTimer = 0;
-        function playCardStagger(view) {
-            if (!view) return;
-            if (document.documentElement.classList.contains('lite')) return;
-            if (staggerCleanupTimer) { clearTimeout(staggerCleanupTimer); staggerCleanupTimer = 0; }
-            document.querySelectorAll('.stagger-in').forEach(c => c.classList.remove('stagger-in'));
-            const cards = Array.from(view.querySelectorAll('.rpg-card'));
-            const mobileList = view.querySelector('#recordMobileList');
-            if (mobileList) cards.push(...Array.from(mobileList.children));
-            const dayList = view.querySelector('#calendarDayRecordsList');
-            if (dayList) cards.push(...Array.from(dayList.children));
-            const calView = view.querySelector('#recordCalendarView');
-            if (calView) cards.push(calView);
-            if (!cards.length) return;
-            void view.offsetWidth; // 一次 reflow，讓上面移除的 class 生效，之後再加才會重新跑動畫
-            cards.forEach((card, i) => {
-                card.style.setProperty('--stagger-delay', `${Math.min(i, 6) * 40}ms`);
-                card.classList.add('stagger-in');
-            });
-            // 動畫跑完後清掉 class（fill both 會一直蓋住 transition），避免影響之後的 hover／active 變形
-            staggerCleanupTimer = setTimeout(() => {
-                document.querySelectorAll('.stagger-in').forEach(c => c.classList.remove('stagger-in'));
-                staggerCleanupTimer = 0;
-            }, 650);
-        }
-
         let switchTabIndicatorRaf = 0;
         window.switchTab = function(tabId) {
             triggerHaptic('light');
@@ -2169,7 +2138,7 @@ function cacheDOMNodes() {
             // 再加平滑捲動慢慢捲到頂，三件事疊在一起才會覺得「點了卡一下才換過去」。
             document.querySelectorAll('.view-section').forEach(view => { view.classList.remove('active'); });
             const view = document.getElementById('view-' + tabId);
-            if (view) { view.classList.add('active'); playCardStagger(view); }
+            if (view) view.classList.add('active');
             window.scrollTo(0, 0);
 
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -4389,7 +4358,7 @@ self.addEventListener('fetch', event => {
             window.location.href = window.location.pathname + '?v=' + Date.now();
         };
 
-        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v36 是 JS 萬一沒跑起來的備援顯示）
+        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v37 是 JS 萬一沒跑起來的備援顯示）
         function updateAppVersionLabels() {
             document.querySelectorAll('.app-version-label').forEach(el => { el.textContent = APP_VERSION; });
         }
