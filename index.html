@@ -670,7 +670,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v47</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v48</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1113,7 +1113,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v47</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v48</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1611,7 +1611,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v47';
+        const APP_VERSION = 'v48';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -1930,20 +1930,22 @@ function cacheDOMNodes() {
             if (DOM.inputDate) DOM.inputDate.value = getLocalDateString();
         }
 
-        window.showToast = function(message, isError=false, duration=3500, isLoading=false) {
+        window.showToast = function(message, isError=false, duration=3500, isLoading=false, isSuccess=false) {
             if (!DOM.toast) return;
-            toastQueue.push({message, isError, duration, isLoading});
+            toastQueue.push({message, isError, duration, isLoading, isSuccess});
             processToastQueue();
         };
 
         function processToastQueue() {
             if (isToastShowing || toastQueue.length === 0) return;
             isToastShowing = true;
-            const {message, isError, duration, isLoading} = toastQueue.shift();
+            const {message, isError, duration, isLoading, isSuccess} = toastQueue.shift();
             DOM.toastMessage.innerHTML = message; 
             if (isLoading) { DOM.toastIcon.innerHTML = '<span class="toast-spinner"></span>'; }
-            else { DOM.toastIcon.textContent = isError ? "⚠️" : "⚡"; }
-            const colorClasses = isError ? 'bg-rose-500/90 backdrop-blur-md text-white border-white/25' : 'bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md text-stone-900 dark:text-white border-white/40 dark:border-white/30';
+            else if (isError) { DOM.toastIcon.textContent = "⚠️"; }
+            else if (isSuccess) { DOM.toastIcon.textContent = "✅"; }
+            else { DOM.toastIcon.textContent = "⚡"; }
+            const colorClasses = isError ? 'bg-rose-500/90 backdrop-blur-md text-white border-white/25' : isSuccess ? 'bg-emerald-50/90 dark:bg-emerald-950/90 backdrop-blur-md text-emerald-900 dark:text-emerald-100 border-emerald-200/70 dark:border-emerald-800/60' : 'bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md text-stone-900 dark:text-white border-white/40 dark:border-white/30';
 
             DOM.toast.className = `fixed top-[80px] md:top-[100px] left-1/2 -translate-x-1/2 z-[9999] transform transition-all duration-300 px-5 py-3 md:py-3 md:px-6 rounded-2xl shadow-xl flex items-center gap-3 text-xs md:text-sm font-bold border w-max max-w-[90vw] md:max-w-[600px] text-left leading-relaxed ${colorClasses} translate-y-0 opacity-100 visible pointer-events-auto`;
 
@@ -4288,7 +4290,7 @@ window.syncWithCloud = async function(mode = 'auto', isSilent = false) {
                         if (DOM.gasPriceInput) DOM.gasPriceInput.value = AppState.gasPrice;
                     }
                     renderDashboard(); if (!isSilent) showToast(`已從雲端下載覆蓋本機 📥`);
-                } else if (mode === 'auto') { if (!isSilent) showToast("本機與雲端資料一致 ✿"); }
+                } else if (mode === 'auto') { if (!isSilent) showToast("本機與雲端資料一致 ✿", false, 3500, false, true); }
                 updateSyncUiStatus(); 
             } catch (error) { 
                 console.error("Sync Error:", error); 
@@ -4406,7 +4408,7 @@ self.addEventListener('fetch', event => {
             window.location.href = window.location.pathname + '?v=' + Date.now();
         };
 
-        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v47 是 JS 萬一沒跑起來的備援顯示）
+        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v48 是 JS 萬一沒跑起來的備援顯示）
         function updateAppVersionLabels() {
             document.querySelectorAll('.app-version-label').forEach(el => { el.textContent = APP_VERSION; });
         }
