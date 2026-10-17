@@ -637,6 +637,13 @@ input[type="number"] {
                     </div> <!-- 關閉 .rpg-card -->
                 </div> <!-- 關閉 .mb-0 -->
             </div> <!-- 關閉 #homeStatsContainer (原本漏掉這個) -->
+
+            <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
+            <div class="pt-8 pb-28 text-center">
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v26</span></div>
+                <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
+                <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
+            </div>
         </div> <!-- 關閉 #view-home -->
 
         <!-- 🔹 Tab 2: 新增/編輯紀錄 (Add/Edit) -->
@@ -1073,6 +1080,12 @@ input[type="number"] {
                     </div>
 
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
+                        <div class="bg-stone-50 dark:bg-[#1c1917] p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
+                            <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v26</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
+                            <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
+                        </div>
                         <div class="bg-emerald-50 dark:bg-emerald-900/10 p-5 rounded-2xl border border-emerald-200 dark:border-emerald-900/50 space-y-3">
                             <span class="text-sm text-emerald-700 dark:text-emerald-500 font-extrabold block">📊 報表匯出</span>
                             <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed mb-4">將所有紀錄匯出為 CSV 格式，您可以使用 Excel 或 Numbers 開啟進行進階分析。</p>
@@ -1546,6 +1559,10 @@ input[type="number"] {
             get CO2_SAVED_PER_KM() { return this.CO2_ICE_PER_KM - this.CO2_EV_PER_KM; }
         };
 
+        // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
+        const APP_VERSION = 'v26';
+        window.APP_VERSION = APP_VERSION;
+
         window.AppState = AppState;
         window.CONSTANTS = CONSTANTS;
         window.currentInfoWindow = null;
@@ -1694,6 +1711,7 @@ function cacheDOMNodes() {
             selectChargeType('DC-快充'); 
             updateSyncUiStatus();
             updatePwaDiagnostic();
+            updateAppVersionLabels();
             checkQuickLog();
             setupAutoHideNav(); 
             initDragToScroll(); 
@@ -4130,7 +4148,7 @@ window.forceUpload = function() {
         };
 
         window.generateSWContent = function() {
-            return `const CACHE_NAME = 'ev-life-cache-v24';
+            return `const CACHE_NAME = 'ev-life-cache-${APP_VERSION}';
 const ASSETS_TO_CACHE = ['./', './index.html', './manifest.json', './achievements.js'];
 
 self.addEventListener('install', event => {
@@ -4183,6 +4201,28 @@ self.addEventListener('fetch', event => {
                 deferredPrompt = null; 
             }); 
         };
+
+        // 🔄 強制更新：清掉 Service Worker + 全部快取，再帶時間參數重載，確保拿到伺服器最新檔案。
+        // 放在 try/catch 裡：就算清快取失敗，也一定要重載，不讓使用者卡住。
+        window.forceAppUpdate = async function() {
+            try { showToast('正在清除快取並重新載入… 🔄'); } catch (e) {}
+            try {
+                if ('serviceWorker' in navigator) {
+                    const regs = await navigator.serviceWorker.getRegistrations();
+                    for (const reg of regs) { try { await reg.unregister(); } catch (e) {} }
+                }
+                if ('caches' in window) {
+                    const keys = await caches.keys();
+                    for (const key of keys) { try { await caches.delete(key); } catch (e) {} }
+                }
+            } catch (err) { console.warn('[EvLife] forceAppUpdate 清除快取失敗，仍重新載入', err); }
+            window.location.href = window.location.pathname + '?v=' + Date.now();
+        };
+
+        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v26 是 JS 萬一沒跑起來的備援顯示）
+        function updateAppVersionLabels() {
+            document.querySelectorAll('.app-version-label').forEach(el => { el.textContent = APP_VERSION; });
+        }
 
         function updatePwaDiagnostic() {
             const isHttps = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
