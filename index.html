@@ -7,7 +7,7 @@
 
     <meta name="color-scheme" content="dark light">
     <meta name="theme-color" content="#faf8f4" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#1c1917" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -22,14 +22,14 @@
         body { line-height: 1.65; letter-spacing: 0.01em; }
         :focus-visible { outline: 2px solid rgba(15, 118, 110, 0.5); outline-offset: 2px; border-radius: 0.5rem; }
         ::selection { background: rgba(20, 184, 166, 0.25); }
-        html.dark, html.dark body { background-color: #1c1917 !important; }
+        html.dark, html.dark body { background-color: #000000 !important; }
         
         #appSplashScreen { 
             background-color: #faf8f4; 
             transform: translateZ(0);
             -webkit-transform: translateZ(0);
         }
-        html.dark #appSplashScreen { background-color: #1c1917 !important; }
+        html.dark #appSplashScreen { background-color: #000000 !important; }
 
         input[type="date"] { position: relative; -webkit-appearance: none; appearance: none; }
         input[type="date"]::-webkit-date-and-time-value { margin: 0; padding: 0; text-align: left; }
@@ -101,7 +101,7 @@ input[type="number"] {
         .liquid-indicator { position: absolute; height: 52px; border-radius: 26px; background: rgba(255, 255, 255, 0.15); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), inset 0 4px 10px rgba(255, 255, 255, 0.5), 0 4px 12px rgba(0, 0, 0, 0.08); transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.4s ease; z-index: 5; pointer-events: none; will-change: transform, width; }
         .dark .liquid-indicator { background: rgba(255, 255, 255, 0.08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25), inset 0 4px 15px rgba(255, 255, 255, 0.15), 0 6px 15px rgba(0, 0, 0, 0.2); }
 
-        .tab-btn { position: relative; z-index: 2; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); will-change: transform, opacity; -webkit-tap-highlight-color: transparent; cursor: pointer; }
+        .tab-btn { position: relative; z-index: 2; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease, color 0.2s ease; will-change: transform, opacity; -webkit-tap-highlight-color: transparent; cursor: pointer; }
         .tab-btn.active { color: #0d9488; font-weight: 900; transform: translateY(-2px) scale(1.1); z-index: 10; }
         .dark .tab-btn.active { color: #2dd4bf; }
 
@@ -110,9 +110,23 @@ input[type="number"] {
            與指標滑動疊加還是會卡；使用者選「兩個都做」，所以連它一起拿掉。 */
         .view-section.active { display: block; }
 
-        .rpg-card { background: #ffffff; border: 1px solid rgba(231, 229, 228, 0.85); box-shadow: 0 8px 24px -12px rgba(60, 50, 40, 0.08); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; }
+        /* v32 低效能模式：只有 html 帶 lite class 時生效（自動偵測：減少動態效果／CPU <= 4 核／記憶體 <= 4GB）。
+           高效機完全不受影響。拖曳 JS 寫的 inline transition 也會被這裡的 !important 蓋掉，所以拖曳不用另外改。 */
+        html.lite header { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+        html.lite .ios-27-glass { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; background: rgba(255, 255, 255, 0.92); }
+        html.dark.lite .ios-27-glass { background: rgba(0, 0, 0, 0.88); }
+        html.lite .liquid-indicator { transition: transform 0.15s ease-out, width 0.15s ease-out, opacity 0.15s ease-out !important; }
+        html.lite .tab-btn { transition: none !important; }
+        html.lite .tab-btn.active { transform: none; }
+        html.lite .floating-nav { transition: none !important; }
+        html.lite .rpg-card { transition: none !important; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important; }
+        html.dark.lite .rpg-card { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important; }
+        html.lite .marquee-content { animation: none !important; }
+        html.lite #recordMobileList > *, html.lite #calendarDayRecordsList > * { content-visibility: auto; contain-intrinsic-size: auto 150px; }
+
+        .rpg-card { background: #ffffff; border: 1px solid rgba(231, 229, 228, 0.85); box-shadow: 0 8px 24px -12px rgba(60, 50, 40, 0.08); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease; position: relative; overflow: hidden; }
         /* v27 流暢優化：深色卡片拿掉 backdrop-filter（每張卡捲動時都要重算模糊），漸層底色已接近不透，視覺幾乎不變 */
-        .dark .rpg-card { background: linear-gradient(145deg, rgba(41, 37, 36, 0.7) 0%, rgba(28, 25, 23, 0.9) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-top-color: rgba(255, 255, 255, 0.12); box-shadow: 0 15px 35px -15px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.05); }
+        .dark .rpg-card { background: linear-gradient(145deg, rgba(23, 23, 23, 0.7) 0%, rgba(0, 0, 0, 0.9) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-top-color: rgba(255, 255, 255, 0.12); box-shadow: 0 15px 35px -15px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.05); }
 .rpg-btn-primary { 
     background: linear-gradient(135deg, #14b8a6 0%, #0f766e 100%); 
     border: none; 
@@ -130,7 +144,7 @@ input[type="number"] {
 
         .pac-container:empty { display: none !important; border: none !important; box-shadow: none !important; height: 0 !important; padding: 0 !important; }
         .pac-container { z-index: 10000 !important; border-radius: 1rem !important; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15) !important; border: 1px solid rgba(231, 229, 228, 0.8) !important; font-family: inherit !important; margin-top: 4px !important; }
-        .dark .pac-container { background-color: #292524 !important; border-color: rgba(255, 255, 255, 0.1) !important; color: #f5f5f4 !important; }
+        .dark .pac-container { background-color: #171717 !important; border-color: rgba(255, 255, 255, 0.1) !important; color: #f5f5f4 !important; }
         .dark .pac-item { border-top-color: rgba(255, 255, 255, 0.05) !important; color: #cbd5e1 !important; }
         .dark .pac-item:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
         .dark .pac-item-query { color: #ffffff !important; }
@@ -285,9 +299,9 @@ input[type="number"] {
         .bubble-amber::after { border-color: #d97706 transparent transparent transparent; }
         .bubble-teal { background: #0d9488; color: #fff; }
         .bubble-teal::after { border-color: #0d9488 transparent transparent transparent; }
-        .dark .bubble-amber { background: #f59e0b; color: #1c1917; }
+        .dark .bubble-amber { background: #f59e0b; color: #000000; }
         .dark .bubble-amber::after { border-color: #f59e0b transparent transparent transparent; }
-        .dark .bubble-teal { background: #2dd4bf; color: #1c1917; }
+        .dark .bubble-teal { background: #2dd4bf; color: #000000; }
         .dark .bubble-teal::after { border-color: #2dd4bf transparent transparent transparent; }
     </style>
 
@@ -326,9 +340,9 @@ input[type="number"] {
         };
     </script>
 </head>
-<body class="font-sans bg-[#faf8f4] dark:bg-[#1c1917] text-stone-800 dark:text-[#f5f5f4] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative slashed-zero">
+<body class="font-sans bg-[#faf8f4] dark:bg-black text-stone-800 dark:text-[#f5f5f4] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative slashed-zero">
 
-    <div id="appSplashScreen" class="fixed inset-0 z-[99999] bg-[#faf8f4] dark:bg-[#1c1917] flex flex-col items-center justify-center text-stone-800 dark:text-white transition-opacity duration-300 pointer-events-none">
+    <div id="appSplashScreen" class="fixed inset-0 z-[99999] bg-[#faf8f4] dark:bg-black flex flex-col items-center justify-center text-stone-800 dark:text-white transition-opacity duration-300 pointer-events-none">
         <div id="splashFallbackContainer" class="absolute inset-0 flex flex-col items-center justify-center space-y-4 z-10">
             <span class="text-7xl md:text-8xl">⚡</span>
             <h2 class="text-xl md:text-2xl font-extrabold tracking-wider mt-2">Ev Life Loading...</h2>
@@ -350,14 +364,14 @@ input[type="number"] {
         })();
     </script>
 
-    <header class="sticky top-0 z-40 bg-[#faf8f4]/80 dark:bg-[#1c1917]/80 backdrop-blur-xl pt-[env(safe-area-inset-top)] border-b border-transparent transition-all">
+    <header class="sticky top-0 z-40 bg-[#faf8f4]/80 dark:bg-black/80 backdrop-blur-xl pt-[env(safe-area-inset-top)] border-b border-transparent transition-all">
         <div class="flex items-center justify-between px-4 py-3 max-w-6xl mx-auto">
             <div class="w-9"></div>
-            <div class="flex items-center gap-2 bg-stone-900/90 dark:bg-stone-800/90 backdrop-blur-md px-1.5 py-1.5 pr-5 rounded-full shadow-md cursor-pointer transition active:scale-95" onclick="switchTab('settings')">
+            <div class="flex items-center gap-2 bg-stone-900/90 dark:bg-neutral-900/90 backdrop-blur-md px-1.5 py-1.5 pr-5 rounded-full shadow-md cursor-pointer transition active:scale-95" onclick="switchTab('settings')">
                 <div class="bg-amber-500 text-stone-900 px-2.5 py-1 rounded-full text-[10px] font-extrabold">純電</div>
                 <span id="topEvName" class="text-white text-xs font-bold font-mono tracking-wide">LUXGEN n7</span>
             </div>
-            <button onclick="toggleTheme()" class="w-9 h-9 bg-white/90 dark:bg-stone-800/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm border border-stone-200 dark:border-stone-700 transition active:scale-95">
+            <button onclick="toggleTheme()" class="w-9 h-9 bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm border border-stone-200 dark:border-stone-700 transition active:scale-95">
                 <svg id="themeSunIcon" class="w-4 h-4 text-amber-500 hidden" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.46 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path></svg>
                 <svg id="themeMoonIcon" class="w-4 h-4 text-indigo-400 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
             </button>
@@ -370,22 +384,22 @@ input[type="number"] {
 
         <!-- 🔹 Tab 1: 首頁 (Home) -->
         <div id="view-home" class="view-section active px-4">
-            <div id="onboardingCard" class="hidden mb-6 rpg-card bg-gradient-to-br from-teal-50 to-white dark:from-teal-900/30 dark:to-stone-800 p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-teal-100 dark:border-teal-800/50">
+            <div id="onboardingCard" class="hidden mb-6 rpg-card bg-gradient-to-br from-teal-50 to-white dark:from-teal-900/30 dark:to-neutral-900 p-6 md:p-8 rounded-[1.5rem] shadow-sm border border-teal-100 dark:border-teal-800/50">
                 <div class="text-center mb-5 md:mb-8">
                     <span class="text-5xl md:text-6xl block mb-3">🌱</span>
                     <h2 class="text-lg md:text-2xl font-extrabold text-stone-800 dark:text-white">歡迎加入純電新生活！</h2>
                     <p class="text-xs md:text-sm font-bold text-stone-500 mt-2 leading-relaxed max-w-xl mx-auto">看來您還沒有任何紀錄。只要完成以下簡單步驟，就能開始掌握您的愛車數據：</p>
                 </div>
                 <div class="space-y-3 md:grid md:grid-cols-3 md:space-y-0 md:gap-4">
-                    <div class="flex md:flex-col items-center gap-3 bg-white/60 dark:bg-stone-900/40 p-4 rounded-2xl border border-white/50 dark:border-white/5 text-center">
+                    <div class="flex md:flex-col items-center gap-3 bg-white/60 dark:bg-black/40 p-4 rounded-2xl border border-white/50 dark:border-white/5 text-center">
                         <div class="bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 w-8 h-8 md:w-12 md:h-12 md:text-xl rounded-full flex items-center justify-center font-extrabold flex-shrink-0 shadow-sm">1</div>
                         <div class="text-xs md:text-sm font-bold text-stone-600 dark:text-stone-300 text-left md:text-center">前往 <button onclick="switchTab('settings')" class="text-amber-600 dark:text-amber-400 underline underline-offset-2">設定頁面</button>，確認愛車的電池容量與初始里程。</div>
                     </div>
-                    <div class="flex md:flex-col items-center gap-3 bg-white/60 dark:bg-stone-900/40 p-4 rounded-2xl border border-white/50 dark:border-white/5 text-center">
+                    <div class="flex md:flex-col items-center gap-3 bg-white/60 dark:bg-black/40 p-4 rounded-2xl border border-white/50 dark:border-white/5 text-center">
                         <div class="bg-teal-100 dark:bg-teal-900/40 text-teal-600 dark:text-teal-400 w-8 h-8 md:w-12 md:h-12 md:text-xl rounded-full flex items-center justify-center font-extrabold flex-shrink-0 shadow-sm">2</div>
                         <div class="text-xs md:text-sm font-bold text-stone-600 dark:text-stone-300 text-left md:text-center">點擊下方中央的 <button onclick="switchTab('add')" class="text-teal-600 dark:text-teal-400 underline underline-offset-2">＋按鈕</button>，新增您的第一筆充電或行駛紀錄。</div>
                     </div>
-                    <div class="flex md:flex-col items-center gap-3 bg-white/60 dark:bg-stone-900/40 p-4 rounded-2xl border border-white/50 dark:border-white/5 text-center">
+                    <div class="flex md:flex-col items-center gap-3 bg-white/60 dark:bg-black/40 p-4 rounded-2xl border border-white/50 dark:border-white/5 text-center">
                         <div class="bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 w-8 h-8 md:w-12 md:h-12 md:text-xl rounded-full flex items-center justify-center font-extrabold flex-shrink-0 shadow-sm">3</div>
                         <div class="text-xs md:text-sm font-bold text-stone-600 dark:text-stone-300 text-left md:text-center">體驗強大的圖表分析與自動保養提醒功能！</div>
                     </div>
@@ -393,7 +407,7 @@ input[type="number"] {
             </div>
 
             <div id="homeStatsContainer">
-                <div class="hero-image-container mb-6 shadow-sm border border-stone-200 dark:border-stone-800 bg-stone-200 dark:bg-stone-800 group md:h-72 lg:h-96">
+                <div class="hero-image-container mb-6 shadow-sm border border-stone-200 dark:border-stone-800 bg-stone-200 dark:bg-neutral-900 group md:h-72 lg:h-96">
                     <img id="heroImageDisplay" src="https://placehold.co/800x450/1e293b/2dd4bf?text=EV+Life" alt="EV" class="transition duration-500 group-hover:scale-105 w-full h-full object-cover absolute md:relative">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                     <div class="absolute bottom-5 left-6 right-6 flex justify-between items-end">
@@ -409,7 +423,7 @@ input[type="number"] {
                 </div>
 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                    <div class="rpg-card bg-[#fffaf0] dark:bg-stone-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
+                    <div class="rpg-card bg-[#fffaf0] dark:bg-neutral-900 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
                         <div class="text-amber-500 mb-2 flex items-start justify-between">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
                             <span class="text-[9px] font-mono font-extrabold text-cyan-400 bg-cyan-400/10 px-1.5 py-0.5 rounded border border-cyan-400/20">ODO</span>
@@ -423,7 +437,7 @@ input[type="number"] {
                         </div>
                     </div>
 
-                    <div class="rpg-card bg-[#f0fdfa] dark:bg-stone-800 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
+                    <div class="rpg-card bg-[#f0fdfa] dark:bg-neutral-900 p-5 rounded-[1.5rem] flex flex-col justify-between text-left h-full">
                         <div class="text-teal-500 mb-2 flex items-start justify-between">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                         </div>
@@ -467,12 +481,12 @@ input[type="number"] {
                     環保基準: <span id="savingsBaseText">15 km/L, 30 $/L</span>
                 </div>
 
-                <div class="mb-4 bg-white dark:bg-stone-800 p-4 rounded-[1.5rem] border border-stone-100 dark:border-stone-700 shadow-sm">
+                <div class="mb-4 bg-white dark:bg-neutral-900 p-4 rounded-[1.5rem] border border-stone-100 dark:border-stone-700 shadow-sm">
                     <div class="flex items-center justify-between mb-2 px-1">
                         <span class="text-xs md:text-sm font-extrabold text-stone-600 dark:text-stone-300 flex items-center gap-1.5"><span class="text-[14px]">🏅</span> 駕駛成就</span>
                         <div class="flex gap-1.5">
                             <button onclick="openBadgeModal()" class="text-[10px] md:text-xs bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 px-2.5 py-1.5 rounded-lg shadow-sm font-bold active:scale-95 transition flex items-center gap-1">🏆 成就大廳</button>
-                            <button onclick="openMapModal()" class="text-[10px] md:text-xs bg-stone-200 dark:bg-stone-700 text-stone-700 dark:text-stone-200 px-2.5 py-1.5 rounded-lg shadow-sm font-bold active:scale-95 transition flex items-center gap-1">🗺️ 充電足跡</button>
+                            <button onclick="openMapModal()" class="text-[10px] md:text-xs bg-stone-200 dark:bg-neutral-800 text-stone-700 dark:text-stone-200 px-2.5 py-1.5 rounded-lg shadow-sm font-bold active:scale-95 transition flex items-center gap-1">🗺️ 充電足跡</button>
                         </div>
                     </div>
                     <div id="badgesContainer" class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
@@ -523,7 +537,7 @@ input[type="number"] {
 
 <div class="mb-0">
                     <!-- 🔧 車輛保養、維護與財務總覽 (HUD 模組化升級版) -->
-                    <div class="rpg-card bg-white dark:bg-stone-800/90 p-5 md:p-6 rounded-[1.5rem] border border-stone-200/80 dark:border-stone-800 shadow-sm space-y-4">
+                    <div class="rpg-card bg-white dark:bg-neutral-900/90 p-5 md:p-6 rounded-[1.5rem] border border-stone-200/80 dark:border-stone-800 shadow-sm space-y-4">
                         
                         <!-- 頂部標題與裝飾標籤 -->
                         <div class="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-stone-700/60">
@@ -534,14 +548,14 @@ input[type="number"] {
                                     <p class="text-[10px] text-stone-400 font-bold">即時追蹤里程週期與重要到期日</p>
                                 </div>
                             </div>
-                            <span class="text-[10px] font-mono font-extrabold text-stone-400 bg-stone-100 dark:bg-stone-700/60 px-2.5 py-1 rounded-lg">HEALTH STATUS</span>
+                            <span class="text-[10px] font-mono font-extrabold text-stone-400 bg-stone-100 dark:bg-neutral-800/60 px-2.5 py-1 rounded-lg">HEALTH STATUS</span>
                         </div>
 
 <!-- 統一 2x2 網格：讓 4 個卡片寬度中縫、高度、內距完全對齊一致 -->
 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
     
     <!-- 1. 大保養卡片 -->
-    <div class="bg-stone-50 dark:bg-stone-900/50 p-3.5 rounded-2xl border border-stone-200/60 dark:border-stone-800/80 flex flex-col justify-between min-h-[72px]">
+    <div class="bg-stone-50 dark:bg-black/50 p-3.5 rounded-2xl border border-stone-200/60 dark:border-stone-800/80 flex flex-col justify-between min-h-[72px]">
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-1.5">
                 <span class="text-xs">⚙️</span>
@@ -554,13 +568,13 @@ input[type="number"] {
                 <span class="text-[10px] text-stone-400 font-bold font-mono"> km</span>
             </div>
         </div>
-        <div class="w-full bg-stone-200/80 dark:bg-stone-800 rounded-full h-2 overflow-hidden flex soc-progress-track mt-2">
+        <div class="w-full bg-stone-200/80 dark:bg-neutral-900 rounded-full h-2 overflow-hidden flex soc-progress-track mt-2">
             <div id="maintProgressBar" class="bg-gradient-to-r from-indigo-500 to-cyan-400 h-2 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
         </div>
     </div>
 
     <!-- 2. 輪胎對調卡片 -->
-    <div class="bg-stone-50 dark:bg-stone-900/50 p-3.5 rounded-2xl border border-stone-200/60 dark:border-stone-800/80 flex flex-col justify-between min-h-[72px]">
+    <div class="bg-stone-50 dark:bg-black/50 p-3.5 rounded-2xl border border-stone-200/60 dark:border-stone-800/80 flex flex-col justify-between min-h-[72px]">
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-1.5">
                 <span class="text-xs">🛞</span>
@@ -573,7 +587,7 @@ input[type="number"] {
                 <span class="text-[10px] text-stone-400 font-bold font-mono"> km</span>
             </div>
         </div>
-        <div class="w-full bg-stone-200/80 dark:bg-stone-800 rounded-full h-2 overflow-hidden flex soc-progress-track mt-2">
+        <div class="w-full bg-stone-200/80 dark:bg-neutral-900 rounded-full h-2 overflow-hidden flex soc-progress-track mt-2">
             <div id="tireProgressBar" class="bg-gradient-to-r from-cyan-500 to-teal-400 h-2 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
         </div>
     </div>
@@ -605,7 +619,7 @@ input[type="number"] {
 </div>
 
                         <!-- 3. 車貸財務專區（獨立精緻深色卡槽） -->
-                        <div id="loanProgressContainer" class="hidden p-4 rounded-2xl bg-stone-50 dark:bg-stone-900/70 border border-stone-200/80 dark:border-stone-800 space-y-2.5">
+                        <div id="loanProgressContainer" class="hidden p-4 rounded-2xl bg-stone-50 dark:bg-black/70 border border-stone-200/80 dark:border-stone-800 space-y-2.5">
                             
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-2">
@@ -618,7 +632,7 @@ input[type="number"] {
                                 </div>
                             </div>
 
-                            <div class="w-full bg-stone-200 dark:bg-stone-800 rounded-full h-2 overflow-hidden flex soc-progress-track">
+                            <div class="w-full bg-stone-200 dark:bg-neutral-900 rounded-full h-2 overflow-hidden flex soc-progress-track">
                                 <div id="loanProgressBar" class="bg-gradient-to-r from-amber-500 to-orange-500 h-2 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
                             </div>
 
@@ -643,7 +657,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v30</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v32</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -651,7 +665,7 @@ input[type="number"] {
 
         <!-- 🔹 Tab 2: 新增/編輯紀錄 (Add/Edit) -->
         <div id="view-add" class="view-section px-4">
-            <div class="rpg-card bg-white dark:bg-[#292524] p-6 md:p-8 rounded-[1.5rem] max-w-2xl mx-auto">
+            <div class="rpg-card bg-white dark:bg-neutral-900 p-6 md:p-8 rounded-[1.5rem] max-w-2xl mx-auto">
                 <div class="flex items-center justify-between mb-5 pb-3 border-b border-stone-100 dark:border-stone-700">
                     <h2 class="text-base md:text-lg font-extrabold flex items-center gap-2">
                         <span class="bg-stone-900 dark:bg-white text-white dark:text-stone-900 w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs md:text-sm">✍️</span>
@@ -666,17 +680,17 @@ input[type="number"] {
                                 <label class="text-xs md:text-sm font-bold text-stone-500 dark:text-stone-400 block">日期</label>
                                 <div class="flex gap-1">
                                     <button type="button" onclick="saveQuickLog()" class="text-[10px] bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400 px-2 py-1 rounded shadow-sm font-bold active:scale-95 transition">⭐ 儲存捷徑</button>
-                                    <button type="button" id="btnLoadQuickLog" onclick="loadQuickLog()" class="text-[10px] bg-stone-800 text-white dark:bg-stone-700 px-2 py-1 rounded shadow-sm font-bold active:scale-95 transition hidden">載入捷徑</button>
+                                    <button type="button" id="btnLoadQuickLog" onclick="loadQuickLog()" class="text-[10px] bg-stone-800 text-white dark:bg-neutral-800 px-2 py-1 rounded shadow-sm font-bold active:scale-95 transition hidden">載入捷徑</button>
                                 </div>
                             </div>
-                            <input type="date" id="inputDate" required class="w-full px-4 py-3 bg-stone-50 dark:bg-[#1c1917] border border-stone-200 dark:border-stone-700 rounded-2xl text-sm font-bold text-left focus:outline-none focus:border-amber-400 transition-colors appearance-none block">
+                            <input type="date" id="inputDate" required class="w-full px-4 py-3 bg-stone-50 dark:bg-black border border-stone-200 dark:border-stone-700 rounded-2xl text-sm font-bold text-left focus:outline-none focus:border-amber-400 transition-colors appearance-none block">
                         </div>
                         <div>
                             <label class="text-xs md:text-sm font-bold text-stone-500 dark:text-stone-400 mb-1.5 block">紀錄類型</label>
                             <input type="hidden" id="inputChargeType" value="DC-快充">
 
                             <div class="space-y-2">
-                                <div class="bg-stone-50 dark:bg-stone-900/30 p-2 rounded-xl border border-stone-100 dark:border-stone-700/50">
+                                <div class="bg-stone-50 dark:bg-black/30 p-2 rounded-xl border border-stone-100 dark:border-stone-700/50">
                                     <div class="text-[10px] font-bold text-stone-400 mb-1.5 px-1">🚗 用車紀錄</div>
                                     <div class="grid grid-cols-3 gap-2">
                                         <button type="button" onclick="selectChargeType('未充電')" id="btnType-未充電" class="charge-type-btn transition-all flex items-center justify-center gap-1 shadow-sm border-2 rounded-lg py-2 text-[11px] md:text-xs"><span class="text-[13px] md:text-sm mt-[-1px]">⚡</span><span>行程</span></button>
@@ -684,7 +698,7 @@ input[type="number"] {
                                         <button type="button" onclick="selectChargeType('AC-慢充')" id="btnType-AC-慢充" class="charge-type-btn transition-all flex items-center justify-center gap-1 shadow-sm border-2 rounded-lg py-2 text-[11px] md:text-xs"><span class="text-[13px] md:text-sm mt-[-1px]">🔌</span><span>慢充</span></button>
                                     </div>
                                 </div>
-                                <div class="bg-stone-50 dark:bg-stone-900/30 p-2 rounded-xl border border-stone-100 dark:border-stone-700/50 mt-2">
+                                <div class="bg-stone-50 dark:bg-black/30 p-2 rounded-xl border border-stone-100 dark:border-stone-700/50 mt-2">
                                     <div class="text-[10px] font-bold text-stone-400 mb-1.5 px-1">💰 衍生支出</div>
                                     <div class="grid grid-cols-5 gap-1.5">
                                         <button type="button" onclick="selectChargeType('停車費')" id="btnType-停車費" class="charge-type-btn transition-all flex items-center justify-center gap-0.5 shadow-sm border-2 rounded-lg py-2 text-[10px] md:text-xs"><span class="text-[12px] md:text-sm mt-[-1px]">🅿️</span><span>停車</span></button>
@@ -709,16 +723,16 @@ input[type="number"] {
 
                             <div class="relative mb-2">
                                 <div class="absolute left-3 top-1/2 -translate-y-1/2 text-xs">⚡</div>
-                                <input type="text" id="inputTag" placeholder="站點 (例:U-POWER 中壢青埔站)" autocomplete="off" class="w-full pl-8 pr-3 py-3 bg-stone-50 dark:bg-[#1c1917] border border-stone-200 dark:border-stone-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
+                                <input type="text" id="inputTag" placeholder="站點 (例:U-POWER 中壢青埔站)" autocomplete="off" class="w-full pl-8 pr-3 py-3 bg-stone-50 dark:bg-black border border-stone-200 dark:border-stone-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
                             </div>
 
                             <div class="grid grid-cols-3 gap-2">
                                 <div class="relative col-span-2">
                                     <div class="absolute left-3 top-1/2 -translate-y-1/2 text-xs">📍</div>
-                                    <input type="text" id="inputDistrict" placeholder="地區 (例:桃園市中壢區)" autocomplete="off" class="w-full pl-8 pr-3 py-3 bg-stone-50 dark:bg-[#1c1917] border border-stone-200 dark:border-stone-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
+                                    <input type="text" id="inputDistrict" placeholder="地區 (例:桃園市中壢區)" autocomplete="off" class="w-full pl-8 pr-3 py-3 bg-stone-50 dark:bg-black border border-stone-200 dark:border-stone-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
                                 </div>
                                 <div class="relative col-span-1">
-                                    <input type="number" step="0.1" id="inputTemperature" placeholder="氣溫" class="w-full pl-3 pr-7 py-3 bg-stone-50 dark:bg-[#1c1917] border border-stone-200 dark:border-stone-700 rounded-2xl text-sm font-mono font-bold focus:outline-none focus:border-sky-400 transition-colors">
+                                    <input type="number" step="0.1" id="inputTemperature" placeholder="氣溫" class="w-full pl-3 pr-7 py-3 bg-stone-50 dark:bg-black border border-stone-200 dark:border-stone-700 rounded-2xl text-sm font-mono font-bold focus:outline-none focus:border-sky-400 transition-colors">
                                     <div class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-stone-400">°C</div>
                                 </div>
                             </div>
@@ -726,14 +740,14 @@ input[type="number"] {
 
                         <div>
                             <label class="text-xs md:text-sm font-bold text-stone-500 dark:text-stone-400 mb-1.5 block">行駛里程 (km)</label>
-                            <input type="number" step="0.1" id="inputDistance" required placeholder="120" inputmode="decimal" class="w-full px-4 py-3 bg-stone-50 dark:bg-[#1c1917] border border-stone-200 dark:border-stone-700 rounded-2xl text-sm font-mono font-bold focus:outline-none focus:border-amber-400 transition-colors">
+                            <input type="number" step="0.1" id="inputDistance" required placeholder="120" inputmode="decimal" class="w-full px-4 py-3 bg-stone-50 dark:bg-black border border-stone-200 dark:border-stone-700 rounded-2xl text-sm font-mono font-bold focus:outline-none focus:border-amber-400 transition-colors">
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 bg-stone-50 dark:bg-stone-900/30 p-4 md:p-6 rounded-2xl border border-stone-100 dark:border-stone-800">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 bg-stone-50 dark:bg-black/30 p-4 md:p-6 rounded-2xl border border-stone-100 dark:border-stone-800">
                             <div>
                                 <div class="flex justify-between items-center mb-1.5">
                                     <label id="startSocLabel" class="text-[11px] sm:text-xs font-bold text-stone-500 dark:text-stone-400">出發前 SOC (%)</label>
-                                    <input type="number" step="1" min="0" max="100" id="inputStartSocNum" required placeholder="20" inputmode="numeric" class="w-16 px-2 py-1 bg-white dark:bg-[#1c1917] border border-stone-200 dark:border-stone-700 rounded-lg text-xs font-mono font-extrabold text-center focus:outline-none focus:border-amber-400 transition-colors">
+                                    <input type="number" step="1" min="0" max="100" id="inputStartSocNum" required placeholder="20" inputmode="numeric" class="w-16 px-2 py-1 bg-white dark:bg-black border border-stone-200 dark:border-stone-700 rounded-lg text-xs font-mono font-extrabold text-center focus:outline-none focus:border-amber-400 transition-colors">
                                 </div>
                                 <div class="py-2 slider-container">
                                     <div id="bubbleStartSoc" class="slider-bubble bubble-amber">0%</div>
@@ -743,7 +757,7 @@ input[type="number"] {
                             <div>
                                 <div class="flex justify-between items-center mb-1.5">
                                     <label id="endSocLabel" class="text-[11px] sm:text-xs font-bold text-stone-500 dark:text-stone-400">抵達後 SOC (%)</label>
-                                    <input type="number" step="1" min="0" max="100" id="inputEndSocNum" required placeholder="80" inputmode="numeric" class="w-16 px-2 py-1 bg-white dark:bg-[#1c1917] border border-stone-200 dark:border-stone-700 rounded-lg text-xs font-mono font-extrabold text-center focus:outline-none focus:border-teal-400 transition-colors">
+                                    <input type="number" step="1" min="0" max="100" id="inputEndSocNum" required placeholder="80" inputmode="numeric" class="w-16 px-2 py-1 bg-white dark:bg-black border border-stone-200 dark:border-stone-700 rounded-lg text-xs font-mono font-extrabold text-center focus:outline-none focus:border-teal-400 transition-colors">
                                 </div>
                                 <div class="py-2 slider-container">
                                     <div id="bubbleEndSoc" class="slider-bubble bubble-teal">0%</div>
@@ -758,12 +772,12 @@ input[type="number"] {
 
                     <div>
                         <label id="costLabel" class="text-xs md:text-sm font-bold text-stone-500 dark:text-stone-400 mb-1.5 block">本次花費 (元) - 無則填 0</label>
-                        <input type="number" step="1" id="inputCost" required placeholder="0" inputmode="numeric" class="w-full px-4 py-3 bg-stone-50 dark:bg-[#1c1917] border border-stone-200 dark:border-stone-700 rounded-2xl text-sm font-mono font-bold focus:outline-none focus:border-amber-400 transition-colors">
+                        <input type="number" step="1" id="inputCost" required placeholder="0" inputmode="numeric" class="w-full px-4 py-3 bg-stone-50 dark:bg-black border border-stone-200 dark:border-stone-700 rounded-2xl text-sm font-mono font-bold focus:outline-none focus:border-amber-400 transition-colors">
                     </div>
 
                     <div>
                         <label class="text-xs md:text-sm font-bold text-stone-500 dark:text-stone-400 mb-1.5 block">備註 (選填)</label>
-                        <input type="text" id="inputNote" placeholder="例如：帶愛車去兜風 ⚡ / 第12期車貸繳款" class="w-full px-4 py-3 bg-stone-50 dark:bg-[#1c1917] border border-stone-200 dark:border-stone-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
+                        <input type="text" id="inputNote" placeholder="例如：帶愛車去兜風 ⚡ / 第12期車貸繳款" class="w-full px-4 py-3 bg-stone-50 dark:bg-black border border-stone-200 dark:border-stone-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
                     </div>
 
                     <div class="flex flex-col gap-3 pt-4">
@@ -788,14 +802,14 @@ input[type="number"] {
             <div class="flex items-center justify-between mb-4 md:mb-6">
                 <h2 class="text-lg md:text-2xl font-extrabold">歷史紀錄</h2>
                 <div class="flex items-center gap-2">
-                    <button id="btnToggleView" onclick="toggleRecordView()" class="text-[10px] md:text-xs text-stone-700 bg-stone-200 dark:bg-stone-700 dark:text-stone-200 px-3 py-1.5 md:px-4 md:py-2 rounded-full font-bold transition active:scale-95 shadow-sm">📅 切換日曆</button>
+                    <button id="btnToggleView" onclick="toggleRecordView()" class="text-[10px] md:text-xs text-stone-700 bg-stone-200 dark:bg-neutral-800 dark:text-stone-200 px-3 py-1.5 md:px-4 md:py-2 rounded-full font-bold transition active:scale-95 shadow-sm">📅 切換日曆</button>
                     <button onclick="clearAllData()" class="text-[10px] md:text-xs text-rose-500 bg-rose-50 dark:bg-rose-900/30 px-3 py-1.5 md:px-4 md:py-2 rounded-full font-bold transition active:scale-95">清空全部</button>
                 </div>
             </div>
 
             <div id="monthFilterContainer" class="flex overflow-x-auto gap-2 no-scrollbar mb-4 pb-2 md:mb-6 md:gap-3"></div>
 
-            <div id="noDataPlaceholder" class="hidden text-center py-16 text-stone-400 bg-white/50 dark:bg-stone-800/50 rounded-3xl border border-dashed border-stone-200 dark:border-stone-700">
+            <div id="noDataPlaceholder" class="hidden text-center py-16 text-stone-400 bg-white/50 dark:bg-neutral-900/50 rounded-3xl border border-dashed border-stone-200 dark:border-stone-700">
                 <div class="text-4xl md:text-5xl mb-2">📭</div>
                 <p class="text-xs md:text-sm font-bold">目前區間尚無紀錄喔！</p>
             </div>
@@ -803,7 +817,7 @@ input[type="number"] {
             <div id="recordMobileList" class="grid grid-cols-1 md:grid-cols-2 gap-3 pb-4 items-stretch"></div>
 
             <div id="recordCalendarContainer" class="hidden max-w-2xl mx-auto space-y-4">
-                <div id="recordCalendarView" class="bg-white dark:bg-[#292524] p-5 md:p-8 rounded-[1.5rem] shadow-sm border border-stone-100 dark:border-stone-800 pb-6">
+                <div id="recordCalendarView" class="bg-white dark:bg-neutral-900 p-5 md:p-8 rounded-[1.5rem] shadow-sm border border-stone-100 dark:border-stone-800 pb-6">
                 </div>
                 <div id="calendarDayRecordsSection" class="hidden space-y-3">
                     <div class="flex items-center justify-between px-2">
@@ -819,7 +833,7 @@ input[type="number"] {
 
         <!-- 🔹 Tab 4: 分析圖表 (Analysis) -->
         <div id="view-analysis" class="view-section px-4">
-            <div class="rpg-card bg-white dark:bg-[#292524] p-5 sm:p-8 rounded-[1.5rem]">
+            <div class="rpg-card bg-white dark:bg-neutral-900 p-5 sm:p-8 rounded-[1.5rem]">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
                     <h2 class="text-base md:text-xl font-extrabold flex items-center gap-2">
                         <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs md:text-sm">📊</span>
@@ -827,8 +841,8 @@ input[type="number"] {
                     </h2>
 
                     <div class="flex flex-wrap items-center gap-2 self-start sm:self-auto">
-                        <div class="flex bg-stone-100 dark:bg-stone-800/90 p-1 rounded-xl shadow-inner">
-                            <button type="button" onclick="setChartMetricView('all')" id="btnChartAll" class="px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg bg-white dark:bg-stone-600 shadow-sm text-stone-900 dark:text-white font-extrabold transition-all">全部總覽</button>
+                        <div class="flex bg-stone-100 dark:bg-neutral-900/90 p-1 rounded-xl shadow-inner">
+                            <button type="button" onclick="setChartMetricView('all')" id="btnChartAll" class="px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg bg-white dark:bg-neutral-600 shadow-sm text-stone-900 dark:text-white font-extrabold transition-all">全部總覽</button>
                             <button type="button" onclick="setChartMetricView('efficiency')" id="btnChartEfficiency" class="px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg text-stone-500 hover:text-stone-900 dark:hover:text-white font-bold transition-all">純電耗</button>
                             <button type="button" onclick="setChartMetricView('cost')" id="btnChartCost" class="px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg text-stone-500 hover:text-stone-900 dark:hover:text-white font-bold transition-all">支出剖析</button>
                         </div>
@@ -838,16 +852,16 @@ input[type="number"] {
                             <div class="relative">
                                 <select id="expenseCategoryFilter" onchange="onExpenseCategoryChange()" 
                                     class="px-3 pr-8 py-1.5 md:py-2 text-[11px] md:text-xs h-[34px] md:h-[36px] rounded-xl border-2 border-amber-400 bg-amber-50 text-amber-950 font-extrabold focus:outline-none cursor-pointer shadow-md transition-all appearance-none
-                                           dark:bg-stone-900 dark:border-amber-400 dark:text-amber-300 dark:shadow-[0_0_12px_rgba(251,191,36,0.25)]">
-                                    <option value="all" class="bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200">💳 全部支出分類</option>
-                                    <option value="charging" class="bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200">⚡ 充電補給 (快+慢)</option>
-                                    <option value="DC-快充" class="bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200">⚡ DC 快充</option>
-                                    <option value="AC-慢充" class="bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200">🔌 AC 慢充</option>
-                                    <option value="停車費" class="bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200">🅿️ 停車費</option>
-                                    <option value="通行費" class="bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200">🛣️ 國道通行</option>
-                                    <option value="維修保養" class="bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200">🔧 維修保養</option>
-                                    <option value="保險費" class="bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200">🛡️ 保險支出</option>
-                                    <option value="車貸" class="bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200">🏦 車貸還款</option>
+                                           dark:bg-black dark:border-amber-400 dark:text-amber-300 dark:shadow-[0_0_12px_rgba(251,191,36,0.25)]">
+                                    <option value="all" class="bg-white dark:bg-black text-stone-800 dark:text-stone-200">💳 全部支出分類</option>
+                                    <option value="charging" class="bg-white dark:bg-black text-stone-800 dark:text-stone-200">⚡ 充電補給 (快+慢)</option>
+                                    <option value="DC-快充" class="bg-white dark:bg-black text-stone-800 dark:text-stone-200">⚡ DC 快充</option>
+                                    <option value="AC-慢充" class="bg-white dark:bg-black text-stone-800 dark:text-stone-200">🔌 AC 慢充</option>
+                                    <option value="停車費" class="bg-white dark:bg-black text-stone-800 dark:text-stone-200">🅿️ 停車費</option>
+                                    <option value="通行費" class="bg-white dark:bg-black text-stone-800 dark:text-stone-200">🛣️ 國道通行</option>
+                                    <option value="維修保養" class="bg-white dark:bg-black text-stone-800 dark:text-stone-200">🔧 維修保養</option>
+                                    <option value="保險費" class="bg-white dark:bg-black text-stone-800 dark:text-stone-200">🛡️ 保險支出</option>
+                                    <option value="車貸" class="bg-white dark:bg-black text-stone-800 dark:text-stone-200">🏦 車貸還款</option>
                                 </select>
                                 <!-- 下拉微箭頭裝飾 -->
                                 <div class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-amber-700 dark:text-amber-400 font-extrabold">
@@ -856,7 +870,7 @@ input[type="number"] {
                             </div>
                         </div>
 
-                        <select id="chartTimeView" onchange="debouncedUpdateCharts()" class="px-3 py-1.5 md:py-2 text-[11px] md:text-xs h-[34px] md:h-[36px] rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-200 font-bold focus:outline-none cursor-pointer shadow-sm flex-shrink-0">
+                        <select id="chartTimeView" onchange="debouncedUpdateCharts()" class="px-3 py-1.5 md:py-2 text-[11px] md:text-xs h-[34px] md:h-[36px] rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-neutral-900 text-stone-700 dark:text-stone-200 font-bold focus:outline-none cursor-pointer shadow-sm flex-shrink-0">
                             <option value="monthly" selected>單月加總</option>
                             <option value="raw">每天逐筆</option>
                         </select>
@@ -868,7 +882,7 @@ input[type="number"] {
                 </div>
 
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
-                    <div class="flex flex-col justify-between bg-stone-50 dark:bg-stone-800/50 p-3.5 md:p-5 rounded-2xl border border-stone-100 dark:border-stone-700/50 transition-all">
+                    <div class="flex flex-col justify-between bg-stone-50 dark:bg-neutral-900/50 p-3.5 md:p-5 rounded-2xl border border-stone-100 dark:border-stone-700/50 transition-all">
                         <div class="flex items-center gap-1.5 mb-2 md:mb-3">
                             <div class="bg-amber-100 dark:bg-amber-900/30 text-amber-500 p-1.5 md:p-2 rounded-lg shadow-sm">
                                 <svg class="w-3.5 h-3.5 md:w-5 md:h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
@@ -881,7 +895,7 @@ input[type="number"] {
                         </div>
                     </div>
 
-                    <div class="flex flex-col justify-between bg-stone-50 dark:bg-stone-800/50 p-3.5 md:p-5 rounded-2xl border border-stone-100 dark:border-stone-700/50 transition-all">
+                    <div class="flex flex-col justify-between bg-stone-50 dark:bg-neutral-900/50 p-3.5 md:p-5 rounded-2xl border border-stone-100 dark:border-stone-700/50 transition-all">
                         <div class="flex items-center gap-1.5 mb-2 md:mb-3">
                             <div class="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-500 p-1.5 md:p-2 rounded-lg shadow-sm">
                                 <svg class="w-3.5 h-3.5 md:w-5 md:h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
@@ -896,7 +910,7 @@ input[type="number"] {
                         </div>
                     </div>
 
-                    <div class="flex flex-col justify-between bg-stone-50 dark:bg-stone-800/50 p-3.5 md:p-5 rounded-2xl border border-stone-100 dark:border-stone-700/50 transition-all">
+                    <div class="flex flex-col justify-between bg-stone-50 dark:bg-neutral-900/50 p-3.5 md:p-5 rounded-2xl border border-stone-100 dark:border-stone-700/50 transition-all">
                         <div class="flex items-center gap-1.5 mb-2 md:mb-3">
                             <div class="bg-rose-100 dark:bg-rose-900/30 text-rose-500 p-1.5 md:p-2 rounded-lg shadow-sm">
                                 <svg class="w-3.5 h-3.5 md:w-5 md:h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -909,7 +923,7 @@ input[type="number"] {
                         </div>
                     </div>
 
-                    <div class="flex flex-col justify-between bg-stone-50 dark:bg-stone-800/50 p-3.5 md:p-5 rounded-2xl border border-stone-100 dark:border-stone-700/50 transition-all">
+                    <div class="flex flex-col justify-between bg-stone-50 dark:bg-neutral-900/50 p-3.5 md:p-5 rounded-2xl border border-stone-100 dark:border-stone-700/50 transition-all">
                         <div class="flex items-center gap-1.5 mb-2 md:mb-3">
                             <div class="bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 p-1.5 md:p-2 rounded-lg shadow-sm">
                                 <svg class="w-3.5 h-3.5 md:w-5 md:h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
@@ -945,7 +959,7 @@ input[type="number"] {
                             <span class="bg-sky-100 dark:bg-sky-900/30 text-sky-500 w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center text-[10px] md:text-sm">🌡️</span>
                             氣溫 vs 電耗關聯圖
                         </h3>
-                        <div class="h-56 md:h-72 relative w-full flex justify-center bg-stone-50 dark:bg-stone-800/40 rounded-2xl p-2 border border-stone-100 dark:border-stone-700/50">
+                        <div class="h-56 md:h-72 relative w-full flex justify-center bg-stone-50 dark:bg-neutral-900/40 rounded-2xl p-2 border border-stone-100 dark:border-stone-700/50">
                             <canvas id="tempEffChart"></canvas>
                         </div>
                     </div>
@@ -963,17 +977,17 @@ input[type="number"] {
 
         <!-- 🚀 🔹 Tab 5: 獨立設定頁面 (Settings) -->
         <div id="view-settings" class="view-section px-4 pb-10">
-            <div class="rpg-card bg-white dark:bg-[#292524] rounded-[1.5rem] shadow-sm border border-stone-100 dark:border-stone-800 overflow-hidden flex flex-col max-w-3xl mx-auto">
-                <div class="flex items-center justify-between p-5 md:p-6 border-b border-stone-100 dark:border-stone-800 bg-stone-50 dark:bg-[#292524]">
+            <div class="rpg-card bg-white dark:bg-neutral-900 rounded-[1.5rem] shadow-sm border border-stone-100 dark:border-stone-800 overflow-hidden flex flex-col max-w-3xl mx-auto">
+                <div class="flex items-center justify-between p-5 md:p-6 border-b border-stone-100 dark:border-stone-800 bg-stone-50 dark:bg-neutral-900">
                     <h3 class="text-base md:text-xl font-extrabold flex items-center gap-2">⚙️ 設定與雲端備份</h3>
                 </div>
-                <div class="flex flex-shrink-0 border-b border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-[#292524]">
+                <div class="flex flex-shrink-0 border-b border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-neutral-900">
                     <button onclick="switchSettingsTab('settings-tab-main')" id="btn-tab-main" class="flex-1 py-4 text-xs md:text-sm font-extrabold border-r border-stone-200 dark:border-stone-700 transition-all bg-amber-400 dark:bg-amber-500 text-stone-900 shadow-sm hover:opacity-90">🛠️ 愛車與雲端</button>
-                    <button onclick="switchSettingsTab('settings-tab-pwa')" id="btn-tab-pwa" class="flex-1 py-4 text-xs md:text-sm font-extrabold text-stone-500 dark:text-[#a8a29e] transition-all bg-stone-100 dark:bg-[#1c1917] hover:bg-stone-200 dark:hover:bg-stone-800">⚡ PWA & 匯出</button>
+                    <button onclick="switchSettingsTab('settings-tab-pwa')" id="btn-tab-pwa" class="flex-1 py-4 text-xs md:text-sm font-extrabold text-stone-500 dark:text-[#a8a29e] transition-all bg-stone-100 dark:bg-black hover:bg-stone-200 dark:hover:bg-neutral-900">⚡ PWA & 匯出</button>
                 </div>
                 <div class="p-6 md:p-8 space-y-6">
                     <div id="settings-tab-main" class="space-y-6">
-                        <div class="bg-stone-50 dark:bg-[#1c1917] p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-4">
+                        <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-4">
                             <span class="text-xs md:text-sm font-extrabold text-stone-500 dark:text-stone-400">🚗 愛車參數設定</span>
                             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                                 <div class="md:col-span-1">
@@ -1027,7 +1041,7 @@ input[type="number"] {
                             </div>
                         </div>
 
-                        <div class="bg-stone-50 dark:bg-[#1c1917] p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-4">
+                        <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-4">
                             <span class="text-xs md:text-sm font-extrabold text-stone-500 dark:text-stone-400 flex items-center gap-1">⛽ 燃油對比基準</span>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
@@ -1041,7 +1055,7 @@ input[type="number"] {
                             </div>
                         </div>
 
-                        <div class="bg-stone-50 dark:bg-[#1c1917] p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-4">
+                        <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-4">
                             <span class="text-xs md:text-sm font-extrabold text-stone-500 dark:text-stone-400">🎨 啟動畫面設定</span>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
@@ -1071,21 +1085,21 @@ input[type="number"] {
                                 <span>雲端同步網址 (Google Apps Script)</span>
                                 <span>🔑</span>
                             </label>
-                            <input type="url" id="syncUrlInput" placeholder="https://script.google.com/macros/..." class="w-full px-4 py-3 md:py-4 bg-stone-50 dark:bg-[#1c1917] border border-stone-200 dark:border-stone-700 rounded-t-2xl text-xs md:text-sm font-mono focus:outline-none focus:border-amber-400">
-                            <input type="password" id="syncTokenInput" placeholder="API Token (例如: MY_SECRET_EV_TOKEN)" class="w-full px-4 py-3 md:py-4 bg-stone-50 dark:bg-[#1c1917] border border-stone-200 border-t-0 dark:border-stone-700 rounded-b-2xl text-xs md:text-sm font-mono focus:outline-none focus:border-amber-400">
+                            <input type="url" id="syncUrlInput" placeholder="https://script.google.com/macros/..." class="w-full px-4 py-3 md:py-4 bg-stone-50 dark:bg-black border border-stone-200 dark:border-stone-700 rounded-t-2xl text-xs md:text-sm font-mono focus:outline-none focus:border-amber-400">
+                            <input type="password" id="syncTokenInput" placeholder="API Token (例如: MY_SECRET_EV_TOKEN)" class="w-full px-4 py-3 md:py-4 bg-stone-50 dark:bg-black border border-stone-200 border-t-0 dark:border-stone-700 rounded-b-2xl text-xs md:text-sm font-mono focus:outline-none focus:border-amber-400">
                         </div>
                         <div class="grid grid-cols-2 gap-3 pt-2">
                             <button onclick="syncWithCloud('auto')" class="col-span-2 rpg-btn-primary text-sm md:text-base font-extrabold py-4 rounded-2xl flex justify-center items-center gap-1 shadow-md hover:scale-[1.01] transition-transform">🔄 智慧同步</button>
-                            <button onclick="forceDownload()" class="rpg-btn-secondary text-xs md:text-sm font-bold py-3 md:py-4 rounded-2xl border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors">⬇️️ 下載覆蓋本機</button>
-                            <button onclick="forceUpload()" class="rpg-btn-secondary text-xs md:text-sm font-bold py-3 md:py-4 rounded-2xl border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors">⬆️ 上傳覆蓋雲端</button>
+                            <button onclick="forceDownload()" class="rpg-btn-secondary text-xs md:text-sm font-bold py-3 md:py-4 rounded-2xl border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-neutral-900 transition-colors">⬇️️ 下載覆蓋本機</button>
+                            <button onclick="forceUpload()" class="rpg-btn-secondary text-xs md:text-sm font-bold py-3 md:py-4 rounded-2xl border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-neutral-900 transition-colors">⬆️ 上傳覆蓋雲端</button>
                         </div>
-                        <button onclick="saveSyncSettingsOnly()" class="w-full bg-stone-200 dark:bg-stone-700 text-stone-700 dark:text-white text-sm font-bold py-4 rounded-2xl transition active:scale-95 shadow-sm mt-4 hover:bg-stone-300 dark:hover:bg-stone-600">💾 僅儲存設定不雲端同步</button>
+                        <button onclick="saveSyncSettingsOnly()" class="w-full bg-stone-200 dark:bg-neutral-800 text-stone-700 dark:text-white text-sm font-bold py-4 rounded-2xl transition active:scale-95 shadow-sm mt-4 hover:bg-stone-300 dark:hover:bg-neutral-600">💾 僅儲存設定不雲端同步</button>
                     </div>
 
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
-                        <div class="bg-stone-50 dark:bg-[#1c1917] p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
+                        <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v30</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v32</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1102,7 +1116,7 @@ input[type="number"] {
                             <span class="text-sm text-amber-700 dark:text-amber-500 font-extrabold block">📲 甚麼是 PWA 離線安裝？</span>
                             <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">允許您將 Ev Life 安裝至桌面，當作原生 App 快速啟用。無網路也能正常查看日誌！</p>
                         </div>
-                        <div class="bg-stone-50 dark:bg-[#1c1917] p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3 text-xs md:text-sm">
+                        <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3 text-xs md:text-sm">
                             <span class="font-extrabold text-stone-700 dark:text-stone-300">🔍 PWA 系統環境診斷：</span>
                             <div class="space-y-2 font-bold font-mono text-[11px] md:text-xs bg-white dark:bg-black/30 p-3 rounded-lg border border-stone-100 dark:border-stone-700/50">
                                 <div id="diag-https">🟢 正在載入診斷數據...</div>
@@ -1111,14 +1125,14 @@ input[type="number"] {
                             </div>
                         </div>
 
-                        <div class="bg-stone-50 dark:bg-[#1c1917] p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
+                        <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="font-extrabold text-stone-700 dark:text-stone-300 text-sm block">📦 PWA 核心檔案產生器 (適用於 GitHub Pages)</span>
                             <p class="text-xs text-stone-500 leading-relaxed">若您託管於 GitHub Pages，請務必將 <code>manifest.json</code> 與 <code>sw.js</code> 兩個實體檔案與 <code>index.html</code> 放在同一個目錄下並推播 (Commit)，才能啟用瀏覽器的安裝提示。</p>
                             <div class="grid grid-cols-2 gap-3 pt-2">
-                                <button onclick="downloadFile('manifest.json', generateManifestContent())" class="bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-600 text-stone-700 dark:text-stone-200 text-xs font-bold py-3 rounded-xl shadow-sm hover:border-stone-300 dark:hover:border-stone-500 transition active:scale-95 flex items-center justify-center gap-2">
+                                <button onclick="downloadFile('manifest.json', generateManifestContent())" class="bg-white dark:bg-neutral-900 border border-stone-200 dark:border-stone-600 text-stone-700 dark:text-stone-200 text-xs font-bold py-3 rounded-xl shadow-sm hover:border-stone-300 dark:hover:border-stone-500 transition active:scale-95 flex items-center justify-center gap-2">
                                     📄 manifest
                                 </button>
-                                <button onclick="downloadFile('sw.js', generateSWContent())" class="bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-600 text-stone-700 dark:text-stone-200 text-xs font-bold py-3 rounded-xl shadow-sm hover:border-stone-300 dark:hover:border-stone-500 transition active:scale-95 flex items-center justify-center gap-2">
+                                <button onclick="downloadFile('sw.js', generateSWContent())" class="bg-white dark:bg-neutral-900 border border-stone-200 dark:border-stone-600 text-stone-700 dark:text-stone-200 text-xs font-bold py-3 rounded-xl shadow-sm hover:border-stone-300 dark:hover:border-stone-500 transition active:scale-95 flex items-center justify-center gap-2">
                                     ⚙️ sw.js
                                 </button>
                             </div>
@@ -1136,13 +1150,13 @@ input[type="number"] {
 
     <!-- 🏆 成就榮譽榜 Modal -->
     <div id="badgeModal" class="fixed inset-0 bg-stone-900/80 backdrop-blur-md z-[120] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-white dark:bg-[#292524] rounded-[1.5rem] p-5 md:p-6 shadow-2xl max-w-lg w-full mx-4 max-h-[85vh] flex flex-col transform scale-95 transition-all duration-300 border border-stone-100 dark:border-stone-700">
+        <div class="bg-white dark:bg-neutral-900 rounded-[1.5rem] p-5 md:p-6 shadow-2xl max-w-lg w-full mx-4 max-h-[85vh] flex flex-col transform scale-95 transition-all duration-300 border border-stone-100 dark:border-stone-700">
             <div class="flex items-center justify-between mb-4 pb-3 border-b border-stone-100 dark:border-stone-800">
                 <h3 class="text-base md:text-lg font-extrabold text-stone-800 dark:text-white flex items-center gap-2">🏆 純電榮譽殿堂</h3>
-                <button onclick="closeBadgeModal()" class="w-8 h-8 bg-stone-100 dark:bg-stone-700 rounded-full flex items-center justify-center text-sm font-bold active:scale-90">✕</button>
+                <button onclick="closeBadgeModal()" class="w-8 h-8 bg-stone-100 dark:bg-neutral-800 rounded-full flex items-center justify-center text-sm font-bold active:scale-90">✕</button>
             </div>
-            <div class="flex bg-stone-100 dark:bg-stone-800 p-1 rounded-xl mb-4 text-xs font-bold">
-                <button id="tabBadgeUnlocked" onclick="switchBadgeTab('unlocked')" class="flex-1 py-2 rounded-lg bg-white dark:bg-stone-600 text-stone-900 dark:text-white shadow transition-all">已解鎖 (<span id="unlockedBadgeCount">0</span>)</button>
+            <div class="flex bg-stone-100 dark:bg-neutral-900 p-1 rounded-xl mb-4 text-xs font-bold">
+                <button id="tabBadgeUnlocked" onclick="switchBadgeTab('unlocked')" class="flex-1 py-2 rounded-lg bg-white dark:bg-neutral-600 text-stone-900 dark:text-white shadow transition-all">已解鎖 (<span id="unlockedBadgeCount">0</span>)</button>
                 <button id="tabBadgeLocked" onclick="switchBadgeTab('locked')" class="flex-1 py-2 rounded-lg text-stone-500 hover:text-stone-900 dark:hover:text-white transition-all">待挑戰 (<span id="lockedBadgeCount">0</span>)</button>
             </div>
             <div id="badgeModalContent" class="space-y-3 overflow-y-auto no-scrollbar flex-1 pr-1"></div>
@@ -1151,7 +1165,7 @@ input[type="number"] {
 
     <!-- 📍 站點多選彈出視窗 (Modal) -->
     <div id="stationSelectModal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-[115] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-white dark:bg-[#292524] rounded-[1.5rem] p-6 shadow-2xl max-w-sm w-full mx-4 transform scale-95 transition-all duration-300 border border-stone-100 dark:border-stone-700">
+        <div class="bg-white dark:bg-neutral-900 rounded-[1.5rem] p-6 shadow-2xl max-w-sm w-full mx-4 transform scale-95 transition-all duration-300 border border-stone-100 dark:border-stone-700">
             <div class="flex items-center justify-between mb-3 border-b border-stone-100 dark:border-stone-700/60 pb-3">
                 <div class="flex items-center gap-2">
                     <span class="text-base">📍</span>
@@ -1161,20 +1175,20 @@ input[type="number"] {
             </div>
             <p class="text-[11px] font-bold text-stone-400 mb-3">在您附近偵測到多個充電站，請選擇：</p>
             <div id="stationOptionsList" class="space-y-2 max-h-56 overflow-y-auto no-scrollbar mb-4"></div>
-            <button onclick="closeStationModal()" class="w-full py-2.5 rounded-xl border border-stone-200 dark:border-stone-700 text-xs font-bold text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800">取消</button>
+            <button onclick="closeStationModal()" class="w-full py-2.5 rounded-xl border border-stone-200 dark:border-stone-700 text-xs font-bold text-stone-400 hover:bg-stone-50 dark:hover:bg-neutral-900">取消</button>
         </div>
     </div>
 
     <!-- 🗺️ 充電地圖 Modal -->
     <div id="mapModal" class="fixed inset-0 bg-stone-900/80 backdrop-blur-md z-[120] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-white dark:bg-[#292524] rounded-[1.5rem] p-3 md:p-4 shadow-2xl max-w-2xl w-full mx-4 h-[75vh] flex flex-col transform scale-95 transition-all duration-300 border border-stone-100 dark:border-stone-700 relative">
+        <div class="bg-white dark:bg-neutral-900 rounded-[1.5rem] p-3 md:p-4 shadow-2xl max-w-2xl w-full mx-4 h-[75vh] flex flex-col transform scale-95 transition-all duration-300 border border-stone-100 dark:border-stone-700 relative">
             <div class="flex items-center justify-between px-1 mb-2">
                 <h3 class="text-sm md:text-base font-extrabold text-stone-800 dark:text-white flex items-center gap-1.5">
                     <span>🗺️</span> 我的充電足跡
                 </h3>
-                <button onclick="closeMapModal()" class="w-7 h-7 bg-stone-100 dark:bg-stone-700/80 hover:bg-stone-200 dark:hover:bg-stone-600 rounded-full flex items-center justify-center text-xs font-bold transition active:scale-90 text-stone-500 dark:text-stone-300">✕</button>
+                <button onclick="closeMapModal()" class="w-7 h-7 bg-stone-100 dark:bg-neutral-800/80 hover:bg-stone-200 dark:hover:bg-neutral-600 rounded-full flex items-center justify-center text-xs font-bold transition active:scale-90 text-stone-500 dark:text-stone-300">✕</button>
             </div>
-            <div id="evMapContainer" class="w-full flex-1 rounded-2xl bg-stone-200 dark:bg-stone-800 overflow-hidden relative z-10"></div>
+            <div id="evMapContainer" class="w-full flex-1 rounded-2xl bg-stone-200 dark:bg-neutral-900 overflow-hidden relative z-10"></div>
             <div class="mt-2 text-center text-xs font-bold text-stone-400 flex items-center justify-center gap-1.5">
                 <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500"></span>已造訪站點足跡
             </div>
@@ -1183,17 +1197,17 @@ input[type="number"] {
 
 <!-- ⚡ ABRP 風格：長途補給規劃器 Modal -->
     <div id="abrpModal" class="fixed inset-0 bg-stone-900/80 backdrop-blur-md z-[125] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-white dark:bg-[#292524] rounded-[1.5rem] p-4 md:p-6 shadow-2xl max-w-xl w-full mx-4 h-[88vh] max-h-[88vh] flex flex-col overflow-hidden transform scale-95 transition duration-300 border border-stone-100 dark:border-stone-700">
+        <div class="bg-white dark:bg-neutral-900 rounded-[1.5rem] p-4 md:p-6 shadow-2xl max-w-xl w-full mx-4 h-[88vh] max-h-[88vh] flex flex-col overflow-hidden transform scale-95 transition duration-300 border border-stone-100 dark:border-stone-700">
             <div class="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-stone-800">
                 <h3 class="text-base md:text-lg font-extrabold text-stone-800 dark:text-white flex items-center gap-2">
                     <span>⚡</span> 長途補給規劃器 <span class="text-[9px] bg-amber-400 text-stone-950 px-2 py-0.5 rounded-full font-extrabold">ABRP 智能演算法</span>
                 </h3>
-                <button onclick="closeAbrpModal()" class="w-8 h-8 bg-stone-100 dark:bg-stone-700 rounded-full flex items-center justify-center text-sm font-bold active:scale-90 text-stone-500">✕</button>
+                <button onclick="closeAbrpModal()" class="w-8 h-8 bg-stone-100 dark:bg-neutral-800 rounded-full flex items-center justify-center text-sm font-bold active:scale-90 text-stone-500">✕</button>
             </div>
 
             <div class="overflow-y-auto no-scrollbar space-y-4 pt-3 pb-6 flex-1 flex flex-col">
     <!-- 路線設定區 -->
-                <div class="grid grid-cols-1 sm:grid-cols-[1fr,auto,1fr] items-end gap-2 sm:gap-3 bg-stone-50 dark:bg-stone-900/40 p-3.5 rounded-2xl border border-stone-200/60 dark:border-stone-800 relative">
+                <div class="grid grid-cols-1 sm:grid-cols-[1fr,auto,1fr] items-end gap-2 sm:gap-3 bg-stone-50 dark:bg-black/40 p-3.5 rounded-2xl border border-stone-200/60 dark:border-stone-800 relative">
                     <!-- 起點輸入框 -->
                     <div class="w-full">
                         <div class="flex items-center justify-between mb-1">
@@ -1210,7 +1224,7 @@ input[type="number"] {
 
                     <!-- ⇅ 一鍵對調按鈕 (Swap) -->
                     <div class="flex justify-center -my-1 sm:my-0 sm:pb-0.5">
-                        <button type="button" id="btnSwapRoute" onclick="swapRouteEndpoints()" title="對調起點與終點" class="w-8 h-8 rounded-full bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:text-amber-500 dark:hover:text-amber-400 flex items-center justify-center shadow-sm active:scale-90 transition-all duration-300">
+                        <button type="button" id="btnSwapRoute" onclick="swapRouteEndpoints()" title="對調起點與終點" class="w-8 h-8 rounded-full bg-white dark:bg-neutral-900 border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:text-amber-500 dark:hover:text-amber-400 flex items-center justify-center shadow-sm active:scale-90 transition-all duration-300">
                             <svg id="swapIconSvg" class="w-4 h-4 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 4v12m0 0l4-4m-4 4l-4-4"></path>
                             </svg>
@@ -1237,14 +1251,14 @@ input[type="number"] {
         <!-- 1. 出發電量 -->
         <div class="flex items-center gap-1 shrink-0">
             <label class="text-[11px] font-bold text-stone-500 dark:text-stone-400 shrink-0">出發</label>
-            <div class="flex items-center bg-stone-100 dark:bg-stone-900 border border-stone-200/80 dark:border-stone-700 rounded-xl p-0.5 shadow-inner shrink-0 select-none">
+            <div class="flex items-center bg-stone-100 dark:bg-black border border-stone-200/80 dark:border-stone-700 rounded-xl p-0.5 shadow-inner shrink-0 select-none">
                 <!-- 出發 -1 按鈕 -->
                 <button type="button" 
                         onpointerdown="startAbrpHold(event, 'routeStartSoc', -1)"
                         onpointerup="stopAbrpHold()"
                         onpointerleave="stopAbrpHold()"
                         oncontextmenu="return false;"
-                        class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-200 text-xs font-extrabold shadow-sm active:scale-90 transition select-none hover:bg-stone-50 touch-manipulation">-</button>
+                        class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-white dark:bg-neutral-900 text-stone-700 dark:text-stone-200 text-xs font-extrabold shadow-sm active:scale-90 transition select-none hover:bg-stone-50 touch-manipulation">-</button>
                 <input type="number" id="routeStartSoc" min="1" max="100" step="1" inputmode="numeric" value="100" oninput="validateSocInput(this, 100)" class="w-8 sm:w-9 text-center font-mono font-extrabold text-xs bg-transparent focus:outline-none appearance-none text-stone-800 dark:text-white">
                 <!-- 出發 +1 按鈕 -->
                 <button type="button" 
@@ -1252,7 +1266,7 @@ input[type="number"] {
                         onpointerup="stopAbrpHold()"
                         onpointerleave="stopAbrpHold()"
                         oncontextmenu="return false;"
-                        class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-200 text-xs font-extrabold shadow-sm active:scale-90 transition select-none hover:bg-stone-50 touch-manipulation">+</button>
+                        class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-white dark:bg-neutral-900 text-stone-700 dark:text-stone-200 text-xs font-extrabold shadow-sm active:scale-90 transition select-none hover:bg-stone-50 touch-manipulation">+</button>
             </div>
             <span class="text-[11px] font-mono font-extrabold text-stone-400 shrink-0">%</span>
         </div>
@@ -1260,14 +1274,14 @@ input[type="number"] {
         <!-- 2. 想充電量門檻 -->
         <div class="flex items-center gap-1 shrink-0">
             <label class="text-[11px] font-bold text-stone-500 dark:text-stone-400 shrink-0">想在剩</label>
-            <div class="flex items-center bg-stone-100 dark:bg-stone-900 border border-stone-200/80 dark:border-stone-700 rounded-xl p-0.5 shadow-inner shrink-0 select-none">
+            <div class="flex items-center bg-stone-100 dark:bg-black border border-stone-200/80 dark:border-stone-700 rounded-xl p-0.5 shadow-inner shrink-0 select-none">
                 <!-- 想充 -1 按鈕 -->
                 <button type="button" 
                         onpointerdown="startAbrpHold(event, 'routeTargetMinSoc', -1)"
                         onpointerup="stopAbrpHold()"
                         onpointerleave="stopAbrpHold()"
                         oncontextmenu="return false;"
-                        class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-200 text-xs font-extrabold shadow-sm active:scale-90 transition select-none hover:bg-stone-50 touch-manipulation">-</button>
+                        class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-white dark:bg-neutral-900 text-stone-700 dark:text-stone-200 text-xs font-extrabold shadow-sm active:scale-90 transition select-none hover:bg-stone-50 touch-manipulation">-</button>
                 <input type="number" id="routeTargetMinSoc" min="5" max="50" step="1" inputmode="numeric" value="15" oninput="validateSocInput(this, 50)" class="w-8 sm:w-9 text-center font-mono font-extrabold text-xs bg-transparent focus:outline-none appearance-none text-stone-800 dark:text-white">
                 <!-- 想充 +1 按鈕 -->
                 <button type="button" 
@@ -1275,7 +1289,7 @@ input[type="number"] {
                         onpointerup="stopAbrpHold()"
                         onpointerleave="stopAbrpHold()"
                         oncontextmenu="return false;"
-                        class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-200 text-xs font-extrabold shadow-sm active:scale-90 transition select-none hover:bg-stone-50 touch-manipulation">+</button>
+                        class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-white dark:bg-neutral-900 text-stone-700 dark:text-stone-200 text-xs font-extrabold shadow-sm active:scale-90 transition select-none hover:bg-stone-50 touch-manipulation">+</button>
             </div>
             <span class="text-[11px] font-bold text-stone-400 shrink-0 whitespace-nowrap">% 充</span>
         </div>
@@ -1284,8 +1298,8 @@ input[type="number"] {
 <!-- 偏好切換按鈕 -->
     <div class="flex items-center justify-between sm:justify-end gap-2 pt-1 sm:pt-0 border-t sm:border-t-0 border-stone-200/40 dark:border-stone-800/60">
         <span class="text-[10px] font-bold text-stone-400 sm:hidden">偏好停靠</span>
-        <div class="flex items-center bg-stone-200/70 dark:bg-stone-800 p-0.5 rounded-xl text-[10px] font-extrabold shrink-0">
-            <button type="button" id="btnPrefRestArea" onclick="setAbrpStopPref('restArea')" class="px-2.5 py-1 rounded-lg bg-white dark:bg-stone-700 text-stone-900 dark:text-white shadow-sm transition-colors flex items-center justify-center gap-1">
+        <div class="flex items-center bg-stone-200/70 dark:bg-neutral-900 p-0.5 rounded-xl text-[10px] font-extrabold shrink-0">
+            <button type="button" id="btnPrefRestArea" onclick="setAbrpStopPref('restArea')" class="px-2.5 py-1 rounded-lg bg-white dark:bg-neutral-800 text-stone-900 dark:text-white shadow-sm transition-colors flex items-center justify-center gap-1">
                 <span>☕</span><span>服務區</span>
             </button>
             <button type="button" id="btnPrefInterchange" onclick="setAbrpStopPref('interchange')" class="px-2.5 py-1 rounded-lg text-stone-500 dark:text-stone-400 transition-colors flex items-center justify-center gap-1 hover:text-stone-900 dark:hover:text-white">
@@ -1296,10 +1310,10 @@ input[type="number"] {
 </div>
 
 <!-- ⚡ 槍頭規格複選 (CCS1 / CCS2 / J1772 / Type 2 / 全部) -->
-<div class="flex items-center justify-between gap-1 bg-stone-100 dark:bg-stone-900/60 p-1 rounded-xl">
+<div class="flex items-center justify-between gap-1 bg-stone-100 dark:bg-black/60 p-1 rounded-xl">
     <span class="text-[10px] font-bold text-stone-400 px-1 shrink-0">🔌 規格(複選)</span>
     <div class="flex gap-1 overflow-x-auto no-scrollbar">
-        <button type="button" onclick="toggleAbrpConnectorFilter('CCS1')" id="btnConn-CCS1" class="conn-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-white dark:bg-stone-700 text-stone-900 dark:text-white shadow-sm transition-all border border-stone-200/50 dark:border-stone-600">
+        <button type="button" onclick="toggleAbrpConnectorFilter('CCS1')" id="btnConn-CCS1" class="conn-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-white dark:bg-neutral-800 text-stone-900 dark:text-white shadow-sm transition-all border border-stone-200/50 dark:border-stone-600">
             CCS1 <span class="text-[9px] text-amber-500 font-bold">(n⁷)</span>
         </button>
         <button type="button" onclick="toggleAbrpConnectorFilter('CCS2')" id="btnConn-CCS2" class="conn-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-stone-500 dark:text-stone-400 transition-all border border-transparent">
@@ -1318,10 +1332,10 @@ input[type="number"] {
 </div>
     
 <!-- ⚡ 功率規格複選 (全部 / 慢充 / 50~149kW / 150kW+) -->
-    <div class="flex items-center justify-between gap-1 bg-stone-100 dark:bg-stone-900/60 p-1 rounded-xl">
+    <div class="flex items-center justify-between gap-1 bg-stone-100 dark:bg-black/60 p-1 rounded-xl">
         <span class="text-[10px] font-bold text-stone-400 px-1 shrink-0">⚡ 功率(複選)</span>
         <div class="flex gap-1 overflow-x-auto no-scrollbar">
-            <button type="button" onclick="toggleAbrpPowerFilter('FAST_HIGH')" id="btnPower-FAST_HIGH" class="power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-white dark:bg-stone-700 text-stone-900 dark:text-white shadow-sm transition-all border border-stone-200/50 dark:border-stone-600">
+            <button type="button" onclick="toggleAbrpPowerFilter('FAST_HIGH')" id="btnPower-FAST_HIGH" class="power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-white dark:bg-neutral-800 text-stone-900 dark:text-white shadow-sm transition-all border border-stone-200/50 dark:border-stone-600">
                 超快 (≥150kW)
             </button>
             <button type="button" onclick="toggleAbrpPowerFilter('FAST_MID')" id="btnPower-FAST_MID" class="power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-stone-500 dark:text-stone-400 transition-all border border-transparent">
@@ -1344,10 +1358,10 @@ input[type="number"] {
                 </div>
 
 <!-- 地圖預覽 -->
-                <div id="abrpMapContainer" class="w-full h-56 md:h-64 shrink-0 rounded-2xl bg-stone-100 dark:bg-stone-800 border border-stone-200/50 dark:border-stone-700 overflow-hidden relative"></div>
+                <div id="abrpMapContainer" class="w-full h-56 md:h-64 shrink-0 rounded-2xl bg-stone-100 dark:bg-neutral-900 border border-stone-200/50 dark:border-stone-700 overflow-hidden relative"></div>
 
                 <!-- ⛰️ 高程剖面 HUD 卡片（補回外層容器） -->
-                <div id="abrpElevationHudCard" class="hidden bg-stone-50 dark:bg-stone-900/80 p-3.5 rounded-2xl border border-stone-200/80 dark:border-stone-800 space-y-2 shadow-inner">
+                <div id="abrpElevationHudCard" class="hidden bg-stone-50 dark:bg-black/80 p-3.5 rounded-2xl border border-stone-200/80 dark:border-stone-800 space-y-2 shadow-inner">
                     <!-- 頂部三欄地名與海拔高度 -->
                     <div class="grid grid-cols-3 items-center text-center">
                         <!-- 起點 -->
@@ -1398,7 +1412,7 @@ input[type="number"] {
                 <div id="abrpResultSection" class="hidden space-y-3">
                     <!-- 🔀 國一 vs 國三 路況能耗 PK 面板 -->
                     <div id="highwayPkContainer" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                        <div id="pkCardRoute0" onclick="selectPkRoute(0)" class="p-3 rounded-2xl border-2 border-amber-400 box-border select-none cursor-pointer relative bg-stone-50 dark:bg-stone-900/60 shadow-sm transition-[border-color,opacity] duration-150 will-change-[border-color,opacity]">
+                        <div id="pkCardRoute0" onclick="selectPkRoute(0)" class="p-3 rounded-2xl border-2 border-amber-400 box-border select-none cursor-pointer relative bg-stone-50 dark:bg-black/60 shadow-sm transition-[border-color,opacity] duration-150 will-change-[border-color,opacity]">
                             <div class="flex items-center justify-between mb-1.5">
                                 <span class="text-xs font-extrabold text-stone-800 dark:text-white flex items-center gap-1.5">
                                     <span class="w-4 h-4 rounded-full bg-stone-800 dark:bg-white text-white dark:text-stone-900 text-[10px] flex items-center justify-center font-mono font-extrabold">1</span>
@@ -1416,7 +1430,7 @@ input[type="number"] {
                             </div>
                         </div>
 
-                        <div id="pkCardRoute1" onclick="selectPkRoute(1)" class="p-3 rounded-2xl border-2 border-stone-200 dark:border-stone-800 box-border opacity-60 select-none cursor-pointer relative bg-stone-50 dark:bg-stone-900/60 shadow-sm transition-[border-color,opacity] duration-150 will-change-[border-color,opacity]">
+                        <div id="pkCardRoute1" onclick="selectPkRoute(1)" class="p-3 rounded-2xl border-2 border-stone-200 dark:border-stone-800 box-border opacity-60 select-none cursor-pointer relative bg-stone-50 dark:bg-black/60 shadow-sm transition-[border-color,opacity] duration-150 will-change-[border-color,opacity]">
                             <div class="flex items-center justify-between mb-1.5">
                                 <span class="text-xs font-extrabold text-stone-800 dark:text-white flex items-center gap-1.5">
                                     <span class="w-4 h-4 rounded-full bg-stone-800 dark:bg-white text-white dark:text-stone-900 text-[10px] flex items-center justify-center font-mono font-extrabold">2</span>
@@ -1437,19 +1451,19 @@ input[type="number"] {
 
                     <!-- 主數據三大面板 -->
                     <div class="grid grid-cols-3 gap-2">
-                        <div class="p-2.5 sm:p-3 min-h-[80px] bg-stone-50 dark:bg-stone-800/60 rounded-2xl border border-stone-200/60 dark:border-stone-700/60 flex flex-col items-center justify-center text-center shadow-sm">
+                        <div class="p-2.5 sm:p-3 min-h-[80px] bg-stone-50 dark:bg-neutral-900/60 rounded-2xl border border-stone-200/60 dark:border-stone-700/60 flex flex-col items-center justify-center text-center shadow-sm">
                             <span class="text-[10px] sm:text-xs text-stone-400 font-bold mb-1 flex items-center gap-1">
                                 <span>🛣️</span> 總里程
                             </span>
                             <span id="abrpTotalDist" class="text-sm sm:text-base font-extrabold font-mono text-stone-800 dark:text-white tracking-tight leading-tight">0<br><span class="text-xs font-bold text-stone-500 dark:text-stone-400">km</span></span>
                         </div>
-                        <div class="p-2.5 sm:p-3 min-h-[80px] bg-stone-50 dark:bg-stone-800/60 rounded-2xl border border-stone-200/60 dark:border-stone-700/60 flex flex-col items-center justify-center text-center shadow-sm">
+                        <div class="p-2.5 sm:p-3 min-h-[80px] bg-stone-50 dark:bg-neutral-900/60 rounded-2xl border border-stone-200/60 dark:border-stone-700/60 flex flex-col items-center justify-center text-center shadow-sm">
                             <span class="text-[10px] sm:text-xs text-stone-400 font-bold mb-1 flex items-center gap-1">
                                 <span>⏱️</span> 行車時間
                             </span>
                             <span id="abrpDriveDuration" class="text-sm sm:text-base font-extrabold font-mono text-stone-800 dark:text-white tracking-tight leading-tight">0 分</span>
                         </div>
-                        <div class="p-2.5 sm:p-3 min-h-[80px] bg-stone-50 dark:bg-stone-800/60 rounded-2xl border border-stone-200/60 dark:border-stone-700/60 flex flex-col items-center justify-center text-center shadow-sm">
+                        <div class="p-2.5 sm:p-3 min-h-[80px] bg-stone-50 dark:bg-neutral-900/60 rounded-2xl border border-stone-200/60 dark:border-stone-700/60 flex flex-col items-center justify-center text-center shadow-sm">
                             <span class="text-[10px] sm:text-xs text-stone-400 font-bold mb-1 flex items-center gap-1">
                                 <span>🔋</span> 直達剩餘
                             </span>
@@ -1503,17 +1517,17 @@ input[type="number"] {
         </div>
     </nav>
 
-    <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-[9999] transform -translate-y-10 opacity-0 invisible pointer-events-none transition-all duration-300 bg-stone-900/95 dark:bg-[#292524]/95 text-white px-5 py-3 md:py-4 md:px-6 rounded-2xl shadow-lg flex items-center gap-3 text-xs md:text-sm font-bold border border-white/10 w-max max-w-[90vw] md:max-w-[600px] justify-center leading-relaxed">
+    <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-[9999] transform -translate-y-10 opacity-0 invisible pointer-events-none transition-all duration-300 bg-stone-900/95 dark:bg-neutral-900/95 text-white px-5 py-3 md:py-4 md:px-6 rounded-2xl shadow-lg flex items-center gap-3 text-xs md:text-sm font-bold border border-white/10 w-max max-w-[90vw] md:max-w-[600px] justify-center leading-relaxed">
         <span id="toastIcon" class="flex-shrink-0 text-base">⚡</span>
         <span id="toastMessage"></span>
     </div>
 
     <div id="confirmModal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-[110] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-white dark:bg-[#292524] rounded-[1.5rem] p-6 md:p-8 shadow-2xl max-w-sm md:max-w-md w-full mx-4 transform scale-95 transition-all duration-300 border border-stone-100 dark:border-stone-700" id="confirmModalContent">
+        <div class="bg-white dark:bg-neutral-900 rounded-[1.5rem] p-6 md:p-8 shadow-2xl max-w-sm md:max-w-md w-full mx-4 transform scale-95 transition-all duration-300 border border-stone-100 dark:border-stone-700" id="confirmModalContent">
             <h3 id="confirmModalTitle" class="text-base md:text-xl font-extrabold mb-2">確認動作</h3>
             <p id="confirmModalMessage" class="text-xs md:text-sm font-bold text-stone-500 dark:text-stone-400 mb-6 md:mb-8 leading-relaxed"></p>
             <div class="flex space-x-3">
-                <button onclick="closeConfirmModal()" class="flex-1 rpg-btn-secondary text-xs md:text-sm font-bold py-3 md:py-4 rounded-2xl border border-stone-200 dark:border-stone-700 transition hover:bg-stone-50 dark:hover:bg-stone-800 active:scale-95">取消</button>
+                <button onclick="closeConfirmModal()" class="flex-1 rpg-btn-secondary text-xs md:text-sm font-bold py-3 md:py-4 rounded-2xl border border-stone-200 dark:border-stone-700 transition hover:bg-stone-50 dark:hover:bg-neutral-900 active:scale-95">取消</button>
                 <button id="confirmSuccessBtn" class="flex-1 bg-rose-500 hover:bg-rose-600 text-white text-xs md:text-sm font-bold py-3 md:py-4 rounded-2xl shadow-md transition active:scale-95">確認執行</button>
             </div>
         </div>
@@ -1529,7 +1543,7 @@ input[type="number"] {
             '通行費': { btn: 'border-purple-400 bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400', badge: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400', icon: '🛣️' },
             '保險費': { btn: 'border-emerald-400 bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400', badge: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400', icon: '🛡️' },
             '車貸': { btn: 'border-orange-400 bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400', badge: 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-400', icon: '🏦' },
-            'default': { btn: 'border-stone-400 bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-200', badge: 'bg-stone-100 text-stone-600 dark:bg-stone-800 dark:text-stone-400', icon: '📝' }
+            'default': { btn: 'border-stone-400 bg-stone-100 text-stone-700 dark:bg-neutral-900 dark:text-stone-200', badge: 'bg-stone-100 text-stone-600 dark:bg-neutral-900 dark:text-stone-400', icon: '📝' }
         };
 
         // ⚡ LUXGEN n⁷ 漫遊支援「隨插即充」的 9 大快充品牌比對清單
@@ -1562,8 +1576,24 @@ input[type="number"] {
             get CO2_SAVED_PER_KM() { return this.CO2_ICE_PER_KM - this.CO2_EV_PER_KM; }
         };
 
+        // v32 低效能模式：只在裝置真的比較差、或使用者開了系統「減少動態效果」時啟用。
+        // 判斷邏輯抽成純函式 shouldUseLiteMode，方便單元測試；高效機不會進 lite。
+        function shouldUseLiteMode(env) {
+            return !!env.reducedMotion
+                || (typeof env.cores === 'number' && env.cores <= 4)
+                || (typeof env.memory === 'number' && env.memory <= 4);
+        }
+        function applyLiteMode() {
+            const env = {
+                reducedMotion: typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+                cores: typeof navigator.hardwareConcurrency === 'number' ? navigator.hardwareConcurrency : null,
+                memory: typeof navigator.deviceMemory === 'number' ? navigator.deviceMemory : null
+            };
+            document.documentElement.classList.toggle('lite', shouldUseLiteMode(env));
+        }
+
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v30';
+        const APP_VERSION = 'v32';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -1705,6 +1735,13 @@ function cacheDOMNodes() {
         }
 
         function initAppCore() {
+            applyLiteMode(); // v32：低效裝置自動進 lite 模式（在啟動畫面消失前就決定，避免閃爍）
+            cacheTabMetrics(); // v32
+            if (typeof window.matchMedia === 'function') {
+                const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+                if (typeof motionQuery.addEventListener === 'function') motionQuery.addEventListener('change', applyLiteMode);
+            }
+            if (document.fonts && document.fonts.ready) document.fonts.ready.then(cacheTabMetrics); // v32：字體載入後座標可能微移，重新快取
             setupThemeIcons();
             setTimeout(() => updateLiquidIndicator('home'), 100);
             initLiquidDrag();
@@ -1864,7 +1901,7 @@ function cacheDOMNodes() {
             const splashBg = localStorage.getItem('ev_life_splash_color');
             const colorInput = document.getElementById('splashColorInput');
             if (colorInput) {
-                colorInput.value = splashBg || (document.documentElement.classList.contains('dark') ? '#1c1917' : '#faf8f4');
+                colorInput.value = splashBg || (document.documentElement.classList.contains('dark') ? '#000000' : '#faf8f4');
                 colorInput.addEventListener('change', (e) => { localStorage.setItem('ev_life_splash_color', e.target.value); showToast('自訂底色已儲存！下次重啟生效 🎨'); });
             }
             const splashImg = localStorage.getItem('ev_life_splash_image');
@@ -1988,18 +2025,31 @@ function cacheDOMNodes() {
             const isDark = document.documentElement.classList.contains('dark');
             const colorInput = document.getElementById('splashColorInput');
             if (colorInput) {
-                colorInput.value = isDark ? '#1c1917' : '#faf8f4';
+                colorInput.value = isDark ? '#000000' : '#faf8f4';
                 showToast('已恢復預設底色，下次重啟生效 🎨');
             }
         };
 
+        // v32：快取 tab 按鈕座標，點按切換時不再讀 offset（避免在切換幀強制同步排版）。
+        // 快取在載入／縮放／字體載入後／每次切換 350ms 後（動畫跑完、狀態穩定時）更新；
+        // 切換後第一次用的可能是未粗體前的寬度，差約 1-2px，下一次切換時快取已是粗體後的值。
+        let tabMetricsCache = {};
+        function cacheTabMetrics() {
+            ['home', 'records', 'analysis', 'settings'].forEach(tabId => {
+                const btn = document.getElementById('tab-' + tabId);
+                if (btn) tabMetricsCache[tabId] = { width: btn.offsetWidth, left: btn.offsetLeft };
+            });
+        }
         function updateLiquidIndicator(tabId) {
             const btn = document.getElementById('tab-' + tabId);
             const indicator = document.getElementById('liquid-indicator');
             if (btn && indicator && tabId !== 'add') {
                 indicator.style.opacity = '1';
-                indicator.style.width = `${btn.offsetWidth}px`;
-                indicator.style.transform = `translate(${btn.offsetLeft}px, -50%) scale(1)`;
+                const cached = tabMetricsCache[tabId];
+                const width = cached ? cached.width : btn.offsetWidth;
+                const left = cached ? cached.left : btn.offsetLeft;
+                indicator.style.width = `${width}px`;
+                indicator.style.transform = `translate(${left}px, -50%) scale(1)`;
             } else if (tabId === 'add' && indicator) {
                 indicator.style.opacity = '0';
             }
@@ -2032,6 +2082,7 @@ function cacheDOMNodes() {
             if (activeBtn && tabId !== 'add') activeBtn.classList.add('active');
             if (switchTabIndicatorRaf) cancelAnimationFrame(switchTabIndicatorRaf);
             switchTabIndicatorRaf = requestAnimationFrame(() => { switchTabIndicatorRaf = 0; updateLiquidIndicator(tabId); });
+            setTimeout(cacheTabMetrics, 350); // v32：動畫跑完後刷新座標快取，下次切換直接用
 
             if (tabId === 'analysis') debouncedUpdateCharts();
             if (tabId === 'settings') {
@@ -2046,6 +2097,7 @@ function cacheDOMNodes() {
         window.addEventListener('resize', () => {
             const activeBtn = document.querySelector('.tab-btn.active');
             if (activeBtn) updateLiquidIndicator(activeBtn.id.replace('tab-', ''));
+            cacheTabMetrics(); // v32
             measureAndAdjustMarquees();
         });
 
@@ -2295,12 +2347,12 @@ if (lowerName.includes('tesla') || lowerName.includes('特斯拉') || lowerName.
 
             badge.textContent = district || "偵測位置";
             list.innerHTML = stations.map((s) => `
-                <button type="button" onclick="chooseStation('${escapeHTML(s.name)}')" class="w-full flex items-center justify-between p-3 rounded-2xl bg-stone-50 dark:bg-stone-800/80 hover:bg-amber-50 dark:hover:bg-amber-900/20 border border-stone-200 dark:border-stone-700 transition active:scale-95 text-left">
+                <button type="button" onclick="chooseStation('${escapeHTML(s.name)}')" class="w-full flex items-center justify-between p-3 rounded-2xl bg-stone-50 dark:bg-neutral-900/80 hover:bg-amber-50 dark:hover:bg-amber-900/20 border border-stone-200 dark:border-stone-700 transition active:scale-95 text-left">
                     <div class="flex items-center gap-2">
                         <span class="text-amber-500 font-bold text-xs md:text-sm">⚡</span>
                         <span class="text-xs md:text-sm font-bold text-stone-700 dark:text-stone-200">${escapeHTML(s.name)}</span>
                     </div>
-                    <span class="text-[10px] md:text-xs font-mono font-bold text-stone-400 bg-white dark:bg-stone-700 px-2 py-0.5 rounded-full border border-stone-100 dark:border-stone-600">${s.distanceM}m</span>
+                    <span class="text-[10px] md:text-xs font-mono font-bold text-stone-400 bg-white dark:bg-neutral-800 px-2 py-0.5 rounded-full border border-stone-100 dark:border-stone-600">${s.distanceM}m</span>
                 </button>
             `).join('');
 
@@ -2435,7 +2487,7 @@ if (lowerName.includes('tesla') || lowerName.includes('特斯拉') || lowerName.
                     marker.addListener('click', () => { 
                         window.currentInfoWindow.close();
                         window.currentInfoWindow.setContent(
-                            `<div style="color:#1c1917; font-family: inherit; line-height: 1.35; padding: 2px 0;">
+                            `<div style="color:#000000; font-family: inherit; line-height: 1.35; padding: 2px 0;">
                                 <div style="font-weight: 900; font-size: 13px; margin-bottom: 2px;">${escapeHTML(name)}</div>
                                 <div style="color: #059669; font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 3px;">
                                     <span>✅</span> 已記錄旅程足跡
@@ -2626,7 +2678,7 @@ window.setupSocSliders = function() {
             if (DOM.inputChargeType) DOM.inputChargeType.value = type;
 
             document.querySelectorAll('.charge-type-btn').forEach(btn => {
-                btn.className = "charge-type-btn transition-all flex items-center justify-center gap-1 shadow-sm border-2 rounded-lg py-2 text-[11px] md:text-xs border-stone-100 dark:border-stone-700 bg-stone-50 dark:bg-[#1c1917] text-stone-400 font-bold";
+                btn.className = "charge-type-btn transition-all flex items-center justify-center gap-1 shadow-sm border-2 rounded-lg py-2 text-[11px] md:text-xs border-stone-100 dark:border-stone-700 bg-stone-50 dark:bg-black text-stone-400 font-bold";
             });
 
             const activeBtn = document.getElementById('btnType-' + type);
@@ -2719,7 +2771,7 @@ window.setupSocSliders = function() {
 
             const sortedMonths = Array.from(months).sort().reverse();
             const activeClass = "border-amber-400 bg-amber-400 text-stone-900 shadow-sm";
-            const inactiveClass = "border-stone-200 dark:border-stone-700 bg-white dark:bg-[#292524] text-stone-500 hover:bg-stone-50 dark:hover:bg-stone-800";
+            const inactiveClass = "border-stone-200 dark:border-stone-700 bg-white dark:bg-neutral-900 text-stone-500 hover:bg-stone-50 dark:hover:bg-neutral-900";
 
             let html = `<button onclick="setMonthFilter('all')" class="flex-shrink-0 px-4 py-1.5 md:px-5 md:py-2 text-[11px] md:text-xs rounded-full transition-all border ${AppState.currentMonthFilter === 'all' ? activeClass : inactiveClass} font-extrabold cursor-pointer">全部</button>`;
             sortedMonths.forEach(m => { html += `<button onclick="setMonthFilter('${m}')" class="flex-shrink-0 px-4 py-1.5 md:px-5 md:py-2 text-[11px] md:text-xs rounded-full transition-all border ${AppState.currentMonthFilter === m ? activeClass : inactiveClass} font-extrabold cursor-pointer">${m.replace('-', '/')}</button>`; });
@@ -2819,8 +2871,8 @@ window.setupSocSliders = function() {
             const safeTag = escapeHTML(rec.tag || '');
 
             const cardWrapperClass = (isMVP
-                ? "bg-gradient-to-br from-amber-50/80 via-white to-amber-50/20 dark:from-amber-950/30 dark:via-[#292524] dark:to-[#292524] p-2.5 sm:p-4 rounded-[1.5rem] border-2 border-amber-400 dark:border-amber-500 shadow-md relative w-full flex flex-col justify-between"
-                : "bg-white dark:bg-[#292524] p-2.5 sm:p-4 rounded-[1.5rem] border border-stone-200/80 dark:border-stone-800 shadow-sm relative w-full flex flex-col justify-between"
+                ? "bg-gradient-to-br from-amber-50/80 via-white to-amber-50/20 dark:from-amber-950/30 dark:via-neutral-900 dark:to-neutral-900 p-2.5 sm:p-4 rounded-[1.5rem] border-2 border-amber-400 dark:border-amber-500 shadow-md relative w-full flex flex-col justify-between"
+                : "bg-white dark:bg-neutral-900 p-2.5 sm:p-4 rounded-[1.5rem] border border-stone-200/80 dark:border-stone-800 shadow-sm relative w-full flex flex-col justify-between"
             ) + " cursor-pointer transition active:scale-[0.99] hover:border-amber-300 dark:hover:border-amber-500/50";
 
             return `
@@ -2885,7 +2937,7 @@ window.setupSocSliders = function() {
                         <div class="rpg-card-sublayer px-3 py-2.5 rounded-2xl mb-2 flex items-center justify-between gap-2.5 transition-colors">
                             <div class="flex items-center gap-1.5 shrink-0">
                                 <span class="text-[10px] text-stone-400 font-bold">起</span>
-                                <span class="font-mono font-extrabold text-xs sm:text-sm text-stone-700 dark:text-stone-100 bg-white/90 dark:bg-stone-800/90 px-2 py-0.5 rounded-lg border border-stone-200/60 dark:border-white/10 shadow-sm">${rec.startSoc}%</span>
+                                <span class="font-mono font-extrabold text-xs sm:text-sm text-stone-700 dark:text-stone-100 bg-white/90 dark:bg-neutral-900/90 px-2 py-0.5 rounded-lg border border-stone-200/60 dark:border-white/10 shadow-sm">${rec.startSoc}%</span>
                             </div>
 
                             <div class="flex-1 flex flex-col items-center px-1 min-w-0 justify-center">
@@ -2897,18 +2949,18 @@ window.setupSocSliders = function() {
                                     <span class="text-[9.5px] font-bold opacity-80">kWh (${socDelta}%)</span>
                                 </div>
                                 <!-- ⚡ 效果 1：加入流動電流光紋 electric-stream -->
-                                <div class="w-full h-2 bg-stone-200/90 dark:bg-stone-900/90 rounded-full mt-1.5 overflow-hidden soc-progress-track">
+                                <div class="w-full h-2 bg-stone-200/90 dark:bg-black/90 rounded-full mt-1.5 overflow-hidden soc-progress-track">
                                     <div class="h-full rounded-full ${isCharging ? 'bg-gradient-to-r from-teal-500 via-emerald-400 to-teal-300 electric-stream soc-progress-glow-charging' : 'bg-gradient-to-r from-stone-400 to-stone-500 soc-progress-glow-discharging'}" style="width: ${barWidth}%"></div>
                                 </div>
                             </div>
 
                             <div class="flex items-center gap-1.5 shrink-0">
                                 <span class="text-[10px] text-stone-400 font-bold">迄</span>
-                                <span class="font-mono font-extrabold text-xs sm:text-sm text-stone-700 dark:text-stone-100 bg-white/90 dark:bg-stone-800/90 px-2 py-0.5 rounded-lg border border-stone-200/60 dark:border-white/10 shadow-sm">${rec.endSoc}%</span>
+                                <span class="font-mono font-extrabold text-xs sm:text-sm text-stone-700 dark:text-stone-100 bg-white/90 dark:bg-neutral-900/90 px-2 py-0.5 rounded-lg border border-stone-200/60 dark:border-white/10 shadow-sm">${rec.endSoc}%</span>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-3 divide-x divide-stone-100 dark:divide-stone-800 text-center py-0.5">
+                        <div class="grid grid-cols-3 divide-x divide-stone-100 dark:divide-neutral-800 text-center py-0.5">
                             <div class="px-1 flex flex-col items-center justify-center">
                                 <span class="text-[10px] sm:text-[11px] text-stone-400 font-bold mb-0.5">行駛里程</span>
                                 <div class="flex items-baseline justify-center font-mono font-extrabold text-sm sm:text-base text-stone-800 dark:text-white leading-tight">
@@ -2931,9 +2983,9 @@ window.setupSocSliders = function() {
                     </div>
                     ` : `
                     <div class="flex-1 flex flex-col justify-center my-1">
-                        <div class="bg-stone-50 dark:bg-stone-900/50 p-3 rounded-2xl border border-stone-100 dark:border-stone-800 flex items-center justify-between shadow-sm">
+                        <div class="bg-stone-50 dark:bg-black/50 p-3 rounded-2xl border border-stone-100 dark:border-stone-800 flex items-center justify-between shadow-sm">
                             <div class="flex items-center gap-2.5">
-                                <div class="w-9 h-9 rounded-xl bg-white dark:bg-stone-800 flex items-center justify-center text-xl shadow-sm border border-stone-200/50 dark:border-stone-700/50 shrink-0">
+                                <div class="w-9 h-9 rounded-xl bg-white dark:bg-neutral-900 flex items-center justify-center text-xl shadow-sm border border-stone-200/50 dark:border-stone-700/50 shrink-0">
                                     ${iconStr}
                                 </div>
                                 <div class="text-left">
@@ -2961,6 +3013,8 @@ window.setupSocSliders = function() {
         }
 
         function measureAndAdjustMarquees() {
+            // v32：lite 模式下跑馬燈已停用（CSS animation: none），且 content-visibility 會讓畫面外卡片量不到正確寬度，直接跳過。
+            if (document.documentElement.classList.contains('lite')) return;
             document.querySelectorAll('.marquee-box').forEach(box => {
                 const content = box.querySelector('.marquee-content');
                 if (!content) return;
@@ -3107,7 +3161,7 @@ window.setupSocSliders = function() {
                 recordDaysMap[d] = (recordDaysMap[d] || 0) + 1;
             });
 
-            let html = `<div class="text-xs md:text-sm font-extrabold mb-3 text-center text-stone-700 dark:text-stone-200 bg-stone-50 dark:bg-stone-800/50 py-3 rounded-xl flex items-center justify-center gap-2">
+            let html = `<div class="text-xs md:text-sm font-extrabold mb-3 text-center text-stone-700 dark:text-stone-200 bg-stone-50 dark:bg-neutral-900/50 py-3 rounded-xl flex items-center justify-center gap-2">
                 <span>📅</span><span>${y}年${m}月 打卡足跡</span>
             </div>`;
             html += `<div class="grid grid-cols-7 gap-1 text-center text-[10px] md:text-xs font-bold text-stone-400 mb-2"><div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div></div><div class="grid grid-cols-7 gap-1.5 md:gap-2">`;
@@ -3121,7 +3175,7 @@ window.setupSocSliders = function() {
 
                 let style = hasRec 
                     ? (isSelected ? 'bg-amber-500 text-stone-950 font-extrabold shadow-lg ring-4 ring-amber-300 dark:ring-amber-500/40 scale-110 z-10 cursor-pointer' : 'bg-amber-400 text-stone-900 shadow-md font-extrabold hover:scale-105 active:scale-95 cursor-pointer')
-                    : 'bg-stone-50 dark:bg-stone-800/60 text-stone-400 border border-stone-100 dark:border-stone-700/50 opacity-60';
+                    : 'bg-stone-50 dark:bg-neutral-900/60 text-stone-400 border border-stone-100 dark:border-stone-700/50 opacity-60';
 
                 html += `<button type="button" ${hasRec ? `onclick="selectCalendarDay('${fullDate}')"` : ''} class="aspect-square flex flex-col items-center justify-center rounded-xl text-[11px] md:text-sm font-bold transition-all relative ${style}">
                     <span>${i}</span>
@@ -3216,7 +3270,7 @@ window.setupSocSliders = function() {
                             badgeEl.className = base + "bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-400 border-amber-200 dark:border-amber-800";
                         } else {
                             badgeEl.textContent = `剩餘 ${diffDays} 天`;
-                            badgeEl.className = base + "bg-stone-100 text-stone-500 dark:bg-stone-800 dark:text-stone-400 border-stone-200 dark:border-stone-700";
+                            badgeEl.className = base + "bg-stone-100 text-stone-500 dark:bg-neutral-900 dark:text-stone-400 border-stone-200 dark:border-stone-700";
                         }
                     }
                 } else if (container) {
@@ -3249,7 +3303,7 @@ window.setupSocSliders = function() {
         window.setChartMetricView = function(view) {
             AppState.currentChartFilter = view;
 
-            const activeClass = "px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg bg-white dark:bg-stone-600 shadow-sm text-stone-900 dark:text-white font-extrabold transition-all";
+            const activeClass = "px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg bg-white dark:bg-neutral-600 shadow-sm text-stone-900 dark:text-white font-extrabold transition-all";
             const inactiveClass = "px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg text-stone-500 hover:text-stone-900 dark:hover:text-white font-bold transition-all bg-transparent";
 
             const btnAll = document.getElementById('btnChartAll');
@@ -3283,9 +3337,10 @@ window.setupSocSliders = function() {
 
         function debouncedUpdateCharts() {
             if (chartRenderTimer) clearTimeout(chartRenderTimer);
+            const delay = document.documentElement.classList.contains('lite') ? 300 : 150; // v32：lite 下圖表再晚一點畫，把切換幀讓出來
             chartRenderTimer = setTimeout(() => {
                 if (typeof Chart !== 'undefined') updateCharts();
-            }, 150);
+            }, delay);
         }
 
             function updateCharts() {
@@ -3463,7 +3518,7 @@ window.setupSocSliders = function() {
                 gradient.addColorStop(1, 'rgba(45, 212, 191, 0.0)'); 
                 datasets.push({
                     label: '平均電耗 (km/度)', data: efficiencies, borderColor: isDarkMode ? '#2dd4bf' : '#0d9488', borderWidth: 3, 
-                    pointBackgroundColor: isDarkMode ? '#292524' : '#ffffff', pointBorderColor: isDarkMode ? '#2dd4bf' : '#0d9488', pointBorderWidth: 2, pointRadius: 3, 
+                    pointBackgroundColor: isDarkMode ? '#171717' : '#ffffff', pointBorderColor: isDarkMode ? '#2dd4bf' : '#0d9488', pointBorderWidth: 2, pointRadius: 3, 
                     tension: 0.4, yAxisID: 'yEfficiency', fill: true, backgroundColor: gradient
                 });
                 scalesConfig.yEfficiency = { type: 'linear', position: 'left', ticks: { color: isDarkMode ? '#2dd4bf' : '#0d9488', maxTicksLimit: 6 }, border: { display: false }, grid: { color: gridColor } };
@@ -3550,10 +3605,10 @@ window.setupSocSliders = function() {
                     tag, cp: stationStats[tag].cost / stationStats[tag].power
                 })).sort((a,b) => a.cp - b.cp).slice(0, 6); 
 
-                if (cpArr.length === 0) DOM.cpRankingList.innerHTML = '<div class="text-xs text-stone-400 text-center py-4 bg-stone-50 dark:bg-stone-800/30 rounded-xl border border-dashed border-stone-200 dark:border-stone-700 md:col-span-2">區間內尚無足夠的充電花費數據</div>';
+                if (cpArr.length === 0) DOM.cpRankingList.innerHTML = '<div class="text-xs text-stone-400 text-center py-4 bg-stone-50 dark:bg-neutral-900/30 rounded-xl border border-dashed border-stone-200 dark:border-stone-700 md:col-span-2">區間內尚無足夠的充電花費數據</div>';
                 else {
                     DOM.cpRankingList.innerHTML = cpArr.map((item, i) => `
-                        <div class="flex justify-between items-center text-[11px] md:text-sm p-3 md:p-4 bg-stone-50 dark:bg-stone-800/50 rounded-xl border border-stone-100 dark:border-stone-700/50 hover:bg-stone-100 dark:hover:bg-stone-700 transition">
+                        <div class="flex justify-between items-center text-[11px] md:text-sm p-3 md:p-4 bg-stone-50 dark:bg-neutral-900/50 rounded-xl border border-stone-100 dark:border-stone-700/50 hover:bg-stone-100 dark:hover:bg-neutral-800 transition">
                             <span class="font-bold flex items-center gap-2 text-stone-700 dark:text-stone-200"><span class="${i<3?'text-amber-500':'text-stone-400'} font-extrabold w-3 md:w-4 text-center">${i+1}</span> ${escapeHTML(item.tag)}</span>
                             <span class="font-mono font-extrabold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 px-2 py-0.5 md:py-1 rounded shadow-sm">$${item.cp.toFixed(1)} <span class="text-[9px] md:text-[10px] font-bold">/度</span></span>
                         </div>
@@ -3617,7 +3672,7 @@ window.setupSocSliders = function() {
                         dynamicOffsets.push(14);
                         dynamicBgColors.push(baseColors[idx]);
                         dynamicBorderWidths.push(2);
-                        dynamicBorderColors.push(isDarkMode ? '#ffffff' : '#1c1917');
+                        dynamicBorderColors.push(isDarkMode ? '#ffffff' : '#000000');
                     } else if (hasSelection) {
                         dynamicOffsets.push(0);
                         dynamicBgColors.push(baseColors[idx] + '33');
@@ -3658,7 +3713,7 @@ window.setupSocSliders = function() {
                         let displayTitle = "總支出";
                         let displayAmount = totalPeriodCost;
                         let titleColor = isDarkMode ? '#a8a29e' : '#78716c';
-                        let amountColor = isDarkMode ? '#f5f5f4' : '#1c1917';
+                        let amountColor = isDarkMode ? '#f5f5f4' : '#000000';
                         let isFocused = false;
 
                         if (doughnutHoveredIndex !== null && doughnutHoveredIndex >= 0 && doughnutHoveredIndex < pieLabels.length) {
@@ -3979,8 +4034,8 @@ window.setupSocSliders = function() {
             const isMain = tabId === 'settings-tab-main';
             if (mainTab) mainTab.classList.toggle('hidden', !isMain); 
             if (pwaTab) pwaTab.classList.toggle('hidden', isMain);
-            if (btnMain) btnMain.className = isMain ? "flex-1 py-4 text-xs md:text-sm font-extrabold border-r border-stone-200 dark:border-stone-700 transition-all bg-amber-400 dark:bg-amber-500 text-stone-900 shadow-sm hover:opacity-90" : "flex-1 py-4 text-xs md:text-sm font-extrabold border-r border-stone-200 dark:border-stone-700 text-stone-500 dark:text-[#a8a29e] transition-all bg-stone-100 dark:bg-[#1c1917] hover:bg-stone-200 dark:hover:bg-stone-800";
-            if (btnPwa) btnPwa.className = !isMain ? "flex-1 py-4 text-xs md:text-sm font-extrabold transition-all bg-amber-400 dark:bg-amber-500 text-stone-900 shadow-sm hover:opacity-90" : "flex-1 py-4 text-xs md:text-sm font-extrabold text-stone-500 dark:text-[#a8a29e] transition-all bg-stone-100 dark:bg-[#1c1917] hover:bg-stone-200 dark:hover:bg-stone-800";
+            if (btnMain) btnMain.className = isMain ? "flex-1 py-4 text-xs md:text-sm font-extrabold border-r border-stone-200 dark:border-stone-700 transition-all bg-amber-400 dark:bg-amber-500 text-stone-900 shadow-sm hover:opacity-90" : "flex-1 py-4 text-xs md:text-sm font-extrabold border-r border-stone-200 dark:border-stone-700 text-stone-500 dark:text-[#a8a29e] transition-all bg-stone-100 dark:bg-black hover:bg-stone-200 dark:hover:bg-neutral-900";
+            if (btnPwa) btnPwa.className = !isMain ? "flex-1 py-4 text-xs md:text-sm font-extrabold transition-all bg-amber-400 dark:bg-amber-500 text-stone-900 shadow-sm hover:opacity-90" : "flex-1 py-4 text-xs md:text-sm font-extrabold text-stone-500 dark:text-[#a8a29e] transition-all bg-stone-100 dark:bg-black hover:bg-stone-200 dark:hover:bg-neutral-900";
             if (!isMain) updatePwaDiagnostic();
         };
 
@@ -4156,7 +4211,7 @@ window.forceUpload = function() {
         };
 
         window.generateManifestContent = function() {
-            return JSON.stringify({ "name": "Ev Life - 純電之旅", "short_name": "Ev Life", "start_url": "./index.html", "display": "standalone", "background_color": "#1c1917", "theme_color": "#0d9488", "icons": [ { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" }, { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" } ] }, null, 4);
+            return JSON.stringify({ "name": "Ev Life - 純電之旅", "short_name": "Ev Life", "start_url": "./index.html", "display": "standalone", "background_color": "#000000", "theme_color": "#0d9488", "icons": [ { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" }, { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" } ] }, null, 4);
         };
 
         window.generateSWContent = function() {
@@ -4231,7 +4286,7 @@ self.addEventListener('fetch', event => {
             window.location.href = window.location.pathname + '?v=' + Date.now();
         };
 
-        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v30 是 JS 萬一沒跑起來的備援顯示）
+        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v32 是 JS 萬一沒跑起來的備援顯示）
         function updateAppVersionLabels() {
             document.querySelectorAll('.app-version-label').forEach(el => { el.textContent = APP_VERSION; });
         }
@@ -4298,7 +4353,7 @@ window.toggleAbrpConnectorFilter = function(type) {
         }
     }
 
-    const activeClass = "conn-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-white dark:bg-stone-700 text-stone-900 dark:text-white shadow-sm transition-all border border-stone-200/50 dark:border-stone-600";
+    const activeClass = "conn-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-white dark:bg-neutral-800 text-stone-900 dark:text-white shadow-sm transition-all border border-stone-200/50 dark:border-stone-600";
     const inactiveClass = "conn-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-stone-500 dark:text-stone-400 transition-all border border-transparent";
 
     const allKeys = ['CCS1', 'CCS2', 'J1772', 'Type 2', 'ALL'];
@@ -4344,7 +4399,7 @@ window.toggleAbrpPowerFilter = function(type) {
         }
     }
 
-    const activeClass = "power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-white dark:bg-stone-700 text-stone-900 dark:text-white shadow-sm transition-all border border-stone-200/50 dark:border-stone-600";
+    const activeClass = "power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-white dark:bg-neutral-800 text-stone-900 dark:text-white shadow-sm transition-all border border-stone-200/50 dark:border-stone-600";
     const inactiveClass = "power-filter-btn px-2.5 py-1 rounded-lg text-[10px] font-bold text-stone-500 dark:text-stone-400 transition-all border border-transparent";
 
     ['FAST_HIGH', 'FAST_MID', 'SLOW', 'ALL'].forEach(p => {
@@ -4461,10 +4516,10 @@ window.openAbrpModal = function() {
                 zoom: 7,
                 disableDefaultUI: true,
 styles: document.documentElement.classList.contains('dark') ? [
-    { elementType: "geometry", stylers: [{ color: "#292524" }] }, // 陸地底色
-    { featureType: "water", elementType: "geometry", stylers: [{ color: "#1c1917" }] }, // 海洋深色，突顯台灣輪廓
+    { elementType: "geometry", stylers: [{ color: "#171717" }] }, // 陸地底色
+    { featureType: "water", elementType: "geometry", stylers: [{ color: "#000000" }] }, // 海洋深色，突顯台灣輪廓
     { featureType: "road", elementType: "geometry", stylers: [{ color: "#44403c" }] }, // 道路
-    { elementType: "labels.text.stroke", stylers: [{ color: "#1c1917" }] }, // 文字描邊
+    { elementType: "labels.text.stroke", stylers: [{ color: "#000000" }] }, // 文字描邊
     { elementType: "labels.text.fill", stylers: [{ color: "#a8a29e" }] } // 文字顏色
 ] : []
             });
@@ -4670,7 +4725,7 @@ window.setAbrpStopPref = function(pref) {
 
     const btnRest = document.getElementById('btnPrefRestArea');
     const btnIc = document.getElementById('btnPrefInterchange');
-    const activeClass = "px-2.5 py-1 rounded-lg bg-white dark:bg-stone-700 text-stone-900 dark:text-white shadow-sm transition-colors flex items-center justify-center gap-1";
+    const activeClass = "px-2.5 py-1 rounded-lg bg-white dark:bg-neutral-800 text-stone-900 dark:text-white shadow-sm transition-colors flex items-center justify-center gap-1";
     const inactiveClass = "px-2.5 py-1 rounded-lg text-stone-500 dark:text-stone-400 transition-colors flex items-center justify-center gap-1 hover:text-stone-900 dark:hover:text-white";
 
     if (btnRest && btnIc) {
@@ -5001,7 +5056,7 @@ function renderDestinationChargingCard(station, specs, chargingScenarioText, des
             </a>
         </div>
 
-        <div class="p-2 rounded-xl bg-white/70 dark:bg-stone-900/60 border border-teal-200/50 dark:border-teal-800/40 text-[11px] text-stone-600 dark:text-stone-300 leading-relaxed">
+        <div class="p-2 rounded-xl bg-white/70 dark:bg-black/60 border border-teal-200/50 dark:border-teal-800/40 text-[11px] text-stone-600 dark:text-stone-300 leading-relaxed">
             ⚡ 規格：${specs.powerLabel} (${specs.connectorLabel})。<br>
             ${chargingScenarioText}
         </div>
@@ -5445,11 +5500,11 @@ function showElevationUnavailable(routeIdx, startSoc, totalDistanceKm, durationT
   const directSocEl = document.getElementById('abrpDirectSoc');
   if (directSocEl) {
     directSocEl.className = 'text-sm sm:text-base font-extrabold font-mono tracking-tight leading-tight flex flex-col items-center justify-center text-stone-400';
-    directSocEl.innerHTML = '<span>—</span><span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded mt-0.5 tracking-normal whitespace-nowrap text-stone-600 dark:text-stone-300 bg-stone-100 dark:bg-stone-800">高程資料不可用</span>';
+    directSocEl.innerHTML = '<span>—</span><span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded mt-0.5 tracking-normal whitespace-nowrap text-stone-600 dark:text-stone-300 bg-stone-100 dark:bg-neutral-900">高程資料不可用</span>';
   }
   const recCard = document.getElementById('abrpRecommendationCard');
   if (recCard) {
-    recCard.className = "p-4 rounded-2xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900/40 text-stone-700 dark:text-stone-200 space-y-2 min-h-[136px]";
+    recCard.className = "p-4 rounded-2xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-black/40 text-stone-700 dark:text-stone-200 space-y-2 min-h-[136px]";
     recCard.innerHTML = `
         <div class="font-extrabold text-sm flex items-center gap-1.5">
             <span>⚠️</span> 高程資料不可用，無法計算抵達電量
@@ -6252,11 +6307,11 @@ const stationCardHtml = `
                             <span>抵達約 ${estSocAtCurrent}%</span>
                         </span>
                         <!-- ⚡ 功率標籤 -->
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${specs.isFast ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800/50' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700'} text-[10px] font-mono font-bold border">
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${specs.isFast ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800/50' : 'bg-stone-100 dark:bg-neutral-900 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700'} text-[10px] font-mono font-bold border">
                             ⚡ 功率: ${specs.powerLabel}
                         </span>
                         <!-- 🔌 槍頭標籤 -->
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${specs.hasCcs1 ? 'bg-teal-100 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 border-teal-200 dark:border-teal-800/50' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700'} text-[10px] font-mono font-bold border">
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${specs.hasCcs1 ? 'bg-teal-100 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 border-teal-200 dark:border-teal-800/50' : 'bg-stone-100 dark:bg-neutral-900 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700'} text-[10px] font-mono font-bold border">
                             🔌 槍頭: ${specs.connectorLabel}
                         </span>
                         ${isN7AutoChargeStation(stationName) ? `
