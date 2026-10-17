@@ -110,7 +110,7 @@ input[type="number"] {
            與指標滑動疊加還是會卡；使用者選「兩個都做」，所以連它一起拿掉。 */
         .view-section.active { display: block; }
 
-        /* v32 低效能模式：只有 html 帶 lite class 時生效（自動偵測：減少動態效果／CPU <= 4 核／記憶體 <= 4GB）。
+        /* v32 低效能模式：只有 html 帶 lite class 時生效。v34 起自動偵測只用：減少動態效果／記憶體 <= 2GB（不再用 CPU 核數，見 shouldUseLiteMode）。
            高效機完全不受影響。拖曳 JS 寫的 inline transition 也會被這裡的 !important 蓋掉，所以拖曳不用另外改。 */
         html.lite header { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
         html.lite .ios-27-glass { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; background: rgba(255, 255, 255, 0.92); }
@@ -657,7 +657,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v33</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v34</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1099,7 +1099,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v33</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v34</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1576,24 +1576,28 @@ input[type="number"] {
             get CO2_SAVED_PER_KM() { return this.CO2_ICE_PER_KM - this.CO2_EV_PER_KM; }
         };
 
-        // v32 低效能模式：只在裝置真的比較差、或使用者開了系統「減少動態效果」時啟用。
-        // 判斷邏輯抽成純函式 shouldUseLiteMode，方便單元測試；高效機不會進 lite。
+        // v34 跨裝置修正：不再用 hardwareConcurrency 判斷效能。
+        // WebKit 在 iOS 上為防指紋追蹤會把 hardwareConcurrency 鉗制在最多 2，
+        // 所以舊版 cores <= 4 讓所有 iPhone/iPad Safari 都誤判成低效能進 lite，
+        // Q 彈動畫被跳過，看起來就是「iPhone 沒有動畫」。桌機 Chrome 回傳真實核數、
+        // Android Chrome 回傳真實核數，所以只有 iPhone 中招。
+        // v34 只用「系統減少動態效果」（各平台都準）＋ deviceMemory <= 2（真低記憶體），
+        // deviceMemory 在 iOS Safari 是 undefined，不會誤觸發。env.cores 若傳入會被忽略。
         function shouldUseLiteMode(env) {
             return !!env.reducedMotion
-                || (typeof env.cores === 'number' && env.cores <= 4)
-                || (typeof env.memory === 'number' && env.memory <= 4);
+                || (typeof env.memory === 'number' && env.memory <= 2);
         }
         function applyLiteMode() {
             const env = {
                 reducedMotion: typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-                cores: typeof navigator.hardwareConcurrency === 'number' ? navigator.hardwareConcurrency : null,
+                // v34：不讀 hardwareConcurrency（iOS WebKit 鉗制在 2，會誤判所有 iPhone/iPad 為低效能）
                 memory: typeof navigator.deviceMemory === 'number' ? navigator.deviceMemory : null
             };
             document.documentElement.classList.toggle('lite', shouldUseLiteMode(env));
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v33';
+        const APP_VERSION = 'v34';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -2086,18 +2090,25 @@ function cacheDOMNodes() {
                 return;
             }
             const dist = endLeft - start.left;
-            const stretch = Math.min(Math.abs(dist) * 0.55, 90);
+            const stretch = Math.min(Math.abs(dist) * 0.30, 36); // v34：拉伸縮短（舊 0.55/上限 90 在 Android 上看起來太長）
             const midWidth = Math.max(start.width, endWidth) + stretch;
             const midLeft = start.left + dist * 0.35;
             const keyframes = [
                 { transform: `translate(${start.left}px, -50%) scale(1)`, width: `${start.width}px`, easing: 'ease-out' },
-                { transform: `translate(${midLeft}px, -50%) scaleY(0.92)`, width: `${midWidth}px`, offset: 0.45, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' },
+                { transform: `translate(${midLeft}px, -50%) scaleY(0.95)`, width: `${midWidth}px`, offset: 0.45, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' },
                 { transform: `translate(${endLeft}px, -50%) scale(1)`, width: `${endWidth}px` }
             ];
             // 先把 inline 樣式定在終點、關掉 CSS transition，再跑 WAAPI；動畫結束後 inline 已是終點，不會跳。
             indicator.style.transition = 'none';
             indicator.style.width = `${endWidth}px`;
             indicator.style.transform = `translate(${endLeft}px, -50%) scale(1)`;
+            // v34 跨裝置 fallback：沒有 Element.animate 的舊瀏覽器退回 CSS transition 直設終點，不會卡住。
+            if (typeof indicator.animate !== 'function') {
+                indicator.style.transition = '';
+                indicator.style.width = `${endWidth}px`;
+                indicator.style.transform = `translate(${endLeft}px, -50%) scale(1)`;
+                return;
+            }
             indicatorAnim = indicator.animate(keyframes, { duration: 550, fill: 'none' });
             indicatorAnim.onfinish = () => { indicator.style.transition = ''; indicatorAnim = null; };
             indicatorAnim.oncancel = () => { indicator.style.transition = ''; indicatorAnim = null; };
@@ -2182,7 +2193,7 @@ function cacheDOMNodes() {
                 const deltaX = clientX - startX;
                 if (Math.abs(deltaX) > 2) { 
                     moved = true; if(e.cancelable) e.preventDefault(); 
-                    let stretch = Math.min(Math.abs(deltaX) * 0.55, 65); 
+                    let stretch = Math.min(Math.abs(deltaX) * 0.30, 36); // v34：與點按 Q 彈同步縮短 
                     let targetX = deltaX > 0 ? (initialTranslate + deltaX - stretch) : (initialTranslate + deltaX);
                     let targetWidth = initialWidth + stretch;
                     let maxTranslate = navContainer.offsetWidth - targetWidth;
@@ -4342,7 +4353,7 @@ self.addEventListener('fetch', event => {
             window.location.href = window.location.pathname + '?v=' + Date.now();
         };
 
-        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v33 是 JS 萬一沒跑起來的備援顯示）
+        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v34 是 JS 萬一沒跑起來的備援顯示）
         function updateAppVersionLabels() {
             document.querySelectorAll('.app-version-label').forEach(el => { el.textContent = APP_VERSION; });
         }
