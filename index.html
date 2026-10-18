@@ -671,7 +671,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v59</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v60</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1114,7 +1114,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v59</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v60</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1614,7 +1614,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v59';
+        const APP_VERSION = 'v60';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -6582,14 +6582,18 @@ const validCandidates = [];
             }
         }
 
+        // v60: nearbySearch 永不 reject（若同步拋錯 → 回傳 []）。
+        // 否則 Promise.race 會直接 reject（2.5 秒逾時救不了），函式中斷、佔位文字永遠留著。
         const placesPromise = new Promise(resolve => {
-            placesService.nearbySearch({
-                location: searchPoint,
-                radius: 10000,
-                keyword: '快充站'
-            }, (results, status) => {
-                resolve((status === google.maps.places.PlacesServiceStatus.OK && results) ? results : []);
-            });
+            try {
+                placesService.nearbySearch({
+                    location: searchPoint,
+                    radius: 10000,
+                    keyword: '快充站'
+                }, (results, status) => {
+                    resolve((status === google.maps.places.PlacesServiceStatus.OK && results) ? results : []);
+                });
+            } catch (e) { resolve([]); }
         });
 
         const timeoutPromise = new Promise(resolve => setTimeout(() => resolve([]), 2500));
@@ -6637,7 +6641,16 @@ const validCandidates = [];
             if (proj.distToRouteMeters <= 5000) {
                 // 🛣️ 計算真實道路車程與行駛距離
                 const highwayAnchor = path[proj.bestPointIndex] || searchPoint;
-                const roadDetour = await getRealRoadDetour(highwayAnchor, stLoc);
+                // v60: getRealRoadDetour 的 Distance Matrix 回調無逾時保護，若回調永不觸發會卡住迴圈。
+                // 這裡用 Promise.race 包 5 秒逾時（逾時 → 保底估算，候選站會因繞路 9999 > 720 被跳過，不中斷迴圈）。
+                // 並包 try/catch（若 getRealRoadDetour 拋錯 → 同樣保底，不中斷迴圈）。
+                let roadDetour;
+                try {
+                    roadDetour = await Promise.race([
+                        getRealRoadDetour(highwayAnchor, stLoc),
+                        new Promise(function (resolve) { setTimeout(function () { resolve({ detourDistKm: null, detourDurationText: null, detourDurationSec: 9999 }); }, 5000); })
+                    ]);
+                } catch (e) { roadDetour = { detourDistKm: null, detourDurationText: null, detourDurationSec: 9999 }; }
 
                 // 🛑 4. 繞路時間防呆：若需要下交流道開超過 12 分鐘，代表逆向或不順路
                 if (roadDetour.detourDurationSec && roadDetour.detourDurationSec > 720) {
