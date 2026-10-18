@@ -675,7 +675,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v64</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v65</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1118,7 +1118,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v64</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v65</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1619,7 +1619,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v64';
+        const APP_VERSION = 'v65';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -6620,48 +6620,27 @@ const validCandidates = [];
 
             const stLoc = st.geometry.location;
 
-            // 🛑 2. 精準排除服務區本體（600m 服務區範圍 + 地址關鍵字聯防）
-            let isInsideRestArea = false;
-            
-            // A. 地址或名稱已明寫是服務區/休息站（精確命中，無距離限制）
-            if (fullName.includes('服務區') || fullName.includes('休息站')) {
-                isInsideRestArea = true;
-            } else {
-                // B. 名稱未明寫時，以 600 公尺比對（v63：服務區本身可達 500m 以上，250m 蓋不住，泰安 iCharging 站因此漏網、與服務區偏好重複出現）
+            // 🛑 2. 服務區判斷（v65：硬排除只留最可靠的 A；B/C 改為軟提醒，不再硬排除）
+            // A. 地址或名稱已明寫是服務區/休息站（精確命中，無距離限制）→ 硬排除（可靠，名字就寫著是服務區站）。
+            if (fullName.includes('服務區') || fullName.includes('休息站')) continue;
+            // B/C 軟提醒（v65）：只標記 maybeRestArea，不排除。Places pin 偏離可達 ~3km
+            // （如泰安 113 號離 curated 點 2984m）、Places 又有重複登錄，距離／品牌／place_id
+            // 硬排除都不可靠。軟提醒誤判無害（只多一句「可能」），決定權交給使用者＋「換站」按鈕。
+            let maybeRestArea = false;
+            {
+                const BRAND_TOKENS = ['icharging', 'evoasis', 'u-power', 'upower', '特爾', '台泥', '中油', '華城', '星舟', 'evovolt', 'noodoe', '起而行', '台達', 'delta', 'abb', 'chargepoint', 'evgo'];
+                const candBrands = BRAND_TOKENS.filter(b => n.includes(b));
                 TAIWAN_REST_AREA_CHARGERS.forEach(ra => {
-                    if (isInsideRestArea) return;
+                    if (maybeRestArea) return;
                     const pts = ra.hasDirection ? [ra.south, ra.north].filter(Boolean) : [ra];
+                    const raName = ((ra.name || '') + ' ' + pts.map(p => p.name || '').join(' ')).toLowerCase();
+                    const brandMatch = candBrands.some(b => raName.includes(b));
                     pts.forEach(p => {
                         const distM = getDistanceFromLatLonInKm(stLoc.lat(), stLoc.lng(), p.lat, p.lng) * 1000;
-                        if (distM < 600) {
-                            isInsideRestArea = true; // 600 公尺內代表就在該服務區範圍內（服務區可達 500m 以上）
-                        }
+                        if (distM < 600 || (brandMatch && distM < 3000)) { maybeRestArea = true; }
                     });
                 });
             }
-
-            // C. (v64) 品牌 + 距離聯防：Places pin 座標可能偏離實際充電站 >600m（地址定位不準），
-            //     僅靠距離抓不到。改比品牌：若 Places 名字與某 curated 站共享同一品牌（如 iCharging），
-            //     且距離 <1000m，視為同一站（服務區站）→ 排除。品牌比對容忍 pin 偏離達 1km，
-            //     且不會誤殺不同品牌的鄰近站點。
-            if (!isInsideRestArea) {
-                const BRAND_TOKENS = ['icharging', 'evoasis', 'u-power', 'upower', '特爾', '台泥', '中油', '華城', '星舟', 'evovolt', 'noodoe', '起而行', '台達', 'delta', 'abb', 'chargepoint', 'evgo'];
-                const candBrands = BRAND_TOKENS.filter(b => n.includes(b));
-                if (candBrands.length) {
-                    TAIWAN_REST_AREA_CHARGERS.forEach(ra => {
-                        if (isInsideRestArea) return;
-                        const pts = ra.hasDirection ? [ra.south, ra.north].filter(Boolean) : [ra];
-                        const raName = ((ra.name || '') + ' ' + pts.map(p => p.name || '').join(' ')).toLowerCase();
-                        if (!candBrands.some(b => raName.includes(b))) return;
-                        pts.forEach(p => {
-                            const distM = getDistanceFromLatLonInKm(stLoc.lat(), stLoc.lng(), p.lat, p.lng) * 1000;
-                            if (distM < 1000) { isInsideRestArea = true; }
-                        });
-                    });
-                }
-            }
-
-            if (isInsideRestArea) continue;
 
             // 🛑 3. 方向性防呆
             if (isSouthbound && (fullName.includes('北站') || fullName.includes('北向') || fullName.includes('北上'))) continue;
@@ -6695,6 +6674,7 @@ const validCandidates = [];
                     lng: stLoc.lng(),
                     place_id: st.place_id,
                     isRestArea: false,
+                    maybeRestArea: maybeRestArea,
                     // v58: Places 結果規格未驗證 — 先放佔位，之後由 enrichCandidatesWithEvSpecs
                     // 向 Places API (New) 查詢真實 evChargeOptions 補上。絕不再硬編碼快充規格。
                     specs: null, // v58: 待 enrich 補上（未確認）
@@ -6759,227 +6739,257 @@ const validCandidates = [];
         }
     });
 
-const selectedStation = validCandidates[bestIdx];
+// v65: 站點卡片渲染（可重呼叫 — 供「換站」按鈕重畫卡片）。
+// candidates: 過濾＋排序後的候選站清單；selectedIdx: 本次顯示的候選索引；
+// ctx: { routeIdx, calcData, realEff, startSoc, userTargetSoc }（外層函式傳入）。
+function renderStationCardForIndex(candidates, selectedIdx, ctx) {
+    const selectedStation = candidates[selectedIdx];
 
-    // 🏷️ 站名防呆清洗（僅在名稱為「充電站/快充站」這類模糊詞時修飾，不再反查服務區覆蓋名稱）
-    if (selectedStation.name === '充電站' || selectedStation.name === '快充站') {
-        const roadMatch = (selectedStation.address || '').match(/..[區市鎮鄉]([^\d\s]+)/);
-        selectedStation.name = roadMatch ? `${roadMatch[1]}快充站` : (selectedStation.address || '交流道快充站');
-    }
-
-    // 🔍 2. 尋找「真正有里程間隔的下一站」（至少距離本站 15 公里以上，避免抓到同區域站點）
-    let nextCandidate = null;
-    for (let k = bestIdx + 1; k < validCandidates.length; k++) {
-        if ((validCandidates[k].kmFromStart - selectedStation.kmFromStart) >= 15) {
-            nextCandidate = validCandidates[k];
-            break;
-        }
-    }
-
-    // 🔋 3. 計算抵達本推薦站時的預估電量
-    const distToCurrent = selectedStation.kmFromStart || 0;
-    const kwhToCurrent = distToCurrent / (realEff > 0 ? realEff : 5.5);
-    const estSocAtCurrent = Math.max(0, Math.round(startSoc - ((kwhToCurrent / AppState.batteryCapacity) * 100)));
-
-    // 🎨 4. 依據抵達電量決定標籤顏色
-    let currentSocBadgeClass = "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700/60";
-    if (estSocAtCurrent <= 10) {
-        currentSocBadgeClass = "bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-700/60";
-    } else if (estSocAtCurrent <= 20) {
-        currentSocBadgeClass = "bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-700/60";
-    }
-
-    // ⚡ 5. 判定是否為「🚨 必充警戒」
-    let isMustCharge = false;
-    let nextStationName = "";
-    let estSocAtNext = 0;
-
-    if (!nextCandidate) {
-        isMustCharge = true; // 後方已無其他經過的充電站
-    } else {
-        const distToNext = nextCandidate.kmFromStart;
-        const kwhToNext = distToNext / (realEff > 0 ? realEff : 5.5);
-        estSocAtNext = Math.round(startSoc - ((kwhToNext / AppState.batteryCapacity) * 100));
-
-        // 清洗下一站的名稱，徹底避免出現【充電站】這種空洞文字
-        nextStationName = nextCandidate.name;
-        if (nextStationName === '充電站' || nextStationName === '快充站') {
-            const rMatch = (nextCandidate.address || '').match(/..[區市鎮鄉]([^\d\s]+)/);
-            nextStationName = rMatch ? `${rMatch[1]}快充站` : (nextCandidate.address || '後續快充站');
+        // 🏷️ 站名防呆清洗（僅在名稱為「充電站/快充站」這類模糊詞時修飾，不再反查服務區覆蓋名稱）
+        if (selectedStation.name === '充電站' || selectedStation.name === '快充站') {
+            const roadMatch = (selectedStation.address || '').match(/..[區市鎮鄉]([^\d\s]+)/);
+            selectedStation.name = roadMatch ? `${roadMatch[1]}快充站` : (selectedStation.address || '交流道快充站');
         }
 
-        // ⚡ 略過本站開往下一站電量低於安全底線 (12%) 時，亮紅燈必充警戒
-        if (estSocAtNext < 12) {
-            isMustCharge = true;
+        // 🔍 2. 尋找「真正有里程間隔的下一站」（至少距離本站 15 公里以上，避免抓到同區域站點）
+        let nextCandidate = null;
+        for (let k = selectedIdx + 1; k < candidates.length; k++) {
+            if ((candidates[k].kmFromStart - selectedStation.kmFromStart) >= 15) {
+                nextCandidate = candidates[k];
+                break;
+            }
         }
-    }
 
-    // 🚦 產生警示提示條
-    const urgencyNoticeHtml = isMustCharge
-        ? `<div class="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 space-y-1">
-               <div class="flex items-center justify-between">
-                   <span class="font-extrabold text-xs flex items-center gap-1.5">
-                       <span class="text-sm">🚨</span> 必充警戒：最後補電站！
-                   </span>
-                   <span class="text-[9px] font-extrabold bg-rose-500 text-white px-1.5 py-0.5 rounded">不可略過</span>
-               </div>
-               <p class="text-[10px] text-rose-600 dark:text-rose-400 font-bold leading-tight">
-                   經過此站後已無足夠電量可抵達下一站或終點，<b>請務必在此進站補電</b>！
-               </p>
-           </div>`
-        : `<div class="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 space-y-1">
-               <div class="flex items-center justify-between">
-                   <span class="font-extrabold text-xs flex items-center gap-1.5">
-                       <span class="text-sm">💡</span> 彈性推薦：可下一站再充
-                   </span>
-                   <span class="text-[9px] font-extrabold bg-emerald-600 text-white px-1.5 py-0.5 rounded">電量安全</span>
-               </div>
-               <p class="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold leading-tight">
-                   若此站排隊車多，電量仍足夠行駛至【<b>${escapeHTML(nextStationName)}</b>】（預估剩 <b>${estSocAtNext}%</b>）再充。
-               </p>
-           </div>`;
+        // 🔋 3. 計算抵達本推薦站時的預估電量
+        const distToCurrent = selectedStation.kmFromStart || 0;
+        const kwhToCurrent = distToCurrent / (ctx.realEff > 0 ? ctx.realEff : 5.5);
+        const estSocAtCurrent = Math.max(0, Math.round(ctx.startSoc - ((kwhToCurrent / AppState.batteryCapacity) * 100)));
 
-    const stationName = selectedStation.name;
-    const stationAddress = selectedStation.address;
-    const specs = selectedStation.specs || { isFast: false, maxKw: null, powerLabel: '規格未確認', connectorLabel: '請現場確認', hasCcs1: false };
-    const isRestArea = selectedStation.isRestArea;
+        // 🎨 4. 依據抵達電量決定標籤顏色
+        let currentSocBadgeClass = "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700/60";
+        if (estSocAtCurrent <= 10) {
+            currentSocBadgeClass = "bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-700/60";
+        } else if (estSocAtCurrent <= 20) {
+            currentSocBadgeClass = "bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-700/60";
+        }
 
-    // v58: 補電時間改用站點真實功率（不再寫死 100 kW）。
-    // 未確認（maxKw 為 null）不顯示精確時間，避免誤導。
-    // 注意：時間以站點峰值功率估算（最佳情況，實際充電因曲線＋車輛上限會更慢）。
-    const neededKwh = AppState.batteryCapacity * ((80 - userTargetSoc) / 100);
-    const chargingMinutes = specs.maxKw ? Math.round((neededKwh / specs.maxKw) * 60) : null;
+        // ⚡ 5. 判定是否為「🚨 必充警戒」
+        let isMustCharge = false;
+        let nextStationName = "";
+        let estSocAtNext = 0;
 
-    const stationLoc = new google.maps.LatLng(selectedStation.lat, selectedStation.lng);
-    const navUrl = selectedStation.place_id
-        ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(selectedStation.name)}&destination_place_id=${selectedStation.place_id}`
-        : `https://www.google.com/maps/dir/?api=1&destination=${selectedStation.lat},${selectedStation.lng}`;
+        if (!nextCandidate) {
+            isMustCharge = true; // 後方已無其他經過的充電站
+        } else {
+            const distToNext = nextCandidate.kmFromStart;
+            const kwhToNext = distToNext / (ctx.realEff > 0 ? ctx.realEff : 5.5);
+            estSocAtNext = Math.round(ctx.startSoc - ((kwhToNext / AppState.batteryCapacity) * 100));
 
-    const stopTypeBadge = isRestArea
-        ? `<span class="bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700/60 text-[9.5px] font-extrabold px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1 shadow-sm">
-                <span>☕</span> 服務區站
-            </span>`
-        : `<span class="bg-sky-100 dark:bg-sky-900/60 text-sky-900 dark:text-sky-200 border border-sky-300 dark:border-sky-700/60 text-[9.5px] font-extrabold px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1 shadow-sm">
-                <span>🛣️</span> 交流道站
-            </span>`;
+            // 清洗下一站的名稱，徹底避免出現【充電站】這種空洞文字
+            nextStationName = nextCandidate.name;
+            if (nextStationName === '充電站' || nextStationName === '快充站') {
+                const rMatch = (nextCandidate.address || '').match(/..[區市鎮鄉]([^\d\s]+)/);
+                nextStationName = rMatch ? `${rMatch[1]}快充站` : (nextCandidate.address || '後續快充站');
+            }
 
-    // v58: 規格誠實標示 — 未確認或慢充時，在卡片頂部加警告，避免誤把慢充當快充。
-    let specWarningHtml = '';
-    if (selectedStation.specKind === 'unknown' || !selectedStation.specVerified) {
-        specWarningHtml = `<div class="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-300 space-y-1">
-            <p class="text-[10px] font-bold leading-tight">⚠️ 此站充電規格未確認（Places 未提供功率／插頭資料），請現場確認功率與插頭後再決定是否在此補電。</p>
-        </div>`;
-    } else if (selectedStation.specKind === 'slow') {
-        specWarningHtml = `<div class="p-2.5 rounded-xl bg-stone-100 dark:bg-neutral-900/60 border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 space-y-1">
-            <p class="text-[10px] font-bold leading-tight">🐢 此站為慢充（${escapeHTML(specs.powerLabel)}），補電需較長時間，請預留充足時間。</p>
-        </div>`;
-    }
+            // ⚡ 略過本站開往下一站電量低於安全底線 (12%) 時，亮紅燈必充警戒
+            if (estSocAtNext < 12) {
+                isMustCharge = true;
+            }
+        }
 
-const stationCardHtml = `
-                <div class="bg-white/90 dark:bg-black/50 p-3 sm:p-3.5 rounded-2xl border ${isMustCharge ? 'border-rose-400 dark:border-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.18)]' : (isRestArea ? 'border-amber-400 dark:border-amber-500' : 'border-teal-400')} mt-1 shadow-sm space-y-2.5">
-                    ${urgencyNoticeHtml}
-                    ${specWarningHtml}
-                    <div class="flex items-start justify-between gap-2 pt-0.5">
-                        <div class="flex items-start gap-1.5 min-w-0">
-                            <span class="text-base shrink-0 leading-snug">${isRestArea ? '☕' : '⚡'}</span>
-                            <div class="font-extrabold text-amber-950 dark:text-amber-200 text-xs sm:text-sm leading-snug break-words line-clamp-2">
-                                ${escapeHTML(stationName)}
+        // 🚦 產生警示提示條
+        const urgencyNoticeHtml = isMustCharge
+            ? `<div class="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 space-y-1">
+                   <div class="flex items-center justify-between">
+                       <span class="font-extrabold text-xs flex items-center gap-1.5">
+                           <span class="text-sm">🚨</span> 必充警戒：最後補電站！
+                       </span>
+                       <span class="text-[9px] font-extrabold bg-rose-500 text-white px-1.5 py-0.5 rounded">不可略過</span>
+                   </div>
+                   <p class="text-[10px] text-rose-600 dark:text-rose-400 font-bold leading-tight">
+                       經過此站後已無足夠電量可抵達下一站或終點，<b>請務必在此進站補電</b>！
+                   </p>
+               </div>`
+            : `<div class="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 space-y-1">
+                   <div class="flex items-center justify-between">
+                       <span class="font-extrabold text-xs flex items-center gap-1.5">
+                           <span class="text-sm">💡</span> 彈性推薦：可下一站再充
+                       </span>
+                       <span class="text-[9px] font-extrabold bg-emerald-600 text-white px-1.5 py-0.5 rounded">電量安全</span>
+                   </div>
+                   <p class="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold leading-tight">
+                       若此站排隊車多，電量仍足夠行駛至【<b>${escapeHTML(nextStationName)}</b>】（預估剩 <b>${estSocAtNext}%</b>）再充。
+                   </p>
+               </div>`;
+
+        const stationName = selectedStation.name;
+        const stationAddress = selectedStation.address;
+        const specs = selectedStation.specs || { isFast: false, maxKw: null, powerLabel: '規格未確認', connectorLabel: '請現場確認', hasCcs1: false };
+        const isRestArea = selectedStation.isRestArea;
+
+        // v58: 補電時間改用站點真實功率（不再寫死 100 kW）。
+        // 未確認（maxKw 為 null）不顯示精確時間，避免誤導。
+        // 注意：時間以站點峰值功率估算（最佳情況，實際充電因曲線＋車輛上限會更慢）。
+        const neededKwh = AppState.batteryCapacity * ((80 - ctx.userTargetSoc) / 100);
+        const chargingMinutes = specs.maxKw ? Math.round((neededKwh / specs.maxKw) * 60) : null;
+
+        const stationLoc = new google.maps.LatLng(selectedStation.lat, selectedStation.lng);
+        const navUrl = selectedStation.place_id
+            ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(selectedStation.name)}&destination_place_id=${selectedStation.place_id}`
+            : `https://www.google.com/maps/dir/?api=1&destination=${selectedStation.lat},${selectedStation.lng}`;
+
+        const stopTypeBadge = isRestArea
+            ? `<span class="bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700/60 text-[9.5px] font-extrabold px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1 shadow-sm">
+                    <span>☕</span> 服務區站
+                </span>`
+            : `<span class="bg-sky-100 dark:bg-sky-900/60 text-sky-900 dark:text-sky-200 border border-sky-300 dark:border-sky-700/60 text-[9.5px] font-extrabold px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1 shadow-sm">
+                    <span>🛣️</span> 交流道站
+                </span>`;
+
+        // v58: 規格誠實標示 — 未確認或慢充時，在卡片頂部加警告，避免誤把慢充當快充。
+        let specWarningHtml = '';
+        if (selectedStation.specKind === 'unknown' || !selectedStation.specVerified) {
+            specWarningHtml = `<div class="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-300 space-y-1">
+                <p class="text-[10px] font-bold leading-tight">⚠️ 此站充電規格未確認（Places 未提供功率／插頭資料），請現場確認功率與插頭後再決定是否在此補電。</p>
+            </div>`;
+        } else if (selectedStation.specKind === 'slow') {
+            specWarningHtml = `<div class="p-2.5 rounded-xl bg-stone-100 dark:bg-neutral-900/60 border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 space-y-1">
+                <p class="text-[10px] font-bold leading-tight">🐢 此站為慢充（${escapeHTML(specs.powerLabel)}），補電需較長時間，請預留充足時間。</p>
+            </div>`;
+        }
+
+        // v65: 軟提醒 — Places 候選站可能位於服務區內（maybeRestArea，僅提醒、不排除）。
+        // 已是 curated 服務區站（isRestArea）不需提醒（徽章已標示服務區站）。
+        let restAreaWarningHtml = '';
+        if (!isRestArea && selectedStation.maybeRestArea) {
+            restAreaWarningHtml = `<div class="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-300 space-y-1">
+                <p class="text-[10px] font-bold leading-tight">⚠️ 此站可能位於服務區內，可按「換站」選擇其他站點。</p>
+            </div>`;
+        }
+
+    const stationCardHtml = `
+                    <div class="bg-white/90 dark:bg-black/50 p-3 sm:p-3.5 rounded-2xl border ${isMustCharge ? 'border-rose-400 dark:border-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.18)]' : (isRestArea ? 'border-amber-400 dark:border-amber-500' : 'border-teal-400')} mt-1 shadow-sm space-y-2.5">
+                        ${urgencyNoticeHtml}
+                        ${specWarningHtml}
+                        ${restAreaWarningHtml}
+                        <div class="flex items-start justify-between gap-2 pt-0.5">
+                            <div class="flex items-start gap-1.5 min-w-0">
+                                <span class="text-base shrink-0 leading-snug">${isRestArea ? '☕' : '⚡'}</span>
+                                <div class="font-extrabold text-amber-950 dark:text-amber-200 text-xs sm:text-sm leading-snug break-words line-clamp-2">
+                                    ${escapeHTML(stationName)}
+                                </div>
+                            </div>
+                            ${stopTypeBadge}
+                        </div>
+                    
+                        <!-- 規格標籤橫排列 (電量 + 功率 + 槍頭三者並列) -->
+                        <div class="flex flex-wrap items-center gap-1.5 pt-0.5">
+                            <!-- 🔋 抵達預估電量標籤 -->
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-extrabold border ${currentSocBadgeClass} shadow-sm">
+                                <span>🔋</span>
+                                <span>抵達約 ${estSocAtCurrent}%</span>
+                            </span>
+                            <!-- ⚡ 功率標籤 -->
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${specs.isFast ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800/50' : 'bg-stone-100 dark:bg-neutral-900 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700'} text-[10px] font-mono font-bold border">
+                                ⚡ 功率: ${specs.powerLabel}
+                            </span>
+                            <!-- 🔌 槍頭標籤 -->
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${specs.hasCcs1 ? 'bg-teal-100 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 border-teal-200 dark:border-teal-800/50' : 'bg-stone-100 dark:bg-neutral-900 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700'} text-[10px] font-mono font-bold border">
+                                🔌 槍頭: ${specs.connectorLabel}
+                            </span>
+                            ${isN7AutoChargeStation(stationName) ? `
+                            <!-- ⚡ n⁷ 隨插即充標籤 -->
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-400/40 text-[10px] font-mono font-extrabold shadow-sm">
+                                <span>⚡</span> 隨插即充
+                            </span>` : ''}
+                        </div>
+
+                        <div class="flex items-center justify-between gap-2 text-[10px] sm:text-[11px]">
+                            <div class="text-stone-500 dark:text-stone-400 font-bold flex items-center gap-1 min-w-0">
+                                <span class="shrink-0">📍</span>
+                                <span class="truncate">${escapeHTML(stationAddress)}</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                ${(!isRestArea && selectedStation.detourDurationText) ? `
+                                    <!-- 🛣️ 真實下交流道車程標籤 -->
+                                    <span class="bg-sky-100 dark:bg-sky-900/60 text-sky-800 dark:text-sky-300 px-2 py-0.5 rounded-md font-extrabold shadow-sm">
+                                        🛣️ 離道約 ${selectedStation.detourDurationText} (${selectedStation.detourDistKm}km)
+                                    </span>
+                                ` : ''}
+                                ${chargingMinutes !== null ? `
+                                <span class="bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-md font-extrabold shrink-0 whitespace-nowrap shadow-sm">
+                                    ⏱️ 補電約 ${chargingMinutes} 分
+                                </span>` : `
+                                <span class="bg-stone-100 dark:bg-neutral-900 text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700 px-2 py-0.5 rounded-md font-extrabold shrink-0 whitespace-nowrap shadow-sm">
+                                    ⏱️ 補電時間依現場功率而定
+                                </span>`}
                             </div>
                         </div>
-                        ${stopTypeBadge}
-                    </div>
-                    
-                    <!-- 規格標籤橫排列 (電量 + 功率 + 槍頭三者並列) -->
-                    <div class="flex flex-wrap items-center gap-1.5 pt-0.5">
-                        <!-- 🔋 抵達預估電量標籤 -->
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-extrabold border ${currentSocBadgeClass} shadow-sm">
-                            <span>🔋</span>
-                            <span>抵達約 ${estSocAtCurrent}%</span>
-                        </span>
-                        <!-- ⚡ 功率標籤 -->
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${specs.isFast ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800/50' : 'bg-stone-100 dark:bg-neutral-900 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700'} text-[10px] font-mono font-bold border">
-                            ⚡ 功率: ${specs.powerLabel}
-                        </span>
-                        <!-- 🔌 槍頭標籤 -->
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${specs.hasCcs1 ? 'bg-teal-100 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 border-teal-200 dark:border-teal-800/50' : 'bg-stone-100 dark:bg-neutral-900 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700'} text-[10px] font-mono font-bold border">
-                            🔌 槍頭: ${specs.connectorLabel}
-                        </span>
-                        ${isN7AutoChargeStation(stationName) ? `
-                        <!-- ⚡ n⁷ 隨插即充標籤 -->
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-400/40 text-[10px] font-mono font-extrabold shadow-sm">
-                            <span>⚡</span> 隨插即充
-                        </span>` : ''}
-                    </div>
 
-                    <div class="flex items-center justify-between gap-2 text-[10px] sm:text-[11px]">
-                        <div class="text-stone-500 dark:text-stone-400 font-bold flex items-center gap-1 min-w-0">
-                            <span class="shrink-0">📍</span>
-                            <span class="truncate">${escapeHTML(stationAddress)}</span>
-                        </div>
-                        <div class="flex items-center gap-1.5 shrink-0">
-                            ${(!isRestArea && selectedStation.detourDurationText) ? `
-                                <!-- 🛣️ 真實下交流道車程標籤 -->
-                                <span class="bg-sky-100 dark:bg-sky-900/60 text-sky-800 dark:text-sky-300 px-2 py-0.5 rounded-md font-extrabold shadow-sm">
-                                    🛣️ 離道約 ${selectedStation.detourDurationText} (${selectedStation.detourDistKm}km)
-                                </span>
-                            ` : ''}
-                            ${chargingMinutes !== null ? `
-                            <span class="bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-md font-extrabold shrink-0 whitespace-nowrap shadow-sm">
-                                ⏱️ 補電約 ${chargingMinutes} 分
-                            </span>` : `
-                            <span class="bg-stone-100 dark:bg-neutral-900 text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700 px-2 py-0.5 rounded-md font-extrabold shrink-0 whitespace-nowrap shadow-sm">
-                                ⏱️ 補電時間依現場功率而定
-                            </span>`}
+                        <div class="pt-2 border-t border-amber-100 dark:border-amber-900/40 flex items-center justify-between gap-2">
+                            <p class="text-[10px] text-stone-500 dark:text-stone-400 leading-tight">建議於極限里程前停靠，充至 <b>80%</b> 繼續行程。</p>
+                            ${candidates.length > 1 ? `<button type="button" onclick="cycleRecommendedStation()" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white dark:bg-neutral-800 border border-stone-300 dark:border-stone-600 text-stone-700 dark:text-stone-200 text-[10px] sm:text-xs font-extrabold shadow-sm shrink-0 active:scale-95 transition"><span>🔄</span> 換站 (${selectedIdx + 1}/${candidates.length})</button>` : ''}
+                            <a href="${navUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 text-[10px] sm:text-xs font-extrabold shadow-sm shrink-0 active:scale-95 transition">
+                                <span>🗺️</span> 導航此站
+                            </a>
                         </div>
                     </div>
+                `;
 
-                    <div class="pt-2 border-t border-amber-100 dark:border-amber-900/40 flex items-center justify-between gap-2">
-                        <p class="text-[10px] text-stone-500 dark:text-stone-400 leading-tight">建議於極限里程前停靠，充至 <b>80%</b> 繼續行程。</p>
-                        <a href="${navUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 text-[10px] sm:text-xs font-extrabold shadow-sm shrink-0 active:scale-95 transition">
-                            <span>🗺️</span> 導航此站
-                        </a>
-                    </div>
-                </div>
-            `;
-
-    if (routeIdx === 0) {
-        if (abrpChargerMarker) abrpChargerMarker.setMap(null);
-        abrpChargerMarker = new google.maps.Marker({
-            position: stationLoc,
-            map: abrpMap,
-            icon: {
-                path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-                fillColor: '#10b981',
-                fillOpacity: 1,
-                strokeWeight: 1.5,
-                strokeColor: '#ffffff',
-                scale: 1.5,
-                anchor: new google.maps.Point(12, 22)
-            },
-            title: `沿線推薦充電站：${stationName}`
-        });
-    }
-
-    if (pkRouteCache[routeIdx]) {
-        pkRouteCache[routeIdx].stationCardHtml = stationCardHtml;
-        pkRouteCache[routeIdx].stationLocation = stationLoc;
-        pkRouteCache[routeIdx].stationTitle = stationName;
-        pkRouteCache[routeIdx].stationAddress = stationAddress;
-        pkRouteCache[routeIdx].isReady = true;
-    }
-
-    // 🌟 核心修復：如果目前畫面上選中的卡片就是這條路線（以卡片樣式為準，最為穩固）
-    // 或者路線 0 剛模擬完成且使用者還沒切換時，立即將充電站卡片填入畫面！
-    const card0 = document.getElementById('pkCardRoute0');
-    const isCard0Active = card0 ? card0.classList.contains('border-amber-400') : true;
-    const currentActiveRoute = isCard0Active ? 0 : 1;
-
-    if (currentActiveRoute === routeIdx || (routeIdx === 0 && isCard0Active)) {
-        const stopDivEl = document.getElementById('abrpStopRecommendation');
-        if (stopDivEl) {
-            stopDivEl.innerHTML = stationCardHtml + renderLaterStopsHtml(calcData.stopPlan);
+        if (ctx.routeIdx === 0) {
+            if (abrpChargerMarker) abrpChargerMarker.setMap(null);
+            abrpChargerMarker = new google.maps.Marker({
+                position: stationLoc,
+                map: abrpMap,
+                icon: {
+                    path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+                    fillColor: '#10b981',
+                    fillOpacity: 1,
+                    strokeWeight: 1.5,
+                    strokeColor: '#ffffff',
+                    scale: 1.5,
+                    anchor: new google.maps.Point(12, 22)
+                },
+                title: `沿線推薦充電站：${stationName}`
+            });
         }
-    }
+
+        if (pkRouteCache[ctx.routeIdx]) {
+            pkRouteCache[ctx.routeIdx].stationCardHtml = stationCardHtml;
+            pkRouteCache[ctx.routeIdx].stationLocation = stationLoc;
+            pkRouteCache[ctx.routeIdx].stationTitle = stationName;
+            pkRouteCache[ctx.routeIdx].stationAddress = stationAddress;
+            pkRouteCache[ctx.routeIdx].isReady = true;
+        }
+
+        // 🌟 核心修復：如果目前畫面上選中的卡片就是這條路線（以卡片樣式為準，最為穩固）
+        // 或者路線 0 剛模擬完成且使用者還沒切換時，立即將充電站卡片填入畫面！
+        const card0 = document.getElementById('pkCardRoute0');
+        const isCard0Active = card0 ? card0.classList.contains('border-amber-400') : true;
+        const currentActiveRoute = isCard0Active ? 0 : 1;
+
+        if (currentActiveRoute === ctx.routeIdx || (ctx.routeIdx === 0 && isCard0Active)) {
+            const stopDivEl = document.getElementById('abrpStopRecommendation');
+            if (stopDivEl) {
+                stopDivEl.innerHTML = stationCardHtml + renderLaterStopsHtml(ctx.calcData.stopPlan);
+            }
+        }
+
+}
+
+// v65: 「換站」按鈕 — 切到下一個候選站（循環），重畫卡片。
+window.cycleRecommendedStation = function() {
+    const ctx = window._stationSwitchCtx;
+    if (!ctx || !Array.isArray(ctx.candidates) || ctx.candidates.length === 0) return;
+    ctx.idx = (ctx.idx + 1) % ctx.candidates.length;
+    renderStationCardForIndex(ctx.candidates, ctx.idx, ctx);
+};
+
+    // v65: 存下候選清單＋context，供「換站」按鈕重畫卡片.
+    window._stationSwitchCtx = { candidates: validCandidates, idx: bestIdx, routeIdx: routeIdx, calcData: calcData, realEff: realEff, startSoc: startSoc, userTargetSoc: userTargetSoc };
+    renderStationCardForIndex(validCandidates, bestIdx, window._stationSwitchCtx);
+
 } // 👈 補上這個大括號，完整關閉 renderAbrpCalculatedResultsDirect 函式！
         
 // 唯一保留的快取渲染函式（支援動態補電次數）
