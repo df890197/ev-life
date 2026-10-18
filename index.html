@@ -671,7 +671,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v57</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v58</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1114,7 +1114,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v57</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v58</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1614,7 +1614,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v57';
+        const APP_VERSION = 'v58';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -5480,7 +5480,13 @@ async function fetchEvChargeDetails(placeId) {
 }
 
 // ⚡ 電動車規格解析器：解析槍頭類型與最高功率 (kW)
+// v58: 規格只信 evChargeOptions，不再用品牌／服務區名稱猜測。
+// 舊版：無資料時若名稱含快充品牌或服務區，就預設「120~360 kW (推估)」／「180~350 kW (服務區快充)」＋ isFast=true，
+// 曾把慢充標成快充（與路線推薦卡同一類 bug）。新版：無資料 → 規格未確認（isFast=false），絕不猜。
+// 本函式為目的地景點卡（車等人）的形狀包裝，分類邏輯統一由 classifyEvChargeSpecs 提供。
 function parseEvSpecs(evOptions, stationName = '') {
+    // stationName 保留簽名相容，不再用於規格推測。
+    const cls = classifyEvChargeSpecs(evOptions);
     const connectorMap = {
         'EV_CONNECTOR_TYPE_CCS_COMBO_1': 'CCS1',
         'EV_CONNECTOR_TYPE_CCS_COMBO_2': 'CCS2',
@@ -5489,72 +5495,97 @@ function parseEvSpecs(evOptions, stationName = '') {
         'EV_CONNECTOR_TYPE_TESLA': 'TPC',
         'EV_CONNECTOR_TYPE_CHADEMO': 'CHAdeMO'
     };
-
-    let maxKw = 0;
-    let connectors = [];
-
-    if (evOptions?.connectorAggregation?.length > 0) {
-        evOptions.connectorAggregation.forEach(conn => {
-            const label = connectorMap[conn.type] || conn.type?.replace('EV_CONNECTOR_TYPE_', '');
-            if (label && !connectors.includes(label)) connectors.push(label);
-            if (conn.maxChargeRateKw && conn.maxChargeRateKw > maxKw) {
-                maxKw = conn.maxChargeRateKw;
-            }
-        });
+    const connectors = [];
+    const aggs = evOptions && evOptions.connectorAggregation;
+    if (Array.isArray(aggs)) {
+        for (const conn of aggs) {
+            const label = connectorMap[conn.type] || (conn.type ? conn.type.replace('EV_CONNECTOR_TYPE_', '') : null);
+            if (label && connectors.indexOf(label) < 0) connectors.push(label);
+        }
     }
-
-    const nameLower = stationName.toLowerCase();
-    const isDcBrand = ['evoasis', 'u-power', 'upower', '特爾', 'tail', 'nhoa', '台泥', '中油', 'evalue', '華城', '星舟', '快充', '超充'].some(b => nameLower.includes(b));
-    
-    // ⬇️ 新增：判斷是否為服務區或休息站
-    const isRestAreaName = nameLower.includes('服務區') || nameLower.includes('休息站');
-
-    // ⬇️ 修改：如果沒有槍頭資料，只要是快充品牌或國道服務區，預設賦予 CCS1 / CCS2
-    if (connectors.length === 0 && (isDcBrand || isRestAreaName)) {
-        connectors = ['CCS1', 'CCS2'];
-    }
-    
-    let isFast = false;
-    let powerLabel = '';
-    let connectorLabel = '';
-
-    if (maxKw > 0) {
-        isFast = maxKw >= 50;
-        powerLabel = `${maxKw} kW`;
-    } else if (isRestAreaName) {
-        // ⬇️ 新增：服務區快充功率補強（避免被 ≥150kW 篩選過濾）
-        isFast = true;
-        maxKw = 180;
-        powerLabel = '180~350 kW (服務區快充)';
-    } else if (isDcBrand) {
-        isFast = true;
-        powerLabel = '120~360 kW (推估)';
-    } else {
-        isFast = false;
-        powerLabel = '功率依現場為準';
-    }
-
-    if (connectors.length > 0) {
-        connectorLabel = connectors.join(' / ');
-    } else if (isDcBrand || isRestAreaName) {
-        connectorLabel = 'CCS1 / CCS2 (n⁷ 可用)';
-    } else {
-        connectorLabel = '規格依現場標示';
-    }
-
-    const hasCcs1 = connectors.includes('CCS1') || (connectors.length === 0 && (isDcBrand || isRestAreaName));
-
     return {
-        isFast,
-        maxKw,
-        powerLabel,
-        connectorLabel,
-        hasCcs1,
+        isFast: cls.isFast,
+        maxKw: cls.maxKw || 0,
+        powerLabel: cls.powerLabel,
+        connectorLabel: cls.connectorLabel,
+        hasCcs1: cls.hasCcs1,
         connectors
     };
 }
 
 // 🚗 計算從國道路線主線開到交流道充電站的「實際車程時間與里程」
+// ================= v58：充電站真實規格（Places API New evChargeOptions） =================
+// v58（修復：Places 結果不再硬編碼快充規格）：
+// 問題：v57 把所有 Places 搜尋結果硬編碼為「120~360 kW（快充）／CCS1／CCS2／180 kW」＋補電時間寫死 100 kW，
+// 實機出現把 7 kW J1772 慢充（清境百里莊園）標成快充、補電 23 分（實際約 5 小時）的誤標。
+// 修法：對 Places 候選站呼叫 Places API (New) Place Details 取 evChargeOptions（真實最大功率＋插頭類型），
+// 驗證為快充（≥50 kW＋CCS1/CCS2）才推薦為快充；驗證為慢充標慢充＋誠實時間；拿不到資料標「規格未確認」並降優先。
+// Places API (New) 需金鑰開通 Places API (New)；未開通／失敗／無資料一律 fallback 為未確認，絕不阻擋路線規劃。
+// 補電時間改用站點真實功率（不再寫死 100 kW）；未確認不顯示精確時間，避免誤導。
+
+// v58: 純函式 — 依 Places API (New) 的 evChargeOptions 判定充電規格（可由 harness 測試）。
+// 回傳 { kind, maxKw, powerLabel, connectorLabel, hasCcs1, isFast, verified }
+// kind: 'fast' = 有 CCS1/CCS2 且最大功率 ≥50 kW；'slow' = 有規格但未達快充（僅 J1772 或 <50 kW）；
+//       'incompatible' = 有規格但無 CCS1/CCS2/J1772（n7 無法使用）；'unknown' = 無規格資料。
+// 注意：hasCcs1 在 App 內視為「有 CCS 快充接頭」家族（CCS1/CCS2 皆算），僅用於槍頭標籤顏色。
+function classifyEvChargeSpecs(evChargeOptions) {
+  const unknown = { kind: 'unknown', maxKw: null, powerLabel: '規格未確認', connectorLabel: '請現場確認', hasCcs1: false, isFast: false, verified: false };
+  const aggs = evChargeOptions && evChargeOptions.connectorAggregation;
+  if (!Array.isArray(aggs) || aggs.length === 0) return unknown;
+  let maxKwApplicable = 0, maxKwAny = 0;
+  let hasCcs1 = false, hasCcs2 = false, hasJ1772 = false;
+  const labels = [];
+  for (const a of aggs) {
+    const kw = Number(a && a.maxChargeRateKw) || 0;
+    if (kw > maxKwAny) maxKwAny = kw;
+    const t = String((a && a.type) || '');
+    let friendly = null;
+    if (t.indexOf('CCS_COMBO_1') >= 0) { hasCcs1 = true; friendly = 'CCS1'; }
+    else if (t.indexOf('CCS_COMBO_2') >= 0) { hasCcs2 = true; friendly = 'CCS2'; }
+    else if (t.indexOf('J1772') >= 0) { hasJ1772 = true; friendly = 'J1772'; }
+    else if (t.indexOf('TESLA') >= 0) { friendly = 'Tesla (NACS)'; }
+    else if (t.indexOf('CHADEMO') >= 0) { friendly = 'CHAdeMO'; }
+    else if (t.indexOf('TYPE_2') >= 0) { friendly = 'Type 2'; }
+    if (friendly) {
+      if (hasCcs1 || hasCcs2 || hasJ1772) { if (kw > maxKwApplicable) maxKwApplicable = kw; }
+      if (labels.indexOf(friendly) < 0) labels.push(friendly);
+    }
+  }
+  const applicable = hasCcs1 || hasCcs2 || hasJ1772;
+  const hasCcsFamily = hasCcs1 || hasCcs2;
+  if (!applicable) {
+    return { kind: 'incompatible', maxKw: maxKwAny || null, powerLabel: (maxKwAny ? maxKwAny + ' kW（無適用插頭）' : '無適用插頭'), connectorLabel: labels.length ? labels.join(' / ') : '無 CCS1/CCS2/J1772', hasCcs1: false, isFast: false, verified: true };
+  }
+  const connectorLabel = (hasCcs1 && hasCcs2) ? 'CCS1 / CCS2' : (hasCcs1 ? 'CCS1' : (hasCcs2 ? 'CCS2' : 'J1772'));
+  const fullLabel = labels.length ? labels.join(' / ') : connectorLabel;
+  if (hasCcsFamily && maxKwApplicable >= 50) {
+    return { kind: 'fast', maxKw: maxKwApplicable, powerLabel: maxKwApplicable + ' kW (快充)', connectorLabel: connectorLabel, hasCcs1: hasCcsFamily, isFast: true, verified: true };
+  }
+  return { kind: 'slow', maxKw: maxKwApplicable || null, powerLabel: (maxKwApplicable ? maxKwApplicable + ' kW (慢充)' : '功率未標示'), connectorLabel: fullLabel, hasCcs1: hasCcsFamily, isFast: false, verified: true };
+}
+
+// v58: 為 Places 候選站補上真實充電規格（平行查詢，最多 6 站，單站 3 秒逾時）。
+// 不適用（無 CCS1/CCS2/J1772）的站直接從候選清單移除；其餘依驗證結果設定 specs/specVerified/specKind。
+// 服務區候選站已有 curated 規格（specs 非 null），此函式會跳過。
+// 未輪到查詢（超過 6 站）的候選站維持未確認佔位（specs 為 null → 渲染時以未確認處理）。
+async function enrichCandidatesWithEvSpecs(candidates) {
+  if (!Array.isArray(candidates) || candidates.length === 0) return;
+  const jobs = candidates.slice(0, 6).map(async function (cand) {
+    if (!cand || cand.specs) return;
+    if (!cand.place_id) return;
+    const ev = await fetchEvChargeDetails(cand.place_id); // v58: 重用既有的 Places API (New) 查詢，不另造輪子
+    const cls = classifyEvChargeSpecs(ev);
+    if (cls.kind === 'incompatible') { cand.excludedIncompatible = true; return; }
+    cand.specs = { isFast: cls.isFast, maxKw: cls.maxKw, powerLabel: cls.powerLabel, connectorLabel: cls.connectorLabel, hasCcs1: cls.hasCcs1 };
+    cand.specVerified = cls.verified;
+    cand.specKind = cls.kind;
+  });
+  await Promise.all(jobs);
+  for (let i = candidates.length - 1; i >= 0; i--) {
+    if (candidates[i].excludedIncompatible) candidates.splice(i, 1);
+  }
+}
+
 function getRealRoadDetour(highwayPoint, stationLocation) {
     return new Promise((resolve) => {
         // 確保座標為乾淨的 LatLng 物件，避免字串或函式格式錯誤
@@ -6512,12 +6543,15 @@ const validCandidates = [];
                     lng: targetPoint.lng,
                     isRestArea: true,
                     specs: {
-                        isFast: true,
+                        isFast: (parseInt(ra.power) || 350) >= 50,
                         maxKw: parseInt(ra.power) || 350,
                         powerLabel: ra.power,
                         connectorLabel: ra.conn,
                         hasCcs1: true
                     },
+                    // v58: 服務區規格來自 curated 資料庫（高公局官方站點清單對齊），視為已驗證
+                    specVerified: true,
+                    specKind: ((parseInt(ra.power) || 350) >= 50 ? 'fast' : 'slow'),
                     kmFromStart: proj.kmFromStart
                 });
             }
@@ -6607,13 +6641,11 @@ const validCandidates = [];
                     lng: stLoc.lng(),
                     place_id: st.place_id,
                     isRestArea: false,
-                    specs: {
-                        isFast: true,
-                        maxKw: 180,
-                        powerLabel: "120~360 kW (快充)",
-                        connectorLabel: "CCS1 / CCS2",
-                        hasCcs1: true
-                    },
+                    // v58: Places 結果規格未驗證 — 先放佔位，之後由 enrichCandidatesWithEvSpecs
+                    // 向 Places API (New) 查詢真實 evChargeOptions 補上。絕不再硬編碼快充規格。
+                    specs: null, // v58: 待 enrich 補上（未確認）
+                    specVerified: false,
+                    specKind: 'unknown',
                     kmFromStart: proj.kmFromStart,
                     detourDistKm: roadDetour.detourDistKm,
                     detourDurationText: roadDetour.detourDurationText,
@@ -6628,6 +6660,19 @@ const validCandidates = [];
         }
     }
     
+    // v58: 為 Places 候選站補上真實充電規格（Places API New evChargeOptions），
+    // 並依驗證等級分層（已驗證快充 > 已驗證慢充 > 未確認），只在最佳層內選站。
+    // 服務區候選站已有 curated 規格，enrich 會跳過。
+    await enrichCandidatesWithEvSpecs(validCandidates);
+    {
+        const hasFast = validCandidates.some(c => c.specKind === 'fast');
+        const hasSlow = validCandidates.some(c => c.specKind === 'slow');
+        const keepKind = hasFast ? 'fast' : (hasSlow ? 'slow' : 'unknown');
+        for (let i = validCandidates.length - 1; i >= 0; i--) {
+            if (validCandidates[i].specKind !== keepKind) validCandidates.splice(i, 1);
+        }
+    }
+
     const stopDiv = document.getElementById('abrpStopRecommendation');
 
     if (validCandidates.length === 0) {
@@ -6739,18 +6784,21 @@ const selectedStation = validCandidates[bestIdx];
                </p>
            </div>`;
 
+    const stationName = selectedStation.name;
+    const stationAddress = selectedStation.address;
+    const specs = selectedStation.specs || { isFast: false, maxKw: null, powerLabel: '規格未確認', connectorLabel: '請現場確認', hasCcs1: false };
+    const isRestArea = selectedStation.isRestArea;
+
+    // v58: 補電時間改用站點真實功率（不再寫死 100 kW）。
+    // 未確認（maxKw 為 null）不顯示精確時間，避免誤導。
+    // 注意：時間以站點峰值功率估算（最佳情況，實際充電因曲線＋車輛上限會更慢）。
     const neededKwh = AppState.batteryCapacity * ((80 - userTargetSoc) / 100);
-    const chargingMinutes = Math.round((neededKwh / 100) * 60);
+    const chargingMinutes = specs.maxKw ? Math.round((neededKwh / specs.maxKw) * 60) : null;
 
     const stationLoc = new google.maps.LatLng(selectedStation.lat, selectedStation.lng);
     const navUrl = selectedStation.place_id
         ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(selectedStation.name)}&destination_place_id=${selectedStation.place_id}`
         : `https://www.google.com/maps/dir/?api=1&destination=${selectedStation.lat},${selectedStation.lng}`;
-
-    const stationName = selectedStation.name;
-    const stationAddress = selectedStation.address;
-    const specs = selectedStation.specs;
-    const isRestArea = selectedStation.isRestArea;
 
     const stopTypeBadge = isRestArea
         ? `<span class="bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700/60 text-[9.5px] font-extrabold px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1 shadow-sm">
@@ -6760,9 +6808,22 @@ const selectedStation = validCandidates[bestIdx];
                 <span>🛣️</span> 交流道站
             </span>`;
 
+    // v58: 規格誠實標示 — 未確認或慢充時，在卡片頂部加警告，避免誤把慢充當快充。
+    let specWarningHtml = '';
+    if (selectedStation.specKind === 'unknown' || !selectedStation.specVerified) {
+        specWarningHtml = `<div class="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-300 space-y-1">
+            <p class="text-[10px] font-bold leading-tight">⚠️ 此站充電規格未確認（Places 未提供功率／插頭資料），請現場確認功率與插頭後再決定是否在此補電。</p>
+        </div>`;
+    } else if (selectedStation.specKind === 'slow') {
+        specWarningHtml = `<div class="p-2.5 rounded-xl bg-stone-100 dark:bg-neutral-900/60 border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 space-y-1">
+            <p class="text-[10px] font-bold leading-tight">🐢 此站為慢充（${escapeHTML(specs.powerLabel)}），補電需較長時間，請預留充足時間。</p>
+        </div>`;
+    }
+
 const stationCardHtml = `
                 <div class="bg-white/90 dark:bg-black/50 p-3 sm:p-3.5 rounded-2xl border ${isMustCharge ? 'border-rose-400 dark:border-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.18)]' : (isRestArea ? 'border-amber-400 dark:border-amber-500' : 'border-teal-400')} mt-1 shadow-sm space-y-2.5">
                     ${urgencyNoticeHtml}
+                    ${specWarningHtml}
                     <div class="flex items-start justify-between gap-2 pt-0.5">
                         <div class="flex items-start gap-1.5 min-w-0">
                             <span class="text-base shrink-0 leading-snug">${isRestArea ? '☕' : '⚡'}</span>
@@ -6807,9 +6868,13 @@ const stationCardHtml = `
                                     🛣️ 離道約 ${selectedStation.detourDurationText} (${selectedStation.detourDistKm}km)
                                 </span>
                             ` : ''}
+                            ${chargingMinutes !== null ? `
                             <span class="bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-md font-extrabold shrink-0 whitespace-nowrap shadow-sm">
                                 ⏱️ 補電約 ${chargingMinutes} 分
-                            </span>
+                            </span>` : `
+                            <span class="bg-stone-100 dark:bg-neutral-900 text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700 px-2 py-0.5 rounded-md font-extrabold shrink-0 whitespace-nowrap shadow-sm">
+                                ⏱️ 補電時間依現場功率而定
+                            </span>`}
                         </div>
                     </div>
 
