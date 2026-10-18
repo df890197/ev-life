@@ -671,7 +671,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v54</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v55</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1114,7 +1114,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v54</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v55</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1614,7 +1614,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v54';
+        const APP_VERSION = 'v55';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -5454,7 +5454,7 @@ const OSM_TUNNEL_CONFIG = {
   matchDistM: 60,        // 取樣點離隧道 way 小於 60m 視為隧道內
   maxQueryPoints: 160    // 查詢中心上限（約 320km 路線）
 };
-let osmTunnelWaysCache = []; // { key, ways } 最近 3 條路線的隧道 way 幾何
+let osmTunnelWaysCache = []; // { key, ways, status } 最近 3 條路線的隧道 way 幾何；v55：失敗不寫快取（重規劃可重試）
 
 function osmHaversineM(lat1, lng1, lat2, lng2) {
   const R = 6371000, dLat = (lat2 - lat1) * Math.PI / 180, dLng = (lng2 - lng1) * Math.PI / 180;
@@ -5533,12 +5533,14 @@ async function fetchOsmEndpoint(url, query) {
   }
 }
 // 永不 reject：任一端點成功即用；全部失敗回 []（退回純 DEM 邏輯）
+// v55：回傳 { ways, status }，status 為 'ok'（查詢成功，含 0 條隧道）或 'failed'（兩端點皆失敗）。
+// 失敗不寫快取，重規劃可重試；成功才寫快取。
 async function fetchOsmTunnelWays(sampleCoords, totalDistanceKm, routeKey) {
   try {
     const cached = osmTunnelWaysCache.find(c => c.key === routeKey);
-    if (cached) return cached.ways;
+    if (cached) return { ways: cached.ways, status: cached.status };
     const query = buildOsmTunnelQuery(sampleCoords, totalDistanceKm);
-    if (!query) return [];
+    if (!query) return { ways: [], status: 'ok' };
     const attempts = OSM_TUNNEL_CONFIG.endpoints.map(url => fetchOsmEndpoint(url, query));
     const winner = await Promise.race([
       ...attempts.map(p => p.then(r => r.ok ? r : new Promise(() => {}))),
@@ -5546,28 +5548,47 @@ async function fetchOsmTunnelWays(sampleCoords, totalDistanceKm, routeKey) {
     ]);
     if (!winner.ok) {
       console.warn('[EvLife] OSM 隧道查詢兩端點皆失敗，退回純 DEM 邏輯');
-      return [];
+      return { ways: [], status: 'failed' };
     }
-    osmTunnelWaysCache.push({ key: routeKey, ways: winner.ways });
+    osmTunnelWaysCache.push({ key: routeKey, ways: winner.ways, status: 'ok' });
     if (osmTunnelWaysCache.length > 3) osmTunnelWaysCache.shift();
-    return winner.ways;
+    return { ways: winner.ways, status: 'ok' };
   } catch (err) {
     console.warn('[EvLife] OSM 隧道查詢例外，退回純 DEM 邏輯', err);
-    return [];
+    return { ways: [], status: 'failed' };
   }
+}
+// v55：way bbox（含 matchDistM 保守外擴），供匹配預篩。外擴除數用 110000 m/°（小於真實值，
+// 故外擴是高估），取樣點在外擴 bbox 之外時，其到任一線段的投影距離必 > matchDistM，
+// 保證不誤殺任何可能匹配的 way；|lat| < 87° 的道路皆成立。結果與暴力法完全一致，只省計算。
+function osmWayBbox(way) {
+  let minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
+  for (const pt of way) {
+    if (pt.lat < minLat) minLat = pt.lat;
+    if (pt.lat > maxLat) maxLat = pt.lat;
+    if (pt.lng < minLng) minLng = pt.lng;
+    if (pt.lng > maxLng) maxLng = pt.lng;
+  }
+  const m = OSM_TUNNEL_CONFIG.matchDistM;
+  const marginLat = m / 110000 + 1e-9;
+  const maxAbsLat = Math.max(Math.abs(minLat), Math.abs(maxLat));
+  const marginLng = m / (110000 * Math.max(0.05, Math.cos(maxAbsLat * Math.PI / 180))) + 1e-9;
+  return { minLat: minLat - marginLat, maxLat: maxLat + marginLat, minLng: minLng - marginLng, maxLng: maxLng + marginLng };
 }
 // 標記每個取樣點是否在隧道內（離任一隧道 way 小於 matchDistM）
 function matchTunnelSamples(sampleCoords, tunnelWays) {
   const inTunnel = new Array(sampleCoords.length).fill(false);
   if (!tunnelWays || tunnelWays.length === 0) return inTunnel;
-  for (let i = 0; i < sampleCoords.length; i++) {
-    const p = sampleCoords[i];
-    for (const way of tunnelWays) {
-      let hit = false;
+  for (const way of tunnelWays) {
+    if (way.length < 2) continue;
+    const bb = osmWayBbox(way);
+    for (let i = 0; i < sampleCoords.length; i++) {
+      if (inTunnel[i]) continue;
+      const p = sampleCoords[i];
+      if (p.lat < bb.minLat || p.lat > bb.maxLat || p.lng < bb.minLng || p.lng > bb.maxLng) continue;
       for (let j = 0; j < way.length - 1; j++) {
-        if (osmPointToSegmentM(p, way[j], way[j + 1]) <= OSM_TUNNEL_CONFIG.matchDistM) { hit = true; break; }
+        if (osmPointToSegmentM(p, way[j], way[j + 1]) <= OSM_TUNNEL_CONFIG.matchDistM) { inTunnel[i] = true; break; }
       }
-      if (hit) { inTunnel[i] = true; break; }
     }
   }
   return inTunnel;
@@ -5606,11 +5627,20 @@ function applyTunnelCorrection(raw, sampleCoords, tunnelWays, totalDistanceKm) {
   }
   return { elevations: out, segments };
 }
-// 隧道校正標示（有校正才顯示，供使用者確認 OSM 有通）
+// v55：OSM 狀態標示（三態，僅在有意義時顯示，平地不吵）
+// N > 0 → 隧道校正 N 段；N = 0 且 OSM 有通且 rawMax > 300 → 已查詢，無隧道段；
+// N = 0 且 OSM 失敗且 rawMax > 300 → 查詢失敗，僅用 DEM；其餘不顯示。
 function tunnelBadgeHtml(elevationData) {
   const n = elevationData?.tunnelSegments || 0;
-  if (n <= 0) return '';
-  return ` <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-sky-100 dark:bg-sky-900/50 text-sky-700 dark:text-sky-300 text-[9px] font-extrabold">🛤️ 隧道校正 ${n} 段</span>`;
+  const rawMax = elevationData?.rawMax ?? 0;
+  const status = elevationData?.osmStatus || 'ok';
+  const base = 'inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[9px] font-extrabold';
+  if (n > 0) return ` <span class="${base} bg-sky-100 dark:bg-sky-900/50 text-sky-700 dark:text-sky-300">🛤️ 隧道校正 ${n} 段</span>`;
+  if (rawMax > 300) {
+    if (status === 'failed') return ` <span class="${base} bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300">🛤️ OSM 查詢失敗，僅用 DEM</span>`;
+    return ` <span class="${base} bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400">🛤️ OSM 已查詢，無隧道段</span>`;
+  }
+  return '';
 }
 
 function cleanElevations(raw, totalDistanceKm) {
@@ -5853,6 +5883,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
     try {
     let smoothed = [0, 0];
     let tunnelSegments = []; // v54：OSM 隧道校正段（供 elevationData 與 UI 標示）
+    let osmStatus = 'ok'; // v55：OSM 查詢狀態（ok/failed），供 elevationData 與 UI 標示
     let elevationUnavailable = false;
     let startAlt = 0, endAlt = 0;
     let rawMax = null, rawMaxIdx = -1, cleanedMaxIdx = -1;
@@ -5896,10 +5927,18 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
       let raw = elevations.map(e => e.elevation);
       rawMax = Math.max(...raw);
       rawMaxIdx = raw.indexOf(rawMax);
-      // v54：OSM 隧道校正（DEM → 隧道內插 → v9 清洗）。Overpass 失敗/逾時 → raw 不變。
+      // v55：OSM 隧道校正（DEM → 隧道內插 → v9 清洗）。Overpass 失敗/逾時 → raw 不變，狀態記 failed。
+      // v55：等待 OSM 時顯示進度（查詢隧道中…），讓等待可見；最終渲染會覆蓋。
       try {
-        const tunnelWays = await osmTunnelPromise;
+        const curIdxForOsm = abrpDirectionsRenderer ? abrpDirectionsRenderer.getRouteIndex() : 0;
+        if (isCurrentElevationRequest(routeIdx, requestToken) && curIdxForOsm === routeIdx) {
+          const effElOsm = document.getElementById(`pkEff${routeIdx}`);
+          if (effElOsm) effElOsm.textContent = '查詢隧道中…';
+        }
+        const osmResult = await osmTunnelPromise;
         if (!isCurrentElevationRequest(routeIdx, requestToken)) return;
+        osmStatus = osmResult.status;
+        const tunnelWays = osmResult.ways;
         if (tunnelWays.length > 0) {
           const finalPath = (usedPathLabel === 'overview') ? route.overview_path : elevationPath;
           const finalCoords = samplePathCoords(finalPath, raw.length);
@@ -5911,6 +5950,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
           }
         }
       } catch (err) {
+        osmStatus = 'failed';
         console.warn('[EvLife] OSM 隧道校正例外，退回純 DEM 邏輯', err);
       }
       smoothed = cleanElevations(raw, totalDistanceKm);
@@ -5985,6 +6025,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
       realEff: realEff === Infinity ? "Infinity" : realEff.toFixed(2),
       directArrivalSoc, startSoc,
       tunnelSegments: tunnelSegments.length,
+      osmStatus,
       rawMax: rawMax === null ? null : Math.round(rawMax),
       rawMaxIdx, cleanedMaxIdx, usedDetailedPath, usedPathLabel, elevationUnavailable: false
     };
