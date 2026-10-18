@@ -675,7 +675,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v65</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v66</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1118,7 +1118,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v65</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v66</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1272,21 +1272,7 @@ input[type="number"] {
         <div class="flex items-center gap-1 shrink-0">
             <label class="text-[11px] font-bold text-stone-500 dark:text-stone-400 shrink-0">出發</label>
             <div class="flex items-center bg-stone-100 dark:bg-black border border-stone-200/80 dark:border-stone-700 rounded-xl p-0.5 shadow-inner shrink-0 select-none">
-                <!-- 出發 -1 按鈕 -->
-                <button type="button" 
-                        onpointerdown="startAbrpHold(event, 'routeStartSoc', -1)"
-                        onpointerup="stopAbrpHold()"
-                        onpointerleave="stopAbrpHold()"
-                        oncontextmenu="return false;"
-                        class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-white dark:bg-neutral-900 text-stone-700 dark:text-stone-200 text-xs font-extrabold shadow-sm active:scale-90 transition select-none hover:bg-stone-50 touch-manipulation">-</button>
                 <input type="number" id="routeStartSoc" min="1" max="100" step="1" inputmode="numeric" value="100" oninput="validateSocInput(this, 100)" class="w-8 sm:w-9 text-center font-mono font-extrabold text-xs bg-transparent focus:outline-none appearance-none text-stone-800 dark:text-white">
-                <!-- 出發 +1 按鈕 -->
-                <button type="button" 
-                        onpointerdown="startAbrpHold(event, 'routeStartSoc', 1)"
-                        onpointerup="stopAbrpHold()"
-                        onpointerleave="stopAbrpHold()"
-                        oncontextmenu="return false;"
-                        class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-white dark:bg-neutral-900 text-stone-700 dark:text-stone-200 text-xs font-extrabold shadow-sm active:scale-90 transition select-none hover:bg-stone-50 touch-manipulation">+</button>
             </div>
             <span class="text-[11px] font-mono font-extrabold text-stone-400 shrink-0">%</span>
         </div>
@@ -1295,21 +1281,7 @@ input[type="number"] {
         <div class="flex items-center gap-1 shrink-0">
             <label class="text-[11px] font-bold text-stone-500 dark:text-stone-400 shrink-0">想在剩</label>
             <div class="flex items-center bg-stone-100 dark:bg-black border border-stone-200/80 dark:border-stone-700 rounded-xl p-0.5 shadow-inner shrink-0 select-none">
-                <!-- 想充 -1 按鈕 -->
-                <button type="button" 
-                        onpointerdown="startAbrpHold(event, 'routeTargetMinSoc', -1)"
-                        onpointerup="stopAbrpHold()"
-                        onpointerleave="stopAbrpHold()"
-                        oncontextmenu="return false;"
-                        class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-white dark:bg-neutral-900 text-stone-700 dark:text-stone-200 text-xs font-extrabold shadow-sm active:scale-90 transition select-none hover:bg-stone-50 touch-manipulation">-</button>
                 <input type="number" id="routeTargetMinSoc" min="5" max="50" step="1" inputmode="numeric" value="15" oninput="validateSocInput(this, 50)" class="w-8 sm:w-9 text-center font-mono font-extrabold text-xs bg-transparent focus:outline-none appearance-none text-stone-800 dark:text-white">
-                <!-- 想充 +1 按鈕 -->
-                <button type="button" 
-                        onpointerdown="startAbrpHold(event, 'routeTargetMinSoc', 1)"
-                        onpointerup="stopAbrpHold()"
-                        onpointerleave="stopAbrpHold()"
-                        oncontextmenu="return false;"
-                        class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-white dark:bg-neutral-900 text-stone-700 dark:text-stone-200 text-xs font-extrabold shadow-sm active:scale-90 transition select-none hover:bg-stone-50 touch-manipulation">+</button>
             </div>
             <span class="text-[11px] font-bold text-stone-400 shrink-0 whitespace-nowrap">% 充</span>
         </div>
@@ -1619,7 +1591,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v65';
+        const APP_VERSION = 'v66';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -4800,91 +4772,6 @@ function initAbrpAutocomplete() {
                 });
             }
         }
-
-// ⚡ ABRP 電量步進控制（支援單擊即動 + 長按連續極速微調）
-let abrpHoldTimer = null;
-let abrpRepeatInterval = null;
-let isAbrpHolding = false;
-// v8: 長按狀態。abrpHoldActive=這次按壓是否還在進行；abrpHoldValueChanged=這次按壓是否有改到數值。
-let abrpHoldActive = false;
-let abrpHoldValueChanged = false;
-// v8: 只清計時器，不觸發重算。按下開始時用這個，避免舊版 stopAbrpHold() 在按下瞬間先用舊數值重算一次。
-function clearAbrpHoldTimers() {
-    if (abrpHoldTimer) { clearTimeout(abrpHoldTimer); abrpHoldTimer = null; }
-    if (abrpRepeatInterval) { clearInterval(abrpRepeatInterval); abrpRepeatInterval = null; }
-    isAbrpHolding = false;
-}
-
-window.adjustAbrpSocValueOnly = function(inputId, delta) {
-    const el = document.getElementById(inputId);
-    if (!el) return false;
-    let val = parseInt(el.value, 10) || 0;
-    const oldVal = val;
-    val += delta;
-
-    if (inputId === 'routeStartSoc') {
-        val = Math.max(5, Math.min(100, val));
-    } else {
-        val = Math.max(5, Math.min(50, val));
-    }
-
-    if (val !== oldVal) {
-        el.value = val;
-        triggerHaptic('light');
-        return true;
-    }
-    return false;
-};
-
-// 重新計算路線（放開按鈕或單擊後才觸發，避免長按連續時手機卡死）
-window.triggerAbrpRouteRecalculate = function() {
-    if (currentPkRoutes && currentPkRoutes.length > 0) {
-        const activeIdx = abrpDirectionsRenderer ? abrpDirectionsRenderer.getRouteIndex() : 0;
-        const startSoc = parseFloat(document.getElementById('routeStartSoc')?.value) || 90;
-        if (pkRouteCache[activeIdx]) {
-            pkRouteCache[activeIdx].isReady = false;
-        }
-        processRouteElevationAndCharging(currentPkRoutes[activeIdx], startSoc, activeIdx);
-    }
-};
-
-// 長按開始（v8：按下時只清計時器、不重算；放開時若有變化才重算一次）
-window.startAbrpHold = function(event, inputId, delta) {
-    if (event.cancelable) event.preventDefault();
-
-    clearAbrpHoldTimers();
-    abrpHoldActive = true;
-    abrpHoldValueChanged = false;
-    isAbrpHolding = false;
-
-    // 1. 按下的瞬間立即執行一次 +1 或 -1
-    if (adjustAbrpSocValueOnly(inputId, delta)) abrpHoldValueChanged = true;
-
-    // 2. 按住超過 350 毫秒後，啟動連續快速調整
-    abrpHoldTimer = setTimeout(() => {
-        isAbrpHolding = true;
-        abrpRepeatInterval = setInterval(() => {
-            const changed = adjustAbrpSocValueOnly(inputId, delta);
-            if (changed) {
-                abrpHoldValueChanged = true;
-            } else {
-                window.stopAbrpHold(); // 達到 100% 或 5% 極限時自動停止
-            }
-        }, 80); // 每 80 毫秒跳 1%
-    }, 350);
-};
-
-// 放開按鈕或滑出按鈕時停止（v8：只清計時器 + 有變化才重算一次；pointerup + pointerleave 雙重觸發也不會重算兩次）
-window.stopAbrpHold = function() {
-    const hadActive = abrpHoldActive;
-    const hadChange = abrpHoldValueChanged;
-    abrpHoldActive = false;
-    abrpHoldValueChanged = false;
-    clearAbrpHoldTimers();
-    // 沒有按壓、也沒有變化（例如按下時誤觸、或已在極限值）就不重算。
-    if (!hadActive && !hadChange) return;
-    if (hadChange) window.triggerAbrpRouteRecalculate();
-};
 
 window.validateSocInput = function(el, maxVal) {
     el.value = el.value.replace(/[^0-9]/g, '');
