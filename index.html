@@ -127,6 +127,7 @@ input[type="number"] {
         html.lite .liquid-indicator { transition: transform 0.15s ease-out, width 0.15s ease-out, opacity 0.15s ease-out !important; }
         html.lite .liquid-indicator { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; } /* v39：lite 下指標不跑毛玻璃 */
         html.lite #toast { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; } /* v45：lite 下 toast 不跑毛玻璃 */
+        html.lite .modal-glass { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; } /* v52：lite 下 modal 不跑毛玻璃 */
         html.lite .toast-spinner { animation: none; } /* v45：lite 下轉圈變靜止圓環 */
         html.lite .tab-btn { transition: none !important; }
         html.lite .tab-btn.active { transform: none; }
@@ -670,7 +671,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v50</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v52</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1113,7 +1114,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v50</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v52</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1163,8 +1164,8 @@ input[type="number"] {
     </main>
 
     <!-- 🏆 成就榮譽榜 Modal -->
-    <div id="badgeModal" class="fixed inset-0 bg-stone-900/80 backdrop-blur-md z-[120] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-white dark:bg-neutral-900 rounded-[1.5rem] p-5 md:p-6 shadow-2xl max-w-lg w-full mx-4 max-h-[85vh] flex flex-col transform scale-95 transition-all duration-300 border border-stone-100 dark:border-stone-700">
+    <div id="badgeModal" class="fixed inset-0 bg-stone-900/80 backdrop-blur-xl saturate-150 modal-glass z-[120] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl saturate-150 modal-glass rounded-[28px] p-5 md:p-6 shadow-2xl max-w-lg w-full mx-4 max-h-[85vh] flex flex-col transform scale-95 transition-all duration-300 border border-white/40 dark:border-white/30">
             <div class="flex items-center justify-between mb-4 pb-3 border-b border-stone-100 dark:border-stone-800">
                 <h3 class="text-base md:text-lg font-extrabold text-stone-800 dark:text-white flex items-center gap-2">🏆 純電榮譽殿堂</h3>
                 <button onclick="closeBadgeModal()" class="w-8 h-8 bg-stone-100 dark:bg-neutral-800 rounded-full flex items-center justify-center text-sm font-bold active:scale-90">✕</button>
@@ -1178,8 +1179,8 @@ input[type="number"] {
     </div>
 
     <!-- 📍 站點多選彈出視窗 (Modal) -->
-    <div id="stationSelectModal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-[115] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-white dark:bg-neutral-900 rounded-[1.5rem] p-6 shadow-2xl max-w-sm w-full mx-4 transform scale-95 transition-all duration-300 border border-stone-100 dark:border-stone-700">
+    <div id="stationSelectModal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-xl saturate-150 modal-glass z-[115] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl saturate-150 modal-glass rounded-[28px] p-6 shadow-2xl max-w-sm w-full mx-4 transform scale-95 transition-all duration-300 border border-white/40 dark:border-white/30">
             <div class="flex items-center justify-between mb-3 border-b border-stone-100 dark:border-stone-700/60 pb-3">
                 <div class="flex items-center gap-2">
                     <span class="text-base">📍</span>
@@ -1194,8 +1195,8 @@ input[type="number"] {
     </div>
 
     <!-- 🗺️ 充電地圖 Modal -->
-    <div id="mapModal" class="fixed inset-0 bg-stone-900/80 backdrop-blur-md z-[120] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-white dark:bg-neutral-900 rounded-[1.5rem] p-3 md:p-4 shadow-2xl max-w-2xl w-full mx-4 h-[75vh] flex flex-col transform scale-95 transition-all duration-300 border border-stone-100 dark:border-stone-700 relative">
+    <div id="mapModal" class="fixed inset-0 bg-stone-900/80 backdrop-blur-xl saturate-150 modal-glass z-[120] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl saturate-150 modal-glass rounded-[28px] p-3 md:p-4 shadow-2xl max-w-2xl w-full mx-4 h-[75vh] flex flex-col transform scale-95 transition-all duration-300 border border-white/40 dark:border-white/30 relative">
             <div class="flex items-center justify-between px-1 mb-2">
                 <h3 class="text-sm md:text-base font-extrabold text-stone-800 dark:text-white flex items-center gap-1.5">
                     <span>🗺️</span> 我的充電足跡
@@ -1210,8 +1211,8 @@ input[type="number"] {
     </div>
 
 <!-- ⚡ ABRP 風格：長途補給規劃器 Modal -->
-    <div id="abrpModal" class="fixed inset-0 bg-stone-900/80 backdrop-blur-md z-[125] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-white dark:bg-neutral-900 rounded-[1.5rem] p-4 md:p-6 shadow-2xl max-w-xl w-full mx-4 h-[88vh] max-h-[88vh] flex flex-col overflow-hidden transform scale-95 transition duration-300 border border-stone-100 dark:border-stone-700">
+    <div id="abrpModal" class="fixed inset-0 bg-stone-900/80 backdrop-blur-xl saturate-150 modal-glass z-[125] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl saturate-150 modal-glass rounded-[28px] p-4 md:p-6 shadow-2xl max-w-xl w-full mx-4 h-[88vh] max-h-[88vh] flex flex-col overflow-hidden transform scale-95 transition duration-300 border border-white/40 dark:border-white/30">
             <div class="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-stone-800">
                 <h3 class="text-base md:text-lg font-extrabold text-stone-800 dark:text-white flex items-center gap-2">
                     <span>⚡</span> 長途補給規劃器 <span class="text-[9px] bg-amber-400 text-stone-950 px-2 py-0.5 rounded-full font-extrabold">ABRP 智能演算法</span>
@@ -1531,15 +1532,15 @@ input[type="number"] {
         </div>
     </nav>
 
-    <div id="toast" class="fixed top-3 left-3 right-3 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-full md:max-w-[420px] z-[9999] transform -translate-y-4 opacity-0 invisible pointer-events-none transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl saturate-150 text-stone-900 dark:text-white p-3 rounded-[28px] shadow-2xl flex items-center gap-3 border border-white/40 dark:border-white/30">
+    <div id="toast" class="fixed top-3 left-3 right-3 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-full md:max-w-[420px] z-[9999] transform -translate-y-4 opacity-0 invisible pointer-events-none transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl saturate-150 text-stone-900 dark:text-white p-3 rounded-[28px] shadow-2xl flex items-center justify-center gap-3 border border-white/40 dark:border-white/30">
         <span id="toastIcon" class="w-8 h-8 rounded-[10px] bg-gradient-to-br from-teal-400 to-teal-600 text-white flex items-center justify-center text-base flex-shrink-0 shadow-sm">⚡</span>
-        <div class="min-w-0 flex-1">
+        <div class="min-w-0">
             <span id="toastMessage" class="block text-[13px] leading-snug line-clamp-3"></span>
         </div>
     </div>
 
-    <div id="confirmModal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-[110] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-white dark:bg-neutral-900 rounded-[1.5rem] p-6 md:p-8 shadow-2xl max-w-sm md:max-w-md w-full mx-4 transform scale-95 transition-all duration-300 border border-stone-100 dark:border-stone-700" id="confirmModalContent">
+    <div id="confirmModal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-xl saturate-150 modal-glass z-[110] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl saturate-150 modal-glass rounded-[28px] p-6 md:p-8 shadow-2xl max-w-sm md:max-w-md w-full mx-4 transform scale-95 transition-all duration-300 border border-white/40 dark:border-white/30" id="confirmModalContent">
             <h3 id="confirmModalTitle" class="text-base md:text-xl font-extrabold mb-2">確認動作</h3>
             <p id="confirmModalMessage" class="text-xs md:text-sm font-bold text-stone-500 dark:text-stone-400 mb-6 md:mb-8 leading-relaxed"></p>
             <div class="flex space-x-3">
@@ -1613,7 +1614,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v50';
+        const APP_VERSION = 'v52';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -1951,7 +1952,7 @@ function cacheDOMNodes() {
             else { DOM.toastIcon.textContent = "⚡"; }
             const colorClasses = isError ? 'bg-rose-500/90 backdrop-blur-xl saturate-150 text-white border-white/25' : isSuccess ? 'bg-emerald-50/90 dark:bg-emerald-950/90 backdrop-blur-xl saturate-150 text-emerald-900 dark:text-emerald-100 border-emerald-200/70 dark:border-emerald-800/60' : 'bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl saturate-150 text-stone-900 dark:text-white border-white/40 dark:border-white/30';
 
-            DOM.toast.className = `fixed top-3 left-3 right-3 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-full md:max-w-[420px] z-[9999] transform transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] p-3 rounded-[28px] shadow-2xl flex items-center gap-3 border text-left leading-relaxed ${colorClasses} translate-y-0 opacity-100 visible pointer-events-auto`;
+            DOM.toast.className = `fixed top-3 left-3 right-3 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-full md:max-w-[420px] z-[9999] transform transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] p-3 rounded-[28px] shadow-2xl flex items-center justify-center gap-3 border text-left leading-relaxed ${colorClasses} translate-y-0 opacity-100 visible pointer-events-auto`;
 
             setTimeout(() => {
                 DOM.toast.classList.replace('translate-y-0', '-translate-y-4');
@@ -4412,7 +4413,7 @@ self.addEventListener('fetch', event => {
             window.location.href = window.location.pathname + '?v=' + Date.now();
         };
 
-        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v50 是 JS 萬一沒跑起來的備援顯示）
+        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v52 是 JS 萬一沒跑起來的備援顯示）
         function updateAppVersionLabels() {
             document.querySelectorAll('.app-version-label').forEach(el => { el.textContent = APP_VERSION; });
         }
