@@ -671,7 +671,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v56</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v57</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1114,7 +1114,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v56</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v57</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1614,7 +1614,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v56';
+        const APP_VERSION = 'v57';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -4413,7 +4413,7 @@ self.addEventListener('fetch', event => {
             window.location.href = window.location.pathname + '?v=' + Date.now();
         };
 
-        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v54 是 JS 萬一沒跑起來的備援顯示）
+        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v57 是 JS 萬一沒跑起來的備援顯示）
         function updateAppVersionLabels() {
             document.querySelectorAll('.app-version-label').forEach(el => { el.textContent = APP_VERSION; });
         }
@@ -4650,7 +4650,48 @@ styles: document.documentElement.classList.contains('dark') ? [
     { elementType: "labels.text.fill", stylers: [{ color: "#a8a29e" }] } // 文字顏色
 ] : []
             });
-            abrpDirectionsRenderer = new google.maps.DirectionsRenderer({ map: abrpMap });
+            // v57：Routes API 遷移 — DirectionsRenderer 只接受 DirectionsResult，無法畫 Routes API 的折線。
+            // 改用手動 Polyline + shim，保留 getRouteIndex / setRouteIndex / setOptions / setDirections 介面，
+            // 讓其餘 9 處呼叫點不用改。Directions fallback 時 setDirections 仍可接受 DirectionsResult。
+            abrpDirectionsRenderer = {
+              _routes: [], _idx: 0, _polylines: [], _markers: [], _preserveViewport: false,
+              _clear() { this._polylines.forEach(p => p.setMap(null)); this._polylines = []; this._markers.forEach(m => m.setMap(null)); this._markers = []; },
+              _draw() {
+                if (!abrpMap) return;
+                this._clear();
+                const routes = this._routes || [];
+                routes.forEach((rt, i) => {
+                  const path = rt.overview_path || [];
+                  if (!path.length) return;
+                  const isSel = i === this._idx;
+                  this._polylines.push(new google.maps.Polyline({ path, map: abrpMap, strokeColor: isSel ? '#4285F4' : '#9ca3af', strokeOpacity: isSel ? 1 : 0.65, strokeWeight: isSel ? 5 : 4, zIndex: isSel ? 10 : 5, clickable: false }));
+                });
+                // 起終點 A/B 標記（取代 DirectionsRenderer 預設標記）
+                const first = routes[0];
+                if (first?.overview_path?.length) {
+                  const pts = first.overview_path;
+                  this._markers.push(new google.maps.Marker({ position: pts[0], map: abrpMap, label: 'A' }));
+                  this._markers.push(new google.maps.Marker({ position: pts[pts.length - 1], map: abrpMap, label: 'B' }));
+                }
+                if (!this._preserveViewport && routes[0]?.overview_path?.length) {
+                  const b = new google.maps.LatLngBounds();
+                  routes[0].overview_path.forEach(pt => b.extend(pt));
+                  abrpMap.fitBounds(b, { top: 40, bottom: 40, left: 40, right: 40 });
+                }
+              },
+              setDirections(response) { // Directions fallback：接受 DirectionsResult
+                if (typeof normalizeDirectionsRoute === 'function') {
+                  this._routes = (response?.routes || []).map(rt => normalizeDirectionsRoute(rt));
+                } else {
+                  this._routes = response?.routes || [];
+                }
+                this._idx = 0; this._draw();
+              },
+              setRoutes(normalizedRoutes) { this._routes = normalizedRoutes || []; this._idx = 0; this._draw(); },
+              setRouteIndex(idx) { if (!this._routes[idx]) return; this._idx = idx; this._draw(); },
+              getRouteIndex() { return this._idx; },
+              setOptions(opts) { if (opts && 'preserveViewport' in opts) this._preserveViewport = !!opts.preserveViewport; }
+            };
         }
 
         initAbrpAutocomplete();
@@ -4932,6 +4973,312 @@ window.selectPkRoute = function(idx) {
     }
 };
 
+// ================= v57：Routes API + 隧道高程修正引擎 =================
+// v57（使用者選 A：全面遷移到 Routes API）：路線規劃改用 Routes API（computeRoutes），
+// 取得隧道／高架資訊（polylineDetails），再由隧道修正引擎處理隧道段高程。
+// Directions 僅作為 fallback（Routes API 失敗時，無隧道資訊）。
+
+// 標準 Google polyline 解碼（Maps JS 只載入 places，未載入 geometry，故自行解碼）。
+function decodePolyline(encoded) {
+  if (!encoded) return [];
+  const pts = [];
+  let lat = 0, lng = 0, i = 0;
+  while (i < encoded.length) {
+    let b, shift = 0, result = 0;
+    do { b = encoded.charCodeAt(i++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+    lat += (result & 1) ? ~(result >> 1) : (result >> 1);
+    shift = 0; result = 0;
+    do { b = encoded.charCodeAt(i++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+    lng += (result & 1) ? ~(result >> 1) : (result >> 1);
+    pts.push({ lat: lat / 1e5, lng: lng / 1e5 });
+  }
+  return pts;
+}
+
+// Routes API duration 格式為 "123.5s"（秒 + 's'），parseFloat 直接取數字部分。
+function parseRoutesDuration(s) {
+  const v = parseFloat(s);
+  return isFinite(v) ? v : 0;
+}
+function formatDurationText(sec) {
+  const s = Math.max(0, Math.round(sec || 0));
+  const h = Math.floor(s / 3600), m = Math.round((s % 3600) / 60);
+  if (h > 0) return m > 0 ? `${h} 小時 ${m} 分鐘` : `${h} 小時`;
+  return `${Math.max(m, 1)} 分鐘`;
+}
+function formatDistanceText(m) { return `${((m || 0) / 1000).toFixed(1)} 公里`; }
+
+// 從已載入的 Maps script URL 取 API key（執行期讀取，不記錄、不輸出 key 值）。
+function getMapsApiKey() {
+  try {
+    for (const s of document.scripts) {
+      const src = s.src || '';
+      if (src.includes('maps.googleapis.com')) {
+        const m = src.match(/[?&]key=([^&]+)/);
+        if (m) return decodeURIComponent(m[1]);
+      }
+    }
+  } catch (e) { /* ignore */ }
+  return null;
+}
+
+function routesApiWaypoint(loc) {
+  if (typeof loc === 'string') return { address: loc };
+  if (loc && typeof loc.lat === 'function') return { location: { latLng: { latitude: loc.lat(), longitude: loc.lng() } } };
+  if (loc && typeof loc.lat === 'number') return { location: { latLng: { latitude: loc.lat, longitude: loc.lng } } };
+  if (loc && loc.placeId) return { placeId: loc.placeId };
+  throw new Error('不支援的起終點格式');
+}
+
+// Routes API computeRoutes：TRAFFIC_AWARE（對應舊版 BEST_GUESS），要替代路線＋隧道／高架資訊。
+async function computeRoutesApiRoute(startLoc, endLoc) {
+  const apiKey = getMapsApiKey();
+  if (!apiKey) throw new Error('找不到 Maps API key');
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 15000);
+  try {
+    const res = await fetch('https://routes.googleapis.com/directions/v2:computeRoutes', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': apiKey,
+        'X-Goog-FieldMask': 'routes.legs,routes.distanceMeters,routes.duration,routes.staticDuration,routes.polyline,routes.description,routes.polylineDetails,routes.localizedValues,routes.travelAdvisory,routes.routeLabels,routes.viewport,routes.warnings'
+      },
+      body: JSON.stringify({
+        origin: routesApiWaypoint(startLoc),
+        destination: routesApiWaypoint(endLoc),
+        travelMode: 'DRIVE',
+        routingPreference: 'TRAFFIC_AWARE',
+        computeAlternativeRoutes: true,
+        polylineQuality: 'HIGH_QUALITY',
+        polylineEncoding: 'ENCODED_POLYLINE',
+        departureTime: new Date().toISOString(),
+        languageCode: 'zh-TW',
+        regionCode: 'TW',
+        units: 'METRIC',
+        extraComputations: ['TUNNEL_INFO_ON_POLYLINE', 'FLYOVER_INFO_ON_POLYLINE']
+      }),
+      signal: ctrl.signal
+    });
+    if (!res.ok) throw new Error('Routes API HTTP ' + res.status);
+    const data = await res.json();
+    if (!data.routes?.length) throw new Error('Routes API 無路線');
+    return data.routes;
+  } finally { clearTimeout(timer); }
+}
+
+// Routes API Route → 正規化路線（與 Directions 相同的下游形狀，讓高程／卡片／選路線程式碼不用改）。
+function normalizeRoutesApiRoute(r, idx) {
+  const fullPolyline = decodePolyline(r.polyline?.encodedPolyline || '');
+  const firstPt = fullPolyline[0] || { lat: 0, lng: 0 };
+  const lastPt = fullPolyline[fullPolyline.length - 1] || { lat: 0, lng: 0 };
+  const legs = (r.legs || []).map(leg => {
+    const durTraffic = parseRoutesDuration(leg.duration);
+    const durStatic = parseRoutesDuration(leg.staticDuration);
+    const s = leg.startLocation?.latLng, e = leg.endLocation?.latLng;
+    return {
+      distance: { value: leg.distanceMeters || 0, text: leg.localizedValues?.distance?.text || formatDistanceText(leg.distanceMeters || 0) },
+      duration: { value: durStatic, text: leg.localizedValues?.staticDuration?.text || formatDurationText(durStatic) },
+      duration_in_traffic: { value: durTraffic, text: leg.localizedValues?.duration?.text || formatDurationText(durTraffic) },
+      // 高程管線用 .lat() / .lng() 方法，故用 LatLng 實例（舊版 Directions 亦然）。
+      start_location: new google.maps.LatLng(s ? s.latitude : firstPt.lat, s ? s.longitude : firstPt.lng),
+      end_location: new google.maps.LatLng(e ? e.latitude : lastPt.lat, e ? e.longitude : lastPt.lng),
+      steps: (leg.steps || []).map(st => ({
+        path: decodePolyline(st.polyline?.encodedPolyline || ''),
+        distance: { value: st.distanceMeters || 0 },
+        duration: { value: parseRoutesDuration(st.staticDuration) }
+      }))
+    };
+  });
+  return {
+    summary: r.description || `路線 ${idx + 1}`,
+    overview_path: fullPolyline,
+    legs,
+    routesApiPolylineDetails: r.polylineDetails || null,
+    routesApiSource: 'routes-api'
+  };
+}
+
+// Directions fallback → 正規化（無 polylineDetails → 無隧道修正）。
+function normalizeDirectionsRoute(rt) {
+  return {
+    summary: rt.summary || '路線',
+    overview_path: rt.overview_path || [],
+    legs: (rt.legs || []).map(leg => ({
+      distance: leg.distance,
+      duration: leg.duration,
+      duration_in_traffic: leg.duration_in_traffic || leg.duration,
+      start_location: leg.start_location,
+      end_location: leg.end_location,
+      steps: (leg.steps || []).map(st => ({ path: st.path || [], distance: st.distance, duration: st.duration }))
+    })),
+    routesApiPolylineDetails: null,
+    routesApiSource: 'directions-fallback'
+  };
+}
+
+// ---------- 隧道高程修正引擎（Case B 內插 / Case C 標記未知） ----------
+// 來源：Routes API polylineDetails.tunnelInfo（presence === 'EXISTS'），索引對應同一條折線。
+function polylineRangeLengthM(pts, s, e) {
+  let total = 0;
+  for (let i = Math.max(0, s); i < Math.min(e, pts.length - 1); i++) {
+    total += getDistanceFromLatLonInKm(latOf(pts[i]), lngOf(pts[i]), latOf(pts[i + 1]), lngOf(pts[i + 1])) * 1000;
+  }
+  return total;
+}
+
+function extractTunnelSegments(fullPolyline, polylineDetails) {
+  const infos = (polylineDetails?.tunnelInfo || []).filter(t => t?.tunnelPresence === 'EXISTS' && t?.polylinePointIndex);
+  infos.sort((a, b) => a.polylinePointIndex.startIndex - b.polylinePointIndex.startIndex);
+  const merged = [];
+  for (const t of infos) {
+    const s = t.polylinePointIndex.startIndex, e = t.polylinePointIndex.endIndex;
+    const last = merged[merged.length - 1];
+    if (last && s <= last.endIndex + 2) last.endIndex = Math.max(last.endIndex, e); // 相鄰／重疊合併（容差 2 點）
+    else merged.push({ startIndex: s, endIndex: e });
+  }
+  return merged.map(m => ({ ...m, lengthM: polylineRangeLengthM(fullPolyline, m.startIndex, m.endIndex) }));
+}
+
+function applyTunnelCorrection(rawElevs, sampleLocations, fullPolyline, tunnelSegments) {
+  const out = rawElevs.slice();
+  const segments = [];
+  let correctedCount = 0, hasUnknownTunnel = false;
+  if (!rawElevs.length || !sampleLocations.length || sampleLocations.length !== rawElevs.length || !fullPolyline.length || !tunnelSegments.length) {
+    return { correctedElevs: out, segments, correctedCount, hasUnknownTunnel };
+  }
+  // 樣本位置 → 最近折線點索引（雙指針：樣本與折線都沿路線單調，O(N+M)）。
+  const sampleIdx = [];
+  let p = 0;
+  for (let i = 0; i < sampleLocations.length; i++) {
+    const s = sampleLocations[i];
+    const sLat = latOf(s), sLng = lngOf(s);
+    while (p + 1 < fullPolyline.length) {
+      const dCur = getDistanceFromLatLonInKm(sLat, sLng, latOf(fullPolyline[p]), lngOf(fullPolyline[p]));
+      const dNext = getDistanceFromLatLonInKm(sLat, sLng, latOf(fullPolyline[p + 1]), lngOf(fullPolyline[p + 1]));
+      if (dNext < dCur) p++; else break;
+    }
+    sampleIdx.push(p);
+  }
+  for (const seg of tunnelSegments) {
+    const inTunnel = [];
+    for (let i = 0; i < sampleIdx.length; i++) {
+      if (sampleIdx[i] >= seg.startIndex && sampleIdx[i] <= seg.endIndex) inTunnel.push(i);
+    }
+    if (!inTunnel.length) continue; // 隧道內無取樣點：剖面本來就沒讀到隧道內，不用修正
+    const firstIn = inTunnel[0], lastIn = inTunnel[inTunnel.length - 1];
+    const anchorBeforeIdx = firstIn - 1, anchorAfterIdx = lastIn + 1;
+    const base = { startIndex: seg.startIndex, endIndex: seg.endIndex, lengthM: Math.round(seg.lengthM), sampleRange: [firstIn, lastIn] };
+    if (anchorBeforeIdx < 0 || anchorAfterIdx >= rawElevs.length) {
+      // Case C：隧道貼齊路線起／終點，無一側錨點 → 不硬算，標記未知（保留 DEM，保守）
+      segments.push({ ...base, source: 'unknown', confidence: 'low', corrected: false, reason: 'tunnel_touches_route_endpoint' });
+      hasUnknownTunnel = true;
+      continue;
+    }
+    const aBefore = rawElevs[anchorBeforeIdx], aAfter = rawElevs[anchorAfterIdx];
+    const grade = seg.lengthM > 0 ? Math.abs(aAfter - aBefore) / seg.lengthM : 0;
+    if (grade > 0.10) {
+      // Case C：坡度 >10% 不合理（高速公路隧道通常 <6%）→ 不硬算，標記未知
+      segments.push({ ...base, source: 'unknown', confidence: 'low', corrected: false, reason: 'unreasonable_grade', gradePct: +(grade * 100).toFixed(1) });
+      hasUnknownTunnel = true;
+      console.warn(`[EvLife] tunnel correction: 隧道坡度 ${(grade * 100).toFixed(1)}% 不合理，標記未知（不修正）`);
+      continue;
+    }
+    // Case B：入口↔出口線性內插（樣本等距，依樣本索引內插即等於依距離內插）
+    for (const j of inTunnel) {
+      const ratio = (j - anchorBeforeIdx) / (anchorAfterIdx - anchorBeforeIdx);
+      out[j] = aBefore + (aAfter - aBefore) * ratio;
+    }
+    segments.push({ ...base, source: 'linear_estimate', confidence: 'medium', corrected: true, gradePct: +(grade * 100).toFixed(1) });
+    correctedCount++;
+  }
+  return { correctedElevs: out, segments, correctedCount, hasUnknownTunnel };
+}
+
+function handlePlannedRoutes(routes, startSoc) {
+  abrpDirectionsRenderer.setOptions({ preserveViewport: false });
+  abrpDirectionsRenderer.setRoutes(routes);
+  currentPkRoutes = routes;
+
+
+  const pkBox = document.getElementById('highwayPkContainer');
+  if (routes.length >= 2 && pkBox) {
+      pkBox.classList.remove('hidden');
+
+      routes.slice(0, 2).forEach((rt, idx) => {
+          const leg = rt.legs[0];
+          const distKm = leg.distance.value / 1000;
+          const name = rt.summary || `路線 ${idx + 1}`;
+
+          const delay = leg.duration_in_traffic ? (leg.duration_in_traffic.value - leg.duration.value) : 0;
+          let traffic = { text: "順暢 🟢", class: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" };
+          if (delay > 900) traffic = { text: `塞車 +${Math.round(delay/60)}分 🔴`, class: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300" };
+          else if (delay > 300) traffic = { text: "車多 🟡", class: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300" };
+
+          document.getElementById(`pkName${idx}`).textContent = name.includes('國道1') ? '國道 1 號' : (name.includes('國道3') ? '國道 3 號' : name);
+          document.getElementById(`pkDist${idx}`).textContent = distKm.toFixed(1);
+          document.getElementById(`pkDuration${idx}`).textContent = leg.duration_in_traffic ? leg.duration_in_traffic.text : leg.duration.text;
+
+          const tag = document.getElementById(`pkTrafficTag${idx}`);
+          if (tag) {
+              tag.textContent = traffic.text;
+              tag.className = `text-[9px] font-extrabold px-1.5 py-0.5 rounded ${traffic.class}`;
+          }
+
+          // 先給初始載入狀態
+          const effEl = document.getElementById(`pkEff${idx}`);
+          const socEl = document.getElementById(`pkSoc${idx}`);
+          if (effEl) effEl.textContent = "計算中...";
+          if (socEl) socEl.textContent = "...";
+      });
+  } else if (pkBox) {
+      pkBox.classList.add('hidden');
+  }
+
+  // 1. 優先計算並渲染選中的「路線 0」（主畫面、折線圖、沿線充電站）
+  selectPkRoute(0);
+
+  // 2. ⚡ 若有第 2 條路線（路線 1），在背景靜默預算，完成後自動更新右邊卡片數值
+  if (routes.length >= 2) {
+      setTimeout(() => {
+          const rt1 = routes[1];
+          if (!pkRouteCache[1]?.isReady) {
+              processRouteElevationAndCharging(rt1, startSoc, 1);
+          }
+      }, 150);
+  }
+
+  // 🎯 觸發目的地景點補電判斷
+  const destLeg = routes[0]?.legs[0];
+  if (destLeg && destLeg.end_location) {
+      const destName = document.getElementById('routeEndInput')?.value.trim() || "目的地";
+      const destPoiCard = document.getElementById('abrpDestPoiCard');
+      if (destPoiCard) {
+          destPoiCard.classList.add('hidden');
+          destPoiCard.innerHTML = '';
+      }
+
+      // 優先取得處理後的景點/地標名稱
+      const cleanDestTitle = getShortLocationName(destName);
+
+      // 優先比對地名關鍵字（反應最快且最準確）
+      if (isTouristOrPoiDestination(destName, [])) {
+          searchDestinationCharging(destLeg.end_location, cleanDestTitle);
+      } else {
+          // 名稱未直接命中時，透過反查地點類型進行二次檢驗
+          const geocoder = new google.maps.Geocoder();
+          geocoder.geocode({ location: destLeg.end_location }, (results, gStatus) => {
+              const placeTypes = (gStatus === 'OK' && results?.[0]?.types) ? results[0].types : [];
+              if (isTouristOrPoiDestination(destName, placeTypes)) {
+                  searchDestinationCharging(destLeg.end_location, cleanDestTitle);
+              }
+          });
+      }
+  }
+}
+
+// ================= v57 結束 =================
+
 window.planElectricRoute = async function() {
     pkRouteCache = {}; // 每次點擊模擬新規劃時重設快取
     invalidateAllElevationRequests();
@@ -4950,105 +5297,25 @@ window.planElectricRoute = async function() {
     if (abrpChargerMarker) { abrpChargerMarker.setMap(null); abrpChargerMarker = null; }
 
     showToast("🧭 正在規劃純電路徑與地貌高程取樣...", false, 2000);
-    const directionsService = new google.maps.DirectionsService();
-
-    directionsService.route({
-        origin: startLoc,
-        destination: endLoc,
-        travelMode: google.maps.TravelMode.DRIVING,
-        provideRouteAlternatives: true,
-        drivingOptions: { departureTime: new Date(), trafficModel: google.maps.TrafficModel.BEST_GUESS }
-    }, async (response, status) => {
-        if (status !== google.maps.DirectionsStatus.OK || !response.routes[0]) {
-            showToast("無法規劃此路徑，請檢查起訖點地點 ⚠️", true);
-            return;
-        }
-
-        abrpDirectionsRenderer.setOptions({ preserveViewport: false });
-        abrpDirectionsRenderer.setDirections(response);
-        currentPkRoutes = response.routes;
-        
-        if (response.routes[0] && abrpMap) {
-            const bounds = new google.maps.LatLngBounds();
-            response.routes[0].overview_path.forEach(point => bounds.extend(point));
-            abrpMap.fitBounds(bounds, { top: 40, bottom: 40, left: 40, right: 40 });
-        }
-
-        const pkBox = document.getElementById('highwayPkContainer');
-        if (response.routes.length >= 2 && pkBox) {
-            pkBox.classList.remove('hidden');
-            
-            response.routes.slice(0, 2).forEach((rt, idx) => {
-                const leg = rt.legs[0];
-                const distKm = leg.distance.value / 1000;
-                const name = rt.summary || `路線 ${idx + 1}`;
-                
-                const delay = leg.duration_in_traffic ? (leg.duration_in_traffic.value - leg.duration.value) : 0;
-                let traffic = { text: "順暢 🟢", class: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" };
-                if (delay > 900) traffic = { text: `塞車 +${Math.round(delay/60)}分 🔴`, class: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300" };
-                else if (delay > 300) traffic = { text: "車多 🟡", class: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300" };
-
-                document.getElementById(`pkName${idx}`).textContent = name.includes('國道1') ? '國道 1 號' : (name.includes('國道3') ? '國道 3 號' : name);
-                document.getElementById(`pkDist${idx}`).textContent = distKm.toFixed(1);
-                document.getElementById(`pkDuration${idx}`).textContent = leg.duration_in_traffic ? leg.duration_in_traffic.text : leg.duration.text;
-                
-                const tag = document.getElementById(`pkTrafficTag${idx}`);
-                if (tag) {
-                    tag.textContent = traffic.text;
-                    tag.className = `text-[9px] font-extrabold px-1.5 py-0.5 rounded ${traffic.class}`;
-                }
-
-                // 先給初始載入狀態
-                const effEl = document.getElementById(`pkEff${idx}`);
-                const socEl = document.getElementById(`pkSoc${idx}`);
-                if (effEl) effEl.textContent = "計算中...";
-                if (socEl) socEl.textContent = "...";
-            });
-        } else if (pkBox) {
-            pkBox.classList.add('hidden');
-        }
-
-        // 1. 優先計算並渲染選中的「路線 0」（主畫面、折線圖、沿線充電站）
-        selectPkRoute(0);
-
-        // 2. ⚡ 若有第 2 條路線（路線 1），在背景靜默預算，完成後自動更新右邊卡片數值
-        if (response.routes.length >= 2) {
-            setTimeout(() => {
-                const rt1 = response.routes[1];
-                if (!pkRouteCache[1]?.isReady) {
-                    processRouteElevationAndCharging(rt1, startSoc, 1);
-                }
-            }, 150);
-        }
-
-        // 🎯 觸發目的地景點補電判斷
-        const destLeg = response.routes[0]?.legs[0];
-        if (destLeg && destLeg.end_location) {
-            const destName = document.getElementById('routeEndInput')?.value.trim() || "目的地";
-            const destPoiCard = document.getElementById('abrpDestPoiCard');
-            if (destPoiCard) {
-                destPoiCard.classList.add('hidden');
-                destPoiCard.innerHTML = '';
-            }
-
-            // 優先取得處理後的景點/地標名稱
-            const cleanDestTitle = getShortLocationName(destName);
-
-            // 優先比對地名關鍵字（反應最快且最準確）
-            if (isTouristOrPoiDestination(destName, [])) {
-                searchDestinationCharging(destLeg.end_location, cleanDestTitle);
-            } else {
-                // 名稱未直接命中時，透過反查地點類型進行二次檢驗
-                const geocoder = new google.maps.Geocoder();
-                geocoder.geocode({ location: destLeg.end_location }, (results, gStatus) => {
-                    const placeTypes = (gStatus === 'OK' && results?.[0]?.types) ? results[0].types : [];
-                    if (isTouristOrPoiDestination(destName, placeTypes)) {
-                        searchDestinationCharging(destLeg.end_location, cleanDestTitle);
-                    }
-                });
-            }
-        }
-    });
+    // v57：優先 Routes API（帶隧道資訊），失敗則 fallback 到 Directions（無隧道資訊）。
+    let planned = null;
+    try {
+      const apiRoutes = await computeRoutesApiRoute(startLoc, endLoc);
+      planned = apiRoutes.map((r, i) => normalizeRoutesApiRoute(r, i));
+      console.log('[EvLife] routes: Routes API 成功', planned.length, '條');
+    } catch (err) {
+      console.warn('[EvLife] routes: Routes API 失敗，fallback 到 Directions', err);
+      showToast('Routes API 未啟用或連線失敗，已改用 Directions 規劃（無隧道資訊）⚠️', true);
+      try {
+        planned = await new Promise((resolve, reject) => {
+          new google.maps.DirectionsService().route({ origin: startLoc, destination: endLoc, travelMode: google.maps.TravelMode.DRIVING, provideRouteAlternatives: true, drivingOptions: { departureTime: new Date(), trafficModel: google.maps.TrafficModel.BEST_GUESS } }, (response, status) => {
+            if (status !== google.maps.DirectionsStatus.OK || !response.routes[0]) reject(new Error('Directions:' + status));
+            else resolve(response.routes.map(rt => normalizeDirectionsRoute(rt)));
+          });
+        });
+      } catch (err2) { showToast('無法規劃此路徑，請檢查起訖點地點 ⚠️', true); return; }
+    }
+    handlePlannedRoutes(planned, startSoc);
 };
 
         // 🎯 1. 判斷目的地是否屬於「景點 / 商圈 / 飯店 / 休憩遊樂地」
@@ -5685,6 +5952,8 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
     let elevationUnavailable = false;
     let startAlt = 0, endAlt = 0;
     let rawMax = null, rawMaxIdx = -1, cleanedMaxIdx = -1;
+    let rawElevations = null;
+    let tunnelCorrection = { segments: [], correctedCount: 0, hasUnknownTunnel: false };
     let usedPathLabel = 'none';
 
     let elevationPath = route.overview_path;
@@ -5720,11 +5989,25 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
       let raw = elevations.map(e => e.elevation);
       rawMax = Math.max(...raw);
       rawMaxIdx = raw.indexOf(rawMax);
-      // v56：OSM 已移除（使用者決策 C：5 秒等待太久，且實測 OSM 未把 549 壓下來）。
-      // 直接走 v9 清洗，不再等 Overpass；隧道假峰為已知接受的限制。
-      smoothed = cleanElevations(raw, totalDistanceKm);
+      let correctedRaw = raw;
+      // v57：Routes API 隧道修正（取代 v56 已移除的 OSM）：若此路線帶 polylineDetails，
+      // 先用隧道口↔出口內插修正原始高程（Case B），再走 v9 清洗。無隧道資訊時（Directions fallback）跳過。
+      rawElevations = raw;
+      const tunnelDetails = route.routesApiPolylineDetails;
+      if (tunnelDetails?.tunnelInfo?.length) {
+        try {
+          const segs = extractTunnelSegments(route.overview_path || [], tunnelDetails);
+          const sampleLocs = elevations.map(e => e.location).filter(Boolean);
+          if (sampleLocs.length === raw.length && segs.length) {
+            const res = applyTunnelCorrection(raw, sampleLocs, route.overview_path || [], segs);
+            correctedRaw = res.correctedElevs;
+            tunnelCorrection = { segments: res.segments, correctedCount: res.correctedCount, hasUnknownTunnel: res.hasUnknownTunnel };
+          }
+        } catch (err) { console.warn('[EvLife] tunnel correction 例外，退回未修正高程', err); }
+      }
+      smoothed = cleanElevations(correctedRaw, totalDistanceKm);
       cleanedMaxIdx = smoothed.indexOf(Math.max(...smoothed));
-      console.log(`[EvLife] elevation route${routeIdx} dist=${totalDistanceKm.toFixed(1)}km samples=${raw.length} path=${usedPathLabel} rawMax=${rawMax.toFixed(0)}m@${rawMaxIdx} cleanedMax=${Math.max(...smoothed).toFixed(0)}m@${cleanedMaxIdx} start=${raw[0].toFixed(0)} end=${raw[raw.length - 1].toFixed(0)}`);
+      console.log(`[EvLife] elevation route${routeIdx} dist=${totalDistanceKm.toFixed(1)}km samples=${raw.length} path=${usedPathLabel} rawMax=${rawMax.toFixed(0)}m@${rawMaxIdx} cleanedMax=${Math.max(...smoothed).toFixed(0)}m@${cleanedMaxIdx} start=${raw[0].toFixed(0)} end=${raw[raw.length - 1].toFixed(0)} tunnelCorr=${tunnelCorrection.correctedCount} unknownTunnel=${tunnelCorrection.hasUnknownTunnel}`);
 
       // 起終點用單點高程校正，不用 alongPath 頭尾點（會偏移）
       const sLoc = leg.start_location, eLoc = leg.end_location;
@@ -5785,6 +6068,8 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
     if (maxElevation >= 1000 || totalClimbMeters >= 800) routeProfileText = `高海拔山區 (爬升 +${Math.round(totalClimbMeters)}m)`;
     else if (totalClimbMeters >= 350) routeProfileText = `丘陵坡道地貌 (爬升 +${Math.round(totalClimbMeters)}m)`;
     else routeProfileText = `平地巡航路段 (起伏平緩)`;
+    if (tunnelCorrection.correctedCount > 0) routeProfileText += ` 🛤️ 隧道校正 ${tunnelCorrection.correctedCount} 段`;
+    if (tunnelCorrection.hasUnknownTunnel) routeProfileText += ' ⚠️ 含未知隧道段';
 
     const elevationData = {
       smoothedElevations: smoothed,
@@ -5794,7 +6079,8 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
       realEff: realEff === Infinity ? "Infinity" : realEff.toFixed(2),
       directArrivalSoc, startSoc,
       rawMax: rawMax === null ? null : Math.round(rawMax),
-      rawMaxIdx, cleanedMaxIdx, usedDetailedPath, usedPathLabel, elevationUnavailable: false
+      rawMaxIdx, cleanedMaxIdx, usedDetailedPath, usedPathLabel, elevationUnavailable: false,
+      rawElevations, tunnelSegments: tunnelCorrection.segments, tunnelCorrectionCount: tunnelCorrection.correctedCount, hasUnknownTunnel: tunnelCorrection.hasUnknownTunnel, tunnelSource: route.routesApiPolylineDetails ? 'routes-api' : null
     };
 
     if (!isCurrentElevationRequest(routeIdx, requestToken)) return;
@@ -6644,7 +6930,7 @@ function updateAbrpElevScrub(pct) {
   const dot = document.getElementById('abrpElevScrubDot');
   if (dot) { dot.setAttribute('cx', x); dot.setAttribute('cy', y); }
   const read = document.getElementById('abrpElevScrubRead');
-  if (read) read.textContent = `位置 ${Math.round(p)}% · 海拔 ${d.smoothed[idx]} m`;
+  if (read) read.textContent = `位置 ${Math.round(p)}% · 海拔 ${Math.round(d.smoothed[idx])} m`;
   const slider = document.getElementById('abrpElevScrub');
   if (slider && document.activeElement !== slider) slider.value = p;
   try {
