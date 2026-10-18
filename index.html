@@ -381,11 +381,11 @@ input[type="number"] {
     <header class="sticky top-0 z-40 bg-[#faf8f4]/80 dark:bg-black/80 backdrop-blur-xl pt-[env(safe-area-inset-top)] border-b border-transparent transition-all">
         <div class="flex items-center justify-between px-4 py-3 max-w-6xl mx-auto">
             <div class="w-9"></div>
-            <div class="flex items-center gap-2 bg-stone-900/90 dark:bg-neutral-900/90 backdrop-blur-md px-1.5 py-1.5 pr-5 rounded-full shadow-md cursor-pointer transition active:scale-95" onclick="switchTab('settings')">
+            <div class="flex items-center gap-2 bg-stone-900/90 dark:bg-neutral-900/90 backdrop-blur-xl saturate-150 px-1.5 py-1.5 pr-5 rounded-full shadow-md cursor-pointer transition active:scale-95" onclick="switchTab('settings')">
                 <div class="bg-amber-500 text-stone-900 px-2.5 py-1 rounded-full text-[10px] font-extrabold">純電</div>
                 <span id="topEvName" class="text-white text-xs font-bold font-mono tracking-wide">LUXGEN n7</span>
             </div>
-            <button onclick="toggleTheme()" class="w-9 h-9 bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm border border-stone-200 dark:border-stone-700 transition active:scale-95">
+            <button onclick="toggleTheme()" class="w-9 h-9 bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl saturate-150 rounded-full flex items-center justify-center shadow-sm border border-white/40 dark:border-white/30 transition active:scale-95">
                 <svg id="themeSunIcon" class="w-4 h-4 text-amber-500 hidden" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.46 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path></svg>
                 <svg id="themeMoonIcon" class="w-4 h-4 text-indigo-400 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
             </button>
@@ -426,11 +426,11 @@ input[type="number"] {
                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
                     <div class="absolute bottom-5 left-6 right-6 flex justify-between items-end">
                         <h1 id="heroEvName" class="text-white text-3xl md:text-5xl font-extrabold tracking-widest drop-shadow-md">LUXGEN n7</h1>
-                        <button onclick="openAbrpModal()" class="bg-white/20 backdrop-blur-md border border-white/30 text-white px-3 py-1.5 rounded-full text-[11px] font-extrabold shadow-sm active:scale-95 transition flex items-center gap-1 shrink-0">
+                        <button onclick="openAbrpModal()" class="bg-white/20 backdrop-blur-xl saturate-150 border border-white/30 text-white px-3 py-1.5 rounded-full text-[11px] font-extrabold shadow-sm active:scale-95 transition flex items-center gap-1 shrink-0">
                             🗺️ 路線模擬
                         </button>
                     </div>
-                    <button onclick="document.getElementById('heroImageUpload').click()" class="absolute top-4 right-4 w-10 h-10 md:w-12 md:h-12 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white transition active:scale-95 shadow-lg border border-white/20">
+                    <button onclick="document.getElementById('heroImageUpload').click()" class="absolute top-4 right-4 w-10 h-10 md:w-12 md:h-12 bg-black/40 backdrop-blur-xl saturate-150 rounded-full flex items-center justify-center text-white transition active:scale-95 shadow-lg border border-white/20">
                         <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     </button>
                     <input type="file" id="heroImageUpload" class="hidden" accept="image/*" onchange="handleHeroImageUpload(event)">
@@ -671,7 +671,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v52</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v53</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1114,7 +1114,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v52</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v53</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1614,7 +1614,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v52';
+        const APP_VERSION = 'v53';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -4413,7 +4413,7 @@ self.addEventListener('fetch', event => {
             window.location.href = window.location.pathname + '?v=' + Date.now();
         };
 
-        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v52 是 JS 萬一沒跑起來的備援顯示）
+        // 把畫面上所有 .app-version-label 同步成 APP_VERSION（HTML 裡的 v53 是 JS 萬一沒跑起來的備援顯示）
         function updateAppVersionLabels() {
             document.querySelectorAll('.app-version-label').forEach(el => { el.textContent = APP_VERSION; });
         }
@@ -5923,13 +5923,67 @@ function updateElevationHudUi(data) {
     if (typeof window.updateAbrpElevScrub === 'function') window.updateAbrpElevScrub(0);
 }
 
+// v53：多站充電規劃（純函式，不依賴 Google API，可單元測試）
+// 從起點 SOC 出發，每次用到 floorSoc 就停一站充到 chargeToSoc，直到剩餘里程可直達 floorSoc 為止。
+function planChargingStops({ totalDistanceKm, startSoc, batteryCapacity, realEff, floorSoc, chargeToSoc = 80, maxStops = 5 }) {
+    const eff = (isFinite(realEff) && realEff > 0) ? realEff : 5.5;
+    const floor = Math.max(0, Math.min(95, floorSoc));
+    const target = Math.max(floor + 1, Math.min(100, chargeToSoc));
+    const stops = [];
+    let soc = startSoc;
+    let remainingKm = totalDistanceKm;
+    let cumKm = 0;
+    const reachableKm = (fromSoc) => Math.max(0, ((fromSoc - floor) / 100) * batteryCapacity * eff);
+    let guard = 0;
+    while (remainingKm > reachableKm(soc) + 1e-9 && stops.length < maxStops && guard++ < 10) {
+        const legKm = reachableKm(soc);
+        if (legKm <= 0) {
+            // 起點電量已低於底線：出發前先充一站（km 0）
+            if (stops.length === 0) {
+                const kwh0 = ((target - soc) / 100) * batteryCapacity;
+                stops.push({ index: 1, atKm: 0, arrivalSoc: Math.round(soc), departSoc: target, chargeKwh: Math.round(kwh0 * 10) / 10, chargeMinutes: Math.round((kwh0 / 100) * 60) });
+                soc = target;
+                continue;
+            }
+            break;
+        }
+        cumKm += legKm;
+        remainingKm -= legKm;
+        const chargeKwh = ((target - floor) / 100) * batteryCapacity;
+        stops.push({ index: stops.length + 1, atKm: Math.round(cumKm * 10) / 10, arrivalSoc: Math.round(floor), departSoc: target, chargeKwh: Math.round(chargeKwh * 10) / 10, chargeMinutes: Math.round((chargeKwh / 100) * 60) });
+        soc = target;
+    }
+    const incomplete = remainingKm > reachableKm(soc) + 1e-9;
+    return { stops, incomplete };
+}
+
+// v53：後續站點清單（第 2 站起；第 1 站由既有站點卡片詳述）
+function renderLaterStopsHtml(stopPlan) {
+    const stops = stopPlan?.stops || [];
+    if (stops.length < 2) return '';
+    const rows = stops.slice(1).map(st => `
+        <div class="flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-white/60 dark:bg-black/20 border border-amber-200/50 dark:border-amber-700/30">
+            <div class="min-w-0">
+                <div class="font-extrabold text-xs">第 ${st.index} 站 · 約 ${st.atKm} km 處</div>
+                <div class="text-[10px] text-stone-500 dark:text-stone-400 font-bold">抵達約 ${st.arrivalSoc}% → 充至 ${st.departSoc}% · 需補 ${st.chargeKwh} 度</div>
+            </div>
+            <span class="shrink-0 text-[10px] font-extrabold bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-md whitespace-nowrap">⏱️ 約 ${st.chargeMinutes} 分</span>
+        </div>`).join('');
+    return `
+        <div class="pt-2 space-y-1.5">
+            <div class="text-[11px] font-extrabold text-amber-800 dark:text-amber-300">後續補電計畫（依里程推算，實際站點請以導航為準）</div>
+            ${rows}
+            ${stopPlan.incomplete ? `<p class="text-[10px] font-bold text-rose-600 dark:text-rose-400">⚠️ 即使充 5 站仍無法抵達，請分段規劃或提高出發電量。</p>` : ''}
+        </div>`;
+}
+
 async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeIdx, route) {
     // v7: 高程不可用時不拿 null SOC 去算直達 / 補電判斷。
     if (calcData?.elevationUnavailable) {
         showElevationUnavailable(routeIdx, startSoc, calcData.totalDistanceKm, calcData.durationText);
         return;
     }
-    const { directArrivalSoc, totalDistanceKm, durationText, realEff, routeProfileText, neededStops } = calcData;
+    const { directArrivalSoc, totalDistanceKm, durationText, realEff, routeProfileText } = calcData;
     document.getElementById('abrpResultSection')?.classList.remove('hidden');
 
     // ⚡ 提前讀取自訂充電門檻（讓直達判斷、安全標籤與選站全域連動）
@@ -5980,12 +6034,17 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
 
     recCard.className = "p-4 rounded-2xl border border-amber-300 dark:border-amber-700/60 bg-amber-50/80 dark:bg-amber-950/40 text-amber-950 dark:text-amber-200 space-y-2 min-h-[136px]";
 
+    // v53：多站計畫（依目前門檻重算；calcData 即 pkRouteCache[routeIdx]，寫入即入快取）
+    const stopPlan = planChargingStops({ totalDistanceKm, startSoc, batteryCapacity: AppState.batteryCapacity, realEff, floorSoc: userTargetSoc });
+    calcData.neededStops = stopPlan.stops.length;
+    calcData.stopPlan = stopPlan;
+
     if (calcData.isReady && calcData.stationCardHtml) {
         renderAbrpCachedResults(calcData, totalDistanceKm, durationText);
         return;
     }
 
-    const stopsCount = neededStops || 1;
+    const stopsCount = stopPlan.stops.length || 1;
     const stopPromptText = stopsCount > 1 ? `需中途補能 ${stopsCount} 次（首站推薦）` : `建議中途補能！`;
 
     recCard.innerHTML = `
@@ -6510,7 +6569,7 @@ const stationCardHtml = `
     if (currentActiveRoute === routeIdx || (routeIdx === 0 && isCard0Active)) {
         const stopDivEl = document.getElementById('abrpStopRecommendation');
         if (stopDivEl) {
-            stopDivEl.innerHTML = stationCardHtml;
+            stopDivEl.innerHTML = stationCardHtml + renderLaterStopsHtml(calcData.stopPlan);
         }
     }
 } // 👈 補上這個大括號，完整關閉 renderAbrpCalculatedResultsDirect 函式！
@@ -6537,6 +6596,7 @@ function renderAbrpCachedResults(calcData, totalDistanceKm, durationText) {
         </div>
         <div id="abrpStopRecommendation" class="text-[11px] pt-1">
             ${calcData.stationCardHtml}
+            ${renderLaterStopsHtml(calcData.stopPlan)}
         </div>
     `;
 
