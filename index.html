@@ -310,6 +310,8 @@ input[type="number"] {
         /* V2 輸入錯誤抖動（左右 shake＋紅框） */
         @keyframes v83ShakeX { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
         .v83-shake { animation: v83ShakeX 0.4s ease !important; border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,0.15) !important; }
+        /* v85：父層只抖動畫，不加紅框／陰影，不然旁邊會多一個正方形框 */
+        .v85-shake-move { animation: v83ShakeX 0.4s ease !important; }
         /* V3 搜尋列 focus 變形（微放大＋發光，寬度不跳） */
         #routeStartInput, #routeEndInput, #inputTag, #inputDistrict { transition: transform 0.25s cubic-bezier(0.16,1,0.3,1), box-shadow 0.25s ease, border-color 0.25s ease !important; }
         #routeStartInput:focus, #routeEndInput:focus, #inputTag:focus, #inputDistrict:focus { transform: scale(1.01); border-color: #14b8a6 !important; box-shadow: 0 0 0 3px rgba(20,184,166,0.15), 0 4px 12px rgba(0,0,0,0.06) !important; }
@@ -815,7 +817,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v84</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v85</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -832,7 +834,7 @@ input[type="number"] {
                     <button type="button" onclick="closeAddPage()" aria-label="關閉，回到上一頁" class="w-9 h-9 min-w-[36px] rounded-full flex items-center justify-center text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-neutral-800 active:scale-95 transition text-base font-bold">✕</button>
                 </div>
 
-                <form id="recordForm" onsubmit="addRecord(event)" class="space-y-4 md:space-y-6">
+                <form id="recordForm" onsubmit="addRecord(event)" novalidate class="space-y-4 md:space-y-6">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                         <div>
                             <div class="flex justify-between items-end mb-1.5 min-h-[28px]">
@@ -1262,7 +1264,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v84</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v85</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1738,7 +1740,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v84';
+        const APP_VERSION = 'v85';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -3625,16 +3627,18 @@ window.setupSocSliders = function() {
         window.shakeV83 = function(inputEl) {
             try {
                 if (!inputEl) return;
-                // v84：手機 iOS input 單獨 transform 常不動，改抖 input＋父層，手機才看得到
-                const targets = [inputEl];
+                // v85：input 抖＋紅框，父層只抖動畫不加框（不然旁邊多一個正方形）
+                inputEl.classList.remove('v83-shake');
+                void inputEl.offsetWidth;
+                inputEl.classList.add('v83-shake');
+                setTimeout(() => inputEl.classList.remove('v83-shake'), 450);
                 const parent = inputEl.parentElement;
-                if (parent && parent.tagName === 'DIV') targets.push(parent);
-                targets.forEach(t => {
-                    t.classList.remove('v83-shake');
-                    void t.offsetWidth;
-                    t.classList.add('v83-shake');
-                    setTimeout(() => t.classList.remove('v83-shake'), 450);
-                });
+                if (parent && parent.tagName === 'DIV') {
+                    parent.classList.remove('v85-shake-move');
+                    void parent.offsetWidth;
+                    parent.classList.add('v85-shake-move');
+                    setTimeout(() => parent.classList.remove('v85-shake-move'), 450);
+                }
             } catch (e) {}
         };
         window.popV83 = function(btnEl, cls) {
