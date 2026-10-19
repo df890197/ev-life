@@ -257,12 +257,9 @@ input[type="number"] {
         @media (min-width: 768px) { .v91-sticky-save { bottom: 76px; } }
         /* v92：儲存按鈕精緻化 — 小一點、pill、更貼齊下面 */
         .v92-save-btn { width: auto !important; min-width: 120px !important; max-width: 200px !important; padding: 0.6rem 1.25rem !important; font-size: 0.8125rem !important; border-radius: 9999px !important; box-shadow: 0 4px 12px rgba(13,148,136,0.3) !important; } /* v95：還是很大，再小一點（140px -> 120px，padding 1.5rem -> 1.25rem），貼齊就好 */
-        /* v97：首頁 B — 精簡首頁，次要區塊可收合，預設收起 */
-        .v97-home-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 0.875rem 1rem; background: #ffffff; border: 1px solid rgba(231,229,228,0.85); border-radius: 1rem; font-size: 0.875rem; font-weight: 800; color: #44403c; cursor: pointer; transition: background 0.2s ease; }
-        .dark .v97-home-toggle { background: #171717; border-color: rgba(255,255,255,0.08); color: #e7e5e4; }
-        .v97-home-toggle:active { transform: scale(0.99); }
-        .v97-home-chevron { transition: transform 0.25s cubic-bezier(0.22,1,0.36,1); font-size: 0.75rem; }
-        .v97-home-toggle[aria-expanded="true"] .v97-home-chevron { transform: rotate(180deg); }
+        /* v98：首頁 A — 保持資訊，卡片分組＋留白（不收合、不藏東西） */
+        .v98-home > div { margin-bottom: 1.5rem !important; }
+        .v98-home > div:last-child { margin-bottom: 0 !important; }
         .rpg-card { background: #ffffff; border: 1px solid rgba(231, 229, 228, 0.85); box-shadow: 0 8px 24px -12px rgba(60, 50, 40, 0.08); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease; position: relative; overflow: hidden; }
         /* v27 流暢優化：深色卡片拿掉 backdrop-filter（每張卡捲動時都要重算模糊），漸層底色已接近不透，視覺幾乎不變 */
         .dark .rpg-card { background: linear-gradient(145deg, rgba(23, 23, 23, 0.7) 0%, rgba(0, 0, 0, 0.9) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-top-color: rgba(255, 255, 255, 0.12); box-shadow: 0 15px 35px -15px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.05); }
@@ -611,7 +608,7 @@ input[type="number"] {
                 </div>
             </div>
 
-            <div id="homeStatsContainer">
+            <div id="homeStatsContainer" class="v98-home">
                 <div class="hero-image-container mb-6 shadow-sm border border-stone-200 dark:border-stone-800 bg-stone-200 dark:bg-neutral-900 group md:h-72 lg:h-96">
                     <img id="heroImageDisplay" src="https://placehold.co/800x450/1e293b/2dd4bf?text=EV+Life" alt="EV" class="transition duration-500 group-hover:scale-105 w-full h-full object-cover absolute md:relative">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
@@ -686,20 +683,16 @@ input[type="number"] {
                     環保基準: <span id="savingsBaseText">15 km/L, 30 $/L</span>
                 </div>
 
-                <!-- v97：駕駛成就 改可收合，預設收起 -->
-                <div class="mb-4">
-                    <button type="button" onclick="toggleHomeSection('homeBadgesContent', this)" aria-expanded="false" class="v97-home-toggle"><span>🏅 駕駛成就</span><span><span class="text-[10px] font-bold text-stone-400 mr-1">點了展開</span><span class="v97-home-chevron">▾</span></span></button>
-                    <div id="homeBadgesContent" class="hidden mt-2 bg-white dark:bg-neutral-900 p-4 rounded-[1.5rem] border border-stone-100 dark:border-stone-700 shadow-sm">
-                        <div class="flex items-center justify-between mb-2 px-1">
-                            <span class="text-xs md:text-sm font-extrabold text-stone-600 dark:text-stone-300 flex items-center gap-1.5"><span class="text-[14px]">🏅</span> 駕駛成就</span>
-                            <div class="flex gap-1.5">
-                                <button onclick="openBadgeModal()" class="text-[10px] md:text-xs bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 px-2.5 py-1.5 rounded-lg shadow-sm font-bold active:scale-95 transition flex items-center gap-1">🏆 成就大廳</button>
-                                <button onclick="openMapModal()" class="text-[10px] md:text-xs bg-stone-200 dark:bg-neutral-800 text-stone-700 dark:text-stone-200 px-2.5 py-1.5 rounded-lg shadow-sm font-bold active:scale-95 transition flex items-center gap-1">🗺️ 充電足跡</button>
-                            </div>
+                <div class="mb-4 bg-white dark:bg-neutral-900 p-4 rounded-[1.5rem] border border-stone-100 dark:border-stone-700 shadow-sm">
+                    <div class="flex items-center justify-between mb-2 px-1">
+                        <span class="text-xs md:text-sm font-extrabold text-stone-600 dark:text-stone-300 flex items-center gap-1.5"><span class="text-[14px]">🏅</span> 駕駛成就</span>
+                        <div class="flex gap-1.5">
+                            <button onclick="openBadgeModal()" class="text-[10px] md:text-xs bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 px-2.5 py-1.5 rounded-lg shadow-sm font-bold active:scale-95 transition flex items-center gap-1">🏆 成就大廳</button>
+                            <button onclick="openMapModal()" class="text-[10px] md:text-xs bg-stone-200 dark:bg-neutral-800 text-stone-700 dark:text-stone-200 px-2.5 py-1.5 rounded-lg shadow-sm font-bold active:scale-95 transition flex items-center gap-1">🗺️ 充電足跡</button>
                         </div>
-                        <div id="badgesContainer" class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
-                            <div class="text-[10px] text-stone-400 font-bold px-2">持續紀錄旅程來解鎖專屬成就！</div>
-                        </div>
+                    </div>
+                    <div id="badgesContainer" class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+                        <div class="text-[10px] text-stone-400 font-bold px-2">持續紀錄旅程來解鎖專屬成就！</div>
                     </div>
                 </div>
 
@@ -745,9 +738,6 @@ input[type="number"] {
                 </div>
 
 <div class="mb-0">
-                    <!-- v97：車輛保養＋車貸 改可收合，預設收起 -->
-                    <button type="button" onclick="toggleHomeSection('homeMaintContent', this)" aria-expanded="false" class="v97-home-toggle"><span>🔧 車輛保養 & 💰 車貸</span><span><span class="text-[10px] font-bold text-stone-400 mr-1">點了展開</span><span class="v97-home-chevron">▾</span></span></button>
-                    <div id="homeMaintContent" class="hidden mt-2">
                     <!-- 🔧 車輛保養、維護與財務總覽 (HUD 模組化升級版) -->
                     <div class="rpg-card bg-white dark:bg-neutral-900/90 p-5 md:p-6 rounded-[1.5rem] border border-stone-200/80 dark:border-stone-800 shadow-sm space-y-4">
                         
@@ -864,13 +854,12 @@ input[type="number"] {
                         </div> <!-- 關閉 #loanProgressContainer -->
 
                     </div> <!-- 關閉 .rpg-card -->
-                    </div> <!-- v97：關閉 #homeMaintContent -->
                 </div> <!-- 關閉 .mb-0 -->
             </div> <!-- 關閉 #homeStatsContainer (原本漏掉這個) -->
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v97</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v98</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1314,7 +1303,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v97</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v98</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1790,7 +1779,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v97';
+        const APP_VERSION = 'v98';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -2274,16 +2263,6 @@ function cacheDOMNodes() {
             indicator.style.transform = `translate(${endLeft}px, -50%) scale(1)`;
         }
 
-        // v97：首頁次要區塊收合切換（只動樣式，不動計算）
-        window.toggleHomeSection = function(contentId, btn) {
-            try {
-                const el = document.getElementById(contentId);
-                if (!el) return;
-                const isOpen = !el.classList.contains('hidden');
-                el.classList.toggle('hidden', isOpen);
-                if (btn) btn.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
-            } catch (e) {}
-        };
         let switchTabIndicatorRaf = 0;
         let previousTabBeforeAdd = 'home'; // v72：進入新增頁之前的分頁，X 用來回到上一頁
         let currentTabId = 'home'; // v72：目前分頁
