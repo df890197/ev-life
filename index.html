@@ -198,23 +198,12 @@ input[type="number"] {
         .gm-style .gm-style-iw-tc::after {
             top: -1px;
         }
-        /* 支出選單滑順滑入展開動畫 */
+        /* v73：支出選單不再用 max-width 動畫（手機 flex-wrap 會連續重排、閃爍），改 display 一次到位 */
         .expense-dropdown-enter {
-            max-width: 0;
-            opacity: 0;
-            transform: scale(0.92) translateX(-6px);
-            overflow: hidden;
-            pointer-events: none;
-            transition: max-width 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
-                        opacity 0.25s ease, 
-                        transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            display: none;
         }
         .expense-dropdown-enter.active {
-            max-width: 220px;
-            opacity: 1;
-            transform: scale(1) translateX(0);
-            overflow: visible;
-            pointer-events: auto;
+            display: block;
         }
         /* 1. 進度條立體光感與槽體內陰影 */
         .soc-progress-track {
@@ -675,7 +664,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v72</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v73</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -861,9 +850,9 @@ input[type="number"] {
 
                     <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                         <div class="flex flex-1 sm:flex-none bg-stone-100 dark:bg-neutral-900/90 p-1 rounded-xl shadow-inner">
-                            <button type="button" onclick="setChartMetricView('all')" id="btnChartAll" class="flex-1 sm:flex-none px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg bg-white dark:bg-neutral-600 shadow-sm text-stone-900 dark:text-white font-extrabold transition-all">全部總覽</button>
-                            <button type="button" onclick="setChartMetricView('efficiency')" id="btnChartEfficiency" class="flex-1 sm:flex-none px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg text-stone-500 hover:text-stone-900 dark:hover:text-white font-bold transition-all">純電耗</button>
-                            <button type="button" onclick="setChartMetricView('cost')" id="btnChartCost" class="flex-1 sm:flex-none px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg text-stone-500 hover:text-stone-900 dark:hover:text-white font-bold transition-all">支出剖析</button>
+                            <button type="button" onclick="setChartMetricView('all')" id="btnChartAll" class="flex-1 sm:flex-none px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg bg-white dark:bg-neutral-600 shadow-sm text-stone-900 dark:text-white font-extrabold transition-colors">全部總覽</button>
+                            <button type="button" onclick="setChartMetricView('efficiency')" id="btnChartEfficiency" class="flex-1 sm:flex-none px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg text-stone-500 hover:text-stone-900 dark:hover:text-white font-bold transition-colors">純電耗</button>
+                            <button type="button" onclick="setChartMetricView('cost')" id="btnChartCost" class="flex-1 sm:flex-none px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg text-stone-500 hover:text-stone-900 dark:hover:text-white font-bold transition-colors">支出剖析</button>
                         </div>
 
                         <!-- 費用子維度下鑽 (滑順彈出 + 深淺模式高對比設計) -->
@@ -1119,7 +1108,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v72</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v73</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1592,7 +1581,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v72';
+        const APP_VERSION = 'v73';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -3428,8 +3417,8 @@ window.setupSocSliders = function() {
         window.setChartMetricView = function(view) {
             AppState.currentChartFilter = view;
 
-            const activeClass = "flex-1 sm:flex-none px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg bg-white dark:bg-neutral-600 shadow-sm text-stone-900 dark:text-white font-extrabold transition-all";
-            const inactiveClass = "flex-1 sm:flex-none px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg text-stone-500 hover:text-stone-900 dark:hover:text-white font-bold transition-all bg-transparent";
+            const activeClass = "flex-1 sm:flex-none px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg bg-white dark:bg-neutral-600 shadow-sm text-stone-900 dark:text-white font-extrabold transition-colors";
+            const inactiveClass = "flex-1 sm:flex-none px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg text-stone-500 hover:text-stone-900 dark:hover:text-white font-bold transition-colors bg-transparent";
 
             const btnAll = document.getElementById('btnChartAll');
             const btnEff = document.getElementById('btnChartEfficiency');
@@ -3674,7 +3663,7 @@ window.setupSocSliders = function() {
                 efficiencyChartInstance.data.labels = labels; 
                 efficiencyChartInstance.data.datasets = datasets; 
                 efficiencyChartInstance.options.scales = scalesConfig;
-                efficiencyChartInstance.update();
+                efficiencyChartInstance.update('none'); // v73：切換即時，不做動畫
             } else {
                 efficiencyChartInstance = new Chart(ctx, {
                     type: 'line', data: { labels, datasets },
@@ -3700,7 +3689,7 @@ window.setupSocSliders = function() {
                 };
 
                 if (tempEffChartInstance) {
-                    tempEffChartInstance.data = scatterDataSet; tempEffChartInstance.update();
+                    tempEffChartInstance.data = scatterDataSet; tempEffChartInstance.update('none'); // v73：切換即時，不做動畫
                 } else {
                     tempEffChartInstance = new Chart(DOM.tempEffChart.getContext('2d'), {
                         type: 'scatter', data: scatterDataSet,
@@ -3981,7 +3970,7 @@ window.setupSocSliders = function() {
                     costDistributionChartInstance.options.onClick = handleDoughnutClick;
                     costDistributionChartInstance.options.onHover = handleDoughnutHover;
                     costDistributionChartInstance.options.plugins.legend = doughnutPluginsConfig.legend;
-                    costDistributionChartInstance.update();
+                    costDistributionChartInstance.update('none'); // v73：切換即時，不做動畫
                 } else {
                     costDistributionChartInstance = new Chart(DOM.costDistributionChart.getContext('2d'), {
                         type: 'doughnut',
