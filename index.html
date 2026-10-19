@@ -227,6 +227,37 @@ input[type="number"] {
             .seg-indicator, .expense-dropdown-enter.active { transition: none !important; animation: none !important; }
         }
         .lite .seg-indicator, .lite .expense-dropdown-enter.active { transition: none !important; animation: none !important; }
+        /* v76：全域特效 — 只用 transform / opacity / box-shadow，絕不動 width / height / 版面 */
+        @keyframes v76CardFadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes v76InputPulse { 0% { transform: scale(1); } 40% { transform: scale(1.02); } 100% { transform: scale(1); } }
+        @keyframes v76BubblePop { 0% { transform: translateX(-50%) scale(1); } 40% { transform: translateX(-50%) scale(1.25); } 100% { transform: translateX(-50%) scale(1); } }
+        @keyframes v76ToastPop { 0% { transform: translateY(-4px) scale(0.96); } 100% { transform: translateY(0) scale(1); } }
+        /* 新增頁 + 設定頁 + 路線輸入：focus 發光（只加 box-shadow，不動版面） */
+        input:focus, select:focus, textarea:focus {
+            box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.25) !important;
+        }
+        /* 數字輸入 pulse */
+        .v76-input-pulse { animation: v76InputPulse 0.15s ease-out; }
+        /* SOC 氣泡 pop（氣泡本身用 translateX(-50%) 置中，動畫要保留它） */
+        .v76-bubble-pop { animation: v76BubblePop 0.18s ease-out; }
+        /* 紀錄卡片進場 stagger（只動 opacity/transform） */
+        #recordMobileList > *, #calendarDayRecordsList > * { animation: v76CardFadeUp 0.25s ease-out both; }
+        #recordMobileList > *:nth-child(2), #calendarDayRecordsList > *:nth-child(2) { animation-delay: 0.04s; }
+        #recordMobileList > *:nth-child(3), #calendarDayRecordsList > *:nth-child(3) { animation-delay: 0.08s; }
+        #recordMobileList > *:nth-child(4), #calendarDayRecordsList > *:nth-child(4) { animation-delay: 0.12s; }
+        #recordMobileList > *:nth-child(5), #calendarDayRecordsList > *:nth-child(5) { animation-delay: 0.16s; }
+        #recordMobileList > *:nth-child(n+6), #calendarDayRecordsList > *:nth-child(n+6) { animation-delay: 0.2s; }
+        /* 刪除 slide-out（只動 transform/opacity） */
+        .v76-card-slide-out { transform: translateX(100%) !important; opacity: 0 !important; transition: transform 0.22s ease-in, opacity 0.22s ease-in !important; }
+        /* 路線模擬結果卡片 hover 浮起（只動 transform/shadow） */
+        #routeResult > div { transition: transform 0.18s ease, box-shadow 0.18s ease; }
+        #routeResult > div:hover { transform: translateY(-2px); }
+        @media (prefers-reduced-motion: reduce) {
+            #recordMobileList > *, #calendarDayRecordsList > * { animation: none !important; }
+            .v76-input-pulse, .v76-bubble-pop { animation: none !important; }
+        }
+        .lite #recordMobileList > *, .lite #calendarDayRecordsList > * { animation: none !important; }
+        .lite .v76-input-pulse, .lite .v76-bubble-pop { animation: none !important; }
         /* 1. 進度條立體光感與槽體內陰影 */
         .soc-progress-track {
             box-shadow: inset 0 1.5px 3px rgba(0, 0, 0, 0.2);
@@ -686,7 +717,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v75</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v76</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1133,7 +1164,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v75</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v76</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1606,7 +1637,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v75';
+        const APP_VERSION = 'v76';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -3365,11 +3396,11 @@ window.setupSocSliders = function() {
         }
 
             function updateStats(km, eff, cost, maintCost, baseOdo, fuelSavings, co2Savings, treesPlanted, remMaint, progMaint, loanPaidCount = 0, loanPaidTotalAmount = 0, remTire = 0, progTire = 0) {
-            if(DOM.statTotalKm) DOM.statTotalKm.textContent = (km + baseOdo).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
-            if(DOM.statAvgEfficiency) DOM.statAvgEfficiency.textContent = eff.toFixed(2);
+            if(DOM.statTotalKm) { if (typeof animateCountUp === 'function') animateCountUp(DOM.statTotalKm, (km + baseOdo).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1})); else DOM.statTotalKm.textContent = (km + baseOdo).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1}); }
+            if(DOM.statAvgEfficiency) { if (typeof animateCountUp === 'function') animateCountUp(DOM.statAvgEfficiency, eff.toFixed(2)); else DOM.statAvgEfficiency.textContent = eff.toFixed(2); }
 
             if (DOM.statFuelSavings) {
-                DOM.statFuelSavings.textContent = Math.round(fuelSavings).toLocaleString();
+                if (typeof animateCountUp === 'function') animateCountUp(DOM.statFuelSavings, Math.round(fuelSavings).toLocaleString()); else DOM.statFuelSavings.textContent = Math.round(fuelSavings).toLocaleString();
                 if(DOM.savingsBaseText) DOM.savingsBaseText.textContent = `${AppState.iceEfficiency} km/L, ${AppState.gasPrice} $/L`;
                 if(DOM.statCo2Savings) DOM.statCo2Savings.textContent = co2Savings.toLocaleString(undefined, {maximumFractionDigits: 1});
                 if(DOM.statTreesPlanted) DOM.statTreesPlanted.textContent = treesPlanted.toFixed(1);
@@ -3513,6 +3544,38 @@ window.setupSocSliders = function() {
             };
             requestAnimationFrame(step);
         };
+
+        // v76：全域輸入特效 — 數字輸入 pulse + SOC 氣泡 pop（只動 transform，節流避免打字抖）
+        (function attachV76InputEffects() {
+            if (window.__v76InputEffectsAttached) return;
+            window.__v76InputEffectsAttached = true;
+            const pulseTimers = new WeakMap();
+            document.addEventListener('input', (e) => {
+                const t = e.target;
+                if (!t || t.tagName !== 'INPUT') return;
+                // SOC 滑桿氣泡 pop
+                if (t.id === 'sliderStartSoc' || t.id === 'sliderEndSoc') {
+                    const bubble = document.getElementById(t.id === 'sliderStartSoc' ? 'bubbleStartSoc' : 'bubbleEndSoc');
+                    if (bubble) {
+                        bubble.classList.remove('v76-bubble-pop');
+                        void bubble.offsetWidth;
+                        bubble.classList.add('v76-bubble-pop');
+                        setTimeout(() => bubble.classList.remove('v76-bubble-pop'), 200);
+                    }
+                    return;
+                }
+                // 數字 / 文字輸入 pulse（300ms 節流，打字不會一直抖）
+                if (t.type === 'number' || t.type === 'text' || t.type === 'date') {
+                    if (pulseTimers.get(t)) return;
+                    t.classList.remove('v76-input-pulse');
+                    void t.offsetWidth;
+                    t.classList.add('v76-input-pulse');
+                    setTimeout(() => t.classList.remove('v76-input-pulse'), 160);
+                    pulseTimers.set(t, true);
+                    setTimeout(() => pulseTimers.delete(t), 300);
+                }
+            });
+        })();
 
         window.onExpenseCategoryChange = function() {
             const catSelect = document.getElementById('expenseCategoryFilter');
@@ -4158,12 +4221,22 @@ window.setupSocSliders = function() {
 
         window.confirmDeleteRecord = function(id) {
             showConfirmModal("確認刪除", "刪除後無法復原，是否繼續？", function() {
-                const updated = AppState.records.filter(rec => rec.id !== id);
-                if(updated.length === 0) localStorage.setItem('ev_life_cleared', 'true');
-                saveLocalState(updated);
-                cancelEdit();
-                renderDashboard(); 
-                if (AppState.syncUrl) { syncWithCloud('upload', false); } else { showToast("已刪除！🗑️"); }
+                const doDelete = () => {
+                    const updated = AppState.records.filter(rec => rec.id !== id);
+                    if(updated.length === 0) localStorage.setItem('ev_life_cleared', 'true');
+                    saveLocalState(updated);
+                    cancelEdit();
+                    renderDashboard(); 
+                    if (AppState.syncUrl) { syncWithCloud('upload', false); } else { showToast("已刪除！🗑️"); }
+                };
+                // v76：紀錄卡先滑出去再刪（只動 transform/opacity）；找不到卡片（從編輯表單刪）時直接刪
+                try {
+                    const card = document.querySelector('#recordMobileList div[onclick*="editRecord(\'' + id + '\')"], #calendarDayRecordsList div[onclick*="editRecord(\'' + id + '\')"]');
+                    if (card && !document.documentElement.classList.contains('lite')) {
+                        card.classList.add('v76-card-slide-out');
+                        setTimeout(doDelete, 220);
+                    } else { doDelete(); }
+                } catch (e) { doDelete(); }
             });
         };
 
