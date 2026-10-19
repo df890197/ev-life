@@ -244,6 +244,25 @@ input[type="number"] {
         /* v41：content-visibility 開給全部模式（v32 只開 lite）。畫面外卡片不排版不上色，切到紀錄時不再一次算全部；跑馬燈已改滑到才量（見 measureAndAdjustMarquees），不受影響。 */
         #recordMobileList > *, #calendarDayRecordsList > * { content-visibility: auto; contain-intrinsic-size: auto 150px; }
 
+        /* v91：新增頁大改 A — 卡片分組，單頁不分步 */
+        .v91-card { background: #ffffff; border: 1px solid rgba(231,229,228,0.85); box-shadow: 0 8px 24px -12px rgba(60,50,40,0.08); border-radius: 1.25rem; padding: 1.25rem; }
+        .dark .v91-card { background: linear-gradient(145deg, rgba(23,23,23,0.7) 0%, rgba(0,0,0,0.9) 100%); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 15px 35px -15px rgba(0,0,0,0.5); }
+        .v91-card-title { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; font-weight: 800; color: #44403c; margin-bottom: 0.75rem; }
+        .dark .v91-card-title { color: #e7e5e4; }
+        .v91-card-title .v91-num { width: 1.5rem; height: 1.5rem; border-radius: 9999px; background: #0d9488; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 900; flex-shrink: 0; }
+        .v91-battery-track { height: 10px; border-radius: 9999px; background: #e7e5e4; overflow: hidden; }
+        .dark .v91-battery-track { background: #292524; }
+        .v91-battery-fill { height: 100%; border-radius: 9999px; background: #14b8a6; transition: width 0.3s cubic-bezier(0.22,1,0.36,1), background 0.3s ease; }
+        .v91-sticky-save { position: sticky; bottom: 68px; z-index: 20; display: flex; flex-direction: column; align-items: center; } /* v95：貼齊就好，bottom 70px -> 68px，0 間隙貼齊底部 bar 上緣 */
+        @media (min-width: 768px) { .v91-sticky-save { bottom: 76px; } }
+        /* v92：儲存按鈕精緻化 — 小一點、pill、更貼齊下面 */
+        .v92-save-btn { width: auto !important; min-width: 120px !important; max-width: 200px !important; padding: 0.6rem 1.25rem !important; font-size: 0.8125rem !important; border-radius: 9999px !important; box-shadow: 0 4px 12px rgba(13,148,136,0.3) !important; } /* v95：還是很大，再小一點（140px -> 120px，padding 1.5rem -> 1.25rem），貼齊就好 */
+        /* v97：首頁 B — 精簡首頁，次要區塊可收合，預設收起 */
+        .v97-home-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 0.875rem 1rem; background: #ffffff; border: 1px solid rgba(231,229,228,0.85); border-radius: 1rem; font-size: 0.875rem; font-weight: 800; color: #44403c; cursor: pointer; transition: background 0.2s ease; }
+        .dark .v97-home-toggle { background: #171717; border-color: rgba(255,255,255,0.08); color: #e7e5e4; }
+        .v97-home-toggle:active { transform: scale(0.99); }
+        .v97-home-chevron { transition: transform 0.25s cubic-bezier(0.22,1,0.36,1); font-size: 0.75rem; }
+        .v97-home-toggle[aria-expanded="true"] .v97-home-chevron { transform: rotate(180deg); }
         .rpg-card { background: #ffffff; border: 1px solid rgba(231, 229, 228, 0.85); box-shadow: 0 8px 24px -12px rgba(60, 50, 40, 0.08); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease; position: relative; overflow: hidden; }
         /* v27 流暢優化：深色卡片拿掉 backdrop-filter（每張卡捲動時都要重算模糊），漸層底色已接近不透，視覺幾乎不變 */
         .dark .rpg-card { background: linear-gradient(145deg, rgba(23, 23, 23, 0.7) 0%, rgba(0, 0, 0, 0.9) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-top-color: rgba(255, 255, 255, 0.12); box-shadow: 0 15px 35px -15px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.05); }
@@ -667,16 +686,20 @@ input[type="number"] {
                     環保基準: <span id="savingsBaseText">15 km/L, 30 $/L</span>
                 </div>
 
-                <div class="mb-4 bg-white dark:bg-neutral-900 p-4 rounded-[1.5rem] border border-stone-100 dark:border-stone-700 shadow-sm">
-                    <div class="flex items-center justify-between mb-2 px-1">
-                        <span class="text-xs md:text-sm font-extrabold text-stone-600 dark:text-stone-300 flex items-center gap-1.5"><span class="text-[14px]">🏅</span> 駕駛成就</span>
-                        <div class="flex gap-1.5">
-                            <button onclick="openBadgeModal()" class="text-[10px] md:text-xs bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 px-2.5 py-1.5 rounded-lg shadow-sm font-bold active:scale-95 transition flex items-center gap-1">🏆 成就大廳</button>
-                            <button onclick="openMapModal()" class="text-[10px] md:text-xs bg-stone-200 dark:bg-neutral-800 text-stone-700 dark:text-stone-200 px-2.5 py-1.5 rounded-lg shadow-sm font-bold active:scale-95 transition flex items-center gap-1">🗺️ 充電足跡</button>
+                <!-- v97：駕駛成就 改可收合，預設收起 -->
+                <div class="mb-4">
+                    <button type="button" onclick="toggleHomeSection('homeBadgesContent', this)" aria-expanded="false" class="v97-home-toggle"><span>🏅 駕駛成就</span><span><span class="text-[10px] font-bold text-stone-400 mr-1">點了展開</span><span class="v97-home-chevron">▾</span></span></button>
+                    <div id="homeBadgesContent" class="hidden mt-2 bg-white dark:bg-neutral-900 p-4 rounded-[1.5rem] border border-stone-100 dark:border-stone-700 shadow-sm">
+                        <div class="flex items-center justify-between mb-2 px-1">
+                            <span class="text-xs md:text-sm font-extrabold text-stone-600 dark:text-stone-300 flex items-center gap-1.5"><span class="text-[14px]">🏅</span> 駕駛成就</span>
+                            <div class="flex gap-1.5">
+                                <button onclick="openBadgeModal()" class="text-[10px] md:text-xs bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 px-2.5 py-1.5 rounded-lg shadow-sm font-bold active:scale-95 transition flex items-center gap-1">🏆 成就大廳</button>
+                                <button onclick="openMapModal()" class="text-[10px] md:text-xs bg-stone-200 dark:bg-neutral-800 text-stone-700 dark:text-stone-200 px-2.5 py-1.5 rounded-lg shadow-sm font-bold active:scale-95 transition flex items-center gap-1">🗺️ 充電足跡</button>
+                            </div>
                         </div>
-                    </div>
-                    <div id="badgesContainer" class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
-                        <div class="text-[10px] text-stone-400 font-bold px-2">持續紀錄旅程來解鎖專屬成就！</div>
+                        <div id="badgesContainer" class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+                            <div class="text-[10px] text-stone-400 font-bold px-2">持續紀錄旅程來解鎖專屬成就！</div>
+                        </div>
                     </div>
                 </div>
 
@@ -722,6 +745,9 @@ input[type="number"] {
                 </div>
 
 <div class="mb-0">
+                    <!-- v97：車輛保養＋車貸 改可收合，預設收起 -->
+                    <button type="button" onclick="toggleHomeSection('homeMaintContent', this)" aria-expanded="false" class="v97-home-toggle"><span>🔧 車輛保養 & 💰 車貸</span><span><span class="text-[10px] font-bold text-stone-400 mr-1">點了展開</span><span class="v97-home-chevron">▾</span></span></button>
+                    <div id="homeMaintContent" class="hidden mt-2">
                     <!-- 🔧 車輛保養、維護與財務總覽 (HUD 模組化升級版) -->
                     <div class="rpg-card bg-white dark:bg-neutral-900/90 p-5 md:p-6 rounded-[1.5rem] border border-stone-200/80 dark:border-stone-800 shadow-sm space-y-4">
                         
@@ -838,12 +864,13 @@ input[type="number"] {
                         </div> <!-- 關閉 #loanProgressContainer -->
 
                     </div> <!-- 關閉 .rpg-card -->
+                    </div> <!-- v97：關閉 #homeMaintContent -->
                 </div> <!-- 關閉 .mb-0 -->
             </div> <!-- 關閉 #homeStatsContainer (原本漏掉這個) -->
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v90</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v97</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -851,128 +878,125 @@ input[type="number"] {
 
         <!-- 🔹 Tab 2: 新增/編輯紀錄 (Add/Edit) -->
         <div id="view-add" class="view-section px-4">
-            <div class="rpg-card bg-white dark:bg-neutral-900 p-6 md:p-8 rounded-[1.5rem] max-w-2xl mx-auto">
-                <div class="flex items-center justify-between mb-5 pb-3 border-b border-stone-100 dark:border-stone-700">
+            <div class="max-w-2xl mx-auto space-y-4 pb-2"> <!-- v96：pb-24 -> pb-2，儲存到下面新增的空間不再一大段 -->
+                <div class="flex items-center justify-between">
                     <h2 class="text-base md:text-lg font-extrabold flex items-center gap-2">
-                        <span class="bg-stone-900 dark:bg-white text-white dark:text-stone-900 w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs md:text-sm">✍️</span>
+                        <span class="bg-stone-900 dark:bg-white text-white dark:text-stone-900 w-8 h-8 rounded-full flex items-center justify-center text-sm">✍️</span>
                         <span id="formTitle">記錄本次旅程</span>
                     </h2>
                     <button type="button" onclick="closeAddPage()" aria-label="關閉，回到上一頁" class="w-9 h-9 min-w-[36px] rounded-full flex items-center justify-center text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-neutral-800 active:scale-95 transition text-base font-bold">✕</button>
                 </div>
 
-                <form id="recordForm" onsubmit="addRecord(event)" novalidate class="space-y-4 md:space-y-6">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-                        <div>
-                            <div class="flex justify-between items-end mb-1.5 min-h-[28px]">
-                                <label class="text-xs md:text-sm font-bold text-stone-500 dark:text-stone-400 block">日期</label>
-                                <div class="flex gap-1">
-                                    <button type="button" onclick="saveQuickLog()" class="text-[10px] bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400 px-2 py-1 rounded shadow-sm font-bold active:scale-95 transition">⭐ 儲存捷徑</button>
-                                    <button type="button" id="btnLoadQuickLog" onclick="loadQuickLog()" class="text-[10px] bg-stone-800 text-white dark:bg-neutral-800 px-2 py-1 rounded shadow-sm font-bold active:scale-95 transition hidden">載入捷徑</button>
+                <form id="recordForm" onsubmit="addRecord(event)" novalidate class="space-y-4">
+                    <!-- v91 卡 1：日期 & 紀錄類型 -->
+                    <section class="v91-card">
+                        <div class="v91-card-title"><span class="v91-num">1</span> 🗓️ 日期 & 📝 紀錄類型</div>
+                        <div class="flex justify-between items-end mb-3">
+                            <label class="text-xs md:text-sm font-bold text-stone-500 dark:text-stone-400 block">日期</label>
+                            <div class="flex gap-1">
+                                <button type="button" onclick="saveQuickLog()" class="text-[10px] bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400 px-2 py-1 rounded shadow-sm font-bold active:scale-95 transition">⭐ 儲存捷徑</button>
+                                <button type="button" id="btnLoadQuickLog" onclick="loadQuickLog()" class="text-[10px] bg-stone-800 text-white dark:bg-neutral-800 px-2 py-1 rounded shadow-sm font-bold active:scale-95 transition hidden">載入捷徑</button>
+                            </div>
+                        </div>
+                        <input type="date" id="inputDate" required class="w-full px-4 py-3.5 bg-stone-50 dark:bg-black border border-stone-200 dark:border-stone-700 rounded-2xl text-sm font-bold text-left focus:outline-none focus:border-amber-400 transition-colors appearance-none block mb-4">
+                        <input type="hidden" id="inputChargeType" value="DC-快充">
+                        <div class="space-y-2">
+                            <div class="bg-stone-50 dark:bg-black/30 p-2.5 rounded-xl border border-stone-100 dark:border-stone-700/50">
+                                <div class="text-[10px] font-bold text-stone-400 mb-2 px-1">🚗 用車紀錄</div>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button type="button" onclick="selectChargeType('未充電')" id="btnType-未充電" class="charge-type-btn transition-all flex items-center justify-center gap-1 shadow-sm border-2 rounded-xl py-3 text-xs md:text-sm"><span class="text-sm md:text-base mt-[-1px]">⚡</span><span>行程</span></button>
+                                    <button type="button" onclick="selectChargeType('DC-快充')" id="btnType-DC-快充" class="charge-type-btn transition-all flex items-center justify-center gap-1 shadow-sm border-2 rounded-xl py-3 text-xs md:text-sm"><span class="text-sm md:text-base mt-[-1px]">⚡</span><span>快充</span></button>
+                                    <button type="button" onclick="selectChargeType('AC-慢充')" id="btnType-AC-慢充" class="charge-type-btn transition-all flex items-center justify-center gap-1 shadow-sm border-2 rounded-xl py-3 text-xs md:text-sm"><span class="text-sm md:text-base mt-[-1px]">🔌</span><span>慢充</span></button>
                                 </div>
                             </div>
-                            <input type="date" id="inputDate" required class="w-full px-4 py-3 bg-stone-50 dark:bg-black border border-stone-200 dark:border-stone-700 rounded-2xl text-sm font-bold text-left focus:outline-none focus:border-amber-400 transition-colors appearance-none block">
-                        </div>
-                        <div>
-                            <label class="text-xs md:text-sm font-bold text-stone-500 dark:text-stone-400 mb-1.5 block">紀錄類型</label>
-                            <input type="hidden" id="inputChargeType" value="DC-快充">
-
-                            <div class="space-y-2">
-                                <div class="bg-stone-50 dark:bg-black/30 p-2 rounded-xl border border-stone-100 dark:border-stone-700/50">
-                                    <div class="text-[10px] font-bold text-stone-400 mb-1.5 px-1">🚗 用車紀錄</div>
-                                    <div class="grid grid-cols-3 gap-2">
-                                        <button type="button" onclick="selectChargeType('未充電')" id="btnType-未充電" class="charge-type-btn transition-all flex items-center justify-center gap-1 shadow-sm border-2 rounded-lg py-2 text-[11px] md:text-xs"><span class="text-[13px] md:text-sm mt-[-1px]">⚡</span><span>行程</span></button>
-                                        <button type="button" onclick="selectChargeType('DC-快充')" id="btnType-DC-快充" class="charge-type-btn transition-all flex items-center justify-center gap-1 shadow-sm border-2 rounded-lg py-2 text-[11px] md:text-xs"><span class="text-[13px] md:text-sm mt-[-1px]">⚡</span><span>快充</span></button>
-                                        <button type="button" onclick="selectChargeType('AC-慢充')" id="btnType-AC-慢充" class="charge-type-btn transition-all flex items-center justify-center gap-1 shadow-sm border-2 rounded-lg py-2 text-[11px] md:text-xs"><span class="text-[13px] md:text-sm mt-[-1px]">🔌</span><span>慢充</span></button>
-                                    </div>
-                                </div>
-                                <div class="bg-stone-50 dark:bg-black/30 p-2 rounded-xl border border-stone-100 dark:border-stone-700/50 mt-2">
-                                    <div class="text-[10px] font-bold text-stone-400 mb-1.5 px-1">💰 衍生支出</div>
-                                    <div class="grid grid-cols-5 gap-1.5">
-                                        <button type="button" onclick="selectChargeType('停車費')" id="btnType-停車費" class="charge-type-btn transition-all flex items-center justify-center gap-0.5 shadow-sm border-2 rounded-lg py-2 text-[10px] md:text-xs"><span class="text-[12px] md:text-sm mt-[-1px]">🅿️</span><span>停車</span></button>
-                                        <button type="button" onclick="selectChargeType('通行費')" id="btnType-通行費" class="charge-type-btn transition-all flex items-center justify-center gap-0.5 shadow-sm border-2 rounded-lg py-2 text-[10px] md:text-xs"><span class="text-[12px] md:text-sm mt-[-1px]">🛣️</span><span>通行</span></button>
-                                        <button type="button" onclick="selectChargeType('維修保養')" id="btnType-維修保養" class="charge-type-btn transition-all flex items-center justify-center gap-0.5 shadow-sm border-2 rounded-lg py-2 text-[10px] md:text-xs"><span class="text-[12px] md:text-sm mt-[-1px]">🔧</span><span>保養</span></button>
-                                        <button type="button" onclick="selectChargeType('保險費')" id="btnType-保險費" class="charge-type-btn transition-all flex items-center justify-center gap-0.5 shadow-sm border-2 rounded-lg py-2 text-[10px] md:text-xs"><span class="text-[12px] md:text-sm mt-[-1px]">🛡️</span><span>保險</span></button>
-                                        <button type="button" onclick="selectChargeType('車貸')" id="btnType-車貸" class="charge-type-btn transition-all flex items-center justify-center gap-0.5 shadow-sm border-2 rounded-lg py-2 text-[10px] md:text-xs"><span class="text-[12px] md:text-sm mt-[-1px]">🏦</span><span>車貸</span></button>
-                                    </div>
+                            <div class="bg-stone-50 dark:bg-black/30 p-2.5 rounded-xl border border-stone-100 dark:border-stone-700/50">
+                                <div class="text-[10px] font-bold text-stone-400 mb-2 px-1">💰 衍生支出</div>
+                                <div class="grid grid-cols-5 gap-1.5">
+                                    <button type="button" onclick="selectChargeType('停車費')" id="btnType-停車費" class="charge-type-btn transition-all flex items-center justify-center gap-0.5 shadow-sm border-2 rounded-xl py-3 text-[11px] md:text-xs"><span class="text-sm mt-[-1px]">🅿️</span><span>停車</span></button>
+                                    <button type="button" onclick="selectChargeType('通行費')" id="btnType-通行費" class="charge-type-btn transition-all flex items-center justify-center gap-0.5 shadow-sm border-2 rounded-xl py-3 text-[11px] md:text-xs"><span class="text-sm mt-[-1px]">🛣️</span><span>通行</span></button>
+                                    <button type="button" onclick="selectChargeType('維修保養')" id="btnType-維修保養" class="charge-type-btn transition-all flex items-center justify-center gap-0.5 shadow-sm border-2 rounded-xl py-3 text-[11px] md:text-xs"><span class="text-sm mt-[-1px]">🔧</span><span>保養</span></button>
+                                    <button type="button" onclick="selectChargeType('保險費')" id="btnType-保險費" class="charge-type-btn transition-all flex items-center justify-center gap-0.5 shadow-sm border-2 rounded-xl py-3 text-[11px] md:text-xs"><span class="text-sm mt-[-1px]">🛡️</span><span>保險</span></button>
+                                    <button type="button" onclick="selectChargeType('車貸')" id="btnType-車貸" class="charge-type-btn transition-all flex items-center justify-center gap-0.5 shadow-sm border-2 rounded-xl py-3 text-[11px] md:text-xs"><span class="text-sm mt-[-1px]">🏦</span><span>車貸</span></button>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </section>
 
-                    <div id="driveInputsArea" class="space-y-4 md:space-y-6 transition-all duration-300 overflow-hidden">
-                        <div id="tagInputArea">
-                            <div class="flex justify-between items-end mb-1.5">
+                    <div id="driveInputsArea" class="space-y-4 transition-all duration-300 overflow-hidden">
+                        <!-- v91 卡 2：地點 & 里程 -->
+                        <section id="tagInputArea" class="v91-card">
+                            <div class="v91-card-title"><span class="v91-num">2</span> 📍 地點 & 里程</div>
+                            <div class="flex justify-between items-end mb-2">
                                 <label class="text-xs md:text-sm font-bold text-stone-500 dark:text-stone-400 block">站點與地區 (選填)</label>
-                                <button type="button" onclick="autoLocateAndWeather()" class="text-[10px] md:text-xs bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-400 px-2.5 py-1 rounded-lg shadow-sm font-bold active:scale-95 transition-transform flex items-center gap-1">
+                                <button type="button" onclick="autoLocateAndWeather()" class="text-[10px] md:text-xs bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-400 px-2.5 py-1.5 rounded-lg shadow-sm font-bold active:scale-95 transition-transform flex items-center gap-1">
                                     📍 自動定位與天氣
                                 </button>
                             </div>
-
                             <div class="relative mb-2">
                                 <div class="absolute left-3 top-1/2 -translate-y-1/2 text-xs">⚡</div>
-                                <input type="text" id="inputTag" placeholder="站點 (例:U-POWER 中壢青埔站)" autocomplete="off" class="w-full pl-8 pr-3 py-3 bg-stone-50 dark:bg-black border border-stone-200 dark:border-stone-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
+                                <input type="text" id="inputTag" placeholder="站點 (例:U-POWER 中壢青埔站)" autocomplete="off" class="w-full pl-8 pr-3 py-3.5 bg-stone-50 dark:bg-black border border-stone-200 dark:border-stone-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
                             </div>
-
-                            <div class="grid grid-cols-3 gap-2">
+                            <div class="grid grid-cols-3 gap-2 mb-4">
                                 <div class="relative col-span-2">
                                     <div class="absolute left-3 top-1/2 -translate-y-1/2 text-xs">📍</div>
-                                    <input type="text" id="inputDistrict" placeholder="地區 (例:桃園市中壢區)" autocomplete="off" class="w-full pl-8 pr-3 py-3 bg-stone-50 dark:bg-black border border-stone-200 dark:border-stone-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
+                                    <input type="text" id="inputDistrict" placeholder="地區 (例:桃園市中壢區)" autocomplete="off" class="w-full pl-8 pr-3 py-3.5 bg-stone-50 dark:bg-black border border-stone-200 dark:border-stone-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
                                 </div>
                                 <div class="relative col-span-1">
-                                    <input type="number" step="0.1" id="inputTemperature" placeholder="氣溫" class="w-full pl-3 pr-7 py-3 bg-stone-50 dark:bg-black border border-stone-200 dark:border-stone-700 rounded-2xl text-sm font-mono font-bold focus:outline-none focus:border-sky-400 transition-colors">
+                                    <input type="number" step="0.1" id="inputTemperature" placeholder="氣溫" class="w-full pl-3 pr-7 py-3.5 bg-stone-50 dark:bg-black border border-stone-200 dark:border-stone-700 rounded-2xl text-sm font-mono font-bold focus:outline-none focus:border-sky-400 transition-colors">
                                     <div class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-stone-400">°C</div>
                                 </div>
                             </div>
-                        </div>
-
-                        <div>
                             <label class="text-xs md:text-sm font-bold text-stone-500 dark:text-stone-400 mb-1.5 block">行駛里程 (km)</label>
-                            <input type="number" step="0.1" id="inputDistance" required placeholder="120" inputmode="decimal" class="w-full px-4 py-3 bg-stone-50 dark:bg-black border border-stone-200 dark:border-stone-700 rounded-2xl text-sm font-mono font-bold focus:outline-none focus:border-amber-400 transition-colors">
-                        </div>
+                            <input type="number" step="0.1" id="inputDistance" required placeholder="120" inputmode="decimal" class="w-full px-4 py-3.5 bg-stone-50 dark:bg-black border border-stone-200 dark:border-stone-700 rounded-2xl text-base font-mono font-bold focus:outline-none focus:border-amber-400 transition-colors">
+                        </section>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 bg-stone-50 dark:bg-black/30 p-4 md:p-6 rounded-2xl border border-stone-100 dark:border-stone-800">
-                            <div>
-                                <div class="flex justify-between items-center mb-1.5">
-                                    <label id="startSocLabel" class="text-[11px] sm:text-xs font-bold text-stone-500 dark:text-stone-400">出發前 SOC (%)</label>
-                                    <input type="number" step="1" min="0" max="100" id="inputStartSocNum" required placeholder="20" inputmode="numeric" class="w-16 px-2 py-1 bg-white dark:bg-black border border-stone-200 dark:border-stone-700 rounded-lg text-xs font-mono font-extrabold text-center focus:outline-none focus:border-amber-400 transition-colors">
+                        <!-- v91 卡 3：SOC ＋ 電池條 -->
+                        <section class="v91-card">
+                            <div class="v91-card-title"><span class="v91-num">3</span> 🔋 電量 (SOC)</div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                <div>
+                                    <div class="flex justify-between items-center mb-1.5">
+                                        <label id="startSocLabel" class="text-xs font-bold text-stone-500 dark:text-stone-400">出發前 SOC (%)</label>
+                                        <input type="number" step="1" min="0" max="100" id="inputStartSocNum" required placeholder="20" inputmode="numeric" class="w-20 px-2 py-1.5 bg-white dark:bg-black border border-stone-200 dark:border-stone-700 rounded-lg text-sm font-mono font-extrabold text-center focus:outline-none focus:border-amber-400 transition-colors">
+                                    </div>
+                                    <div class="py-2 slider-container">
+                                        <div id="bubbleStartSoc" class="slider-bubble bubble-amber">0%</div>
+                                        <input type="range" min="0" max="100" id="sliderStartSoc" class="accent-amber-500 dark:accent-amber-400">
+                                    </div>
                                 </div>
-                                <div class="py-2 slider-container">
-                                    <div id="bubbleStartSoc" class="slider-bubble bubble-amber">0%</div>
-                                    <input type="range" min="0" max="100" id="sliderStartSoc" class="accent-amber-500 dark:accent-amber-400">
+                                <div>
+                                    <div class="flex justify-between items-center mb-1.5">
+                                        <label id="endSocLabel" class="text-xs font-bold text-stone-500 dark:text-stone-400">抵達後 SOC (%)</label>
+                                        <input type="number" step="1" min="0" max="100" id="inputEndSocNum" required placeholder="80" inputmode="numeric" class="w-20 px-2 py-1.5 bg-white dark:bg-black border border-stone-200 dark:border-stone-700 rounded-lg text-sm font-mono font-extrabold text-center focus:outline-none focus:border-teal-400 transition-colors">
+                                    </div>
+                                    <div class="py-2 slider-container">
+                                        <div id="bubbleEndSoc" class="slider-bubble bubble-teal">0%</div>
+                                        <input type="range" min="0" max="100" id="sliderEndSoc" class="accent-teal-500 dark:accent-teal-400">
+                                    </div>
                                 </div>
                             </div>
-                            <div>
-                                <div class="flex justify-between items-center mb-1.5">
-                                    <label id="endSocLabel" class="text-[11px] sm:text-xs font-bold text-stone-500 dark:text-stone-400">抵達後 SOC (%)</label>
-                                    <input type="number" step="1" min="0" max="100" id="inputEndSocNum" required placeholder="80" inputmode="numeric" class="w-16 px-2 py-1 bg-white dark:bg-black border border-stone-200 dark:border-stone-700 rounded-lg text-xs font-mono font-extrabold text-center focus:outline-none focus:border-teal-400 transition-colors">
-                                </div>
-                                <div class="py-2 slider-container">
-                                    <div id="bubbleEndSoc" class="slider-bubble bubble-teal">0%</div>
-                                    <input type="range" min="0" max="100" id="sliderEndSoc" class="accent-teal-500 dark:accent-teal-400">
-                                </div>
+                            <div id="powerHintContainer" class="mt-3 pt-3 border-t border-stone-200 dark:border-stone-700 space-y-2">
+                                <div class="v91-battery-track"><div id="v91BatteryFill" class="v91-battery-fill" style="width: 0%"></div></div>
+                                <div class="text-center text-xs md:text-sm font-bold text-stone-500 dark:text-stone-400"><span id="powerHintText">共消耗 0% 電量 (約 0.00 度)</span></div>
                             </div>
-                            <div id="powerHintContainer" class="sm:col-span-2 text-center mt-2 text-xs md:text-sm font-bold text-stone-500 dark:text-stone-400 border-t border-stone-200 dark:border-stone-700 pt-3">
-                                <span id="powerHintText">共消耗 0% 電量 (約 0.00 度)</span>
-                            </div>
-                        </div>
+                        </section>
                     </div>
 
-                    <div>
+                    <!-- v91 卡 4：花費 & 備註 -->
+                    <section class="v91-card">
+                        <div class="v91-card-title"><span class="v91-num">4</span> 💰 花費 & 📝 備註</div>
                         <label id="costLabel" class="text-xs md:text-sm font-bold text-stone-500 dark:text-stone-400 mb-1.5 block">本次花費 (元) - 無則填 0</label>
-                        <input type="number" step="1" id="inputCost" required placeholder="0" inputmode="numeric" class="w-full px-4 py-3 bg-stone-50 dark:bg-black border border-stone-200 dark:border-stone-700 rounded-2xl text-sm font-mono font-bold focus:outline-none focus:border-amber-400 transition-colors">
-                    </div>
-
-                    <div>
+                        <input type="number" step="1" id="inputCost" required placeholder="0" inputmode="numeric" class="w-full px-4 py-3.5 bg-stone-50 dark:bg-black border border-stone-200 dark:border-stone-700 rounded-2xl text-base font-mono font-bold focus:outline-none focus:border-amber-400 transition-colors mb-4">
                         <label class="text-xs md:text-sm font-bold text-stone-500 dark:text-stone-400 mb-1.5 block">備註 (選填)</label>
-                        <input type="text" id="inputNote" placeholder="例如：帶愛車去兜風 ⚡ / 第12期車貸繳款" class="w-full px-4 py-3 bg-stone-50 dark:bg-black border border-stone-200 dark:border-stone-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
-                    </div>
+                        <input type="text" id="inputNote" placeholder="例如：帶愛車去兜風 ⚡ / 第12期車貸繳款" class="w-full px-4 py-3.5 bg-stone-50 dark:bg-black border border-stone-200 dark:border-stone-700 rounded-2xl text-sm font-bold focus:outline-none focus:border-amber-400 transition-colors">
+                    </section>
 
-                    <div class="flex flex-col gap-3 pt-4">
+                    <div class="v91-sticky-save flex flex-col gap-3 pt-1">
                         <div class="flex gap-3">
-                            <button type="submit" class="flex-1 rpg-btn-primary text-sm md:text-base font-extrabold py-4 md:py-5 rounded-2xl shadow-md transition hover:scale-[1.02] active:scale-95">
+                            <button type="submit" class="v92-save-btn rpg-btn-primary font-extrabold transition hover:scale-[1.02] active:scale-95">
                                 <span id="submitBtnText">儲存紀錄</span>
                             </button>
-                            <button type="button" id="cancelEditBtn" onclick="cancelEdit()" class="hidden rpg-btn-secondary text-sm md:text-base font-bold py-4 px-6 md:px-8 rounded-2xl border border-stone-200 dark:border-stone-700 text-stone-500 transition hover:bg-stone-100 active:scale-95">
+                            <button type="button" id="cancelEditBtn" onclick="cancelEdit()" class="hidden rpg-btn-secondary text-sm font-bold py-3 px-5 rounded-full border border-stone-200 dark:border-stone-700 text-stone-500 transition hover:bg-stone-100 active:scale-95">
                                 取消
                             </button>
                         </div>
@@ -1290,7 +1314,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v90</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v97</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1766,7 +1790,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v90';
+        const APP_VERSION = 'v97';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -2250,6 +2274,16 @@ function cacheDOMNodes() {
             indicator.style.transform = `translate(${endLeft}px, -50%) scale(1)`;
         }
 
+        // v97：首頁次要區塊收合切換（只動樣式，不動計算）
+        window.toggleHomeSection = function(contentId, btn) {
+            try {
+                const el = document.getElementById(contentId);
+                if (!el) return;
+                const isOpen = !el.classList.contains('hidden');
+                el.classList.toggle('hidden', isOpen);
+                if (btn) btn.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+            } catch (e) {}
+        };
         let switchTabIndicatorRaf = 0;
         let previousTabBeforeAdd = 'home'; // v72：進入新增頁之前的分頁，X 用來回到上一頁
         let currentTabId = 'home'; // v72：目前分頁
@@ -2952,6 +2986,8 @@ window.setupSocSliders = function() {
             const kwh = AppState.batteryCapacity * (delta / 100);
 
             DOM.powerHintText.textContent = `共${type === "未充電" ? "消耗" : "補給"} ${delta}% 電量 (約 ${kwh.toFixed(2)} 度)`;
+            const fill = document.getElementById('v91BatteryFill');
+            if (fill) { fill.style.width = Math.min(100, Math.max(0, delta)) + '%'; fill.style.background = type === "未充電" ? '#f59e0b' : '#14b8a6'; } // v91：電池條視覺化，只動樣式
         };
 
         // v88：autoFill 只在數字框為空時填上一筆抵達 SOC；cancelEdit 已同步 20/80，所以點行程不會誤填 100 卡住
