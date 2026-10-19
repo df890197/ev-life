@@ -233,6 +233,13 @@ input[type="number"] {
         @keyframes v78GhostDrop { 0% { opacity: 0; transform: translateY(-8px) scale(0.9); } 20% { opacity: 1; transform: translateY(0) scale(1); } 70% { opacity: 1; } 100% { opacity: 0; transform: translateY(2px); } }
         .v78-number-ghost { position: fixed; z-index: 9999; pointer-events: none; font-weight: 800; font-size: 14px; line-height: 1; color: #d97706; background: rgba(255,255,255,0.92); padding: 3px 7px; border-radius: 9999px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); animation: v78GhostDrop 0.28s ease-out forwards; white-space: nowrap; }
         .dark .v78-number-ghost { color: #fbbf24; background: rgba(0,0,0,0.85); }
+        /* v79：碼表捲動數字 — 每一位數字是一條 0-9 直條，換數字時整條往上/下捲，只動 transform */
+        .odo-digit { display: inline-block; overflow: hidden; height: 1em; line-height: 1em; vertical-align: top; }
+        .odo-strip { display: flex; flex-direction: column; transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform; }
+        .odo-strip > span { display: block; height: 1em; line-height: 1em; text-align: center; font-variant-numeric: tabular-nums; }
+        .odo-char { display: inline-block; height: 1em; line-height: 1em; vertical-align: top; }
+        @media (prefers-reduced-motion: reduce) { .odo-strip { transition: none !important; } }
+        .lite .odo-strip { transition: none !important; }
         @keyframes v76BubblePop { 0% { transform: translateX(-50%) scale(1); } 40% { transform: translateX(-50%) scale(1.25); } 100% { transform: translateX(-50%) scale(1); } }
         @keyframes v76ToastPop { 0% { transform: translateY(-4px) scale(0.96); } 100% { transform: translateY(0) scale(1); } }
         /* 新增頁 + 設定頁 + 路線輸入：focus 發光（只加 box-shadow，不動版面） */
@@ -721,7 +728,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v78</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v79</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1168,7 +1175,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v78</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v79</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1641,7 +1648,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v78';
+        const APP_VERSION = 'v79';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -3400,11 +3407,11 @@ window.setupSocSliders = function() {
         }
 
             function updateStats(km, eff, cost, maintCost, baseOdo, fuelSavings, co2Savings, treesPlanted, remMaint, progMaint, loanPaidCount = 0, loanPaidTotalAmount = 0, remTire = 0, progTire = 0) {
-            if(DOM.statTotalKm) { if (typeof animateCountUp === 'function') animateCountUp(DOM.statTotalKm, (km + baseOdo).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1})); else DOM.statTotalKm.textContent = (km + baseOdo).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1}); }
-            if(DOM.statAvgEfficiency) { if (typeof animateCountUp === 'function') animateCountUp(DOM.statAvgEfficiency, eff.toFixed(2)); else DOM.statAvgEfficiency.textContent = eff.toFixed(2); }
+            if(DOM.statTotalKm) { if (typeof setOdometer === 'function') setOdometer(DOM.statTotalKm, (km + baseOdo).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1})); else DOM.statTotalKm.textContent = (km + baseOdo).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1}); }
+            if(DOM.statAvgEfficiency) { if (typeof setOdometer === 'function') setOdometer(DOM.statAvgEfficiency, eff.toFixed(2)); else DOM.statAvgEfficiency.textContent = eff.toFixed(2); }
 
             if (DOM.statFuelSavings) {
-                if (typeof animateCountUp === 'function') animateCountUp(DOM.statFuelSavings, Math.round(fuelSavings).toLocaleString()); else DOM.statFuelSavings.textContent = Math.round(fuelSavings).toLocaleString();
+                if (typeof setOdometer === 'function') setOdometer(DOM.statFuelSavings, Math.round(fuelSavings).toLocaleString()); else DOM.statFuelSavings.textContent = Math.round(fuelSavings).toLocaleString();
                 if(DOM.savingsBaseText) DOM.savingsBaseText.textContent = `${AppState.iceEfficiency} km/L, ${AppState.gasPrice} $/L`;
                 if(DOM.statCo2Savings) DOM.statCo2Savings.textContent = co2Savings.toLocaleString(undefined, {maximumFractionDigits: 1});
                 if(DOM.statTreesPlanted) DOM.statTreesPlanted.textContent = treesPlanted.toFixed(1);
@@ -3521,6 +3528,69 @@ window.setupSocSliders = function() {
         window.addEventListener('resize', () => { if (typeof updateChartSegIndicator === 'function') updateChartSegIndicator(); });
 
         // v75：數字 count-up（只動顯示，計算不動；解析失敗 / lite / 減少動態時直接顯示終值）
+        // v79：碼表捲動 — 顯示數字用直條捲動，lite / 減少動態時直接顯示終值
+        window.setOdometer = function(el, targetText) {
+            if (!el) return;
+            const targetStr = String(targetText);
+            const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (document.documentElement.classList.contains('lite') || reduceMotion) {
+                el.textContent = targetStr;
+                el.removeAttribute('data-odo');
+                return;
+            }
+            // 還沒建碼表結構：直接建到終值（第一次不捲）
+            if (!el.hasAttribute('data-odo')) {
+                el.innerHTML = '';
+                el.setAttribute('data-odo', '1');
+                for (const ch of targetStr) {
+                    if (/[0-9]/.test(ch)) {
+                        const wrap = document.createElement('span');
+                        wrap.className = 'odo-digit';
+                        const strip = document.createElement('span');
+                        strip.className = 'odo-strip';
+                        strip.style.transition = 'none';
+                        for (let d = 0; d <= 9; d++) {
+                            const s = document.createElement('span');
+                            s.textContent = String(d);
+                            strip.appendChild(s);
+                        }
+                        strip.style.transform = 'translateY(' + (-parseInt(ch, 10)) + 'em)';
+                        wrap.appendChild(strip);
+                        el.appendChild(wrap);
+                        void strip.offsetWidth;
+                        strip.style.transition = '';
+                    } else {
+                        const s = document.createElement('span');
+                        s.className = 'odo-char';
+                        s.textContent = ch;
+                        el.appendChild(s);
+                    }
+                }
+                return;
+            }
+            // 已有結構：先比長度，長度不同（例如 0 -> 6,113）直接重建，不捲
+            let curLen = 0;
+            el.childNodes.forEach(n => { curLen++; });
+            // childNodes 長度 = 字元數（每位數字一個 wrap，每個符號一個 span）
+            if (curLen !== targetStr.length) {
+                el.removeAttribute('data-odo');
+                window.setOdometer(el, targetStr);
+                return;
+            }
+            // 同長度：每位數字捲到新值
+            let idx = 0;
+            for (const ch of targetStr) {
+                const node = el.childNodes[idx++];
+                if (/[0-9]/.test(ch)) {
+                    if (node && node.className === 'odo-digit' && node.firstChild) {
+                        node.firstChild.style.transform = 'translateY(' + (-parseInt(ch, 10)) + 'em)';
+                    }
+                } else {
+                    if (node) node.textContent = ch;
+                }
+            }
+        };
+
         window.animateCountUp = function(el, targetText) {
             if (!el) return;
             const targetStr = String(targetText);
@@ -3668,7 +3738,7 @@ window.setupSocSliders = function() {
                 else if (costCat === '通行費' || costCat === '停車費') countUnit = '次';
 
                 if (lblSummary) lblSummary.textContent = `${costCat} 累計數量`;
-                if (DOM.analysisTotalKm) animateCountUp(DOM.analysisTotalKm, String(pureExpenseCount));
+                if (DOM.analysisTotalKm) setOdometer(DOM.analysisTotalKm, String(pureExpenseCount));
                 if (kmContainer && kmContainer.lastElementChild) kmContainer.lastElementChild.textContent = countUnit;
 
                 // 2. 第二張卡片：車貸顯示「剩餘未繳金額」，其餘項目顯示「最高單筆金額」
@@ -3679,17 +3749,17 @@ window.setupSocSliders = function() {
                     const remainingMonths = Math.max(0, (AppState.loanTotalMonths || 0) - totalPaidLoanPeriods);
                     const remainingPrincipal = remainingMonths * (AppState.loanMonthlyPayment || 0);
 
-                    if (DOM.analysisAvgEfficiency) animateCountUp(DOM.analysisAvgEfficiency, `$${remainingPrincipal.toLocaleString()}`);
+                    if (DOM.analysisAvgEfficiency) setOdometer(DOM.analysisAvgEfficiency, `$${remainingPrincipal.toLocaleString()}`);
                     if (unitEff) unitEff.textContent = `(剩 ${remainingMonths} 期)`;
                 } else {
                     if (lblEff) lblEff.textContent = '最高單筆金額';
-                    if (DOM.analysisAvgEfficiency) animateCountUp(DOM.analysisAvgEfficiency, `$${maxSingleExpense.toLocaleString()}`);
+                    if (DOM.analysisAvgEfficiency) setOdometer(DOM.analysisAvgEfficiency, `$${maxSingleExpense.toLocaleString()}`);
                     if (unitEff) unitEff.textContent = '';
                 }
 
                 // 3. 第三張卡片：總費用
                 if (lblCost) lblCost.textContent = `${costCat} 總支出`;
-                if (DOM.analysisTotalCost) animateCountUp(DOM.analysisTotalCost, totalExpense.toLocaleString());
+                if (DOM.analysisTotalCost) setOdometer(DOM.analysisTotalCost, totalExpense.toLocaleString());
 
                 // 4. 第四張卡片：平均費用
                 let avgLabel = '單筆平均';
@@ -3706,26 +3776,26 @@ window.setupSocSliders = function() {
                 if (unitRate) unitRate.textContent = avgUnit;
 
                 const avgPerItem = pureExpenseCount > 0 ? Math.round(totalExpense / pureExpenseCount) : 0;
-                if (DOM.analysisCostPerKm) animateCountUp(DOM.analysisCostPerKm, avgPerItem.toLocaleString());
+                if (DOM.analysisCostPerKm) setOdometer(DOM.analysisCostPerKm, avgPerItem.toLocaleString());
 
             } else {
                 // 標準模式：里程、電耗、花費、每公里電費
                 if (lblSummary) lblSummary.textContent = monthFilter === 'all' ? '區間累積里程' : `${monthFilter.replace('-', '/')} 里程`;
-                if (DOM.analysisTotalKm) animateCountUp(DOM.analysisTotalKm, totalKm.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1}));
+                if (DOM.analysisTotalKm) setOdometer(DOM.analysisTotalKm, totalKm.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1}));
                 if (kmContainer && kmContainer.lastElementChild) kmContainer.lastElementChild.textContent = 'km';
 
                 // 還原第二張卡片為「平均電耗」
                 if (lblEff) lblEff.textContent = '平均電耗';
-                if (DOM.analysisAvgEfficiency) animateCountUp(DOM.analysisAvgEfficiency, totalPower > 0 ? (totalKm / totalPower).toFixed(2) : "0.00");
+                if (DOM.analysisAvgEfficiency) setOdometer(DOM.analysisAvgEfficiency, totalPower > 0 ? (totalKm / totalPower).toFixed(2) : "0.00");
                 if (unitEff) unitEff.textContent = 'km/度';
 
                 if (lblCost) lblCost.textContent = isCostView && costCat !== 'all' ? `${costCat} 花費` : (monthFilter === 'all' ? '歷史總花費' : `${monthFilter.replace('-', '/')} 總花費`);
-                if (DOM.analysisTotalCost) animateCountUp(DOM.analysisTotalCost, totalExpense.toLocaleString());
+                if (DOM.analysisTotalCost) setOdometer(DOM.analysisTotalCost, totalExpense.toLocaleString());
 
                 if (lblRate) lblRate.textContent = '每公里電費';
                 if (unitRate) unitRate.textContent = '/km';
 
-                if (DOM.analysisCostPerKm) animateCountUp(DOM.analysisCostPerKm, totalKm > 0 ? (totalEnergyCost / totalKm).toFixed(2) : "0.00");
+                if (DOM.analysisCostPerKm) setOdometer(DOM.analysisCostPerKm, totalKm > 0 ? (totalEnergyCost / totalKm).toFixed(2) : "0.00");
             }
 
             const timeView = document.getElementById('chartTimeView')?.value || 'monthly';
