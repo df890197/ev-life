@@ -100,6 +100,82 @@ input[type="number"] {
         .floating-nav.nav-ready {
             opacity: 1;
         }
+        /* v81：底部 bar 改截圖 Snap 風格 — 深色浮動 pill，選中灰底，中央＋變藍色 Snap 主按鈕 */
+        nav.v81-snap-bar {
+            background: #1c1c1e !important;
+            backdrop-filter: blur(20px) saturate(150%) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(150%) !important;
+            border: 1px solid rgba(255,255,255,0.12) !important;
+            border-radius: 9999px !important;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+            padding: 6px !important;
+            width: max-content !important;
+            max-width: calc(100vw - 32px) !important;
+            left: 50% !important;
+            right: auto !important;
+            transform: translateX(-50%) !important;
+        }
+        nav.v81-snap-bar #nav-container {
+            height: auto !important;
+            max-width: none !important;
+            gap: 4px !important;
+            justify-content: center !important;
+        }
+        nav.v81-snap-bar #liquid-indicator { display: none !important; }
+        nav.v81-snap-bar .tab-btn {
+            color: #a1a1aa !important;
+            background: transparent !important;
+            border-radius: 9999px !important;
+            width: 48px !important;
+            height: 44px !important;
+            min-width: 48px !important;
+            padding: 0 !important;
+            flex-direction: row !important;
+            justify-content: center !important;
+            transform: none !important;
+            transition: background 0.18s ease, color 0.18s ease !important;
+        }
+        nav.v81-snap-bar .tab-btn.active {
+            background: #3a3a3c !important;
+            color: #ffffff !important;
+            font-weight: 800 !important;
+            transform: none !important;
+        }
+        nav.v81-snap-bar .tab-btn .tab-label { display: none !important; }
+        nav.v81-snap-bar .tab-btn svg { width: 20px !important; height: 20px !important; }
+        nav.v81-snap-bar .v81-sep {
+            width: 1px !important;
+            height: 28px !important;
+            background: rgba(255,255,255,0.15) !important;
+            flex-shrink: 0 !important;
+            align-self: center !important;
+        }
+        nav.v81-snap-bar #add-btn-wrapper {
+            margin-top: 0 !important;
+            width: auto !important;
+            height: auto !important;
+        }
+        nav.v81-snap-bar #tab-add.v81-snap-btn {
+            width: auto !important;
+            height: 44px !important;
+            min-width: 0 !important;
+            padding: 0 16px !important;
+            border-radius: 9999px !important;
+            background: #0a84ff !important;
+            color: #ffffff !important;
+            border: none !important;
+            box-shadow: 0 4px 12px rgba(10,132,255,0.4) !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 4px !important;
+            font-weight: 800 !important;
+            font-size: 13px !important;
+            transform: none !important;
+        }
+        nav.v81-snap-bar #tab-add.v81-snap-btn:active { transform: scale(0.96) !important; }
+        nav.v81-snap-bar #tab-add.v81-snap-btn svg { width: 18px !important; height: 18px !important; }
+        nav.v81-snap-bar #syncStatusDot { top: 6px !important; right: 8px !important; }
+        html.lite nav.v81-snap-bar .tab-btn, html.lite nav.v81-snap-bar #tab-add.v81-snap-btn { transition: none !important; }
         @media (min-width: 768px) {
             .floating-nav { bottom: 6px !important; }
         }
@@ -229,17 +305,8 @@ input[type="number"] {
         .lite .seg-indicator, .lite .expense-dropdown-enter.active { transition: none !important; animation: none !important; }
         /* v76：全域特效 — 只用 transform / opacity / box-shadow，絕不動 width / height / 版面 */
         @keyframes v76CardFadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-        /* v78：數字由上往下由 ghost 元素做，input 本身完全不動，框不會跳 */
-        @keyframes v78GhostDrop { 0% { opacity: 0; transform: translateY(-8px) scale(0.9); } 20% { opacity: 1; transform: translateY(0) scale(1); } 70% { opacity: 1; } 100% { opacity: 0; transform: translateY(2px); } }
-        .v78-number-ghost { position: fixed; z-index: 9999; pointer-events: none; font-weight: 800; font-size: 14px; line-height: 1; color: #d97706; background: rgba(255,255,255,0.92); padding: 3px 7px; border-radius: 9999px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); animation: v78GhostDrop 0.28s ease-out forwards; white-space: nowrap; }
-        .dark .v78-number-ghost { color: #fbbf24; background: rgba(0,0,0,0.85); }
-        /* v79：碼表捲動數字 — 每一位數字是一條 0-9 直條，換數字時整條往上/下捲，只動 transform */
-        .odo-digit { display: inline-block; overflow: hidden; height: 1em; line-height: 1em; vertical-align: top; }
-        .odo-strip { display: flex; flex-direction: column; transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform; }
-        .odo-strip > span { display: block; height: 1em; line-height: 1em; text-align: center; font-variant-numeric: tabular-nums; }
-        .odo-char { display: inline-block; height: 1em; line-height: 1em; vertical-align: top; }
-        @media (prefers-reduced-motion: reduce) { .odo-strip { transition: none !important; } }
-        .lite .odo-strip { transition: none !important; }
+        /* v80：拿掉 ghost 數字（上面那個 1）和數字自動化，輸入時不再跳出數字 */
+        /* v80：拿掉碼表捲動，數字直接顯示 */
         @keyframes v76BubblePop { 0% { transform: translateX(-50%) scale(1); } 40% { transform: translateX(-50%) scale(1.25); } 100% { transform: translateX(-50%) scale(1); } }
         @keyframes v76ToastPop { 0% { transform: translateY(-4px) scale(0.96); } 100% { transform: translateY(0) scale(1); } }
         /* 新增頁 + 設定頁 + 路線輸入：focus 發光（只加 box-shadow，不動版面） */
@@ -265,10 +332,10 @@ input[type="number"] {
         #routeResult > div:hover { transform: translateY(-2px); }
         @media (prefers-reduced-motion: reduce) {
             #recordMobileList > *, #calendarDayRecordsList > * { animation: none !important; }
-            .v78-number-ghost, .v76-bubble-pop { animation: none !important; }
+            .v76-bubble-pop { animation: none !important; }
         }
         .lite #recordMobileList > *, .lite #calendarDayRecordsList > * { animation: none !important; }
-        .lite .v78-number-ghost, .lite .v76-bubble-pop { animation: none !important; }
+        .lite .v76-bubble-pop { animation: none !important; }
         /* 1. 進度條立體光感與槽體內陰影 */
         .soc-progress-track {
             box-shadow: inset 0 1.5px 3px rgba(0, 0, 0, 0.2);
@@ -728,7 +795,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v79</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v81</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1175,7 +1242,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v79</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v81</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1533,35 +1600,38 @@ input[type="number"] {
     </div>
     
     <!-- 導航列 -->
-    <nav class="fixed left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[calc(100%-2rem)] md:max-w-2xl z-50 rounded-[2rem] ios-27-glass px-2 floating-nav">
+    <nav class="fixed left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[calc(100%-2rem)] md:max-w-2xl z-50 rounded-[2rem] ios-27-glass px-2 floating-nav v81-snap-bar">
         <div class="flex justify-around items-center h-16 md:h-20 max-w-md md:max-w-full mx-auto relative" id="nav-container">
             <div id="liquid-indicator" class="liquid-indicator opacity-0 absolute top-1/2 -translate-y-1/2 left-0 w-14 md:h-16 md:rounded-full"></div>
 
             <button onclick="switchTab('home')" id="tab-home" class="tab-btn active flex flex-col items-center gap-1 w-14 md:w-20 text-slate-500 dark:text-slate-400 cursor-pointer">
                 <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                <span class="text-[9px] md:text-[10px] font-bold tracking-wider mt-0.5">首頁</span>
+                <span class="tab-label text-[9px] md:text-[10px] font-bold tracking-wider mt-0.5">首頁</span>
             </button>
 
             <button onclick="switchTab('records')" id="tab-records" class="tab-btn flex flex-col items-center gap-1 w-14 md:w-20 text-slate-500 dark:text-slate-400 cursor-pointer">
                 <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2v0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                <span class="text-[9px] md:text-[10px] font-bold tracking-wider mt-0.5">紀錄</span>
+                <span class="tab-label text-[9px] md:text-[10px] font-bold tracking-wider mt-0.5">紀錄</span>
             </button>
 
-            <div class="relative flex justify-center w-16 md:w-24 -mt-8 md:-mt-10 z-20" id="add-btn-wrapper">
-                <button onclick="switchTab('add')" id="tab-add" class="w-14 h-14 md:w-16 md:h-16 bg-slate-900 dark:bg-amber-500 text-white dark:text-slate-900 rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(0,0,0,0.2)] dark:shadow-[0_8px_20px_rgba(251,191,36,0.3)] border-[3px] border-white/80 dark:border-slate-800/80 transition transform hover:scale-105 active:scale-90 cursor-pointer">
-                    <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+            <div class="v81-sep"></div>
+            <div class="relative flex justify-center z-20" id="add-btn-wrapper">
+                <button onclick="switchTab('add')" id="tab-add" class="v81-snap-btn transition transform hover:scale-105 active:scale-90 cursor-pointer" aria-label="新增紀錄">
+                    <svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+                    <span>新增</span>
                 </button>
             </div>
+            <div class="v81-sep"></div>
 
             <button onclick="switchTab('analysis')" id="tab-analysis" class="tab-btn flex flex-col items-center gap-1 w-14 md:w-20 text-slate-500 dark:text-slate-400 cursor-pointer">
                 <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
-                <span class="text-[9px] md:text-[10px] font-bold tracking-wider mt-0.5">分析</span>
+                <span class="tab-label text-[9px] md:text-[10px] font-bold tracking-wider mt-0.5">分析</span>
             </button>
 
             <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn flex flex-col items-center gap-1 w-14 md:w-20 text-slate-500 dark:text-slate-400 relative cursor-pointer">
                 <span id="syncStatusDot" class="absolute top-0 right-3 md:right-5 w-2 h-2 rounded-full bg-rose-500 animate-pulse hidden"></span>
                 <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                <span class="text-[9px] md:text-[10px] font-bold tracking-wider mt-0.5">設定</span>
+                <span class="tab-label text-[9px] md:text-[10px] font-bold tracking-wider mt-0.5">設定</span>
             </button>
         </div>
     </nav>
@@ -1648,7 +1718,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v79';
+        const APP_VERSION = 'v81';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -2115,6 +2185,7 @@ function cacheDOMNodes() {
         // v39：完整還原液態玻璃 bar（v10）。指標回到 CSS 0.6s 彈簧滑動（靠 .liquid-indicator 的 transition），
         // Q 彈 WAAPI（v33）＋ getIndicatorVisual／indicatorAnim 整組移除；tab 座標快取（v32）保留，只影響讀值不影響外觀。
         function updateLiquidIndicator(tabId) {
+            if (document.querySelector('nav.v81-snap-bar')) return; // v81：Snap 風格用灰底選中，不用液態指標
             const btn = document.getElementById('tab-' + tabId);
             const indicator = document.getElementById('liquid-indicator');
             if (!btn || !indicator) return;
@@ -2186,6 +2257,7 @@ function cacheDOMNodes() {
         });
 
         function initLiquidDrag() {
+            if (document.querySelector('nav.v81-snap-bar')) return; // v81：Snap 風格不用拖曳切換
             const navContainer = document.getElementById('nav-container');
             const indicator = document.getElementById('liquid-indicator');
             const tabs = Array.from(navContainer.querySelectorAll('.tab-btn'));
@@ -3407,11 +3479,11 @@ window.setupSocSliders = function() {
         }
 
             function updateStats(km, eff, cost, maintCost, baseOdo, fuelSavings, co2Savings, treesPlanted, remMaint, progMaint, loanPaidCount = 0, loanPaidTotalAmount = 0, remTire = 0, progTire = 0) {
-            if(DOM.statTotalKm) { if (typeof setOdometer === 'function') setOdometer(DOM.statTotalKm, (km + baseOdo).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1})); else DOM.statTotalKm.textContent = (km + baseOdo).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1}); }
-            if(DOM.statAvgEfficiency) { if (typeof setOdometer === 'function') setOdometer(DOM.statAvgEfficiency, eff.toFixed(2)); else DOM.statAvgEfficiency.textContent = eff.toFixed(2); }
+            if(DOM.statTotalKm) DOM.statTotalKm.textContent = (km + baseOdo).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
+            if(DOM.statAvgEfficiency) DOM.statAvgEfficiency.textContent = eff.toFixed(2);
 
             if (DOM.statFuelSavings) {
-                if (typeof setOdometer === 'function') setOdometer(DOM.statFuelSavings, Math.round(fuelSavings).toLocaleString()); else DOM.statFuelSavings.textContent = Math.round(fuelSavings).toLocaleString();
+                DOM.statFuelSavings.textContent = Math.round(fuelSavings).toLocaleString();
                 if(DOM.savingsBaseText) DOM.savingsBaseText.textContent = `${AppState.iceEfficiency} km/L, ${AppState.gasPrice} $/L`;
                 if(DOM.statCo2Savings) DOM.statCo2Savings.textContent = co2Savings.toLocaleString(undefined, {maximumFractionDigits: 1});
                 if(DOM.statTreesPlanted) DOM.statTreesPlanted.textContent = treesPlanted.toFixed(1);
@@ -3527,99 +3599,7 @@ window.setupSocSliders = function() {
         };
         window.addEventListener('resize', () => { if (typeof updateChartSegIndicator === 'function') updateChartSegIndicator(); });
 
-        // v75：數字 count-up（只動顯示，計算不動；解析失敗 / lite / 減少動態時直接顯示終值）
-        // v79：碼表捲動 — 顯示數字用直條捲動，lite / 減少動態時直接顯示終值
-        window.setOdometer = function(el, targetText) {
-            if (!el) return;
-            const targetStr = String(targetText);
-            const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            if (document.documentElement.classList.contains('lite') || reduceMotion) {
-                el.textContent = targetStr;
-                el.removeAttribute('data-odo');
-                return;
-            }
-            // 還沒建碼表結構：直接建到終值（第一次不捲）
-            if (!el.hasAttribute('data-odo')) {
-                el.innerHTML = '';
-                el.setAttribute('data-odo', '1');
-                for (const ch of targetStr) {
-                    if (/[0-9]/.test(ch)) {
-                        const wrap = document.createElement('span');
-                        wrap.className = 'odo-digit';
-                        const strip = document.createElement('span');
-                        strip.className = 'odo-strip';
-                        strip.style.transition = 'none';
-                        for (let d = 0; d <= 9; d++) {
-                            const s = document.createElement('span');
-                            s.textContent = String(d);
-                            strip.appendChild(s);
-                        }
-                        strip.style.transform = 'translateY(' + (-parseInt(ch, 10)) + 'em)';
-                        wrap.appendChild(strip);
-                        el.appendChild(wrap);
-                        void strip.offsetWidth;
-                        strip.style.transition = '';
-                    } else {
-                        const s = document.createElement('span');
-                        s.className = 'odo-char';
-                        s.textContent = ch;
-                        el.appendChild(s);
-                    }
-                }
-                return;
-            }
-            // 已有結構：先比長度，長度不同（例如 0 -> 6,113）直接重建，不捲
-            let curLen = 0;
-            el.childNodes.forEach(n => { curLen++; });
-            // childNodes 長度 = 字元數（每位數字一個 wrap，每個符號一個 span）
-            if (curLen !== targetStr.length) {
-                el.removeAttribute('data-odo');
-                window.setOdometer(el, targetStr);
-                return;
-            }
-            // 同長度：每位數字捲到新值
-            let idx = 0;
-            for (const ch of targetStr) {
-                const node = el.childNodes[idx++];
-                if (/[0-9]/.test(ch)) {
-                    if (node && node.className === 'odo-digit' && node.firstChild) {
-                        node.firstChild.style.transform = 'translateY(' + (-parseInt(ch, 10)) + 'em)';
-                    }
-                } else {
-                    if (node) node.textContent = ch;
-                }
-            }
-        };
-
-        window.animateCountUp = function(el, targetText) {
-            if (!el) return;
-            const targetStr = String(targetText);
-            const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            if (document.documentElement.classList.contains('lite') || reduceMotion) { el.textContent = targetStr; return; }
-            const parseNum = (s) => { const n = parseFloat(String(s).replace(/[^0-9.\-]/g, '')); return isNaN(n) ? null : n; };
-            const from = parseNum(el.textContent);
-            const to = parseNum(targetStr);
-            if (from === null || to === null || from === to) { el.textContent = targetStr; return; }
-            const decPart = (targetStr.split('.')[1] || '').replace(/[^0-9]/g, '');
-            const decimals = decPart.length;
-            const hasComma = targetStr.includes(',');
-            const hasDollar = targetStr.includes('$');
-            const start = performance.now();
-            const dur = 280;
-            const step = (now) => {
-                const p = Math.min(1, (now - start) / dur);
-                const eased = 1 - Math.pow(1 - p, 3);
-                const val = from + (to - from) * eased;
-                let out = val.toFixed(decimals);
-                if (hasComma) out = Number(out).toLocaleString(undefined, {minimumFractionDigits: decimals, maximumFractionDigits: decimals});
-                if (hasDollar) out = '$' + out;
-                el.textContent = out;
-                if (p < 1) requestAnimationFrame(step); else el.textContent = targetStr;
-            };
-            requestAnimationFrame(step);
-        };
-
-        // v76/v77：全域輸入特效 — 數字由上往下 + SOC 氣泡 pop（只動 transform，節流避免打字抖）
+        // v80：全域輸入特效 — 只剩 SOC 氣泡 pop，數字 ghost / 自動化已拿掉（只動 transform，節流避免打字抖）
         (function attachV76InputEffects() {
             if (window.__v76InputEffectsAttached) return;
             window.__v76InputEffectsAttached = true;
@@ -3638,28 +3618,7 @@ window.setupSocSliders = function() {
                     }
                     return;
                 }
-                // v78：框不要跳 — input 本身完全不動，數字由上往下由 ghost 元素做（300ms 節流）
-                if (t.type === 'number' || t.type === 'text' || t.type === 'date') {
-                    if (pulseTimers.get(t)) return;
-                    pulseTimers.set(t, true);
-                    setTimeout(() => pulseTimers.delete(t), 300);
-                    try {
-                        const ch = (e && e.data) ? String(e.data).slice(-1) : String(t.value || '').slice(-1);
-                        if (!ch) return;
-                        // 同一個 input 的舊 ghost 先清掉，避免堆疊
-                        if (t._v78Ghost) { t._v78Ghost.remove(); t._v78Ghost = null; }
-                        const r = t.getBoundingClientRect();
-                        const g = document.createElement('div');
-                        g.className = 'v78-number-ghost';
-                        g.textContent = ch;
-                        // 放在 input 上方偏左，不蓋住輸入中的字，框不動
-                        g.style.left = (r.left + 10) + 'px';
-                        g.style.top = (r.top - 22) + 'px';
-                        document.body.appendChild(g);
-                        t._v78Ghost = g;
-                        setTimeout(() => { if (g.parentNode) g.remove(); if (t._v78Ghost === g) t._v78Ghost = null; }, 300);
-                    } catch (err) { /* ghost 失敗也不影響輸入 */ }
-                }
+                // v80：拿掉 ghost 數字和數字自動化，輸入時不跳任何數字
             });
         })();
 
@@ -3738,7 +3697,7 @@ window.setupSocSliders = function() {
                 else if (costCat === '通行費' || costCat === '停車費') countUnit = '次';
 
                 if (lblSummary) lblSummary.textContent = `${costCat} 累計數量`;
-                if (DOM.analysisTotalKm) setOdometer(DOM.analysisTotalKm, String(pureExpenseCount));
+                if (DOM.analysisTotalKm) DOM.analysisTotalKm.textContent = pureExpenseCount;
                 if (kmContainer && kmContainer.lastElementChild) kmContainer.lastElementChild.textContent = countUnit;
 
                 // 2. 第二張卡片：車貸顯示「剩餘未繳金額」，其餘項目顯示「最高單筆金額」
@@ -3749,17 +3708,17 @@ window.setupSocSliders = function() {
                     const remainingMonths = Math.max(0, (AppState.loanTotalMonths || 0) - totalPaidLoanPeriods);
                     const remainingPrincipal = remainingMonths * (AppState.loanMonthlyPayment || 0);
 
-                    if (DOM.analysisAvgEfficiency) setOdometer(DOM.analysisAvgEfficiency, `$${remainingPrincipal.toLocaleString()}`);
+                    if (DOM.analysisAvgEfficiency) DOM.analysisAvgEfficiency.textContent = `$${remainingPrincipal.toLocaleString()}`;
                     if (unitEff) unitEff.textContent = `(剩 ${remainingMonths} 期)`;
                 } else {
                     if (lblEff) lblEff.textContent = '最高單筆金額';
-                    if (DOM.analysisAvgEfficiency) setOdometer(DOM.analysisAvgEfficiency, `$${maxSingleExpense.toLocaleString()}`);
+                    if (DOM.analysisAvgEfficiency) DOM.analysisAvgEfficiency.textContent = `$${maxSingleExpense.toLocaleString()}`;
                     if (unitEff) unitEff.textContent = '';
                 }
 
                 // 3. 第三張卡片：總費用
                 if (lblCost) lblCost.textContent = `${costCat} 總支出`;
-                if (DOM.analysisTotalCost) setOdometer(DOM.analysisTotalCost, totalExpense.toLocaleString());
+                if (DOM.analysisTotalCost) DOM.analysisTotalCost.textContent = totalExpense.toLocaleString();
 
                 // 4. 第四張卡片：平均費用
                 let avgLabel = '單筆平均';
@@ -3776,26 +3735,26 @@ window.setupSocSliders = function() {
                 if (unitRate) unitRate.textContent = avgUnit;
 
                 const avgPerItem = pureExpenseCount > 0 ? Math.round(totalExpense / pureExpenseCount) : 0;
-                if (DOM.analysisCostPerKm) setOdometer(DOM.analysisCostPerKm, avgPerItem.toLocaleString());
+                if (DOM.analysisCostPerKm) DOM.analysisCostPerKm.textContent = avgPerItem.toLocaleString();
 
             } else {
                 // 標準模式：里程、電耗、花費、每公里電費
                 if (lblSummary) lblSummary.textContent = monthFilter === 'all' ? '區間累積里程' : `${monthFilter.replace('-', '/')} 里程`;
-                if (DOM.analysisTotalKm) setOdometer(DOM.analysisTotalKm, totalKm.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1}));
+                if (DOM.analysisTotalKm) DOM.analysisTotalKm.textContent = totalKm.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
                 if (kmContainer && kmContainer.lastElementChild) kmContainer.lastElementChild.textContent = 'km';
 
                 // 還原第二張卡片為「平均電耗」
                 if (lblEff) lblEff.textContent = '平均電耗';
-                if (DOM.analysisAvgEfficiency) setOdometer(DOM.analysisAvgEfficiency, totalPower > 0 ? (totalKm / totalPower).toFixed(2) : "0.00");
+                if (DOM.analysisAvgEfficiency) DOM.analysisAvgEfficiency.textContent = totalPower > 0 ? (totalKm / totalPower).toFixed(2) : "0.00";
                 if (unitEff) unitEff.textContent = 'km/度';
 
                 if (lblCost) lblCost.textContent = isCostView && costCat !== 'all' ? `${costCat} 花費` : (monthFilter === 'all' ? '歷史總花費' : `${monthFilter.replace('-', '/')} 總花費`);
-                if (DOM.analysisTotalCost) setOdometer(DOM.analysisTotalCost, totalExpense.toLocaleString());
+                if (DOM.analysisTotalCost) DOM.analysisTotalCost.textContent = totalExpense.toLocaleString();
 
                 if (lblRate) lblRate.textContent = '每公里電費';
                 if (unitRate) unitRate.textContent = '/km';
 
-                if (DOM.analysisCostPerKm) setOdometer(DOM.analysisCostPerKm, totalKm > 0 ? (totalEnergyCost / totalKm).toFixed(2) : "0.00");
+                if (DOM.analysisCostPerKm) DOM.analysisCostPerKm.textContent = totalKm > 0 ? (totalEnergyCost / totalKm).toFixed(2) : "0.00";
             }
 
             const timeView = document.getElementById('chartTimeView')?.value || 'monthly';
