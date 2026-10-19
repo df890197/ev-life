@@ -103,6 +103,28 @@ input[type="number"] {
         .floating-nav.nav-ready {
             opacity: 1;
         }
+        /* v89：底部 bar 用 Transitions.dev Card resize — 寬高變化時 tween 300ms，不跳 */
+        :root {
+            --resize-dur: 300ms;
+            --resize-ease: cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .t-resize {
+            transition:
+                width var(--resize-dur) var(--resize-ease),
+                height var(--resize-dur) var(--resize-ease);
+            will-change: width, height;
+        }
+        /* 底部 bar 同時保留原本的 opacity/transform 過場，再加上寬高 tween */
+        nav.v81-snap-bar.t-resize {
+            transition:
+                width var(--resize-dur) var(--resize-ease),
+                height var(--resize-dur) var(--resize-ease),
+                opacity 0.25s ease, transform 0.4s ease-out !important;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .t-resize { transition: none !important; }
+        }
+        .lite .t-resize { transition: none !important; }
         /* v81：底部 bar 改截圖 Snap 風格 — 深色浮動 pill，選中灰底，中央＋變藍色 Snap 主按鈕 */
         nav.v81-snap-bar {
             background: #1c1c1e !important;
@@ -820,7 +842,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v88</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v89</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1267,7 +1289,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v88</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v89</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1625,7 +1647,7 @@ input[type="number"] {
     </div>
     
     <!-- 導航列 -->
-    <nav class="fixed left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[calc(100%-2rem)] md:max-w-2xl z-50 rounded-[2rem] ios-27-glass px-2 floating-nav v81-snap-bar">
+    <nav class="fixed left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[calc(100%-2rem)] md:max-w-2xl z-50 rounded-[2rem] ios-27-glass px-2 floating-nav v81-snap-bar t-resize">
         <div class="flex justify-around items-center h-16 md:h-20 max-w-md md:max-w-full mx-auto relative" id="nav-container">
             <div id="liquid-indicator" class="liquid-indicator opacity-0 absolute top-1/2 -translate-y-1/2 left-0 w-14 md:h-16 md:rounded-full"></div>
 
@@ -1743,7 +1765,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v88';
+        const APP_VERSION = 'v89';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
