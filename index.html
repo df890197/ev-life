@@ -204,7 +204,29 @@ input[type="number"] {
         }
         .expense-dropdown-enter.active {
             display: block;
+            animation: fadeSlideIn 0.18s ease-out; /* v75：只動 opacity/transform，不動版面 */
         }
+        /* v75：全域動畫系統 — 只用 transform / opacity，絕不用 width / max-width / height 做動畫 */
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .seg-indicator {
+            position: absolute;
+            top: 4px; bottom: 4px; left: 4px;
+            width: 0;
+            border-radius: 0.5rem;
+            background: #ffffff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), width 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform, width;
+            pointer-events: none;
+        }
+        .dark .seg-indicator { background: #525252; }
+        @media (prefers-reduced-motion: reduce) {
+            .seg-indicator, .expense-dropdown-enter.active { transition: none !important; animation: none !important; }
+        }
+        .lite .seg-indicator, .lite .expense-dropdown-enter.active { transition: none !important; animation: none !important; }
         /* 1. 進度條立體光感與槽體內陰影 */
         .soc-progress-track {
             box-shadow: inset 0 1.5px 3px rgba(0, 0, 0, 0.2);
@@ -664,7 +686,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v74</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v75</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -849,10 +871,11 @@ input[type="number"] {
                     </h2>
 
                     <div class="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
-                        <div class="flex w-full sm:w-auto sm:flex-none bg-stone-100 dark:bg-neutral-900/90 p-1 rounded-xl shadow-inner">
-                            <button type="button" onclick="setChartMetricView('all')" id="btnChartAll" class="flex-1 sm:flex-none whitespace-nowrap text-center px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg bg-white dark:bg-neutral-600 shadow-sm text-stone-900 dark:text-white font-extrabold transition-colors">全部總覽</button>
-                            <button type="button" onclick="setChartMetricView('efficiency')" id="btnChartEfficiency" class="flex-1 sm:flex-none whitespace-nowrap text-center px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg text-stone-500 hover:text-stone-900 dark:hover:text-white font-bold transition-colors">純電耗</button>
-                            <button type="button" onclick="setChartMetricView('cost')" id="btnChartCost" class="flex-1 sm:flex-none whitespace-nowrap text-center px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg text-stone-500 hover:text-stone-900 dark:hover:text-white font-bold transition-colors">支出剖析</button>
+                        <div id="chartSegContainer" class="relative flex w-full sm:w-auto sm:flex-none bg-stone-100 dark:bg-neutral-900/90 p-1 rounded-xl shadow-inner">
+                            <div id="chartSegIndicator" class="seg-indicator"></div>
+                            <button type="button" onclick="setChartMetricView('all')" id="btnChartAll" class="relative z-10 flex-1 sm:flex-none whitespace-nowrap text-center px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg bg-transparent text-stone-900 dark:text-white font-extrabold transition-colors">全部總覽</button>
+                            <button type="button" onclick="setChartMetricView('efficiency')" id="btnChartEfficiency" class="relative z-10 flex-1 sm:flex-none whitespace-nowrap text-center px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg bg-transparent text-stone-500 hover:text-stone-900 dark:hover:text-white font-bold transition-colors">純電耗</button>
+                            <button type="button" onclick="setChartMetricView('cost')" id="btnChartCost" class="relative z-10 flex-1 sm:flex-none whitespace-nowrap text-center px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg bg-transparent text-stone-500 hover:text-stone-900 dark:hover:text-white font-bold transition-colors">支出剖析</button>
                         </div>
 
                         <div class="flex gap-2 w-full sm:w-auto sm:items-center">
@@ -1110,7 +1133,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v74</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v75</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1583,7 +1606,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v74';
+        const APP_VERSION = 'v75';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -2101,7 +2124,7 @@ function cacheDOMNodes() {
             switchTabIndicatorRaf = requestAnimationFrame(() => { switchTabIndicatorRaf = 0; updateLiquidIndicator(tabId); });
             setTimeout(cacheTabMetrics, 350); // v32：動畫跑完後刷新座標快取，下次切換直接用
 
-            if (tabId === 'analysis') debouncedUpdateCharts();
+            if (tabId === 'analysis') { debouncedUpdateCharts(); requestAnimationFrame(() => { if (typeof updateChartSegIndicator === 'function') updateChartSegIndicator(); }); }
             if (tabId === 'settings') {
                 localStorage.setItem('ev_life_sync_dismissed', 'true');
                 updateSyncUiStatus();
@@ -3419,8 +3442,8 @@ window.setupSocSliders = function() {
         window.setChartMetricView = function(view) {
             AppState.currentChartFilter = view;
 
-            const activeClass = "flex-1 sm:flex-none px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg bg-white dark:bg-neutral-600 shadow-sm text-stone-900 dark:text-white font-extrabold transition-colors";
-            const inactiveClass = "flex-1 sm:flex-none px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg text-stone-500 hover:text-stone-900 dark:hover:text-white font-bold transition-colors bg-transparent";
+            const activeClass = "relative z-10 flex-1 sm:flex-none whitespace-nowrap text-center px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg bg-transparent text-stone-900 dark:text-white font-extrabold transition-colors";
+            const inactiveClass = "relative z-10 flex-1 sm:flex-none whitespace-nowrap text-center px-3 py-1.5 md:px-3.5 md:py-1.5 text-[11px] md:text-xs rounded-lg bg-transparent text-stone-500 hover:text-stone-900 dark:hover:text-white font-bold transition-colors";
 
             const btnAll = document.getElementById('btnChartAll');
             const btnEff = document.getElementById('btnChartEfficiency');
@@ -3442,7 +3465,53 @@ window.setupSocSliders = function() {
                     if (catSelect) catSelect.value = 'all';
                 }
             }
+            updateChartSegIndicator();
             debouncedUpdateCharts();
+        };
+
+        // v75：分段控制滑動指示器（只用 transform/width，不動版面結構；lite/減少動態時 CSS 已關動畫）
+        window.updateChartSegIndicator = function() {
+            const container = document.getElementById('chartSegContainer');
+            const indicator = document.getElementById('chartSegIndicator');
+            if (!container || !indicator) return;
+            const view = AppState.currentChartFilter || 'all';
+            const btnId = view === 'efficiency' ? 'btnChartEfficiency' : (view === 'cost' ? 'btnChartCost' : 'btnChartAll');
+            const btn = document.getElementById(btnId);
+            if (!btn || !btn.offsetWidth) return; // 隱藏中量不到寬度時跳過，等切到分析頁再校正
+            // container 有 p-1 (4px)，indicator left 已是 4px，translateX 用相對位移
+            const dx = btn.offsetLeft - 4;
+            indicator.style.width = btn.offsetWidth + 'px';
+            indicator.style.transform = 'translateX(' + dx + 'px)';
+        };
+        window.addEventListener('resize', () => { if (typeof updateChartSegIndicator === 'function') updateChartSegIndicator(); });
+
+        // v75：數字 count-up（只動顯示，計算不動；解析失敗 / lite / 減少動態時直接顯示終值）
+        window.animateCountUp = function(el, targetText) {
+            if (!el) return;
+            const targetStr = String(targetText);
+            const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (document.documentElement.classList.contains('lite') || reduceMotion) { el.textContent = targetStr; return; }
+            const parseNum = (s) => { const n = parseFloat(String(s).replace(/[^0-9.\-]/g, '')); return isNaN(n) ? null : n; };
+            const from = parseNum(el.textContent);
+            const to = parseNum(targetStr);
+            if (from === null || to === null || from === to) { el.textContent = targetStr; return; }
+            const decPart = (targetStr.split('.')[1] || '').replace(/[^0-9]/g, '');
+            const decimals = decPart.length;
+            const hasComma = targetStr.includes(',');
+            const hasDollar = targetStr.includes('$');
+            const start = performance.now();
+            const dur = 280;
+            const step = (now) => {
+                const p = Math.min(1, (now - start) / dur);
+                const eased = 1 - Math.pow(1 - p, 3);
+                const val = from + (to - from) * eased;
+                let out = val.toFixed(decimals);
+                if (hasComma) out = Number(out).toLocaleString(undefined, {minimumFractionDigits: decimals, maximumFractionDigits: decimals});
+                if (hasDollar) out = '$' + out;
+                el.textContent = out;
+                if (p < 1) requestAnimationFrame(step); else el.textContent = targetStr;
+            };
+            requestAnimationFrame(step);
         };
 
         window.onExpenseCategoryChange = function() {
@@ -3520,7 +3589,7 @@ window.setupSocSliders = function() {
                 else if (costCat === '通行費' || costCat === '停車費') countUnit = '次';
 
                 if (lblSummary) lblSummary.textContent = `${costCat} 累計數量`;
-                if (DOM.analysisTotalKm) DOM.analysisTotalKm.textContent = pureExpenseCount;
+                if (DOM.analysisTotalKm) animateCountUp(DOM.analysisTotalKm, String(pureExpenseCount));
                 if (kmContainer && kmContainer.lastElementChild) kmContainer.lastElementChild.textContent = countUnit;
 
                 // 2. 第二張卡片：車貸顯示「剩餘未繳金額」，其餘項目顯示「最高單筆金額」
@@ -3531,17 +3600,17 @@ window.setupSocSliders = function() {
                     const remainingMonths = Math.max(0, (AppState.loanTotalMonths || 0) - totalPaidLoanPeriods);
                     const remainingPrincipal = remainingMonths * (AppState.loanMonthlyPayment || 0);
 
-                    if (DOM.analysisAvgEfficiency) DOM.analysisAvgEfficiency.textContent = `$${remainingPrincipal.toLocaleString()}`;
+                    if (DOM.analysisAvgEfficiency) animateCountUp(DOM.analysisAvgEfficiency, `$${remainingPrincipal.toLocaleString()}`);
                     if (unitEff) unitEff.textContent = `(剩 ${remainingMonths} 期)`;
                 } else {
                     if (lblEff) lblEff.textContent = '最高單筆金額';
-                    if (DOM.analysisAvgEfficiency) DOM.analysisAvgEfficiency.textContent = `$${maxSingleExpense.toLocaleString()}`;
+                    if (DOM.analysisAvgEfficiency) animateCountUp(DOM.analysisAvgEfficiency, `$${maxSingleExpense.toLocaleString()}`);
                     if (unitEff) unitEff.textContent = '';
                 }
 
                 // 3. 第三張卡片：總費用
                 if (lblCost) lblCost.textContent = `${costCat} 總支出`;
-                if (DOM.analysisTotalCost) DOM.analysisTotalCost.textContent = totalExpense.toLocaleString();
+                if (DOM.analysisTotalCost) animateCountUp(DOM.analysisTotalCost, totalExpense.toLocaleString());
 
                 // 4. 第四張卡片：平均費用
                 let avgLabel = '單筆平均';
@@ -3558,26 +3627,26 @@ window.setupSocSliders = function() {
                 if (unitRate) unitRate.textContent = avgUnit;
 
                 const avgPerItem = pureExpenseCount > 0 ? Math.round(totalExpense / pureExpenseCount) : 0;
-                if (DOM.analysisCostPerKm) DOM.analysisCostPerKm.textContent = avgPerItem.toLocaleString();
+                if (DOM.analysisCostPerKm) animateCountUp(DOM.analysisCostPerKm, avgPerItem.toLocaleString());
 
             } else {
                 // 標準模式：里程、電耗、花費、每公里電費
                 if (lblSummary) lblSummary.textContent = monthFilter === 'all' ? '區間累積里程' : `${monthFilter.replace('-', '/')} 里程`;
-                if (DOM.analysisTotalKm) DOM.analysisTotalKm.textContent = totalKm.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
+                if (DOM.analysisTotalKm) animateCountUp(DOM.analysisTotalKm, totalKm.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1}));
                 if (kmContainer && kmContainer.lastElementChild) kmContainer.lastElementChild.textContent = 'km';
 
                 // 還原第二張卡片為「平均電耗」
                 if (lblEff) lblEff.textContent = '平均電耗';
-                if (DOM.analysisAvgEfficiency) DOM.analysisAvgEfficiency.textContent = totalPower > 0 ? (totalKm / totalPower).toFixed(2) : "0.00";
+                if (DOM.analysisAvgEfficiency) animateCountUp(DOM.analysisAvgEfficiency, totalPower > 0 ? (totalKm / totalPower).toFixed(2) : "0.00");
                 if (unitEff) unitEff.textContent = 'km/度';
 
                 if (lblCost) lblCost.textContent = isCostView && costCat !== 'all' ? `${costCat} 花費` : (monthFilter === 'all' ? '歷史總花費' : `${monthFilter.replace('-', '/')} 總花費`);
-                if (DOM.analysisTotalCost) DOM.analysisTotalCost.textContent = totalExpense.toLocaleString();
+                if (DOM.analysisTotalCost) animateCountUp(DOM.analysisTotalCost, totalExpense.toLocaleString());
 
                 if (lblRate) lblRate.textContent = '每公里電費';
                 if (unitRate) unitRate.textContent = '/km';
 
-                if (DOM.analysisCostPerKm) DOM.analysisCostPerKm.textContent = totalKm > 0 ? (totalEnergyCost / totalKm).toFixed(2) : "0.00";
+                if (DOM.analysisCostPerKm) animateCountUp(DOM.analysisCostPerKm, totalKm > 0 ? (totalEnergyCost / totalKm).toFixed(2) : "0.00");
             }
 
             const timeView = document.getElementById('chartTimeView')?.value || 'monthly';
