@@ -229,7 +229,10 @@ input[type="number"] {
         .lite .seg-indicator, .lite .expense-dropdown-enter.active { transition: none !important; animation: none !important; }
         /* v76：全域特效 — 只用 transform / opacity / box-shadow，絕不動 width / height / 版面 */
         @keyframes v76CardFadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes v77NumberDrop { from { opacity: 0.4; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+        /* v78：數字由上往下由 ghost 元素做，input 本身完全不動，框不會跳 */
+        @keyframes v78GhostDrop { 0% { opacity: 0; transform: translateY(-8px) scale(0.9); } 20% { opacity: 1; transform: translateY(0) scale(1); } 70% { opacity: 1; } 100% { opacity: 0; transform: translateY(2px); } }
+        .v78-number-ghost { position: fixed; z-index: 9999; pointer-events: none; font-weight: 800; font-size: 14px; line-height: 1; color: #d97706; background: rgba(255,255,255,0.92); padding: 3px 7px; border-radius: 9999px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); animation: v78GhostDrop 0.28s ease-out forwards; white-space: nowrap; }
+        .dark .v78-number-ghost { color: #fbbf24; background: rgba(0,0,0,0.85); }
         @keyframes v76BubblePop { 0% { transform: translateX(-50%) scale(1); } 40% { transform: translateX(-50%) scale(1.25); } 100% { transform: translateX(-50%) scale(1); } }
         @keyframes v76ToastPop { 0% { transform: translateY(-4px) scale(0.96); } 100% { transform: translateY(0) scale(1); } }
         /* 新增頁 + 設定頁 + 路線輸入：focus 發光（只加 box-shadow，不動版面） */
@@ -238,8 +241,7 @@ input[type="number"] {
             box-shadow: inset 0 0 0 1px rgba(251, 191, 36, 0.6), inset 0 0 0 3px rgba(251, 191, 36, 0.12) !important;
         }
         /* 數字輸入 pulse */
-        /* v77：數字由上往下出現（translateY，不用 scale，不撐大框） */
-        .v77-number-drop { animation: v77NumberDrop 0.18s ease-out; }
+        /* v78：input 本身不加動畫，框不跳 */
         /* SOC 氣泡 pop（氣泡本身用 translateX(-50%) 置中，動畫要保留它） */
         .v76-bubble-pop { animation: v76BubblePop 0.18s ease-out; }
         /* 紀錄卡片進場 stagger（只動 opacity/transform） */
@@ -256,10 +258,10 @@ input[type="number"] {
         #routeResult > div:hover { transform: translateY(-2px); }
         @media (prefers-reduced-motion: reduce) {
             #recordMobileList > *, #calendarDayRecordsList > * { animation: none !important; }
-            .v77-number-drop, .v76-bubble-pop { animation: none !important; }
+            .v78-number-ghost, .v76-bubble-pop { animation: none !important; }
         }
         .lite #recordMobileList > *, .lite #calendarDayRecordsList > * { animation: none !important; }
-        .lite .v77-number-drop, .lite .v76-bubble-pop { animation: none !important; }
+        .lite .v78-number-ghost, .lite .v76-bubble-pop { animation: none !important; }
         /* 1. 進度條立體光感與槽體內陰影 */
         .soc-progress-track {
             box-shadow: inset 0 1.5px 3px rgba(0, 0, 0, 0.2);
@@ -719,7 +721,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v77</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v78</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1166,7 +1168,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v77</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v78</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1639,7 +1641,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v77';
+        const APP_VERSION = 'v78';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -3566,15 +3568,27 @@ window.setupSocSliders = function() {
                     }
                     return;
                 }
-                // v77：數字由上往下出現（300ms 節流，打字不會一直抖；不用 scale，不吃框）
+                // v78：框不要跳 — input 本身完全不動，數字由上往下由 ghost 元素做（300ms 節流）
                 if (t.type === 'number' || t.type === 'text' || t.type === 'date') {
                     if (pulseTimers.get(t)) return;
-                    t.classList.remove('v77-number-drop');
-                    void t.offsetWidth;
-                    t.classList.add('v77-number-drop');
-                    setTimeout(() => t.classList.remove('v77-number-drop'), 200);
                     pulseTimers.set(t, true);
                     setTimeout(() => pulseTimers.delete(t), 300);
+                    try {
+                        const ch = (e && e.data) ? String(e.data).slice(-1) : String(t.value || '').slice(-1);
+                        if (!ch) return;
+                        // 同一個 input 的舊 ghost 先清掉，避免堆疊
+                        if (t._v78Ghost) { t._v78Ghost.remove(); t._v78Ghost = null; }
+                        const r = t.getBoundingClientRect();
+                        const g = document.createElement('div');
+                        g.className = 'v78-number-ghost';
+                        g.textContent = ch;
+                        // 放在 input 上方偏左，不蓋住輸入中的字，框不動
+                        g.style.left = (r.left + 10) + 'px';
+                        g.style.top = (r.top - 22) + 'px';
+                        document.body.appendChild(g);
+                        t._v78Ghost = g;
+                        setTimeout(() => { if (g.parentNode) g.remove(); if (t._v78Ghost === g) t._v78Ghost = null; }, 300);
+                    } catch (err) { /* ghost 失敗也不影響輸入 */ }
                 }
             });
         })();
