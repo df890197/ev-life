@@ -951,7 +951,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v113</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v114</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1437,7 +1437,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v113</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v114</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1929,7 +1929,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v113';
+        const APP_VERSION = 'v114';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -6853,19 +6853,27 @@ function updateElevationHudUi(data) {
     const svgBox = document.getElementById('abrpSvgContainer');
     if (!hudCard || !svgBox) return;
 
-    // v111：同一份高程資料不重畫（避免剖面連畫兩次）；每次繪製留下日誌（window._hudDrawLog）供診斷
+    // v114：同路線＋高程統計實質相同（峰值相同、爬升/下降差 ≤ max(15m, 1.5%)）視為同一份剖面，不重畫；
+    // 路線切換或統計實質改變才重畫。狀態存 window._v114HudState；日誌（window._hudDrawLog）記錄每次呼叫的來源與是否略過。
     try {
-        const smArr = (data && data.smoothedElevations) || [];
+        const caller = (() => { try { return (new Error().stack || '').split('\n').slice(1, 5).map(s => { const m = s.match(/at\s+([^\s(]+)/); return m ? m[1] : ''; }).filter(Boolean).join('<-'); } catch (e) { return ''; } })();
         window._hudDrawLog = window._hudDrawLog || [];
-        window._hudDrawLog.push({ t: new Date().toLocaleTimeString(), peak: data ? data.maxElevation : null });
-        if (window._hudDrawLog.length > 8) window._hudDrawLog.shift();
+        const curRouteIdx = (typeof abrpDirectionsRenderer !== 'undefined' && abrpDirectionsRenderer) ? abrpDirectionsRenderer.getRouteIndex() : -1;
+        const st = window._v114HudState;
         if (data && data.elevationUnavailable) {
-            delete svgBox.dataset.v111Sig;
-        } else if (smArr.length > 1) {
-            const sig = [data.maxElevation, data.totalClimbMeters, data.totalDescentMeters, data.startAlt, data.endAlt, smArr.length, Math.round(smArr[Math.floor(smArr.length / 2)] || 0), Math.round(smArr[smArr.length - 1] || 0)].join('|');
-            if (svgBox.dataset.v111Sig === sig && svgBox.querySelector('svg')) return;
-            svgBox.dataset.v111Sig = sig;
+            window._v114HudState = null;
+            window._hudDrawLog.push({ t: new Date().toLocaleTimeString(), peak: null, route: curRouteIdx, caller, note: 'unavailable' });
+        } else if (data && data.smoothedElevations && data.smoothedElevations.length > 1) {
+            const near = (a, b) => Math.abs((a || 0) - (b || 0)) <= Math.max(15, Math.abs(b || 0) * 0.015);
+            if (st && st.routeIdx === curRouteIdx && st.peak === data.maxElevation && near(data.totalClimbMeters, st.climb) && near(data.totalDescentMeters, st.descent) && svgBox.querySelector('svg')) {
+                window._hudDrawLog.push({ t: new Date().toLocaleTimeString(), peak: data.maxElevation, route: curRouteIdx, caller, note: 'skipped-same' });
+                if (window._hudDrawLog.length > 10) window._hudDrawLog.shift();
+                return;
+            }
+            window._v114HudState = { routeIdx: curRouteIdx, peak: data.maxElevation, climb: data.totalClimbMeters, descent: data.totalDescentMeters };
+            window._hudDrawLog.push({ t: new Date().toLocaleTimeString(), peak: data.maxElevation, climb: data.totalClimbMeters, descent: data.totalDescentMeters, route: curRouteIdx, caller, note: 'drawn' });
         }
+        if (window._hudDrawLog.length > 10) window._hudDrawLog.shift();
     } catch (e) {}
 
     hudCard.classList.remove('hidden');
