@@ -300,6 +300,20 @@ input[type="number"] {
         .dark .v104-hero { border-color: rgba(255,255,255,0.14) !important; box-shadow: 0 12px 32px -12px rgba(0,0,0,0.6) !important; }
         /* 圓角基準：新增頁卡片 1.25rem → 1.5rem，與全站外卡一致 */
         .v91-card { border-radius: 1.5rem; }
+        /* === v105：六個特效（手機調整版；只動樣式/回饋，不動計算） === */
+        /* 1) 主題切換過場：切換時短暫給全頁元素顏色 transition */
+        html.v105-theme-anim *, html.v105-theme-anim *::before, html.v105-theme-anim *::after { transition: background-color .38s ease, border-color .38s ease, color .25s ease, box-shadow .38s ease !important; }
+        /* 2) 成就彩帶 */
+        .v105-confetti { position: fixed; width: 7px; height: 11px; border-radius: 2px; z-index: 9998; pointer-events: none; }
+        /* 3) 回到頂部鈕 */
+        #v105TopBtn { position: fixed; right: 1rem; bottom: calc(6.5rem + env(safe-area-inset-bottom, 0px)); z-index: 40; width: 2.75rem; height: 2.75rem; border-radius: 9999px; background: rgba(28,28,30,0.88); color: #fff; font-size: 1.05rem; font-weight: 800; box-shadow: 0 10px 24px rgba(0,0,0,0.28); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); opacity: 0; transform: translateY(10px) scale(0.9); pointer-events: none; transition: opacity .3s ease, transform .3s cubic-bezier(0.34,1.56,0.64,1); }
+        #v105TopBtn.v105-top-show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+        html.lite #v105TopBtn { transition: none; }
+        /* 5) 卡片光暈：桌機 hover 跟隨游標／手機按壓泛光（背景圖層，不動版面） */
+        @media (hover: hover) and (pointer: fine) { .rpg-card:not(.bg-gradient-to-br):hover, .v91-card:hover { background-image: radial-gradient(240px circle at var(--v105-gx, 50%) var(--v105-gy, 50%), rgba(45,212,191,0.13), rgba(45,212,191,0) 70%); background-repeat: no-repeat; } }
+        .rpg-card:not(.bg-gradient-to-br).v105-press, .v91-card.v105-press { background-image: radial-gradient(240px circle at var(--v105-gx, 50%) var(--v105-gy, 50%), rgba(45,212,191,0.16), rgba(45,212,191,0) 70%); background-repeat: no-repeat; }
+        /* 6) Toast 倒數條 */
+        .v105-toast-bar { position: absolute; left: 1.1rem; right: 1.1rem; bottom: 0.45rem; height: 3px; border-radius: 9999px; background: currentColor; opacity: 0; transform-origin: left center; pointer-events: none; }
         /* v100：找站骨架卡 shimmer（只動 transform） */
         .v100-skeleton { position: relative; overflow: hidden; border-radius: 0.5rem; background: rgba(120,113,108,0.18); }
         .dark .v100-skeleton { background: rgba(255,255,255,0.10); }
@@ -909,7 +923,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v104</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v105</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1392,7 +1406,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v104</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v105</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1882,7 +1896,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v104';
+        const APP_VERSION = 'v105';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -1895,6 +1909,7 @@ input[type="number"] {
             if (type === 'light') navigator.vibrate(8);
             else if (type === 'medium') navigator.vibrate(18);
             else if (type === 'success') navigator.vibrate([10, 50, 15]);
+            else if (type === 'error') navigator.vibrate([40, 40, 40]); // v105：驗證失敗
         }
 
         function updateAppTitle() {
@@ -2221,6 +2236,7 @@ function cacheDOMNodes() {
             const colorClasses = isError ? 'bg-rose-500/90 backdrop-blur-xl saturate-150 text-white border-white/25' : isSuccess ? 'bg-emerald-50/90 dark:bg-emerald-950/90 backdrop-blur-xl saturate-150 text-emerald-900 dark:text-emerald-100 border-emerald-200/70 dark:border-emerald-800/60' : 'bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl saturate-150 text-stone-900 dark:text-white border-white/40 dark:border-white/30';
 
             DOM.toast.className = `fixed top-3 left-3 right-3 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-full md:max-w-[420px] z-[9999] transform transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] p-3 rounded-[28px] shadow-2xl flex items-center justify-center gap-3 border text-left leading-relaxed ${colorClasses} translate-y-0 opacity-100 visible pointer-events-auto`;
+            if (typeof window.v105ToastBar === 'function') window.v105ToastBar(duration, isLoading); // v105：倒數條
 
             setTimeout(() => {
                 DOM.toast.classList.replace('translate-y-0', '-translate-y-4');
@@ -2238,6 +2254,7 @@ function cacheDOMNodes() {
         window.clearToastQueueAndHide = function() {
             toastQueue.length = 0;
             isToastShowing = false;
+            if (typeof window.v105ToastBar === 'function') window.v105ToastBar(0); // v105：倒數條取消
             if (DOM.toast) {
                 DOM.toast.classList.add('invisible', 'pointer-events-none');
                 DOM.toast.classList.replace('translate-y-0', '-translate-y-4');
@@ -2255,6 +2272,7 @@ function cacheDOMNodes() {
 
         window.toggleTheme = function() {
             window.popV83(document.querySelector('button[onclick="toggleTheme()"]'), 'v83-toggle-pop'); // v83 V6 toggle 彈簧
+            if (typeof window.v105ThemeAnim === 'function') window.v105ThemeAnim(); // v105：主題切換過場
             const htmlEl = document.documentElement;
             if (htmlEl.classList.contains('dark')) {
                 htmlEl.classList.remove('dark'); localStorage.setItem('ev_life_theme', 'light');
@@ -2278,6 +2296,7 @@ function cacheDOMNodes() {
         };
         window.applyThemePref = function(pref, save) {
             try {
+                if (typeof window.v105ThemeAnim === 'function') window.v105ThemeAnim(); // v105：主題切換過場
                 if (save) localStorage.setItem('ev_life_theme', pref);
                 const sysDark = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
                 const isDark = pref === 'dark' || (pref !== 'light' && sysDark);
@@ -4012,6 +4031,7 @@ window.setupSocSliders = function() {
         window.shakeV83 = function(inputEl) {
             try {
                 if (!inputEl) return;
+                if (typeof triggerHaptic === 'function') triggerHaptic('error'); // v105：驗證失敗震動（iOS 不支援網頁震動，自動略過）
                 // v85：input 抖＋紅框，父層只抖動畫不加框（不然旁邊多一個正方形）
                 inputEl.classList.remove('v83-shake');
                 void inputEl.offsetWidth;
@@ -7658,5 +7678,113 @@ function updateAbrpElevScrub(pct) {
   } catch (e) { /* 地圖標記失敗不影響剖面，靜默 */ }
 }
 </script>
+
+    <!-- v105：回到頂部浮動鈕 -->
+    <button id="v105TopBtn" type="button" aria-label="回到頂部">↑</button>
+    <script>
+    // === v105 六個特效（手機調整版） ===
+    (function() {
+        const reduced = () => { try { return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
+        const isLite = () => document.documentElement.classList.contains('lite');
+
+        // 1) 主題切換過場
+        let v105ThemeTimer = null;
+        window.v105ThemeAnim = function() {
+            try {
+                if (isLite() || reduced()) return;
+                const el = document.documentElement;
+                el.classList.add('v105-theme-anim');
+                clearTimeout(v105ThemeTimer);
+                v105ThemeTimer = setTimeout(() => el.classList.remove('v105-theme-anim'), 480);
+            } catch (e) {}
+        };
+
+        // 6) Toast 倒數條（duration<=0 或 >20s 或 loading 不顯示）
+        window.v105ToastBar = function(duration, isLoading) {
+            try {
+                const toast = document.getElementById('toast');
+                if (!toast) return;
+                let bar = document.getElementById('v105ToastBar');
+                if (!bar) { bar = document.createElement('div'); bar.id = 'v105ToastBar'; bar.className = 'v105-toast-bar'; toast.appendChild(bar); }
+                bar.getAnimations().forEach(a => a.cancel());
+                if (!duration || duration <= 0 || duration > 20000 || isLoading) { bar.style.opacity = '0'; return; }
+                bar.style.opacity = '0.35';
+                const anim = bar.animate([{ transform: 'scaleX(1)' }, { transform: 'scaleX(0)' }], { duration: duration, easing: 'linear', fill: 'forwards' });
+                anim.onfinish = () => { bar.style.opacity = '0'; };
+            } catch (e) {}
+        };
+
+        // 2) 成就解鎖彩帶
+        window.v105Confetti = function(anchorEl) {
+            try {
+                if (!anchorEl || isLite() || reduced()) return;
+                const r = anchorEl.getBoundingClientRect();
+                if (!r.width) return;
+                const cx = r.left + r.width / 2, cy = r.top + Math.min(r.height / 2, 30);
+                const colors = ['#14b8a6', '#f59e0b', '#34d399', '#fb7185', '#38bdf8', '#a78bfa'];
+                for (let i = 0; i < 26; i++) {
+                    const p = document.createElement('div');
+                    p.className = 'v105-confetti';
+                    p.style.background = colors[i % colors.length];
+                    p.style.left = cx + 'px'; p.style.top = cy + 'px';
+                    document.body.appendChild(p);
+                    const dx = (Math.random() * 2 - 1) * 110;
+                    const dy = 120 + Math.random() * 130;
+                    const rot = (Math.random() * 2 - 1) * 340;
+                    const anim = p.animate([
+                        { transform: 'translate(-50%,-50%) rotate(0deg)', opacity: 1 },
+                        { transform: 'translate(calc(-50% + ' + dx + 'px), ' + dy + 'px) rotate(' + rot + 'deg)', opacity: 0 }
+                    ], { duration: 950 + Math.random() * 450, easing: 'cubic-bezier(.22,1,.36,1)' });
+                    anim.onfinish = () => p.remove();
+                    setTimeout(() => p.remove(), 1700);
+                }
+            } catch (e) {}
+        };
+        // 成就快照比對：徽章條出現「新文字」（排除純數字/進度）且區塊可見時慶祝；首次只存基準
+        (function initBadgeWatch() {
+            const KEY = 'ev_life_badge_snapshot_v105';
+            const box = document.getElementById('badgesContainer');
+            if (!box) return;
+            const collect = () => { const s = new Set(); box.querySelectorAll('*').forEach(el => { if (el.children.length === 0) { const t = (el.textContent || '').trim(); if (t && t.length <= 24 && !/^[\d\s\/\.\%\:\+\-]+$/.test(t)) s.add(t); } }); return s; };
+            let prev = null;
+            try { const raw = localStorage.getItem(KEY); if (raw) prev = new Set(JSON.parse(raw)); } catch (e) {}
+            const check = () => {
+                const now = collect();
+                if (prev && box.getBoundingClientRect().width > 0) { for (const t of now) { if (!prev.has(t)) { window.v105Confetti(box); break; } } }
+                prev = now;
+                try { localStorage.setItem(KEY, JSON.stringify([...now])); } catch (e) {}
+            };
+            let deb = null;
+            new MutationObserver(() => { clearTimeout(deb); deb = setTimeout(check, 700); }).observe(box, { childList: true, subtree: true });
+            setTimeout(check, 1800);
+        })();
+
+        // 3) 回到頂部
+        (function initTopBtn() {
+            const btn = document.getElementById('v105TopBtn');
+            if (!btn) return;
+            let tick = false;
+            const onScroll = () => { if (tick) return; tick = true; requestAnimationFrame(() => { tick = false; btn.classList.toggle('v105-top-show', window.scrollY > 600); }); };
+            window.addEventListener('scroll', onScroll, { passive: true });
+            onScroll();
+            btn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: reduced() ? 'auto' : 'smooth' });
+                if (typeof triggerHaptic === 'function') triggerHaptic('light');
+            });
+        })();
+
+        // 5) 卡片光暈：桌機 hover 跟隨／手機按壓（事件委派，動態卡片也適用）
+        (function initGlow() {
+            const SEL = '.rpg-card:not(.bg-gradient-to-br), .v91-card';
+            const fine = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+            const setPos = (card, e) => { const r = card.getBoundingClientRect(); if (!r.width || !r.height) return; card.style.setProperty('--v105-gx', ((e.clientX - r.left) / r.width * 100) + '%'); card.style.setProperty('--v105-gy', ((e.clientY - r.top) / r.height * 100) + '%'); };
+            document.addEventListener('pointermove', e => { if (!fine) return; const c = e.target.closest && e.target.closest(SEL); if (c) setPos(c, e); }, { passive: true });
+            document.addEventListener('pointerdown', e => { const c = e.target.closest && e.target.closest(SEL); if (!c) return; setPos(c, e); c.classList.add('v105-press'); }, { passive: true });
+            const clear = () => document.querySelectorAll('.v105-press').forEach(c => setTimeout(() => c.classList.remove('v105-press'), 180));
+            document.addEventListener('pointerup', clear, { passive: true });
+            document.addEventListener('pointercancel', clear, { passive: true });
+        })();
+    })();
+    </script>
 </body>
 </html>
