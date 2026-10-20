@@ -342,10 +342,6 @@ input[type="number"] {
         nav.v81-snap-bar .tab-btn.active { background: transparent !important; }
         html.lite #v109TabPill { transition: opacity .2s ease; }
         @media (prefers-reduced-motion: reduce) { #v109TabPill { transition: opacity .2s ease; } }
-        /* === v110：開路線模擬 modal 時背景不位移（捲軸寬度補償）+ X 按鈕統一 === */
-        html.v110-modal-open nav.floating-nav { right: calc(1rem + var(--v110-sbw, 0px)); }
-        html.v110-modal-open #v105TopBtn { right: calc(1rem + var(--v110-sbw, 0px)); }
-        @media (min-width: 768px) { html.v110-modal-open nav.floating-nav { left: calc(50% - var(--v110-sbw, 0px) / 2); right: auto; } }
         /* v100：找站骨架卡 shimmer（只動 transform） */
         .v100-skeleton { position: relative; overflow: hidden; border-radius: 0.5rem; background: rgba(120,113,108,0.18); }
         .dark .v100-skeleton { background: rgba(255,255,255,0.10); }
@@ -955,7 +951,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v110</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v111</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1441,7 +1437,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v110</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v111</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1774,6 +1770,7 @@ input[type="number"] {
                     <!-- v101：出發時間反推（行車時間＋補電時間） -->
                     <div class="flex flex-wrap items-center justify-end gap-2 text-[11px] font-bold text-stone-500 dark:text-stone-400">
                         <label for="routeArriveByTime">⏰ 想抵達</label>
+                        <input type="date" id="routeArriveDate" onchange="updateDepartureEstimate()" class="px-2 py-1.5 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-black text-stone-700 dark:text-stone-200 font-mono">
                         <input type="time" id="routeArriveByTime" onchange="updateDepartureEstimate()" class="px-2 py-1.5 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-black text-stone-700 dark:text-stone-200 font-mono">
                         <span id="departureEstimateText" class="text-teal-600 dark:text-teal-400">選好想抵達的時間，這裡會算最晚出發時間</span>
                     </div>
@@ -1932,7 +1929,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v110';
+        const APP_VERSION = 'v111';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -2639,13 +2636,18 @@ function cacheDOMNodes() {
                     chargeMin = window._lastAbrpCalcData.stopPlan.stops.reduce((a, s) => a + (parseFloat(s.chargeMinutes) || 0), 0);
                 }
                 if (!chargeMin) { const cm = recText.match(/補電約\s*(\d+)\s*分/); if (cm) chargeMin = parseInt(cm[1]); }
+                // v111：改用完整日期計算（想抵達日期＋時間 − 行車 − 補電），跨日直接顯示出發日期
                 const parts = timeVal.split(':');
-                let dep = (parseInt(parts[0]) * 60 + parseInt(parts[1])) - driveMin - Math.round(chargeMin);
-                const prevDay = dep < 0;
-                if (prevDay) dep += 1440;
-                const hh = String(Math.floor(dep / 60)).padStart(2, '0');
-                const mi = String(dep % 60).padStart(2, '0');
-                out.textContent = '最晚出發 ' + hh + ':' + mi + (prevDay ? '（前一天）' : '') + '（行車 ' + driveMin + ' 分' + (chargeMin ? '＋補電 ' + Math.round(chargeMin) + ' 分' : '') + '）';
+                const dateVal = document.getElementById('routeArriveDate')?.value || '';
+                const baseDate = dateVal ? new Date(dateVal + 'T00:00:00') : new Date();
+                const arrival = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate(), parseInt(parts[0]) || 0, parseInt(parts[1]) || 0);
+                const depart = new Date(arrival.getTime() - (driveMin + Math.round(chargeMin)) * 60000);
+                const hh = String(depart.getHours()).padStart(2, '0');
+                const mi = String(depart.getMinutes()).padStart(2, '0');
+                const sameDay = depart.getFullYear() === arrival.getFullYear() && depart.getMonth() === arrival.getMonth() && depart.getDate() === arrival.getDate();
+                const wd = ['日', '一', '二', '三', '四', '五', '六'][depart.getDay()];
+                const dateText = sameDay ? '' : (depart.getMonth() + 1) + '/' + depart.getDate() + '（' + wd + '） ';
+                out.textContent = '最晚出發 ' + dateText + hh + ':' + mi + '（行車 ' + driveMin + ' 分' + (chargeMin ? '＋補電 ' + Math.round(chargeMin) + ' 分' : '') + '）';
             } catch (e) {}
         };
         // v101：規劃完成後自動刷新一次出發時間估算（best effort，路線計算是 async）
@@ -5147,6 +5149,9 @@ function nextElevationRequestToken(routeIdx) {
 function isCurrentElevationRequest(routeIdx, token) {
   return elevationRequestTokenByRoute[routeIdx] === token;
 }
+// v111：每條路線「最近啟動的計算序號」與「計算進行中」註冊，供 selectPkRoute 判斷快取是否已被新計算淘汰
+window._elevStartedSeq = {};
+window._elevInFlight = {};
 function invalidateAllElevationRequests() {
   elevationRequestSeq += 1;
   elevationRequestTokenByRoute = {};
@@ -5326,14 +5331,18 @@ window.openAbrpModal = function() {
     if (!modal) return;
 
     // 🔒 鎖定背景頁面滾動，防止上下拉動時背景晃動、前景不動
-    // v110：補償捲軸消失的寬度，不然桌機背景會突然位移（捲軸寬 px；手機 overlay 捲軸為 0 不受影響）
-    const v110Sbw = window.innerWidth - document.documentElement.clientWidth;
+    // v111：改為實測補償 — 鎖定前後各量一次 header 的 left，位移多少就用 html padding 補多少；
+    // 不同瀏覽器捲軸/gutter 行為不同，固定補法會補錯；沒位移就不補。fixed 元素（modal/底部 bar）不受 html padding 影響。
+    const v111Probe = document.querySelector('header');
+    const v111X0 = v111Probe ? v111Probe.getBoundingClientRect().left : 0;
     document.body.style.overflow = 'hidden';
-    if (v110Sbw > 0) {
-        document.body.style.paddingRight = v110Sbw + 'px';
-        document.documentElement.style.setProperty('--v110-sbw', v110Sbw + 'px');
-        document.documentElement.classList.add('v110-modal-open');
-    }
+    const v111X1 = v111Probe ? v111Probe.getBoundingClientRect().left : 0;
+    const v111Dx = Math.round(v111X0 - v111X1);
+    if (v111Dx > 0) document.documentElement.style.paddingLeft = v111Dx + 'px';
+    else if (v111Dx < 0) document.documentElement.style.paddingRight = (-v111Dx) + 'px';
+    // v111：想抵達日期預設今天
+    const v111ArriveDateEl = document.getElementById('routeArriveDate');
+    if (v111ArriveDateEl && !v111ArriveDateEl.value) { try { v111ArriveDateEl.value = getLocalDateString(); } catch (e) {} }
 
     modal.classList.remove('hidden');
     setTimeout(() => {
@@ -5413,11 +5422,10 @@ window.closeAbrpModal = function() {
     const modal = document.getElementById('abrpModal');
     if (!modal) return;
 
-    // 🔓 解除背景頁面滾動鎖定（v110：一併還原捲軸寬度補償）
+    // 🔓 解除背景頁面滾動鎖定（v111：一併還原實測位移補償）
     document.body.style.overflow = '';
-    document.body.style.paddingRight = '';
-    document.documentElement.style.removeProperty('--v110-sbw');
-    document.documentElement.classList.remove('v110-modal-open');
+    document.documentElement.style.paddingLeft = '';
+    document.documentElement.style.paddingRight = '';
 
     modal.classList.add('opacity-0');
     modal.firstElementChild?.classList.add('scale-95');
@@ -5588,7 +5596,11 @@ window.selectPkRoute = function(idx) {
     if (pkRouteCache[idx]) {
         // 🌟 關鍵修正：從快取切換回路線時，同步刷回該路線的高程剖面與海拔
         if (pkRouteCache[idx].elevationData) {
-            updateElevationHudUi(pkRouteCache[idx].elevationData);
+            // v111：若這條路線有更新一輪的計算正在進行，不要先畫舊快取剖面（完成時會畫最新的一份），避免連畫兩次
+            const v111StartedSeq = (window._elevStartedSeq && window._elevStartedSeq[idx]) || 0;
+            const v111InFlight = !!(window._elevInFlight && window._elevInFlight[idx]);
+            const v111Stale = v111InFlight || (pkRouteCache[idx]._seq && v111StartedSeq > pkRouteCache[idx]._seq);
+            if (!v111Stale) updateElevationHudUi(pkRouteCache[idx].elevationData);
         }
         const leg = currentPkRoutes[idx].legs[0];
         renderAbrpCalculatedResultsDirect(pkRouteCache[idx], leg, startSoc, idx, currentPkRoutes[idx]);
@@ -6615,6 +6627,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
 
   // v7: 每一次呼叫都發新 token。即使是快取命中也要先發新 token，讓還在飛的舊請求過期。
   const requestToken = nextElevationRequestToken(routeIdx);
+  window._elevStartedSeq[routeIdx] = requestToken; // v111
 
   if (pkRouteCache[routeIdx]?.isReady && pkRouteCache[routeIdx]?.elevationData) {
     if (pkRouteCache[routeIdx].elevationData.elevationUnavailable) {
@@ -6634,6 +6647,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
   // v7：先試詳細路徑，失敗就退回 overview_path；雙失敗且單點也失敗 → 顯示「高程資料不可用」，不顯示 0、不算 SOC。
   // 注意：process 內部用 await，因此把原本的 callback 改成 async IIFE，避免呼叫端要改。
   // v7 頂層 try/catch：IIFE 內任何同步 / 非同步例外都不會變成未處理 rejection，UI 會顯示不可用而非卡在計算中。
+  window._elevInFlight[routeIdx] = requestToken; // v111：標記計算進行中（finally 清除）
   (async () => {
     try {
     let smoothed = [0, 0];
@@ -6787,6 +6801,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
     }
 
     pkRouteCache[routeIdx] = {
+      _seq: requestToken,
       totalDistanceKm, durationText, directArrivalSoc, realEff,
       routeProfileText,
       neededStops: totalConsumedKwh > (startSoc / 100) * AppState.batteryCapacity ? 1 : 0,
@@ -6803,6 +6818,8 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
       // 若快取已寫入本次的有效高程（例如 render 階段才拋錯），不要用「不可用」覆蓋正確結果。
       if (pkRouteCache[routeIdx]?.elevationData && !pkRouteCache[routeIdx].elevationData.elevationUnavailable) return;
       showElevationUnavailable(routeIdx, startSoc, totalDistanceKm, durationText);
+    } finally {
+      if (window._elevInFlight && window._elevInFlight[routeIdx] === requestToken) delete window._elevInFlight[routeIdx];
     }
   })();
 }
@@ -6813,6 +6830,21 @@ function updateElevationHudUi(data) {
     const hudCard = document.getElementById('abrpElevationHudCard');
     const svgBox = document.getElementById('abrpSvgContainer');
     if (!hudCard || !svgBox) return;
+
+    // v111：同一份高程資料不重畫（避免剖面連畫兩次）；每次繪製留下日誌（window._hudDrawLog）供診斷
+    try {
+        const smArr = (data && data.smoothedElevations) || [];
+        window._hudDrawLog = window._hudDrawLog || [];
+        window._hudDrawLog.push({ t: new Date().toLocaleTimeString(), peak: data ? data.maxElevation : null });
+        if (window._hudDrawLog.length > 8) window._hudDrawLog.shift();
+        if (data && data.elevationUnavailable) {
+            delete svgBox.dataset.v111Sig;
+        } else if (smArr.length > 1) {
+            const sig = [data.maxElevation, data.totalClimbMeters, data.totalDescentMeters, data.startAlt, data.endAlt, smArr.length, Math.round(smArr[Math.floor(smArr.length / 2)] || 0), Math.round(smArr[smArr.length - 1] || 0)].join('|');
+            if (svgBox.dataset.v111Sig === sig && svgBox.querySelector('svg')) return;
+            svgBox.dataset.v111Sig = sig;
+        }
+    } catch (e) {}
 
     hudCard.classList.remove('hidden');
 
