@@ -342,6 +342,10 @@ input[type="number"] {
         nav.v81-snap-bar .tab-btn.active { background: transparent !important; }
         html.lite #v109TabPill { transition: opacity .2s ease; }
         @media (prefers-reduced-motion: reduce) { #v109TabPill { transition: opacity .2s ease; } }
+        /* === v110：開路線模擬 modal 時背景不位移（捲軸寬度補償）+ X 按鈕統一 === */
+        html.v110-modal-open nav.floating-nav { right: calc(1rem + var(--v110-sbw, 0px)); }
+        html.v110-modal-open #v105TopBtn { right: calc(1rem + var(--v110-sbw, 0px)); }
+        @media (min-width: 768px) { html.v110-modal-open nav.floating-nav { left: calc(50% - var(--v110-sbw, 0px) / 2); right: auto; } }
         /* v100：找站骨架卡 shimmer（只動 transform） */
         .v100-skeleton { position: relative; overflow: hidden; border-radius: 0.5rem; background: rgba(120,113,108,0.18); }
         .dark .v100-skeleton { background: rgba(255,255,255,0.10); }
@@ -951,7 +955,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v109</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v110</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -965,7 +969,7 @@ input[type="number"] {
                         <span class="bg-stone-900 dark:bg-white text-white dark:text-stone-900 w-8 h-8 rounded-[0.65rem] flex items-center justify-center text-sm">✍️</span>
                         <span id="formTitle">記錄本次旅程</span>
                     </h2>
-                    <button type="button" onclick="closeAddPage()" aria-label="關閉，回到上一頁" class="w-9 h-9 min-w-[36px] rounded-full flex items-center justify-center text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-neutral-800 active:scale-95 transition text-base font-bold">✕</button>
+                    <button type="button" onclick="closeAddPage()" aria-label="關閉，回到上一頁" class="w-8 h-8 bg-stone-100 dark:bg-neutral-800 rounded-full flex items-center justify-center text-sm font-bold text-stone-500 dark:text-stone-400 active:scale-90 transition shrink-0">✕</button>
                 </div>
 
                 <form id="recordForm" onsubmit="addRecord(event)" novalidate class="space-y-4">
@@ -1437,7 +1441,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v109</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v110</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1491,7 +1495,7 @@ input[type="number"] {
         <div class="bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl saturate-150 modal-glass rounded-[28px] p-5 md:p-6 shadow-2xl max-w-lg w-full mx-4 max-h-[85vh] flex flex-col transform scale-95 transition-all duration-300 border border-white/40 dark:border-white/30">
             <div class="flex items-center justify-between mb-4 pb-3 border-b border-stone-100 dark:border-stone-800">
                 <h3 class="text-base md:text-lg font-extrabold text-stone-800 dark:text-white flex items-center gap-2">🏆 純電榮譽殿堂</h3>
-                <button onclick="closeBadgeModal()" class="w-8 h-8 bg-stone-100 dark:bg-neutral-800 rounded-full flex items-center justify-center text-sm font-bold active:scale-90">✕</button>
+                <button onclick="closeBadgeModal()" class="w-8 h-8 bg-stone-100 dark:bg-neutral-800 rounded-full flex items-center justify-center text-sm font-bold text-stone-500 dark:text-stone-400 active:scale-90 transition shrink-0">✕</button>
             </div>
             <div class="flex bg-stone-100 dark:bg-neutral-900 p-1 rounded-xl mb-4 text-xs font-bold">
                 <button id="tabBadgeUnlocked" onclick="switchBadgeTab('unlocked')" class="flex-1 py-2 rounded-lg bg-white dark:bg-neutral-600 text-stone-900 dark:text-white shadow transition-all">已解鎖 (<span id="unlockedBadgeCount">0</span>)</button>
@@ -1524,7 +1528,7 @@ input[type="number"] {
                 <h3 class="text-sm md:text-base font-extrabold text-stone-800 dark:text-white flex items-center gap-1.5">
                     <span>🗺️</span> 我的充電足跡
                 </h3>
-                <button onclick="closeMapModal()" class="w-7 h-7 bg-stone-100 dark:bg-neutral-800/80 hover:bg-stone-200 dark:hover:bg-neutral-600 rounded-full flex items-center justify-center text-xs font-bold transition active:scale-90 text-stone-500 dark:text-stone-300">✕</button>
+                <button onclick="closeMapModal()" class="w-8 h-8 bg-stone-100 dark:bg-neutral-800 rounded-full flex items-center justify-center text-sm font-bold text-stone-500 dark:text-stone-400 active:scale-90 transition shrink-0">✕</button>
             </div>
             <div id="evMapContainer" class="w-full flex-1 rounded-2xl bg-stone-200 dark:bg-neutral-900 overflow-hidden relative z-10"></div>
             <div class="mt-2 text-center text-xs font-bold text-stone-400 flex items-center justify-center gap-1.5">
@@ -1540,7 +1544,7 @@ input[type="number"] {
                 <h3 class="text-base md:text-lg font-extrabold text-stone-800 dark:text-white flex items-center gap-2">
                     <span>⚡</span> 長途補給規劃器 <span class="text-[9px] bg-amber-400 text-stone-950 px-2 py-0.5 rounded-full font-extrabold">ABRP 智能演算法</span>
                 </h3>
-                <button onclick="closeAbrpModal()" class="w-8 h-8 bg-stone-100 dark:bg-neutral-800 rounded-full flex items-center justify-center text-sm font-bold active:scale-90 text-stone-500">✕</button>
+                <button onclick="closeAbrpModal()" class="w-8 h-8 bg-stone-100 dark:bg-neutral-800 rounded-full flex items-center justify-center text-sm font-bold text-stone-500 dark:text-stone-400 active:scale-90 transition shrink-0">✕</button>
             </div>
 
             <div class="overflow-y-auto no-scrollbar space-y-4 pt-3 pb-6 flex-1 flex flex-col">
@@ -1928,7 +1932,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v109';
+        const APP_VERSION = 'v110';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -5322,7 +5326,14 @@ window.openAbrpModal = function() {
     if (!modal) return;
 
     // 🔒 鎖定背景頁面滾動，防止上下拉動時背景晃動、前景不動
+    // v110：補償捲軸消失的寬度，不然桌機背景會突然位移（捲軸寬 px；手機 overlay 捲軸為 0 不受影響）
+    const v110Sbw = window.innerWidth - document.documentElement.clientWidth;
     document.body.style.overflow = 'hidden';
+    if (v110Sbw > 0) {
+        document.body.style.paddingRight = v110Sbw + 'px';
+        document.documentElement.style.setProperty('--v110-sbw', v110Sbw + 'px');
+        document.documentElement.classList.add('v110-modal-open');
+    }
 
     modal.classList.remove('hidden');
     setTimeout(() => {
@@ -5402,8 +5413,11 @@ window.closeAbrpModal = function() {
     const modal = document.getElementById('abrpModal');
     if (!modal) return;
 
-    // 🔓 解除背景頁面滾動鎖定
+    // 🔓 解除背景頁面滾動鎖定（v110：一併還原捲軸寬度補償）
     document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+    document.documentElement.style.removeProperty('--v110-sbw');
+    document.documentElement.classList.remove('v110-modal-open');
 
     modal.classList.add('opacity-0');
     modal.firstElementChild?.classList.add('scale-95');
