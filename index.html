@@ -898,7 +898,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v100</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v102</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1183,6 +1183,15 @@ input[type="number"] {
                     </div>
                 </div>
 
+                <!-- v101：每月月報（本月 vs 上月） -->
+                <div class="mb-6 bg-stone-50 dark:bg-neutral-900/50 p-4 md:p-5 rounded-2xl border border-stone-100 dark:border-stone-700/50">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-sm md:text-base font-extrabold text-stone-700 dark:text-stone-200 flex items-center gap-2"><span class="bg-teal-100 dark:bg-teal-900/30 text-teal-600 w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center text-[10px] md:text-sm">📅</span> 每月月報 <span id="monthlyReportMonth" class="text-[10px] md:text-xs text-stone-400 font-bold"></span></h3>
+                        <span class="text-[10px] text-stone-400 font-bold">徽章為與上月比較</span>
+                    </div>
+                    <div id="monthlyReport" class="grid grid-cols-2 sm:grid-cols-5 gap-2.5"></div>
+                </div>
+
                 <div class="h-64 md:h-80 relative w-full mt-2">
                     <canvas id="efficiencyChart"></canvas>
                 </div>
@@ -1206,6 +1215,26 @@ input[type="number"] {
                             <canvas id="tempEffChart"></canvas>
                         </div>
                     </div>
+                </div>
+
+                <!-- v101：氣溫區間平均電耗（上方散佈圖的區間平均版，同一批行程紀錄） -->
+                <div class="mt-8 pt-8 border-t border-stone-100 dark:border-stone-800">
+                    <h3 class="text-sm md:text-base font-extrabold text-stone-700 dark:text-stone-200 mb-4 flex items-center gap-2">
+                        <span class="bg-sky-100 dark:bg-sky-900/30 text-sky-500 w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center text-[10px] md:text-sm">🌡️</span>
+                        氣溫區間平均電耗
+                    </h3>
+                    <div id="tempBandSummary" class="space-y-2"></div>
+                    <p class="text-[10px] text-stone-400 font-bold mt-2">與上方「氣溫 vs 電耗關聯圖」同一批行程紀錄，改依氣溫區間取平均，一眼看出冷天／熱天電耗差多少。</p>
+                </div>
+
+                <!-- v101：愛用站點榜（依充電次數排名，免費站也算） -->
+                <div class="mt-8 pt-8 border-t border-stone-100 dark:border-stone-800">
+                    <h3 class="text-sm md:text-base font-extrabold text-stone-700 dark:text-stone-200 mb-4 flex items-center gap-2">
+                        <span class="bg-teal-100 dark:bg-teal-900/30 text-teal-600 w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center text-[10px] md:text-sm">⚡</span>
+                        愛用站點榜 Top 5
+                    </h3>
+                    <div id="favStationList" class="space-y-3 md:grid md:grid-cols-2 md:gap-4 md:space-y-0"></div>
+                    <p class="text-[10px] text-stone-400 font-bold mt-2">依區間內充電次數排名，免費站也列入；CP 榜只收付費站，兩個榜看的東西不一樣。</p>
                 </div>
 
                 <div class="mt-8 pt-8 border-t border-stone-100 dark:border-stone-800">
@@ -1352,7 +1381,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v100</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v102</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1581,14 +1610,6 @@ input[type="number"] {
         <span>⚡</span><span>開始路線模擬</span>
     </button>
 
-    <!-- v100：常用路線（存 localStorage，最多 6 條；點 chip 帶入起終點，✕ 刪除） -->
-    <div class="pt-1">
-        <div class="flex items-center justify-between mb-1.5">
-            <span class="text-[10px] font-bold text-stone-400">⭐ 常用路線</span>
-            <button type="button" onclick="saveFavRoute()" class="text-[10px] bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 px-2 py-1 rounded-md font-bold active:scale-95 transition">＋ 儲存目前起終點</button>
-        </div>
-        <div id="favRoutesContainer" class="flex flex-wrap gap-1.5"></div>
-    </div>
 </div>
                 </div>
 
@@ -1684,9 +1705,17 @@ input[type="number"] {
                         </div>
                     </div>
 
-                    <!-- v100：複製行程摘要 -->
-                    <div class="flex items-center justify-end">
+                    <!-- v100：複製行程摘要 / v101：規劃回程 -->
+                    <div class="flex items-center justify-end gap-2">
+                        <button type="button" onclick="planReturnTrip()" class="text-[10px] md:text-xs bg-teal-600 text-white dark:bg-teal-700 px-2.5 py-1.5 rounded-lg shadow-sm font-bold active:scale-95 transition flex items-center gap-1">🔄 規劃回程</button>
                         <button type="button" onclick="copyRouteSummary()" class="text-[10px] md:text-xs bg-stone-800 text-white dark:bg-neutral-800 dark:text-stone-200 px-2.5 py-1.5 rounded-lg shadow-sm font-bold active:scale-95 transition flex items-center gap-1">📋 複製行程摘要</button>
+                    </div>
+
+                    <!-- v101：出發時間反推（行車時間＋補電時間） -->
+                    <div class="flex flex-wrap items-center justify-end gap-2 text-[11px] font-bold text-stone-500 dark:text-stone-400">
+                        <label for="routeArriveByTime">⏰ 想抵達</label>
+                        <input type="time" id="routeArriveByTime" onchange="updateDepartureEstimate()" class="px-2 py-1.5 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-black text-stone-700 dark:text-stone-200 font-mono">
+                        <span id="departureEstimateText" class="text-teal-600 dark:text-teal-400">選好想抵達的時間，這裡會算最晚出發時間</span>
                     </div>
 
                     <!-- 主數據三大面板 -->
@@ -1842,7 +1871,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v100';
+        const APP_VERSION = 'v102';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -2403,76 +2432,6 @@ function cacheDOMNodes() {
                 }
             } catch (e) {}
         };
-        // v100：常用路線（localStorage 'ev_life_fav_routes'，最多 6 條）
-        window.getFavRoutes = function() {
-            try { const a = JSON.parse(localStorage.getItem('ev_life_fav_routes') || '[]'); return Array.isArray(a) ? a.filter(r => r && r.start && r.end) : []; } catch (e) { return []; }
-        };
-        window.renderFavRoutes = function() {
-            try {
-                const box = document.getElementById('favRoutesContainer');
-                if (!box) return;
-                const list = window.getFavRoutes();
-                box.innerHTML = '';
-                if (!list.length) {
-                    const hint = document.createElement('span');
-                    hint.className = 'text-[10px] text-stone-400 font-bold';
-                    hint.textContent = '還沒有常用路線，填好起終點後按「＋ 儲存目前起終點」';
-                    box.appendChild(hint);
-                    return;
-                }
-                list.forEach((r, i) => {
-                    const chip = document.createElement('button');
-                    chip.type = 'button';
-                    chip.className = 'flex items-center gap-1.5 max-w-full bg-white dark:bg-neutral-900 border border-stone-200 dark:border-stone-700 rounded-full pl-3 pr-2 py-1.5 text-[11px] font-bold text-stone-700 dark:text-stone-200 shadow-sm active:scale-95 transition';
-                    chip.title = r.start + ' → ' + r.end;
-                    const label = document.createElement('span');
-                    label.className = 'truncate';
-                    label.textContent = r.start + ' → ' + r.end;
-                    const del = document.createElement('span');
-                    del.className = 'shrink-0 w-4 h-4 rounded-full bg-stone-100 dark:bg-neutral-800 text-stone-400 flex items-center justify-center text-[9px]';
-                    del.textContent = '✕';
-                    del.onclick = (ev) => { ev.stopPropagation(); window.deleteFavRoute(i); };
-                    chip.appendChild(label);
-                    chip.appendChild(del);
-                    chip.onclick = () => window.applyFavRoute(i);
-                    box.appendChild(chip);
-                });
-            } catch (e) {}
-        };
-        window.saveFavRoute = function() {
-            try {
-                const s = (document.getElementById('routeStartInput')?.value || '').trim();
-                const e = (document.getElementById('routeEndInput')?.value || '').trim();
-                if (!s || !e) { showToast('請先填好出發地與目的地！📍', true); if (!s && typeof window.shakeV83 === 'function') window.shakeV83(document.getElementById('routeStartInput')); if (!e && typeof window.shakeV83 === 'function') window.shakeV83(document.getElementById('routeEndInput')); return; }
-                const list = window.getFavRoutes();
-                if (list.some(r => r.start === s && r.end === e)) { showToast('這條路線已經存過了 ⭐'); return; }
-                list.unshift({ start: s, end: e });
-                while (list.length > 6) list.pop();
-                localStorage.setItem('ev_life_fav_routes', JSON.stringify(list));
-                window.renderFavRoutes();
-                showToast('已儲存常用路線 ⭐');
-            } catch (e) {}
-        };
-        window.applyFavRoute = function(i) {
-            try {
-                const r = window.getFavRoutes()[i];
-                if (!r) return;
-                const si = document.getElementById('routeStartInput');
-                const ei = document.getElementById('routeEndInput');
-                if (si) si.value = r.start;
-                if (ei) ei.value = r.end;
-                if (typeof toggleRouteClearBtn === 'function') { toggleRouteClearBtn('routeStartInput', 'btnClearStart'); toggleRouteClearBtn('routeEndInput', 'btnClearEnd'); }
-                showToast('已帶入常用路線 ⭐');
-            } catch (e) {}
-        };
-        window.deleteFavRoute = function(i) {
-            try {
-                const list = window.getFavRoutes();
-                list.splice(i, 1);
-                localStorage.setItem('ev_life_fav_routes', JSON.stringify(list));
-                window.renderFavRoutes();
-            } catch (e) {}
-        };
         // v100：複製行程摘要（clipboard 優先，失敗退回 textarea 傳統複製，iOS Safari 也可用）
         window.copyRouteSummary = async function() {
             try {
@@ -2500,6 +2459,139 @@ function cacheDOMNodes() {
                 showToast(ok ? '已複製行程摘要 📋' : '複製失敗，請再試一次', !ok);
             } catch (e) { showToast('複製失敗，請再試一次', true); }
         };
+        // v101：分析頁 extras — 每月月報／氣溫區間平均／愛用站點榜（彙總既有紀錄，不改既有計算）
+        window.renderV101AnalysisExtras = function(periodRecords, driveRecords) {
+            try {
+                const mr = document.getElementById('monthlyReport');
+                if (mr) {
+                    const todayStr = getLocalDateString();
+                    const curKey = todayStr.slice(0, 7);
+                    const dd = new Date(todayStr + 'T00:00:00');
+                    const lastD = new Date(dd.getFullYear(), dd.getMonth() - 1, 1);
+                    const lastKey = lastD.getFullYear() + '-' + String(lastD.getMonth() + 1).padStart(2, '0');
+                    const EXP = ['維修保養', '停車費', '通行費', '保險費', '車貸'];
+                    const monthStats = (key) => {
+                        const recs = (AppState.records || []).filter(r => r && r.date && r.date.startsWith(key) && r.id !== 'SYSTEM_METADATA' && r.id !== 'CONFIG_METADATA');
+                        let km = 0, charges = 0, cost = 0, tripKm = 0, tripPower = 0;
+                        recs.forEach(r => {
+                            cost += parseFloat(r.cost) || 0;
+                            if (!EXP.includes(r.chargeType)) km += parseFloat(r.distance) || 0;
+                            if ((r.chargeType || '').includes('快充') || (r.chargeType || '').includes('慢充')) charges++; // v101 修正：不能只比對「充」，「未充電」(行程) 也含充字會誤計
+                            if (r.chargeType === '未充電') {
+                                tripKm += parseFloat(r.distance) || 0;
+                                tripPower += (r.power !== undefined && r.power !== null) ? (parseFloat(r.power) || 0) : AppState.batteryCapacity * Math.abs((r.startSoc || 0) - (r.endSoc || 0)) / 100;
+                            }
+                        });
+                        return { km, charges, cost, eff: tripPower > 0 ? tripKm / tripPower : null, perKm: km > 0 ? cost / km : null };
+                    };
+                    const cur = monthStats(curKey), last = monthStats(lastKey);
+                    const mLabel = document.getElementById('monthlyReportMonth');
+                    if (mLabel) mLabel.textContent = curKey.replace('-', ' 年 ') + ' 月';
+                    const chip = (cv, lv, invert) => {
+                        if (cv === null || cv === undefined || lv === null || lv === undefined || !isFinite(lv) || lv === 0) return '<span class="text-[9px] font-bold text-stone-400">上月無資料</span>';
+                        const pct = (cv - lv) / Math.abs(lv) * 100;
+                        if (Math.abs(pct) < 0.05) return '<span class="text-[9px] font-bold text-stone-400">與上月持平</span>';
+                        const up = pct > 0;
+                        const good = invert ? !up : up;
+                        return '<span class="text-[9px] font-bold ' + (good ? 'text-emerald-500' : 'text-rose-500') + '">' + (up ? '▲' : '▼') + ' ' + Math.abs(pct).toFixed(0) + '%</span>';
+                    };
+                    const items = [
+                        { label: '里程', val: cur.km.toLocaleString(undefined, { maximumFractionDigits: 0 }), unit: 'km', chip: chip(cur.km, last.km, false) },
+                        { label: '充電次數', val: String(cur.charges), unit: '次', chip: chip(cur.charges, last.charges, false) },
+                        { label: '平均電耗', val: cur.eff !== null ? cur.eff.toFixed(2) : '—', unit: 'km/度', chip: chip(cur.eff, last.eff, false) },
+                        { label: '總花費', val: '$' + cur.cost.toLocaleString(), unit: '', chip: chip(cur.cost, last.cost, true) },
+                        { label: '每公里成本', val: cur.perKm !== null ? '$' + cur.perKm.toFixed(2) : '—', unit: '/km', chip: chip(cur.perKm, last.perKm, true) }
+                    ];
+                    mr.innerHTML = items.map(it => '<div class="bg-white dark:bg-black/40 rounded-xl border border-stone-100 dark:border-stone-700/50 p-3"><div class="text-[10px] font-bold text-stone-400 mb-1">' + it.label + '</div><div class="text-base md:text-lg font-extrabold font-mono text-stone-800 dark:text-white">' + it.val + ' <span class="text-[9px] font-bold text-stone-400">' + it.unit + '</span></div><div class="mt-0.5">' + it.chip + '</div></div>').join('');
+                }
+                const tb = document.getElementById('tempBandSummary');
+                if (tb && Array.isArray(driveRecords)) {
+                    const pts = driveRecords.filter(r => r.temp !== null && r.temp !== undefined && (parseFloat(r.distance) || 0) > 0).map(r => { const pwr = AppState.batteryCapacity * ((r.consumedSocPercent || 0) / 100); return { t: parseFloat(r.temp), y: pwr > 0 ? (parseFloat(r.distance) / pwr) : 0 }; }).filter(p => isFinite(p.t) && p.y > 0);
+                    const bands = [
+                        { label: '❄️ 冷天', range: '< 15°C', test: t => t < 15 },
+                        { label: '🧥 涼爽', range: '15–20°C', test: t => t >= 15 && t < 20 },
+                        { label: '😊 舒適', range: '20–25°C', test: t => t >= 20 && t < 25 },
+                        { label: '☀️ 熱天', range: '25–30°C', test: t => t >= 25 && t < 30 },
+                        { label: '🥵 炎熱', range: '≥ 30°C', test: t => t >= 30 }
+                    ];
+                    const rows = bands.map(b => { const inB = pts.filter(p => b.test(p.t)); return { label: b.label, range: b.range, n: inB.length, avg: inB.length ? inB.reduce((a, p) => a + p.y, 0) / inB.length : null }; }).filter(r => r.n > 0);
+                    const maxAvg = Math.max(0, ...rows.map(r => r.avg || 0));
+                    if (!pts.length) tb.innerHTML = '<div class="text-xs text-stone-400 text-center py-4 bg-stone-50 dark:bg-neutral-900/30 rounded-xl border border-dashed border-stone-200 dark:border-stone-700">尚無氣溫紀錄（新增行程時有抓到氣溫就會累積）</div>';
+                    else tb.innerHTML = rows.map(r => '<div class="flex items-center gap-3 text-[11px] md:text-sm p-3 bg-stone-50 dark:bg-neutral-900/50 rounded-xl border border-stone-100 dark:border-stone-700/50"><span class="font-bold w-20 shrink-0 text-stone-700 dark:text-stone-200">' + r.label + '</span><span class="text-[10px] text-stone-400 w-16 shrink-0 font-mono">' + r.range + '</span><div class="flex-1 h-2 rounded-full bg-stone-200/70 dark:bg-neutral-800 overflow-hidden"><div class="h-full rounded-full bg-sky-400" style="width: ' + (maxAvg > 0 ? Math.round(r.avg / maxAvg * 100) : 0) + '%"></div></div><span class="font-mono font-extrabold text-sky-600 dark:text-sky-400 w-24 text-right shrink-0">' + r.avg.toFixed(2) + ' km/度</span><span class="text-[10px] text-stone-400 w-12 text-right shrink-0">' + r.n + ' 趟</span></div>').join('');
+                }
+                const fs = document.getElementById('favStationList');
+                if (fs && Array.isArray(periodRecords)) {
+                    const st = {};
+                    periodRecords.forEach(r => {
+                        if (!((r.chargeType || '').includes('快充') || (r.chargeType || '').includes('慢充')) || !r.tag) return; // v101 修正：同上，避免「未充電」行程被誤計為充電站拜訪
+                        const pw = AppState.batteryCapacity * (Math.abs((r.startSoc || 0) - (r.endSoc || 0)) / 100);
+                        if (!st[r.tag]) st[r.tag] = { count: 0, power: 0, last: '' };
+                        st[r.tag].count++;
+                        st[r.tag].power += pw;
+                        if (r.date && r.date > st[r.tag].last) st[r.tag].last = r.date;
+                    });
+                    const arr = Object.keys(st).map(tag => ({ tag, count: st[tag].count, power: st[tag].power, last: st[tag].last })).sort((a, b) => (b.count - a.count) || (b.power - a.power)).slice(0, 5);
+                    if (!arr.length) fs.innerHTML = '<div class="text-xs text-stone-400 text-center py-4 bg-stone-50 dark:bg-neutral-900/30 rounded-xl border border-dashed border-stone-200 dark:border-stone-700 md:col-span-2">區間內尚無有站點名稱的充電紀錄</div>';
+                    else fs.innerHTML = arr.map((item, i) => '<div class="flex justify-between items-start gap-3 text-[11px] md:text-sm p-3 md:p-4 bg-stone-50 dark:bg-neutral-900/50 rounded-xl border border-stone-100 dark:border-stone-700/50"><span class="font-bold flex items-start gap-2 min-w-0 flex-1 text-stone-700 dark:text-stone-200"><span class="' + (i < 3 ? 'text-teal-500' : 'text-stone-400') + ' font-extrabold w-3 md:w-4 text-center flex-shrink-0">' + (i + 1) + '</span><span class="min-w-0 flex-1 break-words leading-snug">' + escapeHTML(item.tag) + '</span></span><span class="flex-shrink-0 text-right"><span class="font-mono font-extrabold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 px-2 py-0.5 md:py-1 rounded shadow-sm inline-block">' + item.count + ' 次</span><span class="block text-[9px] font-bold text-stone-400 mt-1">累計 ' + item.power.toFixed(1) + ' 度' + (item.last ? ' · 最近 ' + item.last : '') + '</span></span></div>').join('');
+                }
+            } catch (e) {}
+        };
+        // v101：規劃回程 — 對調起終點、出發 SOC 帶去程直達抵達值、直接重算
+        window.planReturnTrip = function() {
+            try {
+                const section = document.getElementById('abrpResultSection');
+                if (!section || section.classList.contains('hidden')) { showToast('請先完成一次路線模擬，再規劃回程 📍', true); return; }
+                const socEl = document.getElementById('abrpDirectSoc');
+                let arrival = null;
+                if (socEl) { const m = (socEl.innerText || '').match(/(-?\d+(?:\.\d+)?)\s*%/); if (m) arrival = parseFloat(m[1]); }
+                if (typeof window.swapRouteEndpoints === 'function') window.swapRouteEndpoints();
+                if (arrival !== null && isFinite(arrival)) {
+                    const clamped = Math.min(100, Math.max(5, Math.round(arrival)));
+                    const socInput = document.getElementById('routeStartSoc');
+                    if (socInput) socInput.value = clamped;
+                    showToast('回程規劃：出發 SOC 帶入去程抵達 ' + clamped + '% 🔄');
+                }
+                if (typeof window.planElectricRoute === 'function') window.planElectricRoute();
+            } catch (e) {}
+        };
+        // v101：出發時間反推 — 想抵達時間 −（行車＋補電）= 最晚出發
+        window.updateDepartureEstimate = function() {
+            try {
+                const out = document.getElementById('departureEstimateText');
+                if (!out) return;
+                const timeVal = document.getElementById('routeArriveByTime')?.value || '';
+                if (!timeVal) { out.textContent = '選好想抵達的時間，這裡會算最晚出發時間'; return; }
+                const durText = document.getElementById('abrpDriveDuration')?.innerText || '';
+                const hm = durText.match(/(\d+)\s*小時/);
+                const mm = durText.match(/(\d+)\s*分/);
+                const driveMin = (hm ? parseInt(hm[1]) * 60 : 0) + (mm ? parseInt(mm[1]) : 0);
+                if (!driveMin) { out.textContent = '尚無行車時間，請先完成路線模擬'; return; }
+                const recText = document.getElementById('abrpRecommendationCard')?.innerText || '';
+                let chargeMin = 0;
+                if (recText.includes('直達電量不足') && window._lastAbrpCalcData && window._lastAbrpCalcData.stopPlan && Array.isArray(window._lastAbrpCalcData.stopPlan.stops)) {
+                    chargeMin = window._lastAbrpCalcData.stopPlan.stops.reduce((a, s) => a + (parseFloat(s.chargeMinutes) || 0), 0);
+                }
+                if (!chargeMin) { const cm = recText.match(/補電約\s*(\d+)\s*分/); if (cm) chargeMin = parseInt(cm[1]); }
+                const parts = timeVal.split(':');
+                let dep = (parseInt(parts[0]) * 60 + parseInt(parts[1])) - driveMin - Math.round(chargeMin);
+                const prevDay = dep < 0;
+                if (prevDay) dep += 1440;
+                const hh = String(Math.floor(dep / 60)).padStart(2, '0');
+                const mi = String(dep % 60).padStart(2, '0');
+                out.textContent = '最晚出發 ' + hh + ':' + mi + (prevDay ? '（前一天）' : '') + '（行車 ' + driveMin + ' 分' + (chargeMin ? '＋補電 ' + Math.round(chargeMin) + ' 分' : '') + '）';
+            } catch (e) {}
+        };
+        // v101：規劃完成後自動刷新一次出發時間估算（best effort，路線計算是 async）
+        setTimeout(() => {
+            try {
+                const orig = window.planElectricRoute;
+                if (typeof orig === 'function' && !orig._v101Wrapped) {
+                    const wrapped = function(...args) { const r = orig.apply(this, args); setTimeout(() => { if (typeof window.updateDepartureEstimate === 'function') window.updateDepartureEstimate(); }, 2500); return r; };
+                    wrapped._v101Wrapped = true;
+                    window.planElectricRoute = wrapped;
+                }
+            } catch (e) {}
+        }, 2000);
         let switchTabIndicatorRaf = 0;
         let previousTabBeforeAdd = 'home'; // v72：進入新增頁之前的分頁，X 用來回到上一頁
         let currentTabId = 'home'; // v72：目前分頁
@@ -4244,6 +4336,7 @@ window.setupSocSliders = function() {
                 }
             }
 
+            if (typeof window.renderV101AnalysisExtras === 'function') window.renderV101AnalysisExtras(periodRecords, driveRecords); // v101：月報／氣溫區間／愛用站點榜
             // 6. 成本分佈甜甜圈圖
             if (DOM.costDistributionChart) {
                 let dcCost = 0, acCost = 0, mCost = 0, pCost = 0, tCost = 0, insCost = 0, lCost = 0;
@@ -5163,7 +5256,6 @@ window.toggleAbrpPowerFilter = function(type) {
 window.openAbrpModal = function() {
     const modal = document.getElementById('abrpModal');
     if (!modal) return;
-    if (typeof window.renderFavRoutes === 'function') window.renderFavRoutes(); // v100：常用路線 chips
 
     // 🔒 鎖定背景頁面滾動，防止上下拉動時背景晃動、前景不動
     document.body.style.overflow = 'hidden';
@@ -6844,6 +6936,7 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
     const stopPlan = planChargingStops({ totalDistanceKm, startSoc, batteryCapacity: AppState.batteryCapacity, realEff, floorSoc: userTargetSoc });
     calcData.neededStops = stopPlan.stops.length;
     calcData.stopPlan = stopPlan;
+    window._lastAbrpCalcData = calcData; // v101：出發時間反推要讀 stopPlan 補電時間
 
     if (calcData.isReady && calcData.stationCardHtml) {
         renderAbrpCachedResults(calcData, totalDistanceKm, durationText);
@@ -7474,6 +7567,8 @@ function renderAbrpCachedResults(calcData, totalDistanceKm, durationText) {
     }
     const recCard = document.getElementById('abrpRecommendationCard');
     if (!recCard) return;
+    window._lastAbrpCalcData = calcData; // v101：出發時間反推要讀 stopPlan 補電時間
+    setTimeout(() => { if (typeof window.updateDepartureEstimate === 'function') window.updateDepartureEstimate(); }, 50);
 
     const stopsCount = calcData.neededStops || 1;
     const stopPromptText = stopsCount > 1 ? `需中途補能 ${stopsCount} 次（首站推薦）` : `建議中途補能！`;
