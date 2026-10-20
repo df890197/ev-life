@@ -314,6 +314,22 @@ input[type="number"] {
         .rpg-card:not(.bg-gradient-to-br).v105-press, .v91-card.v105-press { background-image: radial-gradient(240px circle at var(--v105-gx, 50%) var(--v105-gy, 50%), rgba(45,212,191,0.16), rgba(45,212,191,0) 70%); background-repeat: no-repeat; }
         /* 6) Toast 倒數條 */
         .v105-toast-bar { position: absolute; left: 1.1rem; right: 1.1rem; bottom: 0.45rem; height: 3px; border-radius: 9999px; background: currentColor; opacity: 0; transform-origin: left center; pointer-events: none; }
+        /* === v106：特效與版面第二批（只動樣式/回饋，不動計算） === */
+        /* 1) 按鈕波紋 */
+        .rpg-btn-primary, #recordForm button[type="submit"] { position: relative; overflow: hidden; }
+        .v106-ink { position: absolute; border-radius: 9999px; background: currentColor; pointer-events: none; }
+        /* 2) 高程剖面描繪（clip-path 由左到右揭開） */
+        #abrpSvgContainer.v106-reveal > svg { animation: v106DrawIn .7s ease-out both; }
+        @keyframes v106DrawIn { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+        /* 3) SOC 電池條流動紋（JS 掛 .v106-flow + 斜紋 backgroundImage） */
+        .v106-flow { animation: v106FlowMove .7s linear infinite; }
+        @keyframes v106FlowMove { to { background-position: 22.6px 0; } }
+        @media (prefers-reduced-motion: reduce) { .v106-flow, #abrpSvgContainer.v106-reveal > svg { animation: none !important; } }
+        html.lite .v106-flow, html.lite #abrpSvgContainer.v106-reveal > svg { animation: none !important; }
+        /* 6) 成就條左右邊緣淡出（提示可橫滑） */
+        #badgesContainer { -webkit-mask-image: linear-gradient(to right, transparent, black 28px, black calc(100% - 28px), transparent); mask-image: linear-gradient(to right, transparent, black 28px, black calc(100% - 28px), transparent); }
+        /* 7) 空狀態大圖示 */
+        .v106-empty-icon { display: block; font-size: 1.6rem; margin-bottom: .3rem; }
         /* v100：找站骨架卡 shimmer（只動 transform） */
         .v100-skeleton { position: relative; overflow: hidden; border-radius: 0.5rem; background: rgba(120,113,108,0.18); }
         .dark .v100-skeleton { background: rgba(255,255,255,0.10); }
@@ -923,7 +939,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v105</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v106</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1077,6 +1093,9 @@ input[type="number"] {
                 <div class="text-4xl md:text-5xl mb-2">📭</div>
                 <p class="text-xs md:text-sm font-bold">目前區間尚無紀錄喔！</p>
             </div>
+
+            <!-- v106：目前月份浮動標籤（捲動時告知正在看哪個月） -->
+            <div id="v106MonthPill" class="hidden sticky top-2 z-20 justify-center pointer-events-none mb-2"><span id="v106MonthPillText" class="text-[11px] font-extrabold text-white bg-stone-900/85 dark:bg-white/90 dark:text-stone-900 px-3 py-1 rounded-full shadow-md">—</span></div>
 
             <div id="recordMobileList" class="grid grid-cols-1 md:grid-cols-2 gap-3 pb-4 items-stretch"></div>
 
@@ -1406,7 +1425,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v105</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v106</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1896,7 +1915,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v105';
+        const APP_VERSION = 'v106';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -2546,7 +2565,7 @@ function cacheDOMNodes() {
                     ];
                     const rows = bands.map(b => { const inB = pts.filter(p => b.test(p.t)); return { label: b.label, range: b.range, n: inB.length, avg: inB.length ? inB.reduce((a, p) => a + p.y, 0) / inB.length : null }; }).filter(r => r.n > 0);
                     const maxAvg = Math.max(0, ...rows.map(r => r.avg || 0));
-                    if (!pts.length) tb.innerHTML = '<div class="text-xs text-stone-400 text-center py-4 bg-stone-50 dark:bg-neutral-900/30 rounded-xl border border-dashed border-stone-200 dark:border-stone-700">尚無氣溫紀錄（新增行程時有抓到氣溫就會累積）</div>';
+                    if (!pts.length) tb.innerHTML = '<div class="text-xs text-stone-400 text-center py-4 bg-stone-50 dark:bg-neutral-900/30 rounded-xl border border-dashed border-stone-200 dark:border-stone-700"><span class="v106-empty-icon">🌡️</span>尚無氣溫紀錄（新增行程時有抓到氣溫就會累積）</div>';
                     else tb.innerHTML = rows.map(r => '<div class="flex items-center gap-3 text-[11px] md:text-sm p-3 bg-stone-50 dark:bg-neutral-900/50 rounded-xl border border-stone-100 dark:border-stone-700/50"><span class="font-bold w-20 shrink-0 text-stone-700 dark:text-stone-200">' + r.label + '</span><span class="text-[10px] text-stone-400 w-16 shrink-0 font-mono">' + r.range + '</span><div class="flex-1 h-2 rounded-full bg-stone-200/70 dark:bg-neutral-800 overflow-hidden"><div class="h-full rounded-full bg-sky-400" style="width: ' + (maxAvg > 0 ? Math.round(r.avg / maxAvg * 100) : 0) + '%"></div></div><span class="font-mono font-extrabold text-sky-600 dark:text-sky-400 w-24 text-right shrink-0">' + r.avg.toFixed(2) + ' km/度</span><span class="text-[10px] text-stone-400 w-12 text-right shrink-0">' + r.n + ' 趟</span></div>').join('');
                 }
                 const fs = document.getElementById('favStationList');
@@ -2561,7 +2580,7 @@ function cacheDOMNodes() {
                         if (r.date && r.date > st[r.tag].last) st[r.tag].last = r.date;
                     });
                     const arr = Object.keys(st).map(tag => ({ tag, count: st[tag].count, power: st[tag].power, last: st[tag].last })).sort((a, b) => (b.count - a.count) || (b.power - a.power)).slice(0, 5);
-                    if (!arr.length) fs.innerHTML = '<div class="text-xs text-stone-400 text-center py-4 bg-stone-50 dark:bg-neutral-900/30 rounded-xl border border-dashed border-stone-200 dark:border-stone-700 md:col-span-2">區間內尚無有站點名稱的充電紀錄</div>';
+                    if (!arr.length) fs.innerHTML = '<div class="text-xs text-stone-400 text-center py-4 bg-stone-50 dark:bg-neutral-900/30 rounded-xl border border-dashed border-stone-200 dark:border-stone-700 md:col-span-2"><span class="v106-empty-icon">⚡</span>區間內尚無有站點名稱的充電紀錄</div>';
                     else fs.innerHTML = arr.map((item, i) => '<div class="flex justify-between items-start gap-3 text-[11px] md:text-sm p-3 md:p-4 bg-stone-50 dark:bg-neutral-900/50 rounded-xl border border-stone-100 dark:border-stone-700/50"><span class="font-bold flex items-start gap-2 min-w-0 flex-1 text-stone-700 dark:text-stone-200"><span class="' + (i < 3 ? 'text-teal-500' : 'text-stone-400') + ' font-extrabold w-3 md:w-4 text-center flex-shrink-0">' + (i + 1) + '</span><span class="min-w-0 flex-1 break-words leading-snug">' + escapeHTML(item.tag) + '</span></span><span class="flex-shrink-0 text-right"><span class="font-mono font-extrabold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 px-2 py-0.5 md:py-1 rounded shadow-sm inline-block">' + item.count + ' 次</span><span class="block text-[9px] font-bold text-stone-400 mt-1">累計 ' + item.power.toFixed(1) + ' 度' + (item.last ? ' · 最近 ' + item.last : '') + '</span></span></div>').join('');
                 }
             } catch (e) {}
@@ -3326,7 +3345,7 @@ window.setupSocSliders = function() {
 
             DOM.powerHintText.textContent = `共${type === "未充電" ? "消耗" : "補給"} ${delta}% 電量 (約 ${kwh.toFixed(2)} 度)`;
             const fill = document.getElementById('v91BatteryFill');
-            if (fill) { fill.style.width = Math.min(100, Math.max(0, delta)) + '%'; fill.style.background = type === "未充電" ? '#f59e0b' : '#14b8a6'; } // v91：電池條視覺化，只動樣式
+            if (fill) { fill.style.width = Math.min(100, Math.max(0, delta)) + '%'; fill.style.background = type === "未充電" ? '#f59e0b' : '#14b8a6'; const v106Charging = type !== "未充電"; fill.classList.toggle('v106-flow', v106Charging); fill.style.backgroundImage = v106Charging ? 'repeating-linear-gradient(45deg, rgba(255,255,255,0.22) 0 8px, rgba(255,255,255,0) 8px 16px)' : ''; } // v91：電池條視覺化，只動樣式；v106：充電時加流動紋
         };
 
         // v88：autoFill 只在數字框為空時填上一筆抵達 SOC；cancelEdit 已同步 20/80，所以點行程不會誤填 100 卡住
@@ -3462,7 +3481,7 @@ window.setupSocSliders = function() {
             ) + " cursor-pointer transition active:scale-[0.99] hover:border-amber-300 dark:hover:border-amber-500/50";
 
             return `
-            <div class="${cardWrapperClass}" onclick="editRecord('${safeId}')">
+            <div class="${cardWrapperClass}" data-v106-month="${safeDate.slice(0, 7)}" onclick="editRecord('${safeId}')">
                 <div class="flex-1 flex flex-col justify-between">
                     <div class="flex items-center justify-between gap-1 pb-1.5 border-b border-stone-100 dark:border-stone-800/60 mb-2 min-h-[24px]">
                         <div class="inline-flex items-center text-[13px] font-bold text-stone-800 dark:text-stone-200 tracking-tighter shrink-0">
@@ -4356,7 +4375,7 @@ window.setupSocSliders = function() {
                     tag, cp: stationStats[tag].cost / stationStats[tag].power
                 })).sort((a,b) => a.cp - b.cp).slice(0, 6); 
 
-                if (cpArr.length === 0) DOM.cpRankingList.innerHTML = '<div class="text-xs text-stone-400 text-center py-4 bg-stone-50 dark:bg-neutral-900/30 rounded-xl border border-dashed border-stone-200 dark:border-stone-700 md:col-span-2">區間內尚無足夠的充電花費數據</div>';
+                if (cpArr.length === 0) DOM.cpRankingList.innerHTML = '<div class="text-xs text-stone-400 text-center py-4 bg-stone-50 dark:bg-neutral-900/30 rounded-xl border border-dashed border-stone-200 dark:border-stone-700 md:col-span-2"><span class="v106-empty-icon">🏆</span>區間內尚無足夠的充電花費數據</div>';
                 else {
                     DOM.cpRankingList.innerHTML = cpArr.map((item, i) => `
                         <div class="flex justify-between items-start gap-3 text-[11px] md:text-sm p-3 md:p-4 bg-stone-50 dark:bg-neutral-900/50 rounded-xl border border-stone-100 dark:border-stone-700/50 hover:bg-stone-100 dark:hover:bg-neutral-800 transition">
@@ -7783,6 +7802,90 @@ function updateAbrpElevScrub(pct) {
             const clear = () => document.querySelectorAll('.v105-press').forEach(c => setTimeout(() => c.classList.remove('v105-press'), 180));
             document.addEventListener('pointerup', clear, { passive: true });
             document.addEventListener('pointercancel', clear, { passive: true });
+        })();
+    })();
+    </script>
+
+    <script>
+    // === v106 特效與版面第二批 ===
+    (function() {
+        const reduced = () => { try { return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
+        const isLite = () => document.documentElement.classList.contains('lite');
+
+        // 1) 按鈕波紋（主要按鈕：開始路線模擬、儲存紀錄）
+        document.addEventListener('pointerdown', e => {
+            if (isLite() || reduced()) return;
+            const b = e.target.closest && e.target.closest('.rpg-btn-primary, #recordForm button[type="submit"]');
+            if (!b) return;
+            try {
+                const r = b.getBoundingClientRect();
+                const d = Math.max(r.width, r.height) * 2.2;
+                const ink = document.createElement('span');
+                ink.className = 'v106-ink';
+                ink.style.width = d + 'px'; ink.style.height = d + 'px';
+                ink.style.left = (e.clientX - r.left) + 'px'; ink.style.top = (e.clientY - r.top) + 'px';
+                b.appendChild(ink);
+                const a = ink.animate([{ transform: 'translate(-50%,-50%) scale(0)', opacity: 0.20 }, { transform: 'translate(-50%,-50%) scale(1)', opacity: 0 }], { duration: 550, easing: 'ease-out' });
+                a.onfinish = () => ink.remove();
+                setTimeout(() => ink.remove(), 750);
+            } catch (err) {}
+        }, { passive: true });
+
+        // 2) 高程剖面描繪：SVG 更新或 HUD 卡顯示時重播由左到右揭開
+        (function initProfileReveal() {
+            const box = document.getElementById('abrpSvgContainer');
+            const card = document.getElementById('abrpElevationHudCard');
+            if (!box) return;
+            let deb = null;
+            const play = () => {
+                if (isLite() || reduced()) return;
+                if (!box.querySelector('svg')) return;
+                if (card && card.classList.contains('hidden')) return;
+                box.classList.remove('v106-reveal');
+                void box.offsetWidth;
+                box.classList.add('v106-reveal');
+            };
+            const sched = () => { clearTimeout(deb); deb = setTimeout(play, 60); };
+            new MutationObserver(sched).observe(box, { childList: true });
+            if (card) new MutationObserver(sched).observe(card, { attributes: true, attributeFilter: ['class'] });
+        })();
+
+        // 4) Hero 大圖載入淡入（src 變化時重新淡入；JS 沒跑時不影響顯示）
+        (function initHeroFade() {
+            const img = document.getElementById('heroImageDisplay');
+            if (!img) return;
+            img.style.transition = 'opacity .6s ease';
+            img.style.opacity = '0';
+            const show = () => { img.style.opacity = '1'; };
+            if (img.complete && img.naturalWidth > 0) requestAnimationFrame(show);
+            img.addEventListener('load', show);
+            img.addEventListener('error', show);
+            new MutationObserver(() => { img.style.opacity = '0'; if (img.complete && img.naturalWidth > 0) requestAnimationFrame(show); }).observe(img, { attributes: true, attributeFilter: ['src'] });
+        })();
+
+        // 5) 紀錄頁目前月份浮動標籤
+        (function initMonthPill() {
+            const pill = document.getElementById('v106MonthPill');
+            const txt = document.getElementById('v106MonthPillText');
+            const list = document.getElementById('recordMobileList');
+            if (!pill || !txt || !list) return;
+            let tick = false;
+            const fmt = ym => { const p = (ym || '').split('-'); return p.length === 2 ? p[0] + ' 年 ' + parseInt(p[1], 10) + ' 月' : ym; };
+            const update = () => {
+                tick = false;
+                const view = document.getElementById('view-records');
+                if (!view || view.classList.contains('hidden') || list.classList.contains('hidden')) { pill.classList.add('hidden'); pill.classList.remove('flex'); return; }
+                const cards = list.querySelectorAll('[data-v106-month]');
+                if (!cards.length) { pill.classList.add('hidden'); pill.classList.remove('flex'); return; }
+                let cur = cards[0].dataset.v106Month;
+                for (const c of cards) { cur = c.dataset.v106Month; if (c.getBoundingClientRect().bottom > 110) break; }
+                txt.textContent = fmt(cur);
+                pill.classList.remove('hidden'); pill.classList.add('flex');
+            };
+            const onScroll = () => { if (!tick) { tick = true; requestAnimationFrame(update); } };
+            window.addEventListener('scroll', onScroll, { passive: true });
+            new MutationObserver(onScroll).observe(list, { childList: true });
+            setTimeout(update, 800);
         })();
     })();
     </script>
