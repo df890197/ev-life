@@ -289,6 +289,16 @@ input[type="number"] {
         }
         .lite #heroImageDisplay, .lite #homeStatsContainer > * { animation: none !important; }
         .lite #homeStatsContainer .soc-progress-track::after { display: none; }
+        /* v100：找站骨架卡 shimmer（只動 transform） */
+        .v100-skeleton { position: relative; overflow: hidden; border-radius: 0.5rem; background: rgba(120,113,108,0.18); }
+        .dark .v100-skeleton { background: rgba(255,255,255,0.10); }
+        .v100-skeleton::after { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, transparent, rgba(255,255,255,0.5), transparent); transform: translateX(-100%); animation: v100SkeletonShine 1.3s ease-in-out infinite; }
+        @keyframes v100SkeletonShine { to { transform: translateX(100%); } }
+        @media (prefers-reduced-motion: reduce) { .v100-skeleton::after { animation: none !important; } }
+        .lite .v100-skeleton::after { animation: none !important; }
+        /* v100：主題偏好 segmented 選中樣式 */
+        .v100-theme-btn.v100-theme-on { background: #ffffff; color: #1c1917; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+        .dark .v100-theme-btn.v100-theme-on { background: #404040; color: #ffffff; }
         .rpg-card { background: #ffffff; border: 1px solid rgba(231, 229, 228, 0.85); box-shadow: 0 8px 24px -12px rgba(60, 50, 40, 0.08); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease; position: relative; overflow: hidden; }
         /* v27 流暢優化：深色卡片拿掉 backdrop-filter（每張卡捲動時都要重算模糊），漸層底色已接近不透，視覺幾乎不變 */
         .dark .rpg-card { background: linear-gradient(145deg, rgba(23, 23, 23, 0.7) 0%, rgba(0, 0, 0, 0.9) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-top-color: rgba(255, 255, 255, 0.12); box-shadow: 0 15px 35px -15px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.05); }
@@ -546,7 +556,7 @@ input[type="number"] {
         (function() {
             try {
                 var theme = localStorage.getItem('ev_life_theme');
-                var isDark = theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                var isDark = theme === 'dark' || (theme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches); // v100：'auto' 或未設定 = 跟隨系統
                 if (isDark) { document.documentElement.classList.add('dark'); }
                 else { document.documentElement.classList.remove('dark'); }
             } catch (e) {}
@@ -888,7 +898,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v99</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v100</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1220,6 +1230,16 @@ input[type="number"] {
                 </div>
                 <div class="p-6 md:p-8 space-y-6">
                     <div id="settings-tab-main" class="space-y-6">
+                        <!-- v100：外觀主題（跟隨系統／淺色／深色） -->
+                        <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
+                            <span class="text-xs md:text-sm font-extrabold text-stone-500 dark:text-stone-400">🌗 外觀主題</span>
+                            <div class="flex items-center bg-stone-200/70 dark:bg-neutral-900 p-1 rounded-xl text-xs font-extrabold">
+                                <button type="button" id="themePref-auto" onclick="setThemePref('auto')" class="v100-theme-btn flex-1 py-2 rounded-lg text-stone-500 dark:text-stone-400 transition-colors">跟隨系統</button>
+                                <button type="button" id="themePref-light" onclick="setThemePref('light')" class="v100-theme-btn flex-1 py-2 rounded-lg text-stone-500 dark:text-stone-400 transition-colors">淺色</button>
+                                <button type="button" id="themePref-dark" onclick="setThemePref('dark')" class="v100-theme-btn flex-1 py-2 rounded-lg text-stone-500 dark:text-stone-400 transition-colors">深色</button>
+                            </div>
+                            <p class="text-[10px] text-stone-400 font-bold">「跟隨系統」會跟著手機／電腦的深色模式自動切換；右上角的 ☀️／🌙 按鈕仍可快速手動切換（會改成手動模式）。</p>
+                        </div>
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-4">
                             <span class="text-xs md:text-sm font-extrabold text-stone-500 dark:text-stone-400">🚗 愛車參數設定</span>
                             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -1332,7 +1352,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v99</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v100</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1560,6 +1580,15 @@ input[type="number"] {
     <button type="button" onclick="planElectricRoute()" class="w-full rpg-btn-primary py-2.5 rounded-xl text-xs font-extrabold shadow-sm active:scale-95 transition flex items-center justify-center gap-1.5">
         <span>⚡</span><span>開始路線模擬</span>
     </button>
+
+    <!-- v100：常用路線（存 localStorage，最多 6 條；點 chip 帶入起終點，✕ 刪除） -->
+    <div class="pt-1">
+        <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[10px] font-bold text-stone-400">⭐ 常用路線</span>
+            <button type="button" onclick="saveFavRoute()" class="text-[10px] bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 px-2 py-1 rounded-md font-bold active:scale-95 transition">＋ 儲存目前起終點</button>
+        </div>
+        <div id="favRoutesContainer" class="flex flex-wrap gap-1.5"></div>
+    </div>
 </div>
                 </div>
 
@@ -1653,6 +1682,11 @@ input[type="number"] {
                                 <span>預估均耗: <span id="pkEff1" class="font-mono text-teal-500">-</span></span>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- v100：複製行程摘要 -->
+                    <div class="flex items-center justify-end">
+                        <button type="button" onclick="copyRouteSummary()" class="text-[10px] md:text-xs bg-stone-800 text-white dark:bg-neutral-800 dark:text-stone-200 px-2.5 py-1.5 rounded-lg shadow-sm font-bold active:scale-95 transition flex items-center gap-1">📋 複製行程摘要</button>
                     </div>
 
                     <!-- 主數據三大面板 -->
@@ -1808,7 +1842,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v99';
+        const APP_VERSION = 'v100';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -2189,7 +2223,41 @@ function cacheDOMNodes() {
             }
             setupThemeIcons();
             debouncedUpdateCharts();
+            if (typeof window.syncThemePrefUi === 'function') window.syncThemePrefUi(); // v100：手動切換後同步設定頁偏好按鈕
         };
+
+        // v100：主題偏好 — 跟隨系統（'auto'／未設定）／淺色（'light'）／深色（'dark'），存 ev_life_theme
+        window.syncThemePrefUi = function() {
+            try {
+                const pref = localStorage.getItem('ev_life_theme') || 'auto';
+                ['auto', 'light', 'dark'].forEach(k => {
+                    const b = document.getElementById('themePref-' + k);
+                    if (b) b.classList.toggle('v100-theme-on', pref === k);
+                });
+            } catch (e) {}
+        };
+        window.applyThemePref = function(pref, save) {
+            try {
+                if (save) localStorage.setItem('ev_life_theme', pref);
+                const sysDark = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                const isDark = pref === 'dark' || (pref !== 'light' && sysDark);
+                document.documentElement.classList.toggle('dark', isDark);
+                setupThemeIcons();
+                window.syncThemePrefUi();
+                debouncedUpdateCharts();
+            } catch (e) {}
+        };
+        window.setThemePref = function(pref) {
+            window.applyThemePref(pref, true);
+            showToast(pref === 'auto' ? '主題：跟隨系統 🌗' : (pref === 'dark' ? '主題：深色 🌙' : '主題：淺色 ☀️'));
+        };
+        try {
+            const v100Mq = window.matchMedia('(prefers-color-scheme: dark)');
+            const v100OnSysTheme = () => { const p = localStorage.getItem('ev_life_theme'); if (!p || p === 'auto') window.applyThemePref(p || 'auto', false); };
+            if (v100Mq.addEventListener) v100Mq.addEventListener('change', v100OnSysTheme);
+            else if (v100Mq.addListener) v100Mq.addListener(v100OnSysTheme);
+        } catch (e) {}
+        setTimeout(() => { if (typeof window.syncThemePrefUi === 'function') window.syncThemePrefUi(); }, 0);
 
         window.handleHeroImageUpload = function(event) {
             const file = event.target.files[0];
@@ -2334,6 +2402,103 @@ function cacheDOMNodes() {
                     setTimeout(() => { s.remove(); }, 950);
                 }
             } catch (e) {}
+        };
+        // v100：常用路線（localStorage 'ev_life_fav_routes'，最多 6 條）
+        window.getFavRoutes = function() {
+            try { const a = JSON.parse(localStorage.getItem('ev_life_fav_routes') || '[]'); return Array.isArray(a) ? a.filter(r => r && r.start && r.end) : []; } catch (e) { return []; }
+        };
+        window.renderFavRoutes = function() {
+            try {
+                const box = document.getElementById('favRoutesContainer');
+                if (!box) return;
+                const list = window.getFavRoutes();
+                box.innerHTML = '';
+                if (!list.length) {
+                    const hint = document.createElement('span');
+                    hint.className = 'text-[10px] text-stone-400 font-bold';
+                    hint.textContent = '還沒有常用路線，填好起終點後按「＋ 儲存目前起終點」';
+                    box.appendChild(hint);
+                    return;
+                }
+                list.forEach((r, i) => {
+                    const chip = document.createElement('button');
+                    chip.type = 'button';
+                    chip.className = 'flex items-center gap-1.5 max-w-full bg-white dark:bg-neutral-900 border border-stone-200 dark:border-stone-700 rounded-full pl-3 pr-2 py-1.5 text-[11px] font-bold text-stone-700 dark:text-stone-200 shadow-sm active:scale-95 transition';
+                    chip.title = r.start + ' → ' + r.end;
+                    const label = document.createElement('span');
+                    label.className = 'truncate';
+                    label.textContent = r.start + ' → ' + r.end;
+                    const del = document.createElement('span');
+                    del.className = 'shrink-0 w-4 h-4 rounded-full bg-stone-100 dark:bg-neutral-800 text-stone-400 flex items-center justify-center text-[9px]';
+                    del.textContent = '✕';
+                    del.onclick = (ev) => { ev.stopPropagation(); window.deleteFavRoute(i); };
+                    chip.appendChild(label);
+                    chip.appendChild(del);
+                    chip.onclick = () => window.applyFavRoute(i);
+                    box.appendChild(chip);
+                });
+            } catch (e) {}
+        };
+        window.saveFavRoute = function() {
+            try {
+                const s = (document.getElementById('routeStartInput')?.value || '').trim();
+                const e = (document.getElementById('routeEndInput')?.value || '').trim();
+                if (!s || !e) { showToast('請先填好出發地與目的地！📍', true); if (!s && typeof window.shakeV83 === 'function') window.shakeV83(document.getElementById('routeStartInput')); if (!e && typeof window.shakeV83 === 'function') window.shakeV83(document.getElementById('routeEndInput')); return; }
+                const list = window.getFavRoutes();
+                if (list.some(r => r.start === s && r.end === e)) { showToast('這條路線已經存過了 ⭐'); return; }
+                list.unshift({ start: s, end: e });
+                while (list.length > 6) list.pop();
+                localStorage.setItem('ev_life_fav_routes', JSON.stringify(list));
+                window.renderFavRoutes();
+                showToast('已儲存常用路線 ⭐');
+            } catch (e) {}
+        };
+        window.applyFavRoute = function(i) {
+            try {
+                const r = window.getFavRoutes()[i];
+                if (!r) return;
+                const si = document.getElementById('routeStartInput');
+                const ei = document.getElementById('routeEndInput');
+                if (si) si.value = r.start;
+                if (ei) ei.value = r.end;
+                if (typeof toggleRouteClearBtn === 'function') { toggleRouteClearBtn('routeStartInput', 'btnClearStart'); toggleRouteClearBtn('routeEndInput', 'btnClearEnd'); }
+                showToast('已帶入常用路線 ⭐');
+            } catch (e) {}
+        };
+        window.deleteFavRoute = function(i) {
+            try {
+                const list = window.getFavRoutes();
+                list.splice(i, 1);
+                localStorage.setItem('ev_life_fav_routes', JSON.stringify(list));
+                window.renderFavRoutes();
+            } catch (e) {}
+        };
+        // v100：複製行程摘要（clipboard 優先，失敗退回 textarea 傳統複製，iOS Safari 也可用）
+        window.copyRouteSummary = async function() {
+            try {
+                const s = (document.getElementById('routeStartInput')?.value || '').trim() || '起點';
+                const e = (document.getElementById('routeEndInput')?.value || '').trim() || '終點';
+                const clean = (el) => el ? (el.innerText || '').replace(/\s+/g, ' ').trim() : '';
+                const dist = clean(document.getElementById('abrpTotalDist'));
+                const dur = clean(document.getElementById('abrpDriveDuration'));
+                const soc = clean(document.getElementById('abrpDirectSoc'));
+                const startSoc = document.getElementById('routeStartSoc')?.value || '';
+                let recText = clean(document.getElementById('abrpRecommendationCard'));
+                if (recText.length > 160) recText = recText.slice(0, 160) + '…';
+                const lines = ['🚗 Ev Life 行程摘要', s + ' → ' + e, '總里程 ' + dist + ' · 行車時間 ' + dur, '出發 ' + startSoc + '% · 直達剩餘 ' + soc];
+                if (recText) lines.push('補給建議：' + recText);
+                const text = lines.join('\n');
+                let ok = false;
+                if (navigator.clipboard && window.isSecureContext) { try { await navigator.clipboard.writeText(text); ok = true; } catch (e) {} }
+                if (!ok) {
+                    const ta = document.createElement('textarea');
+                    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+                    document.body.appendChild(ta); ta.select();
+                    try { ok = document.execCommand('copy'); } catch (e) {}
+                    ta.remove();
+                }
+                showToast(ok ? '已複製行程摘要 📋' : '複製失敗，請再試一次', !ok);
+            } catch (e) { showToast('複製失敗，請再試一次', true); }
         };
         let switchTabIndicatorRaf = 0;
         let previousTabBeforeAdd = 'home'; // v72：進入新增頁之前的分頁，X 用來回到上一頁
@@ -4998,6 +5163,7 @@ window.toggleAbrpPowerFilter = function(type) {
 window.openAbrpModal = function() {
     const modal = document.getElementById('abrpModal');
     if (!modal) return;
+    if (typeof window.renderFavRoutes === 'function') window.renderFavRoutes(); // v100：常用路線 chips
 
     // 🔒 鎖定背景頁面滾動，防止上下拉動時背景晃動、前景不動
     document.body.style.overflow = 'hidden';
@@ -6695,10 +6861,13 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
             地形判定：<b>${routeProfileText}</b>（均耗 <b>${realEff.toFixed(2)} km/度</b>，共 ${totalDistanceKm.toFixed(1)} km）
         </div>
         <div id="abrpStopRecommendation" class="text-[11px] pt-1">
-            <div class="min-h-[90px] flex items-center justify-center bg-white/50 dark:bg-black/20 rounded-xl border border-amber-200/50 dark:border-amber-700/30 p-3">
-                <div class="animate-pulse flex items-center gap-2 text-amber-700 dark:text-amber-400 font-bold">
+            <div class="min-h-[90px] bg-white/50 dark:bg-black/20 rounded-xl border border-amber-200/50 dark:border-amber-700/30 p-3 space-y-2.5">
+                <div class="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-bold">
                     <span class="animate-spin text-base">⏳</span> 正在尋找路徑上的最佳快充站點...
                 </div>
+                <div class="v100-skeleton h-3.5 w-2/5"></div>
+                <div class="v100-skeleton h-3 w-4/5"></div>
+                <div class="flex gap-2"><div class="v100-skeleton h-5 w-20" style="border-radius: 9999px;"></div><div class="v100-skeleton h-5 w-20" style="border-radius: 9999px;"></div></div>
             </div>
         </div>
     `;
