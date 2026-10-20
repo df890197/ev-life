@@ -951,7 +951,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v117</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v118</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1437,7 +1437,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v117</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v118</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1929,7 +1929,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v117';
+        const APP_VERSION = 'v118';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -7926,28 +7926,22 @@ function updateAbrpElevScrub(pct) {
             const box = document.getElementById('abrpSvgContainer');
             const card = document.getElementById('abrpElevationHudCard');
             if (!box) return;
-            let deb = null;
-            let lastStamp = '', animStart = 0;
-            const stamp = () => { const p = box.querySelector('svg path'); const d = p ? (p.getAttribute('d') || '') : ''; return d.length + ':' + d.slice(0, 24); };
+            // v118：動畫只由 play() 啟動一次 — play() 以 rAF 觸發（同幀合併兩個 Observer 的排程），
+            // 播完 760ms 自動移除 v106-reveal class。class 不常駐後，innerHTML 換新 SVG 時 CSS 不會再
+            // 自動搶先啟動一次動畫（v106–v117 的「跑到約 10% 又從頭」就是自動啟動＋play() 重啟疊加）。
+            let queued = false, endTimer = null;
             const play = () => {
+                queued = false;
                 if (isLite() || reduced()) return;
                 if (!box.querySelector('svg')) return;
                 if (card && card.classList.contains('hidden')) return;
-                // v117：同一次繪製會經兩個 MutationObserver 重複排程重播，第二次執行會把 CSS 動畫從 0 重啟
-                // （實測症狀：揭開跑到約 10% 又從頭跑）。同一張剖面且動畫還在跑（<700ms）時忽略重複觸發；
-                // 剖面內容真的換了（指紋不同）才重播。觸發紀錄留在 window._v117RevealLog 供複驗。
-                const s = stamp();
-                const now = performance.now();
-                window._v117RevealLog = window._v117RevealLog || [];
-                if (s && s === lastStamp && now - animStart < 700) { window._v117RevealLog.push({ t: new Date().toLocaleTimeString(), note: 'skip-restart' }); if (window._v117RevealLog.length > 8) window._v117RevealLog.shift(); return; }
-                lastStamp = s; animStart = now;
-                window._v117RevealLog.push({ t: new Date().toLocaleTimeString(), note: 'play' });
-                if (window._v117RevealLog.length > 8) window._v117RevealLog.shift();
                 box.classList.remove('v106-reveal');
                 void box.offsetWidth;
                 box.classList.add('v106-reveal');
+                clearTimeout(endTimer);
+                endTimer = setTimeout(() => box.classList.remove('v106-reveal'), 760);
             };
-            const sched = () => { clearTimeout(deb); deb = setTimeout(play, 60); };
+            const sched = () => { if (queued) return; queued = true; requestAnimationFrame(play); };
             new MutationObserver(sched).observe(box, { childList: true });
             if (card) new MutationObserver(sched).observe(card, { attributes: true, attributeFilter: ['class'] });
         })();
