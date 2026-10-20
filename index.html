@@ -330,6 +330,18 @@ input[type="number"] {
         #badgesContainer { -webkit-mask-image: linear-gradient(to right, transparent, black 28px, black calc(100% - 28px), transparent); mask-image: linear-gradient(to right, transparent, black 28px, black calc(100% - 28px), transparent); }
         /* 7) 空狀態大圖示 */
         .v106-empty-icon { display: block; font-size: 1.6rem; margin-bottom: .3rem; }
+        /* === v107：顏色三項調整 === */
+        /* 1) 淺色模式：stone-400 小字標籤升一階到 stone-500（對比 2.6:1 → 約 4:1，強光下可讀）；深色模式不動 */
+        html:not(.dark) .text-stone-400 { color: #78716c !important; }
+        /* 3) 深色主色降一階：tab 選中與 SOC 泡泡 #2dd4bf → #14b8a6（圖表資料色不動） */
+        .dark .tab-btn.active { color: #14b8a6; }
+        .dark .bubble-teal { background: #14b8a6; }
+        .dark .bubble-teal::after { border-color: #14b8a6 transparent transparent transparent; }
+        /* === v109：底部 bar 滑動 pill（比照分析頁 seg pill 的彈簧曲線） === */
+        #v109TabPill { position: absolute; border-radius: 9999px; background: #3a3a3c; z-index: 1; pointer-events: none; opacity: 0; transition: left .45s cubic-bezier(0.34,1.56,0.64,1), width .45s cubic-bezier(0.34,1.56,0.64,1), top .45s cubic-bezier(0.34,1.56,0.64,1), height .45s cubic-bezier(0.34,1.56,0.64,1), opacity .2s ease; will-change: left, width, top; }
+        nav.v81-snap-bar .tab-btn.active { background: transparent !important; }
+        html.lite #v109TabPill { transition: opacity .2s ease; }
+        @media (prefers-reduced-motion: reduce) { #v109TabPill { transition: opacity .2s ease; } }
         /* v100：找站骨架卡 shimmer（只動 transform） */
         .v100-skeleton { position: relative; overflow: hidden; border-radius: 0.5rem; background: rgba(120,113,108,0.18); }
         .dark .v100-skeleton { background: rgba(255,255,255,0.10); }
@@ -824,7 +836,7 @@ input[type="number"] {
                         <!-- 頂部標題與裝飾標籤 -->
                         <div class="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-stone-700/60">
                             <div class="flex items-center gap-2.5">
-                                <span class="bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 w-8 h-8 rounded-xl flex items-center justify-center text-sm shadow-sm">🔧</span>
+                                <span class="bg-teal-100 dark:bg-teal-900/40 text-teal-600 dark:text-teal-400 w-8 h-8 rounded-xl flex items-center justify-center text-sm shadow-sm">🔧</span>
                                 <div>
                                     <h3 class="text-xs md:text-sm font-extrabold text-stone-800 dark:text-white">車輛保養與用車排程</h3>
                                     <p class="text-[10px] text-stone-400 font-bold">即時追蹤里程週期與重要到期日</p>
@@ -939,7 +951,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v106</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v109</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1119,7 +1131,7 @@ input[type="number"] {
             <div class="rpg-card bg-white dark:bg-neutral-900 p-5 sm:p-8 rounded-[1.5rem]">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
                     <h2 class="text-base md:text-xl font-extrabold flex items-center gap-2">
-                        <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 w-7 h-7 md:w-8 md:h-8 rounded-[0.65rem] flex items-center justify-center text-xs md:text-sm">📊</span>
+                        <span class="bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 w-7 h-7 md:w-8 md:h-8 rounded-[0.65rem] flex items-center justify-center text-xs md:text-sm">📊</span>
                         趨勢分析
                     </h2>
 
@@ -1231,7 +1243,7 @@ input[type="number"] {
                 <div class="mb-6 bg-stone-50 dark:bg-neutral-900/50 p-4 md:p-5 rounded-2xl border border-stone-100 dark:border-stone-700/50">
                     <div class="flex items-center justify-between mb-3">
                         <h3 class="text-sm md:text-base font-extrabold text-stone-700 dark:text-stone-200 flex items-center gap-2"><span class="bg-teal-100 dark:bg-teal-900/30 text-teal-600 w-6 h-6 md:w-8 md:h-8 rounded-[0.65rem] flex items-center justify-center text-[10px] md:text-sm">📅</span> 每月月報 <span id="monthlyReportMonth" class="text-[10px] md:text-xs text-stone-400 font-bold"></span></h3>
-                        <span class="text-[10px] text-stone-400 font-bold">徽章為與上月比較</span>
+                        <span class="text-[10px] text-stone-400 font-bold">固定本月 vs 上月（與上方月份篩選無關）</span>
                     </div>
                     <div id="monthlyReport" class="grid grid-cols-2 sm:grid-cols-5 gap-2.5"></div>
                 </div>
@@ -1243,7 +1255,7 @@ input[type="number"] {
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8 pt-8 border-t border-stone-100 dark:border-stone-800">
                     <div>
                         <h3 class="text-sm md:text-base font-extrabold text-stone-700 dark:text-stone-200 mb-4 flex items-center gap-2">
-                            <span class="bg-rose-100 dark:bg-rose-900/30 text-rose-500 w-6 h-6 md:w-8 md:h-8 rounded-[0.65rem] flex items-center justify-center text-[10px] md:text-sm">🍩</span>
+                            <span class="bg-amber-100 dark:bg-amber-900/30 text-amber-500 w-6 h-6 md:w-8 md:h-8 rounded-[0.65rem] flex items-center justify-center text-[10px] md:text-sm">🍩</span>
                             全方位養車成本分佈
                         </h3>
                         <div class="h-56 md:h-72 relative w-full flex justify-center bg-stone-50 dark:bg-neutral-900/40 rounded-2xl p-2 border border-stone-100 dark:border-stone-700/50">
@@ -1252,7 +1264,7 @@ input[type="number"] {
                     </div>
                     <div>
                         <h3 class="text-sm md:text-base font-extrabold text-stone-700 dark:text-stone-200 mb-4 flex items-center gap-2">
-                            <span class="bg-sky-100 dark:bg-sky-900/30 text-sky-500 w-6 h-6 md:w-8 md:h-8 rounded-[0.65rem] flex items-center justify-center text-[10px] md:text-sm">🌡️</span>
+                            <span class="bg-teal-100 dark:bg-teal-900/30 text-teal-600 w-6 h-6 md:w-8 md:h-8 rounded-[0.65rem] flex items-center justify-center text-[10px] md:text-sm">🌡️</span>
                             氣溫 vs 電耗關聯圖
                         </h3>
                         <div class="h-56 md:h-72 relative w-full flex justify-center bg-stone-50 dark:bg-neutral-900/40 rounded-2xl p-2 border border-stone-100 dark:border-stone-700/50">
@@ -1264,7 +1276,7 @@ input[type="number"] {
                 <!-- v101：氣溫區間平均電耗（上方散佈圖的區間平均版，同一批行程紀錄） -->
                 <div class="mt-8 pt-8 border-t border-stone-100 dark:border-stone-800">
                     <h3 class="text-sm md:text-base font-extrabold text-stone-700 dark:text-stone-200 mb-4 flex items-center gap-2">
-                        <span class="bg-sky-100 dark:bg-sky-900/30 text-sky-500 w-6 h-6 md:w-8 md:h-8 rounded-[0.65rem] flex items-center justify-center text-[10px] md:text-sm">🌡️</span>
+                        <span class="bg-teal-100 dark:bg-teal-900/30 text-teal-600 w-6 h-6 md:w-8 md:h-8 rounded-[0.65rem] flex items-center justify-center text-[10px] md:text-sm">🌡️</span>
                         氣溫區間平均電耗
                     </h3>
                     <div id="tempBandSummary" class="space-y-2"></div>
@@ -1425,7 +1437,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v106</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v109</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1800,6 +1812,7 @@ input[type="number"] {
     <nav class="fixed left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[calc(100%-2rem)] md:max-w-2xl z-50 rounded-[2rem] ios-27-glass px-2 floating-nav v81-snap-bar t-resize">
         <div class="flex justify-around items-center h-16 md:h-20 max-w-md md:max-w-full mx-auto relative" id="nav-container">
             <div id="liquid-indicator" class="liquid-indicator opacity-0 absolute top-1/2 -translate-y-1/2 left-0 w-14 md:h-16 md:rounded-full"></div>
+            <div id="v109TabPill"></div>
 
             <button onclick="switchTab('home')" id="tab-home" class="tab-btn active flex flex-col items-center gap-1 w-14 md:w-20 text-slate-500 dark:text-slate-400 cursor-pointer">
                 <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
@@ -1915,7 +1928,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v106';
+        const APP_VERSION = 'v109';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -2537,7 +2550,8 @@ function cacheDOMNodes() {
                     const mLabel = document.getElementById('monthlyReportMonth');
                     if (mLabel) mLabel.textContent = curKey.replace('-', ' 年 ') + ' 月';
                     const chip = (cv, lv, invert) => {
-                        if (cv === null || cv === undefined || lv === null || lv === undefined || !isFinite(lv) || lv === 0) return '<span class="text-[9px] font-bold text-stone-400">上月無資料</span>';
+                        if (cv === null || cv === undefined || !isFinite(cv)) return '<span class="text-[9px] font-bold text-stone-400">本月無資料</span>'; // v108：本月缺資料
+                        if (lv === null || lv === undefined || !isFinite(lv) || lv === 0) return '<span class="text-[9px] font-bold text-stone-400">上月無資料</span>'; // v108：上月缺資料
                         const pct = (cv - lv) / Math.abs(lv) * 100;
                         if (Math.abs(pct) < 0.05) return '<span class="text-[9px] font-bold text-stone-400">與上月持平</span>';
                         const up = pct > 0;
@@ -2674,7 +2688,7 @@ function cacheDOMNodes() {
             const activeBtn = document.getElementById('tab-' + tabId);
             if (activeBtn && tabId !== 'add') activeBtn.classList.add('active');
             if (switchTabIndicatorRaf) cancelAnimationFrame(switchTabIndicatorRaf);
-            switchTabIndicatorRaf = requestAnimationFrame(() => { switchTabIndicatorRaf = 0; updateLiquidIndicator(tabId); });
+            switchTabIndicatorRaf = requestAnimationFrame(() => { switchTabIndicatorRaf = 0; updateLiquidIndicator(tabId); if (typeof window.v109MoveTabPill === 'function') window.v109MoveTabPill(tabId); }); // v109：底部 bar 滑動 pill
             setTimeout(cacheTabMetrics, 350); // v32：動畫跑完後刷新座標快取，下次切換直接用
 
             if (tabId === 'home') { setTimeout(() => { if (typeof window.playV99Progress === 'function') window.playV99Progress(); }, 60); } // v99：回首頁重播進度條流光
@@ -7888,6 +7902,29 @@ function updateAbrpElevScrub(pct) {
             setTimeout(update, 800);
         })();
     })();
+    </script>
+
+    <script>
+    // === v109：底部 bar 滑動 pill ===
+    window.v109MoveTabPill = function(tabId) {
+        try {
+            const pill = document.getElementById('v109TabPill');
+            if (!pill) return;
+            let id = tabId;
+            if (!id) { const a = document.querySelector('.tab-btn.active'); id = a ? a.id.replace('tab-', '') : 'home'; }
+            if (id === 'add') { pill.style.opacity = '0'; return; }
+            const btn = document.getElementById('tab-' + id);
+            if (!btn) { pill.style.opacity = '0'; return; }
+            pill.style.left = btn.offsetLeft + 'px';
+            pill.style.top = btn.offsetTop + 'px';
+            pill.style.width = btn.offsetWidth + 'px';
+            pill.style.height = btn.offsetHeight + 'px';
+            pill.style.opacity = '1';
+        } catch (e) {}
+    };
+    window.addEventListener('resize', () => { if (typeof window.v109MoveTabPill === 'function') window.v109MoveTabPill(); });
+    setTimeout(() => window.v109MoveTabPill(), 350);
+    setTimeout(() => window.v109MoveTabPill(), 1200);
     </script>
 </body>
 </html>
