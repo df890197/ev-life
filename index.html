@@ -646,31 +646,28 @@ input[type="number"] {
             background: radial-gradient(120% 100% at 50% 0%, var(--v127amb, rgba(45,212,191,0)) 0%, transparent 70%); opacity: .55; transition: background 1.2s ease; }
         .dark body::after { opacity: .38; }
         /* 5) 進度條液光：填充上有一道緩慢流動的光（低調、持續） */
-        .soc-progress-track > div { position: relative; }
+        .soc-progress-track > div { position: relative; overflow: hidden; }
         .soc-progress-track > div::after { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
             background: linear-gradient(100deg, transparent 25%, rgba(255,255,255,0.38) 50%, transparent 75%);
-            background-size: 220% 100%; animation: v127Flow 3.6s linear infinite; }
-        @keyframes v127Flow { 0% { background-position: 130% 0; } 100% { background-position: -130% 0; } }
-        /* 6) 分析卡光澤掃過（switchTab 進分析頁時加 .v127-shine，播一次） */
-        #view-analysis .rpg-card.v127-shine { position: relative; overflow: hidden; }
-        #view-analysis .rpg-card.v127-shine::after { content: ''; position: absolute; inset: 0; pointer-events: none;
-            background: linear-gradient(105deg, transparent 32%, rgba(255,255,255,0.30) 50%, transparent 68%);
-            transform: translateX(-130%); animation: v127Shine 0.95s ease-out var(--v127d, 0ms) forwards; }
-        @keyframes v127Shine { to { transform: translateX(130%); } }
+            transform: translateX(-130%); animation: v127Flow 3.6s linear infinite; }
+        /* v129：改 transform 位移（引擎精確）；不用 background-position 百分比（同滑桿流光的中途瞬移問題）。 */
+        @keyframes v127Flow { 0% { transform: translateX(-130%); } 100% { transform: translateX(130%); } }
         /* 7) 剖面 scrub 標記發光（拖動時容器加 .v127-scrubbing） */
         .v127-scrubbing #abrpElevScrubDot { filter: drop-shadow(0 0 7px rgba(45,212,191,0.95)) drop-shadow(0 0 2px rgba(45,212,191,0.9)); }
         .v127-scrubbing #abrpElevScrubLine { stroke: rgba(45,212,191,0.9); }
         /* 滑桿：氣泡退場（display:none 保底）＋填充流光＋thumb 光暈 */
         .slider-bubble { display: none !important; }
         input[type=range]::-webkit-slider-runnable-track { background:
-            linear-gradient(100deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.55) 50%, rgba(255,255,255,0) 70%) 0 0 / 220% 100%,
+            linear-gradient(100deg, rgba(255,255,255,0) 12%, rgba(255,255,255,0.55) 50%, rgba(255,255,255,0) 88%) -180px 0 / 180px 100% no-repeat,
             linear-gradient(currentColor, currentColor) 0 0 / var(--v127p, 50%) 100% no-repeat,
             #e7e5e4; animation: v127TrackShine 2.8s linear infinite; }
         .dark input[type=range]::-webkit-slider-runnable-track { background:
-            linear-gradient(100deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0) 70%) 0 0 / 220% 100%,
+            linear-gradient(100deg, rgba(255,255,255,0) 12%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0) 88%) -180px 0 / 180px 100% no-repeat,
             linear-gradient(currentColor, currentColor) 0 0 / var(--v127p, 50%) 100% no-repeat,
             #44403c; animation: v127TrackShine 2.8s linear infinite; }
-        @keyframes v127TrackShine { 0% { background-position: 130% 0, 0 0, 0 0; } 100% { background-position: -130% 0, 0 0, 0 0; } }
+        /* v129：進出點改像素精確（-180px=完全在左外側、calc(100%+180px)=完全在右外側）。
+           v127 的百分比 position 在 iOS 對原生滑桿算不準，亮帶會在軌道中間瞬移回起點（實測影片每 2.8s 一次）。 */
+        @keyframes v127TrackShine { 0% { background-position: -180px 0, 0 0, 0 0; } 100% { background-position: calc(100% + 180px) 0, 0 0, 0 0; } }
         input[type=range]::-moz-range-track { background: #e7e5e4; }
         .dark input[type=range]::-moz-range-track { background: #44403c; }
         input[type=range]::-moz-range-progress { background: currentColor; }
@@ -683,7 +680,37 @@ input[type="number"] {
             .view-section.active.v127-dir-r, .view-section.active.v127-dir-l { animation: none; }
             body::after { display: none; }
             .soc-progress-track > div::after, input[type=range]::-webkit-slider-runnable-track { animation: none !important; }
-            #view-analysis .rpg-card.v127-shine::after { animation: none; }
+        }
+    </style>
+
+    <style>
+        /* ===== v128 特效組 2：路線＋回饋 ===== */
+        @property --v128a { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+        /* 10) PK 卡流光邊框（選中的卡由 JS 加 .v128-beam；@property 不支援時為靜態光弧） */
+        #highwayPkContainer > div.v128-beam::after { content: ''; position: absolute; inset: 0; border-radius: 1rem; padding: 2px; pointer-events: none;
+            background: conic-gradient(from var(--v128a), transparent 0deg, transparent 250deg, rgba(245,158,11,0.95) 305deg, rgba(255,255,255,0.9) 330deg, transparent 360deg);
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude;
+            animation: v128Beam 3s linear infinite; }
+        @keyframes v128Beam { to { --v128a: 360deg; } }
+        /* 9) 充電站雷達波紋（#abrpStopRecommendation 內容更新時 JS 加 .v128-radar） */
+        #abrpStopRecommendation { position: relative; }
+        #abrpStopRecommendation.v128-radar::after { content: ''; position: absolute; inset: -3px; border-radius: 16px; border: 2px solid rgba(45,212,191,0.75); pointer-events: none; animation: v128Radar 1.05s ease-out 2 both; }
+        @keyframes v128Radar { 0% { transform: scale(0.985); opacity: 0.95; } 100% { transform: scale(1.03); opacity: 0; } }
+        /* 11) 規劃完成星塵粒子 */
+        .v128-dust-host { position: relative; }
+        .v128-dust { position: absolute; bottom: 8px; width: 7px; height: 7px; border-radius: 99px; pointer-events: none; z-index: 6;
+            background: radial-gradient(circle, #5eead4 0%, rgba(45,212,191,0.55) 45%, rgba(45,212,191,0) 72%); }
+        /* 12) 按鈕電流火花粒子 */
+        .v128-spark { position: fixed; width: 7px; height: 3px; border-radius: 2px; pointer-events: none; z-index: 9999;
+            background: linear-gradient(90deg, #fbbf24, #2dd4bf); box-shadow: 0 0 6px rgba(251,191,36,0.8); }
+        /* 15) 徽章 3D 翻轉進場 */
+        .v128-flip { animation: v128Flip 0.55s cubic-bezier(0.2, 0.7, 0.3, 1.15) both; animation-delay: calc(var(--i, 0) * 45ms); }
+        @keyframes v128Flip { 0% { transform: perspective(600px) rotateY(80deg) scale(0.82); opacity: 0; } 100% { transform: perspective(600px) rotateY(0deg) scale(1); opacity: 1; } }
+        /* lite／減少動態：v128 動畫全關 */
+        .lite #highwayPkContainer > div.v128-beam::after, .lite #abrpStopRecommendation.v128-radar::after { animation: none !important; }
+        .lite .v128-flip { animation: none !important; }
+        @media (prefers-reduced-motion: reduce) {
+            #highwayPkContainer > div.v128-beam::after, #abrpStopRecommendation.v128-radar::after, .v128-flip { animation: none !important; }
         }
     </style>
 </head>
@@ -1004,7 +1031,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v127</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v129</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1490,7 +1517,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v127</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v129</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1974,7 +2001,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v127';
+        const APP_VERSION = 'v129';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -2696,9 +2723,6 @@ function cacheDOMNodes() {
             if (view) view.classList.add('active');
             if (view && v127Dir > 0) view.classList.add('v127-dir-r');
             if (view && v127Dir < 0) view.classList.add('v127-dir-l');
-            if (tabId === 'analysis' && !document.documentElement.classList.contains('lite')) {
-                setTimeout(() => { document.querySelectorAll('#view-analysis .rpg-card').forEach((c, i) => { c.style.setProperty('--v127d', (i * 70) + 'ms'); c.classList.add('v127-shine'); setTimeout(() => c.classList.remove('v127-shine'), 2000); }); }, 90);
-            }
             window.scrollTo(0, 0);
 
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -8096,6 +8120,146 @@ function updateAbrpElevScrub(pct) {
                 if (read && read.animate) read.animate([{ transform: 'scale(1.14)' }, { transform: 'scale(1)' }], { duration: 150, easing: 'ease-out' });
             });
         }
+    })();
+</script>
+
+<script>
+    // ===== v128 特效引擎：折線電流／雷達波紋／流光邊框／星塵／火花／Toast 彈簧／火箭／徽章翻轉 =====
+    (function initV128() {
+        const isLite = () => document.documentElement.classList.contains('lite');
+        const reduced = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const svgBox = document.getElementById('abrpSvgContainer');
+
+        // 10) PK 卡流光邊框：跟著選中狀態（未選中的卡有 opacity-60）
+        function syncBeam() {
+            [0, 1].forEach(i => {
+                const card = document.getElementById('pkCardRoute' + i);
+                if (card) card.classList.toggle('v128-beam', !card.classList.contains('opacity-60'));
+            });
+        }
+        [0, 1].forEach(i => {
+            const card = document.getElementById('pkCardRoute' + i);
+            if (card) new MutationObserver(syncBeam).observe(card, { attributes: true, attributeFilter: ['class'] });
+        });
+        syncBeam();
+
+        // 9) 充電站雷達波紋：推薦站內容更新時觸發
+        const stopBox = document.getElementById('abrpStopRecommendation');
+        if (stopBox) new MutationObserver(() => {
+            if (isLite() || reduced() || !stopBox.textContent.trim()) return;
+            stopBox.classList.remove('v128-radar'); void stopBox.offsetWidth; stopBox.classList.add('v128-radar');
+        }).observe(stopBox, { childList: true });
+
+        // 8) 折線電流＋11) 星塵：剖面 SVG 重繪時觸發
+        let flowBusy = false, lastDust = 0;
+        function runFlow(svg) {
+            if (flowBusy || !svg) return;
+            let paths = [...svg.querySelectorAll('path')].filter(p => { try { return (p.getAttribute('fill') === 'none') && p.getTotalLength() > 50; } catch (e) { return false; } });
+            if (!paths.length) paths = [...svg.querySelectorAll('path')].filter(p => { try { return p.getTotalLength() > 50; } catch (e) { return false; } });
+            if (!paths.length) return;
+            const path = paths.reduce((a, b) => a.getTotalLength() > b.getTotalLength() ? a : b);
+            const len = path.getTotalLength();
+            const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            dot.setAttribute('r', '4'); dot.setAttribute('fill', '#2dd4bf');
+            dot.setAttribute('style', 'filter: drop-shadow(0 0 6px rgba(45,212,191,0.95))');
+            svg.appendChild(dot); flowBusy = true;
+            const t0 = performance.now(), dur = 1500;
+            (function step(t) {
+                const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+                try { const pt = path.getPointAtLength(e * len); dot.setAttribute('cx', pt.x); dot.setAttribute('cy', pt.y); } catch (err) {}
+                dot.setAttribute('opacity', k > 0.85 ? String(Math.max(0, 1 - (k - 0.85) / 0.15)) : '1');
+                if (k < 1) requestAnimationFrame(step); else { dot.remove(); flowBusy = false; }
+            })(t0);
+        }
+        function dust(host) {
+            if (!host) return;
+            host.classList.add('v128-dust-host');
+            for (let i = 0; i < 12; i++) {
+                const s = document.createElement('span');
+                s.className = 'v128-dust';
+                s.style.left = (8 + Math.random() * 84) + '%';
+                host.appendChild(s);
+                const dx = (Math.random() * 36 - 18).toFixed(0), dy = (-(42 + Math.random() * 72)).toFixed(0), sc = (0.5 + Math.random() * 0.9).toFixed(2);
+                const anim = s.animate([
+                    { transform: 'translate(0,0) scale(' + sc + ')', opacity: 0 },
+                    { opacity: 0.95, offset: 0.25 },
+                    { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + sc + ')', opacity: 0 }
+                ], { duration: 1100 + Math.random() * 700, easing: 'cubic-bezier(.2,.7,.3,1)' });
+                if (anim) anim.onfinish = () => s.remove(); else s.remove();
+            }
+        }
+        if (svgBox) new MutationObserver(() => {
+            if (isLite() || reduced()) return;
+            const svg = svgBox.querySelector('svg');
+            if (!svg) return;
+            setTimeout(() => runFlow(svg), 60);
+            const now = Date.now();
+            if (now - lastDust > 1600) { lastDust = now; dust(svgBox.parentElement); }
+        }).observe(svgBox, { childList: true });
+
+        // 12) 按鈕電流火花：主要 CTA（teal/amber/emerald）點擊時濺火花
+        document.addEventListener('click', (e) => {
+            if (isLite() || reduced()) return;
+            const btn = e.target && e.target.closest ? e.target.closest('button') : null;
+            if (!btn) return;
+            const cls = typeof btn.className === 'string' ? btn.className : '';
+            if (!/(bg-teal-600|bg-teal-700|bg-amber-500|bg-emerald-600)/.test(cls)) return;
+            for (let i = 0; i < 7; i++) {
+                const s = document.createElement('span');
+                s.className = 'v128-spark';
+                s.style.left = e.clientX + 'px'; s.style.top = e.clientY + 'px';
+                document.body.appendChild(s);
+                const a = Math.random() * Math.PI * 2, d = 26 + Math.random() * 32;
+                const anim = s.animate([
+                    { transform: 'translate(-50%,-50%) rotate(0deg)', opacity: 1 },
+                    { transform: 'translate(' + (Math.cos(a) * d).toFixed(0) + 'px,' + (Math.sin(a) * d).toFixed(0) + 'px) rotate(' + (Math.random() * 160 - 80).toFixed(0) + 'deg)', opacity: 0 }
+                ], { duration: 480 + Math.random() * 220, easing: 'cubic-bezier(.2,.7,.3,1)' });
+                if (anim) anim.onfinish = () => s.remove(); else s.remove();
+            }
+        }, true);
+
+        // 13) Toast 彈簧進場：包 processToastQueue，用 CSS scale 屬性（不碰 Tailwind 的 transform 置中）
+        const toastOrig = window.processToastQueue;
+        if (typeof toastOrig === 'function' && !toastOrig._v128Wrapped) {
+            const w = function(...args) {
+                const r = toastOrig.apply(this, args);
+                setTimeout(() => {
+                    if (isLite() || reduced()) return;
+                    const t = document.getElementById('toast');
+                    if (t && !t.classList.contains('invisible') && t.animate) {
+                        t.animate([{ scale: '0.92' }, { scale: '1.02', offset: 0.55 }, { scale: '1' }], { duration: 420, easing: 'cubic-bezier(.2,.8,.3,1)' });
+                        const ic = document.getElementById('toastIcon');
+                        if (ic) ic.animate([{ transform: 'scale(0.6) rotate(-14deg)' }, { transform: 'scale(1.12) rotate(3deg)', offset: 0.6 }, { transform: 'scale(1) rotate(0deg)' }], { duration: 420, easing: 'ease-out' });
+                    }
+                }, 40);
+                return r;
+            };
+            w._v128Wrapped = true;
+            window.processToastQueue = w;
+        }
+
+        // 14) 回到頂部火箭：點擊時按鈕先小升空
+        const topBtn = document.getElementById('v105TopBtn');
+        if (topBtn) topBtn.addEventListener('click', () => {
+            if (isLite() || reduced() || !topBtn.animate) return;
+            topBtn.animate([
+                { translate: '0 0', rotate: '0deg' },
+                { translate: '0 -16px', rotate: '-12deg', offset: 0.45 },
+                { translate: '0 0', rotate: '0deg' }
+            ], { duration: 520, easing: 'cubic-bezier(.2,.7,.3,1)' });
+        });
+
+        // 15) 徽章 3D 翻轉：首頁徽章列與成就 modal 內容重繪時，子元素依序翻轉進場
+        function flipKids(container) {
+            [...container.children].forEach((el, i) => {
+                el.style.setProperty('--i', i);
+                el.classList.remove('v128-flip'); void el.offsetWidth; el.classList.add('v128-flip');
+            });
+        }
+        ['badgesContainer', 'badgeModalContent'].forEach(id => {
+            const c = document.getElementById(id);
+            if (c) new MutationObserver(() => { if (!isLite() && !reduced()) flipKids(c); }).observe(c, { childList: true });
+        });
     })();
 </script>
 </body>
