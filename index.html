@@ -951,7 +951,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v123</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v124</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1437,7 +1437,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v123</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v124</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1921,7 +1921,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v123';
+        const APP_VERSION = 'v124';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -5754,7 +5754,7 @@ function applyTunnelCorrection(rawElevs, sampleLocations, fullPolyline, tunnelSe
   const segments = [];
   let correctedCount = 0, hasUnknownTunnel = false;
   if (!rawElevs.length || !sampleLocations.length || sampleLocations.length !== rawElevs.length || !fullPolyline.length || !tunnelSegments.length) {
-    return { correctedElevs: out, segments, correctedCount, hasUnknownTunnel };
+    return { correctedElevs: out, segments, correctedCount, hasUnknownTunnel, _diag: { earlyReturn: true, polylineLen: fullPolyline?.length || 0, segCount: tunnelSegments?.length || 0 } };
   }
   // 樣本位置 → 最近折線點索引（雙指針：樣本與折線都沿路線單調，O(N+M)）。
   const sampleIdx = [];
@@ -5769,11 +5769,13 @@ function applyTunnelCorrection(rawElevs, sampleLocations, fullPolyline, tunnelSe
     }
     sampleIdx.push(p);
   }
+  const _diagSegs = []; // v124 暫時診斷
   for (const seg of tunnelSegments) {
     const inTunnel = [];
     for (let i = 0; i < sampleIdx.length; i++) {
       if (sampleIdx[i] >= seg.startIndex && sampleIdx[i] <= seg.endIndex) inTunnel.push(i);
     }
+    _diagSegs.push({ range: [seg.startIndex, seg.endIndex], inSamples: inTunnel.length });
     if (!inTunnel.length) continue; // 隧道內無取樣點：剖面本來就沒讀到隧道內，不用修正
     const firstIn = inTunnel[0], lastIn = inTunnel[inTunnel.length - 1];
     const anchorBeforeIdx = firstIn - 1, anchorAfterIdx = lastIn + 1;
@@ -5801,7 +5803,8 @@ function applyTunnelCorrection(rawElevs, sampleLocations, fullPolyline, tunnelSe
     segments.push({ ...base, source: 'linear_estimate', confidence: 'medium', corrected: true, gradePct: +(grade * 100).toFixed(1) });
     correctedCount++;
   }
-  return { correctedElevs: out, segments, correctedCount, hasUnknownTunnel };
+  const _diag = { polylineLen: fullPolyline.length, sampleIdxMin: sampleIdx.length ? Math.min(...sampleIdx) : -1, sampleIdxMax: sampleIdx.length ? Math.max(...sampleIdx) : -1, segs: _diagSegs };
+  return { correctedElevs: out, segments, correctedCount, hasUnknownTunnel, _diag };
 }
 
 function handlePlannedRoutes(routes, startSoc) {
@@ -6664,6 +6667,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
             const res = applyTunnelCorrection(raw, sampleLocs, route.overview_path || [], segs);
             correctedRaw = res.correctedElevs;
             tunnelCorrection = { segments: res.segments, correctedCount: res.correctedCount, hasUnknownTunnel: res.hasUnknownTunnel };
+            tunnelDiag.apply = res._diag || null;
           }
         } catch (err) { console.warn('[EvLife] tunnel correction 例外，退回未修正高程', err); }
       }
@@ -6736,6 +6740,8 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
     if (tunnelCorrection.correctedCount > 0) routeProfileText += ` 🛤️ 隧道校正 ${tunnelCorrection.correctedCount} 段`;
     if (tunnelCorrection.hasUnknownTunnel) routeProfileText += ' ⚠️ 含未知隧道段';
     if (tunnelDiag) routeProfileText += ` 〔診斷：來源 ${tunnelDiag.src}／隧道資料 ${tunnelDiag.infos}／EXISTS ${tunnelDiag.exists}／萃取 ${tunnelDiag.segs}（橋接 ${tunnelDiag.bridged}）／校正 ${tunnelCorrection.correctedCount}〕`; // v123 暫時診斷
+    if (tunnelDiag?.apply) { const d = tunnelDiag.apply; const segTxt = (d.segs || []).map(s => `${s.range[0]}-${s.range[1]}:${s.inSamples}`).join(' '); routeProfileText += ` 〔診斷2：折線 ${d.polylineLen} 點／樣本索引 ${d.sampleIdxMin}-${d.sampleIdxMax}／段 ${segTxt}〕`; } // v124 暫時診斷
+    else if (tunnelDiag) routeProfileText += ` 〔診斷2：未進入修正（樣本相符 ${tunnelDiag.samplesOk}）〕`; // v124 暫時診斷
 
     const elevationData = {
       smoothedElevations: smoothed,
