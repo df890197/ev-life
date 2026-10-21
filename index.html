@@ -951,7 +951,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v121</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v122</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1437,7 +1437,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v121</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v122</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1921,7 +1921,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v121';
+        const APP_VERSION = 'v122';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -5737,8 +5737,14 @@ function extractTunnelSegments(fullPolyline, polylineDetails) {
   for (const t of infos) {
     const s = t.polylinePointIndex.startIndex, e = t.polylinePointIndex.endIndex;
     const last = merged[merged.length - 1];
-    if (last && s <= last.endIndex + 2) last.endIndex = Math.max(last.endIndex, e); // 相鄰／重疊合併（容差 2 點）
-    else merged.push({ startIndex: s, endIndex: e });
+    if (last && s <= last.endIndex + 2) { last.endIndex = Math.max(last.endIndex, e); continue; } // 相鄰／重疊合併（容差 2 點）
+    // v122：橋接小間隙 — 兩隧道段沿路相距 ≤1500m 視為同一隧道群合併（G4 的 548m 假峰即落在段間間隙）。
+    // 合併只是提出跨間隙的修正範圍，之後仍須通過 applyTunnelCorrection 的坡度 ≤10% 檢查才內插，過不了標記未知。
+    if (last && fullPolyline && fullPolyline.length) {
+      const gapM = polylineRangeLengthM(fullPolyline, last.endIndex, s);
+      if (gapM > 0 && gapM <= 1500) { last.endIndex = Math.max(last.endIndex, e); last.gapBridged = true; continue; }
+    }
+    merged.push({ startIndex: s, endIndex: e });
   }
   return merged.map(m => ({ ...m, lengthM: polylineRangeLengthM(fullPolyline, m.startIndex, m.endIndex) }));
 }
@@ -5771,7 +5777,7 @@ function applyTunnelCorrection(rawElevs, sampleLocations, fullPolyline, tunnelSe
     if (!inTunnel.length) continue; // 隧道內無取樣點：剖面本來就沒讀到隧道內，不用修正
     const firstIn = inTunnel[0], lastIn = inTunnel[inTunnel.length - 1];
     const anchorBeforeIdx = firstIn - 1, anchorAfterIdx = lastIn + 1;
-    const base = { startIndex: seg.startIndex, endIndex: seg.endIndex, lengthM: Math.round(seg.lengthM), sampleRange: [firstIn, lastIn] };
+    const base = { startIndex: seg.startIndex, endIndex: seg.endIndex, lengthM: Math.round(seg.lengthM), sampleRange: [firstIn, lastIn], gapBridged: !!seg.gapBridged };
     if (anchorBeforeIdx < 0 || anchorAfterIdx >= rawElevs.length) {
       // Case C：隧道貼齊路線起／終點，無一側錨點 → 不硬算，標記未知（保留 DEM，保守）
       segments.push({ ...base, source: 'unknown', confidence: 'low', corrected: false, reason: 'tunnel_touches_route_endpoint' });
@@ -6702,7 +6708,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
 
     // 峰值 = 平滑後最大值，不要再用 5x5 最大值放大
     const maxElevation = Math.round(Math.max(...smoothed, startAlt, endAlt));
-    const { climb: totalClimbMeters, descent: totalDescentMeters } = calcClimbDescent(smoothed, 10);
+    const { climb: totalClimbMeters, descent: totalDescentMeters } = calcClimbDescent(smoothed, 20); // v122：門檻 10→20，減少平路小起伏灌水（真小丘不再計入，抵達 SOC 約少保守 1–2%）
 
     // 能耗：拿掉舊版 isSteepDownhill 重複計算，直接用淨高程能
     // 0.65 / 0.40：2000kg 車重，100m 位能 0.545kWh；回充 0.40 隱含回收效率 73.4%（折衷版）
@@ -6992,6 +6998,11 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         directSocEl.className = `text-sm sm:text-base font-extrabold font-mono tracking-tight leading-tight flex flex-col items-center justify-center ${numColor}`;
         directSocEl.innerHTML = `<span>${directArrivalSoc}%</span><span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded mt-0.5 tracking-normal whitespace-nowrap ${statusColor}">${statusText}</span>`;
     }
+    // v122：卡片與總覽同源 — 用這次渲染的同一份結果回寫卡片（不同次計算取樣不同曾造成卡片 -15%／總覽 -16%）
+    const pkSocSync = document.getElementById(`pkSoc${routeIdx}`);
+    if (pkSocSync) { pkSocSync.textContent = `${directArrivalSoc}%`; pkSocSync.className = directArrivalSoc < 15 ? 'font-mono text-rose-500 font-extrabold' : 'font-mono text-emerald-500 font-extrabold'; }
+    const pkEffSync = document.getElementById(`pkEff${routeIdx}`);
+    if (pkEffSync && isFinite(realEff)) { pkEffSync.textContent = `${realEff.toFixed(2)} km/度`; pkEffSync.className = "font-mono text-teal-500"; }
 
     const recCard = document.getElementById('abrpRecommendationCard');
     if (!recCard) return;
