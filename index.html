@@ -633,6 +633,59 @@ input[type="number"] {
             }
         };
     </script>
+
+    <style>
+        /* ===== v127 特效組 1：氛圍＋數據＋滑桿填充流光 ===== */
+        /* 1) 分頁方向感：沿用 v40 的 0.75s 曲線與模糊縮放，只多加水平方向 */
+        @keyframes v127RevealR { 0% { opacity: 0; transform: translateX(38px) translateY(26px) scale(0.94); filter: blur(12px); } 100% { opacity: 1; transform: translateX(0) translateY(0) scale(1); filter: blur(0); } }
+        @keyframes v127RevealL { 0% { opacity: 0; transform: translateX(-38px) translateY(26px) scale(0.94); filter: blur(12px); } 100% { opacity: 1; transform: translateX(0) translateY(0) scale(1); filter: blur(0); } }
+        .view-section.active.v127-dir-r { animation: v127RevealR 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards; transform-origin: center bottom; will-change: transform, opacity, filter; }
+        .view-section.active.v127-dir-l { animation: v127RevealL 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards; transform-origin: center bottom; will-change: transform, opacity, filter; }
+        /* 4) 時段環境光（JS 依小時設定 --v127amb 色彩；z-index:-1 躲在內容後、body 底色上） */
+        body::after { content: ''; position: fixed; left: 0; right: 0; top: 0; height: 46vh; z-index: -1; pointer-events: none;
+            background: radial-gradient(120% 100% at 50% 0%, var(--v127amb, rgba(45,212,191,0)) 0%, transparent 70%); opacity: .55; transition: background 1.2s ease; }
+        .dark body::after { opacity: .38; }
+        /* 5) 進度條液光：填充上有一道緩慢流動的光（低調、持續） */
+        .soc-progress-track > div { position: relative; }
+        .soc-progress-track > div::after { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+            background: linear-gradient(100deg, transparent 25%, rgba(255,255,255,0.38) 50%, transparent 75%);
+            background-size: 220% 100%; animation: v127Flow 3.6s linear infinite; }
+        @keyframes v127Flow { 0% { background-position: 130% 0; } 100% { background-position: -130% 0; } }
+        /* 6) 分析卡光澤掃過（switchTab 進分析頁時加 .v127-shine，播一次） */
+        #view-analysis .rpg-card.v127-shine { position: relative; overflow: hidden; }
+        #view-analysis .rpg-card.v127-shine::after { content: ''; position: absolute; inset: 0; pointer-events: none;
+            background: linear-gradient(105deg, transparent 32%, rgba(255,255,255,0.30) 50%, transparent 68%);
+            transform: translateX(-130%); animation: v127Shine 0.95s ease-out var(--v127d, 0ms) forwards; }
+        @keyframes v127Shine { to { transform: translateX(130%); } }
+        /* 7) 剖面 scrub 標記發光（拖動時容器加 .v127-scrubbing） */
+        .v127-scrubbing #abrpElevScrubDot { filter: drop-shadow(0 0 7px rgba(45,212,191,0.95)) drop-shadow(0 0 2px rgba(45,212,191,0.9)); }
+        .v127-scrubbing #abrpElevScrubLine { stroke: rgba(45,212,191,0.9); }
+        /* 滑桿：氣泡退場（display:none 保底）＋填充流光＋thumb 光暈 */
+        .slider-bubble { display: none !important; }
+        input[type=range]::-webkit-slider-runnable-track { background:
+            linear-gradient(100deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.55) 50%, rgba(255,255,255,0) 70%) 0 0 / 220% 100%,
+            linear-gradient(currentColor, currentColor) 0 0 / var(--v127p, 50%) 100% no-repeat,
+            #e7e5e4; animation: v127TrackShine 2.8s linear infinite; }
+        .dark input[type=range]::-webkit-slider-runnable-track { background:
+            linear-gradient(100deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0) 70%) 0 0 / 220% 100%,
+            linear-gradient(currentColor, currentColor) 0 0 / var(--v127p, 50%) 100% no-repeat,
+            #44403c; animation: v127TrackShine 2.8s linear infinite; }
+        @keyframes v127TrackShine { 0% { background-position: 130% 0, 0 0, 0 0; } 100% { background-position: -130% 0, 0 0, 0 0; } }
+        input[type=range]::-moz-range-track { background: #e7e5e4; }
+        .dark input[type=range]::-moz-range-track { background: #44403c; }
+        input[type=range]::-moz-range-progress { background: currentColor; }
+        input[type=range]:active::-webkit-slider-thumb, input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 7px rgba(128,128,128,0.18), 0 0 14px currentColor; }
+        /* lite／減少動態：v127 動畫全關 */
+        .lite body::after { display: none; }
+        .lite .soc-progress-track > div::after { animation: none !important; }
+        .lite input[type=range]::-webkit-slider-runnable-track { animation: none; }
+        @media (prefers-reduced-motion: reduce) {
+            .view-section.active.v127-dir-r, .view-section.active.v127-dir-l { animation: none; }
+            body::after { display: none; }
+            .soc-progress-track > div::after, input[type=range]::-webkit-slider-runnable-track { animation: none !important; }
+            #view-analysis .rpg-card.v127-shine::after { animation: none; }
+        }
+    </style>
 </head>
 <body class="font-sans bg-[#faf8f4] dark:bg-black text-stone-800 dark:text-[#f5f5f4] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative slashed-zero">
 
@@ -951,7 +1004,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v126</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v127</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1437,7 +1490,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v126</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v127</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1921,7 +1974,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v126';
+        const APP_VERSION = 'v127';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -2628,15 +2681,24 @@ function cacheDOMNodes() {
                 previousTabBeforeAdd = currentTabId;
             }
 
+            // v127：分頁方向感（依 tab 順序：往右的分頁從右進、往左從左進）＋分析頁卡片光澤掃過
+            const v127Order = ['home', 'records', 'analysis', 'add', 'settings'];
+            const v127Dir = Math.sign(v127Order.indexOf(tabId) - v127Order.indexOf(currentTabId));
+
             // v28 切換順序：先切分頁內容＋立即回頂，讓新分頁下一幀就出現；
             // 指標下一幀再用 rAF 更新，不跟內容切換搶同一幀。
             // （v19 的順序是對的，但它同時把指標動畫改成 0.25s，bar 外觀變了才被還原；
             //  這次只拿回順序，指標動畫維持 v5 的 0.6s 彈簧，bar 外觀完全不變。）
             // 原順序是指標先動（讀 offset 強制 reflow＋0.6s 動畫）再切分頁，
             // 再加平滑捲動慢慢捲到頂，三件事疊在一起才會覺得「點了卡一下才換過去」。
-            document.querySelectorAll('.view-section').forEach(view => { view.classList.remove('active'); });
+            document.querySelectorAll('.view-section').forEach(view => { view.classList.remove('active', 'v127-dir-r', 'v127-dir-l'); });
             const view = document.getElementById('view-' + tabId);
             if (view) view.classList.add('active');
+            if (view && v127Dir > 0) view.classList.add('v127-dir-r');
+            if (view && v127Dir < 0) view.classList.add('v127-dir-l');
+            if (tabId === 'analysis' && !document.documentElement.classList.contains('lite')) {
+                setTimeout(() => { document.querySelectorAll('#view-analysis .rpg-card').forEach((c, i) => { c.style.setProperty('--v127d', (i * 70) + 'ms'); c.classList.add('v127-shine'); setTimeout(() => c.classList.remove('v127-shine'), 2000); }); }, 90);
+            }
             window.scrollTo(0, 0);
 
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -3171,37 +3233,28 @@ window.setupSocSliders = function() {
             const blurInput = () => { if (document.activeElement?.blur) document.activeElement.blur(); };
 
             const updateBubblePosition = (slider, bubble) => {
-                if (!slider || !bubble) return;
+                // v127：浮動氣泡拿掉（拉桿時數字一直跳，使用者不要）— 數字看旁邊的數字框即可。
+                // 此函式改只負責：動態顏色（保留）＋填充比例 CSS 變數 --v127p（v127 流光填充用）。
+                if (!slider) return;
                 const val = parseFloat(slider.value) || 0;
                 const min = parseFloat(slider.min) || 0;
                 const max = parseFloat(slider.max) || 100;
                 const percent = (val - min) / (max - min);
-                const thumbOffset = 20 * (0.5 - percent);
-                bubble.textContent = `${Math.round(val)}%`;
-                bubble.style.left = `calc(${percent * 100}% + ${thumbOffset}px)`;
-
-                // ⚡ 效果 2：動態變色滑桿與氣泡光暈
-                bubble.classList.remove('bubble-danger', 'bubble-protect');
+                slider.style.setProperty('--v127p', (percent * 100).toFixed(1) + '%');
                 if (val <= 20) {
                     slider.style.color = '#f43f5e';
-                    bubble.classList.add('bubble-danger');
                 } else if (val >= 85) {
                     slider.style.color = '#f59e0b';
-                    bubble.classList.add('bubble-protect');
                 } else {
                     slider.style.color = slider.id === 'sliderStartSoc' ? '#d97706' : '#05ffa1';
                 }
             };
 
             const attachSliderBubble = (slider, bubble) => {
-                if (!slider || !bubble) return;
-                const show = () => {
-                    updateBubblePosition(slider, bubble);
-                    bubble.classList.add('visible');
-                };
-                const hide = () => {
-                    bubble.classList.remove('visible');
-                };
+                if (!slider) return;
+                // v127：氣泡不再顯示（show/hide 改 no-op），只保留每 5% 的觸覺回饋與顏色/填充更新
+                const show = () => { updateBubblePosition(slider, bubble); };
+                const hide = () => {};
 
                 let lastVal = slider.value;
                 slider.addEventListener('input', () => {
@@ -7970,5 +8023,80 @@ function updateAbrpElevScrub(pct) {
     setTimeout(() => window.v109MoveTabPill(), 350);
     setTimeout(() => window.v109MoveTabPill(), 1200);
     </script>
+
+<script>
+    // ===== v127 特效引擎：時段環境光／Hero 視差／主題切換擴散／scrub 發光 =====
+    (function initV127() {
+        const isLite = () => document.documentElement.classList.contains('lite');
+        const reduced = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        // 4) 時段環境光：依小時換色（晨金／日間淡青／黃昏橘／夜深藍）
+        function applyAmbient() {
+            const h = new Date().getHours();
+            let c = 'rgba(59,90,246,0.16)';                       // 夜
+            if (h >= 5 && h < 10) c = 'rgba(245,176,65,0.20)';    // 晨
+            else if (h >= 10 && h < 17) c = 'rgba(45,212,191,0.13)'; // 日
+            else if (h >= 17 && h < 20) c = 'rgba(244,114,182,0.15)'; // 昏
+            document.documentElement.style.setProperty('--v127amb', c);
+        }
+        applyAmbient();
+        setInterval(applyAmbient, 30 * 60 * 1000);
+
+        // range 填充比例初始化（所有滑桿；input 事件委派補上後續拖動，setupSocSliders 內部也會同步）
+        function setP(el) { const min = parseFloat(el.min) || 0, max = parseFloat(el.max) || 100, v = parseFloat(el.value) || 0; el.style.setProperty('--v127p', (((v - min) / (max - min)) * 100).toFixed(1) + '%'); }
+        document.querySelectorAll('input[type=range]').forEach(setP);
+        document.addEventListener('input', (e) => { if (e.target && e.target.type === 'range') setP(e.target); }, true);
+
+        if (isLite() || reduced()) return; // 以下動態效果 lite／減少動態全跳過
+
+        // 2) Hero 視差：捲動時主圖用 CSS translate 屬性微移（與 Ken Burns 的 transform 不衝突）
+        const heroImg = document.getElementById('heroImageDisplay');
+        if (heroImg) {
+            let ticking = false;
+            window.addEventListener('scroll', () => {
+                if (ticking) return; ticking = true;
+                requestAnimationFrame(() => {
+                    ticking = false;
+                    const home = document.getElementById('view-home');
+                    if (!home || !home.classList.contains('active')) { heroImg.style.translate = ''; return; }
+                    const y = window.scrollY || 0;
+                    heroImg.style.translate = y > 0 ? `0 ${Math.min(16, y * 0.06).toFixed(1)}px` : '';
+                });
+            }, { passive: true });
+        }
+
+        // 3) 主題切換擴散：包 toggleTheme，有 startViewTransition 才啟用（不支援自動退回原本淡入）
+        let lastX = Math.round(window.innerWidth / 2), lastY = 120;
+        document.addEventListener('pointerdown', (e) => { lastX = e.clientX; lastY = e.clientY; }, true);
+        const origToggle = window.toggleTheme;
+        if (typeof origToggle === 'function' && !origToggle._v127Wrapped && document.startViewTransition) {
+            const wrapped = function(...args) {
+                document.documentElement.style.setProperty('--v127tx', lastX + 'px');
+                document.documentElement.style.setProperty('--v127ty', lastY + 'px');
+                const t = document.startViewTransition(() => origToggle.apply(this, args));
+                return t && t.finished ? t.finished.catch(() => {}) : undefined;
+            };
+            wrapped._v127Wrapped = true;
+            window.toggleTheme = wrapped;
+            const vtStyle = document.createElement('style');
+            vtStyle.textContent = '::view-transition-old(root){animation:none}::view-transition-new(root){animation:v127ThemeIn .55s ease-out}@keyframes v127ThemeIn{from{clip-path:circle(0 at var(--v127tx,50%) var(--v127ty,120px))}to{clip-path:circle(150% at var(--v127tx,50%) var(--v127ty,120px))}}';
+            document.head.appendChild(vtStyle);
+        }
+
+        // 7) 剖面 scrub 發光：拖動 scrub 滑桿時容器加 class，讀數彈一下
+        const scrub = document.getElementById('abrpElevScrub');
+        const svgBox = document.getElementById('abrpSvgContainer');
+        if (scrub && svgBox) {
+            let scrubTimer = 0;
+            scrub.addEventListener('input', () => {
+                svgBox.classList.add('v127-scrubbing');
+                clearTimeout(scrubTimer);
+                scrubTimer = setTimeout(() => svgBox.classList.remove('v127-scrubbing'), 350);
+                const read = document.getElementById('abrpElevScrubRead');
+                if (read && read.animate) read.animate([{ transform: 'scale(1.14)' }, { transform: 'scale(1)' }], { duration: 150, easing: 'ease-out' });
+            });
+        }
+    })();
+</script>
 </body>
 </html>
