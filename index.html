@@ -951,7 +951,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v118</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v119</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1437,7 +1437,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v118</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v119</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1929,7 +1929,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v118';
+        const APP_VERSION = 'v119';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -6780,7 +6780,10 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
 
     // 能耗：拿掉舊版 isSteepDownhill 重複計算，直接用淨高程能
     // 0.65 / 0.40：2000kg 車重，100m 位能 0.545kWh；回充 0.40 隱含回收效率 73.4%（折衷版）
-    const flatEnergyKwh = totalDistanceKm / baseHighwayEff;
+    // v119：塞車（平均速度）修正 — 行車時間已含即時路況。低速巡航對電車較省電、高速較耗，
+    // 只修正平地能耗項；基準（全域平均）與爬坡 0.65／回充 0.40 係數不動，倍率有界 0.95–1.10。
+    const avgSpeedKmh = totalSeconds > 0 ? totalDistanceKm / (totalSeconds / 3600) : 0;
+    const flatEnergyKwh = totalDistanceKm / (baseHighwayEff * speedEffFactor(avgSpeedKmh));
     const climbEnergyKwh = (totalClimbMeters / 100) * 0.65;
     const regenEnergyKwh = (totalDescentMeters / 100) * 0.40;
     const totalConsumedKwh = flatEnergyKwh + climbEnergyKwh - regenEnergyKwh;
@@ -6959,6 +6962,19 @@ function updateElevationHudUi(data) {
     window._abrpElevScrubData = { smoothed: [...data.smoothedElevations], min: minEl, max: maxEl, width, height };
     document.getElementById('abrpElevScrubWrap')?.classList.remove('hidden');
     if (typeof window.updateAbrpElevScrub === 'function') window.updateAbrpElevScrub(0);
+}
+
+// v119：平均速度 → 均耗修正倍率（純函式，可單元測試）。
+// 基準帶 70–85 km/h 為 1.00；越慢越省（40–55 為 1.10，塞車紅利上限）；
+// 低於 40 走走停停＋冷氣使紅利遞減（1.05）；高速巡航風阻大，小幅下修（85+ 為 0.98、100+ 為 0.95）。
+function speedEffFactor(avgSpeedKmh) {
+    if (!isFinite(avgSpeedKmh) || avgSpeedKmh <= 0) return 1;
+    if (avgSpeedKmh >= 100) return 0.95;
+    if (avgSpeedKmh >= 85) return 0.98;
+    if (avgSpeedKmh >= 70) return 1;
+    if (avgSpeedKmh >= 55) return 1.05;
+    if (avgSpeedKmh >= 40) return 1.10;
+    return 1.05;
 }
 
 // v53：多站充電規劃（純函式，不依賴 Google API，可單元測試）
