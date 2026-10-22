@@ -1076,7 +1076,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v138</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v139</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1571,7 +1571,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v138</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v139</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1839,7 +1839,7 @@ input[type="number"] {
 
                     <!-- 高程折線圖 SVG -->
                     <div id="abrpSvgContainer" class="w-full h-16 relative"></div>
-                    <div id="v138Diag" class="text-[10px] leading-snug font-mono text-amber-500 dark:text-amber-400 px-1 pt-1"></div>
+                    <div id="v139Diag" class="text-[10px] leading-snug font-mono text-amber-500 dark:text-amber-400 px-1 pt-1"></div>
 
                     <!-- v12 地圖優先：海拔剖面滑桿，滑動時地圖標記跟著動 -->
                     <div id="abrpElevScrubWrap" class="hidden">
@@ -2056,7 +2056,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v138';
+        const APP_VERSION = 'v139';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -6891,6 +6891,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
     let rawMax = null, rawMaxIdx = -1, cleanedMaxIdx = -1;
     let rawElevations = null;
     let diag138 = null; // v138 診斷（暫時）
+    let diagE2 = 'none'; // v139 診斷：第二次（overview)取樣狀態
     let tunnelCorrection = { segments: [], correctedCount: 0, hasUnknownTunnel: false };
     let usedPathLabel = 'none';
 
@@ -6907,12 +6908,14 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
 
     let sampleDistFrac = null; // v134：樣本真實距離比例（投影 overview_path 得出）
     let { elevations, eStatus } = await fetchElevationSmart(elevationPath, sampleCount);
+    const diagE1 = String(eStatus); // v139 診斷：第一次取樣狀態
     if (!isCurrentElevationRequest(routeIdx, requestToken)) return;
     if (eStatus !== google.maps.ElevationStatus.OK || !elevations || elevations.length <= 1) {
       console.warn(`[EvLife] elevation detailed failed eStatus=${eStatus} count=${elevations ? elevations.length : 0}，退回 overview_path`);
       const retry = await fetchElevationSmart(route.overview_path, sampleCount);
       if (!isCurrentElevationRequest(routeIdx, requestToken)) return;
       elevations = retry.elevations; eStatus = retry.eStatus;
+      diagE2 = String(retry.eStatus); // v139 診斷
       usedDetailedPath = false;
       if (eStatus !== google.maps.ElevationStatus.OK || !elevations || elevations.length <= 1) {
         usedPathLabel = 'single-only';
@@ -6956,7 +6959,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
         const pick138 = [0, 0.25, 0.5, 0.75, 1].map(q => Math.min(raw.length - 1, Math.round(q * (raw.length - 1))));
         diag138 = {
           label: usedPathLabel, pathLen: elevationPath.length, n: raw.length,
-          tunSegs: tunnelCorrection.segments.length, tunCorr: tunnelCorrection.correctedCount,
+          tunSegs: tunnelCorrection.segments.length, tunCorr: tunnelCorrection.correctedCount, e1: diagE1, e2: diagE2,
           probe: pick138.map(i2 => [i2, Math.round(raw[i2]), Math.round(correctedRaw[i2]), Math.round(smoothed[i2]), sampleDistFrac ? +sampleDistFrac[i2].toFixed(2) : -1])
         };
       } catch (e) { /* 診斷失敗不影響主流程 */ }
@@ -6988,6 +6991,8 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
           startAlt = Math.round(sSingle);
           endAlt = Math.round(eSingle);
           smoothed = [startAlt, endAlt];
+          // v139 診斷（暫時）：降級路徑也要留探針，否則 v138 那樣整行消失、无从判断
+          diag138 = { label: usedPathLabel, pathLen: elevationPath.length, n: 2, tunSegs: 0, tunCorr: 0, e1: diagE1, e2: diagE2, probe: [[0, startAlt, startAlt, startAlt, -1], [1, endAlt, endAlt, endAlt, -1]] };
         }
       } catch (err) {
         console.error('[EvLife] elevation 起終點單點也失敗', err);
@@ -7193,10 +7198,14 @@ function updateElevationHudUi(data) {
     // v12 地圖優先：存剖面數據，供下方滑桿同步地圖標記（不影響能耗計算）
     window._abrpElevScrubData = { smoothed: [...data.smoothedElevations], distFrac: (data.sampleDistFrac && data.sampleDistFrac.length === data.smoothedElevations.length) ? [...data.sampleDistFrac] : null, min: minEl, max: maxEl, width, height };
     // v138 診斷（暫時）：印逐層探針，定位斜坡來源後移除
-    const v138dg = document.getElementById('v138Diag');
-    if (v138dg && data.diag138) {
-      const d138 = data.diag138;
-      v138dg.textContent = `🔬 path=${d138.label} len=${d138.pathLen} n=${d138.n} tun=${d138.tunSegs}/${d138.tunCorr} | ` + d138.probe.map(p => `#${p[0]} r${p[1]}/c${p[2]}/s${p[3]}/f${p[4]}`).join(' · ');
+    const v138dg = document.getElementById('v139Diag');
+    if (v138dg) {
+      if (data.diag138) {
+        const d138 = data.diag138;
+        v138dg.textContent = `🔬 path=${d138.label} len=${d138.pathLen} n=${d138.n} e1=${d138.e1 || '?'} e2=${d138.e2 || '?'} tun=${d138.tunSegs}/${d138.tunCorr} | ` + d138.probe.map(p => `#${p[0]} r${p[1]}/c${p[2]}/s${p[3]}/f${p[4]}`).join(' · ');
+      } else {
+        v138dg.textContent = `🔬 nodata label=${data.usedPathLabel || '?'} n=${(data.smoothedElevations || []).length}`;
+      }
     }
     document.getElementById('abrpElevScrubWrap')?.classList.remove('hidden');
     if (typeof window.updateAbrpElevScrub === 'function') window.updateAbrpElevScrub(0);
