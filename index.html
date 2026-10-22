@@ -1076,7 +1076,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v136</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v137</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1571,7 +1571,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v136</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v137</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -1839,7 +1839,6 @@ input[type="number"] {
 
                     <!-- 高程折線圖 SVG -->
                     <div id="abrpSvgContainer" class="w-full h-16 relative"></div>
-                    <div id="v136Diag" class="text-[10px] leading-snug font-mono text-amber-500 dark:text-amber-400 px-1 pt-1"></div>
 
                     <!-- v12 地圖優先：海拔剖面滑桿，滑動時地圖標記跟著動 -->
                     <div id="abrpElevScrubWrap" class="hidden">
@@ -2056,7 +2055,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v136';
+        const APP_VERSION = 'v137';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -6576,8 +6575,10 @@ function cleanElevations(raw, totalDistanceKm) {
 // 取樣路徑先被 thinPathUniform 依「點序號」抽稀到 200 點：山路彎道點位密、弦線把髮夾彎
 // 切直後，山路段在取樣路徑裡的長度占比被壓縮，於是樣本序號比例 ≠ 真實距離比例
 // （實測：中壢→武嶺 92% 處，樣本其實還落在富嘉門市後方數公里、只讀到 1820m，真值 2050m）。
-// 修法：取樣請求不動，拿到樣本後用每個樣本的回傳座標投影到 overview_path，算出它真正
-// 的距離比例；剖面橫軸與 scrub 讀數改用此比例，爬升/下降與能耗（只看樣本序列）不受影響。
+// 對位修法（v134）：拿到樣本後用每個樣本的回傳座標投影到 overview_path，算出它真正的
+// 距離比例；剖面橫軸與 scrub 讀數改用此比例，爬升/下降與能耗（只看樣本序列）不受影響。
+// 取樣源頭修法（v137）：取樣路徑改 DP 容差簡化＋分段取樣（buildDetailedPath），樣本先
+// 真正量在路上，本函式的投影才有正確的值可對位。
 function computeSampleDistFrac(sampleLocs, path) {
   if (!Array.isArray(sampleLocs) || !Array.isArray(path) || path.length < 2 || sampleLocs.length === 0) return null;
   const R = 6371000, rad = Math.PI / 180;
@@ -6591,33 +6592,34 @@ function computeSampleDistFrac(sampleLocs, path) {
   }
   const total = cum[cum.length - 1];
   if (!(total > 0)) return null;
+  // v137：兩層搜尋 — 先找最近的錨點（每 40 段一點），再在錨 ±70 段精搜最近段。
+  // 每個樣本獨立定位，不再依賴前一樣本的滑動視窗狀態（v134/v135 的視窗追趕問題根除），
+  // 且 DP 簡化後樣本貼路，髮夾彎平行腿的誤吸也大幅減少。
+  const anchors = [];
+  for (let i = 0; i < path.length; i += 40) anchors.push(i);
+  if (anchors[anchors.length - 1] !== path.length - 1) anchors.push(path.length - 1);
   const fracs = [];
-  let seg = 0;
   const lastSeg = path.length - 2;
   for (let s = 0; s < sampleLocs.length; s++) {
     const loc = sampleLocs[s];
     const px = lngOf(loc), py = latOf(loc);
-    let bestFrac = 0, bestSeg = seg;
-    let from = Math.max(0, seg - 2), to = Math.min(lastSeg, seg + 80);
-    // v135：最佳段落在搜尋窗上緣，代表真正最近的段還在更後面 — 山路尾段 overview 點位
-    // 極密，每個樣本要推進的段數可達數百（v134 的固定 +80 窗追不上，尾段樣本全被壓在
-    // ~0.93，剖面最後一點到不了右邊界、填充封閉線從山頂斜切到右下角）。擴大窗重搜，
-    // 直到最佳落在窗內或窗已涵蓋路徑結尾。
-    for (let guard = 0; guard < 40; guard++) {
-      let bestD2 = Infinity;
-      for (let i = from; i <= to; i++) {
-        const ax = lngOf(path[i]), ay = latOf(path[i]), bx = lngOf(path[i + 1]), by = latOf(path[i + 1]);
-        const cosL = Math.cos(((ay + by) / 2) * rad);
-        const vx = (bx - ax) * cosL, vy = by - ay, wx = (px - ax) * cosL, wy = py - ay;
-        const len2 = vx * vx + vy * vy;
-        const t = len2 > 0 ? Math.min(1, Math.max(0, (wx * vx + wy * vy) / len2)) : 0;
-        const dx = wx - t * vx, dy = wy - t * vy, d2 = dx * dx + dy * dy;
-        if (d2 < bestD2) { bestD2 = d2; bestSeg = i; bestFrac = (cum[i] + t * (cum[i + 1] - cum[i])) / total; }
-      }
-      if (bestSeg < to || to >= lastSeg) break;
-      to = Math.min(lastSeg, to + Math.max(240, (to - from) * 2));
+    let aBest = anchors[0], aD2 = Infinity;
+    for (const ai of anchors) {
+      const dx = (lngOf(path[ai]) - px) * Math.cos(py * rad), dy = latOf(path[ai]) - py;
+      const d2 = dx * dx + dy * dy;
+      if (d2 < aD2) { aD2 = d2; aBest = ai; }
     }
-    seg = bestSeg;
+    const from = Math.max(0, aBest - 70), to = Math.min(lastSeg, aBest + 70);
+    let bestD2 = Infinity, bestFrac = 0;
+    for (let i = from; i <= to; i++) {
+      const ax = lngOf(path[i]), ay = latOf(path[i]), bx = lngOf(path[i + 1]), by = latOf(path[i + 1]);
+      const cosL = Math.cos(((ay + by) / 2) * rad);
+      const vx = (bx - ax) * cosL, vy = by - ay, wx = (px - ax) * cosL, wy = py - ay;
+      const len2 = vx * vx + vy * vy;
+      const t = len2 > 0 ? Math.min(1, Math.max(0, (wx * vx + wy * vy) / len2)) : 0;
+      const dx = wx - t * vx, dy = wy - t * vy, d2 = dx * dx + dy * dy;
+      if (d2 < bestD2) { bestD2 = d2; bestFrac = (cum[i] + t * (cum[i + 1] - cum[i])) / total; }
+    }
     fracs.push(Math.min(1, Math.max(0, bestFrac)));
   }
   for (let i = 1; i < fracs.length; i++) if (fracs[i] < fracs[i - 1]) fracs[i] = fracs[i - 1];
@@ -6657,6 +6659,42 @@ function getSingleElevation(lat, lng) {
 function latOf(p) { return typeof p.lat === 'function' ? p.lat() : p.lat; }
 function lngOf(p) { return typeof p.lng === 'function' ? p.lng() : p.lng; }
 
+function haversineM(a, b) {
+  const rad = Math.PI / 180;
+  const dLat = (latOf(b) - latOf(a)) * rad, dLng = (lngOf(b) - lngOf(a)) * rad;
+  const la1 = latOf(a) * rad, la2 = latOf(b) * rad;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLng / 2) ** 2;
+  return 2 * 6371000 * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
+// v137：Douglas-Peucker 容差簡化 — 只丟「離弦線夠近」的點，直線段大膽丟、彎道幾乎全保留，
+// 保證簡化路徑上任一點離真路 ≤ epsilon 公尺。取代依序號抽稀（弦線切彎、樣本量錯地方）。
+function simplifyPathDP(points, epsilonMeters) {
+  if (!points || points.length <= 2) return points ? points.slice() : [];
+  const rad = Math.PI / 180;
+  const keep = new Uint8Array(points.length);
+  keep[0] = keep[points.length - 1] = 1;
+  const stack = [[0, points.length - 1]];
+  while (stack.length) {
+    const [a, b] = stack.pop();
+    const A = points[a], B = points[b];
+    const ax = lngOf(A), ay = latOf(A);
+    const cosL = Math.cos(((ay + latOf(B)) / 2) * rad);
+    const vx = (lngOf(B) - ax) * cosL * 111320, vy = (latOf(B) - ay) * 111000;
+    const len2 = vx * vx + vy * vy;
+    let maxD = 0, maxI = -1;
+    for (let i = a + 1; i < b; i++) {
+      const px = (lngOf(points[i]) - ax) * cosL * 111320, py = (latOf(points[i]) - ay) * 111000;
+      const t = len2 > 0 ? Math.min(1, Math.max(0, (px * vx + py * vy) / len2)) : 0;
+      const dx = px - t * vx, dy = py - t * vy;
+      const d = Math.sqrt(dx * dx + dy * dy);
+      if (d > maxD) { maxD = d; maxI = i; }
+    }
+    if (maxI > 0 && maxD > epsilonMeters) { keep[maxI] = 1; stack.push([a, maxI], [maxI, b]); }
+  }
+  return points.filter((_, i) => keep[i]);
+}
+
 function thinPathUniform(path, maxPoints) {
   if (path.length <= maxPoints) return path;
   const out = [];
@@ -6679,14 +6717,17 @@ function buildDetailedPath(route) {
       });
     });
   });
-  // 精簡到 200 點：Diag 證明 100 點已足夠（82 點全路徑 OK），200 點留有餘裕，
-  // 同時避免長程（91km）詳細路徑上千點把請求撐爆。取樣仍由 samples 決定。
-  const thinned = thinPathUniform(path, 200);
-  if (thinned.length < 2) {
+  // v137：改 Douglas-Peucker 容差簡化（25m）。舊版 thinPathUniform 依序號抽稀到 200 點，
+  // 山路弦線把髮夾彎切直、樣本量到山坡面/別條腿（實測：霧社一帶量到 1820m、路高僅約
+  // 1000m）— 值從源頭就錯，顯示層對位修不回來。DP 後弦線貼路；點數仍多時改走分段
+  // 取樣（fetchElevationSegmented），不再靠抽稀壓點數。
+  let simplified = simplifyPathDP(path, 25);
+  if (simplified.length > 2500) simplified = simplifyPathDP(path, 60);
+  if (simplified.length < 2) {
     console.warn('[EvLife] elevation: step.path 不足，退回 overview_path');
     return route.overview_path;
   }
-  return thinned;
+  return simplified;
 }
 
 function fetchElevationAlongPath(path, samples) {
@@ -6703,6 +6744,48 @@ function fetchElevationAlongPath(path, samples) {
   });
 }
 
+
+// v137：長路徑分段取樣 — 每段 ≤600 點平行呼叫 AlongPath，samples 依段長比例分配，
+// 段界共享點去重合併；任一段失敗回傳失敗，交由呼叫端走既有 fallback。
+async function fetchElevationSegmented(path, samples) {
+  try {
+    const cuts = [0];
+    for (let i = 600; i < path.length - 1; i += 600) cuts.push(i);
+    cuts.push(path.length - 1);
+    const segLens = [];
+    let totalLen = 0;
+    for (let s = 0; s < cuts.length - 1; s++) {
+      let L = 0;
+      for (let i = cuts[s] + 1; i <= cuts[s + 1]; i++) L += haversineM(path[i - 1], path[i]);
+      segLens.push(L); totalLen += L;
+    }
+    if (!(totalLen > 0)) return { elevations: null, eStatus: 'ERROR' };
+    const segCount = segLens.length;
+    const counts = segLens.map(L => Math.max(2, Math.round(samples * L / totalLen)));
+    let mergedTotal = counts.reduce((a2, b2) => a2 + b2, 0) - (segCount - 1);
+    let guard = 0;
+    while (mergedTotal !== samples && guard++ < 4000) {
+      const dir = mergedTotal < samples ? 1 : -1;
+      let bi = 0; for (let s = 1; s < segCount; s++) if (segLens[s] > segLens[bi]) bi = s;
+      if (dir < 0 && counts[bi] <= 2) break;
+      counts[bi] += dir; mergedTotal += dir;
+    }
+    const parts = await Promise.all(segLens.map((_, s) => fetchElevationAlongPath(path.slice(cuts[s], cuts[s + 1] + 1), counts[s])));
+    if (parts.some(r => r.eStatus !== google.maps.ElevationStatus.OK || !r.elevations || r.elevations.length <= 1)) {
+      return { elevations: null, eStatus: 'ERROR' };
+    }
+    let merged = [];
+    parts.forEach((r, s) => { merged = merged.concat(s === 0 ? r.elevations : r.elevations.slice(1)); });
+    return { elevations: merged, eStatus: google.maps.ElevationStatus.OK };
+  } catch (err) {
+    console.warn('[EvLife] fetchElevationSegmented 例外', err);
+    return { elevations: null, eStatus: 'ERROR' };
+  }
+}
+
+function fetchElevationSmart(path, samples) {
+  return (path && path.length > 600) ? fetchElevationSegmented(path, samples) : fetchElevationAlongPath(path, samples);
+}
 
 // v7: 高程不可用時的統一顯示。絕不使用 0m / 假 [startAlt, endAlt] 去算 SOC，
 // 也不寫入 pkRouteCache，避免下一次切換路線時又拿假資料來渲染。
@@ -6821,12 +6904,11 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
     }
 
     let sampleDistFrac = null; // v134：樣本真實距離比例（投影 overview_path 得出）
-    let distFracPathLen = 0; // v136 診斷用：overview_path 點數
-    let { elevations, eStatus } = await fetchElevationAlongPath(elevationPath, sampleCount);
+    let { elevations, eStatus } = await fetchElevationSmart(elevationPath, sampleCount);
     if (!isCurrentElevationRequest(routeIdx, requestToken)) return;
     if (eStatus !== google.maps.ElevationStatus.OK || !elevations || elevations.length <= 1) {
       console.warn(`[EvLife] elevation detailed failed eStatus=${eStatus} count=${elevations ? elevations.length : 0}，退回 overview_path`);
-      const retry = await fetchElevationAlongPath(route.overview_path, sampleCount);
+      const retry = await fetchElevationSmart(route.overview_path, sampleCount);
       if (!isCurrentElevationRequest(routeIdx, requestToken)) return;
       elevations = retry.elevations; eStatus = retry.eStatus;
       usedDetailedPath = false;
@@ -6864,7 +6946,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
       // v134：用樣本回傳座標算真實距離比例（長度須與 raw 對齊，任一樣本缺座標就放棄、走舊對位）
       try {
         const locs = elevations.map(e => e.location);
-        if (locs.length === raw.length && locs.every(Boolean)) { sampleDistFrac = computeSampleDistFrac(locs, route.overview_path || []); distFracPathLen = (route.overview_path || []).length; }
+        if (locs.length === raw.length && locs.every(Boolean)) sampleDistFrac = computeSampleDistFrac(locs, route.overview_path || []);
       } catch (e) { console.warn('[EvLife] sampleDistFrac 計算例外，scrub 退回序號對位', e); sampleDistFrac = null; }
       cleanedMaxIdx = smoothed.indexOf(Math.max(...smoothed));
       console.log(`[EvLife] elevation route${routeIdx} dist=${totalDistanceKm.toFixed(1)}km samples=${raw.length} path=${usedPathLabel} rawMax=${rawMax.toFixed(0)}m@${rawMaxIdx} cleanedMax=${Math.max(...smoothed).toFixed(0)}m@${cleanedMaxIdx} start=${raw[0].toFixed(0)} end=${raw[raw.length - 1].toFixed(0)} tunnelCorr=${tunnelCorrection.correctedCount} unknownTunnel=${tunnelCorrection.hasUnknownTunnel}`);
@@ -6937,7 +7019,6 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
     const elevationData = {
       smoothedElevations: smoothed,
       sampleDistFrac,
-      distFracPathLen,
       totalClimbMeters: Math.round(totalClimbMeters),
       totalDescentMeters: Math.round(totalDescentMeters),
       maxElevation, startAlt, endAlt,
@@ -7099,13 +7180,6 @@ function updateElevationHudUi(data) {
     `;
     // v12 地圖優先：存剖面數據，供下方滑桿同步地圖標記（不影響能耗計算）
     window._abrpElevScrubData = { smoothed: [...data.smoothedElevations], distFrac: (data.sampleDistFrac && data.sampleDistFrac.length === data.smoothedElevations.length) ? [...data.sampleDistFrac] : null, min: minEl, max: maxEl, width, height };
-    // v136 診斷（暫時）：把樣本序號→距離比例/海拔印出來，定位尾段壓縮問題後移除
-    const v136dg = document.getElementById('v136Diag');
-    if (v136dg) {
-      const sm = data.smoothedElevations, fr = data.sampleDistFrac;
-      const pick = [0, 0.25, 0.5, 0.75, 0.92, 1].map(q => Math.min(sm.length - 1, Math.round(q * (sm.length - 1))));
-      v136dg.textContent = `🔬 path=${data.usedPathLabel || '?'} ovLen=${data.distFracPathLen || 0} n=${sm.length} frac=${fr ? '有' : '無'} | ` + pick.map(i => `#${i} f=${fr ? fr[i].toFixed(2) : '-'} e=${Math.round(sm[i])}`).join(' · ');
-    }
     document.getElementById('abrpElevScrubWrap')?.classList.remove('hidden');
     if (typeof window.updateAbrpElevScrub === 'function') window.updateAbrpElevScrub(0);
 }
