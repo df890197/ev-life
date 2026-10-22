@@ -713,6 +713,13 @@ input[type="number"] {
             #highwayPkContainer > div.v128-beam::after, #abrpStopRecommendation.v128-radar::after, .v128-flip { animation: none !important; }
         }
     </style>
+
+    <style>
+        /* ===== v130 打字機 ===== */
+        .v130-typing::after { content: '▍'; margin-left: 1px; color: #14b8a6; opacity: .8; animation: v130Caret .8s steps(1) infinite; }
+        @keyframes v130Caret { 50% { opacity: 0; } }
+        @media (prefers-reduced-motion: reduce) { .v130-typing::after { animation: none; } }
+    </style>
 </head>
 <body class="font-sans bg-[#faf8f4] dark:bg-black text-stone-800 dark:text-[#f5f5f4] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative slashed-zero">
 
@@ -781,6 +788,7 @@ input[type="number"] {
             </div>
 
             <div id="homeStatsContainer" class="v98-home">
+                <p id="v130Greeting" class="text-sm md:text-base font-extrabold text-stone-500 dark:text-stone-400 mb-3 h-5" aria-live="polite"></p>
                 <div class="hero-image-container v104-hero mb-6 shadow-sm border border-stone-200 dark:border-stone-800 bg-stone-200 dark:bg-neutral-900 group md:h-72 lg:h-96">
                     <img id="heroImageDisplay" src="https://placehold.co/800x450/1e293b/2dd4bf?text=EV+Life" alt="EV" class="transition duration-500 group-hover:scale-105 w-full h-full object-cover absolute md:relative">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
@@ -1031,7 +1039,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v129</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v130</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1517,7 +1525,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v129</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v130</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2001,7 +2009,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v129';
+        const APP_VERSION = 'v130';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -8260,6 +8268,85 @@ function updateAbrpElevScrub(pct) {
             const c = document.getElementById(id);
             if (c) new MutationObserver(() => { if (!isLite() && !reduced()) flipKids(c); }).observe(c, { childList: true });
         });
+    })();
+</script>
+
+<script>
+    // ===== v130 打字機：建議句／首頁問候／成就標題 =====
+    (function initV130() {
+        const isLite = () => document.documentElement.classList.contains('lite');
+        const reduced = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const seg = (s) => {
+            try { if (window.Intl && Intl.Segmenter) return [...new Intl.Segmenter('zh', { granularity: 'grapheme' }).segment(s)].map(x => x.segment); } catch (e) {}
+            return Array.from(s);
+        };
+        const tokens = new WeakMap();
+        // typeInto：逐字打出 el 的文字；完成（或 lite/減少動態）時還原 restoreHTML（若有）確保格式與圖示原樣
+        function typeInto(el, restoreHTML) {
+            if (!el) return;
+            const token = (tokens.get(el) || 0) + 1;
+            tokens.set(el, token);
+            const full = el.textContent || '';
+            const finish = () => { el.classList.remove('v130-typing'); if (restoreHTML != null) el.innerHTML = restoreHTML; };
+            if (isLite() || reduced() || full.trim().length < 2) { finish(); return; }
+            const chars = seg(full);
+            el.textContent = '';
+            el.classList.add('v130-typing');
+            let i = 0;
+            (function step() {
+                if (tokens.get(el) !== token || !el.isConnected) return; // 被新內容取消或元素已移除
+                i++;
+                el.textContent = chars.slice(0, i).join('');
+                if (i < chars.length) setTimeout(step, 34);
+                else finish();
+            })();
+        }
+
+        // 1) 路線建議句：推薦卡內容重寫時，打第一行標題句
+        const recCard = document.getElementById('abrpRecommendationCard');
+        const abrpModal = document.getElementById('abrpModal');
+        if (recCard) new MutationObserver(() => {
+            setTimeout(() => {
+                if (!recCard.isConnected) return;
+                if (abrpModal && abrpModal.classList.contains('hidden')) return;
+                const head = recCard.querySelector(':scope > div');
+                if (head && head.textContent.trim().length >= 6) typeInto(head, head.innerHTML);
+            }, 40);
+        }).observe(recCard, { childList: true });
+
+        // 2) 首頁問候句：依時段；等開場畫面消失後打一次
+        const greet = document.getElementById('v130Greeting');
+        if (greet) {
+            const h = new Date().getHours();
+            greet.textContent = h >= 5 && h < 11 ? '☀️ 早安！今天想開去哪裡？'
+                : h >= 11 && h < 14 ? '🌤️ 午安！出發前先看一下電量吧'
+                : h >= 14 && h < 18 ? '⛅ 下午好，來規劃下一趟旅程吧'
+                : h >= 18 && h < 23 ? '🌙 晚安，今天的旅程辛苦了'
+                : '🌌 夜深了，早點休息，明天再出發';
+            let greeted = false;
+            const startGreet = () => { if (greeted) return; greeted = true; typeInto(greet, null); };
+            const splash = document.getElementById('appSplashScreen');
+            if (splash) {
+                new MutationObserver(() => {
+                    const st = window.getComputedStyle(splash);
+                    if (st.opacity === '0' || st.display === 'none' || st.visibility === 'hidden') setTimeout(startGreet, 250);
+                }).observe(splash, { attributes: true, attributeFilter: ['class', 'style'] });
+                setTimeout(startGreet, 3000); // 保底：splash 沒被觀察到變化時也打
+            } else startGreet();
+        }
+
+        // 3) 成就標題：視窗內容更新或打開時，打第一個徽章標題
+        const badgeContent = document.getElementById('badgeModalContent');
+        const badgeModal = document.getElementById('badgeModal');
+        function typeBadgeHead() {
+            if (!badgeContent) return;
+            const head = badgeContent.querySelector('h1, h2, h3, h4, strong, b');
+            if (head) { const t = head.textContent.trim(); if (t.length >= 2 && t.length <= 40) typeInto(head, head.innerHTML); }
+        }
+        if (badgeContent) new MutationObserver(() => setTimeout(typeBadgeHead, 60)).observe(badgeContent, { childList: true });
+        if (badgeModal) new MutationObserver(() => {
+            if (!badgeModal.classList.contains('hidden')) setTimeout(typeBadgeHead, 400);
+        }).observe(badgeModal, { attributes: true, attributeFilter: ['class'] });
     })();
 </script>
 </body>
