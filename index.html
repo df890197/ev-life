@@ -720,6 +720,43 @@ input[type="number"] {
         @keyframes v130Caret { 50% { opacity: 0; } }
         @media (prefers-reduced-motion: reduce) { .v130-typing::after { animation: none; } }
     </style>
+
+    <style>
+        /* ===== v132 特效組 3 ===== */
+        /* 1) 捲動浮現（JS 只武裝畫面下方的卡，IntersectionObserver 觸發一次） */
+        .v132-reveal-init { opacity: 0; transform: translateY(16px); transition: opacity .5s ease, transform .55s cubic-bezier(.16,1,.3,1); }
+        .v132-reveal-in { opacity: 1 !important; transform: none !important; }
+        /* 3) 夜間星空 */
+        .v132-stars { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+        .v132-stars span { position: absolute; border-radius: 99px; background: #fff; opacity: .25; animation: v132Twinkle 3s ease-in-out infinite; }
+        @keyframes v132Twinkle { 50% { opacity: .95; transform: scale(1.4); } }
+        /* 4) 卡片聚光燈（JS 設定 --v132mx/my；只在 hover 時亮） */
+        .rpg-card::before { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 1;
+            background: radial-gradient(260px circle at var(--v132mx, -400px) var(--v132my, -400px), rgba(20,184,166,0.13), rgba(20,184,166,0) 65%);
+            opacity: 0; transition: opacity .3s ease; }
+        .rpg-card:hover::before { opacity: 1; }
+        /* 6) 建議卡電流框（跑一圈就停；重用 v128 註冊的 --v128a） */
+        #abrpRecommendationCard { position: relative; }
+        #abrpRecommendationCard.v132-beam::after { content: ''; position: absolute; inset: 0; border-radius: 1rem; padding: 2px; pointer-events: none; z-index: 2;
+            background: conic-gradient(from var(--v128a, 0deg), transparent 0deg, transparent 240deg, rgba(45,212,191,0.95) 305deg, rgba(255,255,255,0.9) 332deg, transparent 360deg);
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude;
+            animation: v132BeamOnce 1.7s linear 1 both; }
+        @keyframes v132BeamOnce { from { --v128a: 0deg; } to { --v128a: 360deg; } }
+        /* 7) 下拉彩蛋指示 */
+        #v132PullBolt { position: fixed; top: 0; left: 50%; z-index: 95; width: 52px; height: 52px; margin-left: -26px; border-radius: 99px;
+            background: rgba(28,28,30,.9); color: #fbbf24; font-size: 24px; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 10px 24px rgba(0,0,0,.3); transform: translateY(-72px); pointer-events: none; }
+        #v132PullBolt.v132-charged { color: #2dd4bf; box-shadow: 0 0 0 6px rgba(45,212,191,.25), 0 0 28px rgba(45,212,191,.8); }
+        /* lite／減少動態 */
+        .lite .v132-stars { display: none; }
+        .lite .rpg-card::before { display: none; }
+        .lite #abrpRecommendationCard.v132-beam::after { animation: none !important; }
+        @media (prefers-reduced-motion: reduce) {
+            .v132-stars span { animation: none; }
+            .v132-reveal-init { opacity: 1; transform: none; transition: none; }
+            #abrpRecommendationCard.v132-beam::after { animation: none !important; }
+        }
+    </style>
 </head>
 <body class="font-sans bg-[#faf8f4] dark:bg-black text-stone-800 dark:text-[#f5f5f4] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative slashed-zero">
 
@@ -1039,7 +1076,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v131</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v132</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1413,6 +1450,15 @@ input[type="number"] {
                             </div>
                             <p class="text-[10px] text-stone-400 font-bold">「跟隨系統」會跟著手機／電腦的深色模式自動切換；右上角的 ☀️／🌙 按鈕仍可快速手動切換（會改成手動模式）。</p>
                         </div>
+                        <!-- v132：微音效開關 -->
+                        <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
+                            <span class="text-xs md:text-sm font-extrabold text-stone-500 dark:text-stone-400">🔊 微音效</span>
+                            <div class="flex items-center bg-stone-200/70 dark:bg-neutral-900 p-1 rounded-xl text-xs font-extrabold">
+                                <button type="button" id="v132Sound-off" class="flex-1 py-2 rounded-lg transition-colors">關閉</button>
+                                <button type="button" id="v132Sound-on" class="flex-1 py-2 rounded-lg transition-colors">開啟</button>
+                            </div>
+                            <p class="text-[10px] text-stone-400 font-bold">儲存成功、規劃完成時會有很輕的提示聲，按主要按鈕時有小小的「啵」。預設關閉，聲音只在這台裝置播放。</p>
+                        </div>
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-4">
                             <span class="text-xs md:text-sm font-extrabold text-stone-500 dark:text-stone-400">🚗 愛車參數設定</span>
                             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -1525,7 +1571,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v131</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v132</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2009,7 +2055,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v131';
+        const APP_VERSION = 'v132';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -8336,6 +8382,261 @@ function updateAbrpElevScrub(pct) {
         }
 
         // v131：成就標題打字機已移除（2026-10-22 使用者實機回報看起來怪）— 成就視窗只保留 v128 翻轉進場
+    })();
+</script>
+
+<script>
+    // ===== v132 特效引擎：捲動浮現／按壓傾斜／夜間星空／聚光燈／進度環／建議電流框／下拉彩蛋／剖面漸層／微音效 =====
+    (function initV132() {
+        const isLite = () => document.documentElement.classList.contains('lite');
+        const reduced = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        /* ---------- 9) 微音效（預設關；WebAudio 合成，無音檔） ---------- */
+        const soundOn = () => localStorage.getItem('ev_life_sound_fx') === '1';
+        let actx = null;
+        function ensureCtx() {
+            if (!soundOn()) return null;
+            try {
+                if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+                if (actx.state === 'suspended') actx.resume();
+                return actx;
+            } catch (e) { return null; }
+        }
+        function tone(freq, t0, dur, type, vol) {
+            const c = ensureCtx(); if (!c) return;
+            const o = c.createOscillator(), g = c.createGain();
+            o.type = type || 'sine'; o.frequency.value = freq;
+            const s = c.currentTime + (t0 || 0);
+            g.gain.setValueAtTime(0.0001, s);
+            g.gain.exponentialRampToValueAtTime(vol || 0.045, s + 0.015);
+            g.gain.exponentialRampToValueAtTime(0.0001, s + dur);
+            o.connect(g); g.connect(c.destination);
+            o.start(s); o.stop(s + dur + 0.05);
+        }
+        const ding = () => { tone(987.77, 0, 0.1, 'sine', 0.04); tone(1318.5, 0.07, 0.14, 'sine', 0.045); };
+        const pop = () => { tone(340, 0, 0.055, 'triangle', 0.028); };
+        document.addEventListener('pointerdown', () => ensureCtx(), true);
+        const toastOrig132 = window.showToast;
+        if (typeof toastOrig132 === 'function' && !toastOrig132._v132Wrapped) {
+            let lastDing = 0;
+            const w = function(message, isError, duration, isLoading, isSuccess) {
+                const r = toastOrig132.apply(this, arguments);
+                if (soundOn() && !isError && !isLoading && (isSuccess || /✅|成功|已儲存|完成/.test(String(message || '')))) {
+                    const now = Date.now(); if (now - lastDing > 400) { lastDing = now; ding(); }
+                }
+                return r;
+            };
+            w._v132Wrapped = true;
+            window.showToast = w;
+        }
+        document.addEventListener('pointerdown', (e) => {
+            if (!soundOn()) return;
+            const btn = e.target && e.target.closest ? e.target.closest('button') : null;
+            if (!btn) return;
+            const cls = typeof btn.className === 'string' ? btn.className : '';
+            if (/(bg-teal-600|bg-teal-700|bg-amber-500|bg-emerald-600)/.test(cls)) pop();
+        }, true);
+        function syncSoundBtns() {
+            const on = soundOn();
+            const bOn = document.getElementById('v132Sound-on'), bOff = document.getElementById('v132Sound-off');
+            const act = ['bg-white', 'dark:bg-neutral-800', 'shadow-sm', 'text-stone-900', 'dark:text-white'];
+            const ina = ['text-stone-500', 'dark:text-stone-400'];
+            [[bOn, on], [bOff, !on]].forEach(([b, active]) => {
+                if (!b) return;
+                b.classList.remove(...act, ...ina);
+                b.classList.add(...(active ? act : ina));
+            });
+        }
+        const setSound = (on) => { localStorage.setItem('ev_life_sound_fx', on ? '1' : '0'); syncSoundBtns(); if (on) { ensureCtx(); ding(); } };
+        const sbOn = document.getElementById('v132Sound-on'), sbOff = document.getElementById('v132Sound-off');
+        if (sbOn) sbOn.addEventListener('click', () => setSound(true));
+        if (sbOff) sbOff.addEventListener('click', () => setSound(false));
+        syncSoundBtns();
+
+        /* ---------- 1) 捲動浮現 ---------- */
+        if (!isLite() && !reduced() && 'IntersectionObserver' in window) {
+            const io = new IntersectionObserver((entries) => {
+                entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('v132-reveal-in'); io.unobserve(en.target); } });
+            }, { threshold: 0.06, rootMargin: '0px 0px -4% 0px' });
+            window._v132RevealScan = function() {
+                document.querySelectorAll('#view-records .rpg-card:not(.v132-reveal-init), #view-analysis .rpg-card:not(.v132-reveal-init), #view-settings .rpg-card:not(.v132-reveal-init)').forEach(el => {
+                    const r = el.getBoundingClientRect();
+                    if (r.top > window.innerHeight * 0.92 && r.height > 0) {
+                        el.classList.add('v132-reveal-init');
+                        io.observe(el);
+                        setTimeout(() => el.classList.add('v132-reveal-in'), 1600); // 保底：觀察器沒觸發也顯示
+                    }
+                });
+            };
+            const stOrig = window.switchTab;
+            if (typeof stOrig === 'function' && !stOrig._v132Wrapped) {
+                const w2 = function(...a) { const r = stOrig.apply(this, a); setTimeout(() => window._v132RevealScan && window._v132RevealScan(), 90); return r; };
+                w2._v132Wrapped = true; window.switchTab = w2;
+            }
+            ['view-records', 'view-analysis', 'view-settings'].forEach(id => {
+                const v = document.getElementById(id);
+                if (v) { let deb = 0; new MutationObserver(() => { clearTimeout(deb); deb = setTimeout(() => window._v132RevealScan(), 220); }).observe(v, { childList: true, subtree: true }); }
+            });
+            setTimeout(() => window._v132RevealScan(), 600);
+        }
+
+        /* ---------- 2) 按壓傾斜（只對卡片；按到互動子元素不傾斜） ---------- */
+        if (!reduced()) {
+            let tiltAnim = null, tiltEl = null, downX = 0, downY = 0;
+            const release = (snap) => {
+                if (!tiltEl) return;
+                const el = tiltEl; tiltEl = null;
+                if (el.animate) {
+                    if (tiltAnim) tiltAnim.cancel();
+                    const back = el.animate([{ transform: 'perspective(700px) rotateX(0deg) rotateY(0deg)' }], { duration: snap ? 240 : 120, easing: 'cubic-bezier(.2,.7,.3,1.3)' });
+                    back.onfinish = () => back.cancel();
+                }
+            };
+            document.addEventListener('pointerdown', (e) => {
+                if (isLite() || reduced()) return;
+                if (e.target.closest('button, a, input, select, textarea, label')) return;
+                const card = e.target.closest('.rpg-card');
+                if (!card || !card.animate) return;
+                const r = card.getBoundingClientRect();
+                if (r.width < 60 || r.height < 40) return;
+                const px = (e.clientX - r.left) / r.width - 0.5, py = (e.clientY - r.top) / r.height - 0.5;
+                tiltEl = card; downX = e.clientX; downY = e.clientY;
+                if (tiltAnim) tiltAnim.cancel();
+                tiltAnim = card.animate([{ transform: `perspective(700px) rotateX(${(-py * 3).toFixed(2)}deg) rotateY(${(px * 3).toFixed(2)}deg)` }], { duration: 160, fill: 'forwards', easing: 'ease-out' });
+            }, true);
+            document.addEventListener('pointermove', (e) => { if (tiltEl && Math.abs(e.clientY - downY) > 14) release(false); }, { passive: true });
+            document.addEventListener('pointerup', () => release(true), true);
+            document.addEventListener('pointercancel', () => release(false), true);
+        }
+
+        /* ---------- 3) 夜間星空（19:00–05:00，插在 Hero 圖之上、遮罩之下） ---------- */
+        (function stars() {
+            const heroImg = document.getElementById('heroImageDisplay');
+            if (!heroImg || !heroImg.parentElement || isLite()) return;
+            const box = document.createElement('div');
+            box.className = 'v132-stars'; box.id = 'v132Stars';
+            for (let i = 0; i < 42; i++) {
+                const s = document.createElement('span');
+                const sz = (1.3 + Math.random() * 1.4).toFixed(1);
+                s.style.cssText = `left:${(1 + Math.random() * 97).toFixed(1)}%;top:${(2 + Math.random() * 62).toFixed(1)}%;width:${sz}px;height:${sz}px;animation-delay:${(Math.random() * 3).toFixed(1)}s;animation-duration:${(2.2 + Math.random() * 1.8).toFixed(1)}s`;
+                box.appendChild(s);
+            }
+            heroImg.parentElement.insertBefore(box, heroImg.nextSibling);
+            const apply = () => { const h = new Date().getHours(); box.style.display = (h >= 19 || h < 5) ? '' : 'none'; };
+            apply(); setInterval(apply, 30 * 60 * 1000);
+        })();
+
+        /* ---------- 4) 卡片聚光燈（只滑鼠） ---------- */
+        document.addEventListener('pointermove', (e) => {
+            if (e.pointerType !== 'mouse' || isLite()) return;
+            const card = e.target && e.target.closest ? e.target.closest('.rpg-card') : null;
+            if (!card) return;
+            const r = card.getBoundingClientRect();
+            card.style.setProperty('--v132mx', (e.clientX - r.left).toFixed(0) + 'px');
+            card.style.setProperty('--v132my', (e.clientY - r.top).toFixed(0) + 'px');
+        }, { passive: true });
+
+        /* ---------- 5) 頂部鈕進度環 ---------- */
+        (function ring() {
+            const btn = document.getElementById('v105TopBtn');
+            if (!btn || isLite()) return;
+            const NS = 'http://www.w3.org/2000/svg';
+            const svg = document.createElementNS(NS, 'svg');
+            svg.setAttribute('width', '54'); svg.setAttribute('height', '54');
+            svg.setAttribute('style', 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-90deg);pointer-events:none');
+            const mk = (stroke, dash) => { const c = document.createElementNS(NS, 'circle'); c.setAttribute('cx', '27'); c.setAttribute('cy', '27'); c.setAttribute('r', '24'); c.setAttribute('fill', 'none'); c.setAttribute('stroke', stroke); c.setAttribute('stroke-width', '3'); if (dash) { c.setAttribute('stroke-linecap', 'round'); c.setAttribute('stroke-dasharray', '150.8'); c.setAttribute('stroke-dashoffset', '150.8'); } return c; };
+            const prog = mk('#2dd4bf', true);
+            svg.appendChild(mk('rgba(255,255,255,0.18)', false)); svg.appendChild(prog);
+            btn.appendChild(svg);
+            let ticking = false;
+            window.addEventListener('scroll', () => {
+                if (ticking) return; ticking = true;
+                requestAnimationFrame(() => {
+                    ticking = false;
+                    const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+                    const frac = Math.min(1, Math.max(0, (window.scrollY || 0) / max));
+                    prog.setAttribute('stroke-dashoffset', (150.8 * (1 - frac)).toFixed(1));
+                });
+            }, { passive: true });
+        })();
+
+        /* ---------- 6) 建議卡電流框（有推薦站時跑一圈） ---------- */
+        const stopBox132 = document.getElementById('abrpStopRecommendation');
+        const recCard132 = document.getElementById('abrpRecommendationCard');
+        if (stopBox132 && recCard132) new MutationObserver(() => {
+            if (isLite() || reduced() || !stopBox132.textContent.trim()) return;
+            const m = document.getElementById('abrpModal');
+            if (m && m.classList.contains('hidden')) return;
+            recCard132.classList.remove('v132-beam'); void recCard132.offsetWidth; recCard132.classList.add('v132-beam');
+            setTimeout(() => recCard132.classList.remove('v132-beam'), 1900);
+        }).observe(stopBox132, { childList: true });
+
+        /* ---------- 7) 下拉小彩蛋（首頁頂端下拉：閃電充飽 → 星光＋震動） ---------- */
+        if (!isLite() && !reduced()) {
+            const bolt = document.createElement('div');
+            bolt.id = 'v132PullBolt'; bolt.textContent = '⚡';
+            document.body.appendChild(bolt);
+            let startY = null, pull = 0;
+            document.addEventListener('touchstart', (e) => {
+                const home = document.getElementById('view-home');
+                startY = (window.scrollY <= 0 && home && home.classList.contains('active') && e.touches.length === 1) ? e.touches[0].clientY : null;
+                pull = 0;
+            }, { passive: true });
+            document.addEventListener('touchmove', (e) => {
+                if (startY === null) return;
+                pull = Math.max(0, e.touches[0].clientY - startY);
+                if (pull > 24) {
+                    const shown = Math.min(64, (pull - 24) * 0.62);
+                    bolt.style.transition = 'none';
+                    bolt.style.transform = `translateY(${(-72 + shown).toFixed(0)}px) scale(${(0.7 + Math.min(0.45, pull / 260)).toFixed(2)})`;
+                    bolt.classList.toggle('v132-charged', pull > 85);
+                }
+            }, { passive: true });
+            document.addEventListener('touchend', () => {
+                if (startY === null) return;
+                const wasCharged = pull > 85;
+                startY = null;
+                bolt.style.transition = 'transform .38s cubic-bezier(.2,.7,.3,1.2)';
+                if (wasCharged) {
+                    if (navigator.vibrate) navigator.vibrate(18);
+                    if (typeof window.triggerHaptic === 'function') window.triggerHaptic('medium');
+                    const cx = window.innerWidth / 2;
+                    for (let i = 0; i < 9; i++) {
+                        const s = document.createElement('span');
+                        s.className = 'v128-spark';
+                        s.style.left = cx + 'px'; s.style.top = '34px';
+                        document.body.appendChild(s);
+                        const a = Math.random() * Math.PI * 2, d = 30 + Math.random() * 42;
+                        const an = s.animate([{ transform: 'translate(-50%,-50%)', opacity: 1 }, { transform: `translate(${(Math.cos(a) * d).toFixed(0)}px, ${(Math.sin(a) * d + 14).toFixed(0)}px)`, opacity: 0 }], { duration: 560 + Math.random() * 240, easing: 'cubic-bezier(.2,.7,.3,1)' });
+                        if (an) an.onfinish = () => s.remove(); else s.remove();
+                    }
+                    setTimeout(() => { bolt.style.transform = 'translateY(-72px)'; bolt.classList.remove('v132-charged'); }, 420);
+                } else {
+                    bolt.style.transform = 'translateY(-72px)';
+                    bolt.classList.remove('v132-charged');
+                }
+                pull = 0;
+            }, { passive: true });
+        }
+
+        /* ---------- 8) 剖面海拔漸層（新剖面進來時把面積填充換成高度漸層） ---------- */
+        const svgBox132 = document.getElementById('abrpSvgContainer');
+        if (svgBox132) new MutationObserver(() => {
+            const svg = svgBox132.querySelector('svg');
+            if (!svg || svg.querySelector('#v132ElevGrad')) return;
+            const path = svg.querySelector('path');
+            if (!path) return;
+            const NS = 'http://www.w3.org/2000/svg';
+            const defs = document.createElementNS(NS, 'defs');
+            defs.innerHTML = '<linearGradient id="v132ElevGrad" x1="0" y1="1" x2="0" y2="0">'
+                + '<stop offset="0%" stop-color="#22c55e" stop-opacity="0.5"/>'
+                + '<stop offset="45%" stop-color="#ca8a04" stop-opacity="0.5"/>'
+                + '<stop offset="75%" stop-color="#b45309" stop-opacity="0.5"/>'
+                + '<stop offset="100%" stop-color="#f8fafc" stop-opacity="0.65"/>'
+                + '</linearGradient>';
+            svg.insertBefore(defs, svg.firstChild);
+            path.setAttribute('fill', 'url(#v132ElevGrad)');
+        }).observe(svgBox132, { childList: true });
     })();
 </script>
 </body>
