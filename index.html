@@ -53,6 +53,10 @@ input[type="number"] {
         /* v45：toast 進行中轉圈（currentColor 跟隨 toast 文字色） */
         .toast-spinner { display: inline-block; width: 15px; height: 15px; border-radius: 50%; border: 2px solid currentColor; border-top-color: transparent; animation: toast-spin 0.7s linear infinite; flex-shrink: 0; }
         @keyframes toast-spin { to { transform: rotate(360deg); } }
+        /* v145：進/退場動畫期間暫時關閉 backdrop-filter。iOS 上 backdrop 圖層不跟著 scale
+           同步縮放，會以原尺寸停在原地形成藥丸殘影（v144 實機影片逐幀確認）；動畫結束或
+           下次顯示重設 className 時自動恢復，本 class 只在動畫期間存在。 */
+        .v145-noblur { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
         /* v62：toast 避開瀏海／動態島 — 用 env(safe-area-inset-top) 自動適配所有 iPhone 機型（瀏海／動態島／無瀏海）。
            兩行 top：第一行是 fallback（不支援 env() 的瀏覽器用 12px），第二行在支援的瀏覽器覆蓋。
            用 #toast（ID 選擇器，優先於 Tailwind .top-3），因為 showToast 的 JS 會重設 className，改 class 會被覆蓋。 */
@@ -1076,7 +1080,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v142</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v146</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1571,7 +1575,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v142</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v146</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2055,7 +2059,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v142';
+        const APP_VERSION = 'v146';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -2395,9 +2399,25 @@ function cacheDOMNodes() {
             const colorClasses = isError ? 'bg-rose-500/90 backdrop-blur-xl saturate-150 text-white border-white/25' : isSuccess ? 'bg-emerald-50/90 dark:bg-emerald-950/90 backdrop-blur-xl saturate-150 text-emerald-900 dark:text-emerald-100 border-emerald-200/70 dark:border-emerald-800/60' : 'bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl saturate-150 text-stone-900 dark:text-white border-white/40 dark:border-white/30';
 
             DOM.toast.className = `fixed top-3 left-3 right-3 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-full md:max-w-[420px] z-[9999] transform transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] p-3 rounded-[28px] shadow-2xl flex items-center justify-center gap-3 border text-left leading-relaxed ${colorClasses} translate-y-0 opacity-100 visible pointer-events-auto`;
+            if (window._v143ToastExitAnim) { window._v143ToastExitAnim.cancel(); window._v143ToastExitAnim = null; } // v143：清掉退場動畫殘留
             if (typeof window.v105ToastBar === 'function') window.v105ToastBar(duration, isLoading); // v105：倒數條
 
             setTimeout(() => {
+                // v146：退場由大縮小＋往上滑回（使用者指定），改用 WAAPI transform 單一機制
+                // （置中位移直接寫進 keyframes）。v143–v145 用 translate/scale 獨立屬性，在
+                // iOS 上與 Tailwind 置中 transform 合成不乾淨（殘影、縮放中心偏移）；
+                // lite／減少動態不跑、維持原本淡出。
+                try {
+                    if (DOM.toast && DOM.toast.animate && !document.documentElement.classList.contains('lite') && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                        const tx146 = window.matchMedia('(min-width: 768px)').matches ? '-50%' : '0px';
+                        DOM.toast.style.transformOrigin = '50% 50%';
+                        DOM.toast.classList.add('v145-noblur'); // 動畫期間關毛玻璃防 iOS 合成殘影
+                        window._v143ToastExitAnim = DOM.toast.animate([
+                            { transform: `translate(${tx146}, 0px) scale(1)`, opacity: '1' },
+                            { transform: `translate(${tx146}, -18px) scale(0.8)`, opacity: '0' }
+                        ], { duration: 280, easing: 'cubic-bezier(.4,0,.6,1)', fill: 'forwards' });
+                    }
+                } catch (e) { /* 動畫失敗不影響隱藏流程 */ }
                 DOM.toast.classList.replace('translate-y-0', '-translate-y-4');
                 DOM.toast.classList.replace('opacity-100', 'opacity-0');
                 setTimeout(() => {
@@ -8484,15 +8504,26 @@ function updateAbrpElevScrub(pct) {
         if (typeof toastOrig === 'function' && !toastOrig._v128Wrapped) {
             const w = function(...args) {
                 const r = toastOrig.apply(this, args);
-                setTimeout(() => {
-                    if (isLite() || reduced()) return;
+                // v146：進場改同步啟動 — v143–v145 延遲 40ms 才開始，外殼會先以原尺寸
+                // 淡入，產生「上一個占存」的殼影；同步啟動讓第一幀就是動畫起點。
+                if (!isLite() && !reduced()) {
                     const t = document.getElementById('toast');
                     if (t && !t.classList.contains('invisible') && t.animate) {
-                        t.animate([{ scale: '0.92' }, { scale: '1.02', offset: 0.55 }, { scale: '1' }], { duration: 420, easing: 'cubic-bezier(.2,.8,.3,1)' });
+                        // v146：進場「從上方滑下＋由小放大」改 WAAPI transform 單一機制
+                        // （置中位移寫進 keyframes、中心固定正中間）；62% 處輕微 overshoot。
+                        const tx146 = window.matchMedia('(min-width: 768px)').matches ? '-50%' : '0px';
+                        t.style.transformOrigin = '50% 50%';
+                        t.classList.add('v145-noblur'); // 動畫期間關毛玻璃防 iOS 合成殘影
+                        const v146in = t.animate([
+                            { transform: `translate(${tx146}, -24px) scale(0.75)`, opacity: '0' },
+                            { transform: `translate(${tx146}, 3px) scale(1.04)`, opacity: '1', offset: 0.62 },
+                            { transform: `translate(${tx146}, 0px) scale(1)`, opacity: '1' }
+                        ], { duration: 480, easing: 'cubic-bezier(.2,.8,.3,1)' });
+                        v146in.onfinish = () => { t.classList.remove('v145-noblur'); };
                         const ic = document.getElementById('toastIcon');
                         if (ic) ic.animate([{ transform: 'scale(0.6) rotate(-14deg)' }, { transform: 'scale(1.12) rotate(3deg)', offset: 0.6 }, { transform: 'scale(1) rotate(0deg)' }], { duration: 420, easing: 'ease-out' });
                     }
-                }, 40);
+                }
                 return r;
             };
             w._v128Wrapped = true;
