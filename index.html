@@ -1112,7 +1112,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v161</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v162</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1648,7 +1648,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v161</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v162</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2133,7 +2133,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v161';
+        const APP_VERSION = 'v162';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -9241,34 +9241,7 @@ function updateAbrpElevScrub(pct) {
             setTimeout(() => window._v132RevealScan(), 600);
         }
 
-        /* ---------- 2) 按壓傾斜（只對卡片；按到互動子元素不傾斜） ---------- */
-        if (!reduced()) {
-            let tiltAnim = null, tiltEl = null, downX = 0, downY = 0;
-            const release = (snap) => {
-                if (!tiltEl) return;
-                const el = tiltEl; tiltEl = null;
-                if (el.animate) {
-                    if (tiltAnim) tiltAnim.cancel();
-                    const back = el.animate([{ transform: 'perspective(700px) rotateX(0deg) rotateY(0deg)' }], { duration: snap ? 240 : 120, easing: 'cubic-bezier(.2,.7,.3,1.3)' });
-                    back.onfinish = () => back.cancel();
-                }
-            };
-            document.addEventListener('pointerdown', (e) => {
-                if (isLite() || reduced()) return;
-                if (e.target.closest('button, a, input, select, textarea, label')) return;
-                const card = e.target.closest('.rpg-card');
-                if (!card || !card.animate) return;
-                const r = card.getBoundingClientRect();
-                if (r.width < 60 || r.height < 40) return;
-                const px = (e.clientX - r.left) / r.width - 0.5, py = (e.clientY - r.top) / r.height - 0.5;
-                tiltEl = card; downX = e.clientX; downY = e.clientY;
-                if (tiltAnim) tiltAnim.cancel();
-                tiltAnim = card.animate([{ transform: `perspective(700px) rotateX(${(-py * 3).toFixed(2)}deg) rotateY(${(px * 3).toFixed(2)}deg)` }], { duration: 160, fill: 'forwards', easing: 'ease-out' });
-            }, true);
-            document.addEventListener('pointermove', (e) => { if (tiltEl && Math.abs(e.clientY - downY) > 14) release(false); }, { passive: true });
-            document.addEventListener('pointerup', () => release(true), true);
-            document.addEventListener('pointercancel', () => release(false), true);
-        }
+        /* ---------- 2) 按壓傾斜：v162 依使用者回報（點卡片會歪一邊）移除 ---------- */
 
         /* ---------- 3) 夜間星空（19:00–05:00，插在 Hero 圖之上、遮罩之下） ---------- */
         (function stars() {
