@@ -1090,7 +1090,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v149</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v150</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1585,7 +1585,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v149</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v150</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2069,7 +2069,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v149';
+        const APP_VERSION = 'v150';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -6637,6 +6637,21 @@ function cleanElevations(raw, totalDistanceKm) {
       while (q < step1.length && Math.abs(step1[q] - baseline[q]) > 80) q++;
       const width = q - p;
       const li = Math.max(0, p - 1), ri = Math.min(step1.length - 1, q);
+      // v150：稜線保護 — 第 2 關原本會把「寬度 <= maxSpikePoints 的偏離段」整段削平，
+      // 但真實越嶺頂點在長路線稀疏取樣下也會形成這種偏離段：實測合歡山越嶺（340km、
+      // 間距 665m）原始峰值 3254 被削成 3019 平台（顯示 3048，武嶺應為 3276）。
+      // 判準：真越嶺是「爬了很久才到頂」— 偏離段前 30km 內自谷底爬升 >= 700m、
+      // 後 30km 內自肩部下降 >= 400m；假 DEM 峰（隧道上方山脊）前後都是平路或
+      // 丘陵，峰谷落差裝不出這個量級，通過不了這關、照舊削平。段落貼齊起/終點時
+      // 該側條件視為成立（起點/終點本身就是山頂的路線，如武嶺出發/抵達）。
+      const wSamples150 = Math.round(30000 / Math.max(1, spacingM));
+      let minBefore150 = Infinity;
+      for (let k = Math.max(0, p - wSamples150); k < p; k++) minBefore150 = Math.min(minBefore150, step1[k]);
+      let minAfter150 = Infinity;
+      for (let k = q; k <= Math.min(step1.length - 1, q + wSamples150); k++) minAfter150 = Math.min(minAfter150, step1[k]);
+      const riseBefore150 = step1[li] - minBefore150;
+      const dropAfter150 = step1[ri] - minAfter150;
+      if ((riseBefore150 >= 700 || p <= 2) && (dropAfter150 >= 400 || q >= step1.length - 2)) { p = q; continue; }
       let w = 0;
       if (width <= maxSpikePoints) w = 1;
       else if (width <= maxSpikePoints + taperPoints) w = 1 - (width - maxSpikePoints) / taperPoints;
@@ -6651,8 +6666,13 @@ function cleanElevations(raw, totalDistanceKm) {
     } else p++;
   }
 
-  // --- 第 3 關：平滑 ---
-  const smoothedOut = movingAverage(medianFilter(step2, 5), 9);
+  // --- 第 3 關：平滑（v150：窗寬改距離制）---
+  // 原固定中位數 5 點／移動平均 9 點：短路線（間距 ~125m）約 ±250m／±500m 合理；
+  // 長路線間距 665m 時 9 點 = ±2.7km，會把真實尖峰再磨掉近百米。改依間距換算：
+  // 間距 <= ~130m 時恆為 5／9（與舊版一致），間距越大窗越小（下限 1／3）。
+  const medWin150 = Math.min(5, Math.max(1, 2 * Math.round(275 / Math.max(1, spacingM)) + 1));
+  const maWin150 = Math.min(9, Math.max(3, 2 * Math.round(550 / Math.max(1, spacingM)) + 1));
+  const smoothedOut = movingAverage(medianFilter(step2, medWin150), maWin150);
   // v142：平滑窗在序列兩端只能用單側窗，陡坡尾段會被系統性拉低（實測武嶺終點原始/
   // 校正皆 3276、平滑後剩 3196，scrub 拉到底讀不到標高、剖面線也碰不到右上角）。
   // 起終點是真實錨點：平滑後還原為清洗後（第 2 關）的值，窗內數值完全不動。
