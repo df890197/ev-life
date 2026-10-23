@@ -1112,7 +1112,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v162</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v163</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1648,7 +1648,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v162</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v163</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2133,7 +2133,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v162';
+        const APP_VERSION = 'v163';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -2827,7 +2827,7 @@ function cacheDOMNodes() {
                 const cap = AppState.batteryCapacity || 57.7;
                 const all = (AppState.records || []).filter(r => r && r.id !== 'SYSTEM_METADATA' && r.id !== 'CONFIG_METADATA' && r.date);
                 const isCharge = r => { const t = r.chargeType || ''; return t.includes('快充') || t.includes('慢充'); };
-                const drives = all.filter(r => r.chargeType === '未充電');
+                const drives = all.filter(r => !['維修保養', '停車費', '通行費', '保險費', '車貸'].includes(r.chargeType)); // v163：里程比照 App 本身（calculateRecordStats）定義——登錄在非支出紀錄（含充電紀錄）上，不只「行程」類型
                 const charges = all.filter(isCharge);
                 const recPower = r => { const p = parseFloat(r.power); if (isFinite(p)) return p; return cap * Math.abs((parseFloat(r.startSoc) || 0) - (parseFloat(r.endSoc) || 0)) / 100; };
                 const fmtKm = n => Math.round(n).toLocaleString();
@@ -2888,7 +2888,7 @@ function cacheDOMNodes() {
                         const longest = drives.reduce((a, r) => ((parseFloat(r.distance) || 0) > (parseFloat(a.distance) || 0) ? r : a), drives[0]);
                         items.push(['🏁', '最長一趟 <b>' + (parseFloat(longest.distance) || 0).toFixed(1) + ' km</b>（' + longest.date + '）']);
                         const byMonth = {};
-                        drives.forEach(r => { const k = r.date.slice(0, 7); if (!byMonth[k]) byMonth[k] = { km: 0, pw: 0 }; byMonth[k].km += parseFloat(r.distance) || 0; byMonth[k].pw += recPower(r); });
+                        drives.forEach(r => { const dSoc = (parseFloat(r.startSoc) || 0) - (parseFloat(r.endSoc) || 0); if (!((parseFloat(r.distance) || 0) > 0) || dSoc <= 0) return; const k = r.date.slice(0, 7); if (!byMonth[k]) byMonth[k] = { km: 0, pw: 0 }; byMonth[k].km += parseFloat(r.distance) || 0; byMonth[k].pw += (r.chargeType === '未充電' && isFinite(parseFloat(r.power))) ? parseFloat(r.power) : cap * dSoc / 100; }); // v163：充電紀錄的 power 是補入電量、不可當消耗，只計淨耗電紀錄
                         let bestM = null, bestEff = 0;
                         Object.keys(byMonth).forEach(k => { const m = byMonth[k]; if (m.km >= 50 && m.pw > 0) { const e = m.km / m.pw; if (e > bestEff) { bestEff = e; bestM = k; } } });
                         if (bestM) items.push(['🍃', '最省電的月份 <b>' + bestM.replace('-', ' 年 ') + ' 月</b>，平均 ' + bestEff.toFixed(2) + ' km/度']);
