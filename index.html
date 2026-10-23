@@ -1090,7 +1090,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v157</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v158</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1585,7 +1585,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v157</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v158</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2069,7 +2069,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v157';
+        const APP_VERSION = 'v158';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -6321,6 +6321,7 @@ function renderDestinationChargingCard(station, specs, chargingScenarioText, des
 
         <div class="flex flex-wrap items-center gap-1.5">
             <span id="destCardArrivalSoc" data-dist-m="${distM}" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-extrabold border bg-stone-100 dark:bg-neutral-900 text-stone-500 dark:text-stone-300 border-stone-200 dark:border-stone-700 shadow-sm">🔋 預估抵達：計算中…</span>
+            ${specs.availability ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-extrabold border shadow-sm ${specs.availability.available > 0 ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700/60' : 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-700/60'}">${specs.availability.available > 0 ? `🟢 目前可用 ${specs.availability.available}/${specs.availability.total} 樁` : '🔴 目前無空位'}${formatAvailabilityNote(specs.availability) ? `（${formatAvailabilityNote(specs.availability)}）` : ''}</span>` : ''}
         </div>
 
         <div class="p-2 rounded-xl bg-white/70 dark:bg-black/60 border border-teal-200/50 dark:border-teal-800/40 text-[11px] text-stone-600 dark:text-stone-300 leading-relaxed">
@@ -6393,6 +6394,7 @@ function parseEvSpecs(evOptions, stationName = '') {
         powerLabel: cls.powerLabel,
         connectorLabel: cls.connectorLabel,
         hasCcs1: cls.hasCcs1,
+        availability: cls.availability || null,
         connectors
     };
 }
@@ -6413,7 +6415,7 @@ function parseEvSpecs(evOptions, stationName = '') {
 //       'incompatible' = 有規格但無 CCS1/CCS2/J1772（n7 無法使用）；'unknown' = 無規格資料。
 // 注意：hasCcs1 在 App 內視為「有 CCS 快充接頭」家族（CCS1/CCS2 皆算），僅用於槍頭標籤顏色。
 function classifyEvChargeSpecs(evChargeOptions) {
-  const unknown = { kind: 'unknown', maxKw: null, powerLabel: '規格未確認', connectorLabel: '請現場確認', hasCcs1: false, isFast: false, verified: false };
+  const unknown = { kind: 'unknown', maxKw: null, powerLabel: '規格未確認', connectorLabel: '請現場確認', hasCcs1: false, isFast: false, verified: false, availability: null };
   const aggs = evChargeOptions && evChargeOptions.connectorAggregation;
   if (!Array.isArray(aggs) || aggs.length === 0) return unknown;
   let maxKwApplicable = 0, maxKwAny = 0;
@@ -6435,17 +6437,62 @@ function classifyEvChargeSpecs(evChargeOptions) {
       if (labels.indexOf(friendly) < 0) labels.push(friendly);
     }
   }
+  // v158: availability aggregation - only CCS rows that report availableCount.
+  // Operators that do not report -> availability stays null; UI never fakes 0.
+  let availSum = 0, totalSum = 0, outSum = 0, latestTs = null, hasAvail = false;
+  for (const a of aggs) {
+    const t2 = String((a && a.type) || '');
+    if (t2.indexOf('CCS_COMBO_') < 0) continue;
+    if (typeof a.availableCount !== 'number' || !isFinite(a.availableCount)) continue;
+    hasAvail = true;
+    availSum += a.availableCount;
+    totalSum += (typeof a.count === 'number' && isFinite(a.count)) ? a.count : a.availableCount;
+    outSum += (typeof a.outOfServiceCount === 'number' && isFinite(a.outOfServiceCount)) ? a.outOfServiceCount : 0;
+    if (a.availabilityLastUpdateTime && (!latestTs || a.availabilityLastUpdateTime > latestTs)) latestTs = a.availabilityLastUpdateTime;
+  }
+  const availability = hasAvail ? { available: availSum, total: totalSum, outOfService: outSum, updatedAt: latestTs } : null;
   const applicable = hasCcs1 || hasCcs2 || hasJ1772;
   const hasCcsFamily = hasCcs1 || hasCcs2;
   if (!applicable) {
-    return { kind: 'incompatible', maxKw: maxKwAny || null, powerLabel: (maxKwAny ? maxKwAny + ' kW（無適用插頭）' : '無適用插頭'), connectorLabel: labels.length ? labels.join(' / ') : '無 CCS1/CCS2/J1772', hasCcs1: false, isFast: false, verified: true };
+    return { kind: 'incompatible', maxKw: maxKwAny || null, powerLabel: (maxKwAny ? maxKwAny + ' kW（無適用插頭）' : '無適用插頭'), connectorLabel: labels.length ? labels.join(' / ') : '無 CCS1/CCS2/J1772', hasCcs1: false, isFast: false, verified: true, availability };
   }
   const connectorLabel = (hasCcs1 && hasCcs2) ? 'CCS1 / CCS2' : (hasCcs1 ? 'CCS1' : (hasCcs2 ? 'CCS2' : 'J1772'));
   const fullLabel = labels.length ? labels.join(' / ') : connectorLabel;
   if (hasCcsFamily && maxKwApplicable >= 50) {
-    return { kind: 'fast', maxKw: maxKwApplicable, powerLabel: maxKwApplicable + ' kW (快充)', connectorLabel: connectorLabel, hasCcs1: hasCcsFamily, isFast: true, verified: true };
+    return { kind: 'fast', maxKw: maxKwApplicable, powerLabel: maxKwApplicable + ' kW (快充)', connectorLabel: connectorLabel, hasCcs1: hasCcsFamily, isFast: true, verified: true, availability };
   }
-  return { kind: 'slow', maxKw: maxKwApplicable || null, powerLabel: (maxKwApplicable ? maxKwApplicable + ' kW (慢充)' : '功率未標示'), connectorLabel: fullLabel, hasCcs1: hasCcsFamily, isFast: false, verified: true };
+  return { kind: 'slow', maxKw: maxKwApplicable || null, powerLabel: (maxKwApplicable ? maxKwApplicable + ' kW (慢充)' : '功率未標示'), connectorLabel: fullLabel, hasCcs1: hasCcsFamily, isFast: false, verified: true, availability };
+}
+
+// v158: freshness note for availability (ISO -> "N min ago"; >=1h -> HH:MM; none -> '')
+function formatAvailabilityNote(av) {
+    if (!av || !av.updatedAt) return '';
+    const t = Date.parse(av.updatedAt);
+    if (!isFinite(t)) return '';
+    const mins = Math.max(0, Math.round((Date.now() - t) / 60000));
+    if (mins < 1) return '剛剛更新';
+    if (mins < 60) return mins + ' 分鐘前更新';
+    const d = new Date(t);
+    return '更新於 ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+}
+
+// v158: default pick avoids a KNOWN-full station. If bestIdx station reports
+// availability and has 0 free, scan forward then backward for the first station
+// with a free connector or no availability data. Nothing is filtered out:
+// cycling can still select the full station (its card badges it as full).
+function adjustBestIdxAvoidFull(candidates, bestIdx) {
+    const avOf = (c) => (c && c.specs && c.specs.availability) ? c.specs.availability : null;
+    const best = avOf(candidates[bestIdx]);
+    if (!best || best.available > 0) return bestIdx;
+    for (let i = bestIdx + 1; i < candidates.length; i++) {
+        const av = avOf(candidates[i]);
+        if (!av || av.available > 0) return i;
+    }
+    for (let i = bestIdx - 1; i >= 0; i--) {
+        const av = avOf(candidates[i]);
+        if (!av || av.available > 0) return i;
+    }
+    return bestIdx;
 }
 
 // v58: 為 Places 候選站補上真實充電規格（平行查詢，最多 6 站，單站 3 秒逾時）。
@@ -6460,7 +6507,7 @@ async function enrichCandidatesWithEvSpecs(candidates) {
     const ev = await fetchEvChargeDetails(cand.place_id); // v58: 重用既有的 Places API (New) 查詢，不另造輪子
     const cls = classifyEvChargeSpecs(ev);
     if (cls.kind === 'incompatible') { cand.excludedIncompatible = true; return; }
-    cand.specs = { isFast: cls.isFast, maxKw: cls.maxKw, powerLabel: cls.powerLabel, connectorLabel: cls.connectorLabel, hasCcs1: cls.hasCcs1 };
+    cand.specs = { isFast: cls.isFast, maxKw: cls.maxKw, powerLabel: cls.powerLabel, connectorLabel: cls.connectorLabel, hasCcs1: cls.hasCcs1, availability: cls.availability || null };
     cand.specVerified = cls.verified;
     cand.specKind = cls.kind;
   });
@@ -7413,7 +7460,7 @@ function buildChainedStopPlan(firstStation, ctx) {
         const arr = Math.max(0, Math.round(arrivalSoc));
         const chargeKwh = Math.max(0, ((target - arr) / 100) * cap);
         const kw = (station && station.specs && station.specs.maxKw) ? station.specs.maxKw : 100;
-        return { index, atKm: Math.round(atKm * 10) / 10, arrivalSoc: arr, departSoc: target, chargeKwh: Math.round(chargeKwh * 10) / 10, chargeMinutes: Math.round((chargeKwh / kw) * 60), stationName: station ? station.name : null };
+        return { index, atKm: Math.round(atKm * 10) / 10, arrivalSoc: arr, departSoc: target, chargeKwh: Math.round(chargeKwh * 10) / 10, chargeMinutes: Math.round((chargeKwh / kw) * 60), stationName: station ? station.name : null, avail: (station && station.specs && station.specs.availability) ? { available: station.specs.availability.available, total: station.specs.availability.total } : null };
     };
     const stops = [];
     const firstKm = firstStation.kmFromStart || 0;
@@ -7424,9 +7471,15 @@ function buildChainedStopPlan(firstStation, ctx) {
     while (curKm + reachableKm(curSoc) < totalKm - 1e-9 && stops.length < 5 && guard++ < 10) {
         const kmNeed = curKm + reachableKm(curSoc);
         let pick = null;
+        let pickFree = null;
         for (const c of candidates) {
-            if (c.kmFromStart > curKm + 15 && c.kmFromStart <= kmNeed + 1e-9) pick = c; // 已排序：留最後一個 = 範圍內最遠
+            if (c.kmFromStart > curKm + 15 && c.kmFromStart <= kmNeed + 1e-9) {
+                pick = c;
+                const av = (c.specs && c.specs.availability) ? c.specs.availability : null;
+                if (!av || av.available > 0) pickFree = c;
+            }
         }
+        pick = pickFree || pick;
         if (pick) {
             stops.push(mkStop(stops.length + 1, pick, pick.kmFromStart, socAfterDrive(curSoc, pick.kmFromStart - curKm)));
             curKm = pick.kmFromStart;
@@ -7448,7 +7501,7 @@ function renderLaterStopsHtml(stopPlan) {
         <div class="flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-white/60 dark:bg-black/20 border border-amber-200/50 dark:border-amber-700/30">
             <div class="min-w-0">
                 <div class="font-extrabold text-xs">${st.stationName ? `第 ${st.index} 站 · ${escapeHTML(st.stationName)}` : `第 ${st.index} 站 · 約 ${st.atKm} km 處`}</div>
-                <div class="text-[10px] text-stone-500 dark:text-stone-400 font-bold">${st.stationName ? `約 ${st.atKm} km · ` : ''}抵達約 ${st.arrivalSoc}% → 充至 ${st.departSoc}% · 需補 ${st.chargeKwh} 度</div>
+                <div class="text-[10px] text-stone-500 dark:text-stone-400 font-bold">${st.stationName ? `約 ${st.atKm} km · ` : ''}抵達約 ${st.arrivalSoc}% → 充至 ${st.departSoc}% · 需補 ${st.chargeKwh} 度${st.avail ? (st.avail.available > 0 ? ` · 🟢 可用 ${st.avail.available}/${st.avail.total}` : ' · 🔴 目前無空位') : ''}</div>
             </div>
             <span class="shrink-0 text-[10px] font-extrabold bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-md whitespace-nowrap">⏱️ 約 ${st.chargeMinutes} 分</span>
         </div>`).join('');
@@ -7898,6 +7951,9 @@ const validCandidates = [];
         }
     });
 
+    // v158: default pick avoids a known-full station (nothing filtered out)
+    bestIdx = adjustBestIdxAvoidFull(validCandidates, bestIdx);
+
 // v65: 站點卡片渲染（可重呼叫 — 供「換站」按鈕重畫卡片）。
 // candidates: 過濾＋排序後的候選站清單；selectedIdx: 本次顯示的候選索引；
 // ctx: { routeIdx, calcData, realEff, startSoc, userTargetSoc }（外層函式傳入）。
@@ -8027,6 +8083,17 @@ function renderStationCardForIndex(candidates, selectedIdx, ctx) {
             </div>`;
         }
 
+        // v158: live availability chip (only when the operator reports data; 0 free = red)
+        const avail158 = (specs && specs.availability) ? specs.availability : null;
+        let availChipHtml = '';
+        if (avail158) {
+            const note158 = formatAvailabilityNote(avail158);
+            const noteTxt158 = note158 ? `（${note158}）` : '';
+            availChipHtml = avail158.available > 0
+                ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60 text-[10px] font-mono font-extrabold shadow-sm">🟢 目前可用 ${avail158.available}/${avail158.total} 樁${noteTxt158}</span>`
+                : `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-700/60 text-[10px] font-mono font-extrabold shadow-sm">🔴 目前無空位${avail158.outOfService ? `（${avail158.outOfService} 樁故障）` : ''}${noteTxt158}</span>`;
+        }
+
     const stationCardHtml = `
                     <div class="bg-white/90 dark:bg-black/50 p-3 sm:p-3.5 rounded-2xl border ${isMustCharge ? 'border-rose-400 dark:border-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.18)]' : (isRestArea ? 'border-amber-400 dark:border-amber-500' : 'border-teal-400')} mt-1 shadow-sm space-y-2.5">
                         ${urgencyNoticeHtml}
@@ -8057,6 +8124,7 @@ function renderStationCardForIndex(candidates, selectedIdx, ctx) {
                             <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md ${specs.hasCcs1 ? 'bg-teal-100 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 border-teal-200 dark:border-teal-800/50' : 'bg-stone-100 dark:bg-neutral-900 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700'} text-[10px] font-mono font-bold border">
                                 🔌 槍頭: ${specs.connectorLabel}
                             </span>
+                            ${availChipHtml}
                             ${isN7AutoChargeStation(stationName) ? `
                             <!-- ⚡ n⁷ 隨插即充標籤 -->
                             <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-400/40 text-[10px] font-mono font-extrabold shadow-sm">
