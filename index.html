@@ -1090,7 +1090,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v156</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v157</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1585,7 +1585,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v156</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v157</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2069,7 +2069,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v156';
+        const APP_VERSION = 'v157';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -7394,6 +7394,52 @@ function planChargingStops({ totalDistanceKm, startSoc, batteryCapacity, realEff
     return { stops, incomplete };
 }
 
+// v157：連動補電計畫 — 錨定使用者實際選定的第一站（真實里程）串算後續站。
+// 模型與 planChargingStops 一致（同均耗、同底線、每站充至 80%），差別在停靠點：
+// 第一站用選定站的真實里程算抵達電量；之後每一站都以前一站「充至 80% 出發」
+// 為起點，在「必須停靠前」範圍內配對最遠的真實候選站（顯示站名），範圍內
+// 無站才退回里程推算點（無站名）。換站重畫卡片時整串重算（使用者要求連動）。
+function buildChainedStopPlan(firstStation, ctx) {
+    const calcData = ctx.calcData || {};
+    const totalKm = calcData.totalDistanceKm || 0;
+    const eff = (ctx.realEff > 0 && isFinite(ctx.realEff)) ? ctx.realEff : 5.5;
+    const cap = AppState.batteryCapacity;
+    const floor = Math.max(0, Math.min(95, ctx.userTargetSoc || 15));
+    const target = 80;
+    const candidates = (ctx.candidates || []).filter(c => isFinite(c.kmFromStart)).slice().sort((a, b) => a.kmFromStart - b.kmFromStart);
+    const socAfterDrive = (fromSoc, driveKm) => fromSoc - ((driveKm / eff) / cap) * 100;
+    const reachableKm = (soc) => Math.max(0, ((soc - floor) / 100) * cap * eff);
+    const mkStop = (index, station, atKm, arrivalSoc) => {
+        const arr = Math.max(0, Math.round(arrivalSoc));
+        const chargeKwh = Math.max(0, ((target - arr) / 100) * cap);
+        const kw = (station && station.specs && station.specs.maxKw) ? station.specs.maxKw : 100;
+        return { index, atKm: Math.round(atKm * 10) / 10, arrivalSoc: arr, departSoc: target, chargeKwh: Math.round(chargeKwh * 10) / 10, chargeMinutes: Math.round((chargeKwh / kw) * 60), stationName: station ? station.name : null };
+    };
+    const stops = [];
+    const firstKm = firstStation.kmFromStart || 0;
+    stops.push(mkStop(1, firstStation, firstKm, socAfterDrive(ctx.startSoc, firstKm)));
+    let curKm = firstKm;
+    let curSoc = target;
+    let guard = 0;
+    while (curKm + reachableKm(curSoc) < totalKm - 1e-9 && stops.length < 5 && guard++ < 10) {
+        const kmNeed = curKm + reachableKm(curSoc);
+        let pick = null;
+        for (const c of candidates) {
+            if (c.kmFromStart > curKm + 15 && c.kmFromStart <= kmNeed + 1e-9) pick = c; // 已排序：留最後一個 = 範圍內最遠
+        }
+        if (pick) {
+            stops.push(mkStop(stops.length + 1, pick, pick.kmFromStart, socAfterDrive(curSoc, pick.kmFromStart - curKm)));
+            curKm = pick.kmFromStart;
+        } else {
+            stops.push(mkStop(stops.length + 1, null, kmNeed, floor));
+            curKm = kmNeed;
+        }
+        curSoc = target;
+    }
+    const incomplete = curKm + reachableKm(curSoc) < totalKm - 1e-9;
+    return { stops, incomplete };
+}
+
 // v53：後續站點清單（第 2 站起；第 1 站由既有站點卡片詳述）
 function renderLaterStopsHtml(stopPlan) {
     const stops = stopPlan?.stops || [];
@@ -7401,14 +7447,14 @@ function renderLaterStopsHtml(stopPlan) {
     const rows = stops.slice(1).map(st => `
         <div class="flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-white/60 dark:bg-black/20 border border-amber-200/50 dark:border-amber-700/30">
             <div class="min-w-0">
-                <div class="font-extrabold text-xs">第 ${st.index} 站 · 約 ${st.atKm} km 處</div>
-                <div class="text-[10px] text-stone-500 dark:text-stone-400 font-bold">抵達約 ${st.arrivalSoc}% → 充至 ${st.departSoc}% · 需補 ${st.chargeKwh} 度</div>
+                <div class="font-extrabold text-xs">${st.stationName ? `第 ${st.index} 站 · ${escapeHTML(st.stationName)}` : `第 ${st.index} 站 · 約 ${st.atKm} km 處`}</div>
+                <div class="text-[10px] text-stone-500 dark:text-stone-400 font-bold">${st.stationName ? `約 ${st.atKm} km · ` : ''}抵達約 ${st.arrivalSoc}% → 充至 ${st.departSoc}% · 需補 ${st.chargeKwh} 度</div>
             </div>
             <span class="shrink-0 text-[10px] font-extrabold bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-md whitespace-nowrap">⏱️ 約 ${st.chargeMinutes} 分</span>
         </div>`).join('');
     return `
         <div class="pt-2 space-y-1.5">
-            <div class="text-[11px] font-extrabold text-amber-800 dark:text-amber-300">後續補電計畫（依里程推算，實際站點請以導航為準）</div>
+            <div class="text-[11px] font-extrabold text-amber-800 dark:text-amber-300">後續補電計畫（依第一站選擇連動推算）</div>
             ${rows}
             ${stopPlan.incomplete ? `<p class="text-[10px] font-bold text-rose-600 dark:text-rose-400">⚠️ 即使充 5 站仍無法抵達，請分段規劃或提高出發電量。</p>` : ''}
         </div>`;
@@ -8083,6 +8129,13 @@ function renderStationCardForIndex(candidates, selectedIdx, ctx) {
         const card0 = document.getElementById('pkCardRoute0');
         const isCard0Active = card0 ? card0.classList.contains('border-amber-400') : true;
         const currentActiveRoute = isCard0Active ? 0 : 1;
+
+        // v157：後續補電計畫錨定目前選定的第一站連動重算，存回 calcData 供快取重繪；
+        // 「換站」重畫卡片時會走到這裡，整串跟著變。
+        if (ctx.calcData) {
+            ctx.calcData.stopPlan = buildChainedStopPlan(selectedStation, ctx);
+            ctx.calcData.neededStops = ctx.calcData.stopPlan.stops.length;
+        }
 
         if (currentActiveRoute === ctx.routeIdx || (ctx.routeIdx === 0 && isCard0Active)) {
             const stopDivEl = document.getElementById('abrpStopRecommendation');
