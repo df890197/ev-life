@@ -1090,7 +1090,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v154</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v155</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1585,7 +1585,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v154</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v155</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2069,7 +2069,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v154';
+        const APP_VERSION = 'v155';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -6267,14 +6267,17 @@ function searchDestinationCharging(destLatLng, destName) {
 }
 
 // 🎯 3. 渲染目的地景點「車等人」推薦卡片（吃專屬情境文字、加強底部外邊距避免被遮擋）
-// v148：目的地補電卡「預估抵達電量」徽章更新器。資料源為目前顯示中路線的計算結果
-// （_lastAbrpCalcData，兩條顯示路徑寫入後都會呼叫本函式）；卡片先渲染、計算後完成也
-// 沒關係，完成時會自動回填。抵達本站電量＝抵達目的地電量 − 多開 distM 的耗電。
+// v148/v155：目的地補電卡「預估抵達電量」徽章更新器。抵達本站電量＝抵達目的地
+// 電量 − 多開 distM 的耗電；兩條顯示路徑寫入結果後都會呼叫本函式回填。
+// v155：資料源改為 pkRouteCache[目前路線] — 每次規劃重設、分路線存放，舊規劃的
+// 值不可能混入。v148 用全域 _lastAbrpCalcData 曾出包：主結果顯示直達 33% 安全、
+// 徽章卻讀到別筆計算的 -116% 顯示需補電，自相矛盾（使用者實機回報）。
 window.updateDestCardArrivalSoc = function() {
     const el = document.getElementById('destCardArrivalSoc');
     if (!el) return;
-    const calc = window._lastAbrpCalcData;
-    if (!calc || !isFinite(calc.directArrivalSoc)) return; // 還沒算好：維持「計算中…」
+    const idx155 = (typeof abrpDirectionsRenderer !== 'undefined' && abrpDirectionsRenderer && typeof abrpDirectionsRenderer.getRouteIndex === 'function') ? abrpDirectionsRenderer.getRouteIndex() : 0;
+    const calc = (typeof pkRouteCache !== 'undefined' && pkRouteCache) ? pkRouteCache[idx155] : null;
+    if (!calc || !isFinite(calc.directArrivalSoc)) return; // 這條路線還沒算好：維持「計算中…」
     const distKm = (parseFloat(el.dataset.distM) || 0) / 1000;
     const eff = (calc.realEff > 0 && isFinite(calc.realEff)) ? calc.realEff : 5.5;
     const soc = Math.round(calc.directArrivalSoc - ((distKm / eff) / AppState.batteryCapacity) * 100);
