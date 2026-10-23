@@ -1090,7 +1090,7 @@ input[type="number"] {
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v151</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v152</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1585,7 +1585,7 @@ input[type="number"] {
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v151</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v152</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2069,7 +2069,7 @@ input[type="number"] {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v151';
+        const APP_VERSION = 'v152';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -5409,6 +5409,7 @@ window.toggleAbrpPowerFilter = function(type) {
             const tempVal = startInput.value;
             startInput.value = endInput.value;
             endInput.value = tempVal;
+            delete startInput.dataset.autoLoc; // v152：對調後起點視為使用者選定，不自動刷新
 
             // 3. 重設定位暫存與快取 (避免原起點座標影響新終點)
             currentStartLatLng = null;
@@ -5539,8 +5540,16 @@ styles: document.documentElement.classList.contains('dark') ? [
         initAbrpAutocomplete();
 
         const startInput = document.getElementById('routeStartInput');
-        if (startInput && !startInput.value.trim()) {
-            autoFillCurrentLocationAsStart();
+        if (startInput) {
+            // v152：舊版自動帶入的錯誤地址會一直殘留 — 原本「欄位非空就不重新定位」，
+            // 某次誤定位（如桌機曾回報河內）寫進去後，每次打開都看到同一筆舊值、
+            // 也不會觸發 v151 的範圍檢查。改：(a) 含國外標記的殘值視為誤值清掉；
+            // (b) 先前自動帶入的值有 autoLoc 標記 → 每次打開重新抓最新位置；
+            // 使用者手打或從清單選的地址沒有標記，完全不動。
+            if (/越南|Vietnam|Hanoi|河內/i.test(startInput.value)) { startInput.value = ''; delete startInput.dataset.autoLoc; }
+            if (!startInput.value.trim() || startInput.dataset.autoLoc === '1') {
+                autoFillCurrentLocationAsStart();
+            }
         }
     }, 250);
 };
@@ -5617,6 +5626,7 @@ window.closeAbrpModal = function() {
                     if (lat < 21.5 || lat > 26.5 || lng < 118.0 || lng > 122.5) {
                         if (typeof window.stopLocatingFx === 'function') window.stopLocatingFx();
                         if (startInput) startInput.value = "";
+                        if (startInput) delete startInput.dataset.autoLoc; // v152
                         toggleRouteClearBtn('routeStartInput', 'btnClearStart');
                         showToast("定位結果異常（不在台灣），請手動輸入起點 ⚠️", true);
                         return;
@@ -5635,6 +5645,7 @@ window.closeAbrpModal = function() {
                             } else {
                                 if (startInput) startInput.value = "目前位置";
                             }
+                            if (startInput) startInput.dataset.autoLoc = '1'; // v152
                             if (typeof window.stopLocatingFx === 'function') window.stopLocatingFx(); // v147
                             // 狀態 2：定位成功並填入地址後，確保清除按鈕顯示
                             toggleRouteClearBtn('routeStartInput', 'btnClearStart');
@@ -5642,6 +5653,7 @@ window.closeAbrpModal = function() {
                         });
                     } else {
                         if (startInput) startInput.value = "目前位置";
+                        if (startInput) startInput.dataset.autoLoc = '1'; // v152
                         if (typeof window.stopLocatingFx === 'function') window.stopLocatingFx(); // v147
                         toggleRouteClearBtn('routeStartInput', 'btnClearStart');
                         showToast(`✅ 已自動帶入目前位置為起點！${accNote151}`);
@@ -5650,6 +5662,7 @@ window.closeAbrpModal = function() {
                 (error) => {
                     if (typeof window.stopLocatingFx === 'function') window.stopLocatingFx(); // v147
                     if (startInput) startInput.value = "";
+                    if (startInput) delete startInput.dataset.autoLoc; // v152
                     // 狀態 3：定位失敗清空文字時，隱藏清除按鈕
                     toggleRouteClearBtn('routeStartInput', 'btnClearStart');
                     showToast("定位失敗，請手動輸入起點 ⚠️", true);
@@ -5670,9 +5683,12 @@ function initAbrpAutocomplete() {
                 const startAuto = new google.maps.places.Autocomplete(startInput, options);
                 const endAuto = new google.maps.places.Autocomplete(endInput, options);
                 abrpAutocompleteInstances = { startAuto, endAuto };
+                // v152：使用者手打起點時清掉自動定位標記，下次打開不覆蓋手打值
+                startInput.addEventListener('input', () => { delete startInput.dataset.autoLoc; });
 
                 // 🎯 起點選取後，強制保留地標景點名稱（避免被 Google 覆寫成純地址）
                 startAuto.addListener("place_changed", () => {
+                    delete startInput.dataset.autoLoc; // v152：使用者選的地址不自動刷新
                     const place = startAuto.getPlace();
                     if (place && place.name) {
                         startInput.value = place.name;
