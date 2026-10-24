@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>花蓮・合歡山 自駕出遊 🚗 2026.11.07 - 11.09</title>
+  <title>花蓮・合歡山 自駕出遊 🐬 2026.11.07 - 11.09</title>
   <!-- Google Fonts: Zen Maru Gothic (日系可愛圓體) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,52 +11,52 @@
   
   <style>
     :root {
-      /* 日光模式 (和紙暖白調) */
-      --bg-main: #FFFCF6;
+      /* 日光模式 (和紙暖白調與花蓮七星潭粉彩) */
+      --bg-main: #FCF9F2;
       --bg-card: #FFFFFF;
-      --bg-card-sub: #FFF8EE;
-      --text-main: #3E3A39;
-      --text-muted: #7A736E;
-      --border-color: #3E3A39;
-      --shadow-color: #3E3A39;
+      --bg-card-sub: #F7F3E8;
+      --text-main: #383431;
+      --text-muted: #78726D;
+      --border-color: #383431;
+      --shadow-color: #383431;
       
-      /* 日系手繪平塗色調 */
-      --coral-pink: #F2A497;
-      --coral-pink-light: #FCE8E5;
-      --yamabuki-yellow: #F6D27A;
-      --yamabuki-yellow-light: #FDF4DE;
-      --mizu-blue: #A8D3E6;
-      --mizu-blue-light: #E8F4F9;
-      --wakatake-green: #B9DAA5;
-      --wakatake-green-light: #EDF7E7;
+      /* 花蓮山海手繪色彩 */
+      --ocean-blue: #7CB9E8;
+      --ocean-light: #EBF4FC;
+      --mountain-green: #A3C9A8;
+      --mountain-light: #EFF6F0;
+      --hualien-gold: #F4C46B;
+      --hualien-gold-light: #FDF6E2;
+      --sunset-coral: #F29C8B;
+      --sunset-coral-light: #FDF0ED;
       
-      --car-beam-opacity: 0;
       --sun-display: block;
       --moon-display: none;
+      --wave-color: #7CB9E8;
     }
 
-    /* 星夜模式 (深靛藍夜空調) */
+    /* 星夜模式 (花蓮七星潭與合歡山暗空星夜) */
     [data-theme="dark"] {
-      --bg-main: #1C2030;
-      --bg-card: #272C42;
-      --bg-card-sub: #202436;
-      --text-main: #F7F5EE;
-      --text-muted: #A3AABF;
-      --border-color: #3E3A39;
-      --shadow-color: #11131D;
+      --bg-main: #181C26;
+      --bg-card: #222738;
+      --bg-card-sub: #1C2030;
+      --text-main: #F4F2EC;
+      --text-muted: #9DA4B5;
+      --border-color: #383431;
+      --shadow-color: #0E1017;
       
-      --coral-pink: #E88E81;
-      --coral-pink-light: #3D292B;
-      --yamabuki-yellow: #EBC463;
-      --yamabuki-yellow-light: #3D3522;
-      --mizu-blue: #8ABECF;
-      --mizu-blue-light: #20313B;
-      --wakatake-green: #9DC486;
-      --wakatake-green-light: #243522;
+      --ocean-blue: #5C95C4;
+      --ocean-light: #1E2B38;
+      --mountain-green: #7BA581;
+      --mountain-light: #1F2E23;
+      --hualien-gold: #DDB058;
+      --hualien-gold-light: #38311E;
+      --sunset-coral: #D98372;
+      --sunset-coral-light: #382421;
       
-      --car-beam-opacity: 0.85;
       --sun-display: none;
       --moon-display: block;
+      --wave-color: #406080;
     }
 
     * {
@@ -76,7 +76,7 @@
       touch-action: manipulation;
     }
 
-    /* 頂端固定導覽列 */
+    /* 頂端固定手繪感導覽列 */
     .navbar {
       position: sticky;
       top: 0;
@@ -95,7 +95,7 @@
       align-items: center;
       gap: 8px;
       font-weight: 900;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       color: var(--text-main);
     }
 
@@ -105,7 +105,6 @@
       gap: 8px;
     }
 
-    /* 導覽分頁按鈕 */
     .nav-tabs {
       display: inline-flex;
       background-color: var(--bg-card-sub);
@@ -128,13 +127,13 @@
     }
 
     .nav-tab-btn.active {
-      background-color: var(--coral-pink);
-      color: #3E3A39;
+      background-color: var(--sunset-coral);
+      color: #383431;
     }
 
     .theme-toggle-btn {
-      background-color: var(--yamabuki-yellow);
-      color: #3E3A39;
+      background-color: var(--hualien-gold);
+      color: #383431;
       border: 2px solid var(--border-color);
       border-radius: 999px;
       width: 32px;
@@ -159,21 +158,25 @@
       padding: 16px;
     }
 
-    /* 首頁 Hero 區域 */
+    /* 花蓮專屬手繪繪本 Hero 區域 */
     .hero-card {
       background-color: var(--bg-card);
       border: 3px solid var(--border-color);
-      border-radius: 22px;
+      border-radius: 24px;
       padding: 18px 14px 16px;
       box-shadow: 4px 4px 0px var(--shadow-color);
       text-align: center;
       margin-bottom: 18px;
+      position: relative;
+      overflow: hidden;
     }
 
     .hero-badge {
-      display: inline-block;
-      background-color: var(--yamabuki-yellow);
-      color: #3E3A39;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background-color: var(--hualien-gold);
+      color: #383431;
       font-weight: 900;
       font-size: 0.8rem;
       padding: 3px 12px;
@@ -191,7 +194,7 @@
     }
 
     .hero-subtitle {
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       color: var(--text-muted);
       margin-bottom: 12px;
       font-weight: 700;
@@ -199,22 +202,22 @@
 
     .hero-illustration {
       width: 100%;
-      max-width: 340px;
-      height: 145px;
+      max-width: 350px;
+      height: 155px;
       margin: 0 auto 12px;
       display: block;
     }
 
-    /* 倒數計時卡片 */
+    /* 倒數計時小木牌卡片 */
     .countdown-container {
-      background-color: var(--mizu-blue-light);
-      border: 2px solid var(--border-color);
-      border-radius: 16px;
-      padding: 8px 10px;
+      background-color: var(--ocean-light);
+      border: 2.5px solid var(--border-color);
+      border-radius: 18px;
+      padding: 8px 12px;
       display: flex;
       justify-content: space-around;
       align-items: center;
-      box-shadow: 2px 2px 0px var(--shadow-color);
+      box-shadow: 2.5px 2.5px 0px var(--shadow-color);
     }
 
     .countdown-item {
@@ -224,7 +227,7 @@
     }
 
     .countdown-num {
-      font-size: 1.3rem;
+      font-size: 1.35rem;
       font-weight: 900;
       color: var(--text-main);
       line-height: 1.1;
@@ -236,43 +239,46 @@
       color: var(--text-muted);
     }
 
-    /* 天空水波海豚日期軸 (花蓮在地賞鯨豚風格) */
+    /* 太平洋海豚波浪日期軸 (花蓮在地意象) */
     .track-section {
       background-color: var(--bg-card);
       border: 3px solid var(--border-color);
-      border-radius: 20px;
+      border-radius: 22px;
       padding: 14px 12px 10px;
       box-shadow: 4px 4px 0px var(--shadow-color);
       margin-bottom: 16px;
       position: relative;
     }
 
-    .cable-line {
+    /* 手繪海浪滑動軌道 */
+    .wave-line {
       position: absolute;
-      left: 15%;
-      right: 15%;
-      top: 24px;
-      height: 3px;
-      background-color: var(--border-color);
-      border-radius: 2px;
+      left: 8%;
+      right: 8%;
+      top: 26px;
+      height: 6px;
+      background-image: radial-gradient(circle at 10px 0px, transparent 8px, var(--wave-color) 9px, var(--wave-color) 11px, transparent 12px);
+      background-size: 20px 10px;
+      background-repeat: repeat-x;
       z-index: 1;
+      opacity: 0.75;
     }
 
     .cable-car-wrapper {
       position: relative;
       width: 100%;
-      height: 38px;
+      height: 42px;
       z-index: 2;
     }
 
     .cable-car {
       position: absolute;
-      top: -2px;
+      top: -4px;
       left: 0;
       width: 33.333%;
       display: flex;
       justify-content: center;
-      transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
       pointer-events: none;
     }
 
@@ -310,8 +316,8 @@
     }
 
     .date-btn.active .date-pill {
-      background-color: var(--coral-pink);
-      color: #3E3A39;
+      background-color: var(--sunset-coral);
+      color: #383431;
       border-color: var(--border-color);
       box-shadow: 2px 2px 0px var(--shadow-color);
     }
@@ -328,9 +334,9 @@
       font-weight: 900;
     }
 
-    /* 當日概覽卡 */
+    /* 當日主題概覽小卡 */
     .day-summary-card {
-      background-color: var(--yamabuki-yellow-light);
+      background-color: var(--hualien-gold-light);
       border: 3px solid var(--border-color);
       border-radius: 18px;
       padding: 12px 14px;
@@ -342,8 +348,8 @@
     }
 
     .day-icon-box {
-      width: 46px;
-      height: 46px;
+      width: 48px;
+      height: 48px;
       background-color: var(--bg-card);
       border: 2px solid var(--border-color);
       border-radius: 14px;
@@ -352,14 +358,14 @@
       justify-content: center;
       box-shadow: 2px 2px 0px var(--shadow-color);
       flex-shrink: 0;
-      font-size: 1.3rem;
+      font-size: 1.35rem;
     }
 
     .day-tag {
       font-size: 0.72rem;
       font-weight: 900;
-      background-color: var(--yamabuki-yellow);
-      color: #3E3A39;
+      background-color: var(--hualien-gold);
+      color: #383431;
       padding: 1px 8px;
       border: 1.5px solid var(--border-color);
       border-radius: 999px;
@@ -419,7 +425,7 @@
     .node-dot {
       width: 14px;
       height: 14px;
-      background-color: var(--yamabuki-yellow);
+      background-color: var(--hualien-gold);
       border: 2px solid var(--border-color);
       border-radius: 50%;
       margin-top: 12px;
@@ -451,10 +457,10 @@
       border-radius: 999px;
     }
 
-    .tag-drive { background-color: var(--mizu-blue); color: #3E3A39; }
-    .tag-food { background-color: var(--yamabuki-yellow); color: #3E3A39; }
-    .tag-must { background-color: var(--coral-pink); color: #3E3A39; }
-    .tag-nature { background-color: var(--wakatake-green); color: #3E3A39; }
+    .tag-ocean { background-color: var(--ocean-blue); color: #383431; }
+    .tag-food { background-color: var(--hualien-gold); color: #383431; }
+    .tag-spot { background-color: var(--sunset-coral); color: #383431; }
+    .tag-nature { background-color: var(--mountain-green); color: #383431; }
 
     .node-title {
       font-size: 0.92rem;
@@ -473,10 +479,10 @@
       border-top: 1px dashed var(--border-color);
       font-size: 0.75rem;
       font-weight: 700;
-      color: var(--coral-pink);
+      color: var(--sunset-coral);
     }
 
-    /* 區塊通用樣式 */
+    /* 通用繪本小卡 */
     .section-title {
       font-size: 1.15rem;
       font-weight: 900;
@@ -491,7 +497,7 @@
       display: inline-block;
       width: 6px;
       height: 18px;
-      background-color: var(--yamabuki-yellow);
+      background-color: var(--hualien-gold);
       border: 2px solid var(--border-color);
       border-radius: 3px;
     }
@@ -499,13 +505,13 @@
     .box-card {
       background-color: var(--bg-card);
       border: 3px solid var(--border-color);
-      border-radius: 18px;
-      padding: 14px;
+      border-radius: 20px;
+      padding: 15px;
       box-shadow: 4px 4px 0px var(--shadow-color);
       margin-bottom: 18px;
     }
 
-    /* 決策方案評估卡片 */
+    /* 行程多選一評估小卡 */
     .compare-choice {
       border: 2px solid var(--border-color);
       border-radius: 12px;
@@ -515,7 +521,7 @@
     }
 
     .compare-choice.best {
-      background-color: var(--wakatake-green-light);
+      background-color: var(--mountain-light);
       border: 2.5px solid var(--border-color);
     }
 
@@ -529,8 +535,8 @@
       margin-bottom: 2px;
     }
 
-    .choice-badge.top { background-color: var(--wakatake-green); color: #3E3A39; }
-    .choice-badge.sub { background-color: var(--yamabuki-yellow); color: #3E3A39; }
+    .choice-badge.top { background-color: var(--mountain-green); color: #383431; }
+    .choice-badge.sub { background-color: var(--hualien-gold); color: #383431; }
 
     /* 東大門夜市小卡 */
     .market-box {
@@ -544,8 +550,8 @@
     .market-zone-tag {
       font-size: 0.72rem;
       font-weight: 900;
-      background-color: var(--yamabuki-yellow);
-      color: #3E3A39;
+      background-color: var(--hualien-gold);
+      color: #383431;
       padding: 1px 8px;
       border: 1.5px solid var(--border-color);
       border-radius: 999px;
@@ -567,7 +573,7 @@
     .progress-bar {
       height: 100%;
       width: 0%;
-      background-color: var(--wakatake-green);
+      background-color: var(--mountain-green);
       transition: width 0.3s;
     }
 
@@ -596,22 +602,22 @@
       flex-shrink: 0;
     }
 
-    .check-item.done .check-box { background-color: var(--wakatake-green); }
+    .check-item.done .check-box { background-color: var(--mountain-green); }
     .check-item.done .check-box::after { content: '✓'; font-weight: 900; font-size: 12px; }
     .check-item.done span { text-decoration: line-through; color: var(--text-muted); }
 
-    /* 動態 */
-    @keyframes floatLight {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-3px); }
+    /* 動態效果 */
+    @keyframes dolphinJump {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-4px) rotate(-3deg); }
     }
-    .anim-float { animation: floatLight 2.8s ease-in-out infinite; }
+    .anim-jump { animation: dolphinJump 2.6s ease-in-out infinite; }
 
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
     @media (prefers-reduced-motion: reduce) {
-      .anim-float, .cable-car { animation: none !important; transition: none !important; }
+      .anim-jump, .cable-car { animation: none !important; transition: none !important; }
     }
   </style>
 </head>
@@ -620,14 +626,14 @@
   <!-- 頂部導覽列 -->
   <header class="navbar">
     <div class="nav-brand">
-      <span>🚗</span>
-      <span>花蓮自駕漫遊</span>
+      <span>🐬</span>
+      <span>花蓮山海漫遊記</span>
     </div>
     <div class="nav-actions">
       <div class="nav-tabs">
-        <button class="nav-tab-btn active" onclick="switchMainTab('itinerary')" id="nav-btn-itinerary">行程</button>
-        <button class="nav-tab-btn" onclick="switchMainTab('decision')" id="nav-btn-decision">行程評估</button>
-        <button class="nav-tab-btn" onclick="switchMainTab('pack')" id="nav-btn-pack">準備</button>
+        <button class="nav-tab-btn active" onclick="switchMainTab('itinerary')" id="nav-btn-itinerary">旅程</button>
+        <button class="nav-tab-btn" onclick="switchMainTab('decision')" id="nav-btn-decision">行程分析</button>
+        <button class="nav-tab-btn" onclick="switchMainTab('pack')" id="nav-btn-pack">清單</button>
       </div>
       <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" aria-label="切換深淺模式">
         <span id="themeIcon">☀️</span>
@@ -637,46 +643,58 @@
 
   <main class="container">
 
-    <!-- 首頁 Hero 區域 -->
+    <!-- 首頁 Hero 區域：花蓮太魯閣峽谷、七星潭浪花與跳躍小海豚手繪繪本插圖 -->
     <section class="hero-card">
-      <div class="hero-badge">🌟 2026.11.07（週六）出發</div>
-      <h1 class="hero-title">花蓮・合歡山 自駕出遊</h1>
-      <p class="hero-subtitle">三天兩夜輕鬆慢活・看海吃美食</p>
+      <div class="hero-badge">🌊 2026.11.07（週六）出發</div>
+      <h1 class="hero-title">花蓮・合歡山 山海漫活</h1>
+      <p class="hero-subtitle">太平洋微風 ╳ 太魯閣縱谷 ╳ 合歡山群峰</p>
 
-      <!-- 日系繪本 SVG 插圖 -->
-      <svg class="hero-illustration anim-float" viewBox="0 0 380 170" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- 太陽 (日光模式) -->
+      <svg class="hero-illustration anim-jump" viewBox="0 0 380 170" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- 旭日 (日光模式) -->
         <g style="display: var(--sun-display);">
-          <circle cx="310" cy="40" r="20" fill="#F6D27A" stroke="#3E3A39" stroke-width="3"/>
-          <line x1="310" y1="12" x2="310" y2="6" stroke="#3E3A39" stroke-width="3" stroke-linecap="round"/>
-          <line x1="310" y1="68" x2="310" y2="74" stroke="#3E3A39" stroke-width="3" stroke-linecap="round"/>
-          <line x1="282" y1="40" x2="276" y2="40" stroke="#3E3A39" stroke-width="3" stroke-linecap="round"/>
-          <line x1="338" y1="40" x2="344" y2="40" stroke="#3E3A39" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="315" cy="42" r="22" fill="#F4C46B" stroke="#383431" stroke-width="2.5"/>
+          <path d="M315 14 L315 8 M315 70 L315 76 M287 42 L281 42 M343 42 L349 42" stroke="#383431" stroke-width="2.5" stroke-linecap="round"/>
         </g>
 
-        <!-- 彎月與星星 (星夜模式) -->
+        <!-- 暗空星夜與月牙 (星夜模式) -->
         <g style="display: var(--moon-display);">
-          <path d="M320 25 C310 25 300 35 300 48 C300 62 312 72 326 70 C316 66 312 54 314 44 C316 36 322 30 320 25 Z" fill="#F6D27A" stroke="#3E3A39" stroke-width="3"/>
-          <circle cx="270" cy="30" r="2.5" fill="#F6D27A"/>
-          <circle cx="285" cy="55" r="2" fill="#F7F5EE"/>
-          <circle cx="345" cy="45" r="3" fill="#F6D27A"/>
+          <path d="M322 26 C312 26 304 35 304 46 C304 58 314 68 326 66 C317 63 313 52 315 42 C317 35 323 30 322 26 Z" fill="#F4C46B" stroke="#383431" stroke-width="2.5"/>
+          <circle cx="270" cy="30" r="2" fill="#F4F2EC"/>
+          <circle cx="286" cy="52" r="1.5" fill="#F4F2EC"/>
+          <circle cx="348" cy="42" r="2" fill="#F4C46B"/>
         </g>
 
-        <!-- 遠方中央山脈 -->
-        <path d="M10 120 L65 70 L115 110 L170 55 L245 125 L370 125" stroke="#3E3A39" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        <path d="M170 55 L185 75 L160 85 Z" fill="#B9DAA5" stroke="#3E3A39" stroke-width="2"/>
+        <!-- 中央山脈與太魯閣峽谷綠意 -->
+        <path d="M5 125 L55 60 L105 105 L160 45 L225 110 L300 70 L375 125" stroke="#383431" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <polygon points="55,60 70,85 45,95" fill="#A3C9A8" stroke="#383431" stroke-width="2"/>
+        <polygon points="160,45 180,75 145,85" fill="#A3C9A8" stroke="#383431" stroke-width="2"/>
 
-        <!-- 車體輪廓 -->
-        <path d="M90 128 L100 108 C103 103 108 100 115 100 L165 100 C175 100 183 107 186 114 L194 126 C197 127 198 130 198 134 L198 140 C198 143 195 145 192 145 L88 145 C84 145 82 142 82 138 L82 133 C82 130 85 128 90 128 Z" fill="#FFFFFF" stroke="#3E3A39" stroke-width="3" stroke-linejoin="round"/>
-        <path d="M116 106 L140 106 L140 122 L106 122 L116 106 Z" fill="#A8D3E6" stroke="#3E3A39" stroke-width="2.5"/>
-        <path d="M146 106 L164 106 C170 106 175 110 178 116 L182 122 L146 122 L146 106 Z" fill="#A8D3E6" stroke="#3E3A39" stroke-width="2.5"/>
-        <circle cx="112" cy="144" r="10" fill="#3E3A39"/>
-        <circle cx="112" cy="144" r="4.5" fill="#FFFCF6"/>
-        <circle cx="172" cy="144" r="10" fill="#3E3A39"/>
-        <circle cx="172" cy="144" r="4.5" fill="#FFFCF6"/>
-        <circle cx="192" cy="132" r="3.5" fill="#F6D27A" stroke="#3E3A39" stroke-width="1.5"/>
+        <!-- 太平洋蔚藍海浪波紋 -->
+        <path d="M10 135 C35 130 65 140 95 135 C125 130 155 140 185 135 C215 130 245 140 275 135 C305 130 335 140 370 135" stroke="#7CB9E8" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <path d="M20 148 C50 143 80 152 110 147 C140 142 170 152 200 147 C230 142 260 152 290 147 C320 142 350 150 365 146" stroke="#383431" stroke-width="2.5" stroke-linecap="round" fill="none"/>
 
-        <line x1="10" y1="155" x2="370" y2="155" stroke="#3E3A39" stroke-width="3" stroke-linecap="round"/>
+        <!-- 七星潭手繪鵝卵石 -->
+        <ellipse cx="60" cy="156" rx="9" ry="5" fill="#EBF4FC" stroke="#383431" stroke-width="2"/>
+        <ellipse cx="80" cy="158" rx="7" ry="4" fill="#F7F3E8" stroke="#383431" stroke-width="2"/>
+        <ellipse cx="310" cy="156" rx="10" ry="5.5" fill="#EBF4FC" stroke="#383431" stroke-width="2"/>
+        <ellipse cx="330" cy="158" rx="6" ry="3.5" fill="#FDF6E2" stroke="#383431" stroke-width="2"/>
+
+        <!-- 躍出太平洋海面的花蓮手繪海豚 -->
+        <g transform="translate(185, 80)">
+          <!-- 小水花 -->
+          <circle cx="-12" cy="30" r="2.5" fill="#7CB9E8" stroke="#383431" stroke-width="1.5"/>
+          <circle cx="-18" cy="36" r="1.8" fill="#7CB9E8"/>
+          <!-- 海豚身軀 -->
+          <path d="M-8 32 C-5 18 8 10 24 11 C30 12 37 15 39 19 C36 21 32 20 28 19 C18 23 7 31 -2 35 L-7 39 L-8 32 Z" fill="#7CB9E8" stroke="#383431" stroke-width="2.5" stroke-linejoin="round"/>
+          <!-- 背鰭 -->
+          <path d="M11 11 C13 6 17 5 19 8 C17 10 15 11 14 12 Z" fill="#7CB9E8" stroke="#383431" stroke-width="2"/>
+          <!-- 尾鰭 -->
+          <path d="M-7 39 C-11 39 -13 36 -14 33 C-10 35 -7 37 -7 39 Z" fill="#7CB9E8" stroke="#383431" stroke-width="2"/>
+          <!-- 眼睛、微笑、腮紅 -->
+          <circle cx="33" cy="16" r="1.5" fill="#383431"/>
+          <path d="M36 19 C34 20 32 20 31 19" stroke="#383431" stroke-width="1.5" stroke-linecap="round"/>
+          <ellipse cx="29" cy="18" rx="2.5" ry="1.5" fill="#F29C8B"/>
+        </g>
       </svg>
 
       <!-- 倒數計時器 -->
@@ -700,33 +718,24 @@
       </div>
     </section>
 
-    <!-- ================= TAB 1: 行程 ITINERARY ================= -->
+    <!-- ================= TAB 1: 旅程 ITINERARY ================= -->
     <div id="tab-itinerary" class="tab-content active">
 
-      <!-- 天空軌道海豚日期軸 (花蓮在地海洋豚躍風格) -->
+      <!-- 太平洋海豚波浪日期軸 -->
       <section class="track-section">
-        <div class="cable-line"></div>
+        <div class="wave-line"></div>
         <div class="cable-car-wrapper">
           <div id="cableCar" class="cable-car" style="transform: translateX(0%);">
-            <!-- 手繪花蓮海豚 SVG -->
+            <!-- 游動的海豚指示器 -->
             <svg width="44" height="34" viewBox="0 0 48 36" fill="none">
-              <!-- 小水花泡泡 -->
-              <circle cx="9" cy="24" r="2" fill="#A8D3E6" stroke="#3E3A39" stroke-width="1.5"/>
-              <circle cx="6" cy="28" r="1.5" fill="#A8D3E6"/>
-              <!-- 海豚主體 (躍出水面弧度) -->
-              <path d="M12 26 C14 16 24 10 34 11 C38 11.5 43 14 44 17 C42 18 39 18 36 17 C28 20 20 26 14 28 L10 31 L12 26 Z" fill="#A8D3E6" stroke="#3E3A39" stroke-width="2.5" stroke-linejoin="round"/>
-              <!-- 背鰭 -->
-              <path d="M25 11 C26 7 29 6 31 8 C29 10 28 11 27 12 Z" fill="#A8D3E6" stroke="#3E3A39" stroke-width="2"/>
-              <!-- 胸鰭 -->
-              <path d="M27 21 C29 23 32 24 33 23 C31 21 29 20 28 19 Z" fill="#88C2D8" stroke="#3E3A39" stroke-width="1.8"/>
-              <!-- 尾鰭 -->
-              <path d="M10 31 C7 31 5 28 5 26 C8 27 10 29 10 31 Z" fill="#A8D3E6" stroke="#3E3A39" stroke-width="2"/>
-              <path d="M10 31 C9 34 8 36 6 36 C7 33 9 32 10 31 Z" fill="#A8D3E6" stroke="#3E3A39" stroke-width="2"/>
-              <!-- 可愛眼睛與微笑 -->
-              <circle cx="39" cy="14" r="1.5" fill="#3E3A39"/>
-              <path d="M41 17 C40 18 38 18 37 17.5" stroke="#3E3A39" stroke-width="1.5" stroke-linecap="round"/>
-              <!-- 腮紅 -->
-              <ellipse cx="36" cy="16" rx="2" ry="1.2" fill="#F2A497"/>
+              <circle cx="9" cy="24" r="2" fill="#7CB9E8" stroke="#383431" stroke-width="1.5"/>
+              <path d="M12 26 C14 16 24 10 34 11 C38 11.5 43 14 44 17 C42 18 39 18 36 17 C28 20 20 26 14 28 L10 31 L12 26 Z" fill="#7CB9E8" stroke="#383431" stroke-width="2.5" stroke-linejoin="round"/>
+              <path d="M25 11 C26 7 29 6 31 8 C29 10 28 11 27 12 Z" fill="#7CB9E8" stroke="#383431" stroke-width="2"/>
+              <path d="M27 21 C29 23 32 24 33 23 C31 21 29 20 28 19 Z" fill="#5C95C4" stroke="#383431" stroke-width="1.8"/>
+              <path d="M10 31 C7 31 5 28 5 26 C8 27 10 29 10 31 Z" fill="#7CB9E8" stroke="#383431" stroke-width="2"/>
+              <circle cx="39" cy="14" r="1.5" fill="#383431"/>
+              <path d="M41 17 C40 18 38 18 37 17.5" stroke="#383431" stroke-width="1.5" stroke-linecap="round"/>
+              <ellipse cx="36" cy="16" rx="2.2" ry="1.4" fill="#F29C8B"/>
             </svg>
           </div>
         </div>
@@ -747,15 +756,15 @@
         </div>
       </section>
 
-      <!-- 當日概覽卡片 -->
+      <!-- 當日主題概覽小卡 -->
       <section class="day-summary-card">
         <div class="day-icon-box" id="dayIconBox">
           🌊
         </div>
         <div>
           <span class="day-tag" id="dayTag">Day 1</span>
-          <div class="day-summary-title" id="dayTitle">花蓮車站接人 ＋ 理想門市與海濱夜市</div>
-          <div class="day-hotel-info" id="dayHotel">🏨 住：花蓮東大門周邊旅宿</div>
+          <div class="day-summary-title" id="dayTitle">花蓮車站會合 ＋ 童話水岸與海濱夜市</div>
+          <div class="day-hotel-info" id="dayHotel">🏨 住：花蓮東大門周邊質感旅宿</div>
         </div>
       </section>
 
@@ -772,7 +781,7 @@
       
       <!-- 行程方案多選一精算評估 -->
       <div class="box-card">
-        <h2 class="section-title">行程安排分析</h2>
+        <h2 class="section-title">花蓮私房行程評估</h2>
         
         <!-- 午餐三選一 -->
         <div style="margin-bottom: 14px;">
@@ -780,17 +789,17 @@
           <div class="compare-choice best">
             <span class="choice-badge top">⭐ 最推薦</span>
             <div style="font-weight: 900; font-size: 0.88rem;">定置漁場三代目（將軍府店）</div>
-            <div style="font-size: 0.78rem; color: var(--text-muted);">百年檜木日式老宿舍群，吃鮮魚熬煮白湯拉麵，氣氛很棒也能順便散步。</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">百年檜木日式老宿舍群，品嚐現熬膠原魚白湯拉麵，氣氛很棒也能順便散散步。</div>
           </div>
           <div class="compare-choice">
             <span class="choice-badge sub">備選</span>
             <div style="font-weight: 900; font-size: 0.88rem;">歐鄉牛排館（花蓮店）</div>
-            <div style="font-size: 0.78rem; color: var(--text-muted);">花蓮老牌牛排館，沙拉吧與前菜豐富，想大口吃肉可以選。</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">在地老字號牛排館，沙拉吧與前菜豐富，想大口吃肉可以選。</div>
           </div>
           <div class="compare-choice">
             <span class="choice-badge sub">備選</span>
             <div style="font-weight: 900; font-size: 0.88rem;">家咖哩（總店）</div>
-            <div style="font-size: 0.78rem; color: var(--text-muted);">在地小農香料咖哩老宅。</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">在地小農有機香料咖哩老宅。</div>
           </div>
         </div>
 
@@ -800,7 +809,7 @@
           <div class="compare-choice best">
             <span class="choice-badge top">⭐ 最推薦</span>
             <div style="font-weight: 900; font-size: 0.88rem;">STARBUCKS 花蓮理想門市</div>
-            <div style="font-size: 0.78rem; color: var(--text-muted);">歐洲童話水岸小屋＋落羽松，重點是開去下一站「鯉魚潭」只要 16 分鐘很順！</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">歐洲童話水岸小屋＋落羽松運河，重點是開去下一站「鯉魚潭」只要 16 分鐘很順！</div>
           </div>
           <div class="compare-choice">
             <span class="choice-badge sub">太遠不推</span>
@@ -814,8 +823,8 @@
           <div style="font-weight: 900; font-size: 0.9rem; margin-bottom: 6px;">🌊 看海二選一（停留 30 分鐘）</div>
           <div class="compare-choice best">
             <span class="choice-badge top">⭐ 最推薦</span>
-            <div style="font-weight: 900; font-size: 0.88rem;">太平洋公園（南濱段）</div>
-            <div style="font-size: 0.78rem; color: var(--text-muted);">從鯉魚潭順順開回市區看海，且距離東大門夜市只有 1.1km（開車 4 分鐘），完全不用折返！</div>
+            <div style="font-weight: 900; font-size: 0.88rem;">太平洋公園（南濱段海堤）</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">從鯉魚潭順順開回市區看海吹風，且距離東大門夜市只有 1.1km（開車 4 分鐘），完全不用折返！</div>
           </div>
           <div class="compare-choice">
             <span class="choice-badge sub">折返不順</span>
@@ -828,7 +837,7 @@
 
       <!-- 東大門夜市指南 -->
       <div class="box-card">
-        <h2 class="section-title">東大門夜市在地老饕吃什麼</h2>
+        <h2 class="section-title">東大門夜市老饕必吃推薦</h2>
         <div class="market-box">
           <span class="market-zone-tag">各省一條街</span>
           <div style="font-size: 0.82rem; font-weight: 700;">● 玉里臭豆腐（東大門分店）：外酥內嫩多汁，加上醃蘿蔔絲與九層塔超搭！</div>
@@ -840,23 +849,23 @@
         </div>
         <div class="market-box">
           <span class="market-zone-tag">福町夜市</span>
-          <div style="font-size: 0.82rem; font-weight: 700;">● 蔣家創意官財板：炸吐司包剝皮辣椒豬肉，內用有紅茶喝。</div>
+          <div style="font-size: 0.82rem; font-weight: 700;">● 蔣家創意官財板：炸吐司包剝皮辣椒豬肉，內用有冰紅茶喝。</div>
           <div style="font-size: 0.82rem; font-weight: 700; margin-top: 4px;">● 強蛋餅：酥皮蚵仔起司蛋餅。</div>
         </div>
         <div class="market-box">
           <span class="market-zone-tag">自強夜市區</span>
-          <div style="font-size: 0.82rem; font-weight: 700;">● 妙不可言果汁：排隊現打酪梨牛奶／木瓜牛奶。</div>
+          <div style="font-size: 0.82rem; font-weight: 700;">● 妙不可言果汁：現打酪梨牛奶／木瓜牛奶超解膩。</div>
         </div>
       </div>
 
     </div>
 
-    <!-- ================= TAB 3: 準備 PACK ================= -->
+    <!-- ================= TAB 3: 清單 PACK ================= -->
     <div id="tab-pack" class="tab-content">
       <div class="box-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-          <h2 class="section-title" style="margin-bottom: 0;">出發前檢查清單</h2>
-          <span id="packProgressText" style="font-size: 0.78rem; font-weight: 900; color: var(--coral-pink);">0 / 5 完成</span>
+          <h2 class="section-title" style="margin-bottom: 0;">出發前隨身準備</h2>
+          <span id="packProgressText" style="font-size: 0.78rem; font-weight: 900; color: var(--sunset-coral);">0 / 5 完成</span>
         </div>
         <div class="progress-bar-wrap">
           <div class="progress-bar" id="progressBar"></div>
@@ -864,23 +873,23 @@
         <div id="checkList">
           <div class="check-item" onclick="toggleCheck(this)">
             <div class="check-box"></div>
-            <span>車上導航先設好各個景點地標</span>
+            <span>導航地標與花蓮景點先存入手機標籤</span>
           </div>
           <div class="check-item" onclick="toggleCheck(this)">
             <div class="check-box"></div>
-            <span>買好的檸檬汁放車上保冰杯架</span>
+            <span>新城佳興買好的冷凍檸檬汁放車上杯架</span>
           </div>
           <div class="check-item" onclick="toggleCheck(this)">
             <div class="check-box"></div>
-            <span>防風保暖外套與毛帽（合歡山晚上很冷）</span>
+            <span>防風保暖厚外套與毛帽（合歡山清晨約 5-8°C）</span>
           </div>
           <div class="check-item" onclick="toggleCheck(this)">
             <div class="check-box"></div>
-            <span>身分證、健保卡、個人常備藥品</span>
+            <span>身分證、健保卡、個人隨身藥品</span>
           </div>
           <div class="check-item" onclick="toggleCheck(this)">
             <div class="check-box"></div>
-            <span>太陽眼鏡、相機拍照設備與行動電源</span>
+            <span>抗 UV 太陽眼鏡、相機拍照設備與行動電源</span>
           </div>
         </div>
       </div>
@@ -893,19 +902,19 @@
     const tripData = {
       1: {
         tag: 'Day 1',
-        title: '花蓮車站接人 ＋ 理想門市與海濱夜市',
+        title: '花蓮車站會合 ＋ 童話水岸與海濱夜市',
         hotel: '🏨 住：花蓮東大門周邊旅宿',
         icon: '🌊',
         timeline: [
-          { time: '06:15', tag: '🚗 出發', tagClass: 'tag-drive', title: '中壢出發北上', desc: '早起出發走國 3 接國 5，避開雪隧車潮。', parking: '' },
-          { time: '08:00', tag: '☕ 休息', tagClass: 'tag-food', title: '國 5 蘇澳服務區', desc: '下車上洗手間、伸展筋骨喝杯咖啡。', parking: '🅿️ 服務區大型停車場' },
-          { time: '10:15', tag: '🍋 買飲料', tagClass: 'tag-nature', title: '新城佳興冰菓店', desc: '外帶招牌冷凍檸檬汁放車上杯架，等下接到人就可以直接喝。', parking: '🅿️ 門前短暫臨停' },
-          { time: '11:00', tag: '🤝 接人', tagClass: 'tag-must', title: '花蓮火車站碰面', desc: '準時接朋友！車內冷氣開好舒服涼爽，喝檸檬汁直接出發！', parking: '🅿️ 前後站都有智慧立體停車場' },
-          { time: '11:25', tag: '🍜 午餐', tagClass: 'tag-food', title: '定置漁場三代目（將軍府店）', desc: '【同事推薦午餐首選】在百年日式宿舍群裡吃現熬鮮魚白湯拉麵，氣氛很舒服。', parking: '🅿️ 將軍府專屬停車場或中正路車格 (車程 8 分)' },
-          { time: '13:00', tag: '☕ 咖啡', tagClass: 'tag-must', title: 'STARBUCKS 花蓮理想門市', desc: '【同事推薦下午茶】歐洲童話風木屋配落羽松湖景，拍照好看，而且離鯉魚潭只要 16 分鐘！', parking: '🅿️ 園區專屬停車場 (車程 25 分)' },
-          { time: '14:05', tag: '🌲 散步', tagClass: 'tag-nature', title: '鯉魚潭風景區', desc: '花蓮最大的天然湖，走走環潭步道吹吹微風。', parking: '🅿️ 潭北遊客中心停車場 (車程 16 分)' },
-          { time: '15:20', tag: '🌊 看海', tagClass: 'tag-drive', title: '太平洋公園（南濱段）', desc: '【同事推薦看海首選】順路開回市區看海吹風，離夜市只有 1.1km 超順路！', parking: '🅿️ 南濱段大停車場 (車程 29 分)' },
-          { time: '16:15', tag: '🍢 吃夜市', tagClass: 'tag-must', title: '東大門夜市吃晚餐', desc: '先到旅宿 check-in 放行李，隨後開吃玉里臭豆腐、林記烤玉米跟官財板。', parking: '🅿️ 重慶路周邊收費停車場' }
+          { time: '06:15', tag: '🚗 啟程出發', tagClass: 'tag-ocean', title: '中壢出發北上', desc: '早起出發走國 3 接國 5，順暢避開雪隧車潮。', parking: '' },
+          { time: '08:00', tag: '☕ 休息中繼', tagClass: 'tag-food', title: '國 5 蘇澳服務區', desc: '下車上洗手間、伸展筋骨買杯熱咖啡。', parking: '🅿️ 服務區大型平面車位' },
+          { time: '10:15', tag: '🍋 順路買冰飲', tagClass: 'tag-food', title: '新城佳興冰菓店', desc: '外帶招牌冷凍檸檬汁放車上杯架，等下接到人就可以直接暢飲。', parking: '🅿️ 門前短暫臨停' },
+          { time: '11:00', tag: '🤝 車站碰面', tagClass: 'tag-spot', title: '花蓮火車站接朋友', desc: '準時碰面！車內冷氣開好舒服涼爽，喝檸檬汁直接出發！', parking: '🅿️ 前後站智慧立體停車場' },
+          { time: '11:25', tag: '🍜 老宅午餐', tagClass: 'tag-food', title: '定置漁場三代目（將軍府店）', desc: '【私房午餐首選】在百年日式宿舍群裡吃現熬鮮魚白湯拉麵，吃飽順便在林蔭散步拍照。', parking: '🅿️ 將軍府專屬停車場或中正路車格 (車程 8 分)' },
+          { time: '13:00', tag: '☕ 水岸咖啡', tagClass: 'tag-spot', title: 'STARBUCKS 花蓮理想門市', desc: '【童話下午茶】歐洲童話風木屋配落羽松湖景，拍照好看，而且離下一站鯉魚潭只要 16 分鐘！', parking: '🅿️ 園區專屬停車場 (車程 25 分)' },
+          { time: '14:05', tag: '🌲 湖光山色', tagClass: 'tag-nature', title: '鯉魚潭風景區', desc: '花蓮最大的天然湖泊，漫步環潭木棧道吹吹微風、看群山倒影。', parking: '🅿️ 潭北遊客中心停車場 (車程 16 分)' },
+          { time: '15:20', tag: '🌊 海風浪花', tagClass: 'tag-ocean', title: '太平洋公園（南濱段海堤）', desc: '【看海首選】順路開回市區看海吹風，離夜市只有 1.1km 超順路！', parking: '🅿️ 南濱段大停車場 (車程 29 分)' },
+          { time: '16:15', tag: '🍢 夜市吃透透', tagClass: 'tag-spot', title: '東大門夜市吃晚餐', desc: '先到旅宿 check-in 放行李，隨後開吃玉里臭豆腐、林記烤玉米跟官財板。', parking: '🅿️ 重慶路周邊收費停車場' }
         ]
       },
       2: {
@@ -914,24 +923,24 @@
         hotel: '🏨 住：合歡山松雪樓（海拔 3,150m）',
         icon: '🍁',
         timeline: [
-          { time: '06:15', tag: '🚗 退房', tagClass: 'tag-drive', title: '退房出發', desc: '早起出發往太魯閣中橫公路前進，輕鬆往山上開。', parking: '' },
-          { time: '06:30', tag: '🚧 放行', tagClass: 'tag-must', title: '中橫公路（台 8 線）首波放行', desc: '卡準清晨 06:30 - 08:00 第一波管制放行，順利通過山區路段。', parking: '⚠️ 隨時留意路況資訊' },
-          { time: '10:00', tag: '🍙 休息', tagClass: 'tag-food', title: '關原加油站吃肉粽', desc: '全台灣最高的加油站打卡（海拔 2,374m），吃顆熱呼呼的招牌肉粽。', parking: '🅿️ 加油站停車場' },
-          { time: '12:00', tag: '🍁 景點', tagClass: 'tag-nature', title: '大禹嶺 ➔ 福壽山農場', desc: '到松廬拍 11 月漂亮的楓紅，順便買好吃的當季蜜蘋果。', parking: '🅿️ 福壽山停車場' },
-          { time: '16:30', tag: '🏨 入住', tagClass: 'tag-must', title: '合歡山松雪樓 Check-in', desc: '入住台灣最高旅館（3,150m），看夕陽雲海，晚上看整片無光害的高山星空。', parking: '🅿️ 松雪樓住客停車位' }
+          { time: '06:15', tag: '🚗 晨間出發', tagClass: 'tag-nature', title: '退房往中橫出發', desc: '精神飽滿出發，往太魯閣中橫公路前進，輕鬆往山上開。', parking: '' },
+          { time: '06:30', tag: '🚧 管制放行', tagClass: 'tag-spot', title: '中橫公路（台 8 線）首波放行', desc: '卡準清晨 06:30 - 08:00 第一波管制放行，順利穿過太魯閣峽谷。', parking: '⚠️ 隨時留意路況資訊' },
+          { time: '10:00', tag: '🍙 雲端休息', tagClass: 'tag-food', title: '關原加油站吃肉粽', desc: '全台灣最高的加油站打卡（海拔 2,374m），吃顆熱呼呼的招牌肉粽。', parking: '🅿️ 加油站停車場' },
+          { time: '12:00', tag: '🍁 楓紅蜜果', tagClass: 'tag-nature', title: '大禹嶺 ➔ 福壽山農場', desc: '造訪松廬欣賞 11 月漂亮的楓紅，順便採買好吃的當季蜜蘋果。', parking: '🅿️ 福壽山停車場' },
+          { time: '16:30', tag: '🏨 雲海入住', tagClass: 'tag-spot', title: '合歡山松雪樓 Check-in', desc: '入住台灣最高旅館（3,150m），看夕陽金黃雲海，晚上欣賞整片無光害的高山星空銀河。', parking: '🅿️ 松雪樓住客停車位' }
         ]
       },
       3: {
         tag: 'Day 3',
-        title: '武嶺日出 ＋ 清境農場散步 ＋ 快樂返程',
+        title: '武嶺日出 ＋ 清境農場看綿羊 ＋ 快樂返程',
         hotel: '🏠 終點：平安回到中壢',
-        icon: '☀️',
+        icon: '🐑',
         timeline: [
-          { time: '06:00', tag: '🌅 日出', tagClass: 'tag-must', title: '松雪樓看高山日出', desc: '早起看晨光雲海，高山清晨氣溫只有 5-8°C 記得穿厚外套。', parking: '' },
-          { time: '08:30', tag: '📸 打卡', tagClass: 'tag-must', title: '武嶺標高 3,275m 拍照', desc: '站在台灣公路最高點武嶺亭拍照打卡留念！', parking: '🅿️ 武嶺停車場' },
-          { time: '09:30', tag: '🐑 散步', tagClass: 'tag-nature', title: '清境農場（停留約 2 小時）', desc: '順路下山造訪清境農場，看可愛綿羊、呼吸高山清新空氣與放空拍照。', parking: '🅿️ 青青草原周邊停車場 (車程約 25 分)' },
-          { time: '12:00', tag: '🍽️ 午餐', tagClass: 'tag-food', title: '埔里吃午餐 ＆ 休息', desc: '下山到埔里享用在地小吃，好好坐下來吃頓飯休息。', parking: '🅿️ 市區周邊停車場' },
-          { time: '14:00', tag: '🏠 返程', tagClass: 'tag-drive', title: '國 6 接國 3 回中壢', desc: '順順開高速公路，一路聊天聽音樂，平平安安回到中壢！', parking: '預計 16:30 到' }
+          { time: '06:00', tag: '🌅 雲海日出', tagClass: 'tag-spot', title: '松雪樓看高山日出', desc: '早起看晨光雲海穿透群峰，空氣純淨，戶外氣溫約 5-8°C 記得穿厚外套。', parking: '' },
+          { time: '08:30', tag: '📸 公路之巔', tagClass: 'tag-spot', title: '武嶺標高 3,275m 拍照', desc: '站在台灣公路最高點武嶺亭拍照打卡留念！', parking: '🅿️ 武嶺停車場' },
+          { time: '09:30', tag: '🐑 青青草原', tagClass: 'tag-nature', title: '清境農場（停留約 2 小時）', desc: '順路下山造訪清境農場，看可愛綿羊群、呼吸高山清新空氣與放空拍照。', parking: '🅿️ 青青草原周邊停車場 (車程約 25 分)' },
+          { time: '12:00', tag: '🍽️ 在地午餐', tagClass: 'tag-food', title: '埔里吃午餐 ＆ 休息', desc: '下山到埔里享用在地熱騰騰小吃，好好坐下來吃頓飯休息。', parking: '🅿️ 市區周邊停車場' },
+          { time: '14:00', tag: '🏠 舒適返程', tagClass: 'tag-ocean', title: '國 6 接國 3 回中壢', desc: '順順開高速公路，一路聊天聽音樂，平平安安回到中壢！', parking: '預計 16:30 到' }
         ]
       }
     };
@@ -983,7 +992,7 @@
       renderDay(day);
     }
 
-    // 3. Tab 切換 (行程 / 行程評估 / 準備)
+    // 3. Tab 切換 (旅程 / 行程分析 / 清單)
     function switchMainTab(tabId) {
       const tabs = ['itinerary', 'decision', 'pack'];
       tabs.forEach(t => {
@@ -1018,7 +1027,7 @@
       localStorage.setItem('trip_theme_pref', next);
     }
 
-    // 5. 倒數計時器 (2026/11/07 11:00 車站接人)
+    // 5. 倒數計時器 (2026/11/07 11:00 車站接朋友)
     const targetDate = new Date('2026-11-07T11:00:00+08:00').getTime();
     function updateCountdown() {
       const now = new Date().getTime();
