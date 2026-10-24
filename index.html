@@ -1062,6 +1062,23 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         html.dark #stationCostChart [class*="bg-rose-400"] { background: linear-gradient(90deg, #C2A35C, #EDD9A3) !important; }
         html:not(.dark) #stationCostChart [class*="bg-rose-400"] { background-color: #F2A497 !important; }
     </style>
+    <style id="v177-tabbar">
+        /* ===== v177：tab bar 日夜雙生換皮（形狀/尺寸/滑動 pill 機制不動，只換顏色；深淺邊框同為 3px 不跳動） ===== */
+        /* 淺色・白晝繪本：紙白 bar＋墨框＋硬影 */
+        nav.v81-snap-bar { background: #FFFCF6 !important; border: 3px solid #3E3A39 !important; box-shadow: 5px 5px 0 rgba(62,58,57,.20), 0 12px 28px rgba(62,58,57,.16) !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+        nav.v81-snap-bar .tab-btn { color: #8A8175 !important; }
+        nav.v81-snap-bar .tab-btn.active { background: #F6D27A !important; color: #3E3A39 !important; box-shadow: inset 0 0 0 2px #3E3A39 !important; }
+        #v109TabPill { background: #F6D27A; box-shadow: inset 0 0 0 2px #3E3A39; }
+        nav.v81-snap-bar .v81-sep { background: rgba(62,58,57,.18) !important; }
+        nav.v81-snap-bar #tab-add.v81-snap-btn { background: #E2703A !important; box-shadow: 3px 3px 0 rgba(62,58,57,.35) !important; }
+        /* 深色・夜繪本：夜墨 bar＋細 rim＋香檳金啟用態與中央鈕 */
+        html.dark nav.v81-snap-bar { background: #12141F !important; border: 3px solid rgba(237,230,214,.14) !important; box-shadow: 0 14px 34px rgba(0,0,0,.55), inset 0 1px 0 rgba(237,217,163,.10) !important; }
+        html.dark nav.v81-snap-bar .tab-btn { color: #9A93A8 !important; }
+        html.dark nav.v81-snap-bar .tab-btn.active { background: rgba(227,200,120,.14) !important; color: #EDD9A3 !important; box-shadow: inset 0 0 0 1.5px rgba(227,200,120,.45) !important; }
+        html.dark #v109TabPill { background: rgba(227,200,120,.16); box-shadow: inset 0 0 0 1.5px rgba(227,200,120,.45); }
+        html.dark nav.v81-snap-bar .v81-sep { background: rgba(237,230,214,.12) !important; }
+        html.dark nav.v81-snap-bar #tab-add.v81-snap-btn { background: linear-gradient(180deg, #EDD9A3, #D9BE78) !important; color: #191408 !important; box-shadow: 0 0 18px rgba(227,200,120,.35), 0 6px 14px rgba(0,0,0,.4) !important; }
+    </style>
 </head>
 <body class="font-sans bg-[#faf8f4] dark:bg-black text-stone-800 dark:text-[#f5f5f4] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative slashed-zero">
 
@@ -1400,7 +1417,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v175</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v177</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1936,7 +1953,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v175</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v177</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2293,6 +2310,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
 
                     <!-- 建議卡片 -->
                     <div id="abrpRecommendationCard" class="p-4 rounded-2xl border text-xs leading-relaxed space-y-2"></div>
+                    <div id="windImpactLine" class="hidden mt-2 px-3.5 py-2.5 rounded-xl border border-stone-200 dark:border-stone-700/60 bg-white/60 dark:bg-white/5 text-[11px] leading-relaxed text-stone-600 dark:text-stone-300"></div>
                     <div id="fx160SkyStrip" class="hidden mt-2 h-7 rounded-xl items-center justify-between px-2 shadow-sm" style="display:none;"></div>
                     <!-- 🎯 目的地景點充電專用推薦卡片 (預設隱藏，若目的地為景點且有充電站才亮出) -->
                     <div id="abrpDestPoiCard" class="hidden"></div>
@@ -2421,7 +2439,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v175';
+        const APP_VERSION = 'v177';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -7580,6 +7598,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
     const cur = abrpDirectionsRenderer ? abrpDirectionsRenderer.getRouteIndex() : 0;
     if (cur === routeIdx) updateElevationHudUi(pkRouteCache[routeIdx].elevationData);
     renderAbrpCachedResults(pkRouteCache[routeIdx], totalDistanceKm, durationText);
+    if (typeof window.updateWindImpactLine === 'function') window.updateWindImpactLine(route, pkRouteCache[routeIdx], routeIdx); // v176
     return;
   }
 
@@ -8020,6 +8039,7 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         return;
     }
     const { directArrivalSoc, totalDistanceKm, durationText, realEff, routeProfileText } = calcData;
+    if (typeof window.updateWindImpactLine === 'function') window.updateWindImpactLine(route, calcData, routeIdx); // v176：風況影響（僅顯示）
     document.getElementById('abrpResultSection')?.classList.remove('hidden');
 
     // ⚡ 提前讀取自訂充電門檻（讓直達判斷、安全標籤與選站全域連動）
@@ -9888,5 +9908,83 @@ function updateAbrpElevScrub(pct) {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => window.renderV169Home());
     else window.renderV169Home();
     </script>
+
+<script>
+// ===== v176：沿途風況影響（Open-Meteo 預報；僅顯示，不計入抵達 SOC） =====
+function windAeroShare(v) { const x = Math.pow(Math.max(v, 0) / 100, 2); return x / (x + 0.7); }
+window.computeWindImpact = function(samples) {
+    let wsum = 0, msum = 0, headW = 0, maxHead = -Infinity;
+    samples.forEach(s => {
+        const head = s.ws * Math.cos((s.wd - s.heading) * Math.PI / 180); // 逆風為正、順風為負
+        const v = Math.max(s.speedKmh, 1);
+        const f = Math.min(2.5, Math.max(0.8, Math.pow((v + head) / v, 2)));
+        const m = 1 + windAeroShare(v) * (f - 1);
+        msum += m * s.weight; headW += head * s.weight; wsum += s.weight;
+        if (head > maxHead) maxHead = head;
+    });
+    if (!wsum) return null;
+    const mult = msum / wsum;
+    return { mult, pct: (mult - 1) * 100, avgHead: headW / wsum, maxHead };
+};
+function windHaversineKm(a, b) { const R = 6371, dLa = (b.lat - a.lat) * Math.PI / 180, dLo = (b.lng - a.lng) * Math.PI / 180; const h = Math.sin(dLa / 2) ** 2 + Math.cos(a.lat * Math.PI / 180) * Math.cos(b.lat * Math.PI / 180) * Math.sin(dLo / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(h)); }
+function windBearingDeg(a, b) { const la1 = a.lat * Math.PI / 180, la2 = b.lat * Math.PI / 180, dLo = (b.lng - a.lng) * Math.PI / 180; const y = Math.sin(dLo) * Math.cos(la2); const x = Math.cos(la1) * Math.sin(la2) - Math.sin(la1) * Math.cos(la2) * Math.cos(dLo); return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360; }
+function windTaipeiHourKey(ms) { const d = new Date(new Date(ms).toLocaleString('en-US', { timeZone: 'Asia/Taipei' })); const p = n => String(n).padStart(2, '0'); return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + 'T' + p(d.getHours()) + ':00'; }
+window._windSeq = 0;
+window.updateWindImpactLine = async function(route, calcData, routeIdx) {
+    const el = document.getElementById('windImpactLine');
+    if (!el || !route || !route.overview_path || route.overview_path.length < 2 || !calcData || !isFinite(calcData.totalDistanceKm) || !isFinite(calcData.realEff) || calcData.realEff <= 0) return;
+    const seq = ++window._windSeq;
+    const isActive = () => { try { return !window.abrpDirectionsRenderer || abrpDirectionsRenderer.getRouteIndex() === routeIdx; } catch (e) { return true; } };
+    if (!isActive()) return;
+    el.classList.remove('hidden');
+    el.textContent = '🌬️ 正在查詢沿途風況…';
+    try {
+        const P = route.overview_path.map(p => ({ lat: typeof p.lat === 'function' ? p.lat() : p.lat, lng: typeof p.lng === 'function' ? p.lng() : p.lng }));
+        const cum = [0];
+        for (let i = 1; i < P.length; i++) cum.push(cum[i - 1] + windHaversineKm(P[i - 1], P[i]));
+        const totalPathKm = cum[cum.length - 1] || 1;
+        let totalSeconds = 0;
+        (route.legs || []).forEach(l => { totalSeconds += (l.duration_in_traffic ? l.duration_in_traffic.value : (l.duration ? l.duration.value : 0)); });
+        const avgSpeed = totalSeconds > 0 ? (calcData.totalDistanceKm / (totalSeconds / 3600)) : 60;
+        const fracs = [0.08, 0.25, 0.42, 0.58, 0.75, 0.92];
+        const bounds = [0, 0.165, 0.335, 0.5, 0.665, 0.835, 1];
+        const samples = fracs.map((f, i) => {
+            const target = f * totalPathKm;
+            let idx = cum.findIndex(c => c >= target); if (idx < 0) idx = P.length - 1;
+            const a = P[Math.max(0, idx - 1)], b = P[Math.min(P.length - 1, idx + 1)];
+            return { pt: P[idx], heading: windBearingDeg(a, b), etaMs: Date.now() + f * totalSeconds * 1000, weight: (bounds[i + 1] - bounds[i]) * calcData.totalDistanceKm, speedKmh: avgSpeed };
+        });
+        const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + samples.map(s => s.pt.lat.toFixed(4)).join(',') + '&longitude=' + samples.map(s => s.pt.lng.toFixed(4)).join(',') + '&hourly=wind_speed_10m,wind_direction_10m&forecast_days=3&timezone=Asia%2FTaipei';
+        const ctl = new AbortController();
+        const to = setTimeout(() => ctl.abort(), 6000);
+        const resp = await fetch(url, { signal: ctl.signal });
+        clearTimeout(to);
+        if (!resp.ok) throw new Error('meteo ' + resp.status);
+        const data = await resp.json();
+        const locs = Array.isArray(data) ? data : [data];
+        const enriched = samples.map((s, i) => {
+            const loc = locs[Math.min(i, locs.length - 1)];
+            if (!loc || !loc.hourly || !loc.hourly.time) return null;
+            const hi = loc.hourly.time.indexOf(windTaipeiHourKey(s.etaMs));
+            if (hi < 0) return null;
+            const ws = loc.hourly.wind_speed_10m[hi], wd = loc.hourly.wind_direction_10m[hi];
+            if (!isFinite(ws) || !isFinite(wd)) return null;
+            return { ws, wd, heading: s.heading, speedKmh: s.speedKmh, weight: s.weight };
+        }).filter(Boolean);
+        if (!enriched.length) throw new Error('no wind data');
+        if (seq !== window._windSeq || !isActive()) return;
+        const r = window.computeWindImpact(enriched);
+        if (!r) throw new Error('no impact');
+        const totalKwh = calcData.totalDistanceKm / calcData.realEff;
+        const socPts = totalKwh * (r.mult - 1) / ((typeof AppState !== 'undefined' && AppState.batteryCapacity) || 57.7) * 100;
+        const pctTxt = (r.pct >= 0 ? '+' : '') + r.pct.toFixed(0) + '%';
+        const socTxt = Math.abs(socPts) >= 0.5 ? '（約 ' + (socPts >= 0 ? '多耗 ' : '省下 ') + Math.abs(socPts).toFixed(0) + '% 電量）' : '';
+        const windTxt = r.avgHead >= 1 ? '平均逆風約 ' + r.avgHead.toFixed(0) + ' km/h' : (r.avgHead <= -1 ? '平均順風約 ' + Math.abs(r.avgHead).toFixed(0) + ' km/h' : '沿途風勢不大');
+        el.innerHTML = '🌬️ <b>沿途風況</b>：' + windTxt + '・預估電耗影響 <b>' + pctTxt + '</b>' + socTxt + ' <span class="opacity-70">（天氣預報推估，僅供參考，未計入抵達電量）</span>';
+    } catch (e) {
+        if (seq === window._windSeq) el.classList.add('hidden');
+    }
+};
+</script>
 </body>
 </html>
