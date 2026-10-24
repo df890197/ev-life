@@ -131,7 +131,7 @@
       color: #383431;
     }
 
-    /* 小圓形工具按鈕通用樣式 */
+    /* 工具按鈕樣式 */
     .nav-circle-btn {
       color: #383431;
       border: 2px solid var(--border-color);
@@ -200,7 +200,7 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    /* 花蓮專屬手繪繪本 Hero 區域 */
+    /* 首頁 Hero 區域 */
     .hero-card {
       background-color: var(--bg-card);
       border: 3px solid var(--border-color);
@@ -420,10 +420,11 @@
     }
 
     .day-hotel-info {
-      font-size: 0.78rem;
+      font-size: 0.76rem;
       color: var(--text-muted);
       font-weight: 700;
-      margin-top: 2px;
+      margin-top: 3px;
+      line-height: 1.4;
     }
 
     /* 時間軸排版 */
@@ -692,7 +693,7 @@
 
   <main class="container">
 
-    <!-- 首頁 Hero 區域：花蓮太魯閣峽谷、七星潭浪花與跳躍小海豚手繪繪本插圖 -->
+    <!-- 首頁 Hero 區域 -->
     <section class="hero-card">
       <div class="hero-badge">🌊 2026.11.07（週六）出發</div>
       <h1 class="hero-title">花蓮・合歡山 山海漫活</h1>
@@ -807,7 +808,7 @@
         <div>
           <span class="day-tag" id="dayTag">Day 1</span>
           <div class="day-summary-title" id="dayTitle">花蓮車站會合 ＋ 童話水岸與海濱夜市</div>
-          <div class="day-hotel-info" id="dayHotel">🏨 住：花蓮東大門周邊質感旅宿</div>
+          <div class="day-hotel-info" id="dayHotel">🏨 住宿安排</div>
         </div>
       </section>
 
@@ -950,7 +951,7 @@
       1: {
         tag: 'Day 1',
         title: '花蓮車站會合 ＋ 童話水岸與海濱夜市',
-        hotel: '🏨 住：花蓮東大門周邊旅宿',
+        hotel: '🏨 我 & 屁祥金主：今古安民宿<br>🏨 佑哥金主 & 老婆：S.E.A.民宿',
         icon: '🌊',
         timeline: [
           { time: '06:15', tag: '🚗 啟程出發', tagClass: 'tag-ocean', title: '中壢出發北上', desc: '早起出發走國 3 接國 5，順暢避開雪隧車潮。', parking: '' },
@@ -961,16 +962,17 @@
           { time: '13:00', tag: '☕ 水岸咖啡', tagClass: 'tag-spot', title: 'STARBUCKS 花蓮理想門市', desc: '【童話下午茶】歐洲童話風木屋配落羽松湖景，拍照好看，而且離下一站鯉魚潭只要 16 分鐘！', parking: '🅿️ 園區專屬停車場 (車程 25 分)' },
           { time: '14:05', tag: '🌲 湖光山色', tagClass: 'tag-nature', title: '鯉魚潭風景區', desc: '花蓮最大的天然湖泊，漫步環潭木棧道吹吹微風、看群山倒影。', parking: '🅿️ 潭北遊客中心停車場 (車程 16 分)' },
           { time: '15:20', tag: '🌊 海風浪花', tagClass: 'tag-ocean', title: '太平洋公園（南濱段海堤）', desc: '【看海首選】順路開回市區看海吹風，離夜市只有 1.1km 超順路！', parking: '🅿️ 南濱段大停車場 (車程 29 分)' },
-          { time: '16:15', tag: '🍢 夜市吃透透', tagClass: 'tag-spot', title: '東大門夜市吃晚餐', desc: '先到旅宿 check-in 放行李，隨後開吃玉里臭豆腐、林記烤玉米跟官財板。', parking: '🅿️ 重慶路周邊收費停車場' }
+          { time: '16:15', tag: '🏨 入住放行李', tagClass: 'tag-spot', title: '各自民宿 Check-in 稍作休息', desc: '分別前往民宿放行李：我與屁祥金主入住「今古安民宿」、佑哥金主夫妻入住海景「S.E.A.民宿」。整理完一起步行前往東大門夜市大快朵頤！', parking: '🅿️ 各自民宿專屬車位／周邊路格' },
+          { time: '17:30', tag: '🍢 夜市吃透透', tagClass: 'tag-food', title: '東大門夜市老饕巡禮', desc: '集合開吃玉里臭豆腐、林記烤玉米、蔣家官財板與新鮮果汁！', parking: '🚶 步行前往或停放重慶路周邊停車格' }
         ]
       },
       2: {
         tag: 'Day 2',
         title: '中橫管制放行 ＋ 福壽山賞楓 ＋ 瑪雅平台看銀河',
-        hotel: '🏨 住：合歡山松雪樓（海拔 3,150m）',
+        hotel: '🏨 全體住：合歡山松雪樓（海拔 3,150m）',
         icon: '🌌',
         timeline: [
-          { time: '06:15', tag: '🚗 晨間出發', tagClass: 'tag-nature', title: '退房往中橫出發', desc: '精神飽滿出發，往太魯閣中橫公路前進，輕鬆往山上開。', parking: '' },
+          { time: '06:15', tag: '🚗 晨間集合', tagClass: 'tag-nature', title: '民宿退房集合出發', desc: '兩間民宿會合出發，往太魯閣中橫公路前進，輕鬆往山上開。', parking: '' },
           { time: '06:30', tag: '🚧 管制放行', tagClass: 'tag-spot', title: '中橫公路（台 8 線）首波放行', desc: '卡準清晨 06:30 - 08:00 第一波管制放行，順利穿過太魯閣峽谷。', parking: '⚠️ 隨時留意路況資訊' },
           { time: '10:00', tag: '🍙 雲端休息', tagClass: 'tag-food', title: '關原加油站吃肉粽', desc: '全台灣最高的加油站打卡（海拔 2,374m），吃顆熱呼呼的招牌肉粽。', parking: '🅿️ 加油站停車場' },
           { time: '12:00', tag: '🍁 楓紅蜜果', tagClass: 'tag-nature', title: '大禹嶺 ➔ 福壽山農場', desc: '造訪松廬欣賞 11 月漂亮的楓紅，順便採買好吃的當季蜜蘋果。', parking: '🅿️ 福壽山停車場' },
@@ -1011,7 +1013,7 @@
 
       document.getElementById('dayTag').innerText = data.tag;
       document.getElementById('dayTitle').innerText = data.title;
-      document.getElementById('dayHotel').innerText = data.hotel;
+      document.getElementById('dayHotel').innerHTML = data.hotel;
       document.getElementById('dayIconBox').innerText = data.icon;
 
       const container = document.getElementById('timelineContainer');
@@ -1083,12 +1085,9 @@
       btn.classList.add('rotating');
       toast.classList.add('show');
 
-      // 清除本地主題以外的潛在快取
-      const themePref = localStorage.getItem('trip_theme_pref');
       sessionStorage.clear();
 
       setTimeout(() => {
-        // 加入時間戳記網址，強制向 GitHub Pages 重新取得最新版本
         const cleanUrl = window.location.href.split('?')[0];
         window.location.replace(cleanUrl + '?t=' + new Date().getTime());
       }, 500);
