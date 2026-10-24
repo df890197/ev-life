@@ -691,7 +691,7 @@ input[type="number"] {
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Fredoka', '"Noto Sans TC"', 'system-ui', 'sans-serif'],
+                        sans: ['Fredoka', '"Huninn"', '"Noto Sans TC"', 'system-ui', 'sans-serif'],
                         mono: ['"SF Mono"', 'SFMono-Regular', '"Roboto Mono"', 'ui-monospace', '"Noto Sans TC"', 'monospace'],
                     },
                     colors: { cuteMint: { 50: '#f0fdf4', 100: '#ccfbf1', 400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488' } }
@@ -796,11 +796,7 @@ input[type="number"] {
         .v132-stars { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
         .v132-stars span { position: absolute; border-radius: 99px; background: #fff; opacity: .25; animation: v132Twinkle 3s ease-in-out infinite; }
         @keyframes v132Twinkle { 50% { opacity: .95; transform: scale(1.4); } }
-        /* 4) 卡片聚光燈（JS 設定 --v132mx/my；只在 hover 時亮） */
-        .rpg-card::before { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 1;
-            background: radial-gradient(260px circle at var(--v132mx, -400px) var(--v132my, -400px), rgba(20,184,166,0.13), rgba(20,184,166,0) 65%);
-            opacity: 0; transition: opacity .3s ease; }
-        .rpg-card:hover::before { opacity: 1; }
+        /* 4) 卡片聚光燈：v167 依使用者要求移除（電腦版滑鼠跟隨光暈） */
         /* 6) 建議卡電流框（跑一圈就停；重用 v128 註冊的 --v128a） */
         #abrpRecommendationCard { position: relative; }
         #abrpRecommendationCard.v132-beam::after { content: ''; position: absolute; inset: 0; border-radius: 1rem; padding: 2px; pointer-events: none; z-index: 2;
@@ -815,7 +811,6 @@ input[type="number"] {
         #v132PullBolt.v132-charged { color: #2dd4bf; box-shadow: 0 0 0 6px rgba(45,212,191,.25), 0 0 28px rgba(45,212,191,.8); }
         /* lite／減少動態 */
         .lite .v132-stars { display: none; }
-        .lite .rpg-card::before { display: none; }
         .lite #abrpRecommendationCard.v132-beam::after { animation: none !important; }
         @media (prefers-reduced-motion: reduce) {
             .v132-stars span { animation: none; }
@@ -845,6 +840,43 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
   #fx160PlanBtn.fx160-idle-glow, #fx160PlanBtn.fx160-busy::after, #v91BatteryFill.fx160-wave::after { animation: none !important; }
 }
 </style>
+    <style id="v168-ehon-skin">
+        /* ===== v168 繪本換皮：版面位置不動，只改樣式（退版請部署 v167） ===== */
+        body { background-color: #FFFCF6 !important; }
+        html.dark body { background-color: #201D1B !important; }
+        /* 卡片：墨框＋硬影 */
+        .rpg-card:not(.v165-ehon-card), [class*="bg-white"][class*="rounded"]:not(.v165-ehon-card) { border: 3px solid #3E3A39 !important; box-shadow: 4px 4px 0 rgba(62,58,57,.9) !important; }
+        html.dark .rpg-card:not(.v165-ehon-card), html.dark [class*="bg-white"][class*="rounded"]:not(.v165-ehon-card) { border-color: #FFFCF6 !important; box-shadow: 4px 4px 0 rgba(0,0,0,.55) !important; }
+        /* 小圓 pill/chip：細一號框影 */
+        [class*="bg-white"][class*="rounded-full"] { border: 2px solid #3E3A39 !important; box-shadow: 2px 2px 0 rgba(62,58,57,.85) !important; }
+        html.dark [class*="bg-white"][class*="rounded-full"] { border-color: #FFFCF6 !important; box-shadow: 2px 2px 0 rgba(0,0,0,.5) !important; }
+        /* 深色卡面：中性黑改暖紙面；淺色內層磚改暖奶油 */
+        html.dark [class*="dark:bg-neutral-900"]:not(.v165-ehon-card) { background-color: #2A2721 !important; }
+        html.dark [class*="dark:bg-neutral-800"] { background-color: #38322B !important; }
+        [class*="bg-stone-100"] { background-color: #FBF0DA !important; }
+        html.dark .pac-container { background-color: #2A2721 !important; }
+        /* hero 照片框 */
+        .hero-image-container { border: 3px solid #3E3A39 !important; border-radius: 28px !important; box-shadow: 5px 5px 0 rgba(62,58,57,.9) !important; }
+        html.dark .hero-image-container { border-color: #FFFCF6 !important; box-shadow: 5px 5px 0 rgba(0,0,0,.55) !important; }
+        /* 底部 bar：紙面＋墨框；中央鈕珊瑚粉 */
+        nav.v81-snap-bar { background: #FFFCF6 !important; border: 3px solid #3E3A39 !important; box-shadow: 5px 5px 0 rgba(62,58,57,.85) !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+        html.dark nav.v81-snap-bar { background: #2A2721 !important; border-color: #FFFCF6 !important; box-shadow: 5px 5px 0 rgba(0,0,0,.55) !important; }
+        nav.v81-snap-bar .tab-btn { color: #8A8178 !important; }
+        html.dark nav.v81-snap-bar .tab-btn { color: rgba(245,239,230,.55) !important; }
+        nav.v81-snap-bar #tab-add.v81-snap-btn { background: #F2A497 !important; color: #3E3A39 !important; border: 2.5px solid #3E3A39 !important; box-shadow: 3px 3px 0 rgba(62,58,57,.9) !important; }
+        html.dark nav.v81-snap-bar #tab-add.v81-snap-btn { border-color: #FFFCF6 !important; box-shadow: 3px 3px 0 rgba(0,0,0,.55) !important; }
+        /* 表單欄位：墨框（排除勾選/滑桿/檔案） */
+        input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]), select, textarea { border: 2.5px solid #3E3A39 !important; border-radius: 14px !important; }
+        html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]), html.dark select, html.dark textarea { border-color: #FFFCF6 !important; }
+        /* 主要青綠按鈕：加墨框硬影（顏色語意不動） */
+        button[class*="bg-teal-5"], button[class*="bg-teal-6"], button[class*="from-teal-"] { border: 2.5px solid #3E3A39 !important; box-shadow: 3px 3px 0 rgba(62,58,57,.9) !important; }
+        html.dark button[class*="bg-teal-5"], html.dark button[class*="bg-teal-6"], html.dark button[class*="from-teal-"] { border-color: #FFFCF6 !important; box-shadow: 3px 3px 0 rgba(0,0,0,.55) !important; }
+        .v91-sticky-save button { border: 2.5px solid #3E3A39 !important; box-shadow: 3px 3px 0 rgba(62,58,57,.9) !important; }
+        html.dark .v91-sticky-save button { border-color: #FFFCF6 !important; box-shadow: 3px 3px 0 rgba(0,0,0,.55) !important; }
+        /* 路線建議卡：墨框硬影（底色由程式依狀態給，不覆蓋） */
+        #abrpRecommendationCard { border: 3px solid #3E3A39 !important; box-shadow: 4px 4px 0 rgba(62,58,57,.9) !important; border-radius: 20px !important; }
+        html.dark #abrpRecommendationCard { border-color: #FFFCF6 !important; box-shadow: 4px 4px 0 rgba(0,0,0,.55) !important; }
+    </style>
 </head>
 <body class="font-sans bg-[#faf8f4] dark:bg-black text-stone-800 dark:text-[#f5f5f4] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative slashed-zero">
 
@@ -1164,7 +1196,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v166</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v168</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1700,7 +1732,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v166</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v168</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2185,7 +2217,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v166';
+        const APP_VERSION = 'v168';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -4666,14 +4698,14 @@ window.setupSocSliders = function() {
 
             if (showEff) {
                 let gradient = ctx.createLinearGradient(0, 0, 0, 250);
-                gradient.addColorStop(0, isDarkMode ? 'rgba(45, 212, 191, 0.4)' : 'rgba(20, 184, 166, 0.2)'); 
-                gradient.addColorStop(1, 'rgba(45, 212, 191, 0.0)'); 
+                gradient.addColorStop(0, isDarkMode ? 'rgba(242, 164, 151, 0.35)' : 'rgba(242, 164, 151, 0.3)'); 
+                gradient.addColorStop(1, 'rgba(242, 164, 151, 0.0)'); 
                 datasets.push({
-                    label: '平均電耗 (km/度)', data: efficiencies, borderColor: isDarkMode ? '#2dd4bf' : '#0d9488', borderWidth: 3, 
-                    pointBackgroundColor: isDarkMode ? '#171717' : '#ffffff', pointBorderColor: isDarkMode ? '#2dd4bf' : '#0d9488', pointBorderWidth: 2, pointRadius: 3, 
+                    label: '平均電耗 (km/度)', data: efficiencies, borderColor: isDarkMode ? '#F2A497' : '#E2703A', borderWidth: 3, 
+                    pointBackgroundColor: isDarkMode ? '#201D1B' : '#FFFCF6', pointBorderColor: isDarkMode ? '#F2A497' : '#E2703A', pointBorderWidth: 2, pointRadius: 3, 
                     tension: 0.4, yAxisID: 'yEfficiency', fill: true, backgroundColor: gradient
                 });
-                scalesConfig.yEfficiency = { type: 'linear', position: 'left', ticks: { color: isDarkMode ? '#2dd4bf' : '#0d9488', maxTicksLimit: 6 }, border: { display: false }, grid: { color: gridColor } };
+                scalesConfig.yEfficiency = { type: 'linear', position: 'left', ticks: { color: isDarkMode ? '#F2A497' : '#E2703A', maxTicksLimit: 6 }, border: { display: false }, grid: { color: gridColor } };
             }
 
             if (showCost) {
@@ -4795,13 +4827,13 @@ window.setupSocSliders = function() {
                 };
 
                 const baseColors = [
-                    isDarkMode ? '#fbbf24' : '#f59e0b',
-                    isDarkMode ? '#2dd4bf' : '#14b8a6', 
-                    isDarkMode ? '#e879f9' : '#d946ef',
-                    isDarkMode ? '#60a5fa' : '#3b82f6', 
-                    isDarkMode ? '#c084fc' : '#a855f7',
-                    isDarkMode ? '#34d399' : '#10b981', 
-                    isDarkMode ? '#fb923c' : '#f97316'
+                    '#F2A497',
+                    '#A8D3E6',
+                    '#F6D27A',
+                    '#B9DAA5',
+                    '#F7C8D8',
+                    '#C9B8E8',
+                    '#FFC98A'
                 ];
 
                 const pieLabels = ['DC 快充', 'AC 慢充', '保養維修', '停車費', '通行費', '保險費', '車貸'];
@@ -5740,11 +5772,11 @@ window.openAbrpModal = function() {
                 zoom: 7,
                 disableDefaultUI: true,
 styles: document.documentElement.classList.contains('dark') ? [
-    { elementType: "geometry", stylers: [{ color: "#171717" }] }, // 陸地底色
-    { featureType: "water", elementType: "geometry", stylers: [{ color: "#000000" }] }, // 海洋深色，突顯台灣輪廓
-    { featureType: "road", elementType: "geometry", stylers: [{ color: "#44403c" }] }, // 道路
+    { elementType: "geometry", stylers: [{ color: "#241F1B" }] }, // 陸地底色（v168 暖黑紙）
+    { featureType: "water", elementType: "geometry", stylers: [{ color: "#14100D" }] }, // 海洋深色，突顯台灣輪廓
+    { featureType: "road", elementType: "geometry", stylers: [{ color: "#55483D" }] }, // 道路
     { elementType: "labels.text.stroke", stylers: [{ color: "#000000" }] }, // 文字描邊
-    { elementType: "labels.text.fill", stylers: [{ color: "#a8a29e" }] } // 文字顏色
+    { elementType: "labels.text.fill", stylers: [{ color: "#D8C9B8" }] } // 文字顏色
 ] : []
             });
             // v57：Routes API 遷移 — DirectionsRenderer 只接受 DirectionsResult，無法畫 Routes API 的折線。
@@ -5762,7 +5794,8 @@ styles: document.documentElement.classList.contains('dark') ? [
                   const path = rt.overview_path || [];
                   if (!path.length) return;
                   const isSel = i === this._idx;
-                  const pl160 = new google.maps.Polyline({ path, map: abrpMap, strokeColor: isSel ? '#4285F4' : '#9ca3af', strokeOpacity: isSel ? 1 : 0.65, strokeWeight: isSel ? 5 : 4, zIndex: isSel ? 10 : 5, clickable: false });
+                  if (isSel) { const plCase = new google.maps.Polyline({ path, map: abrpMap, strokeColor: '#3E3A39', strokeOpacity: 1, strokeWeight: 9, zIndex: 9, clickable: false }); this._polylines.push(plCase); if (fxDraw160 && path.length > 2 && typeof window.fx160AnimateRouteDraw === 'function') window.fx160AnimateRouteDraw(plCase, path); }
+                  const pl160 = new google.maps.Polyline({ path, map: abrpMap, strokeColor: isSel ? '#F2A497' : '#B8AFA2', strokeOpacity: isSel ? 1 : 0.65, strokeWeight: isSel ? 5 : 4, zIndex: isSel ? 10 : 5, clickable: false });
                   this._polylines.push(pl160);
                   if (isSel && fxDraw160 && path.length > 2 && typeof window.fx160AnimateRouteDraw === 'function') window.fx160AnimateRouteDraw(pl160, path);
                 });
@@ -9285,15 +9318,7 @@ function updateAbrpElevScrub(pct) {
             apply(); setInterval(apply, 30 * 60 * 1000);
         })();
 
-        /* ---------- 4) 卡片聚光燈（只滑鼠） ---------- */
-        document.addEventListener('pointermove', (e) => {
-            if (e.pointerType !== 'mouse' || isLite()) return;
-            const card = e.target && e.target.closest ? e.target.closest('.rpg-card') : null;
-            if (!card) return;
-            const r = card.getBoundingClientRect();
-            card.style.setProperty('--v132mx', (e.clientX - r.left).toFixed(0) + 'px');
-            card.style.setProperty('--v132my', (e.clientY - r.top).toFixed(0) + 'px');
-        }, { passive: true });
+        /* ---------- 4) 卡片聚光燈：v167 移除 ---------- */
 
         /* ---------- 5) 頂部鈕進度環 ---------- */
         (function ring() {
