@@ -169,7 +169,6 @@
       padding: 16px;
     }
 
-    /* 浮動更新小提示 */
     .toast-msg {
       position: fixed;
       top: 60px;
@@ -244,7 +243,6 @@
       display: block;
     }
 
-    /* 倒數計時小木牌卡片 */
     .countdown-container {
       background-color: var(--ocean-light);
       border: 2.5px solid var(--border-color);
@@ -518,7 +516,6 @@
       color: var(--sunset-coral);
     }
 
-    /* 通用繪本小卡 */
     .section-title {
       font-size: 1.15rem;
       font-weight: 900;
@@ -547,7 +544,6 @@
       margin-bottom: 18px;
     }
 
-    /* 行程多選一評估小卡 */
     .compare-choice {
       border: 2px solid var(--border-color);
       border-radius: 12px;
@@ -574,7 +570,6 @@
     .choice-badge.top { background-color: var(--mountain-green); color: #383431; }
     .choice-badge.sub { background-color: var(--hualien-gold); color: #383431; }
 
-    /* 東大門夜市小卡 */
     .market-box {
       border: 2px solid var(--border-color);
       border-radius: 14px;
@@ -595,7 +590,6 @@
       margin-bottom: 6px;
     }
 
-    /* 打包檢查清單 */
     .progress-bar-wrap {
       width: 100%;
       height: 10px;
@@ -642,7 +636,6 @@
     .check-item.done .check-box::after { content: '✓'; font-weight: 900; font-size: 12px; }
     .check-item.done span { text-decoration: line-through; color: var(--text-muted); }
 
-    /* 動態效果 */
     @keyframes dolphinJump {
       0%, 100% { transform: translateY(0px) rotate(0deg); }
       50% { transform: translateY(-4px) rotate(-3deg); }
@@ -659,7 +652,6 @@
 </head>
 <body>
 
-  <!-- 頂部導覽列 -->
   <header class="navbar">
     <div class="nav-brand">
       <span>🐬</span>
@@ -680,12 +672,10 @@
     </div>
   </header>
 
-  <!-- 強制更新提示訊息 -->
   <div class="toast-msg" id="toastMsg">✨ 正在取得最新花蓮行程...</div>
 
   <main class="container">
 
-    <!-- 首頁 Hero 區域 -->
     <section class="hero-card">
       <div class="hero-badge">🌊 2026.11.07（週六）出發</div>
       <h1 class="hero-title">花蓮・合歡山 山海漫活</h1>
@@ -861,6 +851,21 @@
 
       </div>
 
+      <!-- 清境農場表演重要須知 -->
+      <div class="box-card">
+        <h2 class="section-title">清境農場表演重要時段備忘</h2>
+        <div class="market-box" style="background-color: var(--mountain-light);">
+          <span class="market-zone-tag" style="background-color: var(--mountain-green);">🐎 馬術秀（每日皆有演出）</span>
+          <div style="font-size: 0.82rem; font-weight: 700;">● 表演時間：每日 10:45 ＆ 15:45（每場約 30 分鐘）</div>
+          <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">● 表演地點：觀山牧區馬術秀場。騎士在奔馳馬背上倒立、站立特技超精彩！</div>
+        </div>
+        <div class="market-box" style="background-color: var(--hualien-gold-light);">
+          <span class="market-zone-tag" style="background-color: var(--hualien-gold);">🐑 綿羊脫毛秀（例假日專屬）</span>
+          <div style="font-size: 0.82rem; font-weight: 700;">● 表演時間：國定例假日與寒暑假 09:30 ＆ 14:30</div>
+          <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">● 平日（週一）雖無大型脫毛舞台秀，但青青草原上百隻羊咩咩全天在草坡自由放牧，買飼料即可近距離貼身摸羊、餵食合照！</div>
+        </div>
+      </div>
+
       <div class="box-card">
         <h2 class="section-title">東大門夜市 ＆ 市區老字號宵夜</h2>
         <div class="market-box">
@@ -978,14 +983,16 @@
       },
       3: {
         tag: 'Day 3',
-        title: '武嶺日出 ＋ 清境農場看綿羊 ＋ 快樂返程',
+        title: '武嶺打卡 ＋ 清境青青草原尋羊 ＋ 觀山牧區看馬術秀',
         hotel: '🏠 終點：平安回到中壢',
         icon: '🐑',
         timeline: [
-          { time: '06:00', tag: '🌅 雲海日出', tagClass: 'tag-spot', title: '松雪樓看高山日出', desc: '早起看晨光雲海穿透群峰，空氣純淨，戶外氣溫約 5-8°C 記得穿厚外套。', parking: '' },
-          { time: '08:30', tag: '📸 公路之巔', tagClass: 'tag-spot', title: '武嶺標高 3,275m 拍照', desc: '站在台灣公路最高點武嶺亭拍照打卡留念！', parking: '🅿️ 武嶺停車場' },
-          { time: '09:30', tag: '🐑 青青草原', tagClass: 'tag-nature', title: '清境農場（停留約 2 小時）', desc: '順路下山造訪清境農場，看可愛綿羊群、呼吸高山清新空氣與放空拍照。', parking: '🅿️ 青青草原周邊停車場 (車程約 25 分)' },
-          { time: '12:00', tag: '🍽️ 在地午餐', tagClass: 'tag-food', title: '埔里吃午餐 ＆ 休息', desc: '下山到埔里享用在地熱騰騰小吃，好好坐下來吃頓飯休息。', parking: '🅿️ 市區周邊停車場' },
+          { time: '06:00', tag: '🌅 雲海日出', tagClass: 'tag-spot', title: '松雪樓看日出 ＆ 晨間早餐', desc: '早起看晨光雲海穿透群峰，吃熱騰騰自助早餐後整裝退房。', parking: '' },
+          { time: '08:30', tag: '📸 公路之巔', tagClass: 'tag-spot', title: '武嶺標高 3,275m 拍照留念', desc: '站在台灣公路最高點武嶺亭拍照打卡！早晨陽光充足、空氣透徹，也不容易堵車。', parking: '🅿️ 武嶺停車場' },
+          { time: '09:15', tag: '🚗 輕鬆下山', tagClass: 'tag-ocean', title: '沿台 14 甲順開至清境農場', desc: '一路下坡遠眺中央山脈翠綠山巒，約 35 分鐘即可抵達清境農場。', parking: '🅿️ 青青草原或觀山牧區收費停車場' },
+          { time: '09:50', tag: '🐑 草原尋羊', tagClass: 'tag-nature', title: '青青草原與綿羊近距離互動', desc: '週一為平日雖無固定脫毛秀，但上百隻羊咩咩全在草坡上漫步！買飼料餵羊、摸綿羊鬆軟羊毛、拍無敵山景美照！', parking: '🅿️ 青青草原入口' },
+          { time: '10:45', tag: '🐎 特技表演', tagClass: 'tag-spot', title: '觀山牧區馬術秀（每日固定演出）', desc: '準時觀賞 30 分鐘超精彩專業馬術秀！專業蒙古騎士在奔馳馬背上倒立、旋轉與跳躍，氣勢磅礡！', parking: '觀山牧區馬術秀場' },
+          { time: '12:00', tag: '🍽️ 在地午餐', tagClass: 'tag-food', title: '下山抵達埔里享用午餐', desc: '順路下山到埔里享用在地熱騰騰小吃美食，好好坐下來放鬆吃飯。', parking: '🅿️ 埔里市區停車場' },
           { time: '14:00', tag: '🏠 舒適返程', tagClass: 'tag-ocean', title: '國 6 接國 3 回中壢', desc: '順順開高速公路，一路聊天聽音樂，平平安安回到中壢！', parking: '預計 16:30 到' }
         ]
       }
