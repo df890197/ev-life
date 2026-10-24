@@ -1064,18 +1064,18 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
     </style>
     <style id="v177-tabbar">
         /* ===== v178：tab bar 換皮（滑動動畫機制完全比照 v176：pill 與 active 只換背景色、零 box-shadow；顏色放柔） ===== */
-        nav.v81-snap-bar { background: #FFFCF6 !important; border: 3px solid #3E3A39 !important; box-shadow: 5px 5px 0 rgba(62,58,57,.20), 0 12px 28px rgba(62,58,57,.16) !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+        nav.v81-snap-bar { background: #FFFCF6 !important; border: 3px solid #3E3A39 !important; box-shadow: 5px 5px 0 rgba(62,58,57,.20) !important; /* v182：拿掉 28px 大模糊陰影（iOS 動畫時每幀重繪會卡） */ backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
         nav.v81-snap-bar .tab-btn { color: #8A8175 !important; }
         nav.v81-snap-bar .tab-btn.active { background: transparent !important; color: #3E3A39 !important; box-shadow: none !important; } /* v179：高亮只留滑動 pill，按鈕自身背景拿掉（雙層淡出會留殘影） */
         #v109TabPill { background: #FBEBC0; box-shadow: none; }
         nav.v81-snap-bar .v81-sep { background: rgba(62,58,57,.18) !important; }
         nav.v81-snap-bar #tab-add.v81-snap-btn { background: #E8835F !important; box-shadow: 3px 3px 0 rgba(62,58,57,.30) !important; }
-        html.dark nav.v81-snap-bar { background: #12141F !important; border: 3px solid rgba(190,205,230,.14) !important; box-shadow: 0 14px 34px rgba(0,0,0,.55), inset 0 1px 0 rgba(143,168,200,.12) !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; } /* v179：關毛玻璃防切換拖影；v181：rim 改霧鋼藍系 */
+        html.dark nav.v81-snap-bar { background: #12141F !important; border: 3px solid rgba(190,205,230,.14) !important; box-shadow: 0 8px 18px rgba(0,0,0,.5), inset 0 1px 0 rgba(143,168,200,.12) !important; /* v182：模糊半徑縮小 */ backdrop-filter: none !important; -webkit-backdrop-filter: none !important; } /* v179：關毛玻璃防切換拖影；v181：rim 改霧鋼藍系 */
         html.dark nav.v81-snap-bar .tab-btn { color: #9A93A8 !important; }
         html.dark nav.v81-snap-bar .tab-btn.active { background: transparent !important; color: #B7C8E2 !important; box-shadow: none !important; } /* v179：高亮只留 pill；v181：字色改霧鋼藍亮階 */
         html.dark #v109TabPill { background: rgba(143,168,200,.22); box-shadow: none; } /* v181：霧鋼藍 */
         html.dark nav.v81-snap-bar .v81-sep { background: rgba(190,205,230,.12) !important; }
-        html.dark nav.v81-snap-bar #tab-add.v81-snap-btn { background: linear-gradient(180deg, #A9BDD8, #7E93B8) !important; color: #10151F !important; box-shadow: 0 0 18px rgba(143,168,200,.28), 0 6px 14px rgba(0,0,0,.4) !important; } /* v181：＋鈕改霧鋼藍漸層 */
+        html.dark nav.v81-snap-bar #tab-add.v81-snap-btn { background: linear-gradient(180deg, #A9BDD8, #7E93B8) !important; color: #10151F !important; box-shadow: 0 0 10px rgba(143,168,200,.25), 0 4px 10px rgba(0,0,0,.4) !important; /* v182：光暈縮小 */ } /* v181：＋鈕改霧鋼藍漸層 */
     </style>
     <style id="v180-hero">
         /* ===== v180：hero 無自訂照片時的繪本車場景（深色開燈／淺色關燈、背景跟著換） ===== */
@@ -1116,6 +1116,33 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         #heroScene .hs-beam, #heroScene .hs-glow { opacity: 0; }
         html.dark #heroScene .hs-beam { opacity: .55; }
         html.dark #heroScene .hs-glow { opacity: .85; }
+    </style>
+    <style id="v182-fixes">
+        /* ===== v182 修正包 ===== */
+        /* 1) 新增頁類型鈕：深色 selected 不要整片奶油底 → 改同色系半透明深底＋亮字（8 色） */
+        html.dark .charge-type-btn[class*="bg-amber-50"] { background-color: rgba(146,64,14,.35) !important; color: #FCD34D !important; }
+        html.dark .charge-type-btn[class*="bg-teal-50"] { background-color: rgba(19,78,74,.42) !important; color: #5EEAD4 !important; }
+        html.dark .charge-type-btn[class*="bg-sky-50"] { background-color: rgba(12,74,110,.42) !important; color: #7DD3FC !important; }
+        html.dark .charge-type-btn[class*="bg-fuchsia-50"] { background-color: rgba(112,26,117,.38) !important; color: #F0ABFC !important; }
+        html.dark .charge-type-btn[class*="bg-blue-50"] { background-color: rgba(30,58,138,.42) !important; color: #93C5FD !important; }
+        html.dark .charge-type-btn[class*="bg-purple-50"] { background-color: rgba(88,28,135,.42) !important; color: #D8B4FE !important; }
+        html.dark .charge-type-btn[class*="bg-emerald-50"] { background-color: rgba(6,78,59,.42) !important; color: #6EE7B7 !important; }
+        html.dark .charge-type-btn[class*="bg-orange-50"] { background-color: rgba(124,45,18,.42) !important; color: #FDBA74 !important; }
+        html.dark .charge-type-btn[class*="bg-stone-100"] { background-color: rgba(41,37,36,.65) !important; color: #E7E5E4 !important; }
+        /* 2) 電車日子卡：深色拿掉白色框（保留 3px 寬度避免切換跳動） */
+        html.dark .v165-ehon-card { border-color: transparent !important; }
+        /* 3) 電車日子標題不換行（Android 窄屏「子」掉行） */
+        .v165-ehon-card h3 { white-space: nowrap; }
+        @media (max-width: 420px) { .v165-ehon-card h3 svg { width: 40px; height: 27px; } }
+    </style>
+    <style id="v183-textsize">
+        /* ===== v183：統一 iOS／Android 字級基準（html 層級＋標準屬性，補 body 原有 -webkit- 版） ===== */
+        html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+        /* 紀錄卡表頭永遠單行：不准換行、地區過長自動省略（iOS 字較大台也不撐成兩行） */
+        .v183-rec-head { flex-wrap: nowrap !important; }
+        .v183-rec-head .v183-rec-loc { max-width: 100%; }
+        .v183-rec-head .v183-rec-loc-txt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .v183-rec-head .v183-rec-right { flex-wrap: nowrap !important; }
     </style>
 </head>
 <body class="font-sans bg-[#faf8f4] dark:bg-black text-stone-800 dark:text-[#f5f5f4] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative slashed-zero">
@@ -1496,7 +1523,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v181</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v183</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2032,7 +2059,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v181</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v183</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2518,7 +2545,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v181';
+        const APP_VERSION = 'v183';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -4208,20 +4235,20 @@ window.setupSocSliders = function() {
             return `
             <div class="${cardWrapperClass}" data-v106-month="${safeDate.slice(0, 7)}" onclick="editRecord('${safeId}')">
                 <div class="flex-1 flex flex-col justify-between">
-                    <div class="flex items-center justify-between gap-1 pb-1.5 border-b border-stone-100 dark:border-stone-800/60 mb-2 min-h-[24px]">
+                    <div class="v183-rec-head flex items-center justify-between gap-1 pb-1.5 border-b border-stone-100 dark:border-stone-800/60 mb-2 min-h-[24px]">
                         <div class="inline-flex items-center text-[13px] font-bold text-stone-800 dark:text-stone-200 tracking-tighter shrink-0">
                             <span class="mr-0.5 leading-none">📅</span>
                             <span class="leading-none">${safeDate}</span>
                         </div>
                         <div class="flex-1 text-center px-1 overflow-hidden">
                             ${safeDistrict ? `
-                                <div class="inline-flex items-center text-[12.5px] font-bold text-stone-500 dark:text-stone-400 whitespace-nowrap tracking-tighter -translate-y-[2px] sm:-translate-y-[1px]" title="${safeDistrict}">
+                                <div class="v183-rec-loc inline-flex items-center text-[12.5px] font-bold text-stone-500 dark:text-stone-400 whitespace-nowrap tracking-tighter -translate-y-[2px] sm:-translate-y-[1px]" title="${safeDistrict}">
                                     <span class="mr-0.5 leading-none">📍</span>
-                                    <span class="leading-none">${safeDistrict}</span>
+                                    <span class="leading-none v183-rec-loc-txt">${safeDistrict}</span>
                                 </div>
                             ` : ''}
                         </div>
-                        <div class="inline-flex items-center gap-1 shrink-0 justify-end">
+                        <div class="v183-rec-right inline-flex items-center gap-1 shrink-0 justify-end">
                             ${(rec.temp !== undefined && rec.temp !== null && rec.temp !== '') ? `
                                 <div class="inline-flex items-center text-[13px] font-bold text-sky-600 dark:text-sky-400 tracking-tighter">
                                     <span class="mr-0.5 leading-none">🌡️</span>
