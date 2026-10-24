@@ -236,7 +236,7 @@
       color: var(--text-muted);
     }
 
-    /* 天空軌道小車日期軸 */
+    /* 天空水波海豚日期軸 (花蓮在地賞鯨豚風格) */
     .track-section {
       background-color: var(--bg-card);
       border: 3px solid var(--border-color);
@@ -267,7 +267,7 @@
 
     .cable-car {
       position: absolute;
-      top: 0;
+      top: -2px;
       left: 0;
       width: 33.333%;
       display: flex;
@@ -621,7 +621,7 @@
   <header class="navbar">
     <div class="nav-brand">
       <span>🚗</span>
-      <span>花蓮自駕慢活遊</span>
+      <span>花蓮自駕漫遊</span>
     </div>
     <div class="nav-actions">
       <div class="nav-tabs">
@@ -703,20 +703,30 @@
     <!-- ================= TAB 1: 行程 ITINERARY ================= -->
     <div id="tab-itinerary" class="tab-content active">
 
-      <!-- 天空軌道小車日期軸 -->
+      <!-- 天空軌道海豚日期軸 (花蓮在地海洋豚躍風格) -->
       <section class="track-section">
         <div class="cable-line"></div>
         <div class="cable-car-wrapper">
           <div id="cableCar" class="cable-car" style="transform: translateX(0%);">
-            <svg width="38" height="32" viewBox="0 0 42 34" fill="none">
-              <line x1="21" y1="0" x2="21" y2="7" stroke="#3E3A39" stroke-width="2.5" stroke-linecap="round"/>
-              <circle cx="21" cy="2" r="3" fill="#F6D27A" stroke="#3E3A39" stroke-width="2"/>
-              <rect x="2" y="7" width="38" height="24" rx="8" fill="#F2A497" stroke="#3E3A39" stroke-width="2.5"/>
-              <rect x="6" y="11" width="13" height="11" rx="4" fill="#FFFFFF" stroke="#3E3A39" stroke-width="2"/>
-              <rect x="23" y="11" width="13" height="11" rx="4" fill="#FFFFFF" stroke="#3E3A39" stroke-width="2"/>
-              <circle cx="10" cy="26" r="2" fill="#F6D27A"/>
-              <circle cx="32" cy="26" r="2" fill="#F6D27A"/>
-              <line x1="17" y1="26" x2="25" y2="26" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+            <!-- 手繪花蓮海豚 SVG -->
+            <svg width="44" height="34" viewBox="0 0 48 36" fill="none">
+              <!-- 小水花泡泡 -->
+              <circle cx="9" cy="24" r="2" fill="#A8D3E6" stroke="#3E3A39" stroke-width="1.5"/>
+              <circle cx="6" cy="28" r="1.5" fill="#A8D3E6"/>
+              <!-- 海豚主體 (躍出水面弧度) -->
+              <path d="M12 26 C14 16 24 10 34 11 C38 11.5 43 14 44 17 C42 18 39 18 36 17 C28 20 20 26 14 28 L10 31 L12 26 Z" fill="#A8D3E6" stroke="#3E3A39" stroke-width="2.5" stroke-linejoin="round"/>
+              <!-- 背鰭 -->
+              <path d="M25 11 C26 7 29 6 31 8 C29 10 28 11 27 12 Z" fill="#A8D3E6" stroke="#3E3A39" stroke-width="2"/>
+              <!-- 胸鰭 -->
+              <path d="M27 21 C29 23 32 24 33 23 C31 21 29 20 28 19 Z" fill="#88C2D8" stroke="#3E3A39" stroke-width="1.8"/>
+              <!-- 尾鰭 -->
+              <path d="M10 31 C7 31 5 28 5 26 C8 27 10 29 10 31 Z" fill="#A8D3E6" stroke="#3E3A39" stroke-width="2"/>
+              <path d="M10 31 C9 34 8 36 6 36 C7 33 9 32 10 31 Z" fill="#A8D3E6" stroke="#3E3A39" stroke-width="2"/>
+              <!-- 可愛眼睛與微笑 -->
+              <circle cx="39" cy="14" r="1.5" fill="#3E3A39"/>
+              <path d="M41 17 C40 18 38 18 37 17.5" stroke="#3E3A39" stroke-width="1.5" stroke-linecap="round"/>
+              <!-- 腮紅 -->
+              <ellipse cx="36" cy="16" rx="2" ry="1.2" fill="#F2A497"/>
             </svg>
           </div>
         </div>
@@ -989,14 +999,7 @@
       });
     }
 
-    // 4. 深淺色模式
-    function toggleTheme() {
-      const current = document.documentElement.getAttribute('data-theme');
-      const next = current === 'dark' ? 'light' : 'dark';
-      applyTheme(next);
-      localStorage.setItem('trip_theme_pref', next);
-    }
-
+    // 4. 深淺色模式 (自動偵測系統 + 手動切換記憶)
     function applyTheme(theme) {
       const icon = document.getElementById('themeIcon');
       if (theme === 'dark') {
@@ -1006,6 +1009,13 @@
         document.documentElement.removeAttribute('data-theme');
         icon.textContent = '☀️';
       }
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+      localStorage.setItem('trip_theme_pref', next);
     }
 
     // 5. 倒數計時器 (2026/11/07 11:00 車站接人)
@@ -1047,8 +1057,14 @@
 
     // 初始化
     window.addEventListener('DOMContentLoaded', () => {
-      const savedTheme = localStorage.getItem('trip_theme_pref') || 'light';
-      applyTheme(savedTheme);
+      const savedTheme = localStorage.getItem('trip_theme_pref');
+      if (savedTheme) {
+        applyTheme(savedTheme);
+      } else {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        applyTheme(prefersDark ? 'dark' : 'light');
+      }
+
       renderDay(1);
       updateCountdown();
       setInterval(updateCountdown, 1000);
