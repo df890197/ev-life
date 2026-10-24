@@ -376,8 +376,7 @@ input[type="number"] {
         #v105TopBtn.v105-top-show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
         html.lite #v105TopBtn { transition: none; }
         /* 5) 卡片光暈：桌機 hover 跟隨游標／手機按壓泛光（背景圖層，不動版面） */
-        @media (hover: hover) and (pointer: fine) { .rpg-card:not(.bg-gradient-to-br):hover, .v91-card:hover { background-image: radial-gradient(240px circle at var(--v105-gx, 50%) var(--v105-gy, 50%), rgba(45,212,191,0.13), rgba(45,212,191,0) 70%); background-repeat: no-repeat; } }
-        .rpg-card:not(.bg-gradient-to-br).v105-press, .v91-card.v105-press { background-image: radial-gradient(240px circle at var(--v105-gx, 50%) var(--v105-gy, 50%), rgba(45,212,191,0.16), rgba(45,212,191,0) 70%); background-repeat: no-repeat; }
+        /* v105 卡片光暈 CSS：v172 移除（滑鼠跟隨光暈，使用者要求） */
         /* 6) Toast 倒數條 */
         .v105-toast-bar { position: absolute; left: 1.1rem; right: 1.1rem; bottom: 0.45rem; height: 3px; border-radius: 9999px; background: currentColor; opacity: 0; transform-origin: left center; pointer-events: none; }
         /* === v106：特效與版面第二批（只動樣式/回饋，不動計算） === */
@@ -989,6 +988,49 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         /* 首頁月電耗圖：深色柱改夜山影 */
         html.dark #v169HomeChart path { fill: #2A3050; }
     </style>
+    <style id="v172-fix">
+        /* ===== v172 修正包 ===== */
+        /* hero：照片滿版、框無色（深淺皆然） */
+        .v169-plate { padding: 0 !important; border: none !important; }
+        html.dark .v169-plate { box-shadow: 0 18px 36px rgba(0,0,0,.45) !important; }
+        .v169-plate .hero-image-container { border: none !important; border-radius: 26px !important; }
+        /* header 分隔線移除（全域） */
+        header.sticky { border-bottom: none !important; }
+        /* 深色卡框改 3px 淡 rim：與淺色 3px 同高，切換不再上下跳 */
+        html.dark #view-home .rpg-card, html.dark #view-home .v169-outer { border-width: 3px !important; }
+        html.dark .v169-outer { background: #1B1F30; }
+        /* 時間軸 bar：段位定位（起→迄）＋深色金/鋼藍漸層 */
+        .v169-tl-bar { position: relative; }
+        .v169-tl-bar i { position: absolute; top: 0; bottom: 0; height: auto; border-radius: 999px; }
+        html.dark .v169-tl-bar i[data-tltype="fast"] { background: linear-gradient(90deg, #B57E22, #F2C063) !important; filter: none; }
+        html.dark .v169-tl-bar i[data-tltype="slow"] { background: linear-gradient(90deg, #5E7396, #7E93B8) !important; filter: none; }
+        /* 保養卡內部夜色：進度條/剩餘數字/日期面板/圖示底 */
+        html.dark #maintProgressBar, html.dark #tireProgressBar { background-image: linear-gradient(90deg, #B57E22, #F2C063) !important; }
+        html.dark #loanProgressBar { background-image: linear-gradient(90deg, #8A6420, #E9B44C) !important; }
+        html.dark #maintRemainingText, html.dark #tireRemainingText { color: #F2C063 !important; }
+        html.dark #loanMonthsProgressText, html.dark #loanRemainingMonths { color: #E9B44C !important; }
+        html.dark #maintDateAlertContainer, html.dark #insuranceDateAlertContainer { background-color: #12141F !important; }
+        html.dark #maintDateAlertContainer [class*="dark:bg-amber-900/40"], html.dark #insuranceDateAlertContainer [class*="dark:bg-indigo-900/40"], html.dark #loanProgressContainer [class*="dark:bg-orange-900/40"] { background-color: #232840 !important; }
+        /* ===== 紀錄頁日夜雙生調色 ===== */
+        html.dark #view-records [data-v106-month] { background: #1B1F30 !important; border-color: rgba(237,230,214,.1) !important; box-shadow: inset 0 1px 0 rgba(242,192,99,.07), 0 10px 22px rgba(0,0,0,.32) !important; }
+        html.dark #view-records [data-v106-month][class*="from-amber-50"] { border-color: rgba(233,180,76,.55) !important; }
+        html.dark .rpg-card-sublayer { background: #12141F !important; border-color: rgba(237,230,214,.08) !important; }
+        html:not(.dark) #view-records .rpg-card-sublayer { background: #FBF3E2; }
+        html.dark #view-records [class*="from-teal-500"] { background-image: linear-gradient(90deg, #B57E22, #F2C063) !important; }
+        html:not(.dark) #view-records [class*="from-teal-500"] { background-image: linear-gradient(90deg, #F2A497, #F6D27A) !important; }
+        html.dark #view-records .soc-progress-glow-charging { box-shadow: 0 0 10px rgba(233,180,76,.45), inset 0 1px 1px rgba(255,255,255,.35); }
+        html.dark #v106MonthPillText { background: #232840 !important; color: #EDE6D6 !important; border: 1px solid rgba(233,180,76,.4); box-shadow: 0 8px 20px rgba(0,0,0,.4); }
+        html.dark #monthFilterContainer [class*="dark:bg-neutral-900"], html.dark #monthFilterContainer_analysis [class*="dark:bg-neutral-900"] { background-color: #1B1F30 !important; border-color: rgba(237,230,214,.14) !important; color: #9A93A8 !important; }
+        html.dark #view-records [class*="dark:text-teal-400"] { color: #F2C063 !important; }
+        html.dark #view-records [class*="dark:bg-amber-900/40"] { background-color: rgba(233,180,76,.14) !important; color: #F2C063 !important; }
+        html.dark #view-records [class*="dark:bg-teal-900/40"] { background-color: rgba(143,169,143,.16) !important; color: #A9C6A9 !important; }
+        html.dark #view-records [class*="dark:bg-sky-900/40"] { background-color: rgba(126,147,184,.16) !important; color: #A9BBD9 !important; }
+        html.dark #view-records [class*="dark:bg-purple-900/40"] { background-color: rgba(126,147,184,.16) !important; color: #B9C6E4 !important; }
+        html.dark #view-records [class*="dark:bg-fuchsia-900/40"] { background-color: rgba(216,164,143,.15) !important; color: #E3B7A6 !important; }
+        html.dark #view-records [class*="dark:bg-blue-900/40"] { background-color: rgba(126,147,184,.14) !important; color: #A9BBD9 !important; }
+        html.dark #view-records [class*="dark:bg-emerald-900/40"] { background-color: rgba(143,169,143,.15) !important; color: #A9C6A9 !important; }
+        html.dark #view-records [class*="dark:bg-orange-900/40"] { background-color: rgba(237,230,214,.1) !important; color: #CFC7B4 !important; }
+    </style>
 </head>
 <body class="font-sans bg-[#faf8f4] dark:bg-black text-stone-800 dark:text-[#f5f5f4] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative slashed-zero">
 
@@ -1074,7 +1116,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
                     <input type="file" id="heroImageUpload" class="hidden" accept="image/*" onchange="handleHeroImageUpload(event)">
                 </div>
                 </div>
-                <div class="v169-caption"><span>📖 <b>旅程封面</b>・<span id="v169CaptionText">點右上相機，換上你最新的旅程照片</span></span></div>
+            <!-- v172：旅程封面圖說列依使用者要求移除 -->
 
                 <div class="v169-chap"><span class="no">1</span><h3>今日速覽</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F2A497" stroke-width="3" stroke-linecap="round"/></svg></div>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 v169-tiles">
@@ -1327,7 +1369,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v171</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v172</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1863,7 +1905,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v171</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v172</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2348,7 +2390,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v171';
+        const APP_VERSION = 'v172';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -8932,17 +8974,7 @@ function updateAbrpElevScrub(pct) {
             });
         })();
 
-        // 5) 卡片光暈：桌機 hover 跟隨／手機按壓（事件委派，動態卡片也適用）
-        (function initGlow() {
-            const SEL = '.rpg-card:not(.bg-gradient-to-br), .v91-card';
-            const fine = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-            const setPos = (card, e) => { const r = card.getBoundingClientRect(); if (!r.width || !r.height) return; card.style.setProperty('--v105-gx', ((e.clientX - r.left) / r.width * 100) + '%'); card.style.setProperty('--v105-gy', ((e.clientY - r.top) / r.height * 100) + '%'); };
-            document.addEventListener('pointermove', e => { if (!fine) return; const c = e.target.closest && e.target.closest(SEL); if (c) setPos(c, e); }, { passive: true });
-            document.addEventListener('pointerdown', e => { const c = e.target.closest && e.target.closest(SEL); if (!c) return; setPos(c, e); c.classList.add('v105-press'); }, { passive: true });
-            const clear = () => document.querySelectorAll('.v105-press').forEach(c => setTimeout(() => c.classList.remove('v105-press'), 180));
-            document.addEventListener('pointerup', clear, { passive: true });
-            document.addEventListener('pointercancel', clear, { passive: true });
-        })();
+        // 5) 卡片光暈：v172 移除（initGlow 整段刪除，含 pointermove/pointerdown 光暈）
     })();
     </script>
 
@@ -9771,7 +9803,7 @@ function updateAbrpElevScrub(pct) {
                         const hasSoc = isFinite(ss) && isFinite(es);
                         if (isCh) {
                             const col = isDC ? '#F2A497' : '#A8D3E6';
-                            return '<div class="v169-tl-ev"><span class="v169-tl-dot" style="background:' + col + '"></span><div class="v169-tl-card"><span class="v169-tl-when">' + md(r.date) + '・' + (isDC ? '快充' : '慢充') + '</span><div class="v169-tl-tt">' + (isDC ? '⚡' : '🔌') + ' ' + esc((r.tag || '').trim() || '充電站') + '<span class="v169-tl-amt">' + (cost > 0 ? '$' + Math.round(cost).toLocaleString() : '🎁 免費') + '</span></div>' + (hasSoc ? '<div class="v169-tl-bar"><i style="width:' + Math.max(0, Math.min(100, es)) + '%;background:' + col + '"></i></div>' : '') + '<div class="v169-tl-meta">' + (hasSoc ? ss + '% → ' + es + '%・' : '') + '補 ' + recPower(r).toFixed(1) + ' 度' + (dist ? '・這一趟 ' + fmtKm(dist) + ' km' : '') + '</div></div></div>';
+                            return '<div class="v169-tl-ev"><span class="v169-tl-dot" style="background:' + col + '"></span><div class="v169-tl-card"><span class="v169-tl-when">' + md(r.date) + '・' + (isDC ? '快充' : '慢充') + '</span><div class="v169-tl-tt">' + (isDC ? '⚡' : '🔌') + ' ' + esc((r.tag || '').trim() || '充電站') + '<span class="v169-tl-amt">' + (cost > 0 ? '$' + Math.round(cost).toLocaleString() : '🎁 免費') + '</span></div>' + (hasSoc ? '<div class="v169-tl-bar"><i data-tltype="' + (isDC ? 'fast' : 'slow') + '" style="left:' + Math.max(0, Math.min(100, Math.min(ss, es))) + '%;width:' + Math.abs(es - ss) + '%;background:' + col + '"></i></div>' : '') + '<div class="v169-tl-meta">' + (hasSoc ? ss + '% → ' + es + '%・' : '') + '補 ' + recPower(r).toFixed(1) + ' 度' + (dist ? '・這一趟 ' + fmtKm(dist) + ' km' : '') + '</div></div></div>';
                         }
                         return '<div class="v169-tl-ev"><span class="v169-tl-dot" style="background:#B9DAA5"></span><div class="v169-tl-card"><span class="v169-tl-when">' + md(r.date) + '・行程</span><div class="v169-tl-tt">🚗 ' + esc((r.tag || '').trim() || '行程紀錄') + '<span class="v169-tl-amt">' + fmtKm(dist) + ' km</span></div><div class="v169-tl-meta">' + (hasSoc ? ss + '% → ' + es + '%・耗電 ' + (ss - es) + '%' : '里程 ' + fmtKm(dist) + ' km') + '</div></div></div>';
                     }).join('');
