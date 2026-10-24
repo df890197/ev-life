@@ -403,7 +403,7 @@ input[type="number"] {
         .dark .bubble-teal { background: #14b8a6; }
         .dark .bubble-teal::after { border-color: #14b8a6 transparent transparent transparent; }
         /* === v109：底部 bar 滑動 pill（比照分析頁 seg pill 的彈簧曲線） === */
-        #v109TabPill { position: absolute; left: 0; border-radius: 9999px; background: #3a3a3c; z-index: 1; pointer-events: none; opacity: 0; transition: transform .45s cubic-bezier(0.34,1.56,0.64,1), opacity .2s ease; will-change: transform; } /* v203：pill 只用 transform 滑動，不再動 left/width/top（避免每幀版面重算吃掉快速連點） */
+        #v109TabPill { position: absolute; left: 0; border-radius: 9999px; background: #3a3a3c; z-index: 1; pointer-events: none; opacity: 0; transition: transform .45s cubic-bezier(0.16,1,0.3,1), opacity .2s ease; will-change: transform; } /* v203：pill 只用 transform 滑動，不再動 left/width/top（避免每幀版面重算吃掉快速連點）／v211：去回彈（原 1.56 彈簧會衝過目標、第一格點到最後一格時衝最遠）改與換頁同款無回彈曲線，滑動時間不變 */
         nav.v81-snap-bar .tab-btn.active { background: transparent !important; }
         html.lite #v109TabPill { transition: opacity .2s ease; }
         @media (prefers-reduced-motion: reduce) { #v109TabPill { transition: opacity .2s ease; } }
@@ -1562,7 +1562,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v210</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v211</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2098,7 +2098,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v210</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v211</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2584,7 +2584,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v210';
+        const APP_VERSION = 'v211';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
