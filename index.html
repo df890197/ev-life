@@ -1562,7 +1562,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v212</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v213</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2098,7 +2098,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v212</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v213</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2584,7 +2584,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v212';
+        const APP_VERSION = 'v213';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -2957,6 +2957,8 @@ function cacheDOMNodes() {
         function processToastQueue() {
             if (isToastShowing || toastQueue.length === 0) return;
             isToastShowing = true;
+            window._toastExiting = false; // v213：新 toast 開始，非退場中
+            try { if (window._toastAutoTimer) { clearTimeout(window._toastAutoTimer); window._toastAutoTimer = null; } } catch (e) {}
             const {message, isError, duration, isLoading, isSuccess} = toastQueue.shift();
             DOM.toastMessage.innerHTML = message; 
             const tileBase = 'w-8 h-8 rounded-[10px] text-white flex items-center justify-center text-base flex-shrink-0 shadow-sm';
@@ -2971,7 +2973,8 @@ function cacheDOMNodes() {
             if (window._v143ToastExitAnim) { window._v143ToastExitAnim.cancel(); window._v143ToastExitAnim = null; } // v143：清掉退場動畫殘留
             if (typeof window.v105ToastBar === 'function') window.v105ToastBar(duration, isLoading); // v105：倒數條
 
-            setTimeout(() => {
+            window._toastAutoTimer = setTimeout(() => {
+                window._toastExiting = true; // v213：退場進行中，拖曳忽略
                 // v146：退場由大縮小＋往上滑回（使用者指定），改用 WAAPI transform 單一機制
                 // （置中位移直接寫進 keyframes）。v143–v145 用 translate/scale 獨立屬性，在
                 // iOS 上與 Tailwind 置中 transform 合成不乾淨（殘影、縮放中心偏移）；
@@ -2999,11 +3002,98 @@ function cacheDOMNodes() {
                 setTimeout(() => {
                     DOM.toast.classList.add('invisible', 'pointer-events-none');
                     DOM.toast.classList.remove('v145-noblur');
+                    window._toastExiting = false; // v213
+                    window._toastAutoTimer = null; // v213：計時已跑完
                     isToastShowing = false;
                     if (toastQueue.length > 0) setTimeout(processToastQueue, 150);
                 }, 300);
             }, duration);
         }
+
+        // v213：toast 往上拖 dismiss（iPhone／安卓通知手感：按住往上拖，超過 50px 或往上甩就消失，不夠遠彈回原位；只往上，往下不動）
+        (function initToastDragDismiss() {
+            try {
+                var toast = DOM.toast;
+                if (!toast || !window.PointerEvent) return;
+                toast.style.touchAction = 'none';
+                var dragging = false, startY = 0, lastY = 0, lastT = 0, prevY = 0, prevT = 0, curDy = 0, curOp = 1, moved = false;
+                function txFor() { try { return window.matchMedia('(min-width: 768px)').matches ? '-50%' : '0px'; } catch (e) { return '0px'; } }
+                function snapBack() {
+                    try { toast.style.transition = ''; toast.style.transform = ''; toast.style.opacity = ''; } catch (e) {}
+                }
+                function hideAfterDrag() {
+                    try { if (window._toastAutoTimer) { clearTimeout(window._toastAutoTimer); window._toastAutoTimer = null; } } catch (e) {}
+                    try { if (window._v143ToastExitAnim) { window._v143ToastExitAnim.cancel(); window._v143ToastExitAnim = null; } } catch (e) {}
+                    try { if (typeof window.v105ToastBar === 'function') window.v105ToastBar(0); } catch (e) {}
+                    var lite = false;
+                    try { lite = document.documentElement.classList.contains('lite') || window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+                    var finish = function() {
+                        try {
+                            if (window._v143ToastExitAnim) { window._v143ToastExitAnim.cancel(); window._v143ToastExitAnim = null; }
+                            toast.style.transition = ''; toast.style.transform = ''; toast.style.opacity = '';
+                            toast.classList.add('invisible', 'pointer-events-none');
+                            toast.classList.remove('v145-noblur');
+                            window._toastExiting = false;
+                            isToastShowing = false;
+                            if (toastQueue.length > 0) setTimeout(processToastQueue, 150);
+                        } catch (e) {}
+                    };
+                    if (lite || !toast.animate) { finish(); return; }
+                    try {
+                        var tx = txFor();
+                        toast.style.transition = 'none';
+                        window._v143ToastExitAnim = toast.animate([
+                            { transform: 'translate(' + tx + ', ' + curDy + 'px)', opacity: String(curOp) },
+                            { transform: 'translate(' + tx + ', -140px) scale(0.9)', opacity: '0' }
+                        ], { duration: 200, easing: 'cubic-bezier(.4,0,.6,1)', fill: 'forwards' });
+                        setTimeout(finish, 220);
+                    } catch (e) { finish(); }
+                }
+                toast.addEventListener('pointerdown', function(e) {
+                    try {
+                        if (!isToastShowing || window._toastExiting) return;
+                        if (toast.classList.contains('invisible')) return;
+                        dragging = true; moved = false;
+                        startY = e.clientY; lastY = e.clientY; prevY = e.clientY;
+                        lastT = performance.now(); prevT = lastT;
+                        curDy = 0; curOp = 1;
+                        try { toast.setPointerCapture(e.pointerId); } catch (err) {}
+                    } catch (err) { dragging = false; }
+                });
+                toast.addEventListener('pointermove', function(e) {
+                    if (!dragging) return;
+                    try {
+                        var dy = e.clientY - startY;
+                        if (dy > 0) dy = 0; // 只往上拖，往下不動
+                        if (dy === 0 && !moved) return;
+                        moved = true;
+                        prevY = lastY; prevT = lastT;
+                        lastY = e.clientY; lastT = performance.now();
+                        curDy = dy;
+                        curOp = Math.max(0.3, Math.min(1, 1 + dy / 200));
+                        if (!toast.classList.contains('v145-noblur')) toast.classList.add('v145-noblur');
+                        toast.style.transition = 'none';
+                        toast.style.transform = 'translate(' + txFor() + ', ' + dy + 'px)';
+                        toast.style.opacity = String(curOp);
+                    } catch (err) {}
+                });
+                function endDrag(cancelled) {
+                    if (!dragging) return;
+                    dragging = false;
+                    try {
+                        toast.classList.remove('v145-noblur');
+                        if (cancelled) { snapBack(); return; }
+                        var dist = -curDy;
+                        var dt = lastT - prevT;
+                        var vel = dt > 0 ? (lastY - prevY) / dt : 0; // px/ms，往上為負
+                        if (dist >= 50 || vel < -0.6) { hideAfterDrag(); return; }
+                        snapBack();
+                    } catch (err) { snapBack(); }
+                }
+                toast.addEventListener('pointerup', function() { endDrag(false); });
+                toast.addEventListener('pointercancel', function() { endDrag(true); });
+            } catch (e) {}
+        })();
 
         // v69: 清掉 toast 佇列＋立即隱藏目前 toast（新搜尋開始時呼叫，避免舊的紅色錯誤
         // toast 還留在畫面、再搜尋時出現「先紅底再黑底」的閃爍）。
