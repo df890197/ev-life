@@ -80,11 +80,12 @@
         html.dark #appSplashScreen { background-color: #000000 !important; }
         /* v165：繪本風小改（你的電車日子卡）— 墨色粗框＋平塗粉彩＋圓體，深/淺色皆適用 */
         .v165-ehon-card { background-color: #FFFCF6; border: 3px solid #3E3A39; border-radius: 1.75rem; color: #3E3A39; font-family: 'Huninn', 'PingFang TC', 'Microsoft JhengHei', sans-serif; }
-        html.dark .v165-ehon-card { background-color: #101010; border-color: #FFFCF6; color: #f5f5f4; }
+        html.dark .v165-ehon-card { background-color: #201D1B; border-color: #FFFCF6; color: #f5f5f4; background-image: radial-gradient(rgba(255,252,246,.055) 1px, transparent 1.5px); background-size: 22px 22px; box-shadow: 0 18px 30px -18px rgba(0,0,0,.85); } /* v166：暖黑紙＋紙紋圓點＋柔和落地影 */
         .v165-ehon-sub { color: rgba(62,58,57,.68); }
-        html.dark .v165-ehon-sub { color: #a8a29e; }
+        html.dark .v165-ehon-sub { color: rgba(245,239,230,.62); } /* v166：暖灰，配暖黑紙 */
         .v165-ehon-chip { background-color: #F2A497; color: #3E3A39; border: 2.5px solid #3E3A39; border-radius: 9999px; }
-        html.dark .v165-ehon-chip { border-color: #FFFCF6; }
+        html.dark .v165-ehon-chip { border-color: #FFFCF6; box-shadow: 2px 2px 0 rgba(0,0,0,.45); } /* v166：硬影 */
+        html.dark .v165-ehon-tile { filter: brightness(1.07) saturate(1.03); box-shadow: 3px 3px 0 rgba(0,0,0,.45); } /* v166：粉彩微提亮＋硬影 */
         .v165-ehon-tile { border: 2.5px solid #3E3A39; border-radius: 1rem; padding: .625rem .75rem; color: #3E3A39; }
         .v165-ehon-tile .v165-t-label { color: rgba(62,58,57,.62); }
         .v165-ehon-tile .v165-t-unit { color: rgba(62,58,57,.55); }
@@ -368,8 +369,6 @@ input[type="number"] {
         /* 圓角基準：新增頁卡片 1.25rem → 1.5rem，與全站外卡一致 */
         .v91-card { border-radius: 1.5rem; }
         /* === v105：六個特效（手機調整版；只動樣式/回饋，不動計算） === */
-        /* 1) 主題切換過場：切換時短暫給全頁元素顏色 transition */
-        html.v105-theme-anim *, html.v105-theme-anim *::before, html.v105-theme-anim *::after { transition: background-color .38s ease, border-color .38s ease, color .25s ease, box-shadow .38s ease !important; }
         /* 2) 成就彩帶 */
         .v105-confetti { position: fixed; width: 7px; height: 11px; border-radius: 2px; z-index: 9998; pointer-events: none; }
         /* 3) 回到頂部鈕 */
@@ -1165,7 +1164,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v165</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v166</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1701,7 +1700,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v165</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v166</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2186,7 +2185,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v165';
+        const APP_VERSION = 'v166';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -2578,7 +2577,6 @@ function cacheDOMNodes() {
 
         window.toggleTheme = function() {
             window.popV83(document.querySelector('button[onclick="toggleTheme()"]'), 'v83-toggle-pop'); // v83 V6 toggle 彈簧
-            if (typeof window.v105ThemeAnim === 'function') window.v105ThemeAnim(); // v105：主題切換過場
             const htmlEl = document.documentElement;
             if (htmlEl.classList.contains('dark')) {
                 htmlEl.classList.remove('dark'); localStorage.setItem('ev_life_theme', 'light');
@@ -2602,7 +2600,6 @@ function cacheDOMNodes() {
         };
         window.applyThemePref = function(pref, save) {
             try {
-                if (typeof window.v105ThemeAnim === 'function') window.v105ThemeAnim(); // v105：主題切換過場
                 if (save) localStorage.setItem('ev_life_theme', pref);
                 const sysDark = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
                 const isDark = pref === 'dark' || (pref !== 'light' && sysDark);
@@ -8693,17 +8690,7 @@ function updateAbrpElevScrub(pct) {
         const reduced = () => { try { return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
         const isLite = () => document.documentElement.classList.contains('lite');
 
-        // 1) 主題切換過場
-        let v105ThemeTimer = null;
-        window.v105ThemeAnim = function() {
-            try {
-                if (isLite() || reduced()) return;
-                const el = document.documentElement;
-                el.classList.add('v105-theme-anim');
-                clearTimeout(v105ThemeTimer);
-                v105ThemeTimer = setTimeout(() => el.classList.remove('v105-theme-anim'), 480);
-            } catch (e) {}
-        };
+        // 1) 主題切換過場：v166 依使用者要求移除（切換深/淺色不再有淡入動畫）
 
         // 6) Toast 倒數條（duration<=0 或 >20s 或 loading 不顯示）
         window.v105ToastBar = function(duration, isLoading) {
@@ -8947,23 +8934,7 @@ function updateAbrpElevScrub(pct) {
             }, { passive: true });
         }
 
-        // 3) 主題切換擴散：包 toggleTheme，有 startViewTransition 才啟用（不支援自動退回原本淡入）
-        let lastX = Math.round(window.innerWidth / 2), lastY = 120;
-        document.addEventListener('pointerdown', (e) => { lastX = e.clientX; lastY = e.clientY; }, true);
-        const origToggle = window.toggleTheme;
-        if (typeof origToggle === 'function' && !origToggle._v127Wrapped && document.startViewTransition) {
-            const wrapped = function(...args) {
-                document.documentElement.style.setProperty('--v127tx', lastX + 'px');
-                document.documentElement.style.setProperty('--v127ty', lastY + 'px');
-                const t = document.startViewTransition(() => origToggle.apply(this, args));
-                return t && t.finished ? t.finished.catch(() => {}) : undefined;
-            };
-            wrapped._v127Wrapped = true;
-            window.toggleTheme = wrapped;
-            const vtStyle = document.createElement('style');
-            vtStyle.textContent = '::view-transition-old(root){animation:none}::view-transition-new(root){animation:v127ThemeIn .55s ease-out}@keyframes v127ThemeIn{from{clip-path:circle(0 at var(--v127tx,50%) var(--v127ty,120px))}to{clip-path:circle(150% at var(--v127tx,50%) var(--v127ty,120px))}}';
-            document.head.appendChild(vtStyle);
-        }
+        // 3) 主題切換擴散：v166 依使用者要求移除（與 v105 淡入一併拿掉，切換即刻生效）
 
         // 7) 剖面 scrub 發光：拖動 scrub 滑桿時容器加 class，讀數彈一下
         const scrub = document.getElementById('abrpElevScrub');
