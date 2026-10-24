@@ -533,7 +533,7 @@ input[type="number"] {
         /* 新增頁 + 設定頁 + 路線輸入：focus 發光（只加 box-shadow，不動版面） */
         /* v77：focus 發光改 inset，只在框內，不往外擴，就不會被 overflow-hidden 吃掉邊緣 */
         input:focus, select:focus, textarea:focus {
-            box-shadow: inset 0 0 0 1px rgba(251, 191, 36, 0.6), inset 0 0 0 3px rgba(251, 191, 36, 0.12) !important;
+            box-shadow: inset 0 0 0 1px rgba(227, 200, 120, 0.6), inset 0 0 0 3px rgba(227, 200, 120, 0.12) !important;
         }
         /* 數字輸入 pulse */
         /* v78：input 本身不加動畫，框不跳 */
@@ -943,27 +943,27 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
     <style id="v171-night">
         /* ===== v171 日夜雙生：深色模式首頁改「夜繪本」（剪影/月光/燙金）；淺色維持 v170 白晝繪本 ===== */
         html.dark body { background-color: #141726 !important; }
-        html.dark header.sticky { background-color: rgba(20,23,38,.88) !important; border-bottom-color: rgba(233,180,76,.35) !important; }
+        html.dark header.sticky { background-color: rgba(20,23,38,.88) !important; border-bottom-color: rgba(227,200,120,.35) !important; }
         /* 章節：金圈編號＋奶油標題＋波線改月光絲線 */
-        html.dark .v169-chap .no { background: transparent; border: 1.5px solid rgba(233,180,76,.55); color: #F2C063; }
+        html.dark .v169-chap .no { background: transparent; border: 1.5px solid rgba(227,200,120,.55); color: #EDD9A3; }
         html.dark .v169-chap h3 { color: #EDE6D6; }
         html.dark .v169-chap .wv path { stroke: rgba(237,230,214,.32); }
-        html.dark .v169-more { background: rgba(233,180,76,.08); border-color: rgba(233,180,76,.65); color: #F2C063; box-shadow: 0 0 14px rgba(233,180,76,.12); }
+        html.dark .v169-more { background: rgba(227,200,120,.08); border-color: rgba(227,200,120,.65); color: #EDD9A3; box-shadow: 0 0 14px rgba(227,200,120,.12); }
         /* hero 圖版：金邊深框＋月光暈 */
-        html.dark .v169-plate { background: #1B1F30; border: 1px solid rgba(233,180,76,.35); box-shadow: 0 18px 36px rgba(0,0,0,.45), 0 0 42px rgba(233,180,76,.07); }
-        html.dark .v169-plate .hero-image-container { border: 1px solid rgba(233,180,76,.3) !important; }
+        html.dark .v169-plate { background: #1B1F30; border: 1px solid rgba(227,200,120,.35); box-shadow: 0 18px 36px rgba(0,0,0,.45), 0 0 42px rgba(227,200,120,.07); }
+        html.dark .v169-plate .hero-image-container { border: 1px solid rgba(227,200,120,.3) !important; }
         /* 卡片：深藍紙層＋細 rim 邊＋月光頂光（取代沙色粗框） */
-        html.dark #view-home .rpg-card, html.dark #view-home .v169-outer { border: 1px solid rgba(237,230,214,.1) !important; box-shadow: inset 0 1px 0 rgba(242,192,99,.08), 0 12px 26px rgba(0,0,0,.38) !important; }
+        html.dark #view-home .rpg-card, html.dark #view-home .v169-outer { border: 1px solid rgba(237,230,214,.1) !important; box-shadow: inset 0 1px 0 rgba(237,217,163,.08), 0 12px 26px rgba(0,0,0,.38) !important; }
         html.dark #view-home [class*="dark:bg-neutral-900"] { background-color: #1B1F30 !important; }
         /* 速覽磚：深色改夜磚（深層面＋奶油字；電耗數字鍍金） */
         html.dark #view-home #homeStatsContainer .v169-tiles > div { background-color: #1B1F30 !important; }
         html.dark #view-home #homeStatsContainer .v169-tiles > div * { color: #EDE6D6 !important; }
-        html.dark #view-home #homeStatsContainer .v169-tiles > div #statAvgEfficiency { color: #F2C063 !important; }
+        html.dark #view-home #homeStatsContainer .v169-tiles > div #statAvgEfficiency { color: #EDD9A3 !important; }
         /* 故事卡：深層面、稱號改金線 chip、磚改深色 inset、進度改金漸層＋月亮 */
         html.dark .v169-story { background: #1B1F30; }
         html.dark .v169-story-tt { color: #EDE6D6; }
         html.dark .v169-story-narr { color: #C9C2B4; }
-        html.dark .v169-chip { background: rgba(233,180,76,.07); border-color: rgba(233,180,76,.65); color: #F2C063; box-shadow: 0 0 14px rgba(233,180,76,.12); }
+        html.dark .v169-chip { background: rgba(227,200,120,.07); border-color: rgba(227,200,120,.65); color: #EDD9A3; box-shadow: 0 0 14px rgba(227,200,120,.12); }
         html.dark .v169-stile { background: #12141F !important; border-color: rgba(237,230,214,.1) !important; box-shadow: none !important; color: #EDE6D6 !important; }
         html.dark .v169-stile-ic { background: #232840; border-color: rgba(237,230,214,.12); }
         html.dark .v169-stile-lb { color: #9A93A8; }
@@ -971,14 +971,14 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         html.dark .v169-stile-vl small { color: #9A93A8; }
         html.dark .v169-prog-row { color: #9A93A8; }
         html.dark .v169-prog-track { background: #12141F; border-color: rgba(237,230,214,.12); }
-        html.dark .v169-prog-fill { background: linear-gradient(90deg, #B57E22, #F2C063); }
+        html.dark .v169-prog-fill { background: linear-gradient(90deg, #C2A35C, #EDD9A3); }
         /* 時間軸：月光漸層線、卡片深層、金字 pill/金額、bar 降飽和 */
-        html.dark .v169-tl::before { background: linear-gradient(180deg, rgba(233,180,76,.55), rgba(237,230,214,.14)); }
-        html.dark .v169-tl-dot { border-color: rgba(237,230,214,.4) !important; box-shadow: 0 0 10px rgba(233,180,76,.18) !important; }
-        html.dark .v169-tl-card { background: #1B1F30; border-color: rgba(237,230,214,.1); box-shadow: inset 0 1px 0 rgba(242,192,99,.08), 0 12px 26px rgba(0,0,0,.38); color: #EDE6D6; }
-        html.dark .v169-tl-when { background: transparent; border: 1px solid rgba(233,180,76,.4); color: #F2C063; }
+        html.dark .v169-tl::before { background: linear-gradient(180deg, rgba(227,200,120,.55), rgba(237,230,214,.14)); }
+        html.dark .v169-tl-dot { border-color: rgba(237,230,214,.4) !important; box-shadow: 0 0 10px rgba(227,200,120,.18) !important; }
+        html.dark .v169-tl-card { background: #1B1F30; border-color: rgba(237,230,214,.1); box-shadow: inset 0 1px 0 rgba(237,217,163,.08), 0 12px 26px rgba(0,0,0,.38); color: #EDE6D6; }
+        html.dark .v169-tl-when { background: transparent; border: 1px solid rgba(227,200,120,.4); color: #EDD9A3; }
         html.dark .v169-tl-meta { color: #9A93A8; }
-        html.dark .v169-tl-amt { color: #F2C063; }
+        html.dark .v169-tl-amt { color: #EDD9A3; }
         html.dark .v169-tl-bar { background: #12141F; border-color: rgba(237,230,214,.12); }
         html.dark .v169-tl-bar i { filter: brightness(.82) saturate(.72); }
         /* 保養內層：改深色 inset */
@@ -1002,27 +1002,27 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         /* 時間軸 bar：段位定位（起→迄）＋深色金/鋼藍漸層 */
         .v169-tl-bar { position: relative; }
         .v169-tl-bar i { position: absolute; top: 0; bottom: 0; height: auto; border-radius: 999px; }
-        html.dark .v169-tl-bar i[data-tltype="fast"] { background: linear-gradient(90deg, #B57E22, #F2C063) !important; filter: none; }
+        html.dark .v169-tl-bar i[data-tltype="fast"] { background: linear-gradient(90deg, #C2A35C, #EDD9A3) !important; filter: none; }
         html.dark .v169-tl-bar i[data-tltype="slow"] { background: linear-gradient(90deg, #5E7396, #7E93B8) !important; filter: none; }
         /* 保養卡內部夜色：進度條/剩餘數字/日期面板/圖示底 */
-        html.dark #maintProgressBar, html.dark #tireProgressBar { background-image: linear-gradient(90deg, #B57E22, #F2C063) !important; }
-        html.dark #loanProgressBar { background-image: linear-gradient(90deg, #8A6420, #E9B44C) !important; }
-        html.dark #maintRemainingText, html.dark #tireRemainingText { color: #F2C063 !important; }
-        html.dark #loanMonthsProgressText, html.dark #loanRemainingMonths { color: #E9B44C !important; }
+        html.dark #maintProgressBar, html.dark #tireProgressBar { background-image: linear-gradient(90deg, #C2A35C, #EDD9A3) !important; }
+        html.dark #loanProgressBar { background-image: linear-gradient(90deg, #A8894A, #E3C878) !important; }
+        html.dark #maintRemainingText, html.dark #tireRemainingText { color: #EDD9A3 !important; }
+        html.dark #loanMonthsProgressText, html.dark #loanRemainingMonths { color: #E3C878 !important; }
         html.dark #maintDateAlertContainer, html.dark #insuranceDateAlertContainer { background-color: #12141F !important; }
         html.dark #maintDateAlertContainer [class*="dark:bg-amber-900/40"], html.dark #insuranceDateAlertContainer [class*="dark:bg-indigo-900/40"], html.dark #loanProgressContainer [class*="dark:bg-orange-900/40"] { background-color: #232840 !important; }
         /* ===== 紀錄頁日夜雙生調色 ===== */
-        html.dark #view-records [data-v106-month] { background: #1B1F30 !important; border-color: rgba(237,230,214,.1) !important; box-shadow: inset 0 1px 0 rgba(242,192,99,.07), 0 10px 22px rgba(0,0,0,.32) !important; }
-        html.dark #view-records [data-v106-month][class*="from-amber-50"] { border-color: rgba(233,180,76,.55) !important; }
+        html.dark #view-records [data-v106-month] { background: #1B1F30 !important; border-color: rgba(237,230,214,.1) !important; box-shadow: inset 0 1px 0 rgba(237,217,163,.07), 0 10px 22px rgba(0,0,0,.32) !important; }
+        html.dark #view-records [data-v106-month][class*="from-amber-50"] { border-color: rgba(227,200,120,.55) !important; }
         html.dark .rpg-card-sublayer { background: #12141F !important; border-color: rgba(237,230,214,.08) !important; }
         html:not(.dark) #view-records .rpg-card-sublayer { background: #FBF3E2; }
-        html.dark #view-records [class*="from-teal-500"] { background-image: linear-gradient(90deg, #B57E22, #F2C063) !important; }
+        html.dark #view-records [class*="from-teal-500"] { background-image: linear-gradient(90deg, #C2A35C, #EDD9A3) !important; }
         html:not(.dark) #view-records [class*="from-teal-500"] { background-image: linear-gradient(90deg, #F2A497, #F6D27A) !important; }
-        html.dark #view-records .soc-progress-glow-charging { box-shadow: 0 0 10px rgba(233,180,76,.45), inset 0 1px 1px rgba(255,255,255,.35); }
-        html.dark #v106MonthPillText { background: #232840 !important; color: #EDE6D6 !important; border: 1px solid rgba(233,180,76,.4); box-shadow: 0 8px 20px rgba(0,0,0,.4); }
+        html.dark #view-records .soc-progress-glow-charging { box-shadow: 0 0 10px rgba(227,200,120,.45), inset 0 1px 1px rgba(255,255,255,.35); }
+        html.dark #v106MonthPillText { background: #232840 !important; color: #EDE6D6 !important; border: 1px solid rgba(227,200,120,.4); box-shadow: 0 8px 20px rgba(0,0,0,.4); }
         html.dark #monthFilterContainer [class*="dark:bg-neutral-900"], html.dark #monthFilterContainer_analysis [class*="dark:bg-neutral-900"] { background-color: #1B1F30 !important; border-color: rgba(237,230,214,.14) !important; color: #9A93A8 !important; }
-        html.dark #view-records [class*="dark:text-teal-400"] { color: #F2C063 !important; }
-        html.dark #view-records [class*="dark:bg-amber-900/40"] { background-color: rgba(233,180,76,.14) !important; color: #F2C063 !important; }
+        html.dark #view-records [class*="dark:text-teal-400"] { color: #EDD9A3 !important; }
+        html.dark #view-records [class*="dark:bg-amber-900/40"] { background-color: rgba(227,200,120,.14) !important; color: #EDD9A3 !important; }
         html.dark #view-records [class*="dark:bg-teal-900/40"] { background-color: rgba(143,169,143,.16) !important; color: #A9C6A9 !important; }
         html.dark #view-records [class*="dark:bg-sky-900/40"] { background-color: rgba(126,147,184,.16) !important; color: #A9BBD9 !important; }
         html.dark #view-records [class*="dark:bg-purple-900/40"] { background-color: rgba(126,147,184,.16) !important; color: #B9C6E4 !important; }
@@ -1038,28 +1038,28 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         html:not(.dark) #view-analysis [class*="border-stone-100"] { border-color: #EFE3C8 !important; }
         html:not(.dark) #chartSegContainer { background-color: #F6EDD8 !important; }
         html:not(.dark) #view-analysis [class*="from-white"] { background-image: linear-gradient(to left, #FFFCF6 20%, transparent) !important; }
-        html.dark #view-analysis .rpg-card { background-color: #1B1F30 !important; border: 3px solid rgba(237,230,214,.1); box-shadow: inset 0 1px 0 rgba(242,192,99,.08), 0 12px 26px rgba(0,0,0,.38); }
+        html.dark #view-analysis .rpg-card { background-color: #1B1F30 !important; border: 3px solid rgba(237,230,214,.1); box-shadow: inset 0 1px 0 rgba(237,217,163,.08), 0 12px 26px rgba(0,0,0,.38); }
         html.dark #view-analysis [class*="dark:bg-neutral-900/50"], html.dark #view-analysis [class*="dark:bg-neutral-900/40"] { background-color: #12141F !important; border-color: rgba(237,230,214,.09) !important; }
         html.dark #view-analysis [class*="dark:bg-teal-900/30"], html.dark #view-analysis [class*="dark:bg-amber-900/30"], html.dark #view-analysis [class*="dark:bg-indigo-900/30"], html.dark #view-analysis [class*="dark:bg-rose-900/30"] { background-color: #232840 !important; }
         html.dark #chartSegContainer { background-color: #12141F !important; }
         html.dark #chartTimeView { background-color: #1B1F30 !important; border-color: rgba(237,230,214,.14) !important; }
         html.dark #expenseCategoryFilter { background-color: #12141F !important; }
         html.dark #view-analysis [class*="dark:from-neutral-900"] { background-image: linear-gradient(to left, #1B1F30 20%, transparent) !important; }
-        html.dark #analysisAvgEfficiency { color: #F2C063 !important; }
+        html.dark #analysisAvgEfficiency { color: #EDD9A3 !important; }
         html.dark #analysisCostPerKm, html.dark #view-analysis [class*="dark:text-teal-400"] { color: #A9C6A9 !important; }
         html.dark #view-analysis [class*="dark:bg-teal-950/30"] { background-color: rgba(143,169,143,.12) !important; }
         html.dark .v165-ehon-card { background-color: #1B1F30 !important; }
         html.dark .v165-ehon-tile { background-color: #12141F !important; color: #EDE6D6 !important; border-color: rgba(237,230,214,.12) !important; box-shadow: none !important; }
         html.dark .v165-t-label, html.dark .v165-t-unit { color: #9A93A8 !important; }
-        html.dark .v165-ehon-chip { background: rgba(233,180,76,.07) !important; border-color: rgba(233,180,76,.65) !important; color: #F2C063 !important; }
+        html.dark .v165-ehon-chip { background: rgba(227,200,120,.07) !important; border-color: rgba(227,200,120,.65) !important; color: #EDD9A3 !important; }
         html.dark .v165-ehon-sub { color: #9A93A8 !important; }
         html.dark #deepHabits [class*="dark:bg-teal-900/50"] { background-color: #232840 !important; }
         html.dark #deepHabits [class*="bg-teal-400"] { background-color: #8FA98F !important; }
         html:not(.dark) #deepHabits [class*="bg-teal-400"] { background-color: #B9DAA5 !important; }
-        html.dark #deepHabits [class*="bg-teal-500"] { background-color: #E9B44C !important; }
+        html.dark #deepHabits [class*="bg-teal-500"] { background-color: #E3C878 !important; }
         html:not(.dark) #deepHabits [class*="bg-teal-500"] { background-color: #F2A497 !important; }
         html.dark #deepHabits [class*="dark:bg-teal-700/60"] { background-color: #39406B !important; }
-        html.dark #stationCostChart [class*="bg-rose-400"] { background: linear-gradient(90deg, #B57E22, #F2C063) !important; }
+        html.dark #stationCostChart [class*="bg-rose-400"] { background: linear-gradient(90deg, #C2A35C, #EDD9A3) !important; }
         html:not(.dark) #stationCostChart [class*="bg-rose-400"] { background-color: #F2A497 !important; }
     </style>
 </head>
@@ -1400,7 +1400,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v174</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v175</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -1936,7 +1936,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v174</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v175</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2308,12 +2308,12 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
             <div id="v109TabPill"></div>
 
             <button onclick="switchTab('home')" id="tab-home" class="tab-btn active flex flex-col items-center gap-1 w-14 md:w-20 text-slate-500 dark:text-slate-400 cursor-pointer">
-                <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.8 12 4l7.5 6.8"/><path stroke-linecap="round" stroke-linejoin="round" d="M6.5 9.3V19A1.5 1.5 0 0 0 8 20.5h8A1.5 1.5 0 0 0 17.5 19V9.3"/><circle cx="12" cy="14.6" r="1.7"/></svg>
                 <span class="tab-label text-[9px] md:text-[10px] font-bold tracking-wider mt-0.5">首頁</span>
             </button>
 
             <button onclick="switchTab('records')" id="tab-records" class="tab-btn flex flex-col items-center gap-1 w-14 md:w-20 text-slate-500 dark:text-slate-400 cursor-pointer">
-                <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2v0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.8C10.1 5.2 7.6 4.6 4.5 5.2v13.3c3.1-.6 5.6 0 7.5 1.6 1.9-1.6 4.4-2.2 7.5-1.6V5.2c-3.1-.6-5.6 0-7.5 1.6z"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.8v13.3"/></svg>
                 <span class="tab-label text-[9px] md:text-[10px] font-bold tracking-wider mt-0.5">紀錄</span>
             </button>
 
@@ -2327,13 +2327,13 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
             <div class="v81-sep"></div>
 
             <button onclick="switchTab('analysis')" id="tab-analysis" class="tab-btn flex flex-col items-center gap-1 w-14 md:w-20 text-slate-500 dark:text-slate-400 cursor-pointer">
-                <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
+                <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M4.5 20.5h15"/><rect x="6.2" y="11.5" width="3.1" height="6.5" rx="1.55" fill="currentColor" stroke="none"/><rect x="10.45" y="6.8" width="3.1" height="11.2" rx="1.55" fill="currentColor" stroke="none"/><rect x="14.7" y="9.6" width="3.1" height="8.4" rx="1.55" fill="currentColor" stroke="none"/></svg>
                 <span class="tab-label text-[9px] md:text-[10px] font-bold tracking-wider mt-0.5">分析</span>
             </button>
 
             <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn flex flex-col items-center gap-1 w-14 md:w-20 text-slate-500 dark:text-slate-400 relative cursor-pointer">
                 <span id="syncStatusDot" class="absolute top-0 right-3 md:right-5 w-2 h-2 rounded-full bg-rose-500 animate-pulse hidden"></span>
-                <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M4.5 7.5h5M15.5 7.5h4M4.5 12h1.5M12 12h7.5M4.5 16.5h9.5M20 16.5h-.5"/><circle cx="12.5" cy="7.5" r="2.1"/><circle cx="9" cy="12" r="2.1"/><circle cx="17" cy="16.5" r="2.1"/></svg>
                 <span class="tab-label text-[9px] md:text-[10px] font-bold tracking-wider mt-0.5">設定</span>
             </button>
         </div>
@@ -2421,7 +2421,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v174';
+        const APP_VERSION = 'v175';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -2982,7 +2982,7 @@ function cacheDOMNodes() {
                 if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
                 const r = anchorEl.getBoundingClientRect();
                 const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-                const colors = ['#fbbf24', '#14b8a6', '#f59e0b', '#2dd4bf', '#fde68a', '#5eead4'];
+                const colors = ['#E3C878', '#14b8a6', '#f59e0b', '#2dd4bf', '#fde68a', '#5eead4'];
                 const chars = ['✦', '✧', '•', '✦', '•', '✧', '✦', '•'];
                 for (let i = 0; i < 8; i++) {
                     const s = document.createElement('span');
@@ -4904,20 +4904,20 @@ window.setupSocSliders = function() {
 
             if (showEff) {
                 let gradient = ctx.createLinearGradient(0, 0, 0, 250);
-                gradient.addColorStop(0, isDarkMode ? 'rgba(242, 192, 99, 0.32)' : 'rgba(242, 164, 151, 0.30)'); 
-                gradient.addColorStop(1, isDarkMode ? 'rgba(242, 192, 99, 0.0)' : 'rgba(242, 164, 151, 0.0)'); 
+                gradient.addColorStop(0, isDarkMode ? 'rgba(237, 217, 163, 0.32)' : 'rgba(242, 164, 151, 0.30)'); 
+                gradient.addColorStop(1, isDarkMode ? 'rgba(237, 217, 163, 0.0)' : 'rgba(242, 164, 151, 0.0)'); 
                 datasets.push({
-                    label: '平均電耗 (km/度)', data: efficiencies, borderColor: isDarkMode ? '#F2C063' : '#E2703A', borderWidth: 3, 
-                    pointBackgroundColor: isDarkMode ? '#1B1F30' : '#ffffff', pointBorderColor: isDarkMode ? '#F2C063' : '#E2703A', pointBorderWidth: 2, pointRadius: 3, 
+                    label: '平均電耗 (km/度)', data: efficiencies, borderColor: isDarkMode ? '#EDD9A3' : '#E2703A', borderWidth: 3, 
+                    pointBackgroundColor: isDarkMode ? '#1B1F30' : '#ffffff', pointBorderColor: isDarkMode ? '#EDD9A3' : '#E2703A', pointBorderWidth: 2, pointRadius: 3, 
                     tension: 0.4, yAxisID: 'yEfficiency', fill: true, backgroundColor: gradient
                 });
-                scalesConfig.yEfficiency = { type: 'linear', position: 'left', ticks: { color: isDarkMode ? '#F2C063' : '#E2703A', maxTicksLimit: 6 }, border: { display: false }, grid: { color: gridColor } };
+                scalesConfig.yEfficiency = { type: 'linear', position: 'left', ticks: { color: isDarkMode ? '#EDD9A3' : '#E2703A', maxTicksLimit: 6 }, border: { display: false }, grid: { color: gridColor } };
             }
 
             if (showCost) {
                 let barGrad = ctx.createLinearGradient(0, 0, 0, 200);
-                barGrad.addColorStop(0, isDarkMode ? 'rgba(251, 191, 36, 0.85)' : 'rgba(245, 158, 11, 0.75)');
-                barGrad.addColorStop(1, isDarkMode ? 'rgba(251, 191, 36, 0.15)' : 'rgba(245, 158, 11, 0.15)');
+                barGrad.addColorStop(0, isDarkMode ? 'rgba(227, 200, 120, 0.85)' : 'rgba(245, 158, 11, 0.75)');
+                barGrad.addColorStop(1, isDarkMode ? 'rgba(227, 200, 120, 0.15)' : 'rgba(245, 158, 11, 0.15)');
                 datasets.push({ 
                     label: isCostView && costCat !== 'all' ? `${costCat}支出 (元)` : '費用支出 (元)', 
                     type: 'bar', 
@@ -4929,9 +4929,9 @@ window.setupSocSliders = function() {
                 });
 
                 if (showEff) {
-                    scalesConfig.yCost = { type: 'linear', position: 'right', ticks: { color: isDarkMode ? '#E9B44C' : '#F6D27A', maxTicksLimit: 6 }, border: { display: false }, grid: { display: false } };
+                    scalesConfig.yCost = { type: 'linear', position: 'right', ticks: { color: isDarkMode ? '#E3C878' : '#F6D27A', maxTicksLimit: 6 }, border: { display: false }, grid: { display: false } };
                 } else {
-                    scalesConfig.yCostSingle = { type: 'linear', position: 'left', ticks: { color: isDarkMode ? '#E9B44C' : '#F6D27A', maxTicksLimit: 6 }, border: { display: false }, grid: { color: gridColor } };
+                    scalesConfig.yCostSingle = { type: 'linear', position: 'left', ticks: { color: isDarkMode ? '#E3C878' : '#F6D27A', maxTicksLimit: 6 }, border: { display: false }, grid: { color: gridColor } };
                 }
             }
 
@@ -5034,12 +5034,12 @@ window.setupSocSliders = function() {
                 };
 
                 const baseColors = [
-                    isDarkMode ? '#E9B44C' : '#F6D27A',
+                    isDarkMode ? '#E3C878' : '#F6D27A',
                     isDarkMode ? '#8FA98F' : '#B9DAA5', 
                     isDarkMode ? '#D8A48F' : '#F2A497',
                     isDarkMode ? '#7E93B8' : '#A8D3E6', 
                     isDarkMode ? '#9A93A8' : '#F7C8D8',
-                    isDarkMode ? '#B57E22' : '#F2C094', 
+                    isDarkMode ? '#C2A35C' : '#F2C094', 
                     isDarkMode ? '#C9C2B4' : '#CDE7C0'
                 ];
 
@@ -5118,7 +5118,7 @@ window.setupSocSliders = function() {
                             if (currentCat === 'charging') {
                                 displayTitle = "充電補給";
                                 displayAmount = dcCost + acCost;
-                                titleColor = isDarkMode ? '#F2C063' : '#E2703A';
+                                titleColor = isDarkMode ? '#EDD9A3' : '#E2703A';
                                 isFocused = true;
                             } else {
                                 const targetIdx = pieLabels.findIndex(l => pieLabelToCategoryMap[l] === currentCat);
