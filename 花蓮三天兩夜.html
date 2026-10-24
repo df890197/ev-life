@@ -86,23 +86,23 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 16px;
+      padding: 10px 14px;
       transition: background-color 0.3s ease;
     }
 
     .nav-brand {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       font-weight: 900;
-      font-size: 1.05rem;
+      font-size: 1rem;
       color: var(--text-main);
     }
 
     .nav-actions {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
 
     .nav-tabs {
@@ -117,8 +117,8 @@
     .nav-tab-btn {
       background: none;
       border: none;
-      padding: 4px 10px;
-      font-size: 0.78rem;
+      padding: 4px 8px;
+      font-size: 0.76rem;
       font-weight: 900;
       color: var(--text-muted);
       border-radius: 999px;
@@ -131,31 +131,73 @@
       color: #383431;
     }
 
-    .theme-toggle-btn {
-      background-color: var(--hualien-gold);
+    /* 小圓形工具按鈕通用樣式 */
+    .nav-circle-btn {
       color: #383431;
       border: 2px solid var(--border-color);
       border-radius: 999px;
-      width: 32px;
-      height: 32px;
+      width: 30px;
+      height: 30px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       cursor: pointer;
       box-shadow: 2px 2px 0px var(--shadow-color);
-      transition: transform 0.1s ease;
+      transition: transform 0.15s ease, background-color 0.2s ease;
     }
 
-    .theme-toggle-btn:active {
+    .nav-circle-btn:active {
       transform: translate(2px, 2px);
       box-shadow: 0px 0px 0px var(--shadow-color);
+    }
+
+    .theme-toggle-btn {
+      background-color: var(--hualien-gold);
+    }
+
+    .refresh-btn {
+      background-color: var(--ocean-blue);
+    }
+
+    .refresh-btn.rotating {
+      animation: spinRefresh 0.6s ease-in-out;
+    }
+
+    @keyframes spinRefresh {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
     .container {
       max-width: 580px;
       margin: 0 auto;
       padding: 16px;
+    }
+
+    /* 浮動更新小提示 */
+    .toast-msg {
+      position: fixed;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background-color: var(--sunset-coral);
+      color: #383431;
+      font-size: 0.78rem;
+      font-weight: 900;
+      padding: 6px 14px;
+      border: 2px solid var(--border-color);
+      border-radius: 999px;
+      box-shadow: 2px 2px 0px var(--shadow-color);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s ease;
+      z-index: 1000;
+    }
+
+    .toast-msg.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
     }
 
     /* 花蓮專屬手繪繪本 Hero 區域 */
@@ -239,7 +281,7 @@
       color: var(--text-muted);
     }
 
-    /* 太平洋海豚波浪日期軸 (花蓮在地意象) */
+    /* 太平洋海豚波浪日期軸 */
     .track-section {
       background-color: var(--bg-card);
       border: 3px solid var(--border-color);
@@ -250,7 +292,6 @@
       position: relative;
     }
 
-    /* 手繪海浪滑動軌道 */
     .wave-line {
       position: absolute;
       left: 8%;
@@ -635,11 +676,19 @@
         <button class="nav-tab-btn" onclick="switchMainTab('decision')" id="nav-btn-decision">行程分析</button>
         <button class="nav-tab-btn" onclick="switchMainTab('pack')" id="nav-btn-pack">清單</button>
       </div>
-      <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" aria-label="切換深淺模式">
+      <!-- 強制更新按鈕 -->
+      <button class="nav-circle-btn refresh-btn" id="refreshBtn" onclick="forceRefreshData()" aria-label="強制更新行程" title="強制刷新最新行程">
+        <span>🔄</span>
+      </button>
+      <!-- 日夜模式切換按鈕 -->
+      <button class="nav-circle-btn theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" aria-label="切換深淺模式">
         <span id="themeIcon">☀️</span>
       </button>
     </div>
   </header>
+
+  <!-- 強制更新提示訊息 -->
+  <div class="toast-msg" id="toastMsg">✨ 正在取得最新花蓮行程...</div>
 
   <main class="container">
 
@@ -647,7 +696,7 @@
     <section class="hero-card">
       <div class="hero-badge">🌊 2026.11.07（週六）出發</div>
       <h1 class="hero-title">花蓮・合歡山 山海漫活</h1>
-      <p class="hero-subtitle">太平洋微風 ╳ 太魯閣縱谷 ╳ 合歡山群峰</p>
+      <p class="hero-subtitle">太平洋微風 ╳ 太魯閣縱谷 ╳ 瑪雅平台銀河星空</p>
 
       <svg class="hero-illustration anim-jump" viewBox="0 0 380 170" fill="none" xmlns="http://www.w3.org/2000/svg">
         <!-- 旭日 (日光模式) -->
@@ -681,16 +730,11 @@
 
         <!-- 躍出太平洋海面的花蓮手繪海豚 -->
         <g transform="translate(185, 80)">
-          <!-- 小水花 -->
           <circle cx="-12" cy="30" r="2.5" fill="#7CB9E8" stroke="#383431" stroke-width="1.5"/>
           <circle cx="-18" cy="36" r="1.8" fill="#7CB9E8"/>
-          <!-- 海豚身軀 -->
           <path d="M-8 32 C-5 18 8 10 24 11 C30 12 37 15 39 19 C36 21 32 20 28 19 C18 23 7 31 -2 35 L-7 39 L-8 32 Z" fill="#7CB9E8" stroke="#383431" stroke-width="2.5" stroke-linejoin="round"/>
-          <!-- 背鰭 -->
           <path d="M11 11 C13 6 17 5 19 8 C17 10 15 11 14 12 Z" fill="#7CB9E8" stroke="#383431" stroke-width="2"/>
-          <!-- 尾鰭 -->
           <path d="M-7 39 C-11 39 -13 36 -14 33 C-10 35 -7 37 -7 39 Z" fill="#7CB9E8" stroke="#383431" stroke-width="2"/>
-          <!-- 眼睛、微笑、腮紅 -->
           <circle cx="33" cy="16" r="1.5" fill="#383431"/>
           <path d="M36 19 C34 20 32 20 31 19" stroke="#383431" stroke-width="1.5" stroke-linecap="round"/>
           <ellipse cx="29" cy="18" rx="2.5" ry="1.5" fill="#F29C8B"/>
@@ -726,7 +770,6 @@
         <div class="wave-line"></div>
         <div class="cable-car-wrapper">
           <div id="cableCar" class="cable-car" style="transform: translateX(0%);">
-            <!-- 游動的海豚指示器 -->
             <svg width="44" height="34" viewBox="0 0 48 36" fill="none">
               <circle cx="9" cy="24" r="2" fill="#7CB9E8" stroke="#383431" stroke-width="1.5"/>
               <path d="M12 26 C14 16 24 10 34 11 C38 11.5 43 14 44 17 C42 18 39 18 36 17 C28 20 20 26 14 28 L10 31 L12 26 Z" fill="#7CB9E8" stroke="#383431" stroke-width="2.5" stroke-linejoin="round"/>
@@ -865,7 +908,7 @@
       <div class="box-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
           <h2 class="section-title" style="margin-bottom: 0;">出發前隨身準備</h2>
-          <span id="packProgressText" style="font-size: 0.78rem; font-weight: 900; color: var(--sunset-coral);">0 / 5 完成</span>
+          <span id="packProgressText" style="font-size: 0.78rem; font-weight: 900; color: var(--sunset-coral);">0 / 6 完成</span>
         </div>
         <div class="progress-bar-wrap">
           <div class="progress-bar" id="progressBar"></div>
@@ -881,15 +924,19 @@
           </div>
           <div class="check-item" onclick="toggleCheck(this)">
             <div class="check-box"></div>
-            <span>防風保暖厚外套與毛帽（合歡山清晨約 5-8°C）</span>
+            <span>防風保暖厚羽絨衣、手套與毛帽（合歡山夜間約 0-5°C）</span>
           </div>
           <div class="check-item" onclick="toggleCheck(this)">
             <div class="check-box"></div>
-            <span>身分證、健保卡、個人隨身藥品</span>
+            <span>瑪雅平台觀星必備：紅光頭燈或手電筒（不破壞暗空夜視）</span>
           </div>
           <div class="check-item" onclick="toggleCheck(this)">
             <div class="check-box"></div>
-            <span>抗 UV 太陽眼鏡、相機拍照設備與行動電源</span>
+            <span>身分證、健保卡、個人隨身常備藥品</span>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
+            <span>抗 UV 太陽眼鏡、腳架、相機拍照設備與行動電源</span>
           </div>
         </div>
       </div>
@@ -919,15 +966,16 @@
       },
       2: {
         tag: 'Day 2',
-        title: '中橫管制放行 ＋ 福壽山賞楓與松雪樓',
+        title: '中橫管制放行 ＋ 福壽山賞楓 ＋ 瑪雅平台看銀河',
         hotel: '🏨 住：合歡山松雪樓（海拔 3,150m）',
-        icon: '🍁',
+        icon: '🌌',
         timeline: [
           { time: '06:15', tag: '🚗 晨間出發', tagClass: 'tag-nature', title: '退房往中橫出發', desc: '精神飽滿出發，往太魯閣中橫公路前進，輕鬆往山上開。', parking: '' },
           { time: '06:30', tag: '🚧 管制放行', tagClass: 'tag-spot', title: '中橫公路（台 8 線）首波放行', desc: '卡準清晨 06:30 - 08:00 第一波管制放行，順利穿過太魯閣峽谷。', parking: '⚠️ 隨時留意路況資訊' },
           { time: '10:00', tag: '🍙 雲端休息', tagClass: 'tag-food', title: '關原加油站吃肉粽', desc: '全台灣最高的加油站打卡（海拔 2,374m），吃顆熱呼呼的招牌肉粽。', parking: '🅿️ 加油站停車場' },
           { time: '12:00', tag: '🍁 楓紅蜜果', tagClass: 'tag-nature', title: '大禹嶺 ➔ 福壽山農場', desc: '造訪松廬欣賞 11 月漂亮的楓紅，順便採買好吃的當季蜜蘋果。', parking: '🅿️ 福壽山停車場' },
-          { time: '16:30', tag: '🏨 雲海入住', tagClass: 'tag-spot', title: '合歡山松雪樓 Check-in', desc: '入住台灣最高旅館（3,150m），看夕陽金黃雲海，晚上欣賞整片無光害的高山星空銀河。', parking: '🅿️ 松雪樓住客停車位' }
+          { time: '16:30', tag: '🏨 雲海入住', tagClass: 'tag-spot', title: '合歡山松雪樓 Check-in', desc: '全台最高旅館辦理入住，在房內或景觀台欣賞落日金黃雲海與晚霞。', parking: '🅿️ 松雪樓住客專屬車位' },
+          { time: '19:30', tag: '✨ 暗空觀星', tagClass: 'tag-ocean', title: '瑪雅平台看銀河星空', desc: '從松雪樓步行僅 3～5 分鐘至合歡尖山旁「瑪雅平台」！360 度無光害環景，仰望震撼銀河與璀璨繁星。', parking: '🚶 步行即可抵達，務必備妥紅光手電筒與保暖衣物' }
         ]
       },
       3: {
@@ -1008,7 +1056,7 @@
       });
     }
 
-    // 4. 深淺色模式 (自動偵測系統 + 手動切換記憶)
+    // 4. 深淺色模式
     function applyTheme(theme) {
       const icon = document.getElementById('themeIcon');
       if (theme === 'dark') {
@@ -1027,7 +1075,26 @@
       localStorage.setItem('trip_theme_pref', next);
     }
 
-    // 5. 倒數計時器 (2026/11/07 11:00 車站接朋友)
+    // 5. 強制更新功能 (略過快取刷新)
+    function forceRefreshData() {
+      const btn = document.getElementById('refreshBtn');
+      const toast = document.getElementById('toastMsg');
+      
+      btn.classList.add('rotating');
+      toast.classList.add('show');
+
+      // 清除本地主題以外的潛在快取
+      const themePref = localStorage.getItem('trip_theme_pref');
+      sessionStorage.clear();
+
+      setTimeout(() => {
+        // 加入時間戳記網址，強制向 GitHub Pages 重新取得最新版本
+        const cleanUrl = window.location.href.split('?')[0];
+        window.location.replace(cleanUrl + '?t=' + new Date().getTime());
+      }, 500);
+    }
+
+    // 6. 倒數計時器 (2026/11/07 11:00 車站接朋友)
     const targetDate = new Date('2026-11-07T11:00:00+08:00').getTime();
     function updateCountdown() {
       const now = new Date().getTime();
@@ -1050,7 +1117,7 @@
       document.getElementById('cdSecs').textContent = String(secs).padStart(2, '0');
     }
 
-    // 6. 待辦打勾與進度
+    // 7. 待辦打勾與進度
     function toggleCheck(el) {
       el.classList.toggle('done');
       updateProgress();
