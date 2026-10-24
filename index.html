@@ -291,8 +291,8 @@ input[type="number"] {
            所以連紀錄頁也一起用舊過場（v38 的紀錄排除移除）；整頁每幀算模糊，iPhone 紀錄頁可能又會卡，屬使用者知情選擇。
            只有 lite 模式（減少動態效果／低記憶體）保留不跑過場，那是使用者系統層的無障礙設定。 */
         .view-section { display: none; opacity: 0; }
-        .view-section.active { display: block; opacity: 1; animation: visionSpatialReveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards; transform-origin: center bottom; will-change: transform, opacity, filter; }
-        @keyframes visionSpatialReveal { 0% { opacity: 0; transform: translateY(40px) scale(0.9); filter: blur(15px); } 100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); } }
+        .view-section.active { display: block; opacity: 1; animation: visionSpatialReveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards; transform-origin: center bottom; will-change: transform, opacity; }
+        @keyframes visionSpatialReveal { 0% { opacity: 0; transform: translateY(40px) scale(0.9); } 100% { opacity: 1; transform: translateY(0) scale(1); } } /* v202：過場去模糊，滑動＋縮放＋淡入保留 */
         html.lite .view-section.active { animation: none; }
 
         /* v32 低效能模式：只有 html 帶 lite class 時生效。v34 起自動偵測只用：減少動態效果／記憶體 <= 2GB（不再用 CPU 核數，見 shouldUseLiteMode）。
@@ -702,10 +702,10 @@ input[type="number"] {
     <style>
         /* ===== v127 特效組 1：氛圍＋數據＋滑桿填充流光 ===== */
         /* 1) 分頁方向感：沿用 v40 的 0.75s 曲線與模糊縮放，只多加水平方向 */
-        @keyframes v127RevealR { 0% { opacity: 0; transform: translateX(38px) translateY(26px) scale(0.94); filter: blur(12px); } 100% { opacity: 1; transform: translateX(0) translateY(0) scale(1); filter: blur(0); } }
-        @keyframes v127RevealL { 0% { opacity: 0; transform: translateX(-38px) translateY(26px) scale(0.94); filter: blur(12px); } 100% { opacity: 1; transform: translateX(0) translateY(0) scale(1); filter: blur(0); } }
-        .view-section.active.v127-dir-r { animation: v127RevealR 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards; transform-origin: center bottom; will-change: transform, opacity, filter; }
-        .view-section.active.v127-dir-l { animation: v127RevealL 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards; transform-origin: center bottom; will-change: transform, opacity, filter; }
+        @keyframes v127RevealR { 0% { opacity: 0; transform: translateX(38px) translateY(26px) scale(0.94); } 100% { opacity: 1; transform: translateX(0) translateY(0) scale(1); } } /* v202：去模糊 */
+        @keyframes v127RevealL { 0% { opacity: 0; transform: translateX(-38px) translateY(26px) scale(0.94); } 100% { opacity: 1; transform: translateX(0) translateY(0) scale(1); } } /* v202：去模糊 */
+        .view-section.active.v127-dir-r { animation: v127RevealR 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards; transform-origin: center bottom; will-change: transform, opacity; }
+        .view-section.active.v127-dir-l { animation: v127RevealL 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards; transform-origin: center bottom; will-change: transform, opacity; }
         /* 4) 時段環境光（JS 依小時設定 --v127amb 色彩；z-index:-1 躲在內容後、body 底色上） */
         body::after { content: ''; position: fixed; left: 0; right: 0; top: 0; height: 46vh; z-index: -1; pointer-events: none;
             background: radial-gradient(120% 100% at 50% 0%, var(--v127amb, rgba(45,212,191,0)) 0%, transparent 70%); opacity: .55; transition: background 1.2s ease; }
@@ -1561,7 +1561,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v201</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v202</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2097,7 +2097,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v201</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v202</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2583,7 +2583,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v201';
+        const APP_VERSION = 'v202';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
