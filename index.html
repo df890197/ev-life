@@ -1561,7 +1561,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v206</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v207-diag</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2097,7 +2097,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v206</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v207-diag</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2583,7 +2583,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v206';
+        const APP_VERSION = 'v207-diag';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -3439,6 +3439,8 @@ function cacheDOMNodes() {
         let previousTabBeforeAdd = 'home'; // v72：進入新增頁之前的分頁，X 用來回到上一頁
         let currentTabId = 'home'; // v72：目前分頁
         window.switchTab = function(tabId) {
+            // v207-diag：量測起點（診斷用，定位後整組移除；不動切換邏輯）
+            try { var _d0 = performance.now(); var _dt = window._diagLastTouch; window._diagLastSwitchInfo = { from: currentTabId, to: tabId, t0: _d0, touchDelay: (_dt ? Math.round(_d0 - _dt.t) : null), t1: null, t2: null, t3: null, active: null }; window._diagCalls = window._diagCalls || []; window._diagCalls.push(tabId + '@' + Math.round(_d0)); if (window._diagCalls.length > 6) window._diagCalls.shift(); if (typeof window._diagUpdate === 'function') window._diagUpdate(); } catch (e) {}
             // v204：先清掉上一次切換留下的延後工作，快速連點時舊工作不會在新動畫中途爆發（動畫本身不動）
             try { (window._switchTimers || []).forEach(id => clearTimeout(id)); } catch (e) {}
             window._switchTimers = [];
@@ -3475,6 +3477,8 @@ function cacheDOMNodes() {
             window.scrollTo(0, 0);
             // v203：切換後 0.8 秒內不讓自動隱藏把 bar 藏起來＋切 pointer-events-none，避免馬上點回去時點不到
             try { const _nav203 = document.querySelector('nav.floating-nav'); if (_nav203) _nav203.classList.remove('translate-y-32', 'scale-75', 'opacity-0', 'pointer-events-none'); window._navHideSuppressUntil = Date.now() + 800; } catch (e) {}
+            // v207-diag：量測同步完成＋首幀＋繪製（診斷用，定位後整組移除）
+            try { var _ds = window._diagLastSwitchInfo; if (_ds && _ds.t0) { _ds.t1 = Math.round(performance.now() - _ds.t0); if (typeof window._diagUpdate === 'function') window._diagUpdate(); requestAnimationFrame(function() { try { if (_ds.t0) { _ds.t2 = Math.round(performance.now() - _ds.t0); if (typeof window._diagUpdate === 'function') window._diagUpdate(); } } catch (e) {} requestAnimationFrame(function() { try { if (_ds.t0) { _ds.t3 = Math.round(performance.now() - _ds.t0); var _av = document.querySelector('.view-section.active'); _ds.active = _av ? _av.id : 'none'; if (typeof window._diagUpdate === 'function') window._diagUpdate(); } } catch (e) {} }); }); } } catch (e) {}
 
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             const activeBtn = document.getElementById('tab-' + tabId);
@@ -10171,5 +10175,48 @@ window.syncHeroScene = function() {
 window.syncHeroScene();
 </script>
 
+
+<script>
+    // === v207-diag：切換耗時診斷（暫時版，定位後整組移除；不動任何切換邏輯） ===
+    (function initDiag207() {
+        try {
+            var box = document.createElement('div');
+            box.id = 'diag207Box';
+            box.style.cssText = 'position:fixed;top:8px;left:8px;right:8px;z-index:99999;background:rgba(0,0,0,0.78);color:#fff;font:11px/1.5 monospace;padding:6px 8px;border-radius:8px;pointer-events:none;white-space:pre-line;';
+            box.textContent = 'DIAG v207-diag：等一次切換…';
+            document.body.appendChild(box);
+            window._diagLongtasks = [];
+            window._diagUpdate = function() {
+                try {
+                    var s = window._diagLastSwitchInfo || {};
+                    var lines = [];
+                    lines.push('DIAG v207-diag（診斷版，定位後移除）');
+                    lines.push('切換: ' + (s.from || '?') + '→' + (s.to || '?') + ' ｜ 觸控→switch: ' + (s.touchDelay == null ? '—' : s.touchDelay + 'ms') + ' ｜ switch同步: ' + (s.t1 == null ? '—' : s.t1 + 'ms') + ' ｜ 首幀: ' + (s.t2 == null ? '—' : s.t2 + 'ms') + ' ｜ 繪製: ' + (s.t3 == null ? '—' : s.t3 + 'ms') + ' ｜ 作用中: ' + (s.active || '—'));
+                    lines.push('長任務(>50ms): ' + (window._diagLongtasks.length ? window._diagLongtasks.join(' ') : '無'));
+                    lines.push('呼叫: ' + ((window._diagCalls || []).join(' ') || '—'));
+                    box.textContent = lines.join('\n');
+                } catch (e) {}
+            };
+            var nav = document.querySelector('nav.floating-nav');
+            if (nav) nav.addEventListener('touchstart', function(e) {
+                try {
+                    var b = e.target && e.target.closest ? e.target.closest('.tab-btn, #tab-add') : null;
+                    if (b) window._diagLastTouch = { id: b.id, t: performance.now() };
+                } catch (err) {}
+            }, { passive: true, capture: true });
+            if ('PerformanceObserver' in window) {
+                try {
+                    new PerformanceObserver(function(list) {
+                        list.getEntries().forEach(function(en) {
+                            window._diagLongtasks.push(Math.round(en.startTime) + 'ms+' + Math.round(en.duration) + 'ms');
+                            if (window._diagLongtasks.length > 5) window._diagLongtasks.shift();
+                        });
+                        if (typeof window._diagUpdate === 'function') window._diagUpdate();
+                    }).observe({ entryTypes: ['longtask'] });
+                } catch (err) { window._diagLongtasks.push('不支援'); }
+            } else { window._diagLongtasks.push('不支援'); }
+        } catch (e) {}
+    })();
+</script>
 </body>
 </html>
