@@ -811,11 +811,7 @@ input[type="number"] {
             -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude;
             animation: v132BeamOnce 1.7s linear 1 both; }
         @keyframes v132BeamOnce { from { --v128a: 0deg; } to { --v128a: 360deg; } }
-        /* 7) 下拉彩蛋指示 */
-        #v132PullBolt { position: fixed; top: 0; left: 50%; z-index: 95; width: 52px; height: 52px; margin-left: -26px; border-radius: 99px;
-            background: rgba(28,28,30,.9); color: #fbbf24; font-size: 24px; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 10px 24px rgba(0,0,0,.3); transform: translateY(-72px); pointer-events: none; }
-        #v132PullBolt.v132-charged { color: #2dd4bf; box-shadow: 0 0 0 6px rgba(45,212,191,.25), 0 0 28px rgba(45,212,191,.8); }
+        
         /* lite／減少動態 */
         .lite .v132-stars { display: none; }
         .lite #abrpRecommendationCard.v132-beam::after { animation: none !important; }
@@ -1570,7 +1566,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v217</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v228</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2106,7 +2102,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v217</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v228</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2592,7 +2588,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v217';
+        const APP_VERSION = 'v228';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -3658,6 +3654,7 @@ function cacheDOMNodes() {
             }
             if (tabId === 'records') {
                 window._switchTimers.push(setTimeout(measureAndAdjustMarquees, 800)); // v203：跑馬燈量測延到過場動畫跑完（逐卡讀版面，最耗主執行緒）
+                           window._switchTimers.push(setTimeout(() => { if (typeof window._updateMonthPill === 'function') window._updateMonthPill(); }, 800)); // v228：記錄頁月份 pill 切頁後重算（過場動畫 0.75s 跑完、版面 settled 才讀卡片位置；否則初載舊月份會殘留，要捲一下才變正確）
             }
             currentTabId = tabId; // v72：更新目前分頁
             window._switchRan210 = true; // v210：已有一次成功切換，之後同分頁點按直接忽略
@@ -9441,6 +9438,7 @@ function updateAbrpElevScrub(pct) {
             window.addEventListener('scroll', onScroll, { passive: true });
             new MutationObserver(onScroll).observe(list, { childList: true });
             setTimeout(update, 800);
+            window._updateMonthPill = update; // v228：切到記錄頁時重算（見 switchTab records 分支）
         })();
     })();
     </script>
@@ -9907,54 +9905,6 @@ function updateAbrpElevScrub(pct) {
             recCard132.classList.remove('v132-beam'); void recCard132.offsetWidth; recCard132.classList.add('v132-beam');
             setTimeout(() => recCard132.classList.remove('v132-beam'), 1900);
         }).observe(stopBox132, { childList: true });
-
-        /* ---------- 7) 下拉小彩蛋（首頁頂端下拉：閃電充飽 → 星光＋震動） ---------- */
-        if (!isLite() && !reduced()) {
-            const bolt = document.createElement('div');
-            bolt.id = 'v132PullBolt'; bolt.textContent = '⚡';
-            document.body.appendChild(bolt);
-            let startY = null, pull = 0;
-            document.addEventListener('touchstart', (e) => {
-                const home = document.getElementById('view-home');
-                startY = (window.scrollY <= 0 && home && home.classList.contains('active') && e.touches.length === 1) ? e.touches[0].clientY : null;
-                pull = 0;
-            }, { passive: true });
-            document.addEventListener('touchmove', (e) => {
-                if (startY === null) return;
-                pull = Math.max(0, e.touches[0].clientY - startY);
-                if (pull > 24) {
-                    const shown = Math.min(64, (pull - 24) * 0.62);
-                    bolt.style.transition = 'none';
-                    bolt.style.transform = `translateY(${(-72 + shown).toFixed(0)}px) scale(${(0.7 + Math.min(0.45, pull / 260)).toFixed(2)})`;
-                    bolt.classList.toggle('v132-charged', pull > 85);
-                }
-            }, { passive: true });
-            document.addEventListener('touchend', () => {
-                if (startY === null) return;
-                const wasCharged = pull > 85;
-                startY = null;
-                bolt.style.transition = 'transform .38s cubic-bezier(.2,.7,.3,1.2)';
-                if (wasCharged) {
-                    if (navigator.vibrate) navigator.vibrate(18);
-                    if (typeof window.triggerHaptic === 'function') window.triggerHaptic('medium');
-                    const cx = window.innerWidth / 2;
-                    for (let i = 0; i < 9; i++) {
-                        const s = document.createElement('span');
-                        s.className = 'v128-spark';
-                        s.style.left = cx + 'px'; s.style.top = '34px';
-                        document.body.appendChild(s);
-                        const a = Math.random() * Math.PI * 2, d = 30 + Math.random() * 42;
-                        const an = s.animate([{ transform: 'translate(-50%,-50%)', opacity: 1 }, { transform: `translate(${(Math.cos(a) * d).toFixed(0)}px, ${(Math.sin(a) * d + 14).toFixed(0)}px)`, opacity: 0 }], { duration: 560 + Math.random() * 240, easing: 'cubic-bezier(.2,.7,.3,1)' });
-                        if (an) an.onfinish = () => s.remove(); else s.remove();
-                    }
-                    setTimeout(() => { bolt.style.transform = 'translateY(-72px)'; bolt.classList.remove('v132-charged'); }, 420);
-                } else {
-                    bolt.style.transform = 'translateY(-72px)';
-                    bolt.classList.remove('v132-charged');
-                }
-                pull = 0;
-            }, { passive: true });
-        }
 
         /* ---------- 8) 剖面海拔漸層（新剖面進來時把面積填充換成高度漸層） ---------- */
         const svgBox132 = document.getElementById('abrpSvgContainer');
