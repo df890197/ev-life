@@ -1080,6 +1080,38 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         html.dark #stationCostChart [class*="bg-rose-400"] { background: linear-gradient(90deg, #C2A35C, #EDD9A3) !important; }
         html:not(.dark) #stationCostChart [class*="bg-rose-400"] { background-color: #F2A497 !important; }
     </style>
+    <style id="v236-add-settings">
+        /* ===== v236：新增頁＋設定頁日夜雙生（淺色白晝繪本／深色夜繪本；只動樣式，不動計算與功能；按鈕類語意色與狀態色一律不動） ===== */
+        /* --- 新增頁：類型組容器（淺色奶油＋墨框／深色夜卡＋月光 rim；深淺同寬 2.5px，切換不跳高） --- */
+        #view-add form div[class*="bg-stone-50"] { background-color: #FBF0DA !important; border: 2.5px solid #3E3A39 !important; }
+        html.dark #view-add form div[class*="bg-stone-50"] { background-color: #1B1F30 !important; border: 2.5px solid rgba(237,230,214,.14) !important; box-shadow: inset 0 1px 0 rgba(237,217,163,.08) !important; }
+        /* --- 新增頁：輸入框（淺色紙面＋墨框／深色夜卡＋月光 rim；range/color/hidden/file 排除，不動滑桿與色盤；focus 邊框跟金色走，box-shadow 發光不動） --- */
+        #view-add form input:not([type="range"]):not([type="color"]):not([type="hidden"]):not([type="file"]), #view-add form select, #view-add form textarea { background-color: #FFFCF6 !important; border: 2px solid #3E3A39 !important; color: #3E3A39 !important; }
+        #view-add form input:not([type="range"]):not([type="color"]):not([type="hidden"]):not([type="file"]):focus, #view-add form select:focus, #view-add form textarea:focus { border-color: #FBBF24 !important; }
+        html.dark #view-add form input:not([type="range"]):not([type="color"]):not([type="hidden"]):not([type="file"]), html.dark #view-add form select, html.dark #view-add form textarea { background-color: #1B1F30 !important; border: 2px solid rgba(237,230,214,.14) !important; color: #EDE6D6 !important; }
+        html.dark #view-add form input:not([type="range"]):not([type="color"]):not([type="hidden"]):not([type="file"]):focus, html.dark #view-add form select:focus, html.dark #view-add form textarea:focus { border-color: #E3C878 !important; }
+        /* --- 新增頁：標題與標籤（淺色墨字／深色標題香檳金、標籤奶油） --- */
+        #view-add h2 { color: #3E3A39 !important; }
+        html.dark #view-add h2 { color: #EDD9A3 !important; }
+        #view-add label { color: #3E3A39 !important; }
+        html.dark #view-add label { color: rgba(245,239,230,.85) !important; }
+        /* --- 設定頁：外層大卡（跟分析頁 .rpg-card 同款；深淺同寬 3px，切換不跳高） --- */
+        #view-settings .rpg-card { background: #FFFCF6 !important; border: 3px solid #3E3A39 !important; box-shadow: 6px 6px 0 rgba(62,58,57,.16) !important; }
+        html.dark #view-settings .rpg-card { background-color: #1B1F30 !important; border: 3px solid rgba(237,230,214,.1) !important; box-shadow: inset 0 1px 0 rgba(237,217,163,.08), 0 12px 26px rgba(0,0,0,.38) !important; }
+        /* --- 設定頁：內層區塊（淺色奶油＋墨框／深色夜卡＋月光 rim；emerald 匯出區塊不動，語意色保留） --- */
+        #view-settings div[class*="bg-stone-50"] { background-color: #FBF0DA !important; border: 2.5px solid #3E3A39 !important; }
+        html.dark #view-settings div[class*="bg-stone-50"] { background-color: #1B1F30 !important; border: 2.5px solid rgba(237,230,214,.14) !important; box-shadow: inset 0 1px 0 rgba(237,217,163,.08) !important; }
+        /* --- 設定頁：輸入框（淺色紙面＋墨框／深色 recessed 夜底＋月光 rim；focus 同新增頁） --- */
+        #view-settings input:not([type="range"]):not([type="color"]):not([type="hidden"]):not([type="file"]), #view-settings select, #view-settings textarea { background-color: #FFFCF6 !important; border: 2px solid #3E3A39 !important; color: #3E3A39 !important; }
+        #view-settings input:not([type="range"]):not([type="color"]):not([type="hidden"]):not([type="file"]):focus, #view-settings select:focus, #view-settings textarea:focus { border-color: #FBBF24 !important; }
+        html.dark #view-settings input:not([type="range"]):not([type="color"]):not([type="hidden"]):not([type="file"]), html.dark #view-settings select, html.dark #view-settings textarea { background-color: #141726 !important; border: 2px solid rgba(237,230,214,.14) !important; color: #EDE6D6 !important; }
+        html.dark #view-settings input:not([type="range"]):not([type="color"]):not([type="hidden"]):not([type="file"]):focus, html.dark #view-settings select:focus, html.dark #view-settings textarea:focus { border-color: #E3C878 !important; }
+        /* --- 設定頁：標題與標籤（淺色墨字／深色標題香檳金、標籤奶油；emerald／amber 語意標題不動） --- */
+        #view-settings .rpg-card h3 { color: #3E3A39 !important; }
+        html.dark #view-settings .rpg-card h3 { color: #EDD9A3 !important; }
+        #view-settings span.font-extrabold:not([class*="text-emerald"]):not([class*="text-amber"]) { color: #3E3A39 !important; }
+        html.dark #view-settings span.font-extrabold:not([class*="text-emerald"]):not([class*="text-amber"]) { color: rgba(245,239,230,.85) !important; }
+    </style>
     <style id="v177-tabbar">
         /* ===== v178：tab bar 換皮（滑動動畫機制完全比照 v176：pill 與 active 只換背景色、零 box-shadow；顏色放柔） ===== */
         nav.v81-snap-bar { background: #FFFCF6 !important; border: 3px solid #3E3A39 !important; box-shadow: 5px 5px 0 rgba(62,58,57,.20) !important; /* v182：拿掉 28px 大模糊陰影（iOS 動畫時每幀重繪會卡） */ backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
@@ -1580,7 +1612,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v235</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v236</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2116,7 +2148,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v235</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v236</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2602,7 +2634,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v235';
+        const APP_VERSION = 'v236';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
