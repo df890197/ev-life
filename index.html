@@ -699,7 +699,7 @@ window._loadChartJs = function() {
         const sc = document.createElement('script');
         sc.src = 'https://cdn.jsdelivr.net/npm/chart.js';
         sc.onload = () => resolve();
-        sc.onerror = () => resolve();
+        sc.onerror = () => { window._chartJsPromise = null; resolve(); }; // v234：下載失敗清除紀錄，下次點分析頁會重抓（不清除的話，失敗的 promise 會一直被快取，永遠不重試）
         document.head.appendChild(sc);
     });
     return window._chartJsPromise;
@@ -1580,7 +1580,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v233</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v235</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2116,7 +2116,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v233</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v235</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2602,7 +2602,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v233';
+        const APP_VERSION = 'v235';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -6378,6 +6378,25 @@ styles: document.documentElement.classList.contains('dark') ? window.ABRP_MAP_DA
                   const path = rt.overview_path || [];
                   if (!path.length) return;
                   const isSel = i === this._idx;
+                  // v235：被選中的路線若有塞車分段資料，按區間切段上色（像 Google 地圖規劃路線：綠順暢／黃車多／紅塞車；未知等級畫回藍線代表無路況資料）。區間是前包後不包，相鄰段共用端點、線不斷開；無資料或畫不出任何一段時，維持原單色線（描繪動畫也保留）。
+                  const intervals = (isSel && Array.isArray(rt.trafficIntervals) && rt.trafficIntervals.length) ? rt.trafficIntervals : null;
+                  if (intervals) {
+                    const TRAFFIC_COLORS = { NORMAL: '#34A853', SLOW: '#FBBC04', TRAFFIC_JAM: '#EA4335' };
+                    let prevEnd = 0, drewAny = false;
+                    intervals.forEach(iv => {
+                      const sIdx = Math.max(0, Math.min(typeof iv.startPolylinePointIndex === 'number' ? iv.startPolylinePointIndex : prevEnd, path.length - 1));
+                      const eRaw = (typeof iv.endPolylinePointIndex === 'number') ? iv.endPolylinePointIndex : path.length - 1;
+                      prevEnd = eRaw;
+                      const eIdx = Math.min(eRaw, path.length - 1);
+                      if (eIdx <= sIdx) return;
+                      const seg = path.slice(sIdx, eIdx + 1);
+                      if (seg.length < 2) return;
+                      const pl = new google.maps.Polyline({ path: seg, map: abrpMap, strokeColor: TRAFFIC_COLORS[iv.speed] || '#4285F4', strokeOpacity: 1, strokeWeight: 5, zIndex: 10, clickable: false });
+                      this._polylines.push(pl);
+                      drewAny = true;
+                    });
+                    if (drewAny) return;
+                  }
                   const pl160 = new google.maps.Polyline({ path, map: abrpMap, strokeColor: isSel ? '#4285F4' : '#9ca3af', strokeOpacity: isSel ? 1 : 0.65, strokeWeight: isSel ? 5 : 4, zIndex: isSel ? 10 : 5, clickable: false });
                   this._polylines.push(pl160);
                   if (isSel && fxDraw160 && path.length > 2 && typeof window.fx160AnimateRouteDraw === 'function') window.fx160AnimateRouteDraw(pl160, path);
@@ -6725,7 +6744,7 @@ async function computeRoutesApiRoute(startLoc, endLoc) {
     headers: {
       'Content-Type': 'application/json',
       'X-Goog-Api-Key': apiKey,
-      'X-Goog-FieldMask': 'routes.legs,routes.distanceMeters,routes.duration,routes.staticDuration,routes.polyline,routes.description,routes.polylineDetails,routes.localizedValues,routes.travelAdvisory,routes.routeLabels,routes.viewport,routes.warnings'
+      'X-Goog-FieldMask': 'routes.legs,routes.distanceMeters,routes.duration,routes.staticDuration,routes.polyline,routes.description,routes.polylineDetails,routes.localizedValues,routes.travelAdvisory,routes.routeLabels,routes.viewport,routes.warnings,routes.travelAdvisory.speedReadingIntervals'
     },
     body: JSON.stringify({
       origin: routesApiWaypoint(startLoc),
@@ -6743,7 +6762,7 @@ async function computeRoutesApiRoute(startLoc, endLoc) {
       languageCode: 'zh-TW',
       regionCode: 'TW',
       units: 'METRIC',
-      extraComputations: ['TUNNEL_INFO_ON_POLYLINE', 'FLYOVER_INFO_ON_POLYLINE']
+      extraComputations: ['TUNNEL_INFO_ON_POLYLINE', 'FLYOVER_INFO_ON_POLYLINE', 'TRAFFIC_ON_POLYLINE']
     })
   });
   fetchPromise.catch(() => {});
@@ -6796,6 +6815,8 @@ function normalizeRoutesApiRoute(r, idx) {
     overview_path: fullPolyline.map(p => new google.maps.LatLng(p.lat, p.lng)),
     legs,
     routesApiPolylineDetails: r.polylineDetails || null,
+    // v235：塞車分段（route 層級 travelAdvisory.speedReadingIntervals，index 對應 overview polyline 的點；Directions fallback 無此欄位 → _draw 維持藍線）
+    trafficIntervals: r.travelAdvisory?.speedReadingIntervals || null,
     routesApiSource: 'routes-api'
   };
 }
