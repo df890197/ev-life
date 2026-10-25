@@ -1566,7 +1566,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v229</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v230</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2102,7 +2102,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v229</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v230</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2588,7 +2588,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v229';
+        const APP_VERSION = 'v230';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -4357,6 +4357,7 @@ window.setupSocSliders = function() {
             }
             selectedCalendarDate = null;
             renderDashboard(); debouncedUpdateCharts();
+            if (typeof window._updateMonthPill === 'function') window._updateMonthPill(); // v230：篩選一換，pill 立即跟著換（選全部→全部；選某月→那月）
         };
 
         function calculateRecordStats(activeRecords) {
@@ -9430,6 +9431,7 @@ function updateAbrpElevScrub(pct) {
                 if (!view || !view.classList.contains('active') || view.classList.contains('hidden') || list.classList.contains('hidden')) { pill.classList.add('hidden'); pill.classList.remove('flex'); return; } // v229：分頁顯示靠 active、不是 hidden；舊條件在切到別頁時永遠不成立，導致在記錄頁 display:none 時還去讀卡片位置
                 const cards = list.querySelectorAll('[data-v106-month]');
                 if (!cards.length) { pill.classList.add('hidden'); pill.classList.remove('flex'); return; }
+                if (typeof AppState !== 'undefined' && AppState.currentMonthFilter === 'all') { txt.textContent = '全部'; pill.classList.remove('hidden'); pill.classList.add('flex'); return; } // v230：使用者指正——篩選是「全部」時上面那顆就該是「全部」，不該是捲到哪個月的月份；pill 跟篩選走，不跟捲動位置走（選某個月時下面既有邏輯自然就是那個月）
                 let cur = null;
                 for (const c of cards) { if (c.getBoundingClientRect().bottom > 110) { cur = c.dataset.v106Month; break; } }
                 if (cur === null) { pill.classList.add('hidden'); pill.classList.remove('flex'); return; } // v229：沒有任何一張卡片在 110 以下＝版面根本沒算出來（例如記錄頁還沒顯示、卡片無 box），不寫值、不顯示，不再默默取最後一張的舊月份
