@@ -1566,7 +1566,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v230</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v231</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2102,7 +2102,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v230</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v231</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2588,7 +2588,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v230';
+        const APP_VERSION = 'v231';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -10201,7 +10201,7 @@ function updateAbrpElevScrub(pct) {
     </script>
 
 <script>
-// ===== v176：沿途風況影響（Open-Meteo 預報；僅顯示，不計入抵達 SOC） =====
+// ===== v176：沿途風況影響（僅顯示，不計入抵達 SOC；v231 起風來源改 Google 逐時預報，原 Open-Meteo 已移除） =====
 function windAeroShare(v) { const x = Math.pow(Math.max(v, 0) / 100, 2); return x / (x + 0.7); }
 window.computeWindImpact = function(samples) {
     let wsum = 0, msum = 0, headW = 0, maxHead = -Infinity;
@@ -10245,23 +10245,32 @@ window.updateWindImpactLine = async function(route, calcData, routeIdx) {
             const a = P[Math.max(0, idx - 1)], b = P[Math.min(P.length - 1, idx + 1)];
             return { pt: P[idx], heading: windBearingDeg(a, b), etaMs: Date.now() + f * totalSeconds * 1000, weight: (bounds[i + 1] - bounds[i]) * calcData.totalDistanceKm, speedKmh: avgSpeed };
         });
-        const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + samples.map(s => s.pt.lat.toFixed(4)).join(',') + '&longitude=' + samples.map(s => s.pt.lng.toFixed(4)).join(',') + '&hourly=wind_speed_10m,wind_direction_10m&forecast_days=3&timezone=Asia%2FTaipei';
+        // v231：風來源改 Google 逐時預報（forecast/hours:lookup；與氣溫同一組金鑰；unitsSystem=METRIC 明確指定，風速單位 km/h，與原公式一致；風向為氣象慣例「風從哪裡來」的方向，與 Open-Meteo wind_direction_10m 同慣例，故順逆風公式不動）。Google 一次只能查一個點，6 個取樣點平行抓（原 Open-Meteo 一次帶 6 點）；任一點失敗只剔除該點，全部失敗才隱藏整條（同原行為）。
+        const gKey231 = 'AIzaSyAf88sAzYlzVpv6qK6g0rsvDLyz98tCZMU';
         const ctl = new AbortController();
-        const to = setTimeout(() => ctl.abort(), 6000);
-        const resp = await fetch(url, { signal: ctl.signal });
+        const to = setTimeout(() => ctl.abort(), 10000);
+        const results231 = await Promise.all(samples.map(async (s) => {
+            try {
+                const u = 'https://weather.googleapis.com/v1/forecast/hours:lookup?key=' + gKey231 + '&location.latitude=' + s.pt.lat.toFixed(4) + '&location.longitude=' + s.pt.lng.toFixed(4) + '&hours=48&unitsSystem=METRIC';
+                const r = await fetch(u, { signal: ctl.signal });
+                if (!r.ok) return null;
+                const d = await r.json();
+                const hrs = d.forecastHours || [];
+                const want = windTaipeiHourKey(s.etaMs);
+                let hit = null;
+                for (const h of hrs) {
+                    if (!h.interval || !h.interval.startTime) continue;
+                    if (windTaipeiHourKey(new Date(h.interval.startTime).getTime()) === want) { hit = h; break; }
+                }
+                if (!hit || !hit.wind) return null;
+                const ws = (hit.wind.speed && isFinite(hit.wind.speed.value)) ? hit.wind.speed.value : null;
+                const wd = (hit.wind.direction && isFinite(hit.wind.direction.degrees)) ? hit.wind.direction.degrees : null;
+                if (ws === null || wd === null) return null;
+                return { ws, wd, heading: s.heading, speedKmh: s.speedKmh, weight: s.weight };
+            } catch (e) { return null; }
+        }));
         clearTimeout(to);
-        if (!resp.ok) throw new Error('meteo ' + resp.status);
-        const data = await resp.json();
-        const locs = Array.isArray(data) ? data : [data];
-        const enriched = samples.map((s, i) => {
-            const loc = locs[Math.min(i, locs.length - 1)];
-            if (!loc || !loc.hourly || !loc.hourly.time) return null;
-            const hi = loc.hourly.time.indexOf(windTaipeiHourKey(s.etaMs));
-            if (hi < 0) return null;
-            const ws = loc.hourly.wind_speed_10m[hi], wd = loc.hourly.wind_direction_10m[hi];
-            if (!isFinite(ws) || !isFinite(wd)) return null;
-            return { ws, wd, heading: s.heading, speedKmh: s.speedKmh, weight: s.weight };
-        }).filter(Boolean);
+        const enriched = results231.filter(Boolean);
         if (!enriched.length) throw new Error('no wind data');
         if (seq !== window._windSeq || !isActive()) return;
         const r = window.computeWindImpact(enriched);
