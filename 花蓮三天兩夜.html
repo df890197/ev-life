@@ -169,6 +169,7 @@
       padding: 16px;
     }
 
+    /* 浮動更新小提示 */
     .toast-msg {
       position: fixed;
       top: 60px;
@@ -243,6 +244,7 @@
       display: block;
     }
 
+    /* 倒數計時小木牌卡片 */
     .countdown-container {
       background-color: var(--ocean-light);
       border: 2.5px solid var(--border-color);
@@ -516,6 +518,7 @@
       color: var(--sunset-coral);
     }
 
+    /* 通用繪本小卡 */
     .section-title {
       font-size: 1.15rem;
       font-weight: 900;
@@ -544,6 +547,7 @@
       margin-bottom: 18px;
     }
 
+    /* 行程多選一評估小卡 */
     .compare-choice {
       border: 2px solid var(--border-color);
       border-radius: 12px;
@@ -570,6 +574,7 @@
     .choice-badge.top { background-color: var(--mountain-green); color: #383431; }
     .choice-badge.sub { background-color: var(--hualien-gold); color: #383431; }
 
+    /* 東大門夜市小卡 */
     .market-box {
       border: 2px solid var(--border-color);
       border-radius: 14px;
@@ -590,6 +595,7 @@
       margin-bottom: 6px;
     }
 
+    /* 打包檢查清單 */
     .progress-bar-wrap {
       width: 100%;
       height: 10px;
@@ -636,6 +642,7 @@
     .check-item.done .check-box::after { content: '✓'; font-weight: 900; font-size: 12px; }
     .check-item.done span { text-decoration: line-through; color: var(--text-muted); }
 
+    /* 動態效果 */
     @keyframes dolphinJump {
       0%, 100% { transform: translateY(0px) rotate(0deg); }
       50% { transform: translateY(-4px) rotate(-3deg); }
@@ -652,6 +659,7 @@
 </head>
 <body>
 
+  <!-- 頂部導覽列 -->
   <header class="navbar">
     <div class="nav-brand">
       <span>🐬</span>
@@ -672,10 +680,12 @@
     </div>
   </header>
 
+  <!-- 強制更新提示訊息 -->
   <div class="toast-msg" id="toastMsg">✨ 正在取得最新花蓮行程...</div>
 
   <main class="container">
 
+    <!-- 首頁 Hero 區域 -->
     <section class="hero-card">
       <div class="hero-badge">🌊 2026.11.07（週六）出發</div>
       <h1 class="hero-title">花蓮・合歡山 山海漫活</h1>
@@ -775,7 +785,7 @@
         </div>
         <div>
           <span class="day-tag" id="dayTag">Day 1</span>
-          <div class="day-summary-title" id="dayTitle">花蓮車站會合 ＋ 童話水岸、老街蔥油餅豆花與海濱夜市</div>
+          <div class="day-summary-title" id="dayTitle">花蓮車站會合 ＋ 童話水岸、老街蔥油餅豆花文創園區與海濱夜市</div>
           <div class="day-hotel-info" id="dayHotel">🏨 住宿安排</div>
         </div>
       </section>
@@ -813,11 +823,11 @@
         </div>
 
         <div style="margin-bottom: 14px;">
-          <div style="font-weight: 900; font-size: 0.9rem; margin-bottom: 6px;">🥞 下午必吃雙寶（炸彈蔥油餅 ＋ 蔡記豆花）</div>
+          <div style="font-weight: 900; font-size: 0.9rem; margin-bottom: 6px;">🥞 下午必吃雙寶（炸彈蔥油餅 ＋ 蔡記豆花 ＆ 花蓮文創園區）</div>
           <div class="compare-choice best">
-            <span class="choice-badge top">⭐ 必吃雙享</span>
-            <div style="font-weight: 900; font-size: 0.88rem;">復興街蔥油餅 ＆ 民國路蔡記豆花</div>
-            <div style="font-size: 0.78rem; color: var(--text-muted);">剛炸出爐的酥脆半熟蛋蔥油餅，接著吃一碗蔡記招牌「薏仁牛奶豆花」或「仙草奶凍」，鹹甜搭配是花蓮最經典的下午茶節奏！</div>
+            <span class="choice-badge top">⭐ 必吃雙享＋老宅散步</span>
+            <div style="font-weight: 900; font-size: 0.88rem;">復興街蔥油餅 ＆ 民國路蔡記豆花 ＆ 文創園區</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">車停文創園區停車場，外帶酥脆爆漿蔥油餅，再走到民國路吃蔡記「薏仁牛奶豆花」，順路在日式老酒廠大草坪走走散步，動線最順！</div>
           </div>
         </div>
 
@@ -835,12 +845,26 @@
           </div>
         </div>
 
-        <div>
-          <div style="font-weight: 900; font-size: 0.9rem; margin-bottom: 6px;">🌊 看海二選一（停留 30 分鐘）</div>
+        <div style="margin-bottom: 14px;">
+          <div style="font-weight: 900; font-size: 0.9rem; margin-bottom: 6px;">🌲 壽豐水岸備案（雲山水 vs 鯉魚潭）</div>
+          <div class="compare-choice">
+            <span class="choice-badge sub">落羽松備案</span>
+            <div style="font-weight: 900; font-size: 0.88rem;">雲山水植物農場（夢幻湖跳石）</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">距離理想門市僅 10 分鐘車程。若大家特別想拍 11 月落羽松轉色倒影與跳石水岸，可作為替換鯉魚潭的優質備案（需預留 1 小時散步拍照）。</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 14px;">
+          <div style="font-weight: 900; font-size: 0.9rem; margin-bottom: 6px;">🌊 看海與港景備案（太平洋公園 vs 松園別館 vs 七星潭）</div>
           <div class="compare-choice best">
             <span class="choice-badge top">⭐ 最推薦</span>
             <div style="font-weight: 900; font-size: 0.88rem;">太平洋公園（南濱段海堤）</div>
             <div style="font-size: 0.78rem; color: var(--text-muted);">順路看海吹風，且距離兩間民宿與東大門夜市只有 1.1km（開車 4 分鐘），完全不用折返！</div>
+          </div>
+          <div class="compare-choice">
+            <span class="choice-badge sub">老松港景備案</span>
+            <div style="font-weight: 900; font-size: 0.88rem;">松園別館（美崙山坡）</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">若下午提早抵達市區、想找涼爽綠蔭，可登美崙山老琉球松林俯瞰花蓮港出海口美景。</div>
           </div>
           <div class="compare-choice">
             <span class="choice-badge sub">折返不順</span>
@@ -899,7 +923,7 @@
       <div class="box-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
           <h2 class="section-title" style="margin-bottom: 0;">出發前隨身準備</h2>
-          <span id="packProgressText" style="font-size: 0.78rem; font-weight: 900; color: var(--sunset-coral);">0 / 6 完成</span>
+          <span id="packProgressText" style="font-size: 0.78rem; font-weight: 900; color: var(--sunset-coral);">0 / 7 完成</span>
         </div>
         <div class="progress-bar-wrap">
           <div class="progress-bar" id="progressBar"></div>
@@ -923,6 +947,10 @@
           </div>
           <div class="check-item" onclick="toggleCheck(this)">
             <div class="check-box"></div>
+            <span>備用乾糧物資：後車廂放 2～3 碗碗裝泡麵/自熱火鍋（星空逾時救急）</span>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"></div>
             <span>身分證、健保卡、個人隨身常備藥品</span>
           </div>
           <div class="check-item" onclick="toggleCheck(this)">
@@ -940,7 +968,7 @@
     const tripData = {
       1: {
         tag: 'Day 1',
-        title: '花蓮車站會合 ＋ 童話水岸、老街蔥油餅豆花與海濱夜市',
+        title: '花蓮車站會合 ＋ 童話水岸、老街蔥油餅豆花文創園區與海濱夜市',
         hotel: '🏨 我 & 屁祥金主：今古安民宿<br>🏨 佑哥金主 & 老婆：S.E.A.民宿',
         icon: '🌊',
         timeline: [
@@ -951,8 +979,8 @@
           { time: '11:25', tag: '🍜 老宅午餐', tagClass: 'tag-food', title: '定置漁場三代目（將軍府店）', desc: '【私房午餐首選】在百年日式宿舍群裡吃現熬鮮魚白湯拉麵，吃飽順便在林蔭散步拍照。', parking: '🅿️ 將軍府專屬停車場或中正路車格 (車程 8 分)' },
           { time: '13:00', tag: '☕ 水岸咖啡', tagClass: 'tag-spot', title: 'STARBUCKS 花蓮理想門市', desc: '【童話下午茶】歐洲童話風木屋配落羽松湖景，拍照好看，而且離下一站鯉魚潭只要 16 分鐘！', parking: '🅿️ 園區專屬停車場 (車程 25 分)' },
           { time: '14:05', tag: '🌲 湖光山色', tagClass: 'tag-nature', title: '鯉魚潭風景區', desc: '花蓮最大的天然湖泊，漫步環潭木棧道吹吹微風、看群山倒影。', parking: '🅿️ 潭北遊客中心停車場 (車程 16 分)' },
-          { time: '15:15', tag: '🥞 經典點心', tagClass: 'tag-food', title: '炸彈蔥油餅 ＆ 蔡記豆花', desc: '回市區必吃！外帶復興街酥脆爆漿「炸彈蔥油餅」，再走去民國路吃「蔡記豆花」（招牌薏仁牛奶豆花、仙草奶凍）。', parking: '🅿️ 民國路／花蓮文創園區收費停車場' },
-          { time: '16:15', tag: '🌊 海風浪花', tagClass: 'tag-ocean', title: '太平洋公園海堤（或順路拍貨櫃星巴克）', desc: '吃飽順路開往南濱海堤看海吹風消食（想拍白色貨櫃屋也可順路至洄瀾門市），離今古安與 S.E.A. 民宿僅 4 分鐘超順！', parking: '🅿️ 南濱段大停車場' },
+          { time: '15:15', tag: '🥞 點心文創', tagClass: 'tag-food', title: '炸彈蔥油餅 ＋ 蔡記豆花 ＆ 花蓮文創園區', desc: '回市區必吃！車停文創園區停車場，外帶酥脆爆漿「炸彈蔥油餅」，走去民國路吃「蔡記豆花」（招牌薏仁牛奶豆花、仙草奶凍），順路在舊酒廠紅磚老倉庫散步消化！', parking: '🅿️ 花蓮文創園區收費停車場或自由街停車格' },
+          { time: '16:20', tag: '🌊 海風浪花', tagClass: 'tag-ocean', title: '太平洋公園海堤（或順路拍貨櫃星巴克）', desc: '吃飽順路開往南濱海堤看海吹風消食（想拍白色貨櫃屋也可順路至洄瀾門市），離今古安與 S.E.A. 民宿僅 4 分鐘超順！', parking: '🅿️ 南濱段大停車場' },
           { time: '17:00', tag: '🏨 入住放行李', tagClass: 'tag-spot', title: '各自民宿 Check-in 稍作休息', desc: '前往民宿放行李：我與屁祥金主入住「今古安民宿」、佑哥金主夫妻入住「S.E.A.民宿」。整頓後一起步行出發逛東大門！', parking: '🅿️ 各自民宿專屬車位／周邊路格' },
           { time: '18:00', tag: '🍢 夜市吃透透', tagClass: 'tag-food', title: '東大門夜市老饕巡禮', desc: '集合開吃玉里臭豆腐、林記烤玉米、蔣家官財板與新鮮現打果汁！', parking: '🚶 步行前往或停放重慶路周邊停車格' },
           { time: '21:00', tag: '🌙 宵夜續攤', tagClass: 'tag-food', title: '公正包子 ＆ 周家蒸餃', desc: '夜市回程外帶熱騰騰小籠包與蒸餃，帶回民宿配茶聊天當宵夜！', parking: '🅿️ 仁愛街門市周邊短暫臨停' }
@@ -978,19 +1006,20 @@
           { time: '16:40', tag: '⛰️ 登上馬雅', tagClass: 'tag-nature', title: '沿步道緩升登上合歡山馬雅平台', desc: '從主峰登山口沿水泥步道上行約 500 公尺（約 12～15 分鐘），登上右手邊壯觀如金字塔石階的馬雅平台！', parking: '' },
           { time: '16:55', tag: '🌅 夕陽雲海', tagClass: 'tag-spot', title: '馬雅平台迎接 17:12 夕陽金黃雲海', desc: '站在石階高處俯瞰昆陽連綿山脊，看落日將浩瀚雲海染成金紅色的壯麗魔幻時刻！', parking: '' },
           { time: '17:30', tag: '✨ 銀河沉降', tagClass: 'tag-ocean', title: '捕捉夏季銀河核心最後身影', desc: '天色迅速轉暗，西南方低空直立銀河現身！農曆九月三十完全無月光干擾，18:00～18:30 銀河核心沉入山稜線，肉眼即可見！', parking: '🌌 備妥紅光手電筒與腳架' },
-          { time: '18:40', tag: '🍲 暖胃晚餐', tagClass: 'tag-food', title: '返回武嶺開車回松雪樓晚餐', desc: '點亮紅光頭燈原路健行回武嶺取車，開回松雪樓享用熱呼呼的自助熱食、喝熱湯暖身！', parking: '🅿️ 松雪樓住客專屬車位' }
+          { time: '18:40', tag: '🍲 晚餐／備案', tagClass: 'tag-food', title: '返回武嶺開車回松雪樓晚餐（備用泡麵物資）', desc: '點亮紅光頭燈回武嶺開車回松雪樓。⚠️ 注意松雪樓晚餐嚴格於 19:30 截止打烊！若拍照太投入超過 19:30，可直接回房使用 1F 24H 飲水機泡熱騰騰泡麵/自熱火鍋，暖胃又無壓力！', parking: '🅿️ 松雪樓住客專屬車位' }
         ]
       },
       3: {
         tag: 'Day 3',
-        title: '武嶺打卡 ＋ 清境青青草原尋羊 ＋ 觀山牧區看馬術秀',
+        title: '武嶺拍照 ＋ 鳶峰星空觀景台 ＋ 清境青青草原尋羊 ＆ 觀山牧區馬術秀',
         hotel: '🏠 終點：平安回到中壢',
         icon: '🐑',
         timeline: [
           { time: '06:00', tag: '🌅 雲海日出', tagClass: 'tag-spot', title: '松雪樓看日出 ＆ 晨間早餐', desc: '早起看晨光雲海穿透群峰，吃熱騰騰自助早餐後整裝退房。', parking: '' },
-          { time: '08:30', tag: '📸 公路之巔', tagClass: 'tag-spot', title: '武嶺標高 3,275m 拍照留念', desc: '站在台灣公路最高點武嶺亭拍照打卡！早晨陽光充足、空氣透徹，也不容易堵車。', parking: '🅿️ 武嶺停車場' },
-          { time: '09:15', tag: '🚗 輕鬆下山', tagClass: 'tag-ocean', title: '沿台 14 甲順開至清境農場', desc: '一路下坡遠眺中央山脈翠綠山巒，約 35 分鐘即可抵達清境農場。', parking: '🅿️ 青青草原或觀山牧區收費停車場' },
-          { time: '09:50', tag: '🐑 草原尋羊', tagClass: 'tag-nature', title: '青青草原與綿羊近距離互動', desc: '週一為平日雖無固定脫毛秀，但上百隻羊咩咩全在草坡上漫步！買飼料餵羊、摸綿羊鬆軟羊毛、拍無敵山景美照！', parking: '🅿️ 青青草原入口' },
+          { time: '08:30', tag: '📸 公路之巔', tagClass: 'tag-spot', title: '武嶺標高 3,275m 拍照留念', desc: '站在台灣公路最高點武嶺亭拍照打卡！早晨陽光充足、空氣透徹，順暢避開中午塞車。', parking: '🅿️ 武嶺停車場' },
+          { time: '09:00', tag: '🔭 雲端舒展', tagClass: 'tag-nature', title: '合歡山暗空公園鳶峰遊客中心', desc: '台 14 甲 24.3K 順遊中繼站！停留約 20～25 分鐘，上洗手間、漫步木棧觀景台眺望南向壯麗山谷，喝杯熱飲伸展筋骨。', parking: '🅿️ 鳶峰遊客中心停車場' },
+          { time: '09:25', tag: '🚗 出發清境', tagClass: 'tag-ocean', title: '離開鳶峰下山直奔清境農場', desc: '一路下坡順順開，預計 09:55 抵達清境觀山牧區停車場停妥車輛，從容準備看表演。', parking: '' },
+          { time: '09:55', tag: '🐑 草原尋羊', tagClass: 'tag-nature', title: '青青草原與綿羊近距離互動', desc: '週一為平日雖無固定脫毛秀，但上百隻羊咩咩全在草坡上漫步！買飼料餵羊、摸綿羊鬆軟羊毛、拍無敵山景美照！', parking: '🅿️ 青青草原或觀山牧區收費停車場' },
           { time: '10:45', tag: '🐎 特技表演', tagClass: 'tag-spot', title: '觀山牧區馬術秀（每日固定演出）', desc: '準時觀賞 30 分鐘超精彩專業馬術秀！專業蒙古騎士在奔馳馬背上倒立、旋轉與跳躍，氣勢磅礡！', parking: '觀山牧區馬術秀場' },
           { time: '12:00', tag: '🍽️ 在地午餐', tagClass: 'tag-food', title: '下山抵達埔里享用午餐', desc: '順路下山到埔里享用在地熱騰騰小吃美食，好好坐下來放鬆吃飯。', parking: '🅿️ 埔里市區停車場' },
           { time: '14:00', tag: '🏠 舒適返程', tagClass: 'tag-ocean', title: '國 6 接國 3 回中壢', desc: '順順開高速公路，一路聊天聽音樂，平平安安回到中壢！', parking: '預計 16:30 到' }
