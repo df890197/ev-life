@@ -1656,7 +1656,7 @@ html:not(.lite) #v109TabPill { transition: transform .45s cubic-bezier(0.33,1,0.
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v254</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v254-diag</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2192,7 +2192,7 @@ html:not(.lite) #v109TabPill { transition: transform .45s cubic-bezier(0.33,1,0.
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v254</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v254-diag</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2680,7 +2680,7 @@ html:not(.lite) #v109TabPill { transition: transform .45s cubic-bezier(0.33,1,0.
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v254';
+        const APP_VERSION = 'v254-diag';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -3037,8 +3037,9 @@ function cacheDOMNodes() {
                         { transform: `translate(${tx250}, -70px) scale(0.95)`, opacity: '0' },
                         { transform: `translate(${tx250}, 0px) scale(1)`, opacity: '1' }
                     ], { duration: 450, easing: 'cubic-bezier(0.34,1.25,0.64,1)', fill: 'forwards' });
-                    window._v143ToastEnterAnim.onfinish = function() { try { DOM.toast.classList.remove('v145-noblur'); DOM.toast.style.transition = ''; } catch (e) {} window._v143ToastEnterAnim = null; };
-                    window._v143ToastEnterAnim.oncancel = function() { try { DOM.toast.classList.remove('v145-noblur'); DOM.toast.style.transition = ''; } catch (e) {} };
+                    try { if (typeof window._v254diagOnEnter === 'function') window._v254diagOnEnter(window._v143ToastEnterAnim); } catch (e) {} // v254-diag：診斷進場 WAAPI（取樣 opacity／transform）
+                    window._v143ToastEnterAnim.onfinish = function() { try { DOM.toast.classList.remove('v145-noblur'); DOM.toast.style.transition = ''; } catch (e) {} try { if (typeof window._v254diagLog === 'function') window._v254diagLog('enter-finish'); } catch (e) {} window._v143ToastEnterAnim = null; };
+                    window._v143ToastEnterAnim.oncancel = function() { try { DOM.toast.classList.remove('v145-noblur'); DOM.toast.style.transition = ''; } catch (e) {} try { if (typeof window._v254diagLog === 'function') window._v254diagLog('enter-cancel'); } catch (e) {} };
                 }
             } catch (e) {}
             if (typeof window.v105ToastBar === 'function') window.v105ToastBar(duration, isLoading); // v105：倒數條
@@ -10415,5 +10416,63 @@ window.syncHeroScene = function() {
 window.syncHeroScene();
 </script>
 
+<!-- v254-diag：臨時啟動診斷面板（用完即棄，勿當正式版；固定在底部 nav 上方，不蓋頂部通知，pointer-events none 不擋點按） -->
+<div id="v254diagPanel" style="position:fixed;left:8px;right:8px;bottom:calc(112px + env(safe-area-inset-bottom, 0px));z-index:9998;background:rgba(0,0,0,.88);color:#fff;font:10px/1.5 ui-monospace,Menlo,monospace;padding:8px 10px;border-radius:12px;pointer-events:none;white-space:pre-wrap;word-break:break-all;">v254-diag 載入中…</div>
+<script>
+/* v254-diag：啟動 toast 進場診斷（臨時，正式版勿留） */
+(function(){
+  var panel = document.getElementById('v254diagPanel');
+  function set(t){ try { if (panel) panel.textContent = t; } catch(e){} }
+  window._v254diagLogArr = [];
+  window._v254diagLog = function(msg){
+    try {
+      var t = Math.round(performance.now());
+      window._v254diagLogArr.push(t + 'ms ' + msg);
+      if (window._v254diagLogArr.length > 8) window._v254diagLogArr.shift();
+      set('v254-diag t=' + t + 'ms\n' + window._v254diagLogArr.join('\n'));
+    } catch(e){}
+  };
+  window._v254diagLogShow = function(message, duration){
+    try {
+      var lite = document.documentElement.classList.contains('lite');
+      var rm = false; try { rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e){}
+      window._v254diagLog('show: ' + String(message).slice(0,22) + ' dur=' + duration + ' lite=' + (lite?'Y':'N') + ' rm=' + (rm?'Y':'N'));
+    } catch(e){}
+  };
+  window._v254diagOnEnter = function(anim){
+    try {
+      var toastEl = document.getElementById('toast');
+      var t0 = performance.now();
+      window._v254diagLog('enter-start state=' + (anim ? anim.playbackState : 'no-anim'));
+      var n = 0;
+      var iv = setInterval(function(){
+        try {
+          n++;
+          var cs = toastEl ? getComputedStyle(toastEl) : null;
+          var op = cs ? cs.opacity : '?';
+          var tr = cs ? cs.transform : '?';
+          var ty = '?';
+          try { var m = /matrix\([^,]+,[^,]+,[^,]+,[^,]+,[^,]+,([^\)]+)\)/.exec(tr); if (m) ty = Math.round(parseFloat(m[1])); } catch(e){}
+          var st = anim ? anim.playbackState : '?';
+          var ct = anim && anim.currentTime != null ? Math.round(anim.currentTime) : '?';
+          window._v254diagLog('sample' + n + ' +' + Math.round(performance.now()-t0) + 'ms state=' + st + ' ct=' + ct + ' op=' + op + ' ty=' + ty);
+        } catch(e){}
+        if (n >= 6) { clearInterval(iv); }
+      }, 100);
+    } catch(e){}
+  };
+  try {
+    if (!window._v254diagWrapped && typeof window.showToast === 'function') {
+      window._v254diagWrapped = true;
+      var orig = window.showToast;
+      window.showToast = function(message, isError, duration, isLoading, isSuccess){
+        try { window._v254diagLogShow(message, duration); } catch(e){}
+        return orig.apply(this, arguments);
+      };
+    }
+  } catch(e){}
+  window._v254diagLog('diag-ready');
+})();
+</script>
 </body>
 </html>
