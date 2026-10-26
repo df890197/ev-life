@@ -1656,7 +1656,7 @@ html:not(.lite) #v109TabPill { transition: transform .45s cubic-bezier(0.33,1,0.
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v253</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v254</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2192,7 +2192,7 @@ html:not(.lite) #v109TabPill { transition: transform .45s cubic-bezier(0.33,1,0.
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v253</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v254</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2596,6 +2596,8 @@ html:not(.lite) #v109TabPill { transition: transform .45s cubic-bezier(0.33,1,0.
         </div>
     </nav>
 
+    <!-- v254：預生成首則 toast 才用到的 utility — Tailwind Play CDN 動態生成，visible／translate-y-0／opacity-100／pointer-events-auto 只在第一次 toast 顯示時才現生成（初始 HTML 沒有 visible），生成 lag 期間 toast 仍是 invisible，WAAPI 進場在看不見的狀態跑完、生成完直接跳出來＝剛開 App 才會跳出來；App 內後續 toast 因 utility 已生成所以會動。放一個 0 尺寸空 div 在初始 HTML 讓 CDN 一載入就生成，首則啟動 toast（800ms 自動同步）進場就看得見；不影響版面與邏輯 -->
+    <div aria-hidden="true" class="fixed top-0 left-0 w-0 h-0 overflow-hidden visible translate-y-0 opacity-100 pointer-events-auto"></div>
     <div id="toast" class="fixed top-3 left-3 right-3 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-full md:max-w-[420px] z-[9999] transform -translate-y-4 opacity-0 invisible pointer-events-none transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl saturate-150 text-stone-900 dark:text-white p-3 rounded-[28px] shadow-2xl flex items-center justify-center gap-3 border border-white/40 dark:border-white/30">
         <span id="toastIcon" class="w-8 h-8 rounded-[10px] bg-gradient-to-br from-teal-400 to-teal-600 text-white flex items-center justify-center text-base flex-shrink-0 shadow-sm">⚡</span>
         <div class="min-w-0">
@@ -2678,7 +2680,7 @@ html:not(.lite) #v109TabPill { transition: transform .45s cubic-bezier(0.33,1,0.
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v253';
+        const APP_VERSION = 'v254';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
