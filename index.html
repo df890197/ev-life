@@ -676,7 +676,7 @@ input[type="number"] {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAf88sAzYlzVpv6qK6g0rsvDLyz98tCZMU&libraries=places&v=weekly" defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAf88sAzYlzVpv6qK6g0rsvDLyz98tCZMU&libraries=places&v=weekly&language=zh-TW&region=TW" defer></script>
 
     <script>
         (function() {
@@ -1233,6 +1233,16 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
 #view-records .v198-note { font-size: 10.5px !important; } /* v200：備註改回原本 10.5px */
 </style>
 <style id="v208-nav-instant">nav.floating-nav.nav-instant-show { transition: none !important; }</style>
+<style id="v241-home-polish">
+/* v241：首頁質感（陰影層次）— 純加法，不動邊框／顏色／字體／間距／動畫；lite 模式不套用（保留輕量陰影）。 */
+html:not(.lite) #view-home .rpg-card, html:not(.lite) #view-home .v169-outer { box-shadow: 4px 4px 0 rgba(62,58,57,.9), 0 20px 36px -20px rgba(62,58,57,.35) !important; }
+html.dark:not(.lite) #view-home .rpg-card, html.dark:not(.lite) #view-home .v169-outer { box-shadow: inset 0 1px 0 rgba(237,217,163,.12), 0 20px 38px -18px rgba(0,0,0,.55) !important; }
+html:not(.lite) #view-home .rpg-card [class*="bg-stone-50"] { box-shadow: 0 10px 20px -12px rgba(62,58,57,.28) !important; }
+html.dark:not(.lite) #view-home .rpg-card [class*="bg-stone-50"] { box-shadow: 0 10px 22px -10px rgba(0,0,0,.55) !important; }
+html:not(.lite) #view-home .v169-plate .hero-image-container { box-shadow: 0 18px 32px -18px rgba(62,58,57,.32) !important; }
+html.dark:not(.lite) #view-home .v169-plate .hero-image-container { box-shadow: 0 18px 32px -16px rgba(0,0,0,.55) !important; }
+html:not(.lite) #view-home .v165-ehon-card { box-shadow: 0 18px 30px -20px rgba(62,58,57,.30) !important; }
+</style>
 </head>
 <body class="font-sans bg-[#faf8f4] dark:bg-black text-stone-800 dark:text-[#f5f5f4] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative slashed-zero">
 
@@ -1612,7 +1622,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v239</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v241</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2148,7 +2158,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v239</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v241</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2634,7 +2644,7 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v239';
+        const APP_VERSION = 'v241';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -6153,6 +6163,7 @@ if(dH) dH.innerHTML = window.location.protocol === 'file:' ? '🔴 本機檔案�
 let abrpMap = null;
 let abrpDirectionsRenderer = null;
 let currentStartLatLng = null;
+let currentEndLatLng = null; // v240：終點選取存下的座標
 let currentPkRoutes = [];
 let pkRouteCache = {};
 // v7: 高程請求 token，防舊請求覆蓋新結果。每次呼叫 processRouteElevationAndCharging 都發新 token，
@@ -6295,6 +6306,9 @@ window.toggleAbrpPowerFilter = function(type) {
             }
             if (inputId === 'routeStartInput') {
                 currentStartLatLng = null;
+            }
+            if (inputId === 'routeEndInput') { // v240
+                currentEndLatLng = null;
             }
         };
 
@@ -6606,12 +6620,15 @@ function initAbrpAutocomplete() {
                 const endAuto = new google.maps.places.Autocomplete(endInput, options);
                 abrpAutocompleteInstances = { startAuto, endAuto };
                 // v152：使用者手打起點時清掉自動定位標記，下次打開不覆蓋手打值
-                startInput.addEventListener('input', () => { delete startInput.dataset.autoLoc; });
+                startInput.addEventListener('input', () => { delete startInput.dataset.autoLoc; currentStartLatLng = null; }); // v240：手打起點同時清掉選取存下的座標
+                endInput.addEventListener('input', () => { currentEndLatLng = null; }); // v240：手打終點同時清掉選取存下的座標
 
                 // 🎯 起點選取後，強制保留地標景點名稱（避免被 Google 覆寫成純地址）
                 startAuto.addListener("place_changed", () => {
                     delete startInput.dataset.autoLoc; // v152：使用者選的地址不自動刷新
                     const place = startAuto.getPlace();
+                    // v240：選取後存下座標，規劃優先用座標（不送裸地名給 Routes API）
+                    if (place && place.geometry && place.geometry.location) currentStartLatLng = place.geometry.location;
                     if (place && place.name) {
                         startInput.value = place.name;
                     }
@@ -6621,6 +6638,8 @@ function initAbrpAutocomplete() {
                 // 🎯 終點選取後，強制保留地標景點名稱
                 endAuto.addListener("place_changed", () => {
                     const place = endAuto.getPlace();
+                    // v240：選取後存下座標，規劃優先用座標（不送裸地名給 Routes API）
+                    if (place && place.geometry && place.geometry.location) currentEndLatLng = place.geometry.location;
                     if (place && place.name) {
                         endInput.value = place.name;
                     }
@@ -7053,11 +7072,15 @@ window.planElectricRoute = async function() {
     pkRouteCache = {}; // 每次點擊模擬新規劃時重設快取
     invalidateAllElevationRequests();
     let startLoc = document.getElementById('routeStartInput')?.value.trim();
-    const endLoc = document.getElementById('routeEndInput')?.value.trim();
+    let endLoc = document.getElementById('routeEndInput')?.value.trim();
     const startSoc = parseFloat(document.getElementById('routeStartSoc')?.value) || 90;
 
     if (!startLoc || !endLoc) { showToast("請輸入出發地與目的地！📍", true); if (!startLoc) window.shakeV83(document.getElementById('routeStartInput')); if (!endLoc) window.shakeV83(document.getElementById('routeEndInput')); return; }
     if (!window.google?.maps) { showToast("Google 地圖服務載入中，請稍候", true); return; }
+
+    // v240：選取過建議的起訖點優先用存下的座標（不送裸地名給 Routes API，避免英文路名被解讀到別的國家）；沒座標才用文字。
+    if (currentStartLatLng) startLoc = currentStartLatLng;
+    if (currentEndLatLng) endLoc = currentEndLatLng;
 
     if (typeof startLoc === 'string' && (startLoc.includes("目前位置") || startLoc.includes("定位中"))) {
         if (currentStartLatLng) startLoc = currentStartLatLng;
