@@ -328,8 +328,8 @@ input[type="number"] {
         .v91-battery-track { height: 10px; border-radius: 9999px; background: #e7e5e4; overflow: hidden; }
         .dark .v91-battery-track { background: #292524; }
         .v91-battery-fill { height: 100%; border-radius: 9999px; background: #14b8a6; transition: width 0.3s cubic-bezier(0.22,1,0.36,1), background 0.3s ease; }
-        .v91-sticky-save { position: sticky; bottom: 68px; z-index: 20; display: flex; flex-direction: column; align-items: center; } /* v95：貼齊就好，bottom 70px -> 68px，0 間隙貼齊底部 bar 上緣 */
-        @media (min-width: 768px) { .v91-sticky-save { bottom: 76px; } }
+        .v91-sticky-save { position: sticky; bottom: 84px; z-index: 20; display: flex; flex-direction: column; align-items: center; } /* v259：使用者說太下面，0 間隙貼齊改留 16px 空隙（bottom 68px -> 84px，跟表單 space-y-4 同寬） */
+        @media (min-width: 768px) { .v91-sticky-save { bottom: 92px; } }
         /* v92：儲存按鈕精緻化 — 小一點、pill、更貼齊下面 */
         .v92-save-btn { width: auto !important; min-width: 120px !important; max-width: 200px !important; padding: 0.6rem 1.25rem !important; font-size: 0.8125rem !important; border-radius: 9999px !important; box-shadow: 0 4px 12px rgba(13,148,136,0.3) !important; } /* v95：還是很大，再小一點（140px -> 120px，padding 1.5rem -> 1.25rem），貼齊就好 */
         /* v98：首頁 A — 保持資訊，卡片分組＋留白（不收合、不藏東西） */
@@ -1656,7 +1656,7 @@ html:not(.lite) #v109TabPill { transition: transform .45s cubic-bezier(0.33,1,0.
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v258</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v259</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2192,7 +2192,7 @@ html:not(.lite) #v109TabPill { transition: transform .45s cubic-bezier(0.33,1,0.
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v258</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v259</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2680,7 +2680,7 @@ html:not(.lite) #v109TabPill { transition: transform .45s cubic-bezier(0.33,1,0.
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v258';
+        const APP_VERSION = 'v259';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -3027,7 +3027,9 @@ function cacheDOMNodes() {
 
             // v256：進場改走 CSS（取代 WAAPI）— v255 實機證明強制重排也救不回 WAAPI 進場（啟動同步通知 3.2 秒無、3.3 秒全顯示、無中間幀，仍是跳出）；退場 WAAPI 本來就有動畫、維持不動。CSS 過渡是分頁／pill 動畫同一路（實機看得見）。做法：先設初始態（偏上 64px／縮 0.95／透明／隱藏）→ 強制重排提交 → 雙 rAF 後設最終態，transition-all 400ms＋easeOutCubic 滑順掉下來（v258：曲線改 (0.33,1,0.68,1)＋時間 300→400ms，使用者說順還可以更順）；lite／減少動態直接設最終態（沿用舊的 class 過渡，不跑 WAAPI）。
             const _v256ToastBase = `fixed top-3 left-3 right-3 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-full md:max-w-[420px] z-[9999] transform transition-all duration-[400ms] ease-[cubic-bezier(0.33,1,0.68,1)] p-3 rounded-[28px] shadow-2xl flex items-center justify-center gap-3 border text-left leading-relaxed ${colorClasses}`;
-            DOM.toast.className = _v256ToastBase + ' -translate-y-16 scale-95 opacity-0 invisible pointer-events-none';
+            const _v259FadeIn = !!window._v259ToastSwitchFade; // v259：切換時淡入（位置已在最終位置，只淡不掉）
+            window._v259ToastSwitchFade = false; // 消費一次，之後的新通知回復掉下來
+            DOM.toast.className = _v256ToastBase + (_v259FadeIn ? ' translate-y-0 scale-100 opacity-0 invisible pointer-events-none' : ' -translate-y-16 scale-95 opacity-0 invisible pointer-events-none');
             if (window._v143ToastExitAnim) { window._v143ToastExitAnim.cancel(); window._v143ToastExitAnim = null; } // v143：清掉退場動畫殘留
             try { if (window._v143ToastEnterAnim) { window._v143ToastEnterAnim.cancel(); window._v143ToastEnterAnim = null; } } catch (e) {}
             if (!document.documentElement.classList.contains('lite') && !window.matchMedia('(prefers-reduced-motion: reduce)').matches && window.requestAnimationFrame) {
@@ -3048,6 +3050,13 @@ function cacheDOMNodes() {
             window._toastAutoTimer = setTimeout(() => {
                 window._toastExiting = true; // v213：退場進行中，拖曳忽略
                 try { if (window._v143ToastEnterAnim) { window._v143ToastEnterAnim.cancel(); window._v143ToastEnterAnim = null; } } catch (e) {} // v250：退場前清進場 WAAPI，避免兩支 WAAPI 搶 transform
+                // v259：切換淡入淡出（只在排隊有下一則且非 lite／非減少動態時）— 舊通知往上縮退場＋空白 182ms＋新通知掉下來，上空下連續跳就是抖一下；切換時舊的只淡出（位置不動、不跑 WAAPI），下一則改淡入（見 process 的 _v259FadeIn），高度／文字／顏色在隱藏那一刻換掉（看不見跳變），中間沒有空白。從空的狀態出現（排隊空）仍走原本掉下來，lite／減少動態不動。
+                const _v259Switch = toastQueue.length > 0 && !document.documentElement.classList.contains('lite') && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                if (_v259Switch) {
+                    window._v259ToastSwitchFade = true;
+                    try { DOM.toast.classList.add('v145-noblur'); } catch (e) {} // 淡出期間關毛玻璃（跟退場同款）
+                    try { DOM.toast.classList.replace('opacity-100', 'opacity-0'); } catch (e) {} // 只換透明度，不動 translate（位置停在最終位置，只淡不出縮）
+                }
                 // v146：退場由大縮小＋往上滑回（使用者指定），改用 WAAPI transform 單一機制
                 // （置中位移直接寫進 keyframes）。v143–v145 用 translate/scale 獨立屬性，在
                 // iOS 上與 Tailwind 置中 transform 合成不乾淨（殘影、縮放中心偏移）；
@@ -3057,7 +3066,7 @@ function cacheDOMNodes() {
                 // （實機影片：縮回時圖示出現兩份）。改成兩條路互斥：有 WAAPI 就不碰 class。
                 let exitAnimated = false;
                 try {
-                    if (DOM.toast && DOM.toast.animate && !document.documentElement.classList.contains('lite') && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    if (DOM.toast && DOM.toast.animate && !document.documentElement.classList.contains('lite') && !window.matchMedia('(prefers-reduced-motion: reduce)').matches && !_v259Switch) {
                         const tx146 = window.matchMedia('(min-width: 768px)').matches ? '-50%' : '0px';
                         DOM.toast.style.transformOrigin = '50% 50%';
                         DOM.toast.classList.add('v145-noblur'); // 動畫期間關毛玻璃防 iOS 合成殘影
@@ -3068,7 +3077,7 @@ function cacheDOMNodes() {
                         exitAnimated = true;
                     }
                 } catch (e) { /* 動畫失敗不影響隱藏流程 */ }
-                if (!exitAnimated) {
+                if (!exitAnimated && !_v259Switch) {
                     DOM.toast.classList.replace('translate-y-0', '-translate-y-4');
                     DOM.toast.classList.replace('opacity-100', 'opacity-0');
                 }
@@ -3079,7 +3088,10 @@ function cacheDOMNodes() {
                     window._toastAutoTimer = null; // v213：計時已跑完
                     window._toastCurrentMessage = null; // v215
                     isToastShowing = false;
-                    if (toastQueue.length > 0) setTimeout(processToastQueue, 150);
+                    if (toastQueue.length > 0) {
+                        if (window._v259ToastSwitchFade) processToastQueue(); // v259：切換不留 150ms 空白，淡出完馬上接下一則（透明交接一幀）
+                        else setTimeout(processToastQueue, 150);
+                    }
                 }, 300);
             }, duration);
         }
@@ -3193,6 +3205,7 @@ function cacheDOMNodes() {
             try { if (window._v143ToastEnterAnim) { window._v143ToastEnterAnim.cancel(); window._v143ToastEnterAnim = null; } } catch (e) {} // v250：清掉進場 WAAPI（fill 壓住 opacity 1 會蓋掉 class 隱藏）
             try { if (window._v143ToastExitAnim) { window._v143ToastExitAnim.cancel(); window._v143ToastExitAnim = null; } } catch (e) {}
             window._toastCurrentMessage = null; // v215
+            window._v259ToastSwitchFade = false; // v259：清掉切換旗標，避免下一則新通知誤用淡入
             isToastShowing = false;
             if (typeof window.v105ToastBar === 'function') window.v105ToastBar(0); // v105：倒數條取消
             if (DOM.toast) {
