@@ -1656,7 +1656,7 @@ html:not(.lite) #v109TabPill { transition: transform .45s cubic-bezier(0.33,1,0.
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v251</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v252</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2192,7 +2192,7 @@ html:not(.lite) #v109TabPill { transition: transform .45s cubic-bezier(0.33,1,0.
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v251</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v252</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2678,7 +2678,7 @@ html:not(.lite) #v109TabPill { transition: transform .45s cubic-bezier(0.33,1,0.
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v251';
+        const APP_VERSION = 'v252';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -3024,18 +3024,19 @@ function cacheDOMNodes() {
 
             DOM.toast.className = `fixed top-3 left-3 right-3 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-full md:max-w-[420px] z-[9999] transform transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] p-3 rounded-[28px] shadow-2xl flex items-center justify-center gap-3 border text-left leading-relaxed ${colorClasses} translate-y-0 opacity-100 visible pointer-events-auto`;
             if (window._v143ToastExitAnim) { window._v143ToastExitAnim.cancel(); window._v143ToastExitAnim = null; } // v143：清掉退場動畫殘留
-            // v250：進場補 WAAPI — 原本只設 class＋清退場 WAAPI，退場 WAAPI 的 fill 壓住 opacity 0，取消時直接跳到 class 值、沒有過渡，看起來就是彈下來沒動畫；退場有 WAAPI 所以有動畫，兩邊不對稱。進場比照退場跑 WAAPI：從上＋微縮＋透明 → 原位＋原大＋不透明，結束狀態與 class 一致、不跳；lite／減少動態不跑、維持 class 直接顯示
+            // v252：進場重修 — v250 進場 WAAPI 在實機仍直接跳出來（影片逐幀確認：0.1 秒內從無到全顯示、無中間幀），因進場仍是雙驅動（class transition-all＋WAAPI 同時驅動 transform／opacity，iOS 上 class 過渡蓋掉 WAAPI；退場 v180 已用互斥修好、進場當時沒跟著做）。修法：進場 WAAPI 期間以 style.transition='none' 壓住 class 過渡（只剩 WAAPI 驅動），結束／取消時還原；另比照影片開頭系統通知（從螢幕外上方掉下來、看得很清楚），進場改從 -70px 上方掉下來（原 -18px 太小、像淡入不像掉下來）、450ms＋輕彈簧收尾（非 tab 1.56 那種大回彈），讓掉下來看得見。lite／減少動態不跑
             try {
                 if (window._v143ToastEnterAnim) { window._v143ToastEnterAnim.cancel(); window._v143ToastEnterAnim = null; }
                 if (DOM.toast && DOM.toast.animate && !document.documentElement.classList.contains('lite') && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                     const tx250 = window.matchMedia('(min-width: 768px)').matches ? '-50%' : '0px';
                     DOM.toast.classList.add('v145-noblur'); // 動畫期間關毛玻璃防 iOS 合成殘影（退場同款）
+                    DOM.toast.style.transition = 'none'; // v252：壓住 class transition-all，進場只剩 WAAPI 驅動（互斥，否則 iOS 上雙驅動直接跳出來）
                     window._v143ToastEnterAnim = DOM.toast.animate([
-                        { transform: `translate(${tx250}, -18px) scale(0.92)`, opacity: '0' },
+                        { transform: `translate(${tx250}, -70px) scale(0.95)`, opacity: '0' },
                         { transform: `translate(${tx250}, 0px) scale(1)`, opacity: '1' }
-                    ], { duration: 320, easing: 'cubic-bezier(0.22,1,0.36,1)', fill: 'forwards' });
-                    window._v143ToastEnterAnim.onfinish = function() { try { DOM.toast.classList.remove('v145-noblur'); } catch (e) {} window._v143ToastEnterAnim = null; };
-                    window._v143ToastEnterAnim.oncancel = function() { try { DOM.toast.classList.remove('v145-noblur'); } catch (e) {} };
+                    ], { duration: 450, easing: 'cubic-bezier(0.34,1.25,0.64,1)', fill: 'forwards' });
+                    window._v143ToastEnterAnim.onfinish = function() { try { DOM.toast.classList.remove('v145-noblur'); DOM.toast.style.transition = ''; } catch (e) {} window._v143ToastEnterAnim = null; };
+                    window._v143ToastEnterAnim.oncancel = function() { try { DOM.toast.classList.remove('v145-noblur'); DOM.toast.style.transition = ''; } catch (e) {} };
                 }
             } catch (e) {}
             if (typeof window.v105ToastBar === 'function') window.v105ToastBar(duration, isLoading); // v105：倒數條
