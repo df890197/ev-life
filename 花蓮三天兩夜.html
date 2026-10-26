@@ -859,21 +859,21 @@
         <h2 class="section-title">花蓮市區私房行程評估</h2>
         
         <div style="margin-bottom: 14px;">
-          <div style="font-weight: 900; font-size: 0.9rem; margin-bottom: 6px;">🍴 午餐三選一（停留 1 小時）</div>
+          <div style="font-weight: 900; font-size: 0.9rem; margin-bottom: 6px;">🍴 午餐推薦首選（停留 1 小時）</div>
           <div class="compare-choice best">
-            <span class="choice-badge top">⭐ 最推薦</span>
+            <span class="choice-badge top">⭐ 本次首選</span>
+            <div style="font-weight: 900; font-size: 0.88rem;">家咖哩（花蓮將軍府店）<span class="alt-badge">⛰️ 15m</span></div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">位於百年檜木眷舍將軍府 1936 園區內，主打花蓮小農現磨香料咖哩、有機野菜與富里米，醬汁與米飯皆可免費續加，氣氛幽靜舒適。</div>
+          </div>
+          <div class="compare-choice">
+            <span class="choice-badge sub">同園區備選</span>
             <div style="font-weight: 900; font-size: 0.88rem;">定置漁場三代目（將軍府店）<span class="alt-badge">⛰️ 15m</span></div>
-            <div style="font-size: 0.78rem; color: var(--text-muted);">百年檜木日式老宿舍群，品嚐現熬膠原魚白湯拉麵，氣氛很棒也能順便散散步。</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">主打花蓮現熬膠原魚白湯拉麵。</div>
           </div>
           <div class="compare-choice">
-            <span class="choice-badge sub">備選</span>
+            <span class="choice-badge sub">排餐備選</span>
             <div style="font-weight: 900; font-size: 0.88rem;">歐鄉牛排館（花蓮店）<span class="alt-badge">⛰️ 15m</span></div>
-            <div style="font-size: 0.78rem; color: var(--text-muted);">在地老字號牛排館，沙拉吧與前菜豐富，想大口吃肉可以選。</div>
-          </div>
-          <div class="compare-choice">
-            <span class="choice-badge sub">備選</span>
-            <div style="font-weight: 900; font-size: 0.88rem;">家咖哩（總店）<span class="alt-badge">⛰️ 15m</span></div>
-            <div style="font-size: 0.78rem; color: var(--text-muted);">在地小農有機香料咖哩老宅。</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">在地老字號牛排館，沙拉吧與前菜豐富，大口吃肉選擇。</div>
           </div>
         </div>
 
@@ -936,9 +936,14 @@
 
       </div>
 
-      <!-- 清境農場表演重要須知 -->
+      <!-- 清境農場表演與美食備忘 -->
       <div class="box-card">
-        <h2 class="section-title">清境農場表演重要時段備忘</h2>
+        <h2 class="section-title">清境高山美食 ＆ 表演時段備忘</h2>
+        <div class="compare-choice best" style="margin-bottom: 10px;">
+          <span class="choice-badge top">⭐ Day 3 午餐首選</span>
+          <div style="font-weight: 900; font-size: 0.88rem;">清境魯媽媽雲南擺夷料理<span class="alt-badge">⛰️ 2,044m</span></div>
+          <div style="font-size: 0.78rem; color: var(--text-muted);">清境最具人氣的高山景觀餐廳！觀山牧區看畢 10:45 馬術秀後，開車 6 分鐘即達。推薦錦灑、椒麻雞、酸木瓜雞湯、當歸碎葉烘蛋，坐擁合歡山壯麗群峰絕景！</div>
+        </div>
         <div class="market-box" style="background-color: var(--mountain-light);">
           <span class="market-zone-tag" style="background-color: var(--mountain-green);">🐎 馬術秀（每日皆有演出）</span>
           <div style="font-size: 0.82rem; font-weight: 700;">● 表演時間：每日 10:45 ＆ 15:45（每場約 30 分鐘）</div>
@@ -1033,7 +1038,7 @@
   </main>
 
   <script>
-    // 1. 三天行程資料 (經精確推算的時間鏈條)
+    // 1. 三天行程資料 (Day 3 中午更新為 清境魯媽媽雲南擺夷料理)
     const tripData = {
       1: {
         tag: 'Day 1',
@@ -1045,7 +1050,7 @@
           { time: '08:00', tag: '☕ 休息中繼', tagClass: 'tag-food', title: '國 5 蘇澳服務區', stay: '停留 30 分鐘', leave: '08:30 離', desc: '下車上洗手間、伸展筋骨買杯熱咖啡。', parking: '🅿️ 服務區大型平面車位', alt: '15m', drive: '112 km / 1h 25m' },
           { time: '10:00', tag: '🍋 順路買冰飲', tagClass: 'tag-food', title: '新城佳興冰菓店', stay: '停留 20 分鐘', leave: '10:20 離', desc: '外帶招牌冷凍檸檬汁放車上杯架，等下接到人就可以直接暢飲。', parking: '🅿️ 門前短暫臨停', alt: '25m', drive: '73.3 km / 1h 30m' },
           { time: '10:45', tag: '🤝 車站碰面', tagClass: 'tag-spot', title: '花蓮火車站接朋友', stay: '停留 25 分鐘', leave: '11:10 離', desc: '準時碰面！車內冷氣開好舒服涼爽，喝檸檬汁直接出發！', parking: '🅿️ 前後站智慧立體停車場', alt: '15m', drive: '17.5 km / 25m' },
-          { time: '11:20', tag: '🍜 老宅午餐', tagClass: 'tag-food', title: '定置漁場三代目（將軍府店）', stay: '停留 70 分鐘', leave: '12:30 離', desc: '【私房午餐首選】在百年日式宿舍群裡吃現熬鮮魚白湯拉麵，吃飽順便在林蔭散步拍照。', parking: '🅿️ 將軍府專屬停車場或中正路車格', alt: '15m', drive: '3.2 km / 10m' },
+          { time: '11:20', tag: '🍛 老宅午餐', tagClass: 'tag-food', title: '家咖哩（花蓮將軍府店）', stay: '停留 70 分鐘', leave: '12:30 離', desc: '【私房午餐首選】在百年日式宿舍將軍府 1936 園區品嚐在地小農有機香料咖哩（咖哩醬與富里米可免費續加），吃飽漫步檜木老宅林蔭。', parking: '🅿️ 將軍府專屬停車場或中正路車格', alt: '15m', drive: '3.2 km / 10m' },
           { time: '12:55', tag: '☕ 水岸咖啡', tagClass: 'tag-spot', title: 'STARBUCKS 花蓮理想門市', stay: '停留 55 分鐘', leave: '13:50 離', desc: '【童話下午茶】歐洲童話風木屋配落羽松湖景，拍照好看，而且離下一站鯉魚潭只要 16 分鐘！', parking: '🅿️ 園區專屬停車場', alt: '20m', drive: '16.5 km / 25m' },
           { time: '14:06', tag: '🌲 湖光山色', tagClass: 'tag-nature', title: '鯉魚潭風景區', stay: '停留 50 分鐘', leave: '14:56 離', desc: '花蓮最大的天然湖泊，漫步環潭木棧道吹吹微風、看群山倒影。', parking: '🅿️ 潭北遊客中心停車場', alt: '140m', drive: '10.5 km / 16m' },
           { time: '15:21', tag: '🥞 經典點心', tagClass: 'tag-food', title: '炸彈蔥油餅 ＆ 蔡記豆花 ＆ 文創漫步', stay: '停留 40 分鐘', leave: '16:01 離', desc: '回市區必吃！外帶復興街爆漿蔥油餅，再至民國路吃蔡記豆花（招牌薏仁牛奶豆花、仙草奶凍），順遊隔壁花蓮文創園區老酒廠紅磚倉庫。', parking: '🅿️ 花蓮文創園區收費停車場', alt: '15m', drive: '16 km / 25m' },
@@ -1053,7 +1058,7 @@
           { time: '16:35', tag: '🌊 海風浪花', tagClass: 'tag-ocean', title: '太平洋公園海堤（或順路拍貨櫃星巴克）', stay: '停留 25 分鐘', leave: '17:00 離', desc: '吃飽順路開往南濱海堤看海吹風消食（想拍白色貨櫃屋也可順路至洄瀾門市），離兩間民宿僅 4 分鐘超順！', parking: '🅿️ 南濱段大停車場', alt: '10m', drive: '1.8 km / 5m' },
           { time: '17:04', tag: '🏨 入住放行李', tagClass: 'tag-spot', title: '各自民宿 Check-in 稍作休息', stay: '停留 55 分鐘', leave: '18:00 離', desc: '前往民宿放行李：我與屁祥金主入住「今古安民宿」、佑哥金主夫妻入住「S.E.A.民宿」。整頓後一起步行出發逛東大門！', parking: '🅿️ 各自民宿專屬車位／周邊路格', alt: '15m', drive: '1.2 km / 4m' },
           { time: '18:08', tag: '🍢 夜市吃透透', tagClass: 'tag-food', title: '東大門夜市老饕巡禮', stay: '停留 2.5 小時', leave: '20:40 離', desc: '集合開吃玉里臭豆腐、林記烤玉米、蔣家官財板與新鮮現打果汁！', parking: '🚶 步行前往或停放重慶路周邊停車格', alt: '15m', drive: '步行 700m / 8m' },
-          { time: '20:45', tag: '🌙 宵夜續攤', tagClass: 'tag-food', title: '公正包子 ＆ 周家蒸餃', stay: '外帶回民宿', leave: '晚安好夢', desc: '夜市回程外帶熱騰騰小籠包與蒸餃，帶回民宿配茶聊天當宵夜！', parking: '🅿️ 仁愛街門市周邊短暫臨停', alt: '15m', drive: '1 km / 3m' }
+          { time: '21:00', tag: '🌙 宵夜續攤', tagClass: 'tag-food', title: '公正包子 ＆ 周家蒸餃', stay: '外帶回民宿', leave: '晚安好夢', desc: '夜市回程外帶熱騰騰小籠包與蒸餃，帶回民宿配茶聊天當宵夜！', parking: '🅿️ 仁愛街門市周邊短暫臨停', alt: '15m', drive: '1 km / 3m' }
         ]
       },
       2: {
@@ -1078,7 +1083,7 @@
       },
       3: {
         tag: 'Day 3',
-        title: '武嶺打卡 ＋ 鳶峰觀景 ＋ 清境青青草原尋羊 ＆ 馬術秀',
+        title: '武嶺打卡 ＋ 清境青青草原尋羊 ＆ 馬術秀 ＋ 魯媽媽高山饗宴',
         hotel: '🏠 終點：平安回到中壢 (海拔 130m)',
         icon: '🐑',
         timeline: [
@@ -1086,9 +1091,9 @@
           { time: '08:20', tag: '📸 公路之巔', tagClass: 'tag-spot', title: '武嶺標高 3,275m 拍照留念', stay: '停留 20 分鐘', leave: '08:40 離', desc: '站在台灣公路最高點武嶺亭拍照打卡！早晨陽光充足、空氣透徹，也不容易堵車。', parking: '🅿️ 武嶺停車場', alt: '3,275m', drive: '1.6 km / 5m' },
           { time: '08:55', tag: '🌲 暗空展望', tagClass: 'tag-nature', title: '暗空公園鳶峰遊客中心', stay: '停留 20 分鐘', leave: '09:15 離', desc: '下山中繼休息 20 分鐘！走上開闊木棧觀景平台眺望合歡南峰壯麗山谷，上洗手間舒展。', parking: '🅿️ 鳶峰遊客中心停車場', alt: '2,756m', drive: '7.5 km / 15m' },
           { time: '09:40', tag: '🐑 草原尋羊', tagClass: 'tag-nature', title: '清境農場（青青草原尋羊）', stay: '停留 60 分鐘', leave: '10:40 移步秀場', desc: '抵達清境停車入園！上百隻羊咩咩全在草坡上漫步，買飼料餵羊、摸綿羊鬆軟羊毛、拍山景美照！', parking: '🅿️ 青青草原停車場', alt: '1,750m', drive: '15 km / 25m' },
-          { time: '10:45', tag: '🐎 特技表演', tagClass: 'tag-spot', title: '觀山牧區馬術秀（每日固定演出）', stay: '觀賞 35 分鐘', leave: '11:20 離', desc: '準時觀賞 30 分鐘超精彩專業馬術秀！專業蒙古騎士在奔馳馬背上倒立、旋轉與跳躍，氣勢磅礡！', parking: '觀山牧區馬術秀場', alt: '1,750m', drive: '園區步道步行' },
-          { time: '12:05', tag: '🍽️ 在地午餐', tagClass: 'tag-food', title: '下山抵達埔里享用午餐', stay: '停留 75 分鐘', leave: '13:20 離', desc: '順路下山到埔里享用在地熱騰騰小吃美食，好好坐下來放鬆吃飯。', parking: '🅿️ 埔里市區停車場', alt: '450m', drive: '32 km / 45m' },
-          { time: '16:00', tag: '🏠 舒適返程', tagClass: 'tag-ocean', title: '國 6 接國 3 回中壢', stay: '平安抵達', leave: '旅程圓滿結束', desc: '順順開高速公路，一路聊天聽音樂，平平安安回到中壢溫暖的家！', parking: '到家', alt: '130m', drive: '175 km / 2h 20m (留 20m 緩衝)' }
+          { time: '10:45', tag: '🐎 特技表演', tagClass: 'tag-spot', title: '觀山牧區馬術秀（每日固定演出）', stay: '觀賞 35 分鐘', leave: '11:20 取車', desc: '準時觀賞 30 分鐘超精彩專業馬術秀！專業蒙古騎士在奔馳馬背上倒立、旋轉與跳躍，氣勢磅礡！', parking: '觀山牧區馬術秀場', alt: '1,750m', drive: '園區步道步行' },
+          { time: '11:30', tag: '🍲 滇味盛宴', tagClass: 'tag-food', title: '清境魯媽媽雲南擺夷料理', stay: '停留 80 分鐘', leave: '12:50 離', desc: '【高山絕景午餐】海拔 2,044m 景觀餐廳！品嚐招牌錦灑、包糯米椒麻雞、酸木瓜雞湯與當歸葉烘蛋，吃飽喝足遠眺合歡群峰！', parking: '🅿️ 餐廳專屬停車場 (車程約 6～8 分)', alt: '2,044m', drive: '2.9 km / 8m' },
+          { time: '16:20', tag: '🏠 舒適返程', tagClass: 'tag-ocean', title: '台 14 甲 ➔ 國 6 接國 3 回中壢', stay: '平安抵達', leave: '旅程圓滿結束', desc: '順順開下山接國 6 與國 3，一路聊天聽音樂，平平安安回到中壢溫暖的家！', parking: '到家', alt: '130m', drive: '224 km / 3h 15m (留 15m 緩衝)' }
         ]
       }
     };
