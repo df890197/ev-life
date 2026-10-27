@@ -1293,6 +1293,12 @@ html:not(.lite) .view-section.active { animation: visionSpatialReveal 0.75s line
 html:not(.lite) .view-section.active.v127-dir-r { animation: visionSpatialReveal 0.75s linear forwards; }
 html:not(.lite) .view-section.active.v127-dir-l { animation: visionSpatialReveal 0.75s linear forwards; }
 }</style>
+<style id="v266-enter-06">/* v266：進場時間 0.75s→0.6s（使用者選 0.6 秒；linear 維持、v264 純下面往上維持、淡入起終點不動）＋pointerdown 先建圖層（第 3 項，見下方 JS）；只覆蓋分頁進場三條規則（與 v251／v264／v265 同選擇器、同 no-preference 包法、位置在後，後出者勝），pill 曲線（v251 0.45s easeOutCubic）不動、lite／減少動態排除在外；想改回去刪掉本區塊即可（時間回 0.75s） */
+@media (prefers-reduced-motion: no-preference) {
+html:not(.lite) .view-section.active { animation: visionSpatialReveal 0.6s linear forwards; }
+html:not(.lite) .view-section.active.v127-dir-r { animation: visionSpatialReveal 0.6s linear forwards; }
+html:not(.lite) .view-section.active.v127-dir-l { animation: visionSpatialReveal 0.6s linear forwards; }
+}</style>
 </head>
 <body class="font-sans bg-[#faf8f4] dark:bg-black text-stone-800 dark:text-[#f5f5f4] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative slashed-zero">
 
@@ -1672,7 +1678,7 @@ html:not(.lite) .view-section.active.v127-dir-l { animation: visionSpatialReveal
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v265</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v266</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2208,7 +2214,7 @@ html:not(.lite) .view-section.active.v127-dir-l { animation: visionSpatialReveal
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v265</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v266</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2696,7 +2702,7 @@ html:not(.lite) .view-section.active.v127-dir-l { animation: visionSpatialReveal
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v265';
+        const APP_VERSION = 'v266';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -3778,6 +3784,25 @@ function cacheDOMNodes() {
             currentTabId = tabId; // v72：更新目前分頁
             window._switchRan210 = true; // v210：已有一次成功切換，之後同分頁點按直接忽略
         };
+
+        // v266：第 3 項按下去先建圖層 — 進場第一幀現建現算最易卡；pointerdown（手指碰到按鈕／滑鼠按下，比 click 早一步）就先把目標頁的 will-change 建好，切換時圖層已在、第一幀不用現決定建層；1.5 秒後清掉行內設定（切換成功則 CSS 的 active will-change 接手，沒切換也不會殘留圖層；點陣化本身仍在進場時算，這項省的是建層決定的那一下）
+        (function () {
+            var timers = {};
+            function prePromote(tabId) {
+                try {
+                    var view = document.getElementById('view-' + tabId);
+                    if (!view) return;
+                    if (timers[tabId]) clearTimeout(timers[tabId]);
+                    view.style.willChange = 'transform, opacity';
+                    timers[tabId] = setTimeout(function () { try { view.style.willChange = ''; } catch (e) {} }, 1500);
+                } catch (e) {}
+            }
+            document.querySelectorAll('.tab-btn').forEach(function (btn) {
+                btn.addEventListener('pointerdown', function () {
+                    try { prePromote(btn.id.replace('tab-', '')); } catch (e) {}
+                }, { passive: true });
+            });
+        })();
 
         window.addEventListener('resize', () => {
             const activeBtn = document.querySelector('.tab-btn.active');
