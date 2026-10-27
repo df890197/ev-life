@@ -1281,6 +1281,11 @@ html:not(.lite) #v109TabPill { transition: transform .45s cubic-bezier(0.33,1,0.
 @media (prefers-reduced-motion: no-preference) {
 html:not(.lite) #v109TabPill { transition: transform .75s cubic-bezier(0.33,1,0.68,1), width .75s cubic-bezier(0.33,1,0.68,1), opacity .2s ease; }
 }</style>
+<style id="v261-page-noscale">/* v261：換頁進場去縮放 — 整頁進場動畫會卡，scale 讓整頁（含毛玻璃卡片、地圖）每幀重畫最貴；只拿掉三組 keyframes 的 scale，位移＋淡入保留，時間 0.75s、距離（40px／38px＋26px）、曲線 easeOutCubic、lite（animation none，本來就不跑 keyframes）全不動；想改回去刪掉本區塊即可 */
+@keyframes visionSpatialReveal { 0% { opacity: 0; transform: translateY(40px); } 100% { opacity: 1; transform: translateY(0); } }
+@keyframes v127RevealR { 0% { opacity: 0; transform: translateX(38px) translateY(26px); } 100% { opacity: 1; transform: translateX(0) translateY(0); } }
+@keyframes v127RevealL { 0% { opacity: 0; transform: translateX(-38px) translateY(26px); } 100% { opacity: 1; transform: translateX(0) translateY(0); } }
+</style>
 </head>
 <body class="font-sans bg-[#faf8f4] dark:bg-black text-stone-800 dark:text-[#f5f5f4] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative slashed-zero">
 
@@ -1660,7 +1665,7 @@ html:not(.lite) #v109TabPill { transition: transform .75s cubic-bezier(0.33,1,0.
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v260</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v261</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2196,7 +2201,7 @@ html:not(.lite) #v109TabPill { transition: transform .75s cubic-bezier(0.33,1,0.
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v260</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v261</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2684,7 +2689,7 @@ html:not(.lite) #v109TabPill { transition: transform .75s cubic-bezier(0.33,1,0.
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v260';
+        const APP_VERSION = 'v261';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -6358,8 +6363,10 @@ window.toggleAbrpPowerFilter = function(type) {
             endInput.value = tempVal;
             delete startInput.dataset.autoLoc; // v152：對調後起點視為使用者選定，不自動刷新
 
-            // 3. 重設定位暫存與快取 (避免原起點座標影響新終點)
-            currentStartLatLng = null;
+            // 3. 對調座標暫存 (v261：之前只清起點、終點留舊座標，回程會送出同點請求；改為兩邊互換，文字與座標永遠同向)
+            const _swapLatLng = currentStartLatLng;
+            currentStartLatLng = currentEndLatLng;
+            currentEndLatLng = _swapLatLng;
             pkRouteCache = {};
             invalidateAllElevationRequests();
             currentPkRoutes = [];
@@ -7119,6 +7126,36 @@ window.planElectricRoute = async function() {
     window._fx160DrawArmed = true; window._fx160ConfettiArmed = true; // v160
     // v253：刪規劃中 toast — 按開始模擬路線上面跳兩次（規劃中一跳＋完成又一跳），按鈕忙碌態（路線模擬中…＋流光＋disabled 防重按）已是進行中回饋，規劃中 toast 是多餘的一跳；只留完成 toast（v71 本來就要明確提示 Routes 成功），成功路徑剩一跳，失敗路徑警告／錯誤各一則不動
     // v57：優先 Routes API（帶隧道資訊），失敗則 fallback 到 Directions（無隧道資訊）。
+    // v261：同點防呆 — 起終點解析成同一點時不送 Routes（對調殘留舊座標、手打同地址等情況），直接報錯＋按鈕恢復，避免磨到卡住。防呆本身失敗不擋正常規劃。
+    try {
+        const _locToLL = (v) => {
+            try {
+                if (!v) return null;
+                if (typeof v.lat === 'function' && typeof v.lng === 'function') return { lat: v.lat(), lng: v.lng() };
+                if (typeof v.lat === 'number' && typeof v.lng === 'number') return { lat: v.lat, lng: v.lng };
+            } catch (_) {}
+            return null;
+        };
+        const _sLL = _locToLL(startLoc), _eLL = _locToLL(endLoc);
+        let _samePoint = false;
+        if (_sLL && _eLL) {
+            _samePoint = getDistanceFromLatLonInKm(_sLL.lat, _sLL.lng, _eLL.lat, _eLL.lng) < 0.05;
+        } else if (typeof startLoc === 'string' && typeof endLoc === 'string') {
+            _samePoint = startLoc.trim().replace(/\s+/g, ' ') === endLoc.trim().replace(/\s+/g, ' ');
+        } else {
+            const _str = (typeof startLoc === 'string') ? startLoc : endLoc;
+            const _other = _sLL || _eLL;
+            if (_str && _other && window.google?.maps?.Geocoder) {
+                const _geo = await new Promise((res) => {
+                    try { new google.maps.Geocoder().geocode({ address: _str }, (r, st) => res(st === 'OK' && r && r[0] ? r[0].geometry.location : null)); }
+                    catch (_) { res(null); }
+                });
+                const _gLL = _locToLL(_geo);
+                if (_gLL) _samePoint = getDistanceFromLatLonInKm(_gLL.lat, _gLL.lng, _other.lat, _other.lng) < 0.05;
+            }
+        }
+        if (_samePoint) { showToast('起點與終點是同一個地點，請檢查起訖點 📍', true); if (typeof window.fx160PlanBusy === 'function') window.fx160PlanBusy(false); return; }
+    } catch (_) { /* v261 防呆失敗不擋正常規劃 */ }
     let planned = null;
     try {
       const apiRoutes = await computeRoutesApiRoute(startLoc, endLoc);
