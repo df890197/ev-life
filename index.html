@@ -1311,6 +1311,10 @@ html:not(.lite) .view-section.active.v127-dir-l { animation: v271PageFadeUp 0.6s
 @keyframes v272StationFlip { 0% { transform: perspective(900px) rotateY(-78deg) scale(0.96); opacity: 0.25; } 100% { transform: perspective(900px) rotateY(0deg) scale(1); opacity: 1; } }
 .lite .v272-station-flip { animation: none !important; }
 @media (prefers-reduced-motion: reduce) { .v272-station-flip { animation: none !important; } }</style>
+<style id="v273-name-dark">/* v273：站名＋站別徽章深色寫死（iPhone v272 實機仍為淺色版：站名深紅棕、服務區徽章淺黃底，版號與強制更新皆排除快取／舊版；同卡其他深色皆正常，僅此兩處失效，故不再依賴 Tailwind 即時生成，改以專用 class＋!important 寫死與 Tailwind 深色同值；淺色模式不受影響（規則皆包在 .dark 下），Tailwind 正常處等值覆蓋無變化；想改回去刪掉本區塊＋三處 class 即可） */
+.dark .v273-name-dark { color: #fde68a !important; }
+.dark .v273-badge-amber { background-color: rgb(120 53 15 / 0.6) !important; color: #fde68a !important; border-color: rgb(180 83 9 / 0.6) !important; }
+.dark .v273-badge-sky { background-color: rgb(12 74 110 / 0.6) !important; color: #bae6fd !important; border-color: rgb(3 105 161 / 0.6) !important; }</style>
 </head>
 <body class="font-sans bg-[#faf8f4] dark:bg-black text-stone-800 dark:text-[#f5f5f4] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative slashed-zero">
 
@@ -1690,7 +1694,7 @@ html:not(.lite) .view-section.active.v127-dir-l { animation: v271PageFadeUp 0.6s
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v272</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v273</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2226,7 +2230,7 @@ html:not(.lite) .view-section.active.v127-dir-l { animation: v271PageFadeUp 0.6s
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v272</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v273</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2714,7 +2718,7 @@ html:not(.lite) .view-section.active.v127-dir-l { animation: v271PageFadeUp 0.6s
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v272';
+        const APP_VERSION = 'v273';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -9105,10 +9109,10 @@ function renderStationCardForIndex(candidates, selectedIdx, ctx) {
         const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${selectedStation.lat},${selectedStation.lng}`;
 
         const stopTypeBadge = isRestArea
-            ? `<span class="bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700/60 text-[9.5px] font-extrabold px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1 shadow-sm">
+            ? `<span class="v273-badge-amber bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700/60 text-[9.5px] font-extrabold px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1 shadow-sm">
                     <span>☕</span> 服務區站
                 </span>`
-            : `<span class="bg-sky-100 dark:bg-sky-900/60 text-sky-900 dark:text-sky-200 border border-sky-300 dark:border-sky-700/60 text-[9.5px] font-extrabold px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1 shadow-sm">
+            : `<span class="v273-badge-sky bg-sky-100 dark:bg-sky-900/60 text-sky-900 dark:text-sky-200 border border-sky-300 dark:border-sky-700/60 text-[9.5px] font-extrabold px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1 shadow-sm">
                     <span>🛣️</span> 交流道站
                 </span>`;
 
@@ -9152,7 +9156,7 @@ function renderStationCardForIndex(candidates, selectedIdx, ctx) {
                         <div class="flex items-start justify-between gap-2 pt-0.5">
                             <div class="flex items-start gap-1.5 min-w-0">
                                 <span class="text-base shrink-0 leading-snug">${isRestArea ? '☕' : '⚡'}</span>
-                                <div class="font-extrabold text-amber-950 dark:text-amber-200 text-xs sm:text-sm leading-snug break-words line-clamp-2">
+                                <div class="v273-name-dark font-extrabold text-amber-950 dark:text-amber-200 text-xs sm:text-sm leading-snug break-words line-clamp-2">
                                     ${escapeHTML(stationName)}
                                 </div>
                             </div>
