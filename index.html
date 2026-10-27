@@ -1299,7 +1299,6 @@ html:not(.lite) .view-section.active { animation: visionSpatialReveal 0.6s linea
 html:not(.lite) .view-section.active.v127-dir-r { animation: visionSpatialReveal 0.6s linear forwards; }
 html:not(.lite) .view-section.active.v127-dir-l { animation: visionSpatialReveal 0.6s linear forwards; }
 }</style>
-<style id="v267-toast-layer">/* v267：通知獨立圖層（重按定位／觸發通知時，顯示中通知 0.3 秒內先消失一幀再縮放彈回；程式裡無彈簧動畫，屬 iOS 合成層重畫抖動；給 #toast 常駐 will-change 獨立圖層，讓觸發時的頁面重畫不去重算它；外觀不變、只加 will-change（不碰 transform，避免蓋掉 Tailwind／WAAPI 的位移與縮放）；想改回去刪掉本區塊即可） */ #toast { will-change: transform, opacity; }</style>
 </head>
 <body class="font-sans bg-[#faf8f4] dark:bg-black text-stone-800 dark:text-[#f5f5f4] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative slashed-zero">
 
@@ -1679,7 +1678,7 @@ html:not(.lite) .view-section.active.v127-dir-l { animation: visionSpatialReveal
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v268</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v270</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2215,7 +2214,7 @@ html:not(.lite) .view-section.active.v127-dir-l { animation: visionSpatialReveal
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v268</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v270</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2703,7 +2702,7 @@ html:not(.lite) .view-section.active.v127-dir-l { animation: visionSpatialReveal
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v268';
+        const APP_VERSION = 'v270';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -3054,7 +3053,6 @@ function cacheDOMNodes() {
             window._v259ToastSwitchFade = false; // 消費一次，之後的新通知回復掉下來
             DOM.toast.className = _v256ToastBase + (_v259FadeIn ? ' translate-y-0 scale-100 opacity-0 invisible pointer-events-none' : ' -translate-y-16 scale-95 opacity-0 invisible pointer-events-none');
             if (window._v143ToastExitAnim) { window._v143ToastExitAnim.cancel(); window._v143ToastExitAnim = null; } // v143：清掉退場動畫殘留
-            try { if (window._v143ToastEnterAnim) { window._v143ToastEnterAnim.cancel(); window._v143ToastEnterAnim = null; } } catch (e) {}
             if (!document.documentElement.classList.contains('lite') && !window.matchMedia('(prefers-reduced-motion: reduce)').matches && window.requestAnimationFrame) {
                 DOM.toast.classList.add('v145-noblur'); // 過渡期間關毛玻璃防 iOS 合成殘影（退場同款）
                 void DOM.toast.offsetWidth; // 提交初始態，下一幀設最終態時過渡才有起點（v255 的重排沿用、改服務 CSS）
@@ -3072,7 +3070,6 @@ function cacheDOMNodes() {
 
             window._toastAutoTimer = setTimeout(() => {
                 window._toastExiting = true; // v213：退場進行中，拖曳忽略
-                try { if (window._v143ToastEnterAnim) { window._v143ToastEnterAnim.cancel(); window._v143ToastEnterAnim = null; } } catch (e) {} // v250：退場前清進場 WAAPI，避免兩支 WAAPI 搶 transform
                 // v259：切換淡入淡出（只在排隊有下一則且非 lite／非減少動態時）— 舊通知往上縮退場＋空白 182ms＋新通知掉下來，上空下連續跳就是抖一下；切換時舊的只淡出（位置不動、不跑 WAAPI），下一則改淡入（見 process 的 _v259FadeIn），高度／文字／顏色在隱藏那一刻換掉（看不見跳變），中間沒有空白。從空的狀態出現（排隊空）仍走原本掉下來，lite／減少動態不動。
                 const _v259Switch = toastQueue.length > 0 && !document.documentElement.classList.contains('lite') && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
                 if (_v259Switch) {
@@ -3136,7 +3133,6 @@ function cacheDOMNodes() {
                 function hideAfterDrag() {
                     try { if (window._toastAutoTimer) { clearTimeout(window._toastAutoTimer); window._toastAutoTimer = null; } } catch (e) {}
                     try { if (window._v143ToastExitAnim) { window._v143ToastExitAnim.cancel(); window._v143ToastExitAnim = null; } } catch (e) {}
-                    try { if (window._v143ToastEnterAnim) { window._v143ToastEnterAnim.cancel(); window._v143ToastEnterAnim = null; } } catch (e) {} // v250：拖曳退場前清進場 WAAPI
                     try { if (typeof window.v105ToastBar === 'function') window.v105ToastBar(0); } catch (e) {}
                     var lite = false;
                     try { lite = document.documentElement.classList.contains('lite') || window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
@@ -3225,7 +3221,6 @@ function cacheDOMNodes() {
         // toast 還留在畫面、再搜尋時出現「先紅底再黑底」的閃爍）。
         window.clearToastQueueAndHide = function() {
             toastQueue.length = 0;
-            try { if (window._v143ToastEnterAnim) { window._v143ToastEnterAnim.cancel(); window._v143ToastEnterAnim = null; } } catch (e) {} // v250：清掉進場 WAAPI（fill 壓住 opacity 1 會蓋掉 class 隱藏）
             try { if (window._v143ToastExitAnim) { window._v143ToastExitAnim.cancel(); window._v143ToastExitAnim = null; } } catch (e) {}
             window._toastCurrentMessage = null; // v215
             window._v259ToastSwitchFade = false; // v259：清掉切換旗標，避免下一則新通知誤用淡入
@@ -9831,41 +9826,6 @@ function updateAbrpElevScrub(pct) {
             }
         }, true);
 
-        // 13) Toast 彈簧進場：包 processToastQueue，用 CSS scale 屬性（不碰 Tailwind 的 transform 置中）
-        const toastOrig = window.processToastQueue;
-        if (typeof toastOrig === 'function' && !toastOrig._v128Wrapped) {
-            const w = function(...args) {
-                // v268：舊通知顯示中時不重播進場彈簧 — process 被呼叫時若只是把新通知排入佇列（舊通知仍顯示中，orig 直接 return），
-                // 此處若仍播 v146 彈簧，舊通知會被重播一次進場（消失一幀＋縮到 0.75＋彈到 1.04，0.48 秒），即重按定位／觸發通知時看到的抖動；
-                // 真正的新通知進場時 toast 仍為 invisible，會由後面的 invisible 判斷擋下，維持現有 CSS 進場不變，故此 guard 只改佇列等候這一條路。
-                const _toastWasShowing = (() => { try { const t0 = document.getElementById('toast'); return !!(t0 && !t0.classList.contains('invisible')); } catch (e) { return false; } })();
-                const r = toastOrig.apply(this, args);
-                if (_toastWasShowing) return r;
-                // v146：進場改同步啟動 — v143–v145 延遲 40ms 才開始，外殼會先以原尺寸
-                // 淡入，產生「上一個占存」的殼影；同步啟動讓第一幀就是動畫起點。
-                if (!isLite() && !reduced()) {
-                    const t = document.getElementById('toast');
-                    if (t && !t.classList.contains('invisible') && t.animate) {
-                        // v146：進場「從上方滑下＋由小放大」改 WAAPI transform 單一機制
-                        // （置中位移寫進 keyframes、中心固定正中間）；62% 處輕微 overshoot。
-                        const tx146 = window.matchMedia('(min-width: 768px)').matches ? '-50%' : '0px';
-                        t.style.transformOrigin = '50% 50%';
-                        t.classList.add('v145-noblur'); // 動畫期間關毛玻璃防 iOS 合成殘影
-                        const v146in = t.animate([
-                            { transform: `translate(${tx146}, -24px) scale(0.75)`, opacity: '0' },
-                            { transform: `translate(${tx146}, 3px) scale(1.04)`, opacity: '1', offset: 0.62 },
-                            { transform: `translate(${tx146}, 0px) scale(1)`, opacity: '1' }
-                        ], { duration: 480, easing: 'cubic-bezier(.2,.8,.3,1)' });
-                        v146in.onfinish = () => { t.classList.remove('v145-noblur'); };
-                        const ic = document.getElementById('toastIcon');
-                        if (ic) ic.animate([{ transform: 'scale(0.6) rotate(-14deg)' }, { transform: 'scale(1.12) rotate(3deg)', offset: 0.6 }, { transform: 'scale(1) rotate(0deg)' }], { duration: 420, easing: 'ease-out' });
-                    }
-                }
-                return r;
-            };
-            w._v128Wrapped = true;
-            window.processToastQueue = w;
-        }
 
         // 14) 回到頂部火箭：點擊時按鈕先小升空
         const topBtn = document.getElementById('v105TopBtn');
