@@ -1277,10 +1277,6 @@ html:not(.lite) .view-section.active.v127-dir-r { animation: v127RevealR 0.75s c
 html:not(.lite) .view-section.active.v127-dir-l { animation: v127RevealL 0.75s cubic-bezier(0.33,1,0.68,1) forwards; }
 html:not(.lite) #v109TabPill { transition: transform .45s cubic-bezier(0.33,1,0.68,1), opacity .2s ease; }
 }</style>
-<style id="v260-pill-smooth">/* v260：tab bar pill 放柔 — pill 目前只有 transform 過渡（0.45s），JS 每次即時改 width（各分頁按鈕寬度不同），寬度瞬間跳、位置慢慢滑，寬跳＋位滑就是跳一下的來源；只放慢 transform 不夠，寬度也要跟著滑。改法：transform 與 width 都改 0.75s（跟換頁同時間、同曲線 easeOutCubic，pill 與換頁同步走）、opacity 維持 0.2s；pill 無 WAAPI、無毛玻璃、無 iOS 分支，純 CSS transition＋transform，iOS 上同樣成立（60Hz 下 0.75s＝45 幀）；lite／減少動態排除在外（lite pill 瞬間到位是刻意的，不動它） */
-@media (prefers-reduced-motion: no-preference) {
-html:not(.lite) #v109TabPill { transition: transform .75s cubic-bezier(0.33,1,0.68,1), width .75s cubic-bezier(0.33,1,0.68,1), opacity .2s ease; }
-}</style>
 <style id="v261-page-noscale">/* v261：換頁進場去縮放 — 整頁進場動畫會卡，scale 讓整頁（含毛玻璃卡片、地圖）每幀重畫最貴；只拿掉三組 keyframes 的 scale，位移＋淡入保留，時間 0.75s、距離（40px／38px＋26px）、曲線 easeOutCubic、lite（animation none，本來就不跑 keyframes）全不動；想改回去刪掉本區塊即可 */
 @keyframes visionSpatialReveal { 0% { opacity: 0; transform: translateY(40px); } 100% { opacity: 1; transform: translateY(0); } }
 @keyframes v127RevealR { 0% { opacity: 0; transform: translateX(38px) translateY(26px); } 100% { opacity: 1; transform: translateX(0) translateY(0); } }
@@ -1665,7 +1661,7 @@ html:not(.lite) #v109TabPill { transition: transform .75s cubic-bezier(0.33,1,0.
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v261</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v263</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2201,7 +2197,7 @@ html:not(.lite) #v109TabPill { transition: transform .75s cubic-bezier(0.33,1,0.
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v261</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v263</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2689,7 +2685,7 @@ html:not(.lite) #v109TabPill { transition: transform .75s cubic-bezier(0.33,1,0.
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v261';
+        const APP_VERSION = 'v263';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -3764,7 +3760,7 @@ function cacheDOMNodes() {
                 updateSyncUiStatus();
             }
             if (tabId === 'records') {
-                if (typeof window._updateMonthPill === 'function') window._updateMonthPill(); // v229：切進記錄頁當下立即重算（view 已加 active、已 scrollTo(0,0)，getBoundingClientRect 會強制算出版面；過場動畫最大只移 40px，第一張卡 bottom 仍遠大於 110，算出來就是 10 月）。這行在 tap handler 內跑、首次繪製前就把舊月份換掉，舊月份根本不會先閃出來；v228 的 800ms 只是事後修正，擋不住第一幀（保留當保險，不當主修法）
+                // v263：記錄頁月份 pill 不再切頁當下立即重算（getBoundingClientRect 強制重排、搶動畫幀），改由 v228 的 800ms 延後更新覆蓋（動畫跑完、版面 settled 才讀；動畫期間 pill 先顯示舊月份，0.8 秒後對上）。
                 window._switchTimers.push(setTimeout(measureAndAdjustMarquees, 800)); // v203：跑馬燈量測延到過場動畫跑完（逐卡讀版面，最耗主執行緒）
                            window._switchTimers.push(setTimeout(() => { if (typeof window._updateMonthPill === 'function') window._updateMonthPill(); }, 800)); // v228：記錄頁月份 pill 切頁後重算（過場動畫 0.75s 跑完、版面 settled 才讀卡片位置；否則初載舊月份會殘留，要捲一下才變正確）
             }
