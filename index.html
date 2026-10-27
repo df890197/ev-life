@@ -1320,6 +1320,8 @@ html:not(.lite) .view-section.active.v127-dir-l { animation: v271PageFadeUp 0.6s
 .dark .v274-rec-dark { color: #fde68a !important; }</style>
 <style id="v275-nav-center">/* v275：橘色導航按鈕內容置中（使用者 22:02 指認；iPhone 21:58 截圖實測：橘鈕內容中心 739.5、鈕中心 790，左偏 50px、左墊 40px≈px-3，即 flex-start 態；同卡深色換站鈕內容實測置中（偏移僅 2px），因 button 自帶 UA 文字置中兜底，a 沒有；故以自有 CSS 強制置中＋文字置中雙保險，沿 v187／v198 前例；淺色不受影響；想改回去刪掉本區塊＋class 即可） */
 .v275-nav-center { display: inline-flex !important; align-items: center !important; justify-content: center !important; text-align: center !important; }</style>
+<style id="v276-min-pill">/* v276：補電時間 pill 深色寫死（使用者 22:17 指認補電約 6 分仍黃色；iPhone 截圖裁切實測：功率 pill（amber-900/40）深色正常、補電 pill（amber-900/60）仍淺黃，即 /60 這組在 iPhone 未生效；後續站時間 pill 同色組、同一張卡，一併修；皆以專用 class＋!important 寫死 Tailwind 深色同值，淺色不受影響；想改回去刪掉本區塊＋兩處 class 即可） */
+.dark .v276-amber60 { background-color: rgb(120 53 15 / 0.6) !important; color: #fcd34d !important; }</style>
 </head>
 <body class="font-sans bg-[#faf8f4] dark:bg-black text-stone-800 dark:text-[#f5f5f4] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative slashed-zero">
 
@@ -1699,7 +1701,7 @@ html:not(.lite) .view-section.active.v127-dir-l { animation: v271PageFadeUp 0.6s
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v275</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v276</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2235,7 +2237,7 @@ html:not(.lite) .view-section.active.v127-dir-l { animation: v271PageFadeUp 0.6s
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v275</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v276</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2723,7 +2725,7 @@ html:not(.lite) .view-section.active.v127-dir-l { animation: v271PageFadeUp 0.6s
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v275';
+        const APP_VERSION = 'v276';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -8550,7 +8552,7 @@ function renderLaterStopsHtml(stopPlan) {
                 <div class="font-extrabold text-xs">${st.stationName ? `第 ${st.index} 站 · ${escapeHTML(st.stationName)}` : `第 ${st.index} 站 · 約 ${st.atKm} km 處`}</div>
                 <div class="text-[10px] text-stone-500 dark:text-stone-400 font-bold">${st.stationName ? `約 ${st.atKm} km · ` : ''}抵達約 ${st.arrivalSoc}% → 充至 ${st.departSoc}% · 需補 ${st.chargeKwh} 度${st.avail ? (st.avail.available > 0 ? ` · 🟢 可用 ${st.avail.available}/${st.avail.total}` : ' · 🔴 目前無空位') : ''}</div>
             </div>
-            <span class="shrink-0 text-[10px] font-extrabold bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-md whitespace-nowrap">⏱️ 約 ${st.chargeMinutes} 分</span>
+            <span class="v276-amber60 shrink-0 text-[10px] font-extrabold bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-md whitespace-nowrap">⏱️ 約 ${st.chargeMinutes} 分</span>
         </div>`).join('');
     return `
         <div class="pt-2 space-y-1.5">
@@ -9204,7 +9206,7 @@ function renderStationCardForIndex(candidates, selectedIdx, ctx) {
                                     </span>
                                 ` : ''}
                                 ${chargingMinutes !== null ? `
-                                <span class="bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-md font-extrabold shrink-0 whitespace-nowrap shadow-sm">
+                                <span class="v276-amber60 bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-md font-extrabold shrink-0 whitespace-nowrap shadow-sm">
                                     ⏱️ 補電約 ${chargingMinutes} 分
                                 </span>` : `
                                 <span class="bg-stone-100 dark:bg-neutral-900 text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700 px-2 py-0.5 rounded-md font-extrabold shrink-0 whitespace-nowrap shadow-sm">
