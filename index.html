@@ -1346,6 +1346,8 @@ html:not(.lite) .view-section.active.v127-dir-l { animation: v271PageFadeUp 0.6s
 .v281-arr-rose { color: #be123c !important; }
 .dark .v281-arr-rose { color: #fda4af !important; }
 .v276-amber60 { color: #92400e !important; }</style>
+<style id="v282-diag">/* v282-diag：換頁順暢度量測專用（診斷版，量完即棄、不進正式版；關閉 header 即時毛玻璃的開關只用來分離毛玻璃成本） */
+html.diag-noblur header { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }</style>
 </head>
 <body class="font-sans bg-[#faf8f4] dark:bg-black text-stone-800 dark:text-[#f5f5f4] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative slashed-zero">
 
@@ -1725,7 +1727,7 @@ html:not(.lite) .view-section.active.v127-dir-l { animation: v271PageFadeUp 0.6s
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v281</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v282-diag</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2261,7 +2263,7 @@ html:not(.lite) .view-section.active.v127-dir-l { animation: v271PageFadeUp 0.6s
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v281</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v282-diag</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2749,7 +2751,7 @@ html:not(.lite) .view-section.active.v127-dir-l { animation: v271PageFadeUp 0.6s
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v281';
+        const APP_VERSION = 'v282-diag';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -10512,5 +10514,59 @@ window.syncHeroScene = function() {
 window.syncHeroScene();
 </script>
 
+<script>
+// v282-diag：換頁順暢度量測（診斷版，量完即棄；不動任何計算與動畫，只量數字）
+// 量法：包住 switchTab，記下 JS 同步耗時＋切換後 900ms 內的每幀間隔（120Hz 一幀約 8.3ms，>16.7ms 算掉幀、>33ms 算大卡）＋長任務；
+// 左下角面板即時顯示最近一次切換的數字；面板上的按鈕可暫關 header 毛玻璃，用來對照毛玻璃成本。
+(function(){
+  var panel = document.createElement('div');
+  panel.style.cssText = 'position:fixed;left:8px;bottom:96px;z-index:10000;pointer-events:none;background:rgba(0,0,0,0.78);color:#7CFC9A;font:11px/1.6 monospace;padding:8px 10px;border-radius:10px;max-width:94vw;white-space:pre-wrap;';
+  panel.textContent = 'diag v282：點分頁開始量測';
+  var btn = document.createElement('button');
+  btn.textContent = 'header 毛玻璃：開';
+  btn.style.cssText = 'pointer-events:auto;display:block;margin-top:6px;padding:4px 10px;border-radius:999px;border:0;background:#f59e0b;color:#1c1917;font-weight:800;font-size:12px;';
+  btn.onclick = function(){
+    var off = document.documentElement.classList.toggle('diag-noblur');
+    btn.textContent = off ? 'header 毛玻璃：關（診斷）' : 'header 毛玻璃：開';
+  };
+  panel.appendChild(btn);
+  document.body.appendChild(panel);
+  var orig = window.switchTab;
+  if (typeof orig !== 'function') { panel.firstChild.textContent = 'diag：找不到 switchTab'; return; }
+  var ltCount = 0, ltTotal = 0, ltOK = true;
+  try {
+    var po = new PerformanceObserver(function(list){
+      var es = list.getEntries();
+      for (var i = 0; i < es.length; i++) { ltCount++; ltTotal += es[i].duration; }
+    });
+    po.observe({entryTypes: ['longtask']});
+  } catch (e) { ltOK = false; }
+  var rafTimes = [], measuring = false;
+  function loop(t){ rafTimes.push(t); if (measuring) requestAnimationFrame(loop); }
+  window.switchTab = function(tabId){
+    var t0 = performance.now();
+    var r = orig.apply(this, arguments);
+    var t1 = performance.now();
+    ltCount = 0; ltTotal = 0;
+    rafTimes = []; measuring = true;
+    requestAnimationFrame(loop);
+    setTimeout(function(){
+      measuring = false;
+      var deltas = [];
+      for (var i = 1; i < rafTimes.length; i++) deltas.push(rafTimes[i] - rafTimes[i-1]);
+      var over167 = 0, over33 = 0, max = 0, sum = 0;
+      for (var j = 0; j < deltas.length; j++) {
+        if (deltas[j] > 16.7) over167++;
+        if (deltas[j] > 33) over33++;
+        if (deltas[j] > max) max = deltas[j];
+        sum += deltas[j];
+      }
+      var avg = deltas.length ? (sum / deltas.length) : 0;
+      panel.firstChild.textContent = '切換到 ' + tabId + '\nJS ' + (t1 - t0).toFixed(1) + 'ms｜幀 ' + deltas.length + ' 平均 ' + avg.toFixed(1) + 'ms 最大 ' + max.toFixed(1) + 'ms\n>16.7ms ' + over167 + ' 幀｜>33ms ' + over33 + ' 幀\n長任務 ' + (ltOK ? (ltCount + ' 個 共 ' + ltTotal.toFixed(0) + 'ms') : '不支援');
+    }, 900);
+    return r;
+  };
+})();
+</script>
 </body>
 </html>
