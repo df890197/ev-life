@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ev-life-cache-v5';
+const CACHE_NAME = 'ev-life-cache-v295';
 const ASSETS_TO_CACHE = ['./', './index.html', './manifest.json', './achievements.js'];
 
 self.addEventListener('install', event => {
