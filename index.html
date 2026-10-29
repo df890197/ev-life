@@ -1356,6 +1356,44 @@ html.dark .v285-badge-overdue { background-color: rgb(136 19 55 / 0.5) !importan
 @media (max-width: 767px) { .v165-ehon-tile { padding: .625rem .25rem; } }</style>
 <style id="v297-evdays-narrow">/* v297：Android 字體放大時「1169.6 度」仍換行——版本已確認 v296（排除快取），剩字體放大：Chrome 文字縮放只放大字體、不放大版面，12px 值在 1.3 倍下變 77.2+2px、逼近 360px 格子內容寬 79px；修法：中文單位前空格拿掉（中文單位本來就不空格，km 保留空格、數字左邊緣與微調不動）＋窄手機（≤380px，iPhone 390 不受影響）數值 11px＋磚塊左右內距 4→2px；11px 用純 CSS（不用 Tailwind 任意值）；不加 nowrap，未來長數字仍掉行不被切掉 */
 @media (max-width: 380px) { .v165-ehon-tile { padding: .625rem .125rem; } .v165-ehon-tile .v165-t-value { font-size: 11px; } }</style>
+<style id="v301-festival-themes">/* v301：節日主題（自動換，僅點綴：淺色磚色由節日 JS 換 TILE_BG、標題色與節日 chip 由此區塊著色；深色磚底維持 #12141F 不動、骨架與日夜雙生不動；刪此區塊＋節日 JS 區塊即回復 v300） */
+.festival-chip { display: inline-block; border: 2.5px solid; border-radius: 9999px; }
+/* 萬聖節 10/18–10/31 */
+html[data-festival="halloween"]:not(.dark) #view-analysis .v165-ehon-card h3 { color: #5B4A6B !important; }
+html.dark[data-festival="halloween"] #view-analysis .v165-ehon-card h3 { color: #C9B8D8 !important; }
+html[data-festival="halloween"]:not(.dark) .festival-chip { background-color: #5B4A6B !important; color: #FFFFFF !important; border-color: #3E3A39 !important; }
+html.dark[data-festival="halloween"] .festival-chip { background-color: #C9B8D8 !important; color: #1B1F30 !important; border-color: #FFFCF6 !important; box-shadow: 2px 2px 0 rgba(0,0,0,.45) !important; }
+/* 聖誕 12/12–12/25 */
+html[data-festival="christmas"]:not(.dark) #view-analysis .v165-ehon-card h3 { color: #1E4D3B !important; }
+html.dark[data-festival="christmas"] #view-analysis .v165-ehon-card h3 { color: #D8BE7A !important; }
+html[data-festival="christmas"]:not(.dark) .festival-chip { background-color: #1E4D3B !important; color: #FFFFFF !important; border-color: #3E3A39 !important; }
+html.dark[data-festival="christmas"] .festival-chip { background-color: #D8BE7A !important; color: #1B1F30 !important; border-color: #FFFCF6 !important; box-shadow: 2px 2px 0 rgba(0,0,0,.45) !important; }
+/* 跨年 12/26–1/3 */
+html[data-festival="newyear"]:not(.dark) #view-analysis .v165-ehon-card h3 { color: #2B3A5E !important; }
+html.dark[data-festival="newyear"] #view-analysis .v165-ehon-card h3 { color: #E8C87A !important; }
+html[data-festival="newyear"]:not(.dark) .festival-chip { background-color: #2B3A5E !important; color: #FFFFFF !important; border-color: #3E3A39 !important; }
+html.dark[data-festival="newyear"] .festival-chip { background-color: #E8C87A !important; color: #1B1F30 !important; border-color: #FFFCF6 !important; box-shadow: 2px 2px 0 rgba(0,0,0,.45) !important; }
+/* 農曆年 小年～初八 */
+html[data-festival="cny"]:not(.dark) #view-analysis .v165-ehon-card h3 { color: #8B2E2E !important; }
+html.dark[data-festival="cny"] #view-analysis .v165-ehon-card h3 { color: #D8B878 !important; }
+html[data-festival="cny"]:not(.dark) .festival-chip { background-color: #8B2E2E !important; color: #FFFFFF !important; border-color: #3E3A39 !important; }
+html.dark[data-festival="cny"] .festival-chip { background-color: #D8B878 !important; color: #1B1F30 !important; border-color: #FFFCF6 !important; box-shadow: 2px 2px 0 rgba(0,0,0,.45) !important; }
+/* 元宵 初九～十五 */
+html[data-festival="lantern"]:not(.dark) #view-analysis .v165-ehon-card h3 { color: #6B4A8B !important; }
+html.dark[data-festival="lantern"] #view-analysis .v165-ehon-card h3 { color: #E8C87A !important; }
+html[data-festival="lantern"]:not(.dark) .festival-chip { background-color: #6B4A8B !important; color: #FFFFFF !important; border-color: #3E3A39 !important; }
+html.dark[data-festival="lantern"] .festival-chip { background-color: #E8C87A !important; color: #1B1F30 !important; border-color: #FFFCF6 !important; box-shadow: 2px 2px 0 rgba(0,0,0,.45) !important; }
+/* 端午 節前兩週～當天 */
+html[data-festival="dragonboat"]:not(.dark) #view-analysis .v165-ehon-card h3 { color: #2E5B4B !important; }
+html.dark[data-festival="dragonboat"] #view-analysis .v165-ehon-card h3 { color: #A8D0B8 !important; }
+html[data-festival="dragonboat"]:not(.dark) .festival-chip { background-color: #2E5B4B !important; color: #FFFFFF !important; border-color: #3E3A39 !important; }
+html.dark[data-festival="dragonboat"] .festival-chip { background-color: #A8D0B8 !important; color: #1B1F30 !important; border-color: #FFFCF6 !important; box-shadow: 2px 2px 0 rgba(0,0,0,.45) !important; }
+/* 中秋 節前兩週～當天 */
+html[data-festival="midautumn"]:not(.dark) #view-analysis .v165-ehon-card h3 { color: #8B6B2E !important; }
+html.dark[data-festival="midautumn"] #view-analysis .v165-ehon-card h3 { color: #F0D89A !important; }
+html[data-festival="midautumn"]:not(.dark) .festival-chip { background-color: #8B6B2E !important; color: #FFFFFF !important; border-color: #3E3A39 !important; }
+html.dark[data-festival="midautumn"] .festival-chip { background-color: #F0D89A !important; color: #1B1F30 !important; border-color: #FFFCF6 !important; box-shadow: 2px 2px 0 rgba(0,0,0,.45) !important; }
+</style>
 </head>
 <body class="font-sans bg-[#faf8f4] dark:bg-black text-stone-800 dark:text-[#f5f5f4] min-h-screen antialiased selection:bg-cuteMint-200 font-bold relative slashed-zero">
 
@@ -1735,7 +1773,7 @@ html.dark .v285-badge-overdue { background-color: rgb(136 19 55 / 0.5) !importan
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v300</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v301</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2271,7 +2309,7 @@ html.dark .v285-badge-overdue { background-color: rgb(136 19 55 / 0.5) !importan
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v300</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v301</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -2695,6 +2733,68 @@ html.dark .v285-badge-overdue { background-color: rgb(136 19 55 / 0.5) !importan
         </div>
     </div>
 
+<script>
+/* v301：節日主題自動切換（僅點綴：磚色、標題、節日 chip；計算與骨架不動；農曆節日表目前到 2028 年，新增年份請在此補日期；刪此區塊＋v301 CSS 區塊即回復 v300） */
+/* FESTIVAL-PURE-START */
+const FESTIVAL_CNY = { 2026: [2026, 2, 17], 2027: [2027, 2, 6], 2028: [2028, 1, 26] }; // 農曆正月初一
+const FESTIVAL_DRAGONBOAT = { 2026: [2026, 6, 19], 2027: [2027, 6, 9], 2028: [2028, 5, 28] }; // 農曆五月初五
+const FESTIVAL_MIDAUTUMN = { 2026: [2026, 9, 25], 2027: [2027, 9, 15], 2028: [2028, 10, 3] }; // 農曆八月十五
+function _festivalDay(ymd) { return new Date(ymd[0], ymd[1] - 1, ymd[2]); }
+function _festivalAddDays(date, n) { const r = new Date(date); r.setDate(r.getDate() + n); return r; }
+function detectFestival(now) {
+    const y = now.getFullYear(), m = now.getMonth() + 1, d = now.getDate();
+    const t = new Date(y, m - 1, d);
+    const md = m * 100 + d;
+    if (md >= 1018 && md <= 1031) return 'halloween'; // 萬聖節 10/18–10/31
+    if (md >= 1212 && md <= 1225) return 'christmas'; // 聖誕 12/12–12/25
+    if (md >= 1226 || md <= 103) return 'newyear'; // 跨年 12/26–1/3
+    const cny = FESTIVAL_CNY[y];
+    if (cny) {
+        const day1 = _festivalDay(cny);
+        if (t >= _festivalAddDays(day1, -7) && t <= _festivalAddDays(day1, 7)) return 'cny'; // 農曆年 小年～初八
+        const lantern = _festivalAddDays(day1, 14);
+        if (t >= _festivalAddDays(lantern, -6) && t <= lantern) return 'lantern'; // 元宵 初九～十五
+    }
+    const db = FESTIVAL_DRAGONBOAT[y];
+    if (db) { const day = _festivalDay(db); if (t >= _festivalAddDays(day, -13) && t <= day) return 'dragonboat'; } // 端午 節前兩週～當天
+    const ma = FESTIVAL_MIDAUTUMN[y];
+    if (ma) { const day = _festivalDay(ma); if (t >= _festivalAddDays(day, -13) && t <= day) return 'midautumn'; } // 中秋 節前兩週～當天
+    return '';
+}
+/* FESTIVAL-PURE-END */
+const FESTIVALS = {
+    halloween: { emoji: '🎃', chipName: '萬聖節', tiles: ['#A8B8C8', '#E8DCC0', '#D0C8D8', '#D0A8A8', '#D0D8CC', '#A8B89A'] },
+    christmas: { emoji: '🎄', chipName: '聖誕節', tiles: ['#9DB8A0', '#E8D9B0', '#D8C8D8', '#D0A0A8', '#D0DCE8', '#D8C890'] },
+    newyear: { emoji: '🎆', chipName: '跨年', tiles: ['#A8A8C8', '#E8D9B0', '#D0D8E0', '#D0A8B0', '#C8D8D0', '#C0C0C8'] },
+    cny: { emoji: '🧧', chipName: '農曆新年', tiles: ['#8FB89A', '#F0E6CC', '#D0D8E0', '#CE9A9A', '#D8C8D0', '#E8D8B0'] },
+    lantern: { emoji: '🏮', chipName: '元宵節', tiles: ['#B8A8D0', '#F0DCC0', '#C8D8D0', '#D8A8A8', '#D0D8E0', '#A8B89A'] },
+    dragonboat: { emoji: '🐉', chipName: '端午節', tiles: ['#A8C0D0', '#EFE8D0', '#C0D8CC', '#D0A8A0', '#D0C8D8', '#A8B89A'] },
+    midautumn: { emoji: '🌕', chipName: '中秋節', tiles: ['#A8B8D0', '#F0E8C8', '#D8C8D0', '#D8A8B0', '#C8D8CC', '#D8C890'] }
+};
+window.FESTIVAL = detectFestival(new Date());
+if (window.FESTIVAL && FESTIVALS[window.FESTIVAL]) {
+    document.documentElement.setAttribute('data-festival', window.FESTIVAL);
+    window.FESTIVAL_TILES = FESTIVALS[window.FESTIVAL].tiles;
+    const evTitle = document.getElementById('evDaysTitle');
+    if (evTitle && evTitle.parentNode && evTitle.parentNode.parentNode) {
+        const header = evTitle.parentNode;
+        const row = document.createElement('div');
+        row.className = 'mb-1';
+        const chip = document.createElement('span');
+        chip.className = 'shrink-0 text-[10px] md:text-xs font-extrabold px-2.5 py-1 festival-chip';
+        chip.textContent = FESTIVALS[window.FESTIVAL].emoji + ' ' + FESTIVALS[window.FESTIVAL].chipName;
+        row.appendChild(chip);
+        header.parentNode.insertBefore(row, header.nextSibling);
+    }
+}
+document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible') {
+        const now = detectFestival(new Date());
+        if (now !== window.FESTIVAL) location.reload(); // 跨節日邊界夜切回來才重載，平常不動
+    }
+});
+</script>
+
     <script>
         const CHARGE_STYLE_MAP = {
             'DC-快充': { btn: 'border-amber-400 bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400', badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400', icon: '⚡' },
@@ -2759,7 +2859,7 @@ html.dark .v285-badge-overdue { background-color: rgb(136 19 55 / 0.5) !importan
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v300';
+        const APP_VERSION = 'v301';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -3676,7 +3776,7 @@ function cacheDOMNodes() {
                         ];
                         const TILE_BG = ['#7ABDAF', '#FBE3C5', '#C3D7F0', '#C9A8C0', '#D3C6E8', '#BFE3C8']; // v300：淺色磚底改對比色（📅柔 teal、🛣️蜜桃、⚡淡藍、🔋灰紫、💰淡紫、📍薄荷；深色由 html.dark 寫死 #12141F 不受影響，墨字墨框不動）
                         const TILE_INDENT = [0, 0, 2, 2, 2, 4]; // v294：逐格微調，數字左邊緣對齊圖示墨水左邊緣（iPhone 實測：📅0、🛣️0、⚡2、🔋2、💰2、📍4px（v295：量測 4.7 取整到 5 略過頭，改 4）；Apple emoji 共用，Android 可能差 1-2px）
-                        statsEl.innerHTML = tiles.map((t, i) => '<div class="v165-ehon-tile" style="background-color:' + TILE_BG[i % TILE_BG.length] + '"><div class="v165-t-label text-[9px] md:text-[10px] font-bold mb-0.5 flex items-center gap-1"><span class="inline-block w-3 text-center flex-none">' + t[0] + '</span><span>' + t[1] + '</span></div><div class="v165-t-value text-xs md:text-lg font-extrabold font-mono" style="margin-left:' + TILE_INDENT[i % TILE_INDENT.length] + 'px">' + t[2] + (t[3] === 'km' ? ' ' : '') + '<span class="v165-t-unit text-[9px] font-bold">' + t[3] + '</span></div></div>').join('');
+                        statsEl.innerHTML = tiles.map((t, i) => '<div class="v165-ehon-tile" style="background-color:' + (window.FESTIVAL_TILES || TILE_BG)[i % TILE_BG.length] + '"><div class="v165-t-label text-[9px] md:text-[10px] font-bold mb-0.5 flex items-center gap-1"><span class="inline-block w-3 text-center flex-none">' + t[0] + '</span><span>' + t[1] + '</span></div><div class="v165-t-value text-xs md:text-lg font-extrabold font-mono" style="margin-left:' + TILE_INDENT[i % TILE_INDENT.length] + 'px">' + t[2] + (t[3] === 'km' ? ' ' : '') + '<span class="v165-t-unit text-[9px] font-bold">' + t[3] + '</span></div></div>').join('');
                         footEl.textContent = '自第一筆紀錄（' + firstDate + '）起算' + (nextAt ? ' · 再 ' + fmtKm(nextAt[0] - totalKm) + ' km 升等「' + nextAt[1] + '」' : ' · 已是最高稱號 🎉');
                     }
                 }
