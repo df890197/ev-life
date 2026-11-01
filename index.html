@@ -3127,7 +3127,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v327';
+        const APP_VERSION = 'v328';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -9846,7 +9846,7 @@ window.loadRates = async function(forceRefresh) {
         var data = await res.json();
         if (data.error) throw new Error(data.error === 'Unauthorized' ? 'API Token 錯誤' : data.error);
         if (!data.success) throw new Error(data.error || '讀取失敗');
-        if (!data.rows || !data.rows.length) throw new Error('費率表是空的（等每月自動更新寫入）');
+        if (!data.rows || !data.rows.length) throw new Error('費率表是空的（等自動更新寫入）');
         window._lastRatesData = {header: data.header || [], rows: data.rows};
         renderRatesCards(data.header || [], data.rows);
         content.dataset.loaded = '1';
@@ -9874,7 +9874,7 @@ window.loadRates = async function(forceRefresh) {
                 if (ds && ds > maxDate) maxDate = ds;
             });
         }
-        if (updatedEl) updatedEl.textContent = maxDate ? ('資料更新：' + maxDate + '（每月自動更新）') : '';
+        if (updatedEl) updatedEl.textContent = maxDate ? ('資料更新：' + maxDate + '（每12小時自動更新）') : '';
     } catch (err) {
         var msg = String((err && err.message) || err).replace(/</g, '&lt;');
         content.innerHTML = '<div class="text-center py-10">'
