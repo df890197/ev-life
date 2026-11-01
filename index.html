@@ -2007,7 +2007,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v303</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v305</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2040,10 +2040,11 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                         <div class="space-y-2">
                             <div class="bg-stone-50 dark:bg-black/30 p-2.5 rounded-xl border border-stone-100 dark:border-stone-700/50">
                                 <div class="text-[10px] font-bold text-stone-400 mb-2 px-1">🚗 用車紀錄</div>
-                                <div class="grid grid-cols-3 gap-2">
+                                <div class="grid grid-cols-4 gap-2">
                                     <button type="button" onclick="selectChargeType('未充電')" id="btnType-未充電" class="charge-type-btn transition-all flex items-center justify-center gap-1 shadow-sm border-2 rounded-xl py-3 text-xs md:text-sm"><span class="text-sm md:text-base mt-[-1px]">⚡</span><span>行程</span></button>
                                     <button type="button" onclick="selectChargeType('DC-快充')" id="btnType-DC-快充" class="charge-type-btn transition-all flex items-center justify-center gap-1 shadow-sm border-2 rounded-xl py-3 text-xs md:text-sm"><span class="text-sm md:text-base mt-[-1px]">⚡</span><span>快充</span></button>
                                     <button type="button" onclick="selectChargeType('AC-慢充')" id="btnType-AC-慢充" class="charge-type-btn transition-all flex items-center justify-center gap-1 shadow-sm border-2 rounded-xl py-3 text-xs md:text-sm"><span class="text-sm md:text-base mt-[-1px]">🔌</span><span>慢充</span></button>
+                                    <button type="button" onclick="selectChargeType('閒置耗電')" id="btnType-閒置耗電" class="charge-type-btn transition-all flex items-center justify-center gap-1 shadow-sm border-2 rounded-xl py-3 text-xs md:text-sm"><span class="text-sm md:text-base mt-[-1px]">💤</span><span>閒置</span></button>
                                 </div>
                             </div>
                             <div class="bg-stone-50 dark:bg-black/30 p-2.5 rounded-xl border border-stone-100 dark:border-stone-700/50">
@@ -2543,7 +2544,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v303</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v305</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -3034,6 +3035,7 @@ document.addEventListener('visibilitychange', function () {
             'DC-快充': { btn: 'border-amber-400 bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400', badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400', icon: '⚡' },
             'AC-慢充': { btn: 'border-teal-400 bg-teal-50 text-teal-600 dark:bg-teal-900/20 dark:text-teal-400', badge: 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-400', icon: '🔌' },
             '未充電': { btn: 'border-sky-400 bg-sky-50 text-sky-600 dark:bg-sky-900/20 dark:text-sky-400', badge: 'bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-400', icon: '⚡' },
+            '閒置耗電': { btn: 'border-slate-400 bg-slate-50 text-slate-600 dark:bg-slate-900/20 dark:text-slate-400', badge: 'bg-slate-100 text-slate-700 dark:bg-slate-900/40 dark:text-slate-400', icon: '💤' },
             '維修保養': { btn: 'border-fuchsia-400 bg-fuchsia-50 text-fuchsia-600 dark:bg-fuchsia-900/20 dark:text-fuchsia-400', badge: 'bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-900/40 dark:text-fuchsia-400', icon: '🔧' },
             '停車費': { btn: 'border-blue-400 bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400', badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400', icon: '🅿️' },
             '通行費': { btn: 'border-purple-400 bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400', badge: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400', icon: '🛣️' },
@@ -3093,7 +3095,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v303';
+        const APP_VERSION = 'v305';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -4028,6 +4030,11 @@ function cacheDOMNodes() {
                         Object.keys(byMonth).forEach(k => { const m = byMonth[k]; if (m.km >= 50 && m.pw > 0) { const e = m.km / m.pw; if (e > bestEff) { bestEff = e; bestM = k; } } });
                         if (bestM) items.push(['🍃', '最省電的月份 <b>' + bestM.replace('-', ' 年 ') + ' 月</b>，平均 ' + bestEff.toFixed(2) + ' km/度']);
                     }
+                    const idles = all.filter(r => r.chargeType === '閒置耗電'); // v304：閒置耗電另計，不污染行駛電耗
+                    if (idles.length) {
+                        const idlePct = idles.reduce((a, r) => a + Math.max(0, (parseFloat(r.startSoc) || 0) - (parseFloat(r.endSoc) || 0)), 0);
+                        items.push(['💤', '閒置耗電共 <b>' + idlePct.toFixed(0) + '%</b>（約 ' + (idlePct / 100 * cap).toFixed(1) + ' 度），' + idles.length + ' 筆 — 已排除在行駛電耗外']);
+                    }
                     if (charges.length) {
                         const tagCount2 = {};
                         charges.forEach(r => { const t = (r.tag || '').trim(); if (t) tagCount2[t] = (tagCount2[t] || 0) + 1; });
@@ -4812,7 +4819,21 @@ window.setupSocSliders = function() {
 
                 if (DOM.costLabel) DOM.costLabel.textContent = "本次花費 (元) - 無則填 0";
 
-                if (type === "未充電") {
+                if (type === "閒置耗電") {
+                    // v304：閒置耗電（停放掉電／車上吹冷氣等人）：只記 SOC 掉電，不記里程花費；填補 SOC 鏈，不污染行駛電耗
+                    if (DOM.inputCost) { DOM.inputCost.value = "0"; DOM.inputCost.disabled = true; DOM.inputCost.classList.add('opacity-40'); }
+                    if (DOM.startSocLabel) DOM.startSocLabel.textContent = "閒置前 SOC (%)";
+                    if (DOM.endSocLabel) DOM.endSocLabel.textContent = "閒置後 SOC (%)";
+                    if (DOM.tagInputArea) DOM.tagInputArea.classList.add('hidden');
+                    if (DOM.inputDistance) DOM.inputDistance.required = false;
+                    [DOM.inputStartSocNum, DOM.inputEndSocNum].forEach(el => el && (el.required = true));
+                    if (AppState.editingRecordId === null) {
+                        if (DOM.inputTag) DOM.inputTag.value = "";
+                        if (DOM.inputDistrict) DOM.inputDistrict.value = "";
+                        if (DOM.inputTemperature) DOM.inputTemperature.value = "";
+                        // v305：閒置前 SOC 不自動帶入（使用者開車不逐筆記，上一筆結束%通常≠閒置前%，帶入會是錯的，改手動填）
+                    }
+                } else if (type === "未充電") {
                     if (DOM.inputCost) { DOM.inputCost.value = "0"; DOM.inputCost.disabled = true; DOM.inputCost.classList.add('opacity-40'); }
                     if (DOM.startSocLabel) DOM.startSocLabel.textContent = "出發前 SOC (%)";
                     if (DOM.endSocLabel) DOM.endSocLabel.textContent = "抵達後 SOC (%)";
@@ -4839,9 +4860,10 @@ window.setupSocSliders = function() {
             const delta = Math.abs(end - start);
             const kwh = AppState.batteryCapacity * (delta / 100);
 
-            DOM.powerHintText.textContent = `共${type === "未充電" ? "消耗" : "補給"} ${delta}% 電量 (約 ${kwh.toFixed(2)} 度)`;
+            const verb304 = type === "閒置耗電" ? "閒置耗損" : (type === "未充電" ? "消耗" : "補給"); // v304
+            DOM.powerHintText.textContent = `共${verb304} ${delta}% 電量 (約 ${kwh.toFixed(2)} 度)`;
             const fill = document.getElementById('v91BatteryFill');
-            if (fill) { fill.style.width = Math.min(100, Math.max(0, delta)) + '%'; fill.style.background = type === "未充電" ? '#f59e0b' : '#14b8a6'; const v106Charging = type !== "未充電"; fill.classList.toggle('v106-flow', v106Charging); fill.classList.toggle('fx160-wave', v106Charging); fill.style.backgroundImage = v106Charging ? 'repeating-linear-gradient(45deg, rgba(255,255,255,0.22) 0 8px, rgba(255,255,255,0) 8px 16px)' : ''; } // v91：電池條視覺化，只動樣式；v106：充電時加流動紋
+            if (fill) { fill.style.width = Math.min(100, Math.max(0, delta)) + '%'; const isLoss304 = type === "未充電" || type === "閒置耗電"; fill.style.background = isLoss304 ? '#f59e0b' : '#14b8a6'; const v106Charging = !isLoss304; fill.classList.toggle('v106-flow', v106Charging); fill.classList.toggle('fx160-wave', v106Charging); fill.style.backgroundImage = v106Charging ? 'repeating-linear-gradient(45deg, rgba(255,255,255,0.22) 0 8px, rgba(255,255,255,0) 8px 16px)' : ''; } // v91：電池條視覺化，只動樣式；v106：充電時加流動紋
         };
 
         // v88：autoFill 只在數字框為空時填上一筆抵達 SOC；cancelEdit 已同步 20/80，所以點行程不會誤填 100 卡住
@@ -4899,7 +4921,10 @@ window.setupSocSliders = function() {
 
             driveRecords.forEach((rec, i) => {
                 let consumedSoc = 0;
-                if (i === 0) consumedSoc = rec.chargeType === "未充電" ? Math.max(0, rec.startSoc - rec.endSoc) : Math.max(0, 100 - rec.startSoc);
+                if (rec.chargeType === '閒置耗電') {
+                    // v304：閒置本身的掉電不計入行駛耗電；只取「上一筆結束→閒置開始」的間隙（那是閒置前開掉的）
+                    if (i > 0) { const prev = driveRecords[i - 1]; consumedSoc = (prev.endSoc !== undefined && prev.endSoc !== null) ? Math.max(0, prev.endSoc - rec.startSoc) : 0; }
+                } else if (i === 0) consumedSoc = rec.chargeType === "未充電" ? Math.max(0, rec.startSoc - rec.endSoc) : Math.max(0, 100 - rec.startSoc);
                 else {
                     const prev = driveRecords[i - 1];
                     consumedSoc = prev.endSoc !== undefined ? prev.endSoc - rec.startSoc : (rec.chargeType === "未充電" ? rec.startSoc - rec.endSoc : 100 - rec.startSoc);
@@ -4954,7 +4979,7 @@ window.setupSocSliders = function() {
             const isNonDrive = ['維修保養', '停車費', '通行費', '保險費', '車貸'].includes(rec.chargeType);
             const dist = parseFloat(rec.distance) || 0;
             const pwr = AppState.batteryCapacity * ((rec.consumedSocPercent || 0) / 100);
-            const eff = pwr > 0 ? (dist / pwr).toFixed(2) : "0.00";
+            const eff = rec.chargeType === '閒置耗電' ? '—' : (pwr > 0 ? (dist / pwr).toFixed(2) : "0.00"); // v304：閒置無行駛電耗
 
             const isCharging = rec.chargeType.includes('快充') || rec.chargeType.includes('慢充');
             const socDelta = Math.abs((rec.endSoc ?? 0) - (rec.startSoc ?? 0));
@@ -6156,9 +6181,11 @@ window.setupSocSliders = function() {
 
             let distance = 0, startSoc = 0, endSoc = 0, powerPercent = 0, power = 0;
 
+            const isIdleRec = chargeType === '閒置耗電'; // v304
             if (!['維修保養', '停車費', '通行費', '保險費', '車貸'].includes(chargeType)) {
-                distance = parseFloat(DOM.inputDistance.value); startSoc = parseFloat(DOM.inputStartSocNum.value); endSoc = parseFloat(DOM.inputEndSocNum.value);
-                if (!date || isNaN(distance) || isNaN(startSoc) || isNaN(endSoc)) { showToast("請填寫完整數值！", true); if (!date) window.shakeV83(DOM.inputDate); if (isNaN(distance)) window.shakeV83(DOM.inputDistance); if (isNaN(startSoc)) window.shakeV83(DOM.inputStartSocNum); if (isNaN(endSoc)) window.shakeV83(DOM.inputEndSocNum); return; }
+                distance = isIdleRec ? 0 : parseFloat(DOM.inputDistance.value); startSoc = parseFloat(DOM.inputStartSocNum.value); endSoc = parseFloat(DOM.inputEndSocNum.value);
+                if (!date || isNaN(startSoc) || isNaN(endSoc) || (!isIdleRec && isNaN(distance))) { showToast("請填寫完整數值！", true); if (!date) window.shakeV83(DOM.inputDate); if (!isIdleRec && isNaN(distance)) window.shakeV83(DOM.inputDistance); if (isNaN(startSoc)) window.shakeV83(DOM.inputStartSocNum); if (isNaN(endSoc)) window.shakeV83(DOM.inputEndSocNum); return; }
+                if (isIdleRec && startSoc <= endSoc) { showToast("閒置耗電：閒置前電量需大於閒置後電量！", true); window.shakeV83(DOM.inputStartSocNum); window.shakeV83(DOM.inputEndSocNum); return; }
                 powerPercent = Math.abs(startSoc - endSoc); power = AppState.batteryCapacity * (powerPercent / 100);
             } else {
                 if (!date || isNaN(cost)) { showToast("請填寫日期與花費！", true); if (!date) window.shakeV83(DOM.inputDate); if (isNaN(cost)) window.shakeV83(DOM.inputCost); return; }
@@ -10697,6 +10724,10 @@ function updateAbrpElevScrub(pct) {
                             const col = isDC ? '#F2A497' : '#A8D3E6';
                             return '<div class="v169-tl-ev"><span class="v169-tl-dot" style="background:' + col + '"></span><div class="v169-tl-card"><span class="v169-tl-when">' + md(r.date) + '・' + (isDC ? '快充' : '慢充') + '</span><div class="v169-tl-tt">' + (isDC ? '⚡' : '🔌') + ' ' + esc((r.tag || '').trim() || '充電站') + '<span class="v169-tl-amt">' + (cost > 0 ? '$' + Math.round(cost).toLocaleString() : '🎁 免費') + '</span></div>' + (hasSoc ? '<div class="v169-tl-bar"><i data-tltype="' + (isDC ? 'fast' : 'slow') + '" style="left:0;width:' + Math.abs(es - ss) + '%;background:' + col + '"></i></div>' : '') + '<div class="v169-tl-meta">' + (hasSoc ? ss + '% → ' + es + '%・' : '') + '補 ' + recPower(r).toFixed(1) + ' 度' + (dist ? '・這一趟 ' + fmtKm(dist) + ' km' : '') + '</div></div></div>';
                         }
+                        if (t === '閒置耗電') { // v304：閒置紀錄在足跡時間軸的顯示
+                            const loss = hasSoc ? Math.max(0, ss - es) : 0;
+                            return '<div class="v169-tl-ev"><span class="v169-tl-dot" style="background:#CBD5E1"></span><div class="v169-tl-card"><span class="v169-tl-when">' + md(r.date) + '・閒置</span><div class="v169-tl-tt">💤 ' + esc((r.note || '').trim() || '閒置耗電') + '<span class="v169-tl-amt">−' + loss + '%</span></div>' + (hasSoc ? '<div class="v169-tl-meta">' + ss + '% → ' + es + '%・閒置耗損 ' + loss + '%（約 ' + recPower(r).toFixed(1) + ' 度）</div>' : '') + '</div></div>';
+                        }
                         return '<div class="v169-tl-ev"><span class="v169-tl-dot" style="background:#B9DAA5"></span><div class="v169-tl-card"><span class="v169-tl-when">' + md(r.date) + '・行程</span><div class="v169-tl-tt">🚗 ' + esc((r.tag || '').trim() || '行程紀錄') + '<span class="v169-tl-amt">' + fmtKm(dist) + ' km</span></div><div class="v169-tl-meta">' + (hasSoc ? ss + '% → ' + es + '%・耗電 ' + (ss - es) + '%' : '里程 ' + fmtKm(dist) + ' km') + '</div></div></div>';
                     }).join('');
                 }
@@ -10712,7 +10743,9 @@ function updateAbrpElevScrub(pct) {
                     const ss = parseFloat(r.startSoc), es = parseFloat(r.endSoc);
                     let consumed = 0;
                     if (!isNaN(ss) && !isNaN(es)) {
-                        if (i === 0) consumed = r.chargeType === '未充電' ? Math.max(0, ss - es) : Math.max(0, 100 - ss);
+                        if (r.chargeType === '閒置耗電') { // v304：同 calculateRecordStats，閒置本身掉電不計入
+                            if (i > 0) { const pEnd = parseFloat(seqRecs[i - 1].endSoc); consumed = !isNaN(pEnd) ? Math.max(0, pEnd - ss) : 0; }
+                        } else if (i === 0) consumed = r.chargeType === '未充電' ? Math.max(0, ss - es) : Math.max(0, 100 - ss);
                         else {
                             const pEnd = parseFloat(seqRecs[i - 1].endSoc);
                             consumed = !isNaN(pEnd) ? pEnd - ss : (r.chargeType === '未充電' ? ss - es : 100 - ss);
