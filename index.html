@@ -3117,7 +3117,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v311';
+        const APP_VERSION = 'v312';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -9844,8 +9844,23 @@ window.loadRates = async function(forceRefresh) {
         var maxDate = '';
         if (dateIdx >= 0) {
             data.rows.forEach(function(r) {
-                var d = String(r[dateIdx] || '');
-                if (d && d > maxDate) maxDate = d;
+                var d = r[dateIdx];
+                if (!d) return;
+                var ds = String(d);
+                // v312：GAS 的 Date 經 JSON 變成 ISO 字串（如 2026-10-31T16:00:00.000Z），轉回台灣日期
+                var isoM = ds.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+                if (isoM) {
+                    var dt = new Date(ds);
+                    if (!isNaN(dt.getTime())) {
+                        var tw = new Date(dt.getTime() + 8 * 3600 * 1000);
+                        ds = tw.getUTCFullYear() + '-' + String(tw.getUTCMonth() + 1).padStart(2, '0') + '-' + String(tw.getUTCDate()).padStart(2, '0');
+                    } else {
+                        ds = isoM[1] + '-' + isoM[2] + '-' + isoM[3];
+                    }
+                } else {
+                    ds = ds.substring(0, 10);
+                }
+                if (ds && ds > maxDate) maxDate = ds;
             });
         }
         if (updatedEl) updatedEl.textContent = maxDate ? ('資料更新：' + maxDate + '（每月自動更新）') : '';
