@@ -3127,7 +3127,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v332';
+        const APP_VERSION = 'v333';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -9888,22 +9888,34 @@ window.loadRates = async function(forceRefresh) {
 };
 
 // v313：依現在台灣時間判斷適用費率
-// v329：台灣國定假日（假日價適用，含補假；每年需更新）
-var TW_HOLIDAYS_2026 = [
-'2026-01-01','2026-02-15','2026-02-16','2026-02-17','2026-02-18','2026-02-19','2026-02-20',
-'2026-02-27','2026-02-28','2026-04-03','2026-04-04','2026-04-05','2026-04-06',
-'2026-05-01','2026-06-19','2026-09-25','2026-09-28',
-'2026-10-09','2026-10-10','2026-10-25','2026-10-26','2026-12-25'
-];
+// v333：台灣國定假日全走 GAS（無寫死；GAS 沒回則只認週六日）
+var TW_HOLIDAYS_CACHE = null;
+function loadTwHolidays() {
+    try {
+        var cached = localStorage.getItem('ev_life_tw_holidays');
+        if (cached) { TW_HOLIDAYS_CACHE = JSON.parse(cached); return; }
+    } catch(e) {}
+    if (!AppState.syncUrl || !AppState.syncToken) return;
+    fetch(AppState.syncUrl + '?token=' + encodeURIComponent(AppState.syncToken) + '&action=getHolidays&_t=' + Date.now())
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+            if (d && d.success && d.holidays) {
+                TW_HOLIDAYS_CACHE = d.holidays;
+                try { localStorage.setItem('ev_life_tw_holidays', JSON.stringify(d.holidays)); } catch(e) {}
+            }
+        }).catch(function(){});
+}
 function isTwHoliday(d) {
-    var s = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-    return TW_HOLIDAYS_2026.indexOf(s) >= 0;
+    if (!TW_HOLIDAYS_CACHE) return false;
+    var y = String(d.getFullYear());
+    var s = y + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    var list = TW_HOLIDAYS_CACHE[y] || [];
+    return list.indexOf(s) >= 0;
 }
 function getCurrentRateType(offpeak, peak, holiday, peakWindow, currentPromo) {
-    // v332：若有生效中的公告優惠，優先顯示
+    // v333：若有生效中的公告優惠，優先顯示
     var cp = String(currentPromo || '').trim();
     if (cp && cp !== '—' && cp !== '') {
-        // 格式可能是 "6.2" 或 "6.2（十一助行）"，取數字部分當價格
         var pm = cp.match(/(\d+(?:\.\d+)?)/);
         var pLabel = cp.replace(/^[\d.\s]+/, '').replace(/^[（(]/, '').replace(/[）)]$/, '').trim() || '優惠';
         if (pm) return { price: pm[1], label: pLabel };
