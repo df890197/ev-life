@@ -3127,7 +3127,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v335';
+        const APP_VERSION = 'v336';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -9865,12 +9865,15 @@ window.loadRates = async function(forceRefresh) {
                     var dt = new Date(ds);
                     if (!isNaN(dt.getTime())) {
                         var tw = new Date(dt.getTime() + 8 * 3600 * 1000);
-                        ds = tw.getUTCFullYear() + '-' + String(tw.getUTCMonth() + 1).padStart(2, '0') + '-' + String(tw.getUTCDate()).padStart(2, '0');
+                        ds = tw.getUTCFullYear() + '-' + String(tw.getUTCMonth() + 1).padStart(2, '0') + '-' + String(tw.getUTCDate()).padStart(2, '0')
+                            + ' ' + String(tw.getUTCHours()).padStart(2, '0') + ':' + String(tw.getUTCMinutes()).padStart(2, '0');
                     } else {
-                        ds = isoM[1] + '-' + isoM[2] + '-' + isoM[3];
+                        ds = isoM[1] + '-' + isoM[2] + '-' + isoM[3] + ' ' + isoM[4] + ':' + isoM[5];
                     }
                 } else {
-                    ds = ds.substring(0, 10);
+                    // v336：保留到分鐘（YYYY-MM-DD HH:MM），每小時更新才看得出
+                    var dm = ds.match(/(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2})/);
+                    ds = dm ? (dm[1] + ' ' + dm[2]) : ds.substring(0, 10);
                 }
                 if (ds && ds > maxDate) maxDate = ds;
             });
