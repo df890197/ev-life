@@ -333,6 +333,7 @@ input[type="number"] {
         /* v92：儲存按鈕精緻化 — 小一點、pill、更貼齊下面 */
         .v92-save-btn { flex: 0 0 auto !important; width: auto !important; min-width: 200px !important; max-width: 320px !important; padding: 0.85rem 2.5rem !important; font-size: 0.9375rem !important; border-radius: 1rem !important; box-shadow: 0 4px 12px rgba(13,148,136,0.3) !important; } /* v314：使用者說滿版太大，改置中適中寬度（200-320px） */
         .v91-sticky-save > div.flex { justify-content: center; } /* v314：按鈕組整組置中（編輯時取消鈕並排也在中間） */
+        .v315-idle-soc { margin-top: auto !important; margin-bottom: auto !important; } /* v315：閒置卡三格拿掉後，SOC 條垂直置中 */
         /* v98：首頁 A — 保持資訊，卡片分組＋留白（不收合、不藏東西） */
         .v98-home > div { margin-bottom: 1.5rem !important; }
         .v98-home > div:last-child { margin-bottom: 0 !important; }
@@ -3118,7 +3119,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v314';
+        const APP_VERSION = 'v315';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -5093,7 +5094,7 @@ window.setupSocSliders = function() {
                     ` : ''}
 
                     ${!isNonDrive ? `
-                        <div class="rpg-card-sublayer px-3 py-2.5 rounded-2xl mb-2 flex items-center justify-between gap-2.5 transition-colors">
+                        <div class="rpg-card-sublayer px-3 py-2.5 rounded-2xl mb-2 flex items-center justify-between gap-2.5 transition-colors ${isIdleRec ? 'v315-idle-soc' : ''}">
                             <div class="flex items-center gap-1.5 shrink-0">
                                 <span class="text-[10px] text-stone-400 font-bold">起</span>
                                 <span class="v187-clear font-mono font-extrabold text-xs sm:text-sm text-stone-700 dark:text-stone-100 bg-white/90 dark:bg-neutral-900/90 px-2 py-0.5 rounded-lg border border-stone-200/60 dark:border-white/10 shadow-sm">${rec.startSoc}%</span>
