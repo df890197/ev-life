@@ -3133,7 +3133,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v338';
+        const APP_VERSION = 'v339';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -9880,7 +9880,7 @@ window.loadChangelog = async function() {
 window.showAllChangelog = async function() {
     var banner = document.getElementById('ratesChangelog');
     if (!banner || !AppState.syncUrl) return;
-    banner.innerHTML = '<div class="text-center py-4 text-stone-400 text-sm font-bold">載入公告中…</div>';
+    banner.innerHTML = window._ratesSpinner('載入公告中…');
     try {
         var url = AppState.syncUrl;
         url += (url.indexOf('?') >= 0 ? '&' : '?') + 'token=' + encodeURIComponent(AppState.syncToken || '') + '&action=getChangelog&_t=' + Date.now();
@@ -9923,6 +9923,13 @@ window.dismissChangelog = function() {
     if (latest) localStorage.setItem('ev_life_changelog_dismissed', latest);
     if (banner) banner.innerHTML = '';
 };
+// v339：載入動畫共用 spinner
+window._ratesSpinner = function(text) {
+    return '<div class="text-center py-10">'
+        + '<div class="inline-block w-8 h-8 rounded-full border-[3px] border-amber-200 dark:border-amber-800 border-t-amber-500 dark:border-t-amber-400 animate-spin mb-3"></div>'
+        + '<div class="text-stone-400 text-sm font-bold">' + text + '</div>'
+        + '</div>';
+};
 window.loadRates = async function(forceRefresh) {
     loadTwHolidays();
     loadChangelog();
@@ -9940,7 +9947,7 @@ window.loadRates = async function(forceRefresh) {
         return;
     }
     if (!forceRefresh && content.dataset.loaded === '1') return;
-    content.innerHTML = '<div class="text-center py-10 text-stone-400 text-sm font-bold">載入費率中…</div>';
+    content.innerHTML = window._ratesSpinner('載入費率中…');
     try {
         var url = AppState.syncUrl;
         url += (url.indexOf('?') >= 0 ? '&' : '?') + 'token=' + encodeURIComponent(AppState.syncToken || '') + '&action=getRates&_t=' + Date.now();
