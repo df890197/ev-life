@@ -3127,7 +3127,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v324';
+        const APP_VERSION = 'v327';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -9953,8 +9953,8 @@ function renderRatesCards(header, rows) {
         var promo = esc(promoRaw.split('；').filter(function(s) { return s.indexOf('📍') < 0; }).join('；'));
         var _siteId = 'sp_' + Math.random().toString(36).slice(2, 8);
         var siteHtml = siteItems.length ? '<div class="mt-2 pt-2 border-t border-stone-100 dark:border-stone-800">'
-            + '<button onclick="document.getElementById(\'' + _siteId + '\').classList.toggle(\'hidden\');this.querySelector(\'.sp-arrow\').textContent=document.getElementById(\'' + _siteId + '\').classList.contains(\'hidden\')?\'\u25B6\':\'\u25BC\';" class="w-full flex items-center justify-between text-[11px] font-extrabold text-stone-500 dark:text-stone-400 mb-1">'
-            + '<span>📍 站點優惠 (' + siteItems.length + ')</span><span class="sp-arrow">▶</span></button>'
+            + '<button onclick="var _el=document.getElementById(\'' + _siteId + '\');_el.classList.toggle(\'hidden\');this.querySelector(\'.sp-arrow\').textContent=_el.classList.contains(\'hidden\')?\'+\':\'\u2212\';" class="w-full flex items-center justify-between text-[11px] font-extrabold text-stone-500 dark:text-stone-400 mb-1 py-1">'
+            + '<span>📍 站點優惠 (' + siteItems.length + ')</span><span class="sp-arrow text-sm font-light w-5 h-5 flex items-center justify-center rounded-full bg-stone-100 dark:bg-stone-800">+</span></button>'
             + '<div id="' + _siteId + '" class="hidden">'
             + siteItems.map(function(s) {
                 return '<div class="text-[11px] md:text-xs text-stone-600 dark:text-stone-300 mb-1 leading-relaxed">• ' + esc(s.replace('📍', '').trim()) + '</div>';
@@ -9973,8 +9973,13 @@ function renderRatesCards(header, rows) {
         return '<div class="border border-stone-100 dark:border-stone-800 rounded-2xl p-4" data-rate-op="' + op.replace(/"/g, '&quot;') + '">'
             + '<div class="font-extrabold text-sm md:text-base mb-2 flex items-center gap-2">'
             + '<span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span><span class="flex-1">' + op + '</span>'
-            + '<button onclick="moveRateCard(\'' + _opEsc + '\',-1)" class="text-stone-300 dark:text-stone-600 hover:text-amber-500 text-xs px-1" title="上移">\u25B2</button>'
-            + '<button onclick="moveRateCard(\'' + _opEsc + '\',1)" class="text-stone-300 dark:text-stone-600 hover:text-amber-500 text-xs px-1" title="下移">\u25BC</button></div>'
+            + '<div class="flex items-center rounded-full bg-stone-100 dark:bg-stone-800/80 border border-stone-200/60 dark:border-stone-700/60 overflow-hidden shrink-0 shadow-sm">'
+            + '<button onclick="moveRateCard(\'' + _opEsc + '\',-1)" title="上移" class="w-7 h-7 flex items-center justify-center text-stone-400 dark:text-stone-500 hover:text-amber-600 hover:bg-white dark:hover:bg-stone-700 transition-colors">'
+            + '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg></button>'
+            + '<div class="w-px h-4 bg-stone-200 dark:bg-stone-700"></div>'
+            + '<button onclick="moveRateCard(\'' + _opEsc + '\',1)" title="下移" class="w-7 h-7 flex items-center justify-center text-stone-400 dark:text-stone-500 hover:text-amber-600 hover:bg-white dark:hover:bg-stone-700 transition-colors">'
+            + '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>'
+            + '</div></div>'
             + (cur.price && cur.price !== '—' ? '<div class="mb-3 flex items-baseline gap-2">'
                 + '<span class="text-[11px] font-bold text-stone-400">現在</span>'
                 + '<span class="text-xl md:text-2xl font-extrabold ' + curColor + '">' + esc(cur.price) + '</span>'
