@@ -1756,6 +1756,17 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                     <input type="file" id="heroImageUpload" class="hidden" accept="image/*" onchange="handleHeroImageUpload(event)">
                 </div>
                 </div>
+            <!-- v320：充電費率入口（tab bar 回五格，費率改從首頁進入） -->
+            <button onclick="switchTab('rates')" class="w-full mt-4 mb-2 p-4 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-800/50 flex items-center justify-between shadow-sm active:scale-[0.98] transition-transform">
+                <span class="flex items-center gap-3">
+                    <span class="text-2xl">⚡</span>
+                    <span class="text-left">
+                        <span class="block font-extrabold text-sm text-stone-800 dark:text-stone-100">充電費率</span>
+                        <span class="block text-[11px] text-stone-500 dark:text-stone-400 font-bold">九家業者即時費率・每 12 小時更新</span>
+                    </span>
+                </span>
+                <span class="text-stone-400 text-lg">›</span>
+            </button>
             <!-- v172：旅程封面圖說列依使用者要求移除 -->
 
                 <div class="v169-chap"><span class="no">1</span><h3>行駛總覽</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F2A497" stroke-width="3" stroke-linecap="round"/></svg></div>
@@ -2959,10 +2970,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                 <span class="tab-label text-[9px] md:text-[10px] font-bold tracking-wider mt-0.5">分析</span>
             </button>
 
-            <button onclick="switchTab('rates')" id="tab-rates" class="tab-btn flex flex-col items-center gap-1 w-14 md:w-20 text-slate-500 dark:text-slate-400 cursor-pointer">
-                <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6M9 8h1M5 3h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/></svg>
-                <span class="tab-label text-[9px] md:text-[10px] font-bold tracking-wider mt-0.5">費率</span>
-            </button>
+            
 
             <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn flex flex-col items-center gap-1 w-14 md:w-20 text-slate-500 dark:text-slate-400 relative cursor-pointer">
                 <span id="syncStatusDot" class="absolute top-0 right-3 md:right-5 w-2 h-2 rounded-full bg-rose-500 animate-pulse hidden"></span>
@@ -3119,7 +3127,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v318';
+        const APP_VERSION = 'v320';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
