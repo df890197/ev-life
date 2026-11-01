@@ -1,1258 +1,1467 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>花蓮・合歡山 自駕出遊 2026.11.07 - 11.09</title>
-  
-  <!-- 瀏覽器分頁 Favicon (海豚 🐬) -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐬</text></svg>">
-
-  <!-- Google Fonts: Zen Maru Gothic (日系可愛圓體) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
-  
-  <style>
-    :root {
-      --bg-main: #FCF9F2;
-      --bg-card: #FFFFFF;
-      --bg-card-sub: #F7F3E8;
-      --text-main: #383431;
-      --text-muted: #78726D;
-      --border-color: #383431;
-      --shadow-color: #383431;
-      
-      --ocean-blue: #7CB9E8;
-      --ocean-light: #EBF4FC;
-      --mountain-green: #A3C9A8;
-      --mountain-light: #EFF6F0;
-      --hualien-gold: #F4C46B;
-      --hualien-gold-light: #FDF6E2;
-      --sunset-coral: #F29C8B;
-      --sunset-coral-light: #FDF0ED;
-
-      --badge-drive-bg: #E3F2FD;
-      --badge-drive-text: #154360;
-      --badge-alt-bg: #EAE6DF;
-      --badge-alt-text: #383431;
-      --stay-pill-bg: #FFF8E7;
-      --stay-pill-text: #7A5210;
-      
-      --sun-display: block;
-      --moon-display: none;
-      --wave-color: #7CB9E8;
-    }
-
-    [data-theme="dark"] {
-      --bg-main: #141721;
-      --bg-card: #1D2230;
-      --bg-card-sub: #171B26;
-      --text-main: #F4F2EC;
-      --text-muted: #A6AFBF;
-      --border-color: #434B5D;
-      --shadow-color: #0A0C12;
-      
-      --ocean-blue: #5C95C4;
-      --ocean-light: #1E2B38;
-      --mountain-green: #7BA581;
-      --mountain-light: #1F2E23;
-      --hualien-gold: #E5B85C;
-      --hualien-gold-light: #332B1A;
-      --sunset-coral: #E08575;
-      --sunset-coral-light: #382421;
-
-      --badge-drive-bg: #1B365D;
-      --badge-drive-text: #90CAF9;
-      --badge-alt-bg: #2C3345;
-      --badge-alt-text: #E2E8F0;
-      --stay-pill-bg: #2E2818;
-      --stay-pill-text: #FAD02C;
-      
-      --sun-display: none;
-      --moon-display: block;
-      --wave-color: #5C95C4;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Zen Maru Gothic', -apple-system, BlinkMacSystemFont, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-      background-color: var(--bg-main);
-      color: var(--text-main);
-      line-height: 1.6;
-      padding-bottom: 70px;
-      transition: background-color 0.3s ease, color 0.3s ease;
-      touch-action: manipulation;
-    }
-
-    .navbar {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background-color: var(--bg-main);
-      border-bottom: 3px solid var(--border-color);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 14px;
-      transition: background-color 0.3s ease;
-    }
-
-    .nav-brand {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-weight: 900;
-      font-size: 1rem;
-      color: var(--text-main);
-    }
-
-    .nav-actions {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .nav-tabs {
-      display: inline-flex;
-      background-color: var(--bg-card-sub);
-      border: 2px solid var(--border-color);
-      border-radius: 999px;
-      padding: 2px;
-      box-shadow: 2px 2px 0px var(--shadow-color);
-    }
-
-    .nav-tab-btn {
-      background: none;
-      border: none;
-      padding: 4px 8px;
-      font-size: 0.76rem;
-      font-weight: 900;
-      color: var(--text-muted);
-      border-radius: 999px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .nav-tab-btn.active {
-      background-color: var(--sunset-coral);
-      color: #1A1A1A;
-    }
-
-    .nav-circle-btn {
-      color: #1A1A1A;
-      border: 2px solid var(--border-color);
-      border-radius: 999px;
-      width: 30px;
-      height: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.85rem;
-      cursor: pointer;
-      box-shadow: 2px 2px 0px var(--shadow-color);
-      transition: transform 0.15s ease, background-color 0.2s ease;
-    }
-
-    .nav-circle-btn:active {
-      transform: translate(2px, 2px);
-      box-shadow: 0px 0px 0px var(--shadow-color);
-    }
-
-    .theme-toggle-btn { background-color: var(--hualien-gold); }
-    .refresh-btn { background-color: var(--ocean-blue); }
-
-    .refresh-btn.rotating {
-      animation: spinRefresh 0.6s ease-in-out;
-    }
-
-    @keyframes spinRefresh {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .container {
-      max-width: 580px;
-      margin: 0 auto;
-      padding: 16px;
-    }
-
-    .toast-msg {
-      position: fixed;
-      top: 60px;
-      left: 50%;
-      transform: translateX(-50%) translateY(-20px);
-      background-color: var(--sunset-coral);
-      color: #1A1A1A;
-      font-size: 0.78rem;
-      font-weight: 900;
-      padding: 6px 14px;
-      border: 2px solid var(--border-color);
-      border-radius: 999px;
-      box-shadow: 2px 2px 0px var(--shadow-color);
-      opacity: 0;
-      pointer-events: none;
-      transition: all 0.25s ease;
-      z-index: 1000;
-    }
-
-    .toast-msg.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    .hero-card {
-      background-color: var(--bg-card);
-      border: 3px solid var(--border-color);
-      border-radius: 24px;
-      padding: 18px 14px 16px;
-      box-shadow: 4px 4px 0px var(--shadow-color);
-      text-align: center;
-      margin-bottom: 18px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      background-color: var(--hualien-gold);
-      color: #1A1A1A;
-      font-weight: 900;
-      font-size: 0.8rem;
-      padding: 3px 12px;
-      border: 2px solid var(--border-color);
-      border-radius: 999px;
-      margin-bottom: 10px;
-      box-shadow: 2px 2px 0px var(--shadow-color);
-    }
-
-    .hero-title {
-      font-size: 1.45rem;
-      font-weight: 900;
-      line-height: 1.35;
-      margin-bottom: 4px;
-    }
-
-    .hero-subtitle {
-      font-size: 0.86rem;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-      font-weight: 700;
-    }
-
-    .hero-illustration {
-      width: 100%;
-      max-width: 350px;
-      height: 155px;
-      margin: 0 auto 12px;
-      display: block;
-    }
-
-    .countdown-container {
-      background-color: var(--ocean-light);
-      border: 2.5px solid var(--border-color);
-      border-radius: 18px;
-      padding: 8px 12px;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      box-shadow: 2.5px 2.5px 0px var(--shadow-color);
-    }
-
-    .countdown-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .countdown-num {
-      font-size: 1.35rem;
-      font-weight: 900;
-      color: var(--text-main);
-      line-height: 1.1;
-    }
-
-    .countdown-label {
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: var(--text-muted);
-    }
-
-    .track-section {
-      background-color: var(--bg-card);
-      border: 3px solid var(--border-color);
-      border-radius: 22px;
-      padding: 14px 12px 10px;
-      box-shadow: 4px 4px 0px var(--shadow-color);
-      margin-bottom: 16px;
-      position: relative;
-    }
-
-    .wave-line {
-      position: absolute;
-      left: 8%;
-      right: 8%;
-      top: 26px;
-      height: 6px;
-      background-image: radial-gradient(circle at 10px 0px, transparent 8px, var(--wave-color) 9px, var(--wave-color) 11px, transparent 12px);
-      background-size: 20px 10px;
-      background-repeat: repeat-x;
-      z-index: 1;
-      opacity: 0.75;
-    }
-
-    .cable-car-wrapper {
-      position: relative;
-      width: 100%;
-      height: 42px;
-      z-index: 2;
-    }
-
-    .cable-car {
-      position: absolute;
-      top: -4px;
-      left: 0;
-      width: 33.333%;
-      display: flex;
-      justify-content: center;
-      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-      pointer-events: none;
-    }
-
-    .date-btn-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-      position: relative;
-      z-index: 3;
-      margin-top: 4px;
-    }
-
-    .date-btn {
-      background: none;
-      border: none;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      cursor: pointer;
-      opacity: 0.55;
-      transition: all 0.2s;
-    }
-
-    .date-btn.active {
-      opacity: 1;
-    }
-
-    .date-pill {
-      font-size: 0.82rem;
-      font-weight: 900;
-      padding: 2px 12px;
-      border-radius: 999px;
-      border: 2px solid transparent;
-      color: var(--text-main);
-    }
-
-    .date-btn.active .date-pill {
-      background-color: var(--sunset-coral);
-      color: #1A1A1A;
-      border-color: var(--border-color);
-      box-shadow: 2px 2px 0px var(--shadow-color);
-    }
-
-    .date-sub {
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      margin-top: 2px;
-    }
-
-    .date-btn.active .date-sub {
-      color: var(--text-main);
-      font-weight: 900;
-    }
-
-    .day-summary-card {
-      background-color: var(--hualien-gold-light);
-      border: 3px solid var(--border-color);
-      border-radius: 18px;
-      padding: 12px 14px;
-      box-shadow: 3px 3px 0px var(--shadow-color);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-
-    .day-icon-box {
-      width: 48px;
-      height: 48px;
-      background-color: var(--bg-card);
-      border: 2px solid var(--border-color);
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 2px 2px 0px var(--shadow-color);
-      flex-shrink: 0;
-      font-size: 1.35rem;
-    }
-
-    .day-tag {
-      font-size: 0.72rem;
-      font-weight: 900;
-      background-color: var(--hualien-gold);
-      color: #1A1A1A;
-      padding: 1px 8px;
-      border: 1.5px solid var(--border-color);
-      border-radius: 999px;
-      display: inline-block;
-    }
-
-    .day-summary-title {
-      font-size: 0.95rem;
-      font-weight: 900;
-      margin-top: 2px;
-    }
-
-    .day-hotel-info {
-      font-size: 0.76rem;
-      color: var(--text-muted);
-      font-weight: 700;
-      margin-top: 3px;
-      line-height: 1.4;
-    }
-
-    .timeline-wrap {
-      position: relative;
-      margin-bottom: 24px;
-    }
-
-    .timeline-dashed-line {
-      position: absolute;
-      left: 64px;
-      top: 15px;
-      bottom: 20px;
-      width: 2.5px;
-      background-image: linear-gradient(to bottom, var(--border-color) 55%, rgba(255,255,255,0) 0%);
-      background-size: 2.5px 10px;
-      background-repeat: repeat-y;
-      z-index: 1;
-    }
-
-    .timeline-node {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      margin-bottom: 15px;
-      position: relative;
-      z-index: 2;
-    }
-
-    .node-time-box {
-      width: 56px;
-      text-align: right;
-      padding-top: 8px;
-      flex-shrink: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-    }
-
-    .node-time {
-      font-weight: 900;
-      font-size: 0.88rem;
-      color: var(--text-main);
-      line-height: 1.2;
-    }
-
-    .node-time-label {
-      font-size: 0.65rem;
-      font-weight: 700;
-      color: var(--text-muted);
-    }
-
-    .node-dot {
-      width: 14px;
-      height: 14px;
-      background-color: var(--hualien-gold);
-      border: 2px solid var(--border-color);
-      border-radius: 50%;
-      margin-top: 11px;
-      flex-shrink: 0;
-    }
-
-    .node-card {
-      flex: 1;
-      background-color: var(--bg-card);
-      border: 2.5px solid var(--border-color);
-      border-radius: 16px;
-      padding: 10px 12px;
-      box-shadow: 3px 3px 0px var(--shadow-color);
-    }
-
-    .node-header {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-bottom: 4px;
-    }
-
-    .pill-tag {
-      font-size: 0.7rem;
-      font-weight: 900;
-      padding: 2px 8px;
-      border: 1.5px solid var(--border-color);
-      border-radius: 999px;
-    }
-
-    .alt-badge {
-      font-size: 0.68rem;
-      font-weight: 900;
-      padding: 2px 7px;
-      border: 1.5px solid var(--border-color);
-      border-radius: 6px;
-      background-color: var(--badge-alt-bg);
-      color: var(--badge-alt-text);
-      display: inline-flex;
-      align-items: center;
-      gap: 2px;
-    }
-
-    .drive-badge {
-      font-size: 0.68rem;
-      font-weight: 900;
-      padding: 2px 7px;
-      border: 1.5px solid var(--border-color);
-      border-radius: 6px;
-      background-color: var(--badge-drive-bg);
-      color: var(--badge-drive-text);
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-    }
-
-    .stay-schedule-bar {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background-color: var(--stay-pill-bg);
-      color: var(--stay-pill-text);
-      font-size: 0.72rem;
-      font-weight: 900;
-      padding: 2px 8px;
-      border-radius: 8px;
-      border: 1px dashed var(--border-color);
-      margin-top: 3px;
-      margin-bottom: 6px;
-    }
-
-    .tag-ocean { background-color: var(--ocean-blue); color: #1A1A1A; }
-    .tag-food { background-color: var(--hualien-gold); color: #1A1A1A; }
-    .tag-spot { background-color: var(--sunset-coral); color: #1A1A1A; }
-    .tag-nature { background-color: var(--mountain-green); color: #1A1A1A; }
-
-    .node-title {
-      font-size: 0.92rem;
-      font-weight: 900;
-    }
-
-    .node-desc {
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      line-height: 1.45;
-    }
-
-    .node-parking {
-      margin-top: 6px;
-      padding-top: 6px;
-      border-top: 1px dashed var(--border-color);
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--sunset-coral);
-    }
-
-    .section-title {
-      font-size: 1.15rem;
-      font-weight: 900;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .section-title::before {
-      content: '';
-      display: inline-block;
-      width: 6px;
-      height: 18px;
-      background-color: var(--hualien-gold);
-      border: 2px solid var(--border-color);
-      border-radius: 3px;
-    }
-
-    .box-card {
-      background-color: var(--bg-card);
-      border: 3px solid var(--border-color);
-      border-radius: 20px;
-      padding: 15px;
-      box-shadow: 4px 4px 0px var(--shadow-color);
-      margin-bottom: 18px;
-    }
-
-    .compare-choice {
-      border: 2px solid var(--border-color);
-      border-radius: 12px;
-      padding: 10px;
-      margin-bottom: 8px;
-      background-color: var(--bg-card-sub);
-    }
-
-    .compare-choice.best {
-      background-color: var(--mountain-light);
-      border: 2.5px solid var(--border-color);
-    }
-
-    .choice-badge {
-      font-size: 0.68rem;
-      font-weight: 900;
-      padding: 1px 6px;
-      border-radius: 999px;
-      border: 1.5px solid var(--border-color);
-      display: inline-block;
-      margin-bottom: 2px;
-    }
-
-    .choice-badge.top { background-color: var(--mountain-green); color: #1A1A1A; }
-    .choice-badge.sub { background-color: var(--hualien-gold); color: #1A1A1A; }
-
-    .market-box {
-      border: 2px solid var(--border-color);
-      border-radius: 14px;
-      padding: 10px;
-      margin-bottom: 10px;
-      background-color: var(--bg-card-sub);
-    }
-
-    .market-zone-tag {
-      font-size: 0.72rem;
-      font-weight: 900;
-      background-color: var(--hualien-gold);
-      color: #1A1A1A;
-      padding: 1px 8px;
-      border: 1.5px solid var(--border-color);
-      border-radius: 999px;
-      display: inline-block;
-      margin-bottom: 6px;
-    }
-
-    .progress-bar-wrap {
-      width: 100%;
-      height: 10px;
-      background-color: var(--bg-card-sub);
-      border: 2px solid var(--border-color);
-      border-radius: 999px;
-      overflow: hidden;
-      margin-bottom: 12px;
-    }
-
-    .progress-bar {
-      height: 100%;
-      width: 0%;
-      background-color: var(--mountain-green);
-      transition: width 0.3s;
-    }
-
-    .check-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 4px;
-      border-bottom: 1px dashed var(--border-color);
-      font-size: 0.84rem;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .check-item:last-child { border-bottom: none; }
-
-    .check-box {
-      width: 18px;
-      height: 18px;
-      border: 2px solid var(--border-color);
-      border-radius: 5px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: var(--bg-card);
-      flex-shrink: 0;
-    }
-
-    .check-item.done .check-box { background-color: var(--mountain-green); }
-    .check-item.done .check-box::after { content: '✓'; font-weight: 900; font-size: 12px; }
-    .check-item.done span { text-decoration: line-through; color: var(--text-muted); }
-
-    @keyframes dolphinJump {
-      0%, 100% { transform: translateY(0px) rotate(0deg); }
-      50% { transform: translateY(-4px) rotate(-3deg); }
-    }
-    .anim-jump { animation: dolphinJump 2.6s ease-in-out infinite; }
-
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-
-    @media (prefers-reduced-motion: reduce) {
-      .anim-jump, .cable-car { animation: none !important; transition: none !important; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>花蓮・合歡山 自駕出遊 2026.11.07 - 11.09（充電版）</title>
+
+<!-- 瀏覽器分頁 Favicon (海豚 🐬) -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐬</text></svg>">
+
+<!-- Google Fonts: Zen Maru Gothic (日系可愛圓體) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<style>
+:root {
+--bg-main: #FCF9F2;
+--bg-card: #FFFFFF;
+--bg-card-sub: #F7F3E8;
+--text-main: #383431;
+--text-muted: #78726D;
+--border-color: #383431;
+--shadow-color: #383431;
+
+--ocean-blue: #7CB9E8;
+--ocean-light: #EBF4FC;
+--mountain-green: #A3C9A8;
+--mountain-light: #EFF6F0;
+--hualien-gold: #F4C46B;
+--hualien-gold-light: #FDF6E2;
+--sunset-coral: #F29C8B;
+--sunset-coral-light: #FDF0ED;
+--danger-bg: #FDECEA;
+--danger-text: #C0392B;
+
+--badge-drive-bg: #E3F2FD;
+--badge-drive-text: #154360;
+--badge-alt-bg: #EAE6DF;
+--badge-alt-text: #383431;
+--stay-pill-bg: #FFF8E7;
+--stay-pill-text: #7A5210;
+
+--sun-display: block;
+--moon-display: none;
+--wave-color: #7CB9E8;
+}
+
+[data-theme="dark"] {
+--bg-main: #141721;
+--bg-card: #1D2230;
+--bg-card-sub: #171B26;
+--text-main: #F4F2EC;
+--text-muted: #A6AFBF;
+--border-color: #434B5D;
+--shadow-color: #0A0C12;
+
+--ocean-blue: #5C95C4;
+--ocean-light: #1E2B38;
+--mountain-green: #7BA581;
+--mountain-light: #1F2E23;
+--hualien-gold: #E5B85C;
+--hualien-gold-light: #332B1A;
+--sunset-coral: #E08575;
+--sunset-coral-light: #382421;
+--danger-bg: #3A2226;
+--danger-text: #F1948A;
+
+--badge-drive-bg: #1B365D;
+--badge-drive-text: #90CAF9;
+--badge-alt-bg: #2C3345;
+--badge-alt-text: #E2E8F0;
+--stay-pill-bg: #2E2818;
+--stay-pill-text: #FAD02C;
+
+--sun-display: none;
+--moon-display: block;
+--wave-color: #5C95C4;
+}
+
+* {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+font-family: 'Zen Maru Gothic', -apple-system, BlinkMacSystemFont, sans-serif;
+-webkit-tap-highlight-color: transparent;
+}
+
+body {
+background-color: var(--bg-main);
+color: var(--text-main);
+line-height: 1.6;
+padding-bottom: 70px;
+transition: background-color 0.3s ease, color 0.3s ease;
+touch-action: manipulation;
+}
+
+.navbar {
+position: sticky;
+top: 0;
+z-index: 100;
+background-color: var(--bg-main);
+border-bottom: 3px solid var(--border-color);
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 10px 14px;
+transition: background-color 0.3s ease;
+}
+
+.nav-brand {
+display: flex;
+align-items: center;
+gap: 6px;
+font-weight: 900;
+font-size: 1rem;
+color: var(--text-main);
+}
+
+.nav-actions {
+display: flex;
+align-items: center;
+gap: 6px;
+}
+
+.nav-tabs {
+display: inline-flex;
+background-color: var(--bg-card-sub);
+border: 2px solid var(--border-color);
+border-radius: 999px;
+padding: 2px;
+box-shadow: 2px 2px 0px var(--shadow-color);
+}
+
+.nav-tab-btn {
+background: none;
+border: none;
+padding: 4px 8px;
+font-size: 0.76rem;
+font-weight: 900;
+color: var(--text-muted);
+border-radius: 999px;
+cursor: pointer;
+transition: all 0.2s;
+}
+
+.nav-tab-btn.active {
+background-color: var(--sunset-coral);
+color: #1A1A1A;
+}
+
+.nav-circle-btn {
+color: #1A1A1A;
+border: 2px solid var(--border-color);
+border-radius: 999px;
+width: 30px;
+height: 30px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 0.85rem;
+cursor: pointer;
+box-shadow: 2px 2px 0px var(--shadow-color);
+transition: transform 0.15s ease, background-color 0.2s ease;
+}
+
+.nav-circle-btn:active {
+transform: translate(2px, 2px);
+box-shadow: 0px 0px 0px var(--shadow-color);
+}
+
+.theme-toggle-btn { background-color: var(--hualien-gold);}
+.refresh-btn { background-color: var(--ocean-blue);}
+
+.refresh-btn.rotating {
+animation: spinRefresh 0.6s ease-in-out;
+}
+
+@keyframes spinRefresh {
+0% { transform: rotate(0deg);}
+100% { transform: rotate(360deg);}
+}
+
+.container {
+max-width: 580px;
+margin: 0 auto;
+padding: 16px;
+}
+
+.toast-msg {
+position: fixed;
+top: 60px;
+left: 50%;
+transform: translateX(-50%) translateY(-20px);
+background-color: var(--sunset-coral);
+color: #1A1A1A;
+font-size: 0.78rem;
+font-weight: 900;
+padding: 6px 14px;
+border: 2px solid var(--border-color);
+border-radius: 999px;
+box-shadow: 2px 2px 0px var(--shadow-color);
+opacity: 0;
+pointer-events: none;
+transition: all 0.25s ease;
+z-index: 1000;
+}
+
+.toast-msg.show {
+opacity: 1;
+transform: translateX(-50%) translateY(0);
+}
+
+.hero-card {
+background-color: var(--bg-card);
+border: 3px solid var(--border-color);
+border-radius: 24px;
+padding: 18px 14px 16px;
+box-shadow: 4px 4px 0px var(--shadow-color);
+text-align: center;
+margin-bottom: 18px;
+position: relative;
+overflow: hidden;
+}
+
+.hero-badge {
+display: inline-flex;
+align-items: center;
+gap: 4px;
+background-color: var(--hualien-gold);
+color: #1A1A1A;
+font-weight: 900;
+font-size: 0.8rem;
+padding: 3px 12px;
+border: 2px solid var(--border-color);
+border-radius: 999px;
+margin-bottom: 10px;
+box-shadow: 2px 2px 0px var(--shadow-color);
+}
+
+.hero-title {
+font-size: 1.45rem;
+font-weight: 900;
+line-height: 1.35;
+margin-bottom: 4px;
+}
+
+.hero-subtitle {
+font-size: 0.86rem;
+color: var(--text-muted);
+margin-bottom: 12px;
+font-weight: 700;
+}
+
+.hero-illustration {
+width: 100%;
+max-width: 350px;
+height: 155px;
+margin: 0 auto 12px;
+display: block;
+}
+
+.countdown-container {
+background-color: var(--ocean-light);
+border: 2.5px solid var(--border-color);
+border-radius: 18px;
+padding: 8px 12px;
+display: flex;
+justify-content: space-around;
+align-items: center;
+box-shadow: 2.5px 2.5px 0px var(--shadow-color);
+}
+
+.countdown-item {
+display: flex;
+flex-direction: column;
+align-items: center;
+}
+
+.countdown-num {
+font-size: 1.35rem;
+font-weight: 900;
+color: var(--text-main);
+line-height: 1.1;
+}
+
+.countdown-label {
+font-size: 0.7rem;
+font-weight: 700;
+color: var(--text-muted);
+}
+
+.track-section {
+background-color: var(--bg-card);
+border: 3px solid var(--border-color);
+border-radius: 22px;
+padding: 14px 12px 10px;
+box-shadow: 4px 4px 0px var(--shadow-color);
+margin-bottom: 16px;
+position: relative;
+}
+
+.wave-line {
+position: absolute;
+left: 8%;
+right: 8%;
+top: 26px;
+height: 6px;
+background-image: radial-gradient(circle at 10px 0px, transparent 8px, var(--wave-color) 9px, var(--wave-color) 11px, transparent 12px);
+background-size: 20px 10px;
+background-repeat: repeat-x;
+z-index: 1;
+opacity: 0.75;
+}
+
+.cable-car-wrapper {
+position: relative;
+width: 100%;
+height: 42px;
+z-index: 2;
+}
+
+.cable-car {
+position: absolute;
+top: -4px;
+left: 0;
+width: 33.333%;
+display: flex;
+justify-content: center;
+transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+pointer-events: none;
+}
+
+.date-btn-grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 6px;
+position: relative;
+z-index: 3;
+margin-top: 4px;
+}
+
+.date-btn {
+background: none;
+border: none;
+display: flex;
+flex-direction: column;
+align-items: center;
+cursor: pointer;
+opacity: 0.55;
+transition: all 0.2s;
+}
+
+.date-btn.active {
+opacity: 1;
+}
+
+.date-pill {
+font-size: 0.82rem;
+font-weight: 900;
+padding: 2px 12px;
+border-radius: 999px;
+border: 2px solid transparent;
+color: var(--text-main);
+}
+
+.date-btn.active.date-pill {
+background-color: var(--sunset-coral);
+color: #1A1A1A;
+border-color: var(--border-color);
+box-shadow: 2px 2px 0px var(--shadow-color);
+}
+
+.date-sub {
+font-size: 0.72rem;
+font-weight: 700;
+color: var(--text-muted);
+margin-top: 2px;
+}
+
+.date-btn.active.date-sub {
+color: var(--text-main);
+font-weight: 900;
+}
+
+/* 🔋 SOC 圖例 */
+.soc-mode-row{ display:flex; gap:8px; justify-content:center; margin:2px 0 10px; }
+.soc-mode-btn{ font-family:inherit; font-size:0.75rem; font-weight:800; padding:5px 16px; border-radius:999px; border:1.5px solid rgba(120,130,140,.35); background:transparent; color:var(--text-muted); cursor:pointer; }
+.soc-mode-btn.active{ background:var(--mountain-green); border-color:var(--mountain-green); color:#fff; }
+.soc-legend {
+font-size: 0.72rem;
+color: var(--text-muted);
+font-weight: 700;
+text-align: center;
+margin-top: 10px;
+position: relative;
+z-index: 3;
+}
+
+/* 🔋 電量顯示總開關 */
+.soc-toggle-row{ display:flex; align-items:center; justify-content:center; gap:10px; margin:12px 0 2px; font-size:0.82rem; font-weight:800; color:var(--text-muted); }
+.soc-switch{ width:46px; height:26px; border-radius:999px; border:none; background:rgba(120,130,140,.35); position:relative; cursor:pointer; transition:background .25s; padding:0; flex:none; }
+.soc-switch .soc-switch-knob{ position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; transition:left .25s; box-shadow:0 1px 3px rgba(0,0,0,.25); }
+.soc-switch.on{ background:var(--mountain-green); }
+.soc-switch.on .soc-switch-knob{ left:23px; }
+.soc-extra{ display:none; }
+body.soc-on .soc-extra{ display:block; }
+body.soc-on .soc-mode-row.soc-extra{ display:flex; }
+
+.day-summary-card {
+background-color: var(--hualien-gold-light);
+border: 3px solid var(--border-color);
+border-radius: 18px;
+padding: 12px 14px;
+box-shadow: 3px 3px 0px var(--shadow-color);
+display: flex;
+align-items: center;
+gap: 12px;
+margin-bottom: 18px;
+}
+
+.day-icon-box {
+width: 48px;
+height: 48px;
+background-color: var(--bg-card);
+border: 2px solid var(--border-color);
+border-radius: 14px;
+display: flex;
+align-items: center;
+justify-content: center;
+box-shadow: 2px 2px 0px var(--shadow-color);
+flex-shrink: 0;
+font-size: 1.35rem;
+}
+
+.day-tag {
+font-size: 0.72rem;
+font-weight: 900;
+background-color: var(--hualien-gold);
+color: #1A1A1A;
+padding: 1px 8px;
+border: 1.5px solid var(--border-color);
+border-radius: 999px;
+display: inline-block;
+}
+
+.day-summary-title {
+font-size: 0.95rem;
+font-weight: 900;
+margin-top: 2px;
+}
+
+.day-hotel-info {
+font-size: 0.76rem;
+color: var(--text-muted);
+font-weight: 700;
+margin-top: 3px;
+line-height: 1.4;
+}
+
+.timeline-wrap {
+position: relative;
+margin-bottom: 24px;
+}
+
+.timeline-dashed-line {
+position: absolute;
+left: 64px;
+top: 15px;
+bottom: 20px;
+width: 2.5px;
+background-image: linear-gradient(to bottom, var(--border-color) 55%, rgba(255,255,255,0) 0%);
+background-size: 2.5px 10px;
+background-repeat: repeat-y;
+z-index: 1;
+}
+
+.timeline-node {
+display: flex;
+align-items: flex-start;
+gap: 10px;
+margin-bottom: 15px;
+position: relative;
+z-index: 2;
+}
+
+.node-time-box {
+width: 56px;
+text-align: right;
+padding-top: 8px;
+flex-shrink: 0;
+display: flex;
+flex-direction: column;
+align-items: flex-end;
+}
+
+.node-time {
+font-weight: 900;
+font-size: 0.88rem;
+color: var(--text-main);
+line-height: 1.2;
+}
+
+.node-time-label {
+font-size: 0.65rem;
+font-weight: 700;
+color: var(--text-muted);
+}
+
+.node-dot {
+width: 14px;
+height: 14px;
+background-color: var(--hualien-gold);
+border: 2px solid var(--border-color);
+border-radius: 50%;
+margin-top: 11px;
+flex-shrink: 0;
+}
+
+/* 🔋 充電節點的點點變綠色 */
+.node-dot.charge-dot {
+background-color: var(--mountain-green);
+}
+
+.node-card {
+flex: 1;
+background-color: var(--bg-card);
+border: 2.5px solid var(--border-color);
+border-radius: 16px;
+padding: 10px 12px;
+box-shadow: 3px 3px 0px var(--shadow-color);
+}
+
+.node-header {
+display: flex;
+align-items: center;
+gap: 6px;
+flex-wrap: wrap;
+margin-bottom: 4px;
+}
+
+.pill-tag {
+font-size: 0.7rem;
+font-weight: 900;
+padding: 2px 8px;
+border: 1.5px solid var(--border-color);
+border-radius: 999px;
+}
+
+.alt-badge {
+font-size: 0.68rem;
+font-weight: 900;
+padding: 2px 7px;
+border: 1.5px solid var(--border-color);
+border-radius: 6px;
+background-color: var(--badge-alt-bg);
+color: var(--badge-alt-text);
+display: inline-flex;
+align-items: center;
+gap: 2px;
+}
+
+.drive-badge {
+font-size: 0.68rem;
+font-weight: 900;
+padding: 2px 7px;
+border: 1.5px solid var(--border-color);
+border-radius: 6px;
+background-color: var(--badge-drive-bg);
+color: var(--badge-drive-text);
+display: inline-flex;
+align-items: center;
+gap: 3px;
+}
+
+/* 🔋 預計抵達電量徽章 */
+.soc-badge {
+font-size: 0.68rem;
+font-weight: 900;
+padding: 2px 7px;
+border: 1.5px solid var(--border-color);
+border-radius: 6px;
+display: inline-flex;
+align-items: center;
+gap: 3px;
+}
+.soc-high { background-color: var(--mountain-green); color: #1A1A1A;}
+.soc-mid { background-color: var(--hualien-gold); color: #1A1A1A;}
+.soc-low { background-color: var(--danger-bg); color: var(--danger-text);}
+
+/* ⚡ 充電條 */
+.charge-bar {
+display: inline-flex;
+align-items: center;
+gap: 6px;
+background-color: var(--mountain-light);
+color: var(--text-main);
+font-size: 0.74rem;
+font-weight: 900;
+padding: 3px 10px;
+border-radius: 8px;
+border: 1.5px solid var(--border-color);
+box-shadow: 2px 2px 0px var(--shadow-color);
+}
+
+.stay-schedule-bar {
+display: inline-flex;
+align-items: center;
+gap: 8px;
+background-color: var(--stay-pill-bg);
+color: var(--stay-pill-text);
+font-size: 0.72rem;
+font-weight: 900;
+padding: 2px 8px;
+border-radius: 8px;
+border: 1px dashed var(--border-color);
+margin-top: 3px;
+margin-bottom: 6px;
+}
+
+.tag-ocean { background-color: var(--ocean-blue); color: #1A1A1A;}
+.tag-food { background-color: var(--hualien-gold); color: #1A1A1A;}
+.tag-spot { background-color: var(--sunset-coral); color: #1A1A1A;}
+.tag-nature { background-color: var(--mountain-green); color: #1A1A1A;}
+
+.node-title {
+font-size: 0.92rem;
+font-weight: 900;
+}
+
+.node-desc {
+font-size: 0.82rem;
+color: var(--text-muted);
+line-height: 1.45;
+}
+
+.node-parking {
+margin-top: 6px;
+padding-top: 6px;
+border-top: 1px dashed var(--border-color);
+font-size: 0.75rem;
+font-weight: 700;
+color: var(--sunset-coral);
+}
+
+.section-title {
+font-size: 1.15rem;
+font-weight: 900;
+display: flex;
+align-items: center;
+gap: 8px;
+margin-bottom: 12px;
+}
+
+.section-title::before {
+content: '';
+display: inline-block;
+width: 6px;
+height: 18px;
+background-color: var(--hualien-gold);
+border: 2px solid var(--border-color);
+border-radius: 3px;
+}
+
+.box-card {
+background-color: var(--bg-card);
+border: 3px solid var(--border-color);
+border-radius: 20px;
+padding: 15px;
+box-shadow: 4px 4px 0px var(--shadow-color);
+margin-bottom: 18px;
+}
+
+.compare-choice {
+border: 2px solid var(--border-color);
+border-radius: 12px;
+padding: 10px;
+margin-bottom: 8px;
+background-color: var(--bg-card-sub);
+}
+
+.compare-choice.best {
+background-color: var(--mountain-light);
+border: 2.5px solid var(--border-color);
+}
+
+.choice-badge {
+font-size: 0.68rem;
+font-weight: 900;
+padding: 1px 6px;
+border-radius: 999px;
+border: 1.5px solid var(--border-color);
+display: inline-block;
+margin-bottom: 2px;
+}
+
+.choice-badge.top { background-color: var(--mountain-green); color: #1A1A1A;}
+.choice-badge.sub { background-color: var(--hualien-gold); color: #1A1A1A;}
+
+.market-box {
+border: 2px solid var(--border-color);
+border-radius: 14px;
+padding: 10px;
+margin-bottom: 10px;
+background-color: var(--bg-card-sub);
+}
+
+.market-zone-tag {
+font-size: 0.72rem;
+font-weight: 900;
+background-color: var(--hualien-gold);
+color: #1A1A1A;
+padding: 1px 8px;
+border: 1.5px solid var(--border-color);
+border-radius: 999px;
+display: inline-block;
+margin-bottom: 6px;
+}
+
+.progress-bar-wrap {
+width: 100%;
+height: 10px;
+background-color: var(--bg-card-sub);
+border: 2px solid var(--border-color);
+border-radius: 999px;
+overflow: hidden;
+margin-bottom: 12px;
+}
+
+.progress-bar {
+height: 100%;
+width: 0%;
+background-color: var(--mountain-green);
+transition: width 0.3s;
+}
+
+.check-item {
+display: flex;
+align-items: center;
+gap: 8px;
+padding: 6px 4px;
+border-bottom: 1px dashed var(--border-color);
+font-size: 0.84rem;
+font-weight: 700;
+cursor: pointer;
+}
+
+.check-item:last-child { border-bottom: none;}
+
+.check-box {
+width: 18px;
+height: 18px;
+border: 2px solid var(--border-color);
+border-radius: 5px;
+display: flex;
+align-items: center;
+justify-content: center;
+background-color: var(--bg-card);
+flex-shrink: 0;
+}
+
+.check-item.done.check-box { background-color: var(--mountain-green);}
+.check-item.done.check-box::after { content: '✓'; font-weight: 900; font-size: 12px;}
+.check-item.done span { text-decoration: line-through; color: var(--text-muted);}
+
+@keyframes dolphinJump {
+0%, 100% { transform: translateY(0px) rotate(0deg);}
+50% { transform: translateY(-4px) rotate(-3deg);}
+}
+.anim-jump { animation: dolphinJump 2.6s ease-in-out infinite;}
+
+.tab-content { display: none;}
+.tab-content.active { display: block;}
+
+@media (prefers-reduced-motion: reduce) {
+.anim-jump,.cable-car { animation: none!important; transition: none!important;}
+}
+</style>
 </head>
 <body>
 
-  <!-- 頂部導覽列：海豚 🐬 -->
-  <header class="navbar">
-    <div class="nav-brand">
-      <span>🐬</span>
-      <span>花蓮山海漫遊記</span>
-    </div>
-    <div class="nav-actions">
-      <div class="nav-tabs">
-        <button class="nav-tab-btn active" onclick="switchMainTab('itinerary')" id="nav-btn-itinerary">旅程</button>
-        <button class="nav-tab-btn" onclick="switchMainTab('decision')" id="nav-btn-decision">行程分析</button>
-        <button class="nav-tab-btn" onclick="switchMainTab('pack')" id="nav-btn-pack">清單</button>
-      </div>
-      <button class="nav-circle-btn refresh-btn" id="refreshBtn" onclick="forceRefreshData()" aria-label="強制更新行程" title="強制刷新最新行程">
-        <span>🔄</span>
-      </button>
-      <button class="nav-circle-btn theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" aria-label="切換深淺模式">
-        <span id="themeIcon">☀️</span>
-      </button>
-    </div>
-  </header>
+<!-- 頂部導覽列：海豚 🐬 -->
+<header class="navbar">
+<div class="nav-brand">
+<span>🐬</span>
+<span>花蓮山海漫遊記</span>
+</div>
+<div class="nav-actions">
+<div class="nav-tabs">
+<button class="nav-tab-btn active" onclick="switchMainTab('itinerary')" id="nav-btn-itinerary">旅程</button>
+<button class="nav-tab-btn" onclick="switchMainTab('decision')" id="nav-btn-decision">行程分析</button>
+<button class="nav-tab-btn" onclick="switchMainTab('pack')" id="nav-btn-pack">清單</button>
+</div>
+<button class="nav-circle-btn refresh-btn" id="refreshBtn" onclick="forceRefreshData()" aria-label="強制更新行程" title="強制刷新最新行程">
+<span>🔄</span>
+</button>
+<button class="nav-circle-btn theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" aria-label="切換深淺模式">
+<span id="themeIcon">☀️</span>
+</button>
+</div>
+</header>
 
-  <div class="toast-msg" id="toastMsg">✨ 正在取得最新花蓮行程...</div>
+<div class="toast-msg" id="toastMsg">✨ 正在取得最新花蓮行程...</div>
 
-  <main class="container">
+<main class="container">
 
-    <section class="hero-card">
-      <div class="hero-badge">🌊 2026.11.07（週六）出發</div>
-      <h1 class="hero-title">花蓮・合歡山 山海漫活</h1>
-      <p class="hero-subtitle">太平洋微風 ╳ 太魯閣縱谷 ╳ 瑪雅平台夕陽與銀河</p>
+<section class="hero-card">
+<div class="hero-badge">🌊 2026.11.07（週六）出發</div>
+<h1 class="hero-title">花蓮・合歡山 山海漫活</h1>
+<p class="hero-subtitle">太平洋微風 ╳ 太魯閣縱谷 ╳ 瑪雅平台夕陽與銀河</p>
 
-      <svg class="hero-illustration anim-jump" viewBox="0 0 380 170" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <g style="display: var(--sun-display);">
-          <circle cx="315" cy="42" r="22" fill="#F4C46B" stroke="#383431" stroke-width="2.5"/>
-          <path d="M315 14 L315 8 M315 70 L315 76 M287 42 L281 42 M343 42 L349 42" stroke="#383431" stroke-width="2.5" stroke-linecap="round"/>
-        </g>
-        <g style="display: var(--moon-display);">
-          <path d="M322 26 C312 26 304 35 304 46 C304 58 314 68 326 66 C317 63 313 52 315 42 C317 35 323 30 322 26 Z" fill="#F4C46B" stroke="#383431" stroke-width="2.5"/>
-          <circle cx="270" cy="30" r="2" fill="#F4F2EC"/>
-          <circle cx="286" cy="52" r="1.5" fill="#F4F2EC"/>
-          <circle cx="348" cy="42" r="2" fill="#F4C46B"/>
-        </g>
-        <path d="M5 125 L55 60 L105 105 L160 45 L225 110 L300 70 L375 125" stroke="#383431" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        <polygon points="55,60 70,85 45,95" fill="#A3C9A8" stroke="#383431" stroke-width="2"/>
-        <polygon points="160,45 180,75 145,85" fill="#A3C9A8" stroke="#383431" stroke-width="2"/>
-        <path d="M10 135 C35 130 65 140 95 135 C125 130 155 140 185 135 C215 130 245 140 275 135 C305 130 335 140 370 135" stroke="#7CB9E8" stroke-width="3" stroke-linecap="round" fill="none"/>
-        <path d="M20 148 C50 143 80 152 110 147 C140 142 170 152 200 147 C230 142 260 152 290 147 C320 142 350 150 365 146" stroke="#383431" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-        <ellipse cx="60" cy="156" rx="9" ry="5" fill="#EBF4FC" stroke="#383431" stroke-width="2"/>
-        <ellipse cx="80" cy="158" rx="7" ry="4" fill="#F7F3E8" stroke="#383431" stroke-width="2"/>
-        <ellipse cx="310" cy="156" rx="10" ry="5.5" fill="#EBF4FC" stroke="#383431" stroke-width="2"/>
-        <ellipse cx="330" cy="158" rx="6" ry="3.5" fill="#FDF6E2" stroke="#383431" stroke-width="2"/>
-        <g transform="translate(185, 80)">
-          <circle cx="-12" cy="30" r="2.5" fill="#7CB9E8" stroke="#383431" stroke-width="1.5"/>
-          <circle cx="-18" cy="36" r="1.8" fill="#7CB9E8"/>
-          <path d="M-8 32 C-5 18 8 10 24 11 C30 12 37 15 39 19 C36 21 32 20 28 19 C18 23 7 31 -2 35 L-7 39 L-8 32 Z" fill="#7CB9E8" stroke="#383431" stroke-width="2.5" stroke-linejoin="round"/>
-          <path d="M11 11 C13 6 17 5 19 8 C17 10 15 11 14 12 Z" fill="#7CB9E8" stroke="#383431" stroke-width="2"/>
-          <path d="M-7 39 C-11 39 -13 36 -14 33 C-10 35 -7 37 -7 39 Z" fill="#7CB9E8" stroke="#383431" stroke-width="2"/>
-          <circle cx="33" cy="16" r="1.5" fill="#383431"/>
-          <path d="M36 19 C34 20 32 20 31 19" stroke="#383431" stroke-width="1.5" stroke-linecap="round"/>
-          <ellipse cx="29" cy="18" rx="2.5" ry="1.5" fill="#F29C8B"/>
-        </g>
-      </svg>
+<svg class="hero-illustration anim-jump" viewBox="0 0 380 170" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g style="display: var(--sun-display);">
+<circle cx="315" cy="42" r="22" fill="#F4C46B" stroke="#383431" stroke-width="2.5"/>
+<path d="M315 14 L315 8 M315 70 L315 76 M287 42 L281 42 M343 42 L349 42" stroke="#383431" stroke-width="2.5" stroke-linecap="round"/>
+</g>
+<g style="display: var(--moon-display);">
+<path d="M322 26 C312 26 304 35 304 46 C304 58 314 68 326 66 C317 63 313 52 315 42 C317 35 323 30 322 26 Z" fill="#F4C46B" stroke="#383431" stroke-width="2.5"/>
+<circle cx="270" cy="30" r="2" fill="#F4F2EC"/>
+<circle cx="286" cy="52" r="1.5" fill="#F4F2EC"/>
+<circle cx="348" cy="42" r="2" fill="#F4C46B"/>
+</g>
+<path d="M5 125 L55 60 L105 105 L160 45 L225 110 L300 70 L375 125" stroke="#383431" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<polygon points="55,60 70,85 45,95" fill="#A3C9A8" stroke="#383431" stroke-width="2"/>
+<polygon points="160,45 180,75 145,85" fill="#A3C9A8" stroke="#383431" stroke-width="2"/>
+<path d="M10 135 C35 130 65 140 95 135 C125 130 155 140 185 135 C215 130 245 140 275 135 C305 130 335 140 370 135" stroke="#7CB9E8" stroke-width="3" stroke-linecap="round" fill="none"/>
+<path d="M20 148 C50 143 80 152 110 147 C140 142 170 152 200 147 C230 142 260 152 290 147 C320 142 350 150 365 146" stroke="#383431" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+<ellipse cx="60" cy="156" rx="9" ry="5" fill="#EBF4FC" stroke="#383431" stroke-width="2"/>
+<ellipse cx="80" cy="158" rx="7" ry="4" fill="#F7F3E8" stroke="#383431" stroke-width="2"/>
+<ellipse cx="310" cy="156" rx="10" ry="5.5" fill="#EBF4FC" stroke="#383431" stroke-width="2"/>
+<ellipse cx="330" cy="158" rx="6" ry="3.5" fill="#FDF6E2" stroke="#383431" stroke-width="2"/>
+<g transform="translate(185, 80)">
+<circle cx="-12" cy="30" r="2.5" fill="#7CB9E8" stroke="#383431" stroke-width="1.5"/>
+<circle cx="-18" cy="36" r="1.8" fill="#7CB9E8"/>
+<path d="M-8 32 C-5 18 8 10 24 11 C30 12 37 15 39 19 C36 21 32 20 28 19 C18 23 7 31 -2 35 L-7 39 L-8 32 Z" fill="#7CB9E8" stroke="#383431" stroke-width="2.5" stroke-linejoin="round"/>
+<path d="M11 11 C13 6 17 5 19 8 C17 10 15 11 14 12 Z" fill="#7CB9E8" stroke="#383431" stroke-width="2"/>
+<path d="M-7 39 C-11 39 -13 36 -14 33 C-10 35 -7 37 -7 39 Z" fill="#7CB9E8" stroke="#383431" stroke-width="2"/>
+<circle cx="33" cy="16" r="1.5" fill="#383431"/>
+<path d="M36 19 C34 20 32 20 31 19" stroke="#383431" stroke-width="1.5" stroke-linecap="round"/>
+<ellipse cx="29" cy="18" rx="2.5" ry="1.5" fill="#F29C8B"/>
+</g>
+</svg>
 
-      <div class="countdown-container">
-        <div class="countdown-item">
-          <span class="countdown-num" id="cdDays">00</span>
-          <span class="countdown-label">天</span>
-        </div>
-        <div class="countdown-item">
-          <span class="countdown-num" id="cdHours">00</span>
-          <span class="countdown-label">時</span>
-        </div>
-        <div class="countdown-item">
-          <span class="countdown-num" id="cdMins">00</span>
-          <span class="countdown-label">分</span>
-        </div>
-        <div class="countdown-item">
-          <span class="countdown-num" id="cdSecs">00</span>
-          <span class="countdown-label">秒</span>
-        </div>
-      </div>
-    </section>
+<div class="countdown-container">
+<div class="countdown-item">
+<span class="countdown-num" id="cdDays">00</span>
+<span class="countdown-label">天</span>
+</div>
+<div class="countdown-item">
+<span class="countdown-num" id="cdHours">00</span>
+<span class="countdown-label">時</span>
+</div>
+<div class="countdown-item">
+<span class="countdown-num" id="cdMins">00</span>
+<span class="countdown-label">分</span>
+</div>
+<div class="countdown-item">
+<span class="countdown-num" id="cdSecs">00</span>
+<span class="countdown-label">秒</span>
+</div>
+</div>
+</section>
 
-    <!-- ================= TAB 1: 旅程 ITINERARY ================= -->
-    <div id="tab-itinerary" class="tab-content active">
+<!-- ================= TAB 1: 旅程 ITINERARY ================= -->
+<div id="tab-itinerary" class="tab-content active">
 
-      <section class="track-section">
-        <div class="wave-line"></div>
-        <div class="cable-car-wrapper">
-          <div id="cableCar" class="cable-car" style="transform: translateX(0%);">
-            <svg width="44" height="34" viewBox="0 0 48 36" fill="none">
-              <circle cx="9" cy="24" r="2" fill="#7CB9E8" stroke="#383431" stroke-width="1.5"/>
-              <path d="M12 26 C14 16 24 10 34 11 C38 11.5 43 14 44 17 C42 18 39 18 36 17 C28 20 20 26 14 28 L10 31 L12 26 Z" fill="#7CB9E8" stroke="#383431" stroke-width="2.5" stroke-linejoin="round"/>
-              <path d="M25 11 C26 7 29 6 31 8 C29 10 28 11 27 12 Z" fill="#7CB9E8" stroke="#383431" stroke-width="2"/>
-              <path d="M27 21 C29 23 32 24 33 23 C31 21 29 20 28 19 Z" fill="#5C95C4" stroke="#383431" stroke-width="1.8"/>
-              <path d="M10 31 C7 31 5 28 5 26 C8 27 10 29 10 31 Z" fill="#7CB9E8" stroke="#383431" stroke-width="2"/>
-              <circle cx="39" cy="14" r="1.5" fill="#383431"/>
-              <path d="M41 17 C40 18 38 18 37 17.5" stroke="#383431" stroke-width="1.5" stroke-linecap="round"/>
-              <ellipse cx="36" cy="16" rx="2.2" ry="1.4" fill="#F29C8B"/>
-            </svg>
-          </div>
-        </div>
+<section class="track-section">
+<div class="wave-line"></div>
+<div class="cable-car-wrapper">
+<div id="cableCar" class="cable-car" style="transform: translateX(0%);">
+<svg width="44" height="34" viewBox="0 0 48 36" fill="none">
+<circle cx="9" cy="24" r="2" fill="#7CB9E8" stroke="#383431" stroke-width="1.5"/>
+<path d="M12 26 C14 16 24 10 34 11 C38 11.5 43 14 44 17 C42 18 39 18 36 17 C28 20 20 26 14 28 L10 31 L12 26 Z" fill="#7CB9E8" stroke="#383431" stroke-width="2.5" stroke-linejoin="round"/>
+<path d="M25 11 C26 7 29 6 31 8 C29 10 28 11 27 12 Z" fill="#7CB9E8" stroke="#383431" stroke-width="2"/>
+<path d="M27 21 C29 23 32 24 33 23 C31 21 29 20 28 19 Z" fill="#5C95C4" stroke="#383431" stroke-width="1.8"/>
+<path d="M10 31 C7 31 5 28 5 26 C8 27 10 29 10 31 Z" fill="#7CB9E8" stroke="#383431" stroke-width="2"/>
+<circle cx="39" cy="14" r="1.5" fill="#383431"/>
+<path d="M41 17 C40 18 38 18 37 17.5" stroke="#383431" stroke-width="1.5" stroke-linecap="round"/>
+<ellipse cx="36" cy="16" rx="2.2" ry="1.4" fill="#F29C8B"/>
+</svg>
+</div>
+</div>
 
-        <div class="date-btn-grid">
-          <button class="date-btn active" onclick="selectDay(1)" id="dayBtn1">
-            <span class="date-pill">11/07</span>
-            <span class="date-sub">週六 (Day 1)</span>
-          </button>
-          <button class="date-btn" onclick="selectDay(2)" id="dayBtn2">
-            <span class="date-pill">11/08</span>
-            <span class="date-sub">週日 (Day 2)</span>
-          </button>
-          <button class="date-btn" onclick="selectDay(3)" id="dayBtn3">
-            <span class="date-pill">11/09</span>
-            <span class="date-sub">週一 (Day 3)</span>
-          </button>
-        </div>
-      </section>
+<div class="date-btn-grid">
+<button class="date-btn active" onclick="selectDay(1)" id="dayBtn1">
+<span class="date-pill">11/07</span>
+<span class="date-sub">週六 (Day 1)</span>
+</button>
+<button class="date-btn" onclick="selectDay(2)" id="dayBtn2">
+<span class="date-pill">11/08</span>
+<span class="date-sub">週日 (Day 2)</span>
+</button>
+<button class="date-btn" onclick="selectDay(3)" id="dayBtn3">
+<span class="date-pill">11/09</span>
+<span class="date-sub">週一 (Day 3)</span>
+</button>
+</div>
+<div class="soc-toggle-row">
+<span>🔋 電量顯示</span>
+<button id="socToggle" class="soc-switch" onclick="toggleSoc()" aria-label="電量顯示開關"><span class="soc-switch-knob"></span></button>
+</div>
+<div class="soc-legend soc-extra">🔋 預計抵達電量（Ev Life v303 精算・5.23 km/kWh）</div>
+<div class="soc-mode-row soc-extra">
+<button id="socStdBtn" class="soc-mode-btn active" onclick="setSocMode('std')">標準載重</button>
+<button id="socFullBtn" class="soc-mode-btn" onclick="setSocMode('full')">雙載</button>
+</div>
+</section>
 
-      <section class="day-summary-card">
-        <div class="day-icon-box" id="dayIconBox">
-          🌊
-        </div>
-        <div>
-          <span class="day-tag" id="dayTag">Day 1</span>
-          <div class="day-summary-title" id="dayTitle">花蓮車站會合 ＋ 童話水岸、老街蔥油餅豆花與海濱夜市</div>
-          <div class="day-hotel-info" id="dayHotel">🏨 住宿安排</div>
-        </div>
-      </section>
+<section class="day-summary-card">
+<div class="day-icon-box" id="dayIconBox">
+🌊
+</div>
+<div>
+<span class="day-tag" id="dayTag">Day 1</span>
+<div class="day-summary-title" id="dayTitle">花蓮車站會合 ＋ 童話水岸、老街蔥油餅豆花與海濱夜市</div>
+<div class="day-hotel-info" id="dayHotel">🏨 住宿安排</div>
+</div>
+</section>
 
-      <div class="timeline-wrap">
-        <div class="timeline-dashed-line"></div>
-        <div id="timelineContainer"></div>
-      </div>
+<div class="timeline-wrap">
+<div class="timeline-dashed-line"></div>
+<div id="timelineContainer"></div>
+</div>
 
-    </div>
+</div>
 
-    <!-- ================= TAB 2: 行程評估 DECISION ================= -->
-    <div id="tab-decision" class="tab-content">
-      
-      <div class="box-card">
-        <h2 class="section-title">花蓮市區私房行程評估</h2>
-        
-        <div style="margin-bottom: 14px;">
-          <div style="font-weight: 900; font-size: 0.9rem; margin-bottom: 6px;">🍴 午餐推薦首選（停留 1 小時）</div>
-          <div class="compare-choice best">
-            <span class="choice-badge top">⭐ 本次首選</span>
-            <div style="font-weight: 900; font-size: 0.88rem;">家咖哩（花蓮將軍府店）<span class="alt-badge">⛰️ 15m</span></div>
-            <div style="font-size: 0.78rem; color: var(--text-muted);">位於百年檜木眷舍將軍府 1936 園區內，主打花蓮小農現磨香料咖哩、有機野菜與富里米，醬汁與米飯皆可免費續加，氣氛幽靜舒適。</div>
-          </div>
-          <div class="compare-choice">
-            <span class="choice-badge sub">同園區備選</span>
-            <div style="font-weight: 900; font-size: 0.88rem;">定置漁場三代目（將軍府店）<span class="alt-badge">⛰️ 15m</span></div>
-            <div style="font-size: 0.78rem; color: var(--text-muted);">主打花蓮現熬膠原魚白湯拉麵。</div>
-          </div>
-          <div class="compare-choice">
-            <span class="choice-badge sub">排餐備選</span>
-            <div style="font-weight: 900; font-size: 0.88rem;">歐鄉牛排館（花蓮店）<span class="alt-badge">⛰️ 15m</span></div>
-            <div style="font-size: 0.78rem; color: var(--text-muted);">在地老字號牛排館，沙拉吧與前菜豐富，大口吃肉選擇。</div>
-          </div>
-        </div>
+<!-- ================= TAB 2: 行程評估 DECISION ================= -->
+<div id="tab-decision" class="tab-content">
 
-        <div style="margin-bottom: 14px;">
-          <div style="font-weight: 900; font-size: 0.9rem; margin-bottom: 6px;">🥞 下午必吃雙寶 ＆ 百年名店一條街</div>
-          <div class="compare-choice best">
-            <span class="choice-badge top">⭐ 必吃雙享</span>
-            <div style="font-weight: 900; font-size: 0.88rem;">復興街蔥油餅 ＆ 民國路蔡記豆花<span class="alt-badge">⛰️ 15m</span></div>
-            <div style="font-size: 0.78rem; color: var(--text-muted);">剛炸出爐的酥脆半熟蛋蔥油餅，接著吃一碗蔡記招牌「薏仁牛奶豆花」或「仙草奶凍」，順道至隔壁「花蓮文創園區」老酒廠老倉庫漫步！</div>
-          </div>
-          <div class="compare-choice best" style="margin-top: 6px;">
-            <span class="choice-badge top">⭐ 百年老字號伴手禮雙霸</span>
-            <div style="font-weight: 900; font-size: 0.88rem;">惠比須餅舖 ＆ 豐興餅舖（中華路名產街）<span class="alt-badge">⛰️ 15m</span></div>
-            <div style="font-size: 0.78rem; color: var(--text-muted);">
-              ● 惠比須餅舖（中華路 65 號）：1899 年創立，花蓮薯創始店（天皇御用貢品），必買手工花蓮薯、芋頭酥。<br>
-              ● 豐興餅舖中華店（中華路 107 號）：1928 年創立，全台首創白豆沙「小月餅」與酥脆「雷古多唱片餅」！兩家相距僅 100 公尺，一次買齊！
-            </div>
-          </div>
-        </div>
+<div class="box-card">
+<h2 class="section-title">花蓮市區私房行程評估</h2>
 
-        <div style="margin-bottom: 14px;">
-          <div style="font-weight: 900; font-size: 0.9rem; margin-bottom: 6px;">☕ 景觀咖啡館二選一（停留 30～45 分鐘）</div>
-          <div class="compare-choice best">
-            <span class="choice-badge top">⭐ 路線最順首選</span>
-            <div style="font-weight: 900; font-size: 0.88rem;">STARBUCKS 花蓮理想門市<span class="alt-badge">⛰️ 20m</span></div>
-            <div style="font-size: 0.78rem; color: var(--text-muted);">歐洲童話水岸小屋＋落羽松運河，重點是開去下一站「鯉魚潭」只要 16 分鐘超順！</div>
-          </div>
-          <div class="compare-choice">
-            <span class="choice-badge sub">經典備選</span>
-            <div style="font-weight: 900; font-size: 0.88rem;">STARBUCKS 洄瀾門市（白色貨櫃）<span class="alt-badge">⛰️ 10m</span></div>
-            <div style="font-size: 0.78rem; color: var(--text-muted);">由世界各大貨櫃堆疊成的白色巨型建築，吉安經典打卡點！如果回市區前想看特色貨櫃可順路繞過去。</div>
-          </div>
-        </div>
+<div style="margin-bottom: 14px;">
+<div style="font-weight: 900; font-size: 0.9rem; margin-bottom: 6px;">🍴 午餐推薦首選（停留 1 小時）</div>
+<div class="compare-choice best">
+<span class="choice-badge top">⭐ 本次首選</span>
+<div style="font-weight: 900; font-size: 0.88rem;">家咖哩（花蓮將軍府店）<span class="alt-badge">⛰️ 15m</span></div>
+<div style="font-size: 0.78rem; color: var(--text-muted);">位於百年檜木眷舍將軍府 1936 園區內，主打花蓮小農現磨香料咖哩、有機野菜與富里米，醬汁與米飯皆可免費續加，氣氛幽靜舒適。</div>
+</div>
+<div class="compare-choice">
+<span class="choice-badge sub">同園區備選</span>
+<div style="font-weight: 900; font-size: 0.88rem;">定置漁場三代目（將軍府店）<span class="alt-badge">⛰️ 15m</span></div>
+<div style="font-size: 0.78rem; color: var(--text-muted);">主打花蓮現熬膠原魚白湯拉麵。</div>
+</div>
+<div class="compare-choice">
+<span class="choice-badge sub">排餐備選</span>
+<div style="font-weight: 900; font-size: 0.88rem;">歐鄉牛排館（花蓮店）<span class="alt-badge">⛰️ 15m</span></div>
+<div style="font-size: 0.78rem; color: var(--text-muted);">在地老字號牛排館，沙拉吧與前菜豐富，大口吃肉選擇。</div>
+</div>
+</div>
 
-        <div style="margin-bottom: 14px;">
-          <div style="font-weight: 900; font-size: 0.9rem; margin-bottom: 6px;">🌊 看海二選一（停留 30 分鐘）</div>
-          <div class="compare-choice best">
-            <span class="choice-badge top">⭐ 最推薦</span>
-            <div style="font-weight: 900; font-size: 0.88rem;">太平洋公園（南濱段海堤）<span class="alt-badge">⛰️ 10m</span></div>
-            <div style="font-size: 0.78rem; color: var(--text-muted);">順路看海吹風，且距離兩間民宿與東大門夜市只有 1.1km（開車 4 分鐘），完全不用折返！</div>
-          </div>
-          <div class="compare-choice">
-            <span class="choice-badge sub">折返不順</span>
-            <div style="font-weight: 900; font-size: 0.88rem;">七星潭海岸風景特定區<span class="alt-badge">⛰️ 15m</span></div>
-            <div style="font-size: 0.78rem; color: var(--text-muted);">看海很美但從鯉魚潭開過去要 36 分鐘，之後又要往南繞回夜市，會多花時間。</div>
-          </div>
-        </div>
+<div style="margin-bottom: 14px;">
+<div style="font-weight: 900; font-size: 0.9rem; margin-bottom: 6px;">🥞 下午必吃雙寶 ＆ 百年名店一條街</div>
+<div class="compare-choice best">
+<span class="choice-badge top">⭐ 必吃雙享</span>
+<div style="font-weight: 900; font-size: 0.88rem;">復興街蔥油餅 ＆ 民國路蔡記豆花<span class="alt-badge">⛰️ 15m</span></div>
+<div style="font-size: 0.78rem; color: var(--text-muted);">剛炸出爐的酥脆半熟蛋蔥油餅，接著吃一碗蔡記招牌「薏仁牛奶豆花」或「仙草奶凍」，順道至隔壁「花蓮文創園區」老酒廠老倉庫漫步！</div>
+</div>
+<div class="compare-choice best" style="margin-top: 6px;">
+<span class="choice-badge top">⭐ 百年老字號伴手禮雙霸</span>
+<div style="font-weight: 900; font-size: 0.88rem;">惠比須餅舖 ＆ 豐興餅舖（中華店）<span class="alt-badge">⛰️ 15m</span></div>
+<div style="font-size: 0.78rem; color: var(--text-muted);">
+● 惠比須餅舖（中華路 65 號）：1899 年創立，花蓮薯創始店（天皇御用貢品），必買手工花蓮薯、芋頭酥。<br>
+● 豐興餅舖中華店（中華路 107 號）：1928 年創立，全台首創白豆沙「小月餅」與酥脆「雷古多唱片餅」！兩家相距僅 100 公尺，一次買齊！
+</div>
+</div>
+</div>
 
-        <div>
-          <div style="font-weight: 900; font-size: 0.9rem; margin-bottom: 6px;">💡 口袋備用景點（時間充裕才去）</div>
-          <div class="compare-choice">
-            <div style="font-weight: 900; font-size: 0.88rem;">雲山水植物農場<span class="alt-badge">⛰️ 25m</span></div>
-            <div style="font-size: 0.78rem; color: var(--text-muted);">距離星巴克理想門市僅 10 分鐘車程。夢幻湖跳石步道與落羽松絕美，若想去可替代鯉魚潭。</div>
-          </div>
-          <div class="compare-choice" style="margin-top: 6px;">
-            <div style="font-weight: 900; font-size: 0.88rem;">松園別館<span class="alt-badge">⛰️ 65m</span></div>
-            <div style="font-size: 0.78rem; color: var(--text-muted);">美崙山坡老松林日式老宅，可俯瞰太平洋與花蓮港出海口，市區閒暇時散步很舒服。</div>
-          </div>
-        </div>
+<div style="margin-bottom: 14px;">
+<div style="font-weight: 900; font-size: 0.9rem; margin-bottom: 6px;">☕ 景觀咖啡館二選一（停留 30～45 分鐘）</div>
+<div class="compare-choice best">
+<span class="choice-badge top">⭐ 路線最順首選</span>
+<div style="font-weight: 900; font-size: 0.88rem;">STARBUCKS 花蓮理想門市<span class="alt-badge">⛰️ 20m</span></div>
+<div style="font-size: 0.78rem; color: var(--text-muted);">歐洲童話水岸小屋＋落羽松運河，重點是開去下一站「鯉魚潭」只要 16 分鐘超順！</div>
+</div>
+<div class="compare-choice">
+<span class="choice-badge sub">經典備選</span>
+<div style="font-weight: 900; font-size: 0.88rem;">STARBUCKS 洄瀾門市（白色貨櫃）<span class="alt-badge">⛰️ 10m</span></div>
+<div style="font-size: 0.78rem; color: var(--text-muted);">由世界各大貨櫃堆疊成的白色巨型建築，吉安經典打卡點！如果回市區前想看特色貨櫃可順路繞過去。</div>
+</div>
+</div>
 
-      </div>
+<div style="margin-bottom: 14px;">
+<div style="font-weight: 900; font-size: 0.9rem; margin-bottom: 6px;">🌊 看海二選一（停留 30 分鐘）</div>
+<div class="compare-choice best">
+<span class="choice-badge top">⭐ 最推薦</span>
+<div style="font-weight: 900; font-size: 0.88rem;">太平洋公園（南濱段海堤）<span class="alt-badge">⛰️ 10m</span></div>
+<div style="font-size: 0.78rem; color: var(--text-muted);">順路看海吹風，且距離兩間民宿與東大門夜市只有 1.1km（開車 4 分鐘），完全不用折返！</div>
+</div>
+<div class="compare-choice">
+<span class="choice-badge sub">折返不順</span>
+<div style="font-weight: 900; font-size: 0.88rem;">七星潭海岸風景特定區<span class="alt-badge">⛰️ 15m</span></div>
+<div style="font-size: 0.78rem; color: var(--text-muted);">看海很美但從鯉魚潭開過去要 36 分鐘，之後又要往南繞回夜市，會多花時間。</div>
+</div>
+</div>
 
-      <!-- 清境農場表演與美食備忘 -->
-      <div class="box-card">
-        <h2 class="section-title">清境高山美食 ＆ 表演時段備忘</h2>
-        <div class="compare-choice best" style="margin-bottom: 10px;">
-          <span class="choice-badge top">⭐ Day 3 午餐首選</span>
-          <div style="font-weight: 900; font-size: 0.88rem;">清境魯媽媽雲南擺夷料理<span class="alt-badge">⛰️ 2,044m</span></div>
-          <div style="font-size: 0.78rem; color: var(--text-muted);">清境最具人氣的高山景觀餐廳！觀山牧區看畢 10:45 馬術秀後，開車 6 分鐘即達。推薦錦灑、椒麻雞、酸木瓜雞湯、當歸碎葉烘蛋，坐擁合歡山壯麗群峰絕景！</div>
-        </div>
-        <div class="market-box" style="background-color: var(--mountain-light);">
-          <span class="market-zone-tag" style="background-color: var(--mountain-green);">🐎 馬術秀（每日皆有演出）</span>
-          <div style="font-size: 0.82rem; font-weight: 700;">● 表演時間：每日 10:45 ＆ 15:45（每場約 30 分鐘）</div>
-          <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">● 表演地點：觀山牧區馬術秀場（海拔約 1,750m）。騎士在奔馳馬背上倒立、站立特技超精彩！</div>
-        </div>
-        <div class="market-box" style="background-color: var(--hualien-gold-light);">
-          <span class="market-zone-tag" style="background-color: var(--hualien-gold);">🐑 綿羊脫毛秀（例假日專屬）</span>
-          <div style="font-size: 0.82rem; font-weight: 700;">● 表演時間：國定例假日與寒暑假 09:30 ＆ 14:30</div>
-          <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">● 平日（週一）雖無大型脫毛舞台秀，但青青草原上百隻羊咩咩全天在草坡自由放牧，買飼料即可近距離貼身摸羊、餵食合照！</div>
-        </div>
-      </div>
+<div>
+<div style="font-weight: 900; font-size: 0.9rem; margin-bottom: 6px;">💡 口袋備用景點（時間充裕才去）</div>
+<div class="compare-choice">
+<div style="font-weight: 900; font-size: 0.88rem;">雲山水植物農場<span class="alt-badge">⛰️ 25m</span></div>
+<div style="font-size: 0.78rem; color: var(--text-muted);">距離星巴克理想門市僅 10 分鐘車程。夢幻湖跳石步道與落羽松絕美，若想去可替代鯉魚潭。</div>
+</div>
+<div class="compare-choice" style="margin-top: 6px;">
+<div style="font-weight: 900; font-size: 0.88rem;">松園別館<span class="alt-badge">⛰️ 65m</span></div>
+<div style="font-size: 0.78rem; color: var(--text-muted);">美崙山坡老松林日式老宅，可俯瞰太平洋與花蓮港出海口，市區閒暇時散步很舒服。</div>
+</div>
+</div>
 
-      <div class="box-card">
-        <h2 class="section-title">東大門夜市 ＆ 市區老字號宵夜</h2>
-        <div class="market-box">
-          <span class="market-zone-tag">各省一條街</span>
-          <div style="font-size: 0.82rem; font-weight: 700;">● 玉里臭豆腐（東大門分店）：外酥內嫩多汁，加上醃蘿蔔絲與九層塔超搭！</div>
-        </div>
-        <div class="market-box">
-          <span class="market-zone-tag">原住民一條街</span>
-          <div style="font-size: 0.82rem; font-weight: 700;">● 林記燒番麥：在地有機玉米秤重烤，醬汁很香（記得先去領號碼牌）。</div>
-          <div style="font-size: 0.82rem; font-weight: 700; margin-top: 4px;">● 原住民石板馬告烤肉：香脆山豬肉配蒜頭。</div>
-        </div>
-        <div class="market-box">
-          <span class="market-zone-tag">福町夜市</span>
-          <div style="font-size: 0.82rem; font-weight: 700;">● 蔣家創意官財板：炸吐司包剝皮辣椒豬肉，內用有冰紅茶喝。</div>
-          <div style="font-size: 0.82rem; font-weight: 700; margin-top: 4px;">● 強蛋餅：酥皮蚵仔起司蛋餅。</div>
-        </div>
-        <div class="market-box">
-          <span class="market-zone-tag">自強夜市區</span>
-          <div style="font-size: 0.82rem; font-weight: 700;">● 妙不可言果汁：現打酪梨牛奶／木瓜牛奶超解膩。</div>
-        </div>
-        <div class="market-box" style="background-color: var(--sunset-coral-light);">
-          <span class="market-zone-tag" style="background-color: var(--sunset-coral);">🌙 深夜宵夜首選</span>
-          <div style="font-size: 0.82rem; font-weight: 700;">● 公正包子 ＆ 周家蒸餃：皮厚餡香的小籠包與現蒸薄皮蒸餃，夜市逛完外帶回民宿配飲料聊天最對味！</div>
-        </div>
-      </div>
+</div>
 
-    </div>
+<!-- 清境農場表演與美食備忘 -->
+<div class="box-card">
+<h2 class="section-title">清境高山美食 ＆ 表演時段備忘</h2>
+<div class="compare-choice best" style="margin-bottom: 10px;">
+<span class="choice-badge top">⭐ Day 3 午餐首選</span>
+<div style="font-weight: 900; font-size: 0.88rem;">清境魯媽媽雲南擺夷料理<span class="alt-badge">⛰️ 2,044m</span></div>
+<div style="font-size: 0.78rem; color: var(--text-muted);">清境最具人氣的高山景觀餐廳！觀山牧區看畢 10:45 馬術秀後，開車 6 分鐘即達。推薦錦灑、椒麻雞、酸木瓜雞湯、當歸碎葉烘蛋，坐擁合歡山壯麗群峰絕景！</div>
+</div>
+<div class="market-box" style="background-color: var(--mountain-light);">
+<span class="market-zone-tag" style="background-color: var(--mountain-green);">🐎 馬術秀（每日皆有演出）</span>
+<div style="font-size: 0.82rem; font-weight: 700;">● 表演時間：每日 10:45 ＆ 15:45（每場約 30 分鐘）</div>
+<div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">● 表演地點：觀山牧區馬術秀場（海拔約 1,750m）。騎士在奔馳馬背上倒立、站立特技超精彩！</div>
+</div>
+<div class="market-box" style="background-color: var(--hualien-gold-light);">
+<span class="market-zone-tag" style="background-color: var(--hualien-gold);">🐑 綿羊脫毛秀（例假日專屬）</span>
+<div style="font-size: 0.82rem; font-weight: 700;">● 表演時間：國定例假日與寒暑假 09:30 ＆ 14:30</div>
+<div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">● 平日（週一）雖無大型脫毛舞台秀，但青青草原上百隻羊咩咩全天在草坡自由放牧，買飼料即可近距離貼身摸羊、餵食合照！</div>
+</div>
+</div>
 
-    <!-- ================= TAB 3: 清單 PACK ================= -->
-    <div id="tab-pack" class="tab-content">
-      <div class="box-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-          <h2 class="section-title" style="margin-bottom: 0;">出發前隨身準備</h2>
-          <span id="packProgressText" style="font-size: 0.78rem; font-weight: 900; color: var(--sunset-coral);">0 / 9 完成</span>
-        </div>
-        <div class="progress-bar-wrap">
-          <div class="progress-bar" id="progressBar"></div>
-        </div>
-        <div id="checkList">
-          <div class="check-item" onclick="toggleCheck(this)">
-            <div class="check-box"></div>
-            <span>導航地標與花蓮景點先存入手機標籤</span>
-          </div>
-          <div class="check-item" onclick="toggleCheck(this)">
-            <div class="check-box"></div>
-            <span>新城佳興買好的冷凍檸檬汁放車上杯架</span>
-          </div>
-          <div class="check-item" onclick="toggleCheck(this)">
-            <div class="check-box"></div>
-            <span>中華路惠比須餅舖採買正宗花蓮薯伴手禮</span>
-          </div>
-          <div class="check-item" onclick="toggleCheck(this)">
-            <div class="check-box"></div>
-            <span>中華路豐興餅舖採買白豆沙小月餅與雷古多唱片餅</span>
-          </div>
-          <div class="check-item" onclick="toggleCheck(this)">
-            <div class="check-box"></div>
-            <span>防風保暖厚羽絨衣、手套與毛帽（合歡山 3,150m 夜間約 0-5°C）</span>
-          </div>
-          <div class="check-item" onclick="toggleCheck(this)">
-            <div class="check-box"></div>
-            <span>馬雅平台觀星必備：紅光頭燈或手電筒（不破壞暗空夜視）</span>
-          </div>
-          <div class="check-item" onclick="toggleCheck(this)">
-            <div class="check-box"></div>
-            <span>後車廂必備乾糧泡麵（若拍銀河太晚錯過 19:30 晚餐可回松雪樓泡熱水）</span>
-          </div>
-          <div class="check-item" onclick="toggleCheck(this)">
-            <div class="check-box"></div>
-            <span>身分證、健保卡、高山常備止痛藥（普拿疼/布洛芬）</span>
-          </div>
-          <div class="check-item" onclick="toggleCheck(this)">
-            <div class="check-box"></div>
-            <span>抗 UV 太陽眼鏡、腳架、相機拍照設備與行動電源</span>
-          </div>
-        </div>
-      </div>
-    </div>
+<div class="box-card">
+<h2 class="section-title">東大門夜市 ＆ 市區老字號宵夜</h2>
+<div class="market-box">
+<span class="market-zone-tag">各省一條街</span>
+<div style="font-size: 0.82rem; font-weight: 700;">● 玉里臭豆腐（東大門分店）：外酥內嫩多汁，加上醃蘿蔔絲與九層塔超搭！</div>
+</div>
+<div class="market-box">
+<span class="market-zone-tag">原住民一條街</span>
+<div style="font-size: 0.82rem; font-weight: 700;">● 林記燒番麥：在地有機玉米秤重烤，醬汁很香（記得先去領號碼牌）。</div>
+<div style="font-size: 0.82rem; font-weight: 700; margin-top: 4px;">● 原住民石板馬告烤肉：香脆山豬肉配蒜頭。</div>
+</div>
+<div class="market-box">
+<span class="market-zone-tag">福町夜市</span>
+<div style="font-size: 0.82rem; font-weight: 700;">● 蔣家創意官財板：炸吐司包剝皮辣椒豬肉，內用有冰紅茶喝。</div>
+<div style="font-size: 0.82rem; font-weight: 700; margin-top: 4px;">● 強蛋餅：酥皮蚵仔起司蛋餅。</div>
+</div>
+<div class="market-box">
+<span class="market-zone-tag">自強夜市區</span>
+<div style="font-size: 0.82rem; font-weight: 700;">● 妙不可言果汁：現打酪梨牛奶／木瓜牛奶超解膩。</div>
+</div>
+<div class="market-box" style="background-color: var(--sunset-coral-light);">
+<span class="market-zone-tag" style="background-color: var(--sunset-coral);">🌙 深夜宵夜首選</span>
+<div style="font-size: 0.82rem; font-weight: 700;">● 公正包子 ＆ 周家蒸餃：皮厚餡香的小籠包與現蒸薄皮蒸餃，夜市逛完外帶回民宿配飲料聊天最對味！</div>
+</div>
+</div>
 
-  </main>
+<!-- 🔋 充電作戰計畫 -->
+<div class="box-card">
+<h2 class="section-title">🔋 n⁷ 充電作戰計畫</h2>
+<div class="market-box" style="background-color: var(--mountain-light);">
+<span class="market-zone-tag" style="background-color: var(--mountain-green);">🔌 第一充・Day 1 晚上</span>
+<div style="font-size: 0.82rem; font-weight: 700;">● EVOASIS 中油花蓮港口加油站（花蓮市吉林路2號）</div>
+<div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">● 180kW DC・CCS1/CCS2・24 小時・免停車費。約 21:00 開充，12% → 100%（約 51kWh，約 55 分鐘）。備案：家樂福花蓮店 180kW／花蓮中山站 360kW。⚡蘇澳服務區有空樁可順手快充 20–30 分鐘（約 +20%），日終變 35% 更從容。</div>
+</div>
+<div class="market-box" style="background-color: var(--mountain-light);">
+<span class="market-zone-tag" style="background-color: var(--mountain-green);">🔌 Day 2・無充電（最真實版）</span>
+<div style="font-size: 0.82rem; font-weight: 700;">● 福壽山只賞楓不充電：松雪樓抵達 12%（雙載約 9%）→ 武嶺來回 → 隔夜 −1% → Day 3 起始 9%/6%</div>
+<div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">● ⚠️ 青青草原抵達僅 10%/8%，Day 3 務必 08:00 一開門就插上充到 75%（約 38–39kWh，30–35 分鐘）。大禹嶺檢查點：低於 25% 取消福壽山 → 切 Plan B 直上松雪樓（松雪樓 28%/25%）。宋莊／梨山賓館若有空樁可插，當作 bonus。晚上關閉待機耗電，隔夜估 -1%（n7 無電池加熱系統）</div>
+</div>
+<div class="market-box" style="background-color: var(--mountain-light);">
+<span class="market-zone-tag" style="background-color: var(--mountain-green);">🔌 第二充・Day 3 上午（必充）</span>
+<div style="font-size: 0.82rem; font-weight: 700;">● 星舟快充・青青草原北端停車場（120kW CCS1，08:00–17:00，週一全開）</div>
+<div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">● 09:40 一到先插上，約 10% → 75%（約 38kWh，30–35 分鐘），充飽立刻移車。加星舟 LINE 好友啟動，免下載 App。故障備案：同站 17kW J1772 慢充 3 小時 → 埔里 U-POWER 360kW。</div>
+</div>
+<div class="market-box">
+<span class="market-zone-tag">🛣️ 回程備用</span>
+<div style="font-size: 0.82rem; font-weight: 700;">● 國6東草屯休息站 EVOASIS 360kW ／ 國3南投服務區 EVOASIS 360kW（青青草原充到 75% 的話用不到）</div>
+</div>
+</div>
 
-  <script>
-    // 1. 三天行程資料 (Day 3 中午更新為 清境魯媽媽雲南擺夷料理)
-    const tripData = {
-      1: {
-        tag: 'Day 1',
-        title: '花蓮車站會合 ＋ 童話水岸、老街蔥油餅豆花與海濱夜市',
-        hotel: '🏨 我 & 屁祥金主：今古安民宿 (海拔 15m)<br>🏨 佑哥金主 & 老婆：S.E.A.民宿 (海拔 15m)',
-        icon: '🌊',
-        timeline: [
-          { time: '06:15', tag: '🚗 啟程出發', tagClass: 'tag-ocean', title: '中壢出發北上', stay: '準時啟程', leave: '06:15 離', desc: '早起出發走國 3 接國 5，順暢避開雪隧車潮。', parking: '', alt: '130m', drive: '出發起點' },
-          { time: '08:00', tag: '☕ 休息中繼', tagClass: 'tag-food', title: '國 5 蘇澳服務區', stay: '停留 30 分鐘', leave: '08:30 離', desc: '下車上洗手間、伸展筋骨買杯熱咖啡。', parking: '🅿️ 服務區大型平面車位', alt: '15m', drive: '112 km / 1h 25m' },
-          { time: '10:00', tag: '🍋 順路買冰飲', tagClass: 'tag-food', title: '新城佳興冰菓店', stay: '停留 20 分鐘', leave: '10:20 離', desc: '外帶招牌冷凍檸檬汁放車上杯架，等下接到人就可以直接暢飲。', parking: '🅿️ 門前短暫臨停', alt: '25m', drive: '73.3 km / 1h 30m' },
-          { time: '10:45', tag: '🤝 車站碰面', tagClass: 'tag-spot', title: '花蓮火車站接朋友', stay: '停留 25 分鐘', leave: '11:10 離', desc: '準時碰面！車內冷氣開好舒服涼爽，喝檸檬汁直接出發！', parking: '🅿️ 前後站智慧立體停車場', alt: '15m', drive: '17.5 km / 25m' },
-          { time: '11:20', tag: '🍛 老宅午餐', tagClass: 'tag-food', title: '家咖哩（花蓮將軍府店）', stay: '停留 70 分鐘', leave: '12:30 離', desc: '【私房午餐首選】在百年日式宿舍將軍府 1936 園區品嚐在地小農有機香料咖哩（咖哩醬與富里米可免費續加），吃飽漫步檜木老宅林蔭。', parking: '🅿️ 將軍府專屬停車場或中正路車格', alt: '15m', drive: '3.2 km / 10m' },
-          { time: '12:55', tag: '☕ 水岸咖啡', tagClass: 'tag-spot', title: 'STARBUCKS 花蓮理想門市', stay: '停留 55 分鐘', leave: '13:50 離', desc: '【童話下午茶】歐洲童話風木屋配落羽松湖景，拍照好看，而且離下一站鯉魚潭只要 16 分鐘！', parking: '🅿️ 園區專屬停車場', alt: '20m', drive: '16.5 km / 25m' },
-          { time: '14:06', tag: '🌲 湖光山色', tagClass: 'tag-nature', title: '鯉魚潭風景區', stay: '停留 50 分鐘', leave: '14:56 離', desc: '花蓮最大的天然湖泊，漫步環潭木棧道吹吹微風、看群山倒影。', parking: '🅿️ 潭北遊客中心停車場', alt: '140m', drive: '10.5 km / 16m' },
-          { time: '15:21', tag: '🥞 經典點心', tagClass: 'tag-food', title: '炸彈蔥油餅 ＆ 蔡記豆花 ＆ 文創漫步', stay: '停留 40 分鐘', leave: '16:01 離', desc: '回市區必吃！外帶復興街爆漿蔥油餅，再至民國路吃蔡記豆花（招牌薏仁牛奶豆花、仙草奶凍），順遊隔壁花蓮文創園區老酒廠紅磚倉庫。', parking: '🅿️ 花蓮文創園區收費停車場', alt: '15m', drive: '16 km / 25m' },
-          { time: '16:05', tag: '🎁 百年名產', tagClass: 'tag-food', title: '惠比須餅舖 ＆ 豐興餅舖（中華店）', stay: '停留 25 分鐘', leave: '16:30 離', desc: '步行中華路名產街！採買惠比須正宗手工花蓮薯，順遊相距僅 100m 的豐興餅舖買招牌白豆沙小月餅與雷古多唱片餅！', parking: '🅿️ 中華路周邊路格 / 文創園區步行約 3 分鐘', alt: '15m', drive: '步行 400m / 4m' },
-          { time: '16:35', tag: '🌊 海風浪花', tagClass: 'tag-ocean', title: '太平洋公園海堤（或順路拍貨櫃星巴克）', stay: '停留 25 分鐘', leave: '17:00 離', desc: '吃飽順路開往南濱海堤看海吹風消食（想拍白色貨櫃屋也可順路至洄瀾門市），離兩間民宿僅 4 分鐘超順！', parking: '🅿️ 南濱段大停車場', alt: '10m', drive: '1.8 km / 5m' },
-          { time: '17:04', tag: '🏨 入住放行李', tagClass: 'tag-spot', title: '各自民宿 Check-in 稍作休息', stay: '停留 55 分鐘', leave: '18:00 離', desc: '前往民宿放行李：我與屁祥金主入住「今古安民宿」、佑哥金主夫妻入住「S.E.A.民宿」。整頓後一起步行出發逛東大門！', parking: '🅿️ 各自民宿專屬車位／周邊路格', alt: '15m', drive: '1.2 km / 4m' },
-          { time: '18:08', tag: '🍢 夜市吃透透', tagClass: 'tag-food', title: '東大門夜市老饕巡禮', stay: '停留 2.5 小時', leave: '20:40 離', desc: '集合開吃玉里臭豆腐、林記烤玉米、蔣家官財板與新鮮現打果汁！', parking: '🚶 步行前往或停放重慶路周邊停車格', alt: '15m', drive: '步行 700m / 8m' },
-          { time: '21:00', tag: '🌙 宵夜續攤', tagClass: 'tag-food', title: '公正包子 ＆ 周家蒸餃', stay: '外帶回民宿', leave: '晚安好夢', desc: '夜市回程外帶熱騰騰小籠包與蒸餃，帶回民宿配茶聊天當宵夜！', parking: '🅿️ 仁愛街門市周邊短暫臨停', alt: '15m', drive: '1 km / 3m' }
-        ]
-      },
-      2: {
-        tag: 'Day 2',
-        title: '美味早餐 ＋ 中橫賞楓 ＋ 瑪雅平台夕陽雲海與銀河沉降',
-        hotel: '🏨 全體住：合歡山松雪樓 (海拔 3,150m)',
-        icon: '🌌',
-        timeline: [
-          { time: '06:30', tag: '🚗 退房出發', tagClass: 'tag-nature', title: '民宿退房集合出發', stay: '整裝啟程', leave: '06:30 離', desc: '今古安與 S.E.A. 兩邊會合，開車前往花蓮火車站前吃熱騰騰早餐。', parking: '', alt: '15m', drive: '出發起點' },
-          { time: '06:36', tag: '🥪 活力早餐', tagClass: 'tag-food', title: '早。晚在一起（國聯店）', stay: '停留 35 分鐘', leave: '07:11 離', desc: '花蓮站前人氣早餐！享用香酥手工蛋餅、厚切吐司與大杯熱奶茶，吃飽飽準備上中橫公路。', parking: '🅿️ 國聯二路周邊路邊車格', alt: '15m', drive: '2.3 km / 6m' },
-          { time: '07:45', tag: '🚧 管制放行', tagClass: 'tag-spot', title: '太魯閣閣口（台 8 線中橫起點）', stay: '壓線通過', leave: '07:50 放行通過', desc: '於 08:00 晨間管制結束前順利通過閣口管制站，一路順暢爬升穿越太魯閣壯麗峽谷！', parking: '⚠️ 沿線留意即時路況', alt: '60m', drive: '23.5 km / 34m' },
-          { time: '09:15', tag: '🌲 觀景休息', tagClass: 'tag-nature', title: '碧綠神木（中橫景觀地標）', stay: '停留 35 分鐘', leave: '09:50 離', desc: '巨木停留！下車走走深呼吸，喝一杯棧房招牌的水蜜桃蜂蜜茶。', parking: '🅿️ 碧綠神木停車場', alt: '2,150m', drive: '57 km / 1h 25m' },
-          { time: '10:10', tag: '🍙 雲端休息', tagClass: 'tag-food', title: '關原加油站吃肉粽', stay: '停留 35 分鐘', leave: '10:45 離', desc: '全台灣最高加油站打卡，吃顆熱呼呼的招牌肉粽補充熱量。', parking: '🅿️ 加油站停車場', alt: '2,374m', drive: '12.5 km / 20m' },
-          { time: '10:53', tag: '⛰️ 穿過隧道', tagClass: 'tag-nature', title: '大禹嶺合歡山隧道口', stay: '停留 12 分鐘', leave: '11:05 離', desc: '穿過合歡山隧道進入梨山支線，群山視野壯闊開朗。', parking: '🅿️ 隧道口開闊處', alt: '2,565m', drive: '4.5 km / 8m' },
-          { time: '11:55', tag: '🍁 楓紅蜜果', tagClass: 'tag-nature', title: '福壽山農場賞楓', stay: '停留 2.5 小時', leave: '14:25 離', desc: '造訪松廬欣賞 11 月漂亮的楓紅，順便採買好吃的當季蜜蘋果。', parking: '🅿️ 福壽山停車場', alt: '2,240m', drive: '28 km / 50m' },
-          { time: '15:35', tag: '🏨 入住放行李', tagClass: 'tag-spot', title: '合歡山松雪樓 Check-in 換裝', stay: '停留 30 分鐘', leave: '16:05 離', desc: '抵達松雪樓放置大件行李，換上最厚羽絨衣、手套與毛帽，帶好頭燈與腳架。', parking: '🅿️ 松雪樓專屬房客車位', alt: '3,150m', drive: '37 km / 1h 10m' },
-          { time: '16:10', tag: '🚗 搶停武嶺', tagClass: 'tag-nature', title: '抵達武嶺停車場停妥', stay: '停車整裝', leave: '16:20 徒步出發', desc: '從松雪樓沿台 14 甲上坡開 1.6km 至武嶺停車場，搶在夕陽人潮前停妥車輛！', parking: '🅿️ 歐特儀武嶺停車場', alt: '3,275m', drive: '1.6 km / 5m' },
-          { time: '16:45', tag: '🌅 夕陽雲海', tagClass: 'tag-spot', title: '登上合歡主峰馬雅平台', stay: '觀景 45 分鐘', leave: '17:30 轉星空', desc: '從主峰登山口步道登上馬雅石階平台，站在高處俯瞰昆陽山脊，迎接 17:12 夕陽金黃雲海！', parking: '🚶 步行 1.3 km / 25m', alt: '3,230m', drive: '徒步抵達' },
-          { time: '17:30', tag: '✨ 銀河沉降', tagClass: 'tag-ocean', title: '捕捉夏季銀河核心最後身影', stay: '觀星 45 分鐘', leave: '18:15 撤退返程', desc: '天色全暗！西南方低空直立銀河現身！農曆九月三十完全無月光干擾，18:00～18:15 銀河核心沉入山稜線，肉眼清晰可見！', parking: '🌌 備妥紅光手電筒與腳架', alt: '3,230m', drive: '原地觀星' },
-          { time: '18:45', tag: '🍲 暖胃晚餐', tagClass: 'tag-food', title: '回武嶺取車開回松雪樓晚餐', stay: '享用晚餐暖身', leave: '餐後休息', desc: '原路徒步回武嶺取車開回松雪樓。⚠️注意：松雪樓餐廳供餐至 19:30 截止，熱呼呼吃飽暖身！', parking: '🅿️ 松雪樓住客專屬車位', alt: '3,150m', drive: '返程約 30m' }
-        ]
-      },
-      3: {
-        tag: 'Day 3',
-        title: '武嶺打卡 ＋ 清境青青草原尋羊 ＆ 馬術秀 ＋ 魯媽媽高山饗宴',
-        hotel: '🏠 終點：平安回到中壢 (海拔 130m)',
-        icon: '🐑',
-        timeline: [
-          { time: '06:00', tag: '🌅 雲海日出', tagClass: 'tag-spot', title: '松雪樓看日出 ＆ 晨間早餐', stay: '停留 2 小時 15 分', leave: '08:15 離', desc: '早起看晨光雲海穿透群峰，吃熱騰騰自助早餐後整裝退房。', parking: '', alt: '3,150m', drive: '出發起點' },
-          { time: '08:20', tag: '📸 公路之巔', tagClass: 'tag-spot', title: '武嶺標高 3,275m 拍照留念', stay: '停留 20 分鐘', leave: '08:40 離', desc: '站在台灣公路最高點武嶺亭拍照打卡！早晨陽光充足、空氣透徹，也不容易堵車。', parking: '🅿️ 武嶺停車場', alt: '3,275m', drive: '1.6 km / 5m' },
-          { time: '08:55', tag: '🌲 暗空展望', tagClass: 'tag-nature', title: '暗空公園鳶峰遊客中心', stay: '停留 20 分鐘', leave: '09:15 離', desc: '下山中繼休息 20 分鐘！走上開闊木棧觀景平台眺望合歡南峰壯麗山谷，上洗手間舒展。', parking: '🅿️ 鳶峰遊客中心停車場', alt: '2,756m', drive: '7.5 km / 15m' },
-          { time: '09:40', tag: '🐑 草原尋羊', tagClass: 'tag-nature', title: '清境農場（青青草原尋羊）', stay: '停留 60 分鐘', leave: '10:40 移步秀場', desc: '抵達清境停車入園！上百隻羊咩咩全在草坡上漫步，買飼料餵羊、摸綿羊鬆軟羊毛、拍山景美照！', parking: '🅿️ 青青草原停車場', alt: '1,750m', drive: '15 km / 25m' },
-          { time: '10:45', tag: '🐎 特技表演', tagClass: 'tag-spot', title: '觀山牧區馬術秀（每日固定演出）', stay: '觀賞 35 分鐘', leave: '11:20 取車', desc: '準時觀賞 30 分鐘超精彩專業馬術秀！專業蒙古騎士在奔馳馬背上倒立、旋轉與跳躍，氣勢磅礡！', parking: '觀山牧區馬術秀場', alt: '1,750m', drive: '園區步道步行' },
-          { time: '11:30', tag: '🍲 滇味盛宴', tagClass: 'tag-food', title: '清境魯媽媽雲南擺夷料理', stay: '停留 80 分鐘', leave: '12:50 離', desc: '【高山絕景午餐】海拔 2,044m 景觀餐廳！品嚐招牌錦灑、包糯米椒麻雞、酸木瓜雞湯與當歸葉烘蛋，吃飽喝足遠眺合歡群峰！', parking: '🅿️ 餐廳專屬停車場 (車程約 6～8 分)', alt: '2,044m', drive: '2.9 km / 8m' },
-          { time: '16:20', tag: '🏠 舒適返程', tagClass: 'tag-ocean', title: '台 14 甲 ➔ 國 6 接國 3 回中壢', stay: '平安抵達', leave: '旅程圓滿結束', desc: '順順開下山接國 6 與國 3，一路聊天聽音樂，平平安安回到中壢溫暖的家！', parking: '到家', alt: '130m', drive: '224 km / 3h 15m (留 15m 緩衝)' }
-        ]
-      }
-    };
+</div>
 
-    function renderDay(day) {
-      const data = tripData[day];
-      
-      const car = document.getElementById('cableCar');
-      car.style.transform = `translateX(${(day - 1) * 100}%)`;
+<!-- 🅱️ Plan B：Day 2 無充電備案 -->
+<div class="box-card">
+<h2 class="section-title">🅱️ Plan B：Day 2 無法充電備案</h2>
+<div style="font-size: 0.82rem; font-weight: 700;">● 觸發：11/8 10:45 在大禹嶺打電話確認宋莊慢充樁況，沒樁／排隊超過 1 小時 → 切 Plan B</div>
+<div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">● 核心邏輯：不繞福壽山（繞路本身要花 22% 電，沒得充就別下去），大禹嶺直上松雪樓</div>
+<div class="market-box" style="background-color: var(--mountain-light); margin-top: 8px;">
+<span class="market-zone-tag" style="background-color: var(--mountain-green);">🕐 Plan B 時間表（SOC 標準／雙載）</span>
+<div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; line-height: 1.9;">
+● 06:30 花蓮出發 → 07:00 早餐 → 07:45 閣口（93）→ 08:30 碧綠神木（62/61）→ 09:45 關原肉粽（44/42）→ <b>10:45 大禹嶺（40/38）☎️ 決策點</b><br>
+● 11:30 松雪樓（28/25）check-in＋餐廳午餐 → 13:30 武嶺觀景台（25/22）→ 14:30 小風口（24/21，15分）→ 15:30 回松雪樓休息（23/20）<br>
+● 16:30 瑪雅平台卡位 → 17:12 日落 → 18:15 銀河 → 18:45 回松雪樓晚餐（19:30 死線不變）
+</div>
+</div>
+<div class="market-box" style="background-color: var(--mountain-light);">
+<span class="market-zone-tag" style="background-color: var(--mountain-green);">🔋 Plan B 電量路徑</span>
+<div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">● 松雪樓 28/23 → 下午武嶺＋小風口後 23/18 → 隔夜 −1% → <b>Day 3 起始 22/19</b> → 青青草原 <b>23/20</b> → 充到 75%（約 30kWh，25–30 分鐘）→ 之後全不變</div>
+</div>
+<div class="market-box">
+<span class="market-zone-tag">⚠️ 千萬不要</span>
+<div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">● 去了福壽山、發現沒樁、還待滿 2.5 小時——那會變成松雪樓 12%/7%、Day 3 起始 9%/4%，太危險。沒樁就走：先轉梨山賓館（5km／10分，3 座 J1772），兩邊都沒再直上松雪樓。</div>
+</div>
+</div>
 
-      for (let i = 1; i <= 3; i++) {
-        const btn = document.getElementById(`dayBtn${i}`);
-        if (i === day) {
-          btn.classList.add('active');
-        } else {
-          btn.classList.remove('active');
-        }
-      }
+<!-- ================= TAB 3: 清單 PACK ================= -->
+<div id="tab-pack" class="tab-content">
+<div class="box-card">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+<h2 class="section-title" style="margin-bottom: 0;">出發前隨身準備</h2>
+<span id="packProgressText" style="font-size: 0.78rem; font-weight: 900; color: var(--sunset-coral);">0 / 9 完成</span>
+</div>
+<div class="progress-bar-wrap">
+<div class="progress-bar" id="progressBar"></div>
+</div>
+<div id="checkList">
+<div class="check-item" onclick="toggleCheck(this)">
+<div class="check-box"></div>
+<span>導航地標與花蓮景點先存入手機標籤</span>
+</div>
+<div class="check-item" onclick="toggleCheck(this)">
+<div class="check-box"></div>
+<span>新城佳興買好的冷凍檸檬汁放車上杯架</span>
+</div>
+<div class="check-item" onclick="toggleCheck(this)">
+<div class="check-box"></div>
+<span>中華路惠比須餅舖採買正宗花蓮薯伴手禮</span>
+</div>
+<div class="check-item" onclick="toggleCheck(this)">
+<div class="check-box"></div>
+<span>中華路豐興餅舖採買白豆沙小月餅與雷古多唱片餅</span>
+</div>
+<div class="check-item" onclick="toggleCheck(this)">
+<div class="check-box"></div>
+<span>防風保暖厚羽絨衣、手套與毛帽（合歡山 3,150m 夜間約 0-5°C）</span>
+</div>
+<div class="check-item" onclick="toggleCheck(this)">
+<div class="check-box"></div>
+<span>馬雅平台觀星必備：紅光頭燈或手電筒（不破壞暗空夜視）</span>
+</div>
+<div class="check-item" onclick="toggleCheck(this)">
+<div class="check-box"></div>
+<span>後車廂必備乾糧泡麵（若拍銀河太晚錯過 19:30 晚餐可回松雪樓泡熱水）</span>
+</div>
+<div class="check-item" onclick="toggleCheck(this)">
+<div class="check-box"></div>
+<span>身分證、健保卡、高山常備止痛藥（普拿疼/布洛芬）</span>
+</div>
+<div class="check-item" onclick="toggleCheck(this)">
+<div class="check-box"></div>
+<span>抗 UV 太陽眼鏡、腳架、相機拍照設備與行動電源</span>
+</div>
+</div>
+</div>
 
-      document.getElementById('dayTag').innerText = data.tag;
-      document.getElementById('dayTitle').innerText = data.title;
-      document.getElementById('dayHotel').innerHTML = data.hotel;
-      document.getElementById('dayIconBox').innerText = data.icon;
+<!-- 🔋 充電行前檢查 -->
+<div class="box-card">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+<h2 class="section-title" style="margin-bottom: 0;">🔋 充電行前檢查（11/6）</h2>
+<span id="chargeProgressText" style="font-size: 0.78rem; font-weight: 900; color: var(--sunset-coral);">0 / 6 完成</span>
+</div>
+<div class="progress-bar-wrap">
+<div class="progress-bar" id="chargeProgressBar"></div>
+</div>
+<div id="chargeCheckList">
+<div class="check-item" onclick="toggleCheckCharge(this)">
+<div class="check-box"></div>
+<span>中壢出發前充到 100%</span>
+</div>
+<div class="check-item" onclick="toggleCheckCharge(this)">
+<div class="check-box"></div>
+<span>查星舟快充公告：青青草原站無維護停機</span>
+</div>
+<div class="check-item" onclick="toggleCheckCharge(this)">
+<div class="check-box"></div>
+<span>EVOASIS App 綁定付款正常</span>
+</div>
+<div class="check-item" onclick="toggleCheckCharge(this)">
+<div class="check-box"></div>
+<span>加星舟 LINE 好友（免下載 App 啟動充電）</span>
+</div>
+<div class="check-item" onclick="toggleCheckCharge(this)">
+<div class="check-box"></div>
+<span>幸福公路 App：確認中橫管制無異動、蘇花正常</span>
+</div>
+<div class="check-item" onclick="toggleCheckCharge(this)">
+<div class="check-box"></div>
+<span>胎壓檢查（滿載＋山路，建議打到原廠上限）</span>
+</div>
+</div>
+</div>
+</div>
 
-      const container = document.getElementById('timelineContainer');
-      container.innerHTML = '';
+</main>
 
-      data.timeline.forEach(item => {
-        const node = document.createElement('div');
-        node.className = 'timeline-node';
-        node.innerHTML = `
-          <div class="node-time-box">
-            <span class="node-time">${item.time}</span>
-            <span class="node-time-label">預計抵達</span>
-          </div>
-          <div class="node-dot"></div>
-          <div class="node-card">
-            <div class="node-header">
-              <span class="pill-tag ${item.tagClass}">${item.tag}</span>
-              ${item.alt ? `<span class="alt-badge">⛰️ ${item.alt}</span>` : ''}
-              ${item.drive ? `<span class="drive-badge">🚗 ${item.drive}</span>` : ''}
-            </div>
-            <div class="node-title">${item.title}</div>
-            ${item.stay ? `
-              <div class="stay-schedule-bar">
-                <span>⏳ ${item.stay}</span>
-                <span>•</span>
-                <span>🏁 ${item.leave}</span>
-              </div>
-            ` : ''}
-            <div class="node-desc">${item.desc}</div>
-            ${item.parking ? `<div class="node-parking">${item.parking}</div>` : ''}
-          </div>
-        `;
-        container.appendChild(node);
-      });
-    }
+<script>
+// 1. 三天行程資料（含 Ev Life v303 精算 SOC：soc = 預計抵達電量）
+const tripData = {
+1: {
+tag: 'Day 1',
+title: '花蓮車站會合 ＋ 童話水岸、老街蔥油餅豆花與海濱夜市',
+hotel: '🏨 我 & 屁祥金主：今古安民宿 (海拔 15m)<br>🏨 佑哥金主 & 老婆：S.E.A.民宿 (海拔 15m)',
+icon: '🌊',
+timeline: [
+{ time: '06:00', tag: '🚗 啟程出發', tagClass: 'tag-ocean', title: '中壢出發北上', stay: '準時啟程', leave: '06:00 離', desc: '早起出發，先到新莊跟佑哥夫妻會合（兩台車編隊），再一起北上走國 3 接國 5。', parking: '', alt: '130m', drive: '出發起點', soc: 100, socFull: 100},
+{ time: '06:35', tag: '🤝 車隊會合', tagClass: 'tag-spot', title: '新莊重新路會合佑哥夫妻', stay: '停留 10 分鐘', leave: '06:45 離', desc: '在重新路四段 88 號跟佑哥夫妻會合，兩台車編隊出發！佑哥夫妻開自己的油車（免協調充電）。', parking: '🅿️ 路邊短暫臨停', alt: '20m', drive: '30 km / 35m', soc: 91, socFull: 91},
+{ time: '08:00', tag: '☕ 休息中繼', tagClass: 'tag-food', title: '國 5 蘇澳服務區', stay: '停留 30 分鐘', leave: '08:30 離', desc: '下車上洗手間、伸展筋骨買杯熱咖啡。⚡有空樁建議順手快充 20–30 分鐘（CCS1×2，約 +20%，日終從 13% 變 35% 更從容）。', parking: '🅿️ 服務區大型平面車位', alt: '15m', drive: '80 km / 1h', soc: 65, socFull: 65},
+{ time: '09:20', tag: '📸 斷崖海景', tagClass: 'tag-ocean', title: '崇德清水斷崖觀景台', stay: '停留 10 分鐘', leave: '09:30 離', desc: '蘇花改必經！崇德休憩據點停車即達，10 分鐘拍清水斷崖＋太平洋。', parking: '🅿️ 崇德休憩據點停車場', alt: '10m', drive: '55 km / 50m', soc: 46, socFull: 46},
+{ time: '09:50', tag: '🪞 天空之鏡', tagClass: 'tag-ocean', title: '曼波海灘天空之鏡', stay: '停留 30 分鐘', leave: '10:20 離', desc: '七星潭北端秘境！退潮前後淺灘拍倒影，遊客少很多。記得查 11/7 潮汐時間。', parking: '🅿️ 曼波海灘周邊停車', alt: '5m', drive: '18 km / 20m', soc: 40, socFull: 40},
+{ time: '10:30', tag: '🍋 順路買冰飲', tagClass: 'tag-food', title: '新城佳興冰菓店', stay: '快閃外帶 10 分鐘', leave: '10:40 離', desc: '快閃外帶招牌冷凍檸檬汁放車上杯架，趕 11:00 車站接人！', parking: '🅿️ 門前短暫臨停', alt: '25m', drive: '8 km / 10m', soc: 37, socFull: 37},
+{ time: '11:00', tag: '🤝 車站碰面', tagClass: 'tag-spot', title: '花蓮火車站接屁祥', stay: '停留 15 分鐘', leave: '11:15 離', desc: '兩台車一起到車站接屁祥上 n7！車內冷氣開好，喝檸檬汁直接出發！', parking: '🅿️ 前後站智慧立體停車場', alt: '15m', drive: '17.5 km / 25m', soc: 32, socFull: 32},
+{ time: '11:25', tag: '🍛 老宅午餐', tagClass: 'tag-food', title: '家咖哩（花蓮將軍府店）', stay: '停留 70 分鐘', leave: '12:35 離', desc: '在百年日式宿舍將軍府 1936 園區品嚐在地小農有機香料咖哩（咖哩醬與富里米可免費續加），吃飽漫步檜木老宅林蔭。', parking: '🅿️ 將軍府專屬停車場或中正路車格', alt: '15m', drive: '3.2 km / 10m', soc: 31, socFull: 31},
+{ time: '13:00', tag: '☕ 水岸咖啡', tagClass: 'tag-spot', title: 'STARBUCKS 花蓮理想門市', stay: '停留 30 分鐘', leave: '13:30 離', desc: '歐洲童話風木屋配落羽松湖景，拍照好看，而且離下一站鯉魚潭只要 16 分鐘！', parking: '🅿️ 園區專屬停車場', alt: '20m', drive: '16.5 km / 25m', soc: 25, socFull: 25},
+{ time: '13:45', tag: '🏞️ 夢幻湖', tagClass: 'tag-nature', title: '雲山水夢幻湖', stay: '停留 30 分鐘', leave: '14:15 離', desc: '壽豐秘境！跳石步道＋夢幻湖倒影，落羽松環湖超好拍（11 月還沒轉紅，但湖景本身就美）。', parking: '🅿️ 雲山水園區停車場', alt: '20m', drive: '8 km / 15m', soc: 23, socFull: 23},
+{ time: '14:35', tag: '🌲 湖光山色', tagClass: 'tag-nature', title: '鯉魚潭風景區', stay: '停留 30 分鐘', leave: '15:05 離', desc: '花蓮最大的天然湖泊，漫步環潭木棧道吹吹微風、看群山倒影。', parking: '🅿️ 潭北遊客中心停車場', alt: '140m', drive: '12 km / 18m', soc: 20, socFull: 20},
+{ time: '15:30', tag: '🥞 經典點心', tagClass: 'tag-food', title: '炸彈蔥油餅 ＆ 蔡記豆花 ＆ 文創漫步', stay: '停留 40 分鐘', leave: '16:10 離', desc: '回市區必吃！外帶復興街爆漿蔥油餅，再至民國路吃蔡記豆花（招牌薏仁牛奶豆花、仙草奶凍），順遊隔壁花蓮文創園區老酒廠紅磚倉庫。', parking: '🅿️ 花蓮文創園區收費停車場', alt: '15m', drive: '16 km / 25m', soc: 14, socFull: 14},
+{ time: '16:15', tag: '🎁 百年名產', tagClass: 'tag-food', title: '惠比須餅舖 ＆ 豐興餅舖（中華店）', stay: '停留 25 分鐘', leave: '16:40 離', desc: '步行中華路名產街！採買惠比須正宗手工花蓮薯，順遊相距僅 100m 的豐興餅舖買招牌白豆沙小月餅與雷古多唱片餅！', parking: '🅿️ 中華路周邊路格 / 文創園區步行約 3 分鐘', alt: '15m', drive: '步行 400m / 4m', soc: 14, socFull: 14},
+{ time: '16:45', tag: '🌊 海風浪花', tagClass: 'tag-ocean', title: '太平洋公園海堤（或順路拍貨櫃星巴克）', stay: '停留 25 分鐘', leave: '17:10 離', desc: '吃飽順路開往南濱海堤看海吹風消食（想拍白色貨櫃屋也可順路至洄瀾門市），離兩間民宿僅 4 分鐘超順！', parking: '🅿️ 南濱段大停車場', alt: '10m', drive: '1.8 km / 5m', soc: 13, socFull: 13},
+{ time: '17:15', tag: '🏨 入住放行李', tagClass: 'tag-spot', title: '各自民宿 Check-in 稍作休息', stay: '停留 45 分鐘', leave: '18:00 離', desc: '前往民宿放行李：我與屁祥金主入住「今古安民宿」、佑哥金主夫妻入住「S.E.A.民宿」。整頓後一起步行出發逛東大門！', parking: '🅿️ 各自民宿專屬車位／周邊路格', alt: '15m', drive: '1.2 km / 4m', soc: 13, socFull: 13},
+{ time: '18:05', tag: '🍢 夜市吃透透', tagClass: 'tag-food', title: '東大門夜市老饕巡禮', stay: '停留 2.5 小時', leave: '20:35 離', desc: '集合開吃玉里臭豆腐、林記烤玉米、蔣家官財板與新鮮現打果汁！', parking: '🚶 步行前往或停放重慶路周邊停車格', alt: '15m', drive: '步行 700m / 8m', soc: 13, socFull: 13},
+{ time: '21:00', tag: '🌙 宵夜續攤', tagClass: 'tag-food', title: '公正包子 ＆ 周家蒸餃', stay: '外帶回民宿', leave: '晚安好夢', desc: '夜市回程外帶熱騰騰小籠包與蒸餃，帶回民宿配茶聊天當宵夜！', parking: '🅿️ 仁愛街門市周邊短暫臨停', alt: '15m', drive: '1 km / 3m', soc: 13, socFull: 13},
+{ time: '21:10', tag: '🔌 充電補給', tagClass: 'tag-nature', title: 'EVOASIS 中油花蓮港口加油站', stay: '充電約 55 分鐘', leave: '22:05 離', desc: '180kW DC 快充，站內有來速咖啡、步行 2 分鐘全家便利店。用 EVOASIS App 啟動充電。', parking: '🅿️ 加油站充電車位（免停車費，24 小時）', alt: '15m', drive: '約 3 km / 8m', soc: 12, socFull: 12, charge: '⚡ 充電中：12% → 100%（約 51kWh，約 55 分鐘）', isCharge: true}
+]
+},
+2: {
+tag: 'Day 2',
+title: '美味早餐 ＋ 中橫賞楓 ＋ 瑪雅平台夕陽雲海與銀河沉降',
+hotel: '🏨 全體住：合歡山松雪樓 (海拔 3,150m)',
+icon: '🌌',
+timeline: [
+{ time: '06:30', tag: '🥪 活力早餐', tagClass: 'tag-food', title: '早餐店集合：早。晚在一起（國聯店）', stay: '停留 35 分鐘', leave: '07:05 離', desc: '兩台車各自退房，06:30 直接在花蓮站前早餐店集合！香酥手工蛋餅、厚切吐司與大杯熱奶茶，吃飽上中橫。', parking: '🅿️ 國聯二路周邊路邊車格', alt: '15m', drive: '出發起點', soc: 100, socFull: 100},
+{ time: '07:45', tag: '🚧 管制放行', tagClass: 'tag-spot', title: '太魯閣閣口（台 8 線中橫起點）', stay: '壓線通過', leave: '07:50 放行通過', desc: '於 08:00 晨間管制結束前順利通過閣口管制站，一路順暢爬升穿越太魯閣壯麗峽谷！', parking: '⚠️ 沿線留意即時路況', alt: '60m', drive: '23.5 km / 34m', soc: 93, socFull: 93},
+{ time: '09:15', tag: '🌲 觀景休息', tagClass: 'tag-nature', title: '碧綠神木（中橫景觀地標）', stay: '停留 35 分鐘', leave: '09:50 離', desc: '巨木停留！下車走走深呼吸，喝一杯棧房招牌的水蜜桃蜂蜜茶。', parking: '🅿️ 碧綠神木停車場', alt: '2,150m', drive: '57 km / 1h 25m', soc: 62, socFull: 61},
+{ time: '10:10', tag: '🍙 雲端休息', tagClass: 'tag-food', title: '關原加油站吃肉粽', stay: '停留 35 分鐘', leave: '10:45 離', desc: '全台灣最高加油站打卡，吃顆熱呼呼的招牌肉粽補充熱量。', parking: '🅿️ 加油站停車場', alt: '2,374m', drive: '12.5 km / 20m', soc: 44, socFull: 42},
+{ time: '10:53', tag: '⛰️ 穿過隧道', tagClass: 'tag-nature', title: '大禹嶺合歡山隧道口', stay: '停留 12 分鐘', leave: '11:05 離', desc: '穿過合歡山隧道進入梨山支線，群山視野壯闊開朗。⚠️ 電量檢查點（無充電版）：40% 續往福壽山 → 松雪樓僅剩 12%/9%；若低於 25% 直接取消福壽山、切 Plan B 直上松雪樓（28%/25%）！', parking: '🅿️ 隧道口開闊處', alt: '2,565m', drive: '4.5 km / 8m', soc: 40, socFull: 38},
+{ time: '11:55', tag: '🍁 楓紅蜜果', tagClass: 'tag-nature', title: '福壽山農場賞楓', stay: '停留 2.5 小時', leave: '14:25 離', desc: '造訪松廬欣賞 11 月漂亮的楓紅，順便採買好吃的當季蜜蘋果。（此版假設無充電：宋莊／梨山賓館若有空樁可插，當作 bonus。）', parking: '🅿️ 宋莊停車場', alt: '2,240m', drive: '28 km / 50m', soc: 34, socFull: 32},
+{ time: '15:35', tag: '🏨 入住放行李', tagClass: 'tag-spot', title: '合歡山松雪樓 Check-in 換裝', stay: '停留 30 分鐘', leave: '16:05 離', desc: '抵達松雪樓放置大件行李，換上最厚羽絨衣、手套與毛帽，帶好頭燈與腳架。', parking: '🅿️ 松雪樓專屬房客車位', alt: '3,150m', drive: '37 km / 1h 10m', soc: 12, socFull: 9},
+{ time: '16:10', tag: '🚗 搶停武嶺', tagClass: 'tag-nature', title: '抵達武嶺停車場停妥', stay: '停車整裝', leave: '16:20 徒步出發', desc: '從松雪樓沿台 14 甲上坡開 1.6km 至武嶺停車場，搶在夕陽人潮前停妥車輛！', parking: '🅿️ 歐特儀武嶺停車場', alt: '3,275m', drive: '1.6 km / 5m', soc: 10, socFull: 7},
+{ time: '16:45', tag: '🌅 夕陽雲海', tagClass: 'tag-spot', title: '登上合歡主峰馬雅平台', stay: '觀景 45 分鐘', leave: '17:30 轉星空', desc: '從主峰登山口步道登上馬雅石階平台，站在高處俯瞰昆陽山脊，迎接 17:12 夕陽金黃雲海！', parking: '🚶 步行 1.3 km / 25m', alt: '3,230m', drive: '徒步抵達', soc: 10, socFull: 7},
+{ time: '17:30', tag: '✨ 銀河沉降', tagClass: 'tag-ocean', title: '捕捉夏季銀河核心最後身影', stay: '觀星 45 分鐘', leave: '18:15 撤退返程', desc: '天色全暗！西南方低空直立銀河現身！農曆九月三十完全無月光干擾，18:00～18:15 銀河核心沉入山稜線，肉眼清晰可見！', parking: '🌌 備妥紅光手電筒與腳架', alt: '3,230m', drive: '原地觀星', soc: 10, socFull: 7},
+{ time: '18:45', tag: '🍲 暖胃晚餐', tagClass: 'tag-food', title: '回武嶺取車開回松雪樓晚餐', stay: '享用晚餐暖身', leave: '餐後休息', desc: '原路徒步回武嶺取車開回松雪樓。⚠️注意：松雪樓餐廳供餐至 19:30 截止，熱呼呼吃飽暖身！晚上關閉待機耗電，隔夜估 -1%（n7 無電池加熱系統）。', parking: '🅿️ 松雪樓住客專屬車位', alt: '3,150m', drive: '返程約 30m', soc: 10, socFull: 7}
+]
+},
+3: {
+tag: 'Day 3',
+title: '武嶺打卡 ＋ 清境青青草原尋羊 ＆ 馬術秀 ＋ 魯媽媽高山饗宴',
+hotel: '🏠 終點：平安回到中壢 (海拔 130m)',
+icon: '🐑',
+timeline: [
+{ time: '06:00', tag: '🌅 雲海日出', tagClass: 'tag-spot', title: '松雪樓看日出 ＆ 晨間早餐', stay: '停留 2 小時 15 分', leave: '08:15 離', desc: '早起看晨光雲海穿透群峰，吃熱騰騰自助早餐後整裝退房。', parking: '', alt: '3,150m', drive: '出發起點', soc: 9, socFull: 6},
+{ time: '08:20', tag: '📸 公路之巔', tagClass: 'tag-spot', title: '武嶺標高 3,275m 拍照留念', stay: '停留 20 分鐘', leave: '08:40 離', desc: '站在台灣公路最高點武嶺亭拍照打卡！早晨陽光充足、空氣透徹，也不容易堵車。', parking: '🅿️ 武嶺停車場', alt: '3,275m', drive: '1.6 km / 5m', soc: 7, socFull: 4},
+{ time: '08:55', tag: '🌲 暗空展望', tagClass: 'tag-nature', title: '暗空公園鳶峰遊客中心', stay: '停留 20 分鐘', leave: '09:15 離', desc: '下山中繼休息 20 分鐘！走上開闊木棧觀景平台眺望合歡南峰壯麗山谷，上洗手間舒展。', parking: '🅿️ 鳶峰遊客中心停車場', alt: '2,756m', drive: '7.5 km / 15m', soc: 8, socFull: 6},
+{ time: '09:40', tag: '🐑 草原尋羊', tagClass: 'tag-nature', title: '清境農場（青青草原尋羊）', stay: '停留 60 分鐘', leave: '10:40 移步秀場', desc: '抵達清境停車入園！上百隻羊咩咩全在草坡上漫步，買飼料餵羊、摸綿羊鬆軟羊毛、拍山景美照！先停充電車位補電。', parking: '🅿️ 青青草原北端停車場（星舟快充 120kW，08:00–17:00）', alt: '1,750m', drive: '15 km / 25m', soc: 10, socFull: 8, charge: '⚡ 充電中：10% → 75%（約 38kWh，30–35 分鐘，充飽移車）', chargeFull: '⚡ 充電中：8% → 75%（約 39kWh，30–35 分鐘，充飽移車）', isCharge: true},
+{ time: '10:45', tag: '🐎 特技表演', tagClass: 'tag-spot', title: '觀山牧區馬術秀（每日固定演出）', stay: '觀賞 35 分鐘', leave: '11:20 取車', desc: '準時觀賞 30 分鐘超精彩專業馬術秀！專業蒙古騎士在奔馳馬背上倒立、旋轉與跳躍，氣勢磅礡！', parking: '觀山牧區馬術秀場', alt: '1,750m', drive: '園區步道步行', soc: 75, socFull: 75},
+{ time: '11:30', tag: '🍲 滇味盛宴', tagClass: 'tag-food', title: '清境魯媽媽雲南擺夷料理', stay: '停留 80 分鐘', leave: '12:50 離', desc: '海拔 2,044m 景觀餐廳！品嚐招牌錦灑、包糯米椒麻雞、酸木瓜雞湯與當歸葉烘蛋，吃飽喝足遠眺合歡群峰！', parking: '🅿️ 餐廳專屬停車場 (車程約 6～8 分)', alt: '2,044m', drive: '2.9 km / 8m', soc: 74, socFull: 74},
+{ time: '13:10', tag: '🌉 空中漫步', tagClass: 'tag-nature', title: '清境高空觀景步道', stay: '停留 60 分鐘', leave: '14:10 離', desc: '1.2km 全平坦無障礙步道，散步等級不爬山！門票 50 元，俯瞰青青草原與山谷。', parking: '🅿️ 步道南端入口停車場', alt: '1,750m', drive: '3 km / 10m', soc: 73, socFull: 73},
+{ time: '16:20', tag: '🏠 舒適返程', tagClass: 'tag-ocean', title: '台 14 甲 ➔ 國 6 接國 3 回中壢', stay: '平安抵達', leave: '旅程圓滿結束', desc: '順順開下山接國 6 與國 3，一路聊天聽音樂，平平安安回到中壢溫暖的家！預計 19:35–20:00 抵達，剩餘約 22%。（14:10–16:20 自由活動／伴手禮時間）', parking: '到家', alt: '130m', drive: '224 km / 3h 15m (留 15m 緩衝)', soc: 22, socFull: 23}
+]
+}
+};
 
-    function selectDay(day) {
-      renderDay(day);
-    }
+let socMode = 'std';
+let socVisible = false;
+function setSocMode(m){
+socMode = m;
+document.getElementById('socStdBtn').classList.toggle('active', m==='std');
+document.getElementById('socFullBtn').classList.toggle('active', m==='full');
+renderDay(window._curDay || 1);
+}
+function toggleSoc(){
+socVisible = !socVisible;
+document.getElementById('socToggle').classList.toggle('on', socVisible);
+document.body.classList.toggle('soc-on', socVisible);
+try { localStorage.setItem('soc_visible', socVisible? '1':'0'); } catch(e){}
+renderDay(window._curDay || 1);
+}
+function socBadgeClass(soc) {
+if (soc >= 50) return 'soc-high';
+if (soc >= 20) return 'soc-mid';
+return 'soc-low';
+}
 
-    function switchMainTab(tabId) {
-      const tabs = ['itinerary', 'decision', 'pack'];
-      tabs.forEach(t => {
-        const content = document.getElementById(`tab-${t}`);
-        const btn = document.getElementById(`nav-btn-${t}`);
-        if (t === tabId) {
-          content.classList.add('active');
-          btn.classList.add('active');
-        } else {
-          content.classList.remove('active');
-          btn.classList.remove('active');
-        }
-      });
-    }
+function renderDay(day) {
+const data = tripData[day];
 
-    function applyTheme(theme) {
-      const icon = document.getElementById('themeIcon');
-      if (theme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        icon.textContent = '🌙';
-      } else {
-        document.documentElement.removeAttribute('data-theme');
-        icon.textContent = '☀️';
-      }
-    }
+const car = document.getElementById('cableCar');
+car.style.transform = `translateX(${(day - 1) * 100}%)`;
 
-    function toggleTheme() {
-      const current = document.documentElement.getAttribute('data-theme');
-      const next = current === 'dark' ? 'light' : 'dark';
-      applyTheme(next);
-      localStorage.setItem('trip_theme_pref', next);
-    }
+for (let i = 1; i <= 3; i++) {
+const btn = document.getElementById(`dayBtn${i}`);
+if (i === day) {
+btn.classList.add('active');
+} else {
+btn.classList.remove('active');
+}
+}
 
-    function forceRefreshData() {
-      const btn = document.getElementById('refreshBtn');
-      const toast = document.getElementById('toastMsg');
-      
-      btn.classList.add('rotating');
-      toast.classList.add('show');
+document.getElementById('dayTag').innerText = data.tag;
+document.getElementById('dayTitle').innerText = data.title;
+document.getElementById('dayHotel').innerHTML = data.hotel;
+document.getElementById('dayIconBox').innerText = data.icon;
 
-      sessionStorage.clear();
+window._curDay = day;
+const container = document.getElementById('timelineContainer');
+container.innerHTML = '';
 
-      setTimeout(() => {
-        const cleanUrl = window.location.href.split('?')[0];
-        window.location.replace(cleanUrl + '?t=' + new Date().getTime());
-      }, 500);
-    }
+data.timeline.forEach(item => {
+const sv = (socMode==='full' && item.socFull!==undefined)? item.socFull : item.soc;
+const cv = (socMode==='full' && item.chargeFull)? item.chargeFull : item.charge;
+const node = document.createElement('div');
+node.className = 'timeline-node';
+node.innerHTML = `
+<div class="node-time-box">
+<span class="node-time">${item.time}</span>
+<span class="node-time-label">預計抵達</span>
+</div>
+<div class="node-dot${item.isCharge? ' charge-dot': ''}"></div>
+<div class="node-card">
+<div class="node-header">
+<span class="pill-tag ${item.tagClass}">${item.tag}</span>
+${item.alt? `<span class="alt-badge">⛰️ ${item.alt}</span>`: ''}
+${item.drive? `<span class="drive-badge">🚗 ${item.drive}</span>`: ''}
+${(socVisible && item.soc!== undefined)? `<span class="soc-badge ${socBadgeClass(sv)}">🔋 ${sv}%</span>`: ''}
+</div>
+<div class="node-title">${item.title}</div>
+${item.stay? `
+<div class="stay-schedule-bar">
+<span>⏳ ${item.stay}</span>
+<span>•</span>
+<span>🏁 ${item.leave}</span>
+</div>
+`: ''}
+${(socVisible && cv)? `<div style="margin-bottom: 6px;"><span class="charge-bar">${cv}</span></div>`: ''}
+<div class="node-desc">${item.desc}</div>
+${item.parking? `<div class="node-parking">${item.parking}</div>`: ''}
+</div>
+`;
+container.appendChild(node);
+});
+}
 
-    const targetDate = new Date('2026-11-07T11:00:00+08:00').getTime();
-    function updateCountdown() {
-      const now = new Date().getTime();
-      const diff = targetDate - now;
-      if (diff <= 0) {
-        document.getElementById('cdDays').textContent = '00';
-        document.getElementById('cdHours').textContent = '00';
-        document.getElementById('cdMins').textContent = '00';
-        document.getElementById('cdSecs').textContent = '00';
-        return;
-      }
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const secs = Math.floor((diff % (1000 * 60)) / 1000);
+function selectDay(day) {
+renderDay(day);
+}
 
-      document.getElementById('cdDays').textContent = String(days).padStart(2, '0');
-      document.getElementById('cdHours').textContent = String(hours).padStart(2, '0');
-      document.getElementById('cdMins').textContent = String(mins).padStart(2, '0');
-      document.getElementById('cdSecs').textContent = String(secs).padStart(2, '0');
-    }
+function switchMainTab(tabId) {
+const tabs = ['itinerary', 'decision', 'pack'];
+tabs.forEach(t => {
+const content = document.getElementById(`tab-${t}`);
+const btn = document.getElementById(`nav-btn-${t}`);
+if (t === tabId) {
+content.classList.add('active');
+btn.classList.add('active');
+} else {
+content.classList.remove('active');
+btn.classList.remove('active');
+}
+});
+}
 
-    function toggleCheck(el) {
-      el.classList.toggle('done');
-      updateProgress();
-    }
+function applyTheme(theme) {
+const icon = document.getElementById('themeIcon');
+if (theme === 'dark') {
+document.documentElement.setAttribute('data-theme', 'dark');
+icon.textContent = '🌙';
+} else {
+document.documentElement.removeAttribute('data-theme');
+icon.textContent = '☀️';
+}
+}
 
-    function updateProgress() {
-      const items = document.querySelectorAll('.check-item');
-      const doneItems = document.querySelectorAll('.check-item.done');
-      const pct = Math.round((doneItems.length / items.length) * 100);
-      document.getElementById('progressBar').style.width = pct + '%';
-      document.getElementById('packProgressText').textContent = `${doneItems.length} / ${items.length} 完成 (${pct}%)`;
-    }
+function toggleTheme() {
+const current = document.documentElement.getAttribute('data-theme');
+const next = current === 'dark'? 'light': 'dark';
+applyTheme(next);
+localStorage.setItem('trip_theme_pref', next);
+}
 
-    window.addEventListener('DOMContentLoaded', () => {
-      const savedTheme = localStorage.getItem('trip_theme_pref');
-      if (savedTheme) {
-        applyTheme(savedTheme);
-      } else {
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        applyTheme(prefersDark ? 'dark' : 'light');
-      }
+function forceRefreshData() {
+const btn = document.getElementById('refreshBtn');
+const toast = document.getElementById('toastMsg');
 
-      renderDay(1);
-      updateCountdown();
-      setInterval(updateCountdown, 1000);
-      updateProgress();
-    });
-  </script>
+btn.classList.add('rotating');
+toast.classList.add('show');
+
+sessionStorage.clear();
+
+setTimeout(() => {
+const cleanUrl = window.location.href.split('?')[0];
+window.location.replace(cleanUrl + '?t=' + new Date().getTime());
+}, 500);
+}
+
+const targetDate = new Date('2026-11-07T06:15:00+08:00').getTime();
+function updateCountdown() {
+const now = new Date().getTime();
+const diff = targetDate - now;
+if (diff <= 0) {
+document.getElementById('cdDays').textContent = '00';
+document.getElementById('cdHours').textContent = '00';
+document.getElementById('cdMins').textContent = '00';
+document.getElementById('cdSecs').textContent = '00';
+return;
+}
+const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+document.getElementById('cdDays').textContent = String(days).padStart(2, '0');
+document.getElementById('cdHours').textContent = String(hours).padStart(2, '0');
+document.getElementById('cdMins').textContent = String(mins).padStart(2, '0');
+document.getElementById('cdSecs').textContent = String(secs).padStart(2, '0');
+}
+
+function toggleCheck(el) {
+el.classList.toggle('done');
+updateProgress();
+}
+
+function updateProgress() {
+const items = document.querySelectorAll('#checkList.check-item');
+const doneItems = document.querySelectorAll('#checkList.check-item.done');
+const pct = Math.round((doneItems.length / items.length) * 100);
+document.getElementById('progressBar').style.width = pct + '%';
+document.getElementById('packProgressText').textContent = `${doneItems.length} / ${items.length} 完成 (${pct}%)`;
+}
+
+function toggleCheckCharge(el) {
+el.classList.toggle('done');
+updateChargeProgress();
+}
+
+function updateChargeProgress() {
+const items = document.querySelectorAll('#chargeCheckList.check-item');
+const doneItems = document.querySelectorAll('#chargeCheckList.check-item.done');
+const pct = Math.round((doneItems.length / items.length) * 100);
+document.getElementById('chargeProgressBar').style.width = pct + '%';
+document.getElementById('chargeProgressText').textContent = `${doneItems.length} / ${items.length} 完成 (${pct}%)`;
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+const savedTheme = localStorage.getItem('trip_theme_pref');
+if (savedTheme) {
+applyTheme(savedTheme);
+} else {
+const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+applyTheme(prefersDark? 'dark': 'light');
+}
+
+try {
+if (localStorage.getItem('soc_visible')==='1') {
+socVisible = true;
+document.getElementById('socToggle').classList.add('on');
+document.body.classList.add('soc-on');
+}
+} catch(e){}
+
+renderDay(1);
+updateCountdown();
+setInterval(updateCountdown, 1000);
+updateProgress();
+updateChargeProgress();
+});
+</script>
 </body>
 </html>
