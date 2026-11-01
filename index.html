@@ -9922,11 +9922,15 @@ function renderRatesCards(header, rows) {
             + '<div class="text-base md:text-lg font-extrabold ' + color + '">' + esc(val) + '</div>'
             + '</div>';
     };
+    var sitePromos = [];
     var html = rows.map(function(r) {
         var op = idx.operator !== undefined ? esc(r[idx.operator]) : '';
         if (!op) return '';
         var win = idx.peakWindow !== undefined ? esc(r[idx.peakWindow]) : '';
-        var promo = idx.promo !== undefined ? esc(r[idx.promo]) : '';
+        var promoRaw = idx.promo !== undefined ? String(r[idx.promo] || '') : '';
+        var siteItems = promoRaw.split('；').filter(function(s) { return s.indexOf('📍') >= 0; });
+        siteItems.forEach(function(s) { sitePromos.push({op: op, text: s.replace('📍', '').trim()}); });
+        var promo = esc(promoRaw.split('；').filter(function(s) { return s.indexOf('📍') < 0; }).join('；'));
         var src = idx.source !== undefined ? esc(r[idx.source]) : '';
         var cur = getCurrentRateType(
             idx.offpeak !== undefined ? r[idx.offpeak] : '',
@@ -9956,6 +9960,17 @@ function renderRatesCards(header, rows) {
             + '</div>';
     }).join('');
     content.innerHTML = html || '<div class="text-center py-8 text-stone-400 text-sm">沒有費率資料</div>';
+    if (sitePromos.length) {
+        var siteHtml = '<div class="mt-4 border border-stone-100 dark:border-stone-800 rounded-2xl p-4">'
+            + '<div class="font-extrabold text-sm md:text-base mb-3">📍 站點優惠</div>'
+            + sitePromos.map(function(sp) {
+                return '<div class="text-[11px] md:text-xs mb-2 leading-relaxed">'
+                    + '<span class="font-bold text-stone-700 dark:text-stone-300">' + esc(sp.op) + '</span>'
+                    + '<span class="text-stone-500 dark:text-stone-400">：' + esc(sp.text) + '</span></div>';
+            }).join('')
+            + '</div>';
+        content.innerHTML += siteHtml;
+    }
 }
 
     </script>
