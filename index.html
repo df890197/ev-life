@@ -1485,6 +1485,13 @@ html[data-festival="midautumn"]:not(.dark) #view-home .rpg-card, html[data-festi
 html.dark[data-festival="midautumn"] #view-home .rpg-card, html.dark[data-festival="midautumn"] #view-home .rpg-card[class*="bg-white"], html.dark[data-festival="midautumn"] #view-analysis .rpg-card, html.dark[data-festival="midautumn"] #view-settings .rpg-card, html.dark[data-festival="midautumn"] #view-records .rpg-card, html.dark[data-festival="midautumn"] #view-add .rpg-card, html.dark[data-festival="midautumn"] .rpg-card, html.dark[data-festival="midautumn"] #view-analysis .v165-ehon-card, html.dark[data-festival="midautumn"] #view-home .v165-ehon-card { border-color: rgba(240,216,154,.45) !important; }
 html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !important; }
 </style>
+<style id="v346-spinner-dark">
+/* v346：載入圈圈深色寫死（iOS PWA Tailwind dark: 失效） */
+.dark .v346-spinner {
+  border-color: #92400e !important; /* amber-800 */
+  border-top-color: #fbbf24 !important; /* amber-400 */
+}
+</style>
 <style id="v345-curpomo-dark">
 /* v345：現時優惠橫幅深色寫死（iOS PWA Tailwind dark: 失效，用專用 class＋!important） */
 .dark .v345-curpomo {
@@ -3155,7 +3162,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v345';
+        const APP_VERSION = 'v346';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -9948,7 +9955,7 @@ window.dismissChangelog = function() {
 // v339：載入動畫共用 spinner
 window._ratesSpinner = function(text) {
     return '<div class="text-center py-10">'
-        + '<div class="inline-block w-8 h-8 rounded-full border-[3px] border-amber-200 dark:border-amber-800 border-t-amber-500 dark:border-t-amber-400 animate-spin mb-3"></div>'
+        + '<div class="v346-spinner inline-block w-8 h-8 rounded-full border-[3px] border-amber-200 dark:border-amber-800 border-t-amber-500 dark:border-t-amber-400 animate-spin mb-3"></div>'
         + '<div class="text-stone-400 text-sm font-bold">' + text + '</div>'
         + '</div>';
 };
