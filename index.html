@@ -3127,7 +3127,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v323';
+        const APP_VERSION = 'v324';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -9951,11 +9951,14 @@ function renderRatesCards(header, rows) {
         var promoRaw = idx.promo !== undefined ? String(r[idx.promo] || '') : '';
         var siteItems = promoRaw.split('；').filter(function(s) { return s.indexOf('📍') >= 0; });
         var promo = esc(promoRaw.split('；').filter(function(s) { return s.indexOf('📍') < 0; }).join('；'));
+        var _siteId = 'sp_' + Math.random().toString(36).slice(2, 8);
         var siteHtml = siteItems.length ? '<div class="mt-2 pt-2 border-t border-stone-100 dark:border-stone-800">'
-            + '<div class="text-[11px] font-extrabold text-stone-500 dark:text-stone-400 mb-1">📍 站點優惠</div>'
+            + '<button onclick="document.getElementById(\'' + _siteId + '\').classList.toggle(\'hidden\');this.querySelector(\'.sp-arrow\').textContent=document.getElementById(\'' + _siteId + '\').classList.contains(\'hidden\')?\'\u25B6\':\'\u25BC\';" class="w-full flex items-center justify-between text-[11px] font-extrabold text-stone-500 dark:text-stone-400 mb-1">'
+            + '<span>📍 站點優惠 (' + siteItems.length + ')</span><span class="sp-arrow">▶</span></button>'
+            + '<div id="' + _siteId + '" class="hidden">'
             + siteItems.map(function(s) {
                 return '<div class="text-[11px] md:text-xs text-stone-600 dark:text-stone-300 mb-1 leading-relaxed">• ' + esc(s.replace('📍', '').trim()) + '</div>';
-            }).join('') + '</div>' : '';
+            }).join('') + '</div></div>' : '';
         var src = idx.source !== undefined ? esc(r[idx.source]) : '';
         var cur = getCurrentRateType(
             idx.offpeak !== undefined ? r[idx.offpeak] : '',
