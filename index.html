@@ -3162,7 +3162,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v346';
+        const APP_VERSION = 'v348';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -3303,6 +3303,14 @@ function cacheDOMNodes() {
             } catch (e) {}
         })();
         function initAppCore() {
+            // v348：註冊 Service Worker（PWA 離線引擎；之前漏了註冊，診斷一直顯示未安裝）
+            try {
+                if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+                    navigator.serviceWorker.register('sw.js').catch(function(err) {
+                        console.warn('[EvLife] SW 註冊失敗（可能是 sw.js 沒部署）', err);
+                    });
+                }
+            } catch (e) {}
             applyLiteMode(); // v32：低效裝置自動進 lite 模式（在啟動畫面消失前就決定，避免閃爍）
             cacheTabMetrics(); // v32
             if (typeof window.matchMedia === 'function') {
@@ -6685,6 +6693,8 @@ self.addEventListener('fetch', event => {
         // 放在 try/catch 裡：就算清快取失敗，也一定要重載，不讓使用者卡住。
         window.forceAppUpdate = async function() {
             try { showToast('正在更新 App，紀錄不會不見…', false, 3500, true); } catch (e) {}
+            // v347：等 toast 渲染出來再做事，否則 iOS 有時來不及顯示就跳轉了
+            try { await new Promise(function(r) { setTimeout(r, 800); }); } catch (e) {}
             try {
                 if ('serviceWorker' in navigator) {
                     const regs = await navigator.serviceWorker.getRegistrations();
