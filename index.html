@@ -328,8 +328,8 @@ input[type="number"] {
         .v91-battery-track { height: 10px; border-radius: 9999px; background: #e7e5e4; overflow: hidden; }
         .dark .v91-battery-track { background: #292524; }
         .v91-battery-fill { height: 100%; border-radius: 9999px; background: #14b8a6; transition: width 0.3s cubic-bezier(0.22,1,0.36,1), background 0.3s ease; }
-        .v91-sticky-save { position: sticky; bottom: 84px; z-index: 20; display: flex; flex-direction: column; align-items: center; } /* v259：bottom 84px；v314：容器置中對齊（配合儲存鈕適中寬度） */
-        @media (min-width: 768px) { .v91-sticky-save { bottom: 92px; } }
+        .v91-sticky-save { position: sticky; bottom: 68px; z-index: 20; display: flex; flex-direction: column; align-items: center; } /* v317：使用者說要再下面一點，84px→68px 貼近 tab bar */
+        @media (min-width: 768px) { .v91-sticky-save { bottom: 76px; } }
         /* v92：儲存按鈕精緻化 — 小一點、pill、更貼齊下面 */
         .v92-save-btn { flex: 0 0 auto !important; width: auto !important; min-width: 200px !important; max-width: 320px !important; padding: 0.85rem 2.5rem !important; font-size: 0.9375rem !important; border-radius: 1rem !important; box-shadow: 0 4px 12px rgba(13,148,136,0.3) !important; } /* v314：使用者說滿版太大，改置中適中寬度（200-320px） */
         .v91-sticky-save > div.flex { justify-content: center; } /* v314：按鈕組整組置中（編輯時取消鈕並排也在中間） */
@@ -2136,7 +2136,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                             <button type="submit" class="v92-save-btn rpg-btn-primary font-extrabold transition hover:scale-[1.02] active:scale-95">
                                 <span id="submitBtnText">儲存紀錄</span>
                             </button>
-                            <button type="button" id="cancelEditBtn" onclick="cancelEdit()" class="hidden rpg-btn-secondary text-sm font-bold py-3 px-5 rounded-full border border-stone-200 dark:border-stone-700 text-stone-500 transition hover:bg-stone-100 active:scale-95">
+                            <button type="button" id="cancelEditBtn" onclick="cancelEdit()" class="hidden rpg-btn-secondary text-sm font-bold px-5 rounded-2xl border border-stone-200 dark:border-stone-700 text-stone-500 transition hover:bg-stone-100 active:scale-95" style="padding-top:0.85rem;padding-bottom:0.85rem;min-width:96px;">
                                 取消
                             </button>
                         </div>
@@ -2946,7 +2946,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
             </button>
 
             <div class="v81-sep"></div>
-            <div class="absolute left-1/2 -translate-x-1/2 z-20 flex justify-center" id="add-btn-wrapper">
+            <div class="relative flex justify-center z-20" id="add-btn-wrapper">
                 <button onclick="switchTab('add')" id="tab-add" class="v81-snap-btn transition transform hover:scale-105 active:scale-90 cursor-pointer" aria-label="新增紀錄">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
                     <span>新增</span>
@@ -3119,7 +3119,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v315';
+        const APP_VERSION = 'v318';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
