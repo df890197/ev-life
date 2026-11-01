@@ -3127,7 +3127,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v333';
+        const APP_VERSION = 'v335';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -9847,7 +9847,7 @@ window.loadRates = async function(forceRefresh) {
         var data = await res.json();
         if (data.error) throw new Error(data.error === 'Unauthorized' ? 'API Token 錯誤' : data.error);
         if (!data.success) throw new Error(data.error || '讀取失敗');
-        if (!data.rows || !data.rows.length) throw new Error('費率表是空的（等自動更新寫入）');
+        if (!data.rows || !data.rows.length) throw new Error('費率表是空的（等每小時自動更新寫入）');
         window._lastRatesData = {header: data.header || [], rows: data.rows};
         renderRatesCards(data.header || [], data.rows);
         content.dataset.loaded = '1';
@@ -9875,7 +9875,7 @@ window.loadRates = async function(forceRefresh) {
                 if (ds && ds > maxDate) maxDate = ds;
             });
         }
-        if (updatedEl) updatedEl.textContent = maxDate ? ('資料更新：' + maxDate + '（每12小時自動更新）') : '';
+        if (updatedEl) updatedEl.textContent = maxDate ? ('資料更新：' + maxDate + '（每小時自動更新）') : '';
     } catch (err) {
         var msg = String((err && err.message) || err).replace(/</g, '&lt;');
         content.innerHTML = '<div class="text-center py-10">'
@@ -9912,14 +9912,7 @@ function isTwHoliday(d) {
     var list = TW_HOLIDAYS_CACHE[y] || [];
     return list.indexOf(s) >= 0;
 }
-function getCurrentRateType(offpeak, peak, holiday, peakWindow, currentPromo) {
-    // v333：若有生效中的公告優惠，優先顯示
-    var cp = String(currentPromo || '').trim();
-    if (cp && cp !== '—' && cp !== '') {
-        var pm = cp.match(/(\d+(?:\.\d+)?)/);
-        var pLabel = cp.replace(/^[\d.\s]+/, '').replace(/^[（(]/, '').replace(/[）)]$/, '').trim() || '優惠';
-        if (pm) return { price: pm[1], label: pLabel };
-    }
+function getCurrentRateType(offpeak, peak, holiday, peakWindow) {
     var now = new Date();
     var tw = new Date(now.getTime() + (8 * 60 + now.getTimezoneOffset()) * 60000);
     var day = tw.getDay();
@@ -9998,13 +9991,14 @@ function renderRatesCards(header, rows) {
             idx.offpeak !== undefined ? r[idx.offpeak] : '',
             idx.peak !== undefined ? r[idx.peak] : '',
             idx.holiday !== undefined ? r[idx.holiday] : '',
-            win,
-            idx.currentPromo !== undefined ? r[idx.currentPromo] : '');
+            win);
         var curColor = cur.label === '尖峰' ? 'text-rose-500 dark:text-rose-400'
             : cur.label === '離峰' ? 'text-emerald-600 dark:text-emerald-400'
             : cur.label === '假日' ? 'text-sky-600 dark:text-sky-400'
-            : cur.label === '牌價' || cur.label === '無統一費率' ? 'text-stone-500 dark:text-stone-400'
-            : 'text-amber-600 dark:text-amber-400';
+            : 'text-stone-500 dark:text-stone-400';
+        // v335：現時優惠常駐顯示（不收合）
+        var curPromoRaw = idx.currentPromo !== undefined ? String(r[idx.currentPromo] || '').trim() : '';
+        var curPromoHtml = (curPromoRaw && curPromoRaw !== '—') ? '<div class="mt-2 px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 text-[11px] md:text-xs text-amber-700 dark:text-amber-300 font-bold">⚡ 現時優惠：' + esc(curPromoRaw) + '</div>' : '';
         var _opEsc = op.replace(/'/g, "\\'");
         return '<div class="border border-stone-100 dark:border-stone-800 rounded-2xl p-4" data-rate-op="' + op.replace(/"/g, '&quot;') + '">'
             + '<div class="font-extrabold text-sm md:text-base mb-2 flex items-center gap-2">'
@@ -10021,6 +10015,7 @@ function renderRatesCards(header, rows) {
                 + '<span class="text-xl md:text-2xl font-extrabold ' + curColor + '">' + esc(cur.price) + '</span>'
                 + '<span class="text-[11px] font-bold text-stone-400">元/度（' + cur.label + '）</span>'
                 + '</div>' : '')
+            + curPromoHtml
             + '<div class="flex gap-2 mb-2">'
             + priceBox('離峰', idx.offpeak !== undefined ? r[idx.offpeak] : '', 'text-emerald-600 dark:text-emerald-400')
             + priceBox('尖峰', idx.peak !== undefined ? r[idx.peak] : '', 'text-rose-500 dark:text-rose-400')
