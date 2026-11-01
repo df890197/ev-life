@@ -328,10 +328,11 @@ input[type="number"] {
         .v91-battery-track { height: 10px; border-radius: 9999px; background: #e7e5e4; overflow: hidden; }
         .dark .v91-battery-track { background: #292524; }
         .v91-battery-fill { height: 100%; border-radius: 9999px; background: #14b8a6; transition: width 0.3s cubic-bezier(0.22,1,0.36,1), background 0.3s ease; }
-        .v91-sticky-save { position: sticky; bottom: 84px; z-index: 20; display: flex; flex-direction: column; align-items: stretch; } /* v259：使用者說太下面，0 間隙貼齊改留 16px 空隙（bottom 68px -> 84px，跟表單 space-y-4 同寬）；v309：儲存鈕滿版貼齊，容器改 stretch */
+        .v91-sticky-save { position: sticky; bottom: 84px; z-index: 20; display: flex; flex-direction: column; align-items: center; } /* v259：bottom 84px；v314：容器置中對齊（配合儲存鈕適中寬度） */
         @media (min-width: 768px) { .v91-sticky-save { bottom: 92px; } }
         /* v92：儲存按鈕精緻化 — 小一點、pill、更貼齊下面 */
-        .v92-save-btn { flex: 1 1 auto !important; width: auto !important; min-width: 0 !important; max-width: none !important; padding: 0.9rem 1.25rem !important; font-size: 0.9375rem !important; border-radius: 1rem !important; box-shadow: 0 4px 12px rgba(13,148,136,0.3) !important; } /* v95：還是很大，再小一點；v309：滿版貼齊（flex:1，編輯時取消鈕並排也不擠；圓角改 1rem 對齊卡片；手機＋桌機共用，不在 media query 內） */
+        .v92-save-btn { flex: 0 0 auto !important; width: auto !important; min-width: 200px !important; max-width: 320px !important; padding: 0.85rem 2.5rem !important; font-size: 0.9375rem !important; border-radius: 1rem !important; box-shadow: 0 4px 12px rgba(13,148,136,0.3) !important; } /* v314：使用者說滿版太大，改置中適中寬度（200-320px） */
+        .v91-sticky-save > div.flex { justify-content: center; } /* v314：按鈕組整組置中（編輯時取消鈕並排也在中間） */
         /* v98：首頁 A — 保持資訊，卡片分組＋留白（不收合、不藏東西） */
         .v98-home > div { margin-bottom: 1.5rem !important; }
         .v98-home > div:last-child { margin-bottom: 0 !important; }
@@ -2944,7 +2945,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
             </button>
 
             <div class="v81-sep"></div>
-            <div class="relative flex justify-center z-20" id="add-btn-wrapper">
+            <div class="absolute left-1/2 -translate-x-1/2 z-20 flex justify-center" id="add-btn-wrapper">
                 <button onclick="switchTab('add')" id="tab-add" class="v81-snap-btn transition transform hover:scale-105 active:scale-90 cursor-pointer" aria-label="新增紀錄">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
                     <span>新增</span>
@@ -3117,7 +3118,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v312';
+        const APP_VERSION = 'v314';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -9875,6 +9876,29 @@ window.loadRates = async function(forceRefresh) {
     }
 };
 
+// v313：依現在台灣時間判斷適用費率
+function getCurrentRateType(offpeak, peak, holiday, peakWindow) {
+    var now = new Date();
+    var tw = new Date(now.getTime() + (8 * 60 + now.getTimezoneOffset()) * 60000);
+    var day = tw.getDay();
+    var timeMin = tw.getHours() * 60 + tw.getMinutes();
+    var isWeekend = (day === 0 || day === 6);
+    var pw = String(peakWindow || '');
+    // 無時間電價 / 無統一費率
+    if (pw.indexOf('無時間電價') >= 0) return { price: offpeak, label: '牌價' };
+    if (pw.indexOf('無統一費率') >= 0) return { price: '—', label: '無統一費率' };
+    // 假日優先
+    if (isWeekend && holiday && holiday !== '—' && holiday !== '') return { price: holiday, label: '假日' };
+    // 解析尖峰時段（如 15:00–21:00）
+    var m = pw.match(/(\d{1,2}):(\d{2})\s*[–—-]\s*(\d{1,2}):(\d{2})/);
+    if (m && !isWeekend) {
+        var s = parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+        var e = parseInt(m[3], 10) * 60 + parseInt(m[4], 10);
+        if (timeMin >= s && timeMin < e) return { price: peak, label: '尖峰' };
+    }
+    return { price: offpeak, label: '離峰' };
+}
+
 function renderRatesCards(header, rows) {
     var content = document.getElementById('ratesContent');
     if (!content) return;
@@ -9903,9 +9927,23 @@ function renderRatesCards(header, rows) {
         var win = idx.peakWindow !== undefined ? esc(r[idx.peakWindow]) : '';
         var promo = idx.promo !== undefined ? esc(r[idx.promo]) : '';
         var src = idx.source !== undefined ? esc(r[idx.source]) : '';
+        var cur = getCurrentRateType(
+            idx.offpeak !== undefined ? r[idx.offpeak] : '',
+            idx.peak !== undefined ? r[idx.peak] : '',
+            idx.holiday !== undefined ? r[idx.holiday] : '',
+            win);
+        var curColor = cur.label === '尖峰' ? 'text-rose-500 dark:text-rose-400'
+            : cur.label === '離峰' ? 'text-emerald-600 dark:text-emerald-400'
+            : cur.label === '假日' ? 'text-sky-600 dark:text-sky-400'
+            : 'text-stone-500 dark:text-stone-400';
         return '<div class="border border-stone-100 dark:border-stone-800 rounded-2xl p-4">'
-            + '<div class="font-extrabold text-sm md:text-base mb-3 flex items-center gap-2">'
+            + '<div class="font-extrabold text-sm md:text-base mb-2 flex items-center gap-2">'
             + '<span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span><span>' + op + '</span></div>'
+            + (cur.price && cur.price !== '—' ? '<div class="mb-3 flex items-baseline gap-2">'
+                + '<span class="text-[11px] font-bold text-stone-400">現在</span>'
+                + '<span class="text-xl md:text-2xl font-extrabold ' + curColor + '">' + esc(cur.price) + '</span>'
+                + '<span class="text-[11px] font-bold text-stone-400">元/度（' + cur.label + '）</span>'
+                + '</div>' : '')
             + '<div class="flex gap-2 mb-2">'
             + priceBox('離峰', idx.offpeak !== undefined ? r[idx.offpeak] : '', 'text-emerald-600 dark:text-emerald-400')
             + priceBox('尖峰', idx.peak !== undefined ? r[idx.peak] : '', 'text-rose-500 dark:text-rose-400')
