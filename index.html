@@ -3127,7 +3127,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v328';
+        const APP_VERSION = 'v332';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -9823,6 +9823,7 @@ function renderAbrpCachedResults(calcData, totalDistanceKm, durationText) {
 
 // ===== v310：充電費率分頁 =====
 window.loadRates = async function(forceRefresh) {
+    loadTwHolidays();
     var content = document.getElementById('ratesContent');
     var updatedEl = document.getElementById('ratesUpdated');
     if (!content) return;
@@ -9887,21 +9888,41 @@ window.loadRates = async function(forceRefresh) {
 };
 
 // v313：依現在台灣時間判斷適用費率
-function getCurrentRateType(offpeak, peak, holiday, peakWindow) {
+// v329：台灣國定假日（假日價適用，含補假；每年需更新）
+var TW_HOLIDAYS_2026 = [
+'2026-01-01','2026-02-15','2026-02-16','2026-02-17','2026-02-18','2026-02-19','2026-02-20',
+'2026-02-27','2026-02-28','2026-04-03','2026-04-04','2026-04-05','2026-04-06',
+'2026-05-01','2026-06-19','2026-09-25','2026-09-28',
+'2026-10-09','2026-10-10','2026-10-25','2026-10-26','2026-12-25'
+];
+function isTwHoliday(d) {
+    var s = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    return TW_HOLIDAYS_2026.indexOf(s) >= 0;
+}
+function getCurrentRateType(offpeak, peak, holiday, peakWindow, currentPromo) {
+    // v332：若有生效中的公告優惠，優先顯示
+    var cp = String(currentPromo || '').trim();
+    if (cp && cp !== '—' && cp !== '') {
+        // 格式可能是 "6.2" 或 "6.2（十一助行）"，取數字部分當價格
+        var pm = cp.match(/(\d+(?:\.\d+)?)/);
+        var pLabel = cp.replace(/^[\d.\s]+/, '').replace(/^[（(]/, '').replace(/[）)]$/, '').trim() || '優惠';
+        if (pm) return { price: pm[1], label: pLabel };
+    }
     var now = new Date();
     var tw = new Date(now.getTime() + (8 * 60 + now.getTimezoneOffset()) * 60000);
     var day = tw.getDay();
     var timeMin = tw.getHours() * 60 + tw.getMinutes();
     var isWeekend = (day === 0 || day === 6);
+    var isHoliday = isWeekend || isTwHoliday(tw);
     var pw = String(peakWindow || '');
     // 無時間電價 / 無統一費率
     if (pw.indexOf('無時間電價') >= 0) return { price: offpeak, label: '牌價' };
     if (pw.indexOf('無統一費率') >= 0) return { price: '—', label: '無統一費率' };
-    // 假日優先
-    if (isWeekend && holiday && holiday !== '—' && holiday !== '') return { price: holiday, label: '假日' };
+    // 假日優先（含國定假日）
+    if (isHoliday && holiday && holiday !== '—' && holiday !== '') return { price: holiday, label: '假日' };
     // 解析尖峰時段（如 15:00–21:00）
     var m = pw.match(/(\d{1,2}):(\d{2})\s*[–—-]\s*(\d{1,2}):(\d{2})/);
-    if (m && !isWeekend) {
+    if (m && !isHoliday) {
         var s = parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
         var e = parseInt(m[3], 10) * 60 + parseInt(m[4], 10);
         if (timeMin >= s && timeMin < e) return { price: peak, label: '尖峰' };
@@ -9920,6 +9941,7 @@ function renderRatesCards(header, rows) {
         else if (s.indexOf('尖峰時段') >= 0) idx.peakWindow = i;
         else if (s.indexOf('尖峰') >= 0) idx.peak = i;
         else if (s.indexOf('假日') >= 0) idx.holiday = i;
+        else if (s.indexOf('現時優惠') >= 0) idx.currentPromo = i;
         else if (s.indexOf('優惠') >= 0) idx.promo = i;
         else if (s.indexOf('來源') >= 0) idx.source = i;
     });
@@ -9964,11 +9986,13 @@ function renderRatesCards(header, rows) {
             idx.offpeak !== undefined ? r[idx.offpeak] : '',
             idx.peak !== undefined ? r[idx.peak] : '',
             idx.holiday !== undefined ? r[idx.holiday] : '',
-            win);
+            win,
+            idx.currentPromo !== undefined ? r[idx.currentPromo] : '');
         var curColor = cur.label === '尖峰' ? 'text-rose-500 dark:text-rose-400'
             : cur.label === '離峰' ? 'text-emerald-600 dark:text-emerald-400'
             : cur.label === '假日' ? 'text-sky-600 dark:text-sky-400'
-            : 'text-stone-500 dark:text-stone-400';
+            : cur.label === '牌價' || cur.label === '無統一費率' ? 'text-stone-500 dark:text-stone-400'
+            : 'text-amber-600 dark:text-amber-400';
         var _opEsc = op.replace(/'/g, "\\'");
         return '<div class="border border-stone-100 dark:border-stone-800 rounded-2xl p-4" data-rate-op="' + op.replace(/"/g, '&quot;') + '">'
             + '<div class="font-extrabold text-sm md:text-base mb-2 flex items-center gap-2">'
