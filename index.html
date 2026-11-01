@@ -3127,7 +3127,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v321';
+        const APP_VERSION = 'v322';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -9930,6 +9930,19 @@ function renderRatesCards(header, rows) {
             + '<div class="text-base md:text-lg font-extrabold ' + color + '">' + esc(val) + '</div>'
             + '</div>';
     };
+    var _savedOrder = [];
+    try { _savedOrder = JSON.parse(localStorage.getItem('ev_life_rates_order') || '[]'); } catch(e) {}
+    if (_savedOrder.length) {
+        var _om = {};
+        _savedOrder.forEach(function(op, i) { _om[op] = i; });
+        rows = rows.slice().sort(function(a, b) {
+            var _oa = idx.operator !== undefined ? String(a[idx.operator] || '') : '';
+            var _ob = idx.operator !== undefined ? String(b[idx.operator] || '') : '';
+            var _ia = _om.hasOwnProperty(_oa) ? _om[_oa] : 999;
+            var _ib = _om.hasOwnProperty(_ob) ? _om[_ob] : 999;
+            return _ia - _ib;
+        });
+    }
     var html = rows.map(function(r) {
         var op = idx.operator !== undefined ? esc(r[idx.operator]) : '';
         if (!op) return '';
@@ -9952,9 +9965,12 @@ function renderRatesCards(header, rows) {
             : cur.label === '離峰' ? 'text-emerald-600 dark:text-emerald-400'
             : cur.label === '假日' ? 'text-sky-600 dark:text-sky-400'
             : 'text-stone-500 dark:text-stone-400';
-        return '<div class="border border-stone-100 dark:border-stone-800 rounded-2xl p-4">'
+        var _opEsc = op.replace(/'/g, "\\'");
+        return '<div class="border border-stone-100 dark:border-stone-800 rounded-2xl p-4" data-rate-op="' + op.replace(/"/g, '&quot;') + '">'
             + '<div class="font-extrabold text-sm md:text-base mb-2 flex items-center gap-2">'
-            + '<span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span><span>' + op + '</span></div>'
+            + '<span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span><span class="flex-1">' + op + '</span>'
+            + '<button onclick="moveRateCard(\'' + _opEsc + '\',-1)" class="text-stone-300 dark:text-stone-600 hover:text-amber-500 text-xs px-1" title="上移">\u25B2</button>'
+            + '<button onclick="moveRateCard(\'' + _opEsc + '\',1)" class="text-stone-300 dark:text-stone-600 hover:text-amber-500 text-xs px-1" title="下移">\u25BC</button></div>'
             + (cur.price && cur.price !== '—' ? '<div class="mb-3 flex items-baseline gap-2">'
                 + '<span class="text-[11px] font-bold text-stone-400">現在</span>'
                 + '<span class="text-xl md:text-2xl font-extrabold ' + curColor + '">' + esc(cur.price) + '</span>'
@@ -9972,6 +9988,22 @@ function renderRatesCards(header, rows) {
             + '</div>';
     }).join('');
     content.innerHTML = html || '<div class="text-center py-8 text-stone-400 text-sm">沒有費率資料</div>';
+}
+
+function moveRateCard(opName, dir) {
+    var order = [];
+    try { order = JSON.parse(localStorage.getItem('ev_life_rates_order') || '[]'); } catch(e) {}
+    if (!order.length) {
+        var cards = document.querySelectorAll('#view-rates [data-rate-op]');
+        for (var i = 0; i < cards.length; i++) order.push(cards[i].getAttribute('data-rate-op'));
+    }
+    var idx = order.indexOf(opName);
+    if (idx < 0) return;
+    var j = idx + dir;
+    if (j < 0 || j >= order.length) return;
+    var tmp = order[idx]; order[idx] = order[j]; order[j] = tmp;
+    try { localStorage.setItem('ev_life_rates_order', JSON.stringify(order)); } catch(e) {}
+    loadRates(true);
 }
 
     </script>
