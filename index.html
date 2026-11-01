@@ -2422,9 +2422,14 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                         <span class="bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 w-7 h-7 md:w-8 md:h-8 rounded-[0.65rem] flex items-center justify-center text-xs md:text-sm">⚡</span>
                         充電費率
                     </h2>
+                    <div class="flex gap-2">
+                    <button onclick="showAllChangelog()" class="px-4 py-2 rounded-xl bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs md:text-sm font-extrabold hover:scale-[1.02] active:scale-95 transition-transform">
+                        📢 公告
+                    </button>
                     <button onclick="loadRates(true)" class="px-4 py-2 rounded-xl bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs md:text-sm font-extrabold hover:scale-[1.02] active:scale-95 transition-transform">
                         🔄 重新整理
                     </button>
+                    </div>
                 </div>
                 <div id="ratesChangelog" class="mb-4"></div>
                 <div id="ratesContent" class="space-y-3"></div>
@@ -3128,7 +3133,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v337';
+        const APP_VERSION = 'v338';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -9869,6 +9874,47 @@ window.loadChangelog = async function() {
         banner.dataset.latest = latest;
     } catch (err) {
         // 公告載入失敗不影響費率顯示
+    }
+};
+// v338：手動查看全部公告
+window.showAllChangelog = async function() {
+    var banner = document.getElementById('ratesChangelog');
+    if (!banner || !AppState.syncUrl) return;
+    banner.innerHTML = '<div class="text-center py-4 text-stone-400 text-sm font-bold">載入公告中…</div>';
+    try {
+        var url = AppState.syncUrl;
+        url += (url.indexOf('?') >= 0 ? '&' : '?') + 'token=' + encodeURIComponent(AppState.syncToken || '') + '&action=getChangelog&_t=' + Date.now();
+        var res = await fetch(url);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        var data = await res.json();
+        if (!data.success || !data.entries || !data.entries.length) {
+            banner.innerHTML = '<div class="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-neutral-900 p-4 text-center text-sm text-stone-400 font-bold">目前沒有公告</div>';
+            return;
+        }
+        var typeColor = {'新增': 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300',
+                         '移除': 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300',
+                         '變更': 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'};
+        var html = '<div class="rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 p-4">'
+            + '<div class="flex items-center justify-between mb-2">'
+            + '<div class="text-sm font-extrabold text-amber-800 dark:text-amber-200">📢 費率異動公告（全部）</div>'
+            + '<button onclick="dismissChangelog()" class="text-amber-600 dark:text-amber-400 text-lg leading-none px-2">✕</button>'
+            + '</div>'
+            + '<div class="space-y-2">';
+        data.entries.forEach(function(e) {
+            var tc = typeColor[e.type] || typeColor['變更'];
+            html += '<div class="flex items-start gap-2 text-xs">'
+                + '<span class="px-2 py-0.5 rounded-full font-bold shrink-0 ' + tc + '">' + e.type + '</span>'
+                + '<div class="flex-1"><span class="font-bold">' + e.operator + '</span>：' + e.content
+                + '<div class="text-stone-400 dark:text-stone-500 text-[10px]">' + e.time + '</div></div>'
+                + '</div>';
+        });
+        html += '</div></div>';
+        banner.innerHTML = html;
+        var latest = data.entries[0].time;
+        data.entries.forEach(function(e) { if (e.time > latest) latest = e.time; });
+        banner.dataset.latest = latest;
+    } catch (err) {
+        banner.innerHTML = '<div class="rounded-2xl border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/30 p-4 text-center text-sm text-rose-500 font-bold">公告載入失敗</div>';
     }
 };
 window.dismissChangelog = function() {
