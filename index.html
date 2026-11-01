@@ -3133,7 +3133,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v339';
+        const APP_VERSION = 'v341';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -9888,7 +9888,7 @@ window.showAllChangelog = async function() {
         if (!res.ok) throw new Error('HTTP ' + res.status);
         var data = await res.json();
         if (!data.success || !data.entries || !data.entries.length) {
-            banner.innerHTML = '<div class="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-neutral-900 p-4 text-center text-sm text-stone-400 font-bold">目前沒有公告</div>';
+            banner.innerHTML = '<div class="text-center py-3 text-xs text-stone-400 dark:text-stone-500">目前沒有公告</div>';
             return;
         }
         var typeColor = {'新增': 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300',
@@ -10063,11 +10063,17 @@ function renderRatesCards(header, rows) {
         else if (s.indexOf('來源') >= 0) idx.source = i;
     });
     var esc = function(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
+    // v341：價格只取開頭數字顯示（例：「6.2（週末及國定假日全天）」→「6.2」）
+    var cleanPrice = function(val) {
+        var s = String(val || '').trim();
+        var m = s.match(/^[\d.]+/);
+        return m ? m[0] : s;
+    };
     var priceBox = function(label, val, color) {
         if (!val) return '';
         return '<div class="flex-1 min-w-0 bg-stone-50 dark:bg-neutral-800 rounded-xl px-3 py-2.5 text-center">'
             + '<div class="text-[10px] font-bold text-stone-400 dark:text-stone-500 mb-0.5">' + label + '</div>'
-            + '<div class="text-base md:text-lg font-extrabold ' + color + '">' + esc(val) + '</div>'
+            + '<div class="text-base md:text-lg font-extrabold ' + color + '">' + esc(cleanPrice(val)) + '</div>'
             + '</div>';
     };
     var _savedOrder = [];
@@ -10124,7 +10130,7 @@ function renderRatesCards(header, rows) {
             + '</div></div>'
             + (cur.price && cur.price !== '—' ? '<div class="mb-3 flex items-baseline gap-2">'
                 + '<span class="text-[11px] font-bold text-stone-400">現在</span>'
-                + '<span class="text-xl md:text-2xl font-extrabold ' + curColor + '">' + esc(cur.price) + '</span>'
+                + '<span class="text-xl md:text-2xl font-extrabold ' + curColor + '">' + esc(cleanPrice(cur.price)) + '</span>'
                 + '<span class="text-[11px] font-bold text-stone-400">元/度（' + cur.label + '）</span>'
                 + '</div>' : '')
             + curPromoHtml
