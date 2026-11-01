@@ -3162,7 +3162,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v348';
+        const APP_VERSION = 'v349';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -6693,8 +6693,8 @@ self.addEventListener('fetch', event => {
         // 放在 try/catch 裡：就算清快取失敗，也一定要重載，不讓使用者卡住。
         window.forceAppUpdate = async function() {
             try { showToast('正在更新 App，紀錄不會不見…', false, 3500, true); } catch (e) {}
-            // v347：等 toast 渲染出來再做事，否則 iOS 有時來不及顯示就跳轉了
-            try { await new Promise(function(r) { setTimeout(r, 800); }); } catch (e) {}
+            // v347/v349：等 toast 渲染出來再做事，否則 iOS 有時來不及顯示就跳轉了（0.5s 使用者實測）
+            try { await new Promise(function(r) { setTimeout(r, 500); }); } catch (e) {}
             try {
                 if ('serviceWorker' in navigator) {
                     const regs = await navigator.serviceWorker.getRegistrations();
