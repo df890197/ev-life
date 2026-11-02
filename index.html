@@ -3164,7 +3164,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v352';
+        const APP_VERSION = 'v354';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -10158,13 +10158,40 @@ function renderRatesCards(header, rows) {
             return _ia - _ib;
         });
     }
+    // v353：黃色🎁優惠行只顯示當前有效優惠，過期的不顯示
+    var promoEntryExpired = function(s) {
+        if (/已結束|已截止|已過期|已下架|已停止/.test(s)) return true;
+        var now = new Date(); now.setHours(0, 0, 0, 0);
+        var Y = now.getFullYear();
+        var ends = [];
+        var D = function(y, mo, d) { var x = new Date(y, mo - 1, d); x.setHours(0, 0, 0, 0); return x; };
+        var t = ' ' + s + ' ';
+        // (a) 2026/11/1～12/31、2026/11/1～2026/12/31、2026年11月1日～12月31日
+        t = t.replace(/(\d{4})[\/年](\d{1,2})[\/月](\d{1,2})日?\s*[～~–—\-至到]\s*(?:(\d{4})[\/年])?(\d{1,2})[\/月](\d{1,2})日?/g,
+            function(m0, y1, mo1, d1, y2, mo2, d2) { ends.push(D(y2 ? +y2 : +y1, +mo2, +d2)); return ' '; });
+        // (b) 至2026/12/31、至12/31、至2026年12月31日
+        t = t.replace(/[至到]\s*(?:(\d{4})[\/年])?(\d{1,2})[\/月](\d{1,2})日?/g,
+            function(m0, y, mo, d) { ends.push(D(y ? +y : Y, +mo, +d)); return ' '; });
+        // (c) 10/24–10/26（無年份，視為今年；結束早於開始則跨年）
+        t = t.replace(/(\d{1,2})\/(\d{1,2})\s*[～~–—\-]\s*(\d{1,2})\/(\d{1,2})/g,
+            function(m0, mo1, d1, mo2, d2) {
+                var e = D(Y, +mo2, +d2);
+                if (e < D(Y, +mo1, +d1)) e = D(Y + 1, +mo2, +d2);
+                ends.push(e); return ' ';
+            });
+        if (!ends.length) return false;
+        var mx = ends[0];
+        for (var i = 1; i < ends.length; i++) if (ends[i] > mx) mx = ends[i];
+        return mx < now;
+    };
     var html = rows.map(function(r) {
         var op = idx.operator !== undefined ? esc(r[idx.operator]) : '';
         if (!op) return '';
         var win = idx.peakWindow !== undefined ? esc(r[idx.peakWindow]) : '';
         var promoRaw = idx.promo !== undefined ? String(r[idx.promo] || '') : '';
         var siteItems = promoRaw.split('；').filter(function(s) { return s.indexOf('📍') >= 0; });
-        var promo = esc(promoRaw.split('；').filter(function(s) { return s.indexOf('📍') < 0; }).join('；'));
+        // v354：黃色優惠每條換行顯示（到期過濾沿用 v353）
+        var promoEntries = promoRaw.split('；').filter(function(s) { return s.indexOf('📍') < 0 && !promoEntryExpired(s); });
         var _siteId = 'sp_' + Math.random().toString(36).slice(2, 8);
         var siteHtml = siteItems.length ? '<div class="mt-2 pt-2 border-t border-stone-100 dark:border-stone-800">'
             + '<button onclick="var _el=document.getElementById(\'' + _siteId + '\');_el.classList.toggle(\'hidden\');this.querySelector(\'.sp-arrow\').textContent=_el.classList.contains(\'hidden\')?\'+\':\'\u2212\';" class="w-full flex items-center justify-between text-[11px] font-extrabold text-stone-500 dark:text-stone-400 mb-1 py-1">'
@@ -10177,7 +10204,8 @@ function renderRatesCards(header, rows) {
         // v352：來源按「＋」斷行，每輪標題加粗上色
         var srcHtml = '';
         if (src) {
-            var parts = src.split('＋');
+            // v354：卡友新聞（每小時輪複查記錄）整段不顯示，只保留來源
+            var parts = src.split('＋').filter(function(p) { return !/^\d{2}:\d{2}輪複查/.test(p.trim()); });
             srcHtml = parts.map(function(p, i) {
                 p = p.trim();
                 if (!p) return '';
@@ -10230,7 +10258,7 @@ function renderRatesCards(header, rows) {
             + priceBox('假日', idx.holiday !== undefined ? r[idx.holiday] : '', 'text-sky-600 dark:text-sky-400')
             + '</div>'
             + (win ? '<div class="text-[11px] md:text-xs text-stone-500 dark:text-stone-400 font-bold mb-1">🕐 尖峰時段：' + win + '</div>' : '')
-            + (promo ? '<div class="text-[11px] md:text-xs text-amber-600 dark:text-amber-400 font-bold mb-1">🎁 ' + promo + '</div>' : '')
+            + (promoEntries.length ? '<div class="text-[11px] md:text-xs text-amber-600 dark:text-amber-400 font-bold mb-1">' + promoEntries.map(function(s, i) { return '<div class="' + (i ? 'mt-1' : '') + '">🎁 ' + esc(s) + '</div>'; }).join('') + '</div>' : '')
             + siteHtml
             + (srcHtml ? '<div class="text-[10px] text-stone-400 dark:text-stone-500 mt-1">' + srcHtml + '</div>' : '')
             + '</div>';
