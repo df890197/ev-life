@@ -3164,7 +3164,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v354';
+        const APP_VERSION = 'v355';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -10158,9 +10158,9 @@ function renderRatesCards(header, rows) {
             return _ia - _ib;
         });
     }
-    // v353：黃色🎁優惠行只顯示當前有效優惠，過期的不顯示
+    // v353：黃色🎁優惠行只顯示當前有效優惠，過期的不顯示（v355 補：含「到期／停止」寫法）
     var promoEntryExpired = function(s) {
-        if (/已結束|已截止|已過期|已下架|已停止/.test(s)) return true;
+        if (/已(.{0,3})?(結束|截止|過期|到期|下架|停止|失效|終止)|停止/.test(s)) return true;
         var now = new Date(); now.setHours(0, 0, 0, 0);
         var Y = now.getFullYear();
         var ends = [];
