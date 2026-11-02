@@ -3164,7 +3164,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v350';
+        const APP_VERSION = 'v351';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -9916,10 +9916,10 @@ window.loadChangelog = async function() {
         var typeColor = {'新增': 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300',
                          '移除': 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300',
                          '變更': 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'};
-        var html = '<div class="rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 p-4">'
+        var html = '<div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 p-4">'
             + '<div class="flex items-center justify-between mb-2">'
-            + '<div class="text-sm font-extrabold text-amber-800 dark:text-amber-200">📢 費率異動公告</div>'
-            + '<button onclick="dismissChangelog()" class="text-amber-600 dark:text-amber-400 text-lg leading-none px-2">✕</button>'
+            + '<div class="text-sm font-extrabold text-slate-700 dark:text-slate-200">📢 費率異動公告</div>'
+            + '<button onclick="dismissChangelog()" class="text-slate-500 dark:text-slate-400 text-lg leading-none px-2">✕</button>'
             + '</div>'
             + '<div class="space-y-2">';
         fresh.forEach(function(e) {
@@ -9958,10 +9958,10 @@ window.showAllChangelog = async function() {
         var typeColor = {'新增': 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300',
                          '移除': 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300',
                          '變更': 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'};
-        var html = '<div class="rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 p-4">'
+        var html = '<div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 p-4">'
             + '<div class="flex items-center justify-between mb-2">'
-            + '<div class="text-sm font-extrabold text-amber-800 dark:text-amber-200">📢 費率異動公告（全部）</div>'
-            + '<button onclick="dismissChangelog()" class="text-amber-600 dark:text-amber-400 text-lg leading-none px-2">✕</button>'
+            + '<div class="text-sm font-extrabold text-slate-700 dark:text-slate-200">📢 費率異動公告（全部）</div>'
+            + '<button onclick="dismissChangelog()" class="text-slate-500 dark:text-slate-400 text-lg leading-none px-2">✕</button>'
             + '</div>'
             + '<div class="space-y-2">';
         data.entries.forEach(function(e) {
