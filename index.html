@@ -1786,12 +1786,13 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                 </div>
                 </div>
             <!-- v320：充電費率入口（tab bar 回五格，費率改從首頁進入） -->
-            <button onclick="switchTab('rates')" class="w-full mt-4 mb-2 p-4 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-800/50 flex items-center justify-between shadow-sm active:scale-[0.98] transition-transform">
+            <button onclick="switchTab('rates')" class="relative w-full mt-4 mb-2 p-4 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-800/50 flex items-center justify-between shadow-sm active:scale-[0.98] transition-transform">
+                <span id="ratesRedDot" class="hidden absolute top-2 right-2 w-3 h-3 rounded-full bg-red-500 shadow"></span>
                 <span class="flex items-center gap-3">
                     <span class="text-2xl">⚡</span>
                     <span class="text-left">
                         <span class="block font-extrabold text-sm text-stone-800 dark:text-stone-100">充電費率</span>
-                        <span class="block text-[11px] text-stone-500 dark:text-stone-400 font-bold">九家業者即時費率・每 12 小時更新</span>
+                        <span class="block text-[11px] text-stone-500 dark:text-stone-400 font-bold">九家業者即時費率・每小時更新</span>
                     </span>
                 </span>
                 <span class="text-stone-400 text-lg">›</span>
@@ -2452,8 +2453,9 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                         充電費率
                     </h2>
                     <div class="flex gap-2">
-                    <button onclick="showAllChangelog()" class="px-4 py-2 rounded-xl bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs md:text-sm font-extrabold hover:scale-[1.02] active:scale-95 transition-transform">
+                    <button onclick="showAllChangelog()" class="relative px-4 py-2 rounded-xl bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs md:text-sm font-extrabold hover:scale-[1.02] active:scale-95 transition-transform">
                         📢 公告
+                        <span id="changelogCountBadge" class="hidden absolute -top-2 -right-2 min-w-[20px] h-5 px-1 rounded-full bg-red-500 text-white text-[11px] font-extrabold flex items-center justify-center shadow"></span>
                     </button>
                     <button onclick="loadRates(true)" class="px-4 py-2 rounded-xl bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs md:text-sm font-extrabold hover:scale-[1.02] active:scale-95 transition-transform">
                         🔄 重新整理
@@ -3162,7 +3164,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v349';
+        const APP_VERSION = 'v350';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -3343,6 +3345,7 @@ function cacheDOMNodes() {
 
             renderDashboard();
             autoFillStartSoc();
+            if (typeof window.updateRatesBadge === 'function') setTimeout(window.updateRatesBadge, 1500);
 
             if ('requestIdleCallback' in window) requestIdleCallback(debouncedUpdateCharts);
             else setTimeout(debouncedUpdateCharts, 200);
@@ -9868,6 +9871,28 @@ function renderAbrpCachedResults(calcData, totalDistanceKm, durationText) {
 
 // ===== v310：充電費率分頁 =====
 // v337：費率異動公告
+// v350：首頁費率卡紅點（有未讀公告時顯示）
+window.updateRatesBadge = async function() {
+    var dot = document.getElementById('ratesRedDot');
+    if (!dot || !AppState.syncUrl) return;
+    try {
+        var url = AppState.syncUrl;
+        url += (url.indexOf('?') >= 0 ? '&' : '?') + 'token=' + encodeURIComponent(AppState.syncToken || '') + '&action=getChangelog&_t=' + Date.now();
+        var res = await fetch(url);
+        if (!res.ok) return;
+        var data = await res.json();
+        if (!data.success || !data.entries || !data.entries.length) { dot.classList.add('hidden'); return; }
+        var dismissed = localStorage.getItem('ev_life_changelog_dismissed') || '';
+        var fresh = data.entries.filter(function(e) { return e.time > dismissed; });
+        if (fresh.length) dot.classList.remove('hidden');
+        else dot.classList.add('hidden');
+        var cbadge = document.getElementById('changelogCountBadge');
+        if (cbadge) {
+            if (fresh.length) { cbadge.textContent = fresh.length; cbadge.classList.remove('hidden'); }
+            else cbadge.classList.add('hidden');
+        }
+    } catch (e) {}
+};
 window.loadChangelog = async function() {
     var banner = document.getElementById('ratesChangelog');
     if (!banner || !AppState.syncUrl) return;
@@ -9960,6 +9985,7 @@ window.dismissChangelog = function() {
     var banner = document.getElementById('ratesChangelog');
     var latest = (banner && banner.dataset.latest) || '';
     if (latest) localStorage.setItem('ev_life_changelog_dismissed', latest);
+    if (typeof window.updateRatesBadge === 'function') window.updateRatesBadge();
     if (banner) banner.innerHTML = '';
 };
 // v339：載入動畫共用 spinner
@@ -9972,6 +9998,7 @@ window._ratesSpinner = function(text) {
 window.loadRates = async function(forceRefresh) {
     loadTwHolidays();
     loadChangelog();
+    if (typeof window.updateRatesBadge === 'function') window.updateRatesBadge();
     var content = document.getElementById('ratesContent');
     var updatedEl = document.getElementById('ratesUpdated');
     if (!content) return;
