@@ -3164,7 +3164,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v351';
+        const APP_VERSION = 'v352';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -10173,7 +10173,24 @@ function renderRatesCards(header, rows) {
             + siteItems.map(function(s) {
                 return '<div class="text-[11px] md:text-xs text-stone-600 dark:text-stone-300 mb-1 leading-relaxed">• ' + esc(s.replace('📍', '').trim()) + '</div>';
             }).join('') + '</div></div>' : '';
-        var src = idx.source !== undefined ? esc(r[idx.source]) : '';
+        var src = idx.source !== undefined ? String(r[idx.source] || '') : '';
+        // v352：來源按「＋」斷行，每輪標題加粗上色
+        var srcHtml = '';
+        if (src) {
+            var parts = src.split('＋');
+            srcHtml = parts.map(function(p, i) {
+                p = p.trim();
+                if (!p) return '';
+                // 輪次標題如「09:00輪複查（...）」加粗
+                var m = p.match(/^(\d{2}:\d{2}輪複查|來源[：:])/);
+                var label = '', body = esc(p);
+                if (m) {
+                    label = '<span class="font-extrabold text-stone-500 dark:text-stone-300">' + esc(m[1]) + '</span>';
+                    body = esc(p.slice(m[1].length));
+                }
+                return '<div class="mt-1 leading-relaxed">' + label + body + '</div>';
+            }).join('');
+        }
         var cur = getCurrentRateType(
             idx.offpeak !== undefined ? r[idx.offpeak] : '',
             idx.peak !== undefined ? r[idx.peak] : '',
@@ -10215,7 +10232,7 @@ function renderRatesCards(header, rows) {
             + (win ? '<div class="text-[11px] md:text-xs text-stone-500 dark:text-stone-400 font-bold mb-1">🕐 尖峰時段：' + win + '</div>' : '')
             + (promo ? '<div class="text-[11px] md:text-xs text-amber-600 dark:text-amber-400 font-bold mb-1">🎁 ' + promo + '</div>' : '')
             + siteHtml
-            + (src ? '<div class="text-[10px] text-stone-400 mt-1">來源：' + src + '</div>' : '')
+            + (srcHtml ? '<div class="text-[10px] text-stone-400 dark:text-stone-500 mt-1">' + srcHtml + '</div>' : '')
             + '</div>';
     }).join('');
     content.innerHTML = html || '<div class="text-center py-8 text-stone-400 text-sm">沒有費率資料</div>';
