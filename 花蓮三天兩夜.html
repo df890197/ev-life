@@ -759,8 +759,8 @@ background-color: var(--bg-card);
 flex-shrink: 0;
 }
 
-.check-item.done.check-box { background-color: var(--mountain-green);}
-.check-item.done.check-box::after { content: '✓'; font-weight: 900; font-size: 12px;}
+.check-item.done .check-box { background-color: var(--mountain-green);}
+.check-item.done .check-box::after { content: '✓'; font-weight: 900; font-size: 12px;}
 .check-item.done span { text-decoration: line-through; color: var(--text-muted);}
 
 @keyframes dolphinJump {
@@ -1157,7 +1157,7 @@ flex-shrink: 0;
 <div class="box-card">
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
 <h2 class="section-title" style="margin-bottom: 0;">🔋 充電行前檢查（11/6）</h2>
-<span id="chargeProgressText" style="font-size: 0.78rem; font-weight: 900; color: var(--sunset-coral);">0 / 6 完成</span>
+<span id="chargeProgressText" style="font-size: 0.78rem; font-weight: 900; color: var(--sunset-coral);">0 / 7 完成</span>
 </div>
 <div class="progress-bar-wrap">
 <div class="progress-bar" id="chargeProgressBar"></div>
@@ -1186,6 +1186,10 @@ flex-shrink: 0;
 <div class="check-item" onclick="toggleCheckCharge(this)">
 <div class="check-box"></div>
 <span>胎壓檢查（滿載＋山路，建議打到原廠上限）</span>
+</div>
+<div class="check-item" onclick="toggleCheckCharge(this)">
+<div class="check-box"></div>
+<span>打電話確認台8線 96.9K 碧綠溪 11/8（日）是否管制：谷關工務段 04-25951224／交控中心 0800-001-822／瑞溪營造 04-25950313（黃治學 0921-345935、陳誠 0979-309136）</span>
 </div>
 </div>
 </div>
