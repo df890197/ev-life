@@ -1205,7 +1205,7 @@ flex-shrink: 0;
 // 1. 三天行程資料（含 Ev Life v303 精算 SOC：soc = 預計抵達電量）
 const tripData = {
 1: {
-tag: 'Day 1',
+tag: 'Day 1 · 約280km',
 title: '花蓮車站會合 ＋ 童話水岸、老街蔥油餅豆花與海濱夜市',
 hotel: '🏨 我 & 屁祥金主：今古安民宿 (海拔 15m)<br>🏨 佑哥金主 & 老婆：S.E.A.民宿 (海拔 15m)',
 icon: '🌊',
@@ -1231,7 +1231,7 @@ timeline: [
 ]
 },
 2: {
-tag: 'Day 2',
+tag: 'Day 2 · 約160km',
 title: '美味早餐 ＋ 中橫賞楓 ＋ 瑪雅平台夕陽雲海與銀河沉降',
 hotel: '🏨 全體住：合歡山松雪樓 (海拔 3,150m)',
 icon: '🌌',
@@ -1256,7 +1256,7 @@ timeline: [
 ]
 },
 3: {
-tag: 'Day 3',
+tag: 'Day 3 · 約235km',
 title: '武嶺打卡 ＋ 清境青青草原尋羊 ＆ 馬術秀 ＋ 魯媽媽高山饗宴',
 hotel: '🏠 終點：平安回到中壢 (海拔 130m)',
 icon: '🐑',
@@ -1316,7 +1316,11 @@ btn.classList.remove('active');
 }
 }
 
-document.getElementById('dayTag').innerText = data.tag;
+let dayTagText = data.tag;
+if (day === 2) {
+  dayTagText = fushouMode ? 'Day 2 · 約160km' : 'Day 2 · 約145km';
+}
+document.getElementById('dayTag').innerText = dayTagText;
 document.getElementById('dayTitle').innerText = data.title;
 document.getElementById('dayHotel').innerHTML = data.hotel;
 document.getElementById('dayIconBox').innerText = data.icon;
