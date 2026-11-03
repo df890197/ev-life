@@ -904,6 +904,10 @@ flex-shrink: 0;
 <button id="socStdBtn" class="soc-mode-btn active" onclick="setSocMode('std')">標準載重</button>
 <button id="socFullBtn" class="soc-mode-btn" onclick="setSocMode('full')">雙載</button>
 </div>
+<div class="soc-toggle-row">
+<span>🍁 福壽山行程</span>
+<button id="fushouToggle" class="soc-switch on" onclick="toggleFushou()" aria-label="福壽山行程開關"><span class="soc-switch-knob"></span></button>
+</div>
 </section>
 
 <section class="day-summary-card">
@@ -1237,10 +1241,16 @@ timeline: [
 { time: '09:15', tag: '🌲 觀景休息', tagClass: 'tag-nature', title: '碧綠神木（中橫景觀地標）', stay: '停留 35 分鐘', leave: '09:50 離', desc: '巨木停留！下車走走深呼吸，喝一杯棧房招牌的水蜜桃蜂蜜茶。', parking: '🅿️ 碧綠神木停車場', alt: '2,150m', drive: '57 km / 1h 25m', soc: 62, socFull: 61},
 { time: '10:10', tag: '🍙 雲端休息', tagClass: 'tag-food', title: '關原加油站吃肉粽', stay: '停留 35 分鐘', leave: '10:45 離', desc: '全台灣最高加油站打卡，吃顆熱呼呼的招牌肉粽補充熱量。', parking: '🅿️ 加油站停車場', alt: '2,374m', drive: '12.5 km / 20m', soc: 44, socFull: 42},
 { time: '10:53', tag: '⛰️ 穿過隧道', tagClass: 'tag-nature', title: '大禹嶺合歡山隧道口', stay: '停留 12 分鐘', leave: '11:05 離', desc: '穿過合歡山隧道進入梨山支線，群山視野壯闊開朗。⚠️ 電量檢查點：低於 40% 直接取消福壽山、切 Plan B 直上松雪樓（28%/25%）！（40% 是按 App 實測 29% 回推的安全線）', parking: '🅿️ 隧道口開闊處', alt: '2,565m', drive: '4.5 km / 8m', soc: 40, socFull: 38},
-{ time: '11:55', tag: '🍁 楓紅蜜果', tagClass: 'tag-nature', title: '福壽山農場賞楓', stay: '停留 2.5 小時', leave: '14:25 離', desc: '造訪松廬欣賞 11 月漂亮的楓紅，順便採買好吃的當季蜜蘋果。（此版假設無充電：梨山賓館若有空樁可插，當作 bonus；宋莊停車場封閉中。）', parking: '🅿️ 場部停車場（宋莊封閉中）', alt: '2,240m', drive: '28 km / 50m', soc: 34, socFull: 32},
-{ time: '15:35', tag: '🏨 入住放行李', tagClass: 'tag-spot', title: '合歡山松雪樓 Check-in 換裝', stay: '停留 30 分鐘', leave: '16:05 離', desc: '抵達松雪樓放置大件行李，換上最厚羽絨衣、手套與毛帽，帶好頭燈與腳架。', parking: '🅿️ 松雪樓專屬房客車位', alt: '3,150m', drive: '37 km / 1h 10m', soc: 12, socFull: 9},
-{ time: '16:10', tag: '🚗 搶停武嶺', tagClass: 'tag-nature', title: '抵達武嶺停車場停妥', stay: '停車整裝', leave: '16:20 徒步出發', desc: '從松雪樓沿台 14 甲上坡開 1.6km 至武嶺停車場，搶在夕陽人潮前停妥車輛！', parking: '🅿️ 歐特儀武嶺停車場', alt: '3,275m', drive: '1.6 km / 5m', soc: 10, socFull: 7},
-{ time: '16:45', tag: '🌅 夕陽雲海', tagClass: 'tag-spot', title: '登上合歡主峰馬雅平台', stay: '觀景 45 分鐘', leave: '17:30 轉星空', desc: '從主峰登山口步道登上馬雅石階平台，站在高處俯瞰昆陽山脊，迎接 17:12 夕陽金黃雲海！', parking: '🚶 步行 1.3 km / 25m', alt: '3,230m', drive: '徒步抵達', soc: 10, socFull: 7},
+{ time: '11:55', tag: '🍁 楓紅蜜果', tagClass: 'tag-nature', title: '福壽山農場賞楓', stay: '停留 2.5 小時', leave: '14:25 離', desc: '造訪松廬欣賞 11 月漂亮的楓紅，順便採買好吃的當季蜜蘋果。（此版假設無充電：梨山賓館若有空樁可插，當作 bonus；宋莊停車場封閉中。）', parking: '🅿️ 場部停車場（宋莊封閉中）', alt: '2,240m', drive: '28 km / 50m', soc: 34, socFull: 32, plan: 'fushou'},
+{ time: '11:30', tag: '🏨 入住＋午餐', tagClass: 'tag-spot', title: '合歡山松雪樓 Check-in＋午餐', stay: '停留 2 小時', leave: '13:30 離', desc: '大禹嶺直上松雪樓！先 check-in 放行李，享用松雪樓自助午餐（11:30–14:00，非住客亦可，約 300–400 元/人）。', parking: '🅿️ 松雪樓專屬房客車位', alt: '3,150m', drive: '18 km / 45m', soc: 28, socFull: 25, plan: 'nofushou'},
+{ time: '13:30', tag: '🏔️ 高山展望', tagClass: 'tag-nature', title: '小風口觀景台', stay: '停留 30 分鐘', leave: '14:00 離', desc: '小風口遊客中心周邊展望絕佳，遠眺合歡群峰。天氣好時雲海翻騰，拍照打卡必到！', parking: '🅿️ 小風口停車場', alt: '3,002m', drive: '8 km / 15m', soc: 27, socFull: 24, plan: 'nofushou'},
+{ time: '14:15', tag: '📸 武嶺打卡', tagClass: 'tag-nature', title: '武嶺觀景台', stay: '停留 30 分鐘', leave: '14:45 離', desc: '台灣公路最高點（3,275m）！武嶺牌樓經典打卡，下午人潮較少更好拍。', parking: '🅿️ 武嶺停車場（假日 60 元/時）', alt: '3,275m', drive: '6 km / 10m', soc: 26, socFull: 23, plan: 'nofushou'},
+{ time: '14:45', tag: '🌄 觀景台', tagClass: 'tag-nature', title: '昆陽觀景台', stay: '停留 30 分鐘', leave: '15:15 離', desc: '路邊停車＋觀景台，走幾步就能看，不用爬山。俯瞰雲海與中央山脈稜線，視野開闊！', parking: '🅿️ 昆陽停車場（假日 60 元/時）', alt: '3,085m', drive: '7 km / 12m', soc: 26, socFull: 23, plan: 'nofushou'},
+{ time: '15:30', tag: '☕ 休息充電', tagClass: 'tag-spot', title: '回松雪樓休息', stay: '停留 1 小時', leave: '16:30 出發', desc: '回飯店休息、喝杯熱飲，為傍晚的日落＋銀河儲備體力。', parking: '🅿️ 松雪樓專屬房客車位', alt: '3,150m', drive: '13 km / 20m', soc: 25, socFull: 22, plan: 'nofushou'},
+{ time: '16:30', tag: '🌅 夕陽雲海', tagClass: 'tag-spot', title: '登上合歡主峰馬雅平台（提早卡位）', stay: '觀景 1 小時', leave: '17:30 轉星空', desc: '提早卡位！從主峰登山口步道登上馬雅石階平台，站在高處俯瞰昆陽山脊，迎接 17:12 夕陽金黃雲海！', parking: '🚶 步行 1.3 km / 25m', alt: '3,230m', drive: '徒步抵達', soc: 25, socFull: 22, plan: 'nofushou'},
+{ time: '15:35', tag: '🏨 入住放行李', tagClass: 'tag-spot', title: '合歡山松雪樓 Check-in 換裝', stay: '停留 30 分鐘', leave: '16:05 離', desc: '抵達松雪樓放置大件行李，換上最厚羽絨衣、手套與毛帽，帶好頭燈與腳架。', parking: '🅿️ 松雪樓專屬房客車位', alt: '3,150m', drive: '37 km / 1h 10m', soc: 12, socFull: 9, plan: 'fushou'},
+{ time: '16:10', tag: '🚗 搶停武嶺', tagClass: 'tag-nature', title: '抵達武嶺停車場停妥', stay: '停車整裝', leave: '16:20 徒步出發', desc: '從松雪樓沿台 14 甲上坡開 1.6km 至武嶺停車場，搶在夕陽人潮前停妥車輛！', parking: '🅿️ 歐特儀武嶺停車場', alt: '3,275m', drive: '1.6 km / 5m', soc: 10, socFull: 7, plan: 'fushou'},
+{ time: '16:45', tag: '🌅 夕陽雲海', tagClass: 'tag-spot', title: '登上合歡主峰馬雅平台', stay: '觀景 45 分鐘', leave: '17:30 轉星空', desc: '從主峰登山口步道登上馬雅石階平台，站在高處俯瞰昆陽山脊，迎接 17:12 夕陽金黃雲海！', parking: '🚶 步行 1.3 km / 25m', alt: '3,230m', drive: '徒步抵達', soc: 10, socFull: 7, plan: 'fushou'},
 { time: '17:30', tag: '✨ 銀河沉降', tagClass: 'tag-ocean', title: '捕捉夏季銀河核心最後身影', stay: '觀星 45 分鐘', leave: '18:15 撤退返程', desc: '天色全暗！西南方低空直立銀河現身！農曆九月三十完全無月光干擾，18:00～18:15 銀河核心沉入山稜線，肉眼清晰可見！', parking: '🌌 備妥紅光手電筒與腳架', alt: '3,230m', drive: '原地觀星', soc: 10, socFull: 7},
 { time: '18:45', tag: '🍲 暖胃晚餐', tagClass: 'tag-food', title: '回武嶺取車開回松雪樓晚餐', stay: '享用晚餐暖身', leave: '餐後休息', desc: '原路徒步回武嶺取車開回松雪樓。⚠️注意：松雪樓餐廳供餐至 19:30 截止，熱呼呼吃飽暖身！晚上關閉待機耗電，隔夜估 -1%（n7 無電池加熱系統）。', parking: '🅿️ 松雪樓住客專屬車位', alt: '3,150m', drive: '返程約 30m', soc: 10, socFull: 7}
 ]
@@ -1278,6 +1288,13 @@ document.body.classList.toggle('soc-on', socVisible);
 try { localStorage.setItem('soc_visible', socVisible? '1':'0'); } catch(e){}
 renderDay(window._curDay || 1);
 }
+let fushouMode = true;
+function toggleFushou(){
+fushouMode = !fushouMode;
+document.getElementById('fushouToggle').classList.toggle('on', fushouMode);
+try { localStorage.setItem('fushou_mode', fushouMode? '1':'0'); } catch(e){}
+renderDay(window._curDay || 1);
+}
 function socBadgeClass(soc) {
 if (soc >= 50) return 'soc-high';
 if (soc >= 20) return 'soc-mid';
@@ -1309,6 +1326,10 @@ const container = document.getElementById('timelineContainer');
 container.innerHTML = '';
 
 data.timeline.forEach(item => {
+if (day === 2 && item.plan) {
+if (fushouMode && item.plan !== 'fushou') return;
+if (!fushouMode && item.plan !== 'nofushou') return;
+}
 const sv = (socMode==='full' && item.socFull!==undefined)? item.socFull : item.soc;
 const cv = (socMode==='full' && item.chargeFull)? item.chargeFull : item.charge;
 const node = document.createElement('div');
@@ -1458,6 +1479,12 @@ socVisible = true;
 document.getElementById('socToggle').classList.add('on');
 document.body.classList.add('soc-on');
 }
+try {
+if (localStorage.getItem('fushou_mode')==='0') {
+fushouMode = false;
+document.getElementById('fushouToggle').classList.remove('on');
+}
+} catch(e){}
 } catch(e){}
 
 renderDay(1);
