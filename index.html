@@ -1035,6 +1035,9 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         html:not(.dark) #view-records .rpg-card-sublayer { background: #FBF3E2; }
         html.dark #view-records [class*="from-teal-500"] { background-image: linear-gradient(90deg, #C2A35C, #EDD9A3) !important; }
         html:not(.dark) #view-records [class*="from-teal-500"] { background-image: linear-gradient(90deg, #F2A497, #F6D27A) !important; }
+        /* v358：掉電條（閒置／未充電）寫死石石灰漸層，跟網頁一致；iOS 上 Tailwind from-stone-400 只出現在 JS 字串、JIT 會漏，改走跟充電條一樣的 !important 覆寫 */
+        html.dark #view-records [class*="from-stone-400"] { background-image: linear-gradient(90deg, #a8a29e, #78716c) !important; }
+        html:not(.dark) #view-records [class*="from-stone-400"] { background-image: linear-gradient(90deg, #a8a29e, #78716c) !important; }
         html.dark #view-records .soc-progress-glow-charging { box-shadow: 0 0 10px rgba(227,200,120,.45), inset 0 1px 1px rgba(255,255,255,.35); }
         html.dark #v106MonthPillText { background: #232840 !important; color: #EDE6D6 !important; border: 1px solid rgba(227,200,120,.4); box-shadow: 0 8px 20px rgba(0,0,0,.4); }
         html.dark #monthFilterContainer [class*="dark:bg-neutral-900"], html.dark #monthFilterContainer_analysis [class*="dark:bg-neutral-900"] { background-color: #1B1F30 !important; border-color: rgba(237,230,214,.14) !important; color: #9A93A8 !important; }
@@ -2050,7 +2053,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v357</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v358</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2611,7 +2614,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v357</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v358</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -3164,7 +3167,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v357';
+        const APP_VERSION = 'v358';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -4208,7 +4211,8 @@ function cacheDOMNodes() {
             // v205：切換回首頁不再重畫（首頁已在資料變動時經 updateStats／分析渲染／初載刷新；切換時重畫會在 800ms 塞住主執行緒、讓離開首頁的點按卡住）
 
             // 🔒 新手防護鎖：未完成初始化設定前，僅允許查看「首頁」與「設定」
-            const isSetupDone = localStorage.getItem('ev_life_setup_completed') === 'true' || AppState.records.length > 0;
+            // v357: sync configured = existing user (same rule as renderDashboard onboarding)
+            const isSetupDone = localStorage.getItem('ev_life_setup_completed') === 'true' || AppState.records.length > 0 || !!AppState.syncUrl;
             if (!isSetupDone && tabId !== 'home' && tabId !== 'settings') {
                 showToast("請先前往「設定」完成愛車參數確認 ⚙️", true, 2500);
                 tabId = 'settings'; // 自動跳轉至設定頁
@@ -5339,7 +5343,8 @@ window.setupSocSliders = function() {
             activeRecords.sort((a, b) => new Date(a.date) - new Date(b.date) || parseInt(a.id, 10) - parseInt(b.id, 10)); // v8: 同日期時按 id 升冪，舊版第二項是 a-a 恆為 0
 
             // 🛡️ 新手防護與引導：若沒有任何行駛紀錄且尚未自訂車輛，強制顯示起始引導卡並隱藏數據儀表板
-            const isFirstTimeUser = activeRecords.length === 0 && !localStorage.getItem('ev_life_setup_completed');
+            // v357: sync configured = existing user, never show first-time onboarding even with 0 local records (offline open)
+            const isFirstTimeUser = activeRecords.length === 0 && !localStorage.getItem('ev_life_setup_completed') && !AppState.syncUrl;
             if (DOM.onboardingCard) {
                 DOM.onboardingCard.classList.toggle('hidden', !isFirstTimeUser);
             }
