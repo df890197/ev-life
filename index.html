@@ -3167,7 +3167,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v360-test-regen060';
+        const APP_VERSION = 'v360-test-c062-r063';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -8797,13 +8797,13 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
     const { climb: totalClimbMeters, descent: totalDescentMeters } = calcClimbDescent(smoothed, 20); // v122：門檻 10→20，減少平路小起伏灌水（真小丘不再計入，抵達 SOC 約少保守 1–2%）
 
     // 能耗：拿掉舊版 isSteepDownhill 重複計算，直接用淨高程能
-    // 0.65 / 0.60（測試版）：2000kg 車重，100m 位能 0.545kWh；回充 0.60 測試版，僅供驗證三天實測數據用
+    // 0.62 / 0.63（測試版）：爬升 0.62、回充 0.63 測試版，僅供驗證三天實測數據用
     // v119：塞車（平均速度）修正 — 行車時間已含即時路況。低速巡航對電車較省電、高速較耗，
     // 只修正平地能耗項；基準（全域平均）與爬坡 0.65／回充 0.40 係數不動，倍率有界 0.95–1.10。
     const avgSpeedKmh = totalSeconds > 0 ? totalDistanceKm / (totalSeconds / 3600) : 0;
     const flatEnergyKwh = totalDistanceKm / (baseHighwayEff * speedEffFactor(avgSpeedKmh));
-    const climbEnergyKwh = (totalClimbMeters / 100) * 0.65;
-    const regenEnergyKwh = (totalDescentMeters / 100) * 0.60;
+    const climbEnergyKwh = (totalClimbMeters / 100) * 0.62;
+    const regenEnergyKwh = (totalDescentMeters / 100) * 0.63;
     const totalConsumedKwh = flatEnergyKwh + climbEnergyKwh - regenEnergyKwh;
     const totalConsumedSoc = (totalConsumedKwh / AppState.batteryCapacity) * 100;
     const directArrivalSoc = Math.min(100, Math.round(startSoc - totalConsumedSoc));
