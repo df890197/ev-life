@@ -1957,6 +1957,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                     <span class="text-xs font-extrabold text-stone-700 dark:text-stone-200">大保養</span>
                     <span class="text-[10px] font-bold text-stone-400 font-mono">(每<span id="maintIntervalText">20000</span>km)</span>
                 </div>
+                <div id="maintLastDateLine" class="text-[10px] font-bold text-stone-400 font-mono mt-0.5 hidden">上次</div>
                 <div class="text-[10px] font-bold text-stone-400 font-mono mt-0.5">下次 <span id="maintNextOdoText">20,000</span> km<span id="maintNextDateText"></span></div>
             </div>
             <div class="text-right">
@@ -1979,6 +1980,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                     <span class="text-xs font-extrabold text-stone-700 dark:text-stone-200">輪胎對調</span>
                     <span class="text-[10px] font-bold text-stone-400 font-mono">(每<span id="tireIntervalText">10000</span>km)</span>
                 </div>
+                <div id="tireLastDateLine" class="text-[10px] font-bold text-stone-400 font-mono mt-0.5 hidden">上次</div>
                 <div class="text-[10px] font-bold text-stone-400 font-mono mt-0.5">下次 <span id="tireNextOdoText">10,000</span> km</div>
             </div>
             <div class="text-right">
@@ -2059,7 +2061,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v365</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v366</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2544,6 +2546,10 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                                     <input type="number" step="1" id="lastTireRotationOdoInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-stone-200 dark:border-stone-700 rounded-xl text-xs md:text-sm font-mono font-bold focus:outline-none focus:border-amber-400" placeholder="0">
                                 </div>
                                 <div>
+                                    <label class="text-[10px] md:text-xs font-bold text-stone-400 block mb-1 flex items-center gap-1"><span class="text-[12px]">🛞</span>上次調胎日期</label>
+                                    <input type="date" id="lastTireRotationDateInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-stone-200 dark:border-stone-700 rounded-xl text-xs md:text-sm font-bold text-left focus:outline-none focus:border-amber-400 appearance-none block">
+                                </div>
+                                <div>
                                     <label class="text-[10px] md:text-xs font-bold text-stone-400 block mb-1">預計下次進廠日期 (選填)</label>
                                     <input type="date" id="nextMaintDateInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-stone-200 dark:border-stone-700 rounded-xl text-xs md:text-sm font-bold text-left focus:outline-none focus:border-amber-400 appearance-none block">
                                 </div>
@@ -2628,7 +2634,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-2xl border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v365</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v366</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -3144,7 +3150,7 @@ document.addEventListener('visibilitychange', function () {
 
         const AppState = {
             records: [], evName: "LUXGEN n7", batteryCapacity: 57.7, initialOdometer: 0,
-            maintInterval: 20000, lastMaintOdo: 0, lastMaintDate: "", tireInterval: 10000, lastTireRotationOdo: 0, nextMaintDate: "", insuranceExpiryDate: "",
+            maintInterval: 20000, lastMaintOdo: 0, lastMaintDate: "", tireInterval: 10000, lastTireRotationOdo: 0, lastTireRotationDate: "", nextMaintDate: "", insuranceExpiryDate: "",
             loanTotalMonths: 0, loanMonthlyPayment: 0,
             iceEfficiency: 15.0, gasPrice: 30.0, syncUrl: "", syncToken: "",
             editingRecordId: null, 
@@ -3181,7 +3187,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v365';
+        const APP_VERSION = 'v366';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -3225,12 +3231,12 @@ function cacheDOMNodes() {
      'tagInputArea', 'costLabel', 'startSocLabel', 'endSocLabel', 'recordMobileList', 'noDataPlaceholder', 'homeStatsContainer', 
      'onboardingCard', 'confirmModal', 'confirmModalContent', 'confirmModalTitle', 'confirmModalMessage', 'appSplashScreen', 
      'evNameInput', 'batteryCapacityInput', 'initialOdometerInput', 'maintIntervalInput', 'lastMaintOdoInput', 'lastMaintDateInput', 'iceEfficiencyInput', 
-     'tireIntervalInput', 'lastTireRotationOdoInput', 'tireIntervalText', 'tireRemainingText', 'tireNextOdoText', 'tireProgressBar',
+     'tireIntervalInput', 'lastTireRotationOdoInput', 'lastTireRotationDateInput', 'tireIntervalText', 'tireRemainingText', 'tireNextOdoText', 'tireLastDateLine', 'tireProgressBar',
      'gasPriceInput', 'nextMaintDateInput', 'insuranceExpiryInput', 
      'loanTotalMonthsInput', 'loanMonthlyPaymentInput', 'loanStartDateInput', 'loanPayoffDateInput',
      'syncUrlInput', 'syncTokenInput', 'topEvName', 'heroEvName', 'formTitle', 'cancelEditBtn', 
      'recordForm', 'monthFilterContainer', 'monthFilterContainer_analysis', 'statTotalKm', 'statAvgEfficiency', 'statFuelSavings', 
-     'savingsBaseText', 'statCo2Savings', 'statTreesPlanted', 'maintIntervalText', 'maintRemainingText', 'maintNextOdoText', 'maintNextDateText', 'maintProgressBar',
+     'savingsBaseText', 'statCo2Savings', 'statTreesPlanted', 'maintIntervalText', 'maintRemainingText', 'maintNextOdoText', 'maintNextDateText', 'maintLastDateLine', 'maintProgressBar',
      'maintDateAlertContainer', 'maintTargetDateStr', 'maintDaysRemainingBadge',
      'insuranceDateAlertContainer', 'insuranceTargetDateStr', 'insuranceDaysRemainingBadge',
      'loanDateAlertContainer', 'loanTargetDateStr', 'loanDaysRemainingBadge',
@@ -3470,6 +3476,8 @@ function cacheDOMNodes() {
             let storedLastTireOdo = parseFloat(localStorage.getItem('ev_life_last_tire_odo'));
             AppState.lastTireRotationOdo = !isNaN(storedLastTireOdo) ? storedLastTireOdo : 0;
             if (DOM.lastTireRotationOdoInput) DOM.lastTireRotationOdoInput.value = AppState.lastTireRotationOdo;
+            AppState.lastTireRotationDate = localStorage.getItem('ev_life_last_tire_date') || "";
+            if (DOM.lastTireRotationDateInput) DOM.lastTireRotationDateInput.value = AppState.lastTireRotationDate;
 
             bindSetting('iceEfficiency', 'iceEfficiencyInput', 15.0, true); bindSetting('gasPrice', 'gasPriceInput', 30.0, true);
             AppState.nextMaintDate = localStorage.getItem('ev_life_next_maint_date') || "";
@@ -5601,6 +5609,14 @@ window.setupSocSliders = function() {
                         DOM.maintNextDateText.textContent = '';
                     }
                 }
+                if(DOM.maintLastDateLine) {
+                    if (AppState.lastMaintDate) {
+                        DOM.maintLastDateLine.textContent = `上次 ${AppState.lastMaintDate.replace(/-/g, '/')}`;
+                        DOM.maintLastDateLine.classList.remove('hidden');
+                    } else {
+                        DOM.maintLastDateLine.classList.add('hidden');
+                    }
+                }
                 if(DOM.maintProgressBar) DOM.maintProgressBar.style.width = `${Math.min(100, progMaint)}%`;
                 updateProgressStyle(DOM.maintRemainingText, DOM.maintProgressBar, remMaint);
             }
@@ -5610,6 +5626,14 @@ window.setupSocSliders = function() {
                 if(DOM.tireIntervalText) DOM.tireIntervalText.textContent = AppState.tireInterval;
                 DOM.tireRemainingText.textContent = Math.round(remTire).toLocaleString();
                 if(DOM.tireNextOdoText) DOM.tireNextOdoText.textContent = Math.round(km + baseOdo + remTire).toLocaleString();
+                if(DOM.tireLastDateLine) {
+                    if (AppState.lastTireRotationDate) {
+                        DOM.tireLastDateLine.textContent = `上次 ${AppState.lastTireRotationDate.replace(/-/g, '/')}`;
+                        DOM.tireLastDateLine.classList.remove('hidden');
+                    } else {
+                        DOM.tireLastDateLine.classList.add('hidden');
+                    }
+                }
                 if(DOM.tireProgressBar) DOM.tireProgressBar.style.width = `${Math.min(100, progTire)}%`;
                 updateProgressStyle(DOM.tireRemainingText, DOM.tireProgressBar, remTire);
             }
@@ -6527,6 +6551,7 @@ window.setupSocSliders = function() {
             AppState.lastMaintDate = DOM.lastMaintDateInput?.value || ""; localStorage.setItem('ev_life_last_maint_date', AppState.lastMaintDate);
             AppState.tireInterval = parseInt(DOM.tireIntervalInput?.value) || 10000; localStorage.setItem('ev_life_tire_interval', AppState.tireInterval);
             AppState.lastTireRotationOdo = parseFloat(DOM.lastTireRotationOdoInput?.value) || 0; localStorage.setItem('ev_life_last_tire_odo', AppState.lastTireRotationOdo);
+            AppState.lastTireRotationDate = DOM.lastTireRotationDateInput?.value || ""; localStorage.setItem('ev_life_last_tire_date', AppState.lastTireRotationDate);
             AppState.nextMaintDate = DOM.nextMaintDateInput?.value || ""; localStorage.setItem('ev_life_next_maint_date', AppState.nextMaintDate);
             AppState.insuranceExpiryDate = DOM.insuranceExpiryInput?.value || ""; localStorage.setItem('ev_life_insurance_date', AppState.insuranceExpiryDate);
             
@@ -6570,10 +6595,10 @@ window.setupSocSliders = function() {
         // v361: content signature of the car config — auto-sync must pull config even when records are unchanged
         function configSigV357(cfg) {
             if (!cfg) return '';
-            return [cfg.evName || '', cfg.batteryCapacity ?? '', cfg.initialOdometer ?? '', cfg.maintInterval ?? '', cfg.lastMaintOdo ?? '', cfg.lastMaintDate || '', cfg.tireInterval ?? '', cfg.lastTireRotationOdo ?? '', cfg.nextMaintDate || '', cfg.insuranceExpiryDate || '', cfg.loanTotalMonths ?? '', cfg.loanMonthlyPayment ?? '', cfg.loanStartDate || '', cfg.loanPayoffDate || '', cfg.iceEfficiency ?? '', cfg.gasPrice ?? ''].join('|');
+            return [cfg.evName || '', cfg.batteryCapacity ?? '', cfg.initialOdometer ?? '', cfg.maintInterval ?? '', cfg.lastMaintOdo ?? '', cfg.lastMaintDate || '', cfg.tireInterval ?? '', cfg.lastTireRotationOdo ?? '', cfg.lastTireRotationDate || '', cfg.nextMaintDate || '', cfg.insuranceExpiryDate || '', cfg.loanTotalMonths ?? '', cfg.loanMonthlyPayment ?? '', cfg.loanStartDate || '', cfg.loanPayoffDate || '', cfg.iceEfficiency ?? '', cfg.gasPrice ?? ''].join('|');
         }
         function localConfigSigV357() {
-            return configSigV357({ evName: AppState.evName, batteryCapacity: AppState.batteryCapacity, initialOdometer: AppState.initialOdometer, maintInterval: AppState.maintInterval, lastMaintOdo: AppState.lastMaintOdo, lastMaintDate: AppState.lastMaintDate, tireInterval: AppState.tireInterval, lastTireRotationOdo: AppState.lastTireRotationOdo, nextMaintDate: AppState.nextMaintDate, insuranceExpiryDate: AppState.insuranceExpiryDate, loanTotalMonths: AppState.loanTotalMonths, loanMonthlyPayment: AppState.loanMonthlyPayment, loanStartDate: AppState.loanStartDate, loanPayoffDate: AppState.loanPayoffDate, iceEfficiency: AppState.iceEfficiency, gasPrice: AppState.gasPrice });
+            return configSigV357({ evName: AppState.evName, batteryCapacity: AppState.batteryCapacity, initialOdometer: AppState.initialOdometer, maintInterval: AppState.maintInterval, lastMaintOdo: AppState.lastMaintOdo, lastMaintDate: AppState.lastMaintDate, tireInterval: AppState.tireInterval, lastTireRotationOdo: AppState.lastTireRotationOdo, lastTireRotationDate: AppState.lastTireRotationDate, nextMaintDate: AppState.nextMaintDate, insuranceExpiryDate: AppState.insuranceExpiryDate, loanTotalMonths: AppState.loanTotalMonths, loanMonthlyPayment: AppState.loanMonthlyPayment, loanStartDate: AppState.loanStartDate, loanPayoffDate: AppState.loanPayoffDate, iceEfficiency: AppState.iceEfficiency, gasPrice: AppState.gasPrice });
         }
 
 window.syncWithCloud = async function(mode = 'auto', isSilent = false) {
@@ -6595,7 +6620,7 @@ window.syncWithCloud = async function(mode = 'auto', isSilent = false) {
                         id: "CONFIG_METADATA", date: "", chargeType: "", distance: 0, power: 0, cost: 0, 
                         note: JSON.stringify({ 
                             evName: AppState.evName, batteryCapacity: AppState.batteryCapacity, initialOdometer: AppState.initialOdometer, 
-                            maintInterval: AppState.maintInterval, lastMaintOdo: AppState.lastMaintOdo, lastMaintDate: AppState.lastMaintDate, tireInterval: AppState.tireInterval, lastTireRotationOdo: AppState.lastTireRotationOdo, nextMaintDate: AppState.nextMaintDate, insuranceExpiryDate: AppState.insuranceExpiryDate, 
+                            maintInterval: AppState.maintInterval, lastMaintOdo: AppState.lastMaintOdo, lastMaintDate: AppState.lastMaintDate, tireInterval: AppState.tireInterval, lastTireRotationOdo: AppState.lastTireRotationOdo, lastTireRotationDate: AppState.lastTireRotationDate, nextMaintDate: AppState.nextMaintDate, insuranceExpiryDate: AppState.insuranceExpiryDate, 
                             loanTotalMonths: AppState.loanTotalMonths, loanMonthlyPayment: AppState.loanMonthlyPayment,
                             loanStartDate: AppState.loanStartDate, loanPayoffDate: AppState.loanPayoffDate,
                             iceEfficiency: AppState.iceEfficiency, gasPrice: AppState.gasPrice 
@@ -6655,6 +6680,7 @@ window.syncWithCloud = async function(mode = 'auto', isSilent = false) {
                         // 👇 補上這兩行，讓雲端下載時也能還原調胎設定與輸入框
                         if (cloudConfig.tireInterval) { AppState.tireInterval = parseInt(cloudConfig.tireInterval, 10); localStorage.setItem('ev_life_tire_interval', AppState.tireInterval); if (DOM.tireIntervalInput) DOM.tireIntervalInput.value = AppState.tireInterval; }
                         if (cloudConfig.lastTireRotationOdo !== undefined) { AppState.lastTireRotationOdo = parseFloat(cloudConfig.lastTireRotationOdo); localStorage.setItem('ev_life_last_tire_odo', AppState.lastTireRotationOdo); if (DOM.lastTireRotationOdoInput) DOM.lastTireRotationOdoInput.value = AppState.lastTireRotationOdo; }
+                        if (cloudConfig.lastTireRotationDate !== undefined) { AppState.lastTireRotationDate = cloudConfig.lastTireRotationDate; localStorage.setItem('ev_life_last_tire_date', AppState.lastTireRotationDate); if (DOM.lastTireRotationDateInput) DOM.lastTireRotationDateInput.value = AppState.lastTireRotationDate; }
                         if (cloudConfig.nextMaintDate !== undefined) { AppState.nextMaintDate = cloudConfig.nextMaintDate; localStorage.setItem('ev_life_next_maint_date', AppState.nextMaintDate); }
                         if (cloudConfig.insuranceExpiryDate !== undefined) { AppState.insuranceExpiryDate = cloudConfig.insuranceExpiryDate; localStorage.setItem('ev_life_insurance_date', AppState.insuranceExpiryDate); }
                         
