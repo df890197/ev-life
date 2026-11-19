@@ -1,0 +1,877 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>檢舉小相機</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <style>
+      :root{
+        --bg:#f2f1ec;
+        --panel:#ffffff;
+        --panel-2:#e9e7e0;
+        --ink:#191b1d;
+        --ink-2:#5a6066;
+        --line:#d8d5cc;
+        --accent:#e8490f;
+        --accent-ink:#ffffff;
+        --ok:#1d9e57;
+        --warn:#b97a0c;
+        --bad:#d43a2f;
+        --cam-bg:#0c0d0e;
+        --cam-panel:#17191b;
+        --cam-ink:#f4f5f6;
+        --cam-ink-2:#a7adb4;
+        --radius:14px;
+      }
+      @media (prefers-color-scheme: dark){
+        :root{
+          --bg:#101214;
+          --panel:#1a1d20;
+          --panel-2:#23272b;
+          --ink:#f2f3f4;
+          --ink-2:#9ba3ab;
+          --line:#33383d;
+        }
+      }
+      *{ box-sizing:border-box; }
+      html{ -webkit-text-size-adjust:100%; }
+      body{
+        margin:0;
+        background:var(--bg);
+        color:var(--ink);
+        font-family:"Noto Sans TC", system-ui, -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif;
+        line-height:1.55;
+      }
+      button, [role="button"], select, summary, input:not([type="checkbox"],[type="radio"]){ min-height:2.75rem; }
+      button{ font-family:inherit; cursor:pointer; }
+      .app{ max-width:680px; margin:0 auto; padding:14px 14px 40px; }
+
+      /* ---------- 狀態列 ---------- */
+      .statusbar{
+        display:flex; align-items:flex-end; justify-content:space-between; gap:12px;
+        padding:4px 2px 12px;
+      }
+      .clock{
+        font-family:"IBM Plex Mono", ui-monospace, monospace;
+        font-size:34px; font-weight:600; letter-spacing:.5px; line-height:1.05;
+        font-variant-numeric:tabular-nums;
+      }
+      .dateline{ color:var(--ink-2); font-size:14px; margin-top:2px; }
+      .gps-pill{
+        flex:none; display:inline-flex; align-items:center; gap:7px;
+        border:1.5px solid var(--line); background:var(--panel);
+        border-radius:999px; padding:8px 13px; min-height:44px;
+        font-size:13.5px; font-weight:700; color:var(--ink);
+      }
+      .gps-dot{ width:9px; height:9px; border-radius:50%; background:var(--warn); flex:none; }
+      .gps-pill.ok .gps-dot{ background:var(--ok); }
+      .gps-pill.bad .gps-dot{ background:var(--bad); }
+      .gps-pill small{ font-weight:500; color:var(--ink-2); }
+
+      /* ---------- 權限說明 ---------- */
+      .perm-help{
+        margin:0 0 14px; background:var(--panel); border:1.5px solid var(--warn);
+        border-radius:16px; padding:14px 16px 16px;
+      }
+      .perm-help[hidden]{ display:none; }
+      .perm-help h2{ margin:0 0 6px; font-size:16.5px; font-weight:900; color:var(--warn); }
+      .perm-help p{ margin:0 0 8px; font-size:14.5px; }
+      .perm-help ol{ margin:6px 0 12px; padding-left:20px; }
+      .perm-help li{ font-size:14px; margin:5px 0; }
+      .perm-actions{ display:grid; gap:8px; }
+      @media (min-width:560px){ .perm-actions{ grid-template-columns:1fr 1fr 1fr; } }
+
+      /* ---------- 相機 ---------- */
+      .cam-card{
+        background:var(--cam-bg); border-radius:20px; overflow:hidden;
+        box-shadow:0 10px 30px rgba(0,0,0,.28);
+      }
+      .viewfinder{
+        position:relative; background:#000;
+        aspect-ratio:3/4; max-height:62dvh; width:100%;
+      }
+      @media (min-width:560px){ .viewfinder{ aspect-ratio:4/3.4; } }
+      .viewfinder video{
+        position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+        background:#000;
+      }
+      .viewfinder video.mirror{ transform:scaleX(-1); }
+      .vf-top{
+        position:absolute; top:10px; right:10px; display:flex; gap:8px; z-index:5;
+      }
+      .vf-top[hidden]{ display:none; }
+      .vf-btn{
+        width:44px; height:44px; min-height:44px; border-radius:50%;
+        border:1px solid rgba(255,255,255,.25); background:rgba(12,13,14,.55);
+        color:#fff; display:flex; align-items:center; justify-content:center;
+        -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+      }
+      .vf-btn svg{ width:21px; height:21px; }
+      .vf-btn[hidden]{ display:none; }
+      .vf-btn.active{ background:var(--accent); border-color:var(--accent); }
+      .vf-live{
+        position:absolute; left:0; right:0; bottom:0; z-index:4;
+        padding:26px 14px 12px; color:#fff;
+        background:linear-gradient(to top, rgba(0,0,0,.78), rgba(0,0,0,0));
+        pointer-events:none;
+      }
+      .vf-live .t{
+        font-family:"IBM Plex Mono", ui-monospace, monospace;
+        font-size:19px; font-weight:600; letter-spacing:.4px;
+        text-shadow:0 1px 4px rgba(0,0,0,.6);
+      }
+      .vf-live .a{ font-size:14px; margin-top:1px; text-shadow:0 1px 4px rgba(0,0,0,.6); }
+      .vf-live .g{
+        font-family:"IBM Plex Mono", ui-monospace, monospace;
+        font-size:12.5px; color:#cfd4d9; margin-top:1px;
+      }
+      .vf-start{
+        position:absolute; inset:0; z-index:6; display:flex; flex-direction:column;
+        align-items:center; justify-content:center; gap:14px; text-align:center;
+        background:radial-gradient(120% 90% at 50% 20%, #232629 0%, #0c0d0e 70%);
+        color:var(--cam-ink); padding:24px;
+      }
+      .vf-start[hidden]{ display:none; }
+      .vf-start .cam-ico{
+        width:74px; height:74px; border-radius:50%;
+        border:2px solid rgba(255,255,255,.22);
+        display:flex; align-items:center; justify-content:center; color:#fff;
+      }
+      .vf-start .cam-ico svg{ width:34px; height:34px; }
+      .vf-start p{ margin:0; color:var(--cam-ink-2); font-size:14px; max-width:300px; }
+      .btn{
+        border:none; border-radius:12px; font-weight:700; font-size:16px;
+        padding:12px 22px; display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      }
+      .btn svg{ width:19px; height:19px; flex:none; }
+      .btn-accent{ background:var(--accent); color:var(--accent-ink); }
+      .btn-ghost-dark{
+        background:transparent; color:#e8eaec; border:1.5px solid rgba(255,255,255,.35);
+        font-size:14.5px; padding:10px 18px;
+      }
+      .vf-error{
+        position:absolute; inset:0; z-index:6; display:flex; flex-direction:column;
+        align-items:center; justify-content:center; gap:12px; text-align:center;
+        background:#141618; color:var(--cam-ink); padding:24px;
+      }
+      .vf-error[hidden]{ display:none; }
+      .vf-error h3{ margin:0; font-size:18px; }
+      .vf-error p{ margin:0; color:var(--cam-ink-2); font-size:14px; max-width:320px; }
+
+      /* ---------- 備註 + 快門 ---------- */
+      .note-row{ padding:12px 14px 0; }
+      .note-row input{
+        width:100%; border:1.5px solid #33373b; background:var(--cam-panel);
+        color:var(--cam-ink); border-radius:10px; padding:11px 13px;
+        font-size:15.5px; font-family:inherit; outline:none;
+      }
+      .note-row input::placeholder{ color:#7d848b; }
+      .note-row input:focus{ border-color:var(--accent); }
+      .controls{
+        display:flex; align-items:center; justify-content:space-between;
+        padding:14px 22px 20px;
+      }
+      .side-btn{
+        min-width:76px; min-height:48px; border-radius:12px;
+        border:1.5px solid #3a3e42; background:transparent; color:#e8eaec;
+        font-size:14.5px; font-weight:700; display:inline-flex; flex-direction:column;
+        align-items:center; justify-content:center; gap:2px; padding:7px 10px;
+      }
+      .side-btn svg{ width:20px; height:20px; }
+      .shutter{
+        width:76px; height:76px; min-height:76px; border-radius:50%;
+        background:transparent; border:4px solid #fff; padding:5px; flex:none;
+      }
+      .shutter span{
+        display:block; width:100%; height:100%; border-radius:50%; background:#fff;
+        transition:transform .08s ease, background .15s ease;
+      }
+      .shutter:active span{ transform:scale(.88); background:var(--accent); }
+      .shutter:disabled{ opacity:.35; }
+      .shutter:disabled span{ background:#888; }
+
+      /* ---------- 確認照片 ---------- */
+      .preview{
+        margin-top:18px; background:var(--panel); border:1px solid var(--line);
+        border-radius:20px; overflow:hidden;
+      }
+      .preview[hidden]{ display:none; }
+      .preview-head{
+        display:flex; align-items:center; justify-content:space-between;
+        padding:14px 16px 10px;
+      }
+      .preview-head h2{ margin:0; font-size:19px; font-weight:900; }
+      .saved-tag{
+        font-size:13px; font-weight:700; color:var(--ok);
+        border:1.5px solid var(--ok); border-radius:999px; padding:3px 11px;
+      }
+      .saved-tag[hidden]{ display:none; }
+      .preview img.ph{
+        display:block; width:100%; max-height:60dvh; object-fit:contain; background:#000;
+      }
+      .meta{ margin:0; padding:12px 16px 4px; }
+      .meta div{ display:flex; gap:10px; padding:5px 0; font-size:14.5px; }
+      .meta dt{ flex:none; width:52px; color:var(--ink-2); font-weight:700; }
+      .meta dd{ margin:0; word-break:break-all; }
+      .meta dd.mono{ font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:13.5px; }
+      .preview-actions{ padding:12px 16px 6px; display:grid; gap:10px; }
+      .btn-save{
+        background:var(--accent); color:#fff; font-size:17.5px; min-height:54px;
+        border-radius:13px; width:100%;
+      }
+      .btn-save.done{ background:var(--ok); }
+      .action-row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+      .btn-plain{
+        background:var(--panel-2); color:var(--ink); border:1.5px solid var(--line);
+        font-size:15.5px; min-height:50px; border-radius:13px; width:100%;
+      }
+      .btn-plain.danger{ color:var(--bad); }
+      .action-row.single{ grid-template-columns:1fr; }
+      .save-hint{
+        margin:0; padding:2px 18px 16px; font-size:13px; color:var(--ink-2); text-align:center;
+      }
+
+      /* ---------- 相簿 ---------- */
+      .gallery-sec{ margin-top:26px; }
+      .gallery-sec h2, .help h2{ font-size:18px; font-weight:900; margin:0 0 4px; }
+      .gallery-sec h2 .count{ color:var(--ink-2); font-weight:500; font-size:14px; }
+      .empty-note{ color:var(--ink-2); font-size:14.5px; margin:8px 0 0; }
+      .gallery{
+        display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-top:12px;
+      }
+      @media (min-width:560px){ .gallery{ grid-template-columns:repeat(4, 1fr); } }
+      .g-item{
+        background:var(--panel); border:1px solid var(--line); border-radius:12px;
+        overflow:hidden; text-align:left; padding:0; display:block; width:100%;
+      }
+      .g-item img{ display:block; width:100%; aspect-ratio:1; object-fit:cover; background:#000; }
+      .g-item .cap{ padding:6px 8px 2px; font-size:11.5px; color:var(--ink-2);
+        font-family:"IBM Plex Mono", ui-monospace, monospace; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      .g-item .st{ padding:0 8px 7px; font-size:11.5px; font-weight:700; color:var(--warn); }
+      .g-item .st.ok{ color:var(--ok); }
+
+      /* ---------- 說明 ---------- */
+      .help{ margin-top:28px; background:var(--panel); border:1px solid var(--line);
+        border-radius:16px; padding:16px 18px 8px; }
+      .help ul{ margin:6px 0 10px; padding-left:20px; }
+      .help li{ font-size:14.5px; margin:5px 0; }
+      .help li b{ font-weight:700; }
+      .toast{
+        position:fixed; left:50%; bottom:calc(18px + env(safe-area-inset-bottom));
+        transform:translateX(-50%) translateY(20px); opacity:0; pointer-events:none;
+        background:#191b1d; color:#fff; font-size:14.5px; font-weight:700;
+        padding:11px 20px; border-radius:999px; z-index:50;
+        transition:opacity .25s ease, transform .25s ease;
+        box-shadow:0 8px 24px rgba(0,0,0,.35); max-width:88vw; text-align:center;
+      }
+      .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+      @media (prefers-reduced-motion: reduce){
+        .toast, .shutter span{ transition:none; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+
+      <!-- 即時狀態 -->
+      <div class="statusbar">
+        <div>
+          <div class="clock" id="clock">--:--:--</div>
+          <div class="dateline" id="dateline">正在讀取時間…</div>
+        </div>
+        <button class="gps-pill" id="gpsPill" type="button" aria-label="定位狀態，點按開啟定位或重新定位">
+          <span class="gps-dot"></span><span id="gpsText">點此開啟定位</span>
+        </button>
+      </div>
+
+      <!-- 權限被拒絕時的開啟說明 -->
+      <section class="perm-help" id="permHelp" hidden aria-label="權限開啟說明">
+        <h2>權限被拒絕了，所以不會再跳出詢問視窗</h2>
+        <p id="permHelpText">瀏覽器只要拒絕過一次，之後再怎麼點都不會再問，必須先到瀏覽器設定把權限改回「允許」，再回來按下方按鈕重新嘗試。</p>
+        <ol>
+          <li><b>iPhone（Safari）：</b>點網址列左邊的「aA」→「網站設定」，把「相機」與「位置」改成「允許」；或到 iOS「設定 → Safari → 相機／定位」改成「詢問」或「允許」。</li>
+          <li><b>Android（Chrome）：</b>點網址列旁的鎖頭（或設定）圖示 →「權限」，把「相機」與「位置資訊」改成「允許」。</li>
+          <li><b>在其他 App 裡面點連結開啟時：</b>App 的內建瀏覽器常常不會跳出相機／定位詢問視窗。請改用 Safari 或 Chrome 開啟這個頁面；趕時間的話，先用「系統相機」拍照也可以。</li>
+        </ol>
+        <div class="perm-actions">
+          <button class="btn btn-plain" id="permRetryLocBtn" type="button">重新要求定位</button>
+          <button class="btn btn-plain" id="permRetryCamBtn" type="button">重新嘗試相機</button>
+          <button class="btn btn-plain" id="permSysCamBtn" type="button">用系統相機拍照</button>
+        </div>
+      </section>
+
+      <!-- 相機 -->
+      <section class="cam-card" aria-label="相機">
+        <div class="viewfinder" id="viewfinder">
+          <video id="video" playsinline autoplay muted></video>
+
+          <div class="vf-top" id="vfTop" hidden>
+            <button class="vf-btn" id="torchBtn" type="button" hidden aria-label="手電筒">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6c0 2-2 3-2 5v9a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-9c0-2-2-3-2-5V4h12v2z"/><path d="M6 4h12"/></svg>
+            </button>
+            <button class="vf-btn" id="flipBtn" type="button" aria-label="切換前後鏡頭">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+            </button>
+          </div>
+
+          <div class="vf-live" id="vfLive" hidden>
+            <div class="t" id="liveTime">--</div>
+            <div class="a" id="liveAddr">定位中…</div>
+            <div class="g" id="liveGps"></div>
+          </div>
+
+          <div class="vf-start" id="startOverlay">
+            <div class="cam-ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </div>
+            <button class="btn btn-accent" id="startBtn" type="button">啟動相機</button>
+            <p>按下後瀏覽器會跳出視窗詢問是否允許使用相機，請按「允許」。定位請點右上角的定位鈕開啟，照片才會帶有當下時間與地點。</p>
+            <button class="btn btn-ghost-dark" id="sysCamBtn0" type="button">改用系統相機拍照</button>
+          </div>
+
+          <div class="vf-error" id="camError" hidden>
+            <h3>相機無法開啟</h3>
+            <p id="camErrorText">請確認已允許相機權限，或改用系統相機拍照，一樣會自動壓上時間與地點。</p>
+            <button class="btn btn-accent" id="sysCamBtn" type="button">用系統相機拍照</button>
+            <button class="btn btn-ghost-dark" id="retryCamBtn" type="button">再試一次</button>
+          </div>
+        </div>
+
+        <div class="note-row">
+          <input id="noteInput" type="text" maxlength="40" placeholder="備註（選填）：車牌號碼、違規事項，會印在照片上" autocomplete="off" />
+        </div>
+
+        <div class="controls">
+          <button class="side-btn" id="albumBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            相簿
+          </button>
+          <button class="shutter" id="shutterBtn" type="button" aria-label="拍照" disabled><span></span></button>
+          <button class="side-btn" id="flipBtn2" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+            翻轉
+          </button>
+        </div>
+      </section>
+
+      <!-- 拍完確認 -->
+      <section class="preview" id="previewSec" hidden aria-label="確認照片">
+        <div class="preview-head">
+          <h2 id="previewTitle">確認這張照片</h2>
+          <span class="saved-tag" id="savedTag" hidden>已儲存</span>
+        </div>
+        <img class="ph" id="previewImg" alt="剛拍下的照片，上面印有時間與地點" />
+        <dl class="meta">
+          <div><dt>時間</dt><dd id="mTime">—</dd></div>
+          <div><dt>地點</dt><dd id="mAddr">—</dd></div>
+          <div><dt>座標</dt><dd class="mono" id="mGps">—</dd></div>
+          <div id="mNoteRow" hidden><dt>備註</dt><dd id="mNote">—</dd></div>
+        </dl>
+        <div class="preview-actions">
+          <button class="btn btn-save" id="saveBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>
+            <span id="saveBtnText">儲存到手機</span>
+          </button>
+          <div class="action-row" id="actionRow">
+            <button class="btn btn-plain" id="shareBtn" type="button">分享 / 傳送</button>
+            <button class="btn btn-plain danger" id="retakeBtn" type="button">取消重拍</button>
+          </div>
+          <div class="action-row single" id="closeRow" hidden>
+            <button class="btn btn-plain" id="closeBtn" type="button">關閉</button>
+          </div>
+        </div>
+        <p class="save-hint" id="saveHint"></p>
+      </section>
+
+      <!-- 本次拍攝 -->
+      <section class="gallery-sec" aria-label="本次拍攝的照片">
+        <h2>本次拍攝 <span class="count" id="photoCount"></span></h2>
+        <p class="empty-note" id="emptyNote">還沒有照片。拍下的照片會先出現在這裡，按「儲存到手機」後才會存進你的相簿。</p>
+        <div class="gallery" id="gallery"></div>
+      </section>
+
+      <!-- 說明 -->
+      <section class="help" aria-label="使用說明">
+        <h2>使用說明</h2>
+        <ul>
+          <li><b>浮水印直接印在照片上：</b>按下快門的那一刻，日期時間、地址與 GPS 座標會直接壓印在照片下方，照片傳到哪裡資訊都還在。</li>
+          <li><b>拍完先確認再存：</b>每張照片拍完都會先跳出確認畫面，選「儲存到手機」才會存，「取消重拍」就會丟掉重拍。</li>
+          <li><b>iPhone 儲存方式：</b>點「儲存到手機」後會跳出分享選單，請選「儲存影像」，照片就會進相簿。</li>
+          <li><b>定位要準：</b>在戶外、或把手機定位服務打開，座標會更準；狀態列會顯示目前誤差範圍。</li>
+          <li><b>點了卻沒跳出「允許」視窗：</b>通常是之前按過「拒絕」，或是定位／相機在載入時被瀏覽器擋下——瀏覽器拒絕過就不會再問第二次。請照頁面上方的權限說明，到瀏覽器設定把相機與定位改回「允許」再重新嘗試；若是在其他 App 裡面開啟的，請改用 Safari 或 Chrome 開啟。</li>
+          <li><b>隱私：</b>照片只在你的手機上處理，不會上傳到任何伺服器；離開或重新整理這個頁面，本次拍攝清單就會清空（已存到相簿的照片不受影響）。</li>
+        </ul>
+      </section>
+    </main>
+
+    <input type="file" id="albumInput" accept="image/*" hidden />
+    <input type="file" id="sysCamInput" accept="image/*" capture="environment" hidden />
+    <div class="toast" id="toast" role="status"></div>
+
+    <script>
+    (function(){
+      "use strict";
+      var $ = function(id){ return document.getElementById(id); };
+      var video = $("video"), shutterBtn = $("shutterBtn");
+      var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      var WEEK = ["日","一","二","三","四","五","六"];
+
+      var state = {
+        stream: null, facing: "environment", torch: false,
+        pos: null, address: "", geoErr: false, geoDenied: false,
+        photos: [], currentId: null, previewMode: "new"
+      };
+
+      function pad(n){ return (n < 10 ? "0" : "") + n; }
+      function fmtTime(d){
+        return d.getFullYear() + "/" + pad(d.getMonth()+1) + "/" + pad(d.getDate()) +
+          "（" + WEEK[d.getDay()] + "）" + pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds());
+      }
+      function fmtClock(d){
+        return pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds());
+      }
+      function fileName(d){
+        return "檢舉_" + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + "_" +
+          pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds()) + ".jpg";
+      }
+
+      var toastTimer = null;
+      function toast(msg){
+        var t = $("toast"); t.textContent = msg; t.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function(){ t.classList.remove("show"); }, 2600);
+      }
+
+      /* ---------- 時鐘 ---------- */
+      function tick(){
+        var now = new Date();
+        $("clock").textContent = fmtClock(now);
+        $("dateline").textContent = now.getFullYear() + " 年 " + (now.getMonth()+1) + " 月 " + now.getDate() + " 日（週" + WEEK[now.getDay()] + "）";
+        $("liveTime").textContent = fmtTime(now);
+      }
+      tick(); setInterval(tick, 500);
+
+      /* ---------- 定位 ---------- */
+      var lastGeoKey = "";
+      function gpsText(){
+        if(!state.pos) return "";
+        return state.pos.lat.toFixed(6) + ", " + state.pos.lng.toFixed(6) +
+          (state.pos.acc ? "（±" + Math.round(state.pos.acc) + "m）" : "");
+      }
+      function addrText(){
+        if(state.address) return state.address;
+        if(state.pos) return "地址查詢中…";
+        if(state.geoDenied) return "定位已被瀏覽器拒絕";
+        if(state.geoErr) return "未取得定位";
+        return "尚未開啟定位";
+      }
+      function renderLoc(){
+        var pill = $("gpsPill"), gt = $("gpsText");
+        if(state.pos){
+          pill.className = "gps-pill ok";
+          gt.innerHTML = "已定位 <small>±" + Math.round(state.pos.acc || 0) + "m</small>";
+        } else if(state.geoDenied){
+          pill.className = "gps-pill bad";
+          gt.textContent = "定位被拒絕";
+        } else if(state.geoErr){
+          pill.className = "gps-pill bad";
+          gt.textContent = "定位未開啟";
+        } else {
+          pill.className = "gps-pill";
+          gt.textContent = "點此開啟定位";
+        }
+        $("liveAddr").textContent = addrText();
+        $("liveGps").textContent = state.pos ? ("GPS " + gpsText()) : "";
+      }
+
+      /* ---------- 權限說明面板 ---------- */
+      function showPermHelp(kind){
+        var t = $("permHelpText");
+        if(kind === "camera"){
+          t.textContent = "相機權限目前是「拒絕」狀態。瀏覽器只要拒絕過一次，之後再點「啟動相機」就不會再跳出詢問視窗，必須先照下方步驟到瀏覽器設定把相機改回「允許」，再回來按「重新嘗試相機」。";
+        } else {
+          t.textContent = "定位權限目前是「拒絕」狀態。瀏覽器只要拒絕過一次，之後再點定位就不會再跳出詢問視窗，必須先照下方步驟到瀏覽器設定把定位改回「允許」，再回來按「重新要求定位」。";
+        }
+        $("permHelp").hidden = false;
+      }
+      function hidePermHelp(){ $("permHelp").hidden = true; }
+      function reverseGeocode(lat, lng){
+        var url = "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=" +
+          encodeURIComponent(lat) + "&lon=" + encodeURIComponent(lng) + "&zoom=18&addressdetails=1&accept-language=zh-TW";
+        fetch(url).then(function(r){ return r.json(); }).then(function(data){
+          if(!data) return;
+          var a = data.address || {};
+          var parts = [a.state || a.county, a.city || a.town || a.county, a.suburb || a.district || a.borough, a.road, a.house_number];
+          var out = [];
+          parts.forEach(function(p){ if(p && out.indexOf(p) === -1) out.push(p); });
+          var addr = out.join("");
+          if(!addr && data.display_name) addr = data.display_name.split(",").slice(0,3).join("");
+          if(addr){ state.address = addr; renderLoc(); }
+        }).catch(function(){ /* 地址查不到時只顯示座標 */ });
+      }
+      function onPos(p){
+        var lat = p.coords.latitude, lng = p.coords.longitude;
+        state.pos = { lat: lat, lng: lng, acc: p.coords.accuracy };
+        state.geoErr = false; state.geoDenied = false;
+        renderLoc();
+        var key = lat.toFixed(3) + "," + lng.toFixed(3);
+        if(key !== lastGeoKey){ lastGeoKey = key; reverseGeocode(lat, lng); }
+      }
+      function onGeoErr(err){
+        if(err && err.code === 1){ state.geoDenied = true; showPermHelp("geo"); }
+        else state.geoErr = true;
+        renderLoc();
+      }
+      var watchId = null;
+      function startWatch(){
+        if(watchId !== null || !("geolocation" in navigator)) return;
+        watchId = navigator.geolocation.watchPosition(onPos, onGeoErr, { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 });
+      }
+      /* 定位只能在使用者點按時要求：頁面一載入就自動要求，iOS 與 App 內建瀏覽器
+         會直接拒絕且不跳詢問視窗，之後權限被鎖成「拒絕」、再點也不會再問。 */
+      function requestLocation(){
+        if(!("geolocation" in navigator)){ state.geoErr = true; renderLoc(); toast("這個瀏覽器不支援定位"); return; }
+        toast("正在取得定位，若跳出詢問視窗請按「允許」");
+        navigator.geolocation.getCurrentPosition(function(p){
+          hidePermHelp();
+          onPos(p); startWatch();
+        }, function(err){
+          onGeoErr(err);
+          if(err && err.code === 1) toast("定位被拒絕：瀏覽器不會再自動跳出詢問，請照上方說明開啟");
+          else toast("定位失敗，請確認手機的定位服務已開啟後再試一次");
+        }, { enableHighAccuracy: true, timeout: 15000 });
+      }
+      $("gpsPill").addEventListener("click", requestLocation);
+      $("permRetryLocBtn").addEventListener("click", requestLocation);
+      $("permRetryCamBtn").addEventListener("click", function(){
+        $("camError").hidden = true; $("startOverlay").hidden = true;
+        startCamera();
+      });
+      $("permSysCamBtn").addEventListener("click", function(){ openSysCam(); });
+      /* 載入時只查權限狀態（查詢本身不會跳視窗）：已允許才自動開始追蹤，
+         已拒絕就直接顯示開啟說明，未決定就等使用者點定位鈕再要求。 */
+      function initGeo(){
+        renderLoc();
+        if(!("geolocation" in navigator)){ state.geoErr = true; renderLoc(); return; }
+        if(navigator.permissions && navigator.permissions.query){
+          navigator.permissions.query({ name: "geolocation" }).then(function(st){
+            if(st.state === "granted"){ startWatch(); }
+            else if(st.state === "denied"){ state.geoDenied = true; renderLoc(); showPermHelp("geo"); }
+            if(st.addEventListener){
+              st.addEventListener("change", function(){
+                if(st.state === "granted"){ state.geoDenied = false; state.geoErr = false; hidePermHelp(); startWatch(); renderLoc(); }
+                else if(st.state === "denied"){ state.geoDenied = true; renderLoc(); }
+              });
+            }
+          }).catch(function(){ /* 查不到狀態就等使用者點按再要求 */ });
+        }
+      }
+      initGeo();
+
+      /* ---------- 相機 ---------- */
+      function stopStream(){
+        if(state.stream){ state.stream.getTracks().forEach(function(t){ t.stop(); }); state.stream = null; }
+      }
+      function setupTorch(){
+        var btn = $("torchBtn");
+        try{
+          var track = state.stream && state.stream.getVideoTracks()[0];
+          var caps = track && track.getCapabilities ? track.getCapabilities() : null;
+          if(caps && caps.torch){ btn.hidden = false; } else { btn.hidden = true; }
+        }catch(e){ btn.hidden = true; }
+      }
+      function startCamera(){
+        if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+          showCamError("這個瀏覽器不支援網頁相機。");
+          return;
+        }
+        stopStream();
+        navigator.mediaDevices.getUserMedia({
+          video: { facingMode: state.facing, width: { ideal: 1920 }, height: { ideal: 1920 } },
+          audio: false
+        }).then(function(stream){
+          state.stream = stream;
+          video.srcObject = stream;
+          video.classList.toggle("mirror", state.facing === "user");
+          var pr = video.play(); if(pr && pr.catch) pr.catch(function(){});
+          $("startOverlay").hidden = true;
+          $("camError").hidden = true;
+          $("vfTop").hidden = false;
+          $("vfLive").hidden = false;
+          shutterBtn.disabled = false;
+          setupTorch();
+        }).catch(function(err){
+          var msg = "請確認已允許相機權限，或改用系統相機拍照。";
+          if(err && err.name === "NotFoundError") msg = "找不到可用的相機，請改用系統相機拍照。";
+          if(err && err.name === "NotReadableError") msg = "相機被其他 App 占用中，請先關閉其他相機 App，再按「再試一次」。";
+          if(err && (err.name === "NotAllowedError" || err.name === "SecurityError")){
+            if(camPolicyBlocked()){
+              msg = "這個頁面目前是被嵌入在其他 App／頁面裡開啟的，瀏覽器不讓嵌入的頁面跳出相機允許視窗。請改用下方「用系統相機拍照」（不需要網頁相機權限），或用 Safari／Chrome 直接開啟這個頁面再試。";
+            } else {
+              msg = "相機權限被拒絕了，瀏覽器不會再跳出詢問視窗。請照頁面上方的權限說明，到瀏覽器設定把相機改回「允許」再重新嘗試，或直接改用系統相機拍照。";
+              showPermHelp("camera");
+            }
+          }
+          showCamError(msg);
+        });
+      }
+      function camPolicyBlocked(){
+        try{
+          if(document.permissionsPolicy && document.permissionsPolicy.allowsFeature) return !document.permissionsPolicy.allowsFeature("camera");
+          if(document.featurePolicy && document.featurePolicy.allowsFeature) return !document.featurePolicy.allowsFeature("camera");
+        }catch(e){}
+        return false;
+      }
+      function showCamError(msg){
+        $("camErrorText").textContent = msg;
+        $("vfTop").hidden = true;
+        $("startOverlay").hidden = true;
+        $("camError").hidden = false;
+        shutterBtn.disabled = true;
+      }
+      $("startBtn").addEventListener("click", startCamera);
+      $("retryCamBtn").addEventListener("click", function(){
+        $("camError").hidden = true; $("startOverlay").hidden = false; startCamera();
+      });
+      function flip(){
+        state.facing = state.facing === "environment" ? "user" : "environment";
+        state.torch = false; $("torchBtn").classList.remove("active");
+        if(state.stream) startCamera();
+      }
+      $("flipBtn").addEventListener("click", flip);
+      $("flipBtn2").addEventListener("click", flip);
+      $("torchBtn").addEventListener("click", function(){
+        try{
+          var track = state.stream.getVideoTracks()[0];
+          state.torch = !state.torch;
+          track.applyConstraints({ advanced: [{ torch: state.torch }] }).then(function(){
+            $("torchBtn").classList.toggle("active", state.torch);
+          }).catch(function(){ state.torch = false; toast("手電筒開啟失敗"); });
+        }catch(e){ toast("手電筒開啟失敗"); }
+      });
+
+      /* ---------- 浮水印 ---------- */
+      function buildLines(info){
+        var lines = [info.timeStr];
+        lines.push(info.address ? info.address : (info.hasPos ? "地址查詢中" : "未取得定位（請開啟定位權限）"));
+        if(info.hasPos) lines.push("GPS " + info.gpsStr);
+        if(info.note) lines.push("備註：" + info.note);
+        return lines;
+      }
+      function drawWatermark(ctx, w, h, info){
+        var lines = buildLines(info);
+        var fs = Math.max(17, Math.round(w * 0.031));
+        var lh = Math.round(fs * 1.5);
+        var padX = Math.round(w * 0.035), padY = Math.round(fs * 0.75);
+        var barH = lines.length * lh + padY * 2;
+        ctx.save();
+        ctx.fillStyle = "rgba(8,9,10,0.78)";
+        ctx.fillRect(0, h - barH, w, barH);
+        ctx.fillStyle = "#e8490f";
+        ctx.fillRect(0, h - barH, Math.max(5, Math.round(w * 0.008)), barH);
+        ctx.textBaseline = "top";
+        for(var i = 0; i < lines.length; i++){
+          var isFirst = i === 0;
+          ctx.font = (isFirst ? "600 " : "500 ") + fs + "px " + (isFirst ? '"IBM Plex Mono", ui-monospace, monospace' : '"Noto Sans TC", sans-serif');
+          ctx.fillStyle = isFirst ? "#ffffff" : (i === 1 ? "#eef0f1" : "#c9ced3");
+          var text = lines[i], maxW = w - padX * 2;
+          while(text.length > 1 && ctx.measureText(text).width > maxW){ text = text.slice(0, -1); }
+          if(text !== lines[i]) text = text.slice(0, -1) + "…";
+          ctx.fillText(text, padX, h - barH + padY + i * lh);
+        }
+        /* 右上角小標記 */
+        var tag = "檢舉紀錄";
+        var tfs = Math.max(13, Math.round(w * 0.022));
+        ctx.font = "700 " + tfs + "px \"Noto Sans TC\", sans-serif";
+        var tw = ctx.measureText(tag).width + tfs * 1.2;
+        var th = tfs * 2;
+        var tx = w - tw - Math.round(w * 0.025), ty = Math.round(w * 0.025);
+        ctx.fillStyle = "rgba(8,9,10,0.55)";
+        ctx.beginPath();
+        if(ctx.roundRect) ctx.roundRect(tx, ty, tw, th, th / 2); else ctx.rect(tx, ty, tw, th);
+        ctx.fill();
+        ctx.fillStyle = "#ffffff";
+        ctx.textBaseline = "middle";
+        ctx.fillText(tag, tx + tfs * 0.6, ty + th / 2 + 1);
+        ctx.restore();
+      }
+      function currentInfo(now){
+        return {
+          timeStr: fmtTime(now),
+          address: state.address,
+          hasPos: !!state.pos,
+          gpsStr: gpsText(),
+          note: $("noteInput").value.trim()
+        };
+      }
+
+      /* ---------- 拍照 ---------- */
+      function finishCapture(canvas, now){
+        canvas.toBlob(function(blob){
+          if(!blob){ toast("照片產生失敗，請再試一次"); return; }
+          var rec = {
+            id: Date.now() + "_" + Math.floor(Math.random() * 9999),
+            blob: blob, url: URL.createObjectURL(blob),
+            name: fileName(now), saved: false,
+            timeStr: fmtTime(now), address: state.address,
+            gpsStr: state.pos ? gpsText() : "", note: $("noteInput").value.trim()
+          };
+          state.photos.unshift(rec);
+          renderGallery();
+          openPreview(rec, "new");
+          toast(state.pos ? "拍好了！確認後儲存" : "拍好了，但這張沒有定位資訊");
+        }, "image/jpeg", 0.92);
+      }
+      shutterBtn.addEventListener("click", function(){
+        if(!state.stream || !video.videoWidth){ toast("相機尚未就緒"); return; }
+        var now = new Date();
+        var canvas = document.createElement("canvas");
+        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+        var ctx = canvas.getContext("2d");
+        if(state.facing === "user"){ ctx.translate(canvas.width, 0); ctx.scale(-1, 1); }
+        ctx.drawImage(video, 0, 0);
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        drawWatermark(ctx, canvas.width, canvas.height, currentInfo(now));
+        finishCapture(canvas, now);
+      });
+
+      /* ---------- 相簿 / 系統相機匯入 ---------- */
+      function importFile(file){
+        if(!file) return;
+        var now = new Date();
+        var url = URL.createObjectURL(file);
+        var img = new Image();
+        img.onload = function(){
+          var maxSide = 2560;
+          var scale = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
+          var canvas = document.createElement("canvas");
+          canvas.width = Math.round(img.naturalWidth * scale);
+          canvas.height = Math.round(img.naturalHeight * scale);
+          var ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          URL.revokeObjectURL(url);
+          var info = currentInfo(now);
+          drawWatermark(ctx, canvas.width, canvas.height, info);
+          finishCapture(canvas, now);
+        };
+        img.onerror = function(){ URL.revokeObjectURL(url); toast("這張照片讀取失敗"); };
+        img.src = url;
+      }
+      $("albumBtn").addEventListener("click", function(){ $("albumInput").click(); });
+      $("albumInput").addEventListener("change", function(){ importFile(this.files[0]); this.value = ""; });
+      function openSysCam(){ $("sysCamInput").click(); }
+      $("sysCamBtn").addEventListener("click", openSysCam);
+      $("sysCamBtn0").addEventListener("click", openSysCam);
+      $("sysCamInput").addEventListener("change", function(){ importFile(this.files[0]); this.value = ""; });
+
+      /* ---------- 確認畫面 ---------- */
+      function getRec(id){ for(var i = 0; i < state.photos.length; i++) if(state.photos[i].id === id) return state.photos[i]; return null; }
+      function openPreview(rec, mode){
+        state.currentId = rec.id; state.previewMode = mode;
+        $("previewImg").src = rec.url;
+        $("mTime").textContent = rec.timeStr;
+        $("mAddr").textContent = rec.address || (rec.gpsStr ? "地址查詢中（座標已記錄）" : "未取得定位");
+        $("mGps").textContent = rec.gpsStr || "—";
+        $("mNoteRow").hidden = !rec.note;
+        $("mNote").textContent = rec.note || "";
+        $("previewTitle").textContent = mode === "new" ? "確認這張照片" : "照片內容";
+        $("savedTag").hidden = !rec.saved;
+        $("retakeBtn").textContent = "取消重拍";
+        $("actionRow").hidden = mode !== "new";
+        $("closeRow").hidden = mode === "new";
+        updateSaveBtn(rec);
+        $("saveHint").textContent = isIOS
+          ? "iPhone：點「儲存到手機」會開啟分享選單，請選「儲存影像」就會存進相簿。"
+          : "點「儲存到手機」會把照片存到你的裝置（下載資料夾或相簿）。";
+        var sec = $("previewSec"); sec.hidden = false;
+        sec.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+      function updateSaveBtn(rec){
+        $("saveBtnText").textContent = rec.saved ? "已儲存，再存一次" : "儲存到手機";
+        $("saveBtn").classList.toggle("done", rec.saved);
+      }
+      function closePreview(){
+        $("previewSec").hidden = true;
+        state.currentId = null;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+      $("closeBtn").addEventListener("click", closePreview);
+      $("retakeBtn").addEventListener("click", function(){
+        var rec = getRec(state.currentId);
+        if(rec && state.previewMode === "new"){
+          state.photos = state.photos.filter(function(p){ return p.id !== rec.id; });
+          URL.revokeObjectURL(rec.url);
+          renderGallery();
+          toast("已丟掉這張，重拍吧");
+        }
+        closePreview();
+      });
+
+      /* ---------- 儲存 / 分享 ---------- */
+      function markSaved(rec){
+        rec.saved = true;
+        $("savedTag").hidden = false;
+        updateSaveBtn(rec); renderGallery();
+      }
+      function downloadRec(rec){
+        var a = document.createElement("a");
+        a.href = rec.url; a.download = rec.name;
+        document.body.appendChild(a); a.click(); a.remove();
+      }
+      $("saveBtn").addEventListener("click", function(){
+        var rec = getRec(state.currentId); if(!rec) return;
+        var file = null;
+        try{ file = new File([rec.blob], rec.name, { type: "image/jpeg" }); }catch(e){}
+        if(file && navigator.canShare && navigator.canShare({ files: [file] })){
+          navigator.share({ files: [file] }).then(function(){
+            markSaved(rec); toast("已儲存到手機");
+          }).catch(function(err){
+            if(err && err.name !== "AbortError"){ downloadRec(rec); markSaved(rec); }
+          });
+        } else {
+          downloadRec(rec); markSaved(rec);
+          toast(isIOS ? "已下載，請到「檔案」App 查看" : "已儲存到手機");
+        }
+      });
+      $("shareBtn").addEventListener("click", function(){
+        var rec = getRec(state.currentId); if(!rec) return;
+        var file = null;
+        try{ file = new File([rec.blob], rec.name, { type: "image/jpeg" }); }catch(e){}
+        if(file && navigator.canShare && navigator.canShare({ files: [file] })){
+          navigator.share({ files: [file], text: rec.timeStr + " " + (rec.address || "") }).catch(function(){});
+        } else if(navigator.share){
+          navigator.share({ text: rec.timeStr + " " + (rec.address || "") }).catch(function(){});
+        } else {
+          downloadRec(rec); toast("這個瀏覽器不支援分享，已改為下載");
+        }
+      });
+
+      /* ---------- 本次拍攝清單 ---------- */
+      function renderGallery(){
+        var g = $("gallery"); g.innerHTML = "";
+        $("emptyNote").style.display = state.photos.length ? "none" : "block";
+        $("photoCount").textContent = state.photos.length ? "（共 " + state.photos.length + " 張）" : "";
+        state.photos.forEach(function(rec){
+          var b = document.createElement("button");
+          b.type = "button"; b.className = "g-item";
+          b.setAttribute("aria-label", "查看 " + rec.timeStr + " 拍的照片");
+          var img = document.createElement("img");
+          img.src = rec.url; img.alt = rec.timeStr + " 拍攝的照片";
+          var cap = document.createElement("div"); cap.className = "cap"; cap.textContent = rec.timeStr;
+          var st = document.createElement("div"); st.className = "st" + (rec.saved ? " ok" : "");
+          st.textContent = rec.saved ? "已儲存" : "尚未儲存";
+          b.appendChild(img); b.appendChild(cap); b.appendChild(st);
+          b.addEventListener("click", function(){ openPreview(rec, "view"); });
+          g.appendChild(b);
+        });
+      }
+      renderGallery();
+    })();
+    </script>
+  </body>
+</html>
