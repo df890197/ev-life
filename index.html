@@ -1133,7 +1133,18 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         /* ===== v370：汽車主題可愛 — 按壓彈跳＋進度條小車（車開在進度條上，朝保養前進） ===== */
         @keyframes cutePress { 0% { transform: scale(1); } 35% { transform: scale(0.9); } 65% { transform: scale(1.05); } 100% { transform: scale(1); } }
         .v92-save-btn:active, #tab-add:active, .charge-type-btn:active { animation: cutePress 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .cute-progress-car { position: absolute; top: 50%; transform: translate(-50%, -50%) scaleX(-1); font-size: 16px; line-height: 1; transition: left 1s ease-out; pointer-events: none; user-select: none; z-index: 2; }
+        .cute-progress-car { position: absolute; top: 50%; transform: translate(-50%, -50%) scaleX(-1); font-size: 16px; line-height: 1; transition: left 1s ease-out; pointer-events: auto; cursor: pointer; user-select: none; z-index: 2; }
+    </style>
+    <style id="v372-cute">
+        /* ===== v372：點小車（跳＋嗶嗶泡泡）＋英雄小車呼吸 ===== */
+        @keyframes carBoing { 0% { transform: translate(-50%, -50%) scaleX(-1) translateY(0); } 30% { transform: translate(-50%, -50%) scaleX(-1) translateY(-9px); } 60% { transform: translate(-50%, -50%) scaleX(-1) translateY(0) scale(1.12); } 100% { transform: translate(-50%, -50%) scaleX(-1) translateY(0); } }
+        .cute-progress-car.boing { animation: carBoing 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .cute-car-bubble { position: absolute; bottom: calc(100% + 8px); transform: translateX(-50%) translateY(4px); background: #3E3A39; color: #FFFCF6; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 999px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; z-index: 3; }
+        .cute-car-bubble.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        #heroScene .hs-car { animation: heroCarBob 3.2s ease-in-out infinite; }
+        @keyframes heroCarBob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -4px; } }
+        @media (prefers-reduced-motion: reduce) { #heroScene .hs-car { animation: none !important; } }
+        html.lite #heroScene .hs-car { animation: none !important; }
     </style>
     <style id="v180-hero">
         /* ===== v180：hero 無自訂照片時的繪本車場景（深色開燈／淺色關燈、背景跟著換） ===== */
@@ -1620,7 +1631,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                             <path class="hs-ground" d="M0 352 Q260 322 520 342 T800 336 V450 H0 Z"/>
                             <path class="hs-road" d="M0 394 Q300 372 800 386 V450 H0 Z"/>
                             <path class="hs-roadline" d="M0 420 Q300 400 800 412" fill="none" stroke-width="6" stroke-dasharray="28 22" stroke-linecap="round"/>
-                            <g transform="translate(238,262)">
+                            <g class="hs-car" transform="translate(238,262)">
                                 <polygon class="hs-beam" points="232,64 368,40 368,100" fill="url(#hsBeamGrad)"/>
                                 <circle class="hs-glow" cx="230" cy="64" r="20" fill="url(#hsGlowGrad)"/>
                                 <ellipse cx="122" cy="104" rx="122" ry="8" fill="rgba(0,0,0,.16)"/>
@@ -1808,7 +1819,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
             </button>
             <!-- v172：旅程封面圖說列依使用者要求移除 -->
 
-                <div class="v169-chap"><span class="no">1</span><h3>行駛總覽</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F2A497" stroke-width="3" stroke-linecap="round"/></svg></div>
+                <div class="v169-chap"><span class="no">1</span><h3>行駛總覽</h3><svg class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="#FB7185" aria-hidden="true"><path d="M12 2l2.9 6.2 6.6.8-4.9 4.6 1.3 6.6L12 17l-5.9 3.2 1.3-6.6L2.5 9l6.6-.8L12 2z"/></svg><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F2A497" stroke-width="3" stroke-linecap="round"/></svg></div>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 v169-tiles">
                     <div class="rpg-card bg-[#fffaf0] dark:bg-neutral-900 p-5 rounded-[2rem] border border-amber-200/70 dark:border-white/10 flex flex-col justify-between text-left h-full">
                         <div class="text-amber-500 mb-2 flex items-start justify-between">
@@ -1868,7 +1879,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                     環保基準: <span id="savingsBaseText">15 km/L, 30 $/L</span>
                 </div>
 
-                <div class="v169-chap"><span class="no">2</span><h3>你的電車日子</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F6D27A" stroke-width="3" stroke-linecap="round"/></svg></div>
+                <div class="v169-chap"><span class="no">2</span><h3>你的電車日子</h3><svg class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="#FBBF24" aria-hidden="true"><path d="M12 2l2.9 6.2 6.6.8-4.9 4.6 1.3 6.6L12 17l-5.9 3.2 1.3-6.6L2.5 9l6.6-.8L12 2z"/></svg><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F6D27A" stroke-width="3" stroke-linecap="round"/></svg></div>
                 <div class="v169-story v169-outer">
                     <div class="v169-story-head"><span class="v169-story-tt">🚗 相伴的故事</span><span style="flex:1"></span><span class="v169-chip" id="v169StoryChip">新手上路</span></div>
                     <p class="v169-story-narr" id="v169StoryNarrative">從每一次充電，慢慢看出你的電車生活形狀。</p>
@@ -1932,7 +1943,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                     </div>
                 </div>
 
-                <div class="v169-chap"><span class="no">3</span><h3>最近的足跡</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#A8D3E6" stroke-width="3" stroke-linecap="round"/></svg><button onclick="switchTab('records')" class="v169-more">看全部 →</button></div>
+                <div class="v169-chap"><span class="no">3</span><h3>最近的足跡</h3><svg class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="#38BDF8" aria-hidden="true"><path d="M12 2l2.9 6.2 6.6.8-4.9 4.6 1.3 6.6L12 17l-5.9 3.2 1.3-6.6L2.5 9l6.6-.8L12 2z"/></svg><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#A8D3E6" stroke-width="3" stroke-linecap="round"/></svg><button onclick="switchTab('records')" class="v169-more">看全部 →</button></div>
                 <div class="v169-tl" id="v169Timeline"></div>
                 <div class="v169-chap"><span class="no">4</span><h3>車輛保養</h3><svg class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="#38BDF8" aria-hidden="true"><path d="M12 2l2.9 6.2 6.6.8-4.9 4.6 1.3 6.6L12 17l-5.9 3.2 1.3-6.6L2.5 9l6.6-.8L12 2z"/></svg><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#B9DAA5" stroke-width="3" stroke-linecap="round"/></svg></div>
 <div class="mb-0">
@@ -1976,7 +1987,8 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
             <div class="w-full bg-stone-200/80 dark:bg-neutral-900 rounded-full h-2 overflow-hidden flex soc-progress-track">
                 <div id="maintProgressBar" class="bg-gradient-to-r from-indigo-500 to-cyan-400 h-2 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
             </div>
-            <span id="maintProgressCar" class="cute-progress-car" style="left: 0%">🚗</span>
+            <span id="maintProgressCar" class="cute-progress-car" style="left: 0%" onclick="boingCar('maint')">🚗<span class="text-[11px]">💨</span></span>
+            <span id="maintCarBubble" class="cute-car-bubble" style="left: 0%">嗶嗶！</span>
         </div>
     </div>
 
@@ -2002,7 +2014,8 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
             <div class="w-full bg-stone-200/80 dark:bg-neutral-900 rounded-full h-2 overflow-hidden flex soc-progress-track">
                 <div id="tireProgressBar" class="bg-gradient-to-r from-cyan-500 to-teal-400 h-2 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
             </div>
-            <span id="tireProgressCar" class="cute-progress-car" style="left: 0%">🚗</span>
+            <span id="tireProgressCar" class="cute-progress-car" style="left: 0%" onclick="boingCar('tire')">🚗<span class="text-[11px]">💨</span></span>
+            <span id="tireCarBubble" class="cute-car-bubble" style="left: 0%">嗶嗶！</span>
         </div>
     </div>
 
@@ -2028,6 +2041,18 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
             </div>
         </div>
         <span id="insuranceDaysRemainingBadge" class="text-[10px] font-extrabold px-2.5 py-1 rounded-2xl shadow-sm whitespace-nowrap"></span>
+    </div>
+
+    <!-- 5. 交車週年卡片（v372：設定交車日期後，週年前 30 天內顯示） -->
+    <div id="anniversaryAlertContainer" class="hidden flex items-center justify-between p-3.5 rounded-[2rem] bg-yellow-50/70 dark:bg-yellow-950/20 border border-yellow-200/60 dark:border-yellow-800/50 min-h-[72px]">
+        <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-3xl bg-yellow-100 dark:bg-yellow-900/40 text-yellow-600 dark:text-yellow-400 flex items-center justify-center text-xs shrink-0">🎂</span>
+            <div>
+                <div class="text-[10px] text-stone-400 font-bold"><span id="anniversaryYearsText">交車 1 週年</span></div>
+                <div id="anniversaryTargetDateStr" class="font-mono text-xs font-extrabold text-stone-800 dark:text-stone-200"></div>
+            </div>
+        </div>
+        <span id="anniversaryDaysRemainingBadge" class="text-[10px] font-extrabold px-2.5 py-1 rounded-2xl shadow-sm whitespace-nowrap"></span>
     </div>
 
 </div>
@@ -2070,10 +2095,10 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
             </div> <!-- 關閉 #homeStatsContainer (原本漏掉這個) -->
 
             <!-- 📦 版本與更新：滑到首頁最下面就能確認現在開的是哪個版本 -->
-            <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
+            <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="#F472B6" aria-hidden="true"><path d="M12 2l2.9 6.2 6.6.8-4.9 4.6 1.3 6.6L12 17l-5.9 3.2 1.3-6.6L2.5 9l6.6-.8L12 2z"/></svg><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v370</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v372</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2225,8 +2250,9 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
             <div id="monthFilterContainer" class="flex overflow-x-auto gap-2 no-scrollbar mb-4 pb-2 md:mb-6 md:gap-3"></div>
 
             <div id="noDataPlaceholder" class="hidden text-center py-16 text-stone-400 bg-white/50 dark:bg-neutral-900/50 rounded-[2rem] border border-dashed border-stone-200 dark:border-stone-700">
-                <div class="text-4xl md:text-5xl mb-2">📭</div>
+                <div class="text-4xl md:text-5xl mb-2">🚗💨</div>
                 <p class="text-xs md:text-sm font-bold">目前區間尚無紀錄喔！</p>
+                <p class="text-[11px] md:text-xs font-bold text-stone-300 dark:text-stone-600 mt-1">開車出門，足跡就會出現在這裡</p>
             </div>
 
             <!-- v106：目前月份浮動標籤（捲動時告知正在看哪個月） -->
@@ -2570,6 +2596,10 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                                     <input type="date" id="insuranceExpiryInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-stone-200 dark:border-stone-700 rounded-3xl text-xs md:text-sm font-bold text-left focus:outline-none focus:border-amber-400 appearance-none block">
                                 </div>
                                 <div>
+                                    <label class="text-[10px] md:text-xs font-bold text-stone-400 block mb-1 flex items-center gap-1"><span class="text-[12px]">🎂</span>交車日期 (選填)</label>
+                                    <input type="date" id="deliveryDateInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-stone-200 dark:border-stone-700 rounded-3xl text-xs md:text-sm font-bold text-left focus:outline-none focus:border-amber-400 appearance-none block">
+                                </div>
+                                <div>
     <label class="text-[10px] md:text-xs font-bold text-stone-400 block mb-1 flex items-center gap-1"><span class="text-[12px]">🏁</span>預計結清日 / 最後扣款 (選填)</label>
     <input type="date" id="loanPayoffDateInput" class="w-full px-3 py-2 bg-white dark:bg-black border border-stone-200 dark:border-stone-700 rounded-3xl text-xs md:text-sm font-bold text-left focus:outline-none focus:border-amber-400 appearance-none block">
 </div>
@@ -2646,7 +2676,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-[2rem] border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v370</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v372</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-3xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -3162,7 +3192,7 @@ document.addEventListener('visibilitychange', function () {
 
         const AppState = {
             records: [], evName: "LUXGEN n7", batteryCapacity: 57.7, initialOdometer: 0,
-            maintInterval: 20000, lastMaintOdo: 0, lastMaintDate: "", tireInterval: 10000, lastTireRotationOdo: 0, lastTireRotationDate: "", nextMaintDate: "", insuranceExpiryDate: "",
+            maintInterval: 20000, lastMaintOdo: 0, lastMaintDate: "", tireInterval: 10000, lastTireRotationOdo: 0, lastTireRotationDate: "", nextMaintDate: "", insuranceExpiryDate: "", deliveryDate: "",
             loanTotalMonths: 0, loanMonthlyPayment: 0,
             iceEfficiency: 15.0, gasPrice: 30.0, syncUrl: "", syncToken: "",
             editingRecordId: null, 
@@ -3199,7 +3229,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v370';
+        const APP_VERSION = 'v372';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -3243,14 +3273,14 @@ function cacheDOMNodes() {
      'tagInputArea', 'costLabel', 'startSocLabel', 'endSocLabel', 'recordMobileList', 'noDataPlaceholder', 'homeStatsContainer', 
      'onboardingCard', 'confirmModal', 'confirmModalContent', 'confirmModalTitle', 'confirmModalMessage', 'appSplashScreen', 
      'evNameInput', 'batteryCapacityInput', 'initialOdometerInput', 'maintIntervalInput', 'lastMaintOdoInput', 'lastMaintDateInput', 'iceEfficiencyInput', 
-     'tireIntervalInput', 'lastTireRotationOdoInput', 'lastTireRotationDateInput', 'tireIntervalText', 'tireRemainingText', 'tireNextOdoText', 'tireLastDateLine', 'tireProgressBar', 'tireProgressCar',
-     'gasPriceInput', 'nextMaintDateInput', 'insuranceExpiryInput', 
+     'tireIntervalInput', 'lastTireRotationOdoInput', 'lastTireRotationDateInput', 'tireIntervalText', 'tireRemainingText', 'tireNextOdoText', 'tireLastDateLine', 'tireProgressBar', 'tireProgressCar', 'tireCarBubble',
+     'gasPriceInput', 'nextMaintDateInput', 'insuranceExpiryInput', 'deliveryDateInput', 
      'loanTotalMonthsInput', 'loanMonthlyPaymentInput', 'loanStartDateInput', 'loanPayoffDateInput',
      'syncUrlInput', 'syncTokenInput', 'topEvName', 'heroEvName', 'formTitle', 'cancelEditBtn', 
      'recordForm', 'monthFilterContainer', 'monthFilterContainer_analysis', 'statTotalKm', 'statAvgEfficiency', 'statFuelSavings', 
-     'savingsBaseText', 'statCo2Savings', 'statTreesPlanted', 'maintIntervalText', 'maintRemainingText', 'maintNextOdoText', 'maintNextDateText', 'maintLastDateLine', 'maintProgressBar', 'maintProgressCar',
+     'savingsBaseText', 'statCo2Savings', 'statTreesPlanted', 'maintIntervalText', 'maintRemainingText', 'maintNextOdoText', 'maintNextDateText', 'maintLastDateLine', 'maintProgressBar', 'maintProgressCar', 'maintCarBubble',
      'maintDateAlertContainer', 'maintTargetDateStr', 'maintDaysRemainingBadge',
-     'insuranceDateAlertContainer', 'insuranceTargetDateStr', 'insuranceDaysRemainingBadge',
+     'insuranceDateAlertContainer', 'insuranceTargetDateStr', 'insuranceDaysRemainingBadge', 'anniversaryAlertContainer', 'anniversaryTargetDateStr', 'anniversaryYearsText', 'anniversaryDaysRemainingBadge',
      'loanDateAlertContainer', 'loanTargetDateStr', 'loanDaysRemainingBadge',
      'loanProgressContainer', 'loanMonthsProgressText', 'loanProgressBar', 'loanTotalPaidAmount', 'loanRemainingMonths',
      'efficiencyChart', 'costDistributionChart', 'tempEffChart', 'cpRankingList', 'analysisTotalKm', 'analysisSummaryLabel', 'analysisAvgEfficiency',
@@ -3496,6 +3526,8 @@ function cacheDOMNodes() {
             if (DOM.nextMaintDateInput) DOM.nextMaintDateInput.value = AppState.nextMaintDate;
             AppState.insuranceExpiryDate = localStorage.getItem('ev_life_insurance_date') || "";
             if (DOM.insuranceExpiryInput) DOM.insuranceExpiryInput.value = AppState.insuranceExpiryDate;
+            AppState.deliveryDate = localStorage.getItem('ev_life_delivery_date') || "";
+            if (DOM.deliveryDateInput) DOM.deliveryDateInput.value = AppState.deliveryDate;
 
             let storedLoanMonths = parseInt(localStorage.getItem('ev_life_loan_total_months'));
             AppState.loanTotalMonths = !isNaN(storedLoanMonths) ? storedLoanMonths : 0;
@@ -3556,8 +3588,9 @@ function cacheDOMNodes() {
             DOM.toastIcon.className = isError ? tileBase + ' bg-gradient-to-br from-rose-400 to-rose-600' : isSuccess ? tileBase + ' bg-gradient-to-br from-emerald-400 to-emerald-600' : tileBase + ' bg-gradient-to-br from-teal-400 to-teal-600';
             if (isLoading) { DOM.toastIcon.innerHTML = '<span class="toast-spinner"></span>'; }
             else if (isError) { DOM.toastIcon.textContent = "⚠️"; }
-            else if (isSuccess) { DOM.toastIcon.textContent = "✅"; DOM.toastIcon.classList.remove('v84-toast-check-pop'); void DOM.toastIcon.offsetWidth; DOM.toastIcon.classList.add('v84-toast-check-pop'); setTimeout(() => DOM.toastIcon.classList.remove('v84-toast-check-pop'), 400); }
+            else if (isSuccess) { DOM.toastIcon.textContent = "✅"; }
             else { DOM.toastIcon.textContent = "⚡"; }
+            DOM.toastIcon.classList.remove('v84-toast-check-pop'); void DOM.toastIcon.offsetWidth; DOM.toastIcon.classList.add('v84-toast-check-pop'); setTimeout(() => DOM.toastIcon.classList.remove('v84-toast-check-pop'), 400); // v371：每次通知圖示都彈一下（本來只有成功才彈）
             const colorClasses = isError ? 'bg-rose-500/90 backdrop-blur-xl saturate-150 text-white border-white/25' : isSuccess ? 'bg-emerald-50/90 dark:bg-emerald-950/90 backdrop-blur-xl saturate-150 text-emerald-900 dark:text-emerald-100 border-emerald-200/70 dark:border-emerald-800/60' : 'bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl saturate-150 text-stone-900 dark:text-white border-white/40 dark:border-white/30';
 
             // v256：進場改走 CSS（取代 WAAPI）— v255 實機證明強制重排也救不回 WAAPI 進場（啟動同步通知 3.2 秒無、3.3 秒全顯示、無中間幀，仍是跳出）；退場 WAAPI 本來就有動畫、維持不動。CSS 過渡是分頁／pill 動畫同一路（實機看得見）。做法：先設初始態（偏上 64px／縮 0.95／透明／隱藏）→ 強制重排提交 → 雙 rAF 後設最終態，transition-all 400ms＋easeOutCubic 滑順掉下來（v258：曲線改 (0.33,1,0.68,1)＋時間 300→400ms，使用者說順還可以更順）；lite／減少動態直接設最終態（沿用舊的 class 過渡，不跑 WAAPI）。
@@ -5595,8 +5628,31 @@ window.setupSocSliders = function() {
             }
         }
 
+            // v372：點小車 → 跳一下＋嗶嗶泡泡（每台車各自計時，互不干擾）
+            window.boingCar = function(which) {
+                const car = DOM[which === 'maint' ? 'maintProgressCar' : 'tireProgressCar'];
+                const bubble = DOM[which === 'maint' ? 'maintCarBubble' : 'tireCarBubble'];
+                if (!car) return;
+                car.classList.remove('boing'); void car.offsetWidth; car.classList.add('boing');
+                setTimeout(() => car.classList.remove('boing'), 550);
+                if (bubble) {
+                    bubble.classList.add('show');
+                    clearTimeout(bubble._hideTimer);
+                    bubble._hideTimer = setTimeout(() => bubble.classList.remove('show'), 1100);
+                }
+            };
+
             function updateStats(km, eff, cost, maintCost, baseOdo, fuelSavings, co2Savings, treesPlanted, remMaint, progMaint, loanPaidCount = 0, loanPaidTotalAmount = 0, remTire = 0, progTire = 0) {
             try { if (typeof window.renderV169Home === 'function') window.renderV169Home(); } catch (e) {} // v169：首頁繪本區（故事/足跡/月電耗）跟著統計一起刷新
+            // v372：總里程里程碑 15,000 km 彩帶（只放一次；先放再記旗標，萬一函式還沒備好下次還會再試）
+            try {
+                const totalKm372 = km + baseOdo;
+                if (totalKm372 >= 15000 && !localStorage.getItem('ev_life_milestone_15000')) {
+                    if (typeof window.fx160Confetti === 'function' && DOM.statTotalKm) window.fx160Confetti(DOM.statTotalKm);
+                    if (typeof window.showToast === 'function') window.showToast('🎉 總里程突破 15,000 公里！');
+                    localStorage.setItem('ev_life_milestone_15000', '1');
+                }
+            } catch (e) {}
             if(DOM.statTotalKm) DOM.statTotalKm.textContent = (km + baseOdo).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 1});
             if(DOM.statAvgEfficiency) DOM.statAvgEfficiency.textContent = eff.toFixed(2);
 
@@ -5631,6 +5687,7 @@ window.setupSocSliders = function() {
                 }
                 if(DOM.maintProgressBar) DOM.maintProgressBar.style.width = `${Math.min(100, progMaint)}%`;
                 if(DOM.maintProgressCar) DOM.maintProgressCar.style.left = `${Math.min(100, progMaint)}%`;
+                if(DOM.maintCarBubble) DOM.maintCarBubble.style.left = `${Math.min(92, Math.max(8, progMaint))}%`;
                 updateProgressStyle(DOM.maintRemainingText, DOM.maintProgressBar, remMaint);
             }
 
@@ -5649,6 +5706,7 @@ window.setupSocSliders = function() {
                 }
                 if(DOM.tireProgressBar) DOM.tireProgressBar.style.width = `${Math.min(100, progTire)}%`;
                 if(DOM.tireProgressCar) DOM.tireProgressCar.style.left = `${Math.min(100, progTire)}%`;
+                if(DOM.tireCarBubble) DOM.tireCarBubble.style.left = `${Math.min(92, Math.max(8, progTire))}%`;
                 updateProgressStyle(DOM.tireRemainingText, DOM.tireProgressBar, remTire);
             }
 
@@ -5681,6 +5739,33 @@ window.setupSocSliders = function() {
             setupAlert(AppState.nextMaintDate, DOM.maintDateAlertContainer, DOM.maintTargetDateStr, DOM.maintDaysRemainingBadge);
             setupAlert(AppState.insuranceExpiryDate, DOM.insuranceDateAlertContainer, DOM.insuranceTargetDateStr, DOM.insuranceDaysRemainingBadge);
             setupAlert(AppState.loanPayoffDate, DOM.loanDateAlertContainer, DOM.loanTargetDateStr, DOM.loanDaysRemainingBadge);
+
+            // v372：交車週年（設定交車日期後，週年前 30 天內顯示）
+            if (DOM.anniversaryAlertContainer) {
+                if (AppState.deliveryDate) {
+                    const d372 = new Date(AppState.deliveryDate + 'T00:00:00');
+                    const now372 = new Date(); now372.setHours(0, 0, 0, 0);
+                    const next372 = new Date(d372); next372.setFullYear(now372.getFullYear());
+                    if (next372 < now372) next372.setFullYear(now372.getFullYear() + 1);
+                    const days372 = Math.round((next372 - now372) / 86400000);
+                    const years372 = next372.getFullYear() - d372.getFullYear();
+                    if (days372 <= 30) {
+                        DOM.anniversaryAlertContainer.classList.remove('hidden');
+                        if (DOM.anniversaryYearsText) DOM.anniversaryYearsText.textContent = `交車 ${years372} 週年`;
+                        if (DOM.anniversaryTargetDateStr) DOM.anniversaryTargetDateStr.textContent = `${next372.getFullYear()}/${String(next372.getMonth() + 1).padStart(2, '0')}/${String(next372.getDate()).padStart(2, '0')}`;
+                        if (DOM.anniversaryDaysRemainingBadge) {
+                            const b372 = DOM.anniversaryDaysRemainingBadge;
+                            const base372 = "text-[10px] md:text-xs font-extrabold px-2 md:px-3 py-0.5 md:py-1 rounded-xl shadow-sm border ";
+                            if (days372 === 0) { b372.textContent = '就是今天！'; b372.className = base372 + "bg-rose-500 text-white border-rose-600"; }
+                            else { b372.textContent = `再 ${days372} 天`; b372.className = base372 + "bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-400 border-amber-200 dark:border-amber-800"; }
+                        }
+                    } else {
+                        DOM.anniversaryAlertContainer.classList.add('hidden');
+                    }
+                } else {
+                    DOM.anniversaryAlertContainer.classList.add('hidden');
+                }
+            }
 
             // 更新車貸還款進度 UI
             if (DOM.loanProgressContainer) {
@@ -6568,6 +6653,7 @@ window.setupSocSliders = function() {
             AppState.lastTireRotationDate = DOM.lastTireRotationDateInput?.value || ""; localStorage.setItem('ev_life_last_tire_date', AppState.lastTireRotationDate);
             AppState.nextMaintDate = DOM.nextMaintDateInput?.value || ""; localStorage.setItem('ev_life_next_maint_date', AppState.nextMaintDate);
             AppState.insuranceExpiryDate = DOM.insuranceExpiryInput?.value || ""; localStorage.setItem('ev_life_insurance_date', AppState.insuranceExpiryDate);
+            AppState.deliveryDate = DOM.deliveryDateInput?.value || ""; localStorage.setItem('ev_life_delivery_date', AppState.deliveryDate);
             
             AppState.loanTotalMonths = parseInt(DOM.loanTotalMonthsInput?.value) || 0; localStorage.setItem('ev_life_loan_total_months', AppState.loanTotalMonths);
             AppState.loanMonthlyPayment = parseInt(DOM.loanMonthlyPaymentInput?.value) || 0; localStorage.setItem('ev_life_loan_monthly_payment', AppState.loanMonthlyPayment);
@@ -6609,10 +6695,10 @@ window.setupSocSliders = function() {
         // v361: content signature of the car config — auto-sync must pull config even when records are unchanged
         function configSigV357(cfg) {
             if (!cfg) return '';
-            return [cfg.evName || '', cfg.batteryCapacity ?? '', cfg.initialOdometer ?? '', cfg.maintInterval ?? '', cfg.lastMaintOdo ?? '', cfg.lastMaintDate || '', cfg.tireInterval ?? '', cfg.lastTireRotationOdo ?? '', cfg.lastTireRotationDate || '', cfg.nextMaintDate || '', cfg.insuranceExpiryDate || '', cfg.loanTotalMonths ?? '', cfg.loanMonthlyPayment ?? '', cfg.loanStartDate || '', cfg.loanPayoffDate || '', cfg.iceEfficiency ?? '', cfg.gasPrice ?? ''].join('|');
+            return [cfg.evName || '', cfg.batteryCapacity ?? '', cfg.initialOdometer ?? '', cfg.maintInterval ?? '', cfg.lastMaintOdo ?? '', cfg.lastMaintDate || '', cfg.tireInterval ?? '', cfg.lastTireRotationOdo ?? '', cfg.lastTireRotationDate || '', cfg.nextMaintDate || '', cfg.insuranceExpiryDate || '', cfg.deliveryDate || '', cfg.loanTotalMonths ?? '', cfg.loanMonthlyPayment ?? '', cfg.loanStartDate || '', cfg.loanPayoffDate || '', cfg.iceEfficiency ?? '', cfg.gasPrice ?? ''].join('|');
         }
         function localConfigSigV357() {
-            return configSigV357({ evName: AppState.evName, batteryCapacity: AppState.batteryCapacity, initialOdometer: AppState.initialOdometer, maintInterval: AppState.maintInterval, lastMaintOdo: AppState.lastMaintOdo, lastMaintDate: AppState.lastMaintDate, tireInterval: AppState.tireInterval, lastTireRotationOdo: AppState.lastTireRotationOdo, lastTireRotationDate: AppState.lastTireRotationDate, nextMaintDate: AppState.nextMaintDate, insuranceExpiryDate: AppState.insuranceExpiryDate, loanTotalMonths: AppState.loanTotalMonths, loanMonthlyPayment: AppState.loanMonthlyPayment, loanStartDate: AppState.loanStartDate, loanPayoffDate: AppState.loanPayoffDate, iceEfficiency: AppState.iceEfficiency, gasPrice: AppState.gasPrice });
+            return configSigV357({ evName: AppState.evName, batteryCapacity: AppState.batteryCapacity, initialOdometer: AppState.initialOdometer, maintInterval: AppState.maintInterval, lastMaintOdo: AppState.lastMaintOdo, lastMaintDate: AppState.lastMaintDate, tireInterval: AppState.tireInterval, lastTireRotationOdo: AppState.lastTireRotationOdo, lastTireRotationDate: AppState.lastTireRotationDate, nextMaintDate: AppState.nextMaintDate, insuranceExpiryDate: AppState.insuranceExpiryDate, deliveryDate: AppState.deliveryDate, loanTotalMonths: AppState.loanTotalMonths, loanMonthlyPayment: AppState.loanMonthlyPayment, loanStartDate: AppState.loanStartDate, loanPayoffDate: AppState.loanPayoffDate, iceEfficiency: AppState.iceEfficiency, gasPrice: AppState.gasPrice });
         }
 
 window.syncWithCloud = async function(mode = 'auto', isSilent = false) {
@@ -6634,7 +6720,7 @@ window.syncWithCloud = async function(mode = 'auto', isSilent = false) {
                         id: "CONFIG_METADATA", date: "", chargeType: "", distance: 0, power: 0, cost: 0, 
                         note: JSON.stringify({ 
                             evName: AppState.evName, batteryCapacity: AppState.batteryCapacity, initialOdometer: AppState.initialOdometer, 
-                            maintInterval: AppState.maintInterval, lastMaintOdo: AppState.lastMaintOdo, lastMaintDate: AppState.lastMaintDate, tireInterval: AppState.tireInterval, lastTireRotationOdo: AppState.lastTireRotationOdo, lastTireRotationDate: AppState.lastTireRotationDate, nextMaintDate: AppState.nextMaintDate, insuranceExpiryDate: AppState.insuranceExpiryDate, 
+                            maintInterval: AppState.maintInterval, lastMaintOdo: AppState.lastMaintOdo, lastMaintDate: AppState.lastMaintDate, tireInterval: AppState.tireInterval, lastTireRotationOdo: AppState.lastTireRotationOdo, lastTireRotationDate: AppState.lastTireRotationDate, nextMaintDate: AppState.nextMaintDate, insuranceExpiryDate: AppState.insuranceExpiryDate, deliveryDate: AppState.deliveryDate, 
                             loanTotalMonths: AppState.loanTotalMonths, loanMonthlyPayment: AppState.loanMonthlyPayment,
                             loanStartDate: AppState.loanStartDate, loanPayoffDate: AppState.loanPayoffDate,
                             iceEfficiency: AppState.iceEfficiency, gasPrice: AppState.gasPrice 
@@ -6697,6 +6783,7 @@ window.syncWithCloud = async function(mode = 'auto', isSilent = false) {
                         if (cloudConfig.lastTireRotationDate !== undefined) { AppState.lastTireRotationDate = cloudConfig.lastTireRotationDate; localStorage.setItem('ev_life_last_tire_date', AppState.lastTireRotationDate); if (DOM.lastTireRotationDateInput) DOM.lastTireRotationDateInput.value = AppState.lastTireRotationDate; }
                         if (cloudConfig.nextMaintDate !== undefined) { AppState.nextMaintDate = cloudConfig.nextMaintDate; localStorage.setItem('ev_life_next_maint_date', AppState.nextMaintDate); }
                         if (cloudConfig.insuranceExpiryDate !== undefined) { AppState.insuranceExpiryDate = cloudConfig.insuranceExpiryDate; localStorage.setItem('ev_life_insurance_date', AppState.insuranceExpiryDate); }
+                        if (cloudConfig.deliveryDate !== undefined) { AppState.deliveryDate = cloudConfig.deliveryDate; localStorage.setItem('ev_life_delivery_date', AppState.deliveryDate); if (DOM.deliveryDateInput) DOM.deliveryDateInput.value = AppState.deliveryDate; }
                         
                         if (cloudConfig.loanTotalMonths !== undefined) { AppState.loanTotalMonths = parseInt(cloudConfig.loanTotalMonths, 10) || 0; localStorage.setItem('ev_life_loan_total_months', AppState.loanTotalMonths); }
                         if (cloudConfig.loanMonthlyPayment !== undefined) { AppState.loanMonthlyPayment = parseInt(cloudConfig.loanMonthlyPayment, 10) || 0; localStorage.setItem('ev_life_loan_monthly_payment', AppState.loanMonthlyPayment); }
@@ -6715,6 +6802,7 @@ window.syncWithCloud = async function(mode = 'auto', isSilent = false) {
                         if (DOM.lastMaintDateInput) DOM.lastMaintDateInput.value = AppState.lastMaintDate;
                         if (DOM.nextMaintDateInput) DOM.nextMaintDateInput.value = AppState.nextMaintDate;
                         if (DOM.insuranceExpiryInput) DOM.insuranceExpiryInput.value = AppState.insuranceExpiryDate;
+                        if (DOM.deliveryDateInput) DOM.deliveryDateInput.value = AppState.deliveryDate;
                         if (DOM.loanTotalMonthsInput) DOM.loanTotalMonthsInput.value = AppState.loanTotalMonths || "";
                         if (DOM.loanMonthlyPaymentInput) DOM.loanMonthlyPaymentInput.value = AppState.loanMonthlyPayment || "";
                         if (DOM.loanStartDateInput) DOM.loanStartDateInput.value = AppState.loanStartDate || "";
