@@ -1146,6 +1146,10 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         @media (prefers-reduced-motion: reduce) { #heroScene .hs-car { animation: none !important; } }
         html.lite #heroScene .hs-car { animation: none !important; }
     </style>
+    <style id="v373-text">
+        /* ===== v373：分析頁站名斷行（長站名不斷在字中間；沿用 v343 keep-all＋break-word 做法） ===== */
+        .v373-station-name { word-break: keep-all; }
+    </style>
     <style id="v180-hero">
         /* ===== v180：hero 無自訂照片時的繪本車場景（深色開燈／淺色關燈、背景跟著換） ===== */
         #heroScene .hs-sky { fill: #D8EEF8; }
@@ -2098,7 +2102,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="#F472B6" aria-hidden="true"><path d="M12 2l2.9 6.2 6.6.8-4.9 4.6 1.3 6.6L12 17l-5.9 3.2 1.3-6.6L2.5 9l6.6-.8L12 2z"/></svg><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v372</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v373</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2401,8 +2405,8 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
 
                 <!-- v101：每月月報（本月 vs 上月） -->
                 <div class="mb-6 bg-stone-50 dark:bg-neutral-900/50 p-4 md:p-5 rounded-[2rem] border border-stone-100 dark:border-stone-700/50">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-sm md:text-base font-extrabold text-stone-700 dark:text-stone-200 flex items-center gap-2"><span class="bg-teal-100 dark:bg-teal-900/30 text-teal-600 w-6 h-6 md:w-8 md:h-8 rounded-2xl flex items-center justify-center text-[10px] md:text-sm">📅</span> 每月月報 <span id="monthlyReportMonth" class="text-[10px] md:text-xs text-stone-400 font-bold"></span></h3>
+                    <div class="flex items-center justify-between flex-wrap gap-x-3 gap-y-1 mb-3">
+                        <h3 class="text-sm md:text-base font-extrabold text-stone-700 dark:text-stone-200 flex items-center gap-2 whitespace-nowrap"><span class="bg-teal-100 dark:bg-teal-900/30 text-teal-600 w-6 h-6 md:w-8 md:h-8 rounded-2xl flex items-center justify-center text-[10px] md:text-sm">📅</span> 每月月報 <span id="monthlyReportMonth" class="text-[10px] md:text-xs text-stone-400 font-bold"></span></h3>
                         <span class="text-[10px] text-stone-400 font-bold">固定本月 vs 上月（與上方月份篩選無關）</span>
                     </div>
                     <div id="monthlyReport" class="grid grid-cols-2 sm:grid-cols-5 gap-2.5"></div>
@@ -2676,7 +2680,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-[2rem] border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v372</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v373</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-3xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -3229,7 +3233,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v372';
+        const APP_VERSION = 'v373';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -4104,7 +4108,7 @@ function cacheDOMNodes() {
                     });
                     const arr = Object.keys(st).map(tag => ({ tag, count: st[tag].count, power: st[tag].power, last: st[tag].last })).sort((a, b) => (b.count - a.count) || (b.power - a.power)).slice(0, 5);
                     if (!arr.length) fs.innerHTML = '<div class="text-xs text-stone-400 text-center py-4 bg-stone-50 dark:bg-neutral-900/30 rounded-3xl border border-dashed border-stone-200 dark:border-stone-700 md:col-span-2"><span class="v106-empty-icon">⚡</span>區間內尚無有站點名稱的充電紀錄</div>';
-                    else fs.innerHTML = arr.map((item, i) => '<div class="flex justify-between items-start gap-3 text-[11px] md:text-sm p-3 md:p-4 bg-stone-50 dark:bg-neutral-900/50 rounded-3xl border border-stone-100 dark:border-stone-700/50"><span class="font-bold flex items-start gap-2 min-w-0 flex-1 text-stone-700 dark:text-stone-200"><span class="' + (i < 3 ? 'text-teal-500' : 'text-stone-400') + ' font-extrabold w-3 md:w-4 text-center flex-shrink-0">' + (i + 1) + '</span><span class="min-w-0 flex-1 break-words leading-snug">' + escapeHTML(item.tag) + '</span></span><span class="flex-shrink-0 text-right"><span class="font-mono font-extrabold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 px-2 py-0.5 md:py-1 rounded-lg shadow-sm inline-block">' + item.count + ' 次</span><span class="block text-[9px] font-bold text-stone-400 mt-1">累計 ' + item.power.toFixed(1) + ' 度' + (item.last ? ' · 最近 ' + item.last : '') + '</span></span></div>').join('');
+                    else fs.innerHTML = arr.map((item, i) => '<div class="flex justify-between items-start gap-3 text-[11px] md:text-sm p-3 md:p-4 bg-stone-50 dark:bg-neutral-900/50 rounded-3xl border border-stone-100 dark:border-stone-700/50"><span class="font-bold flex items-start gap-2 min-w-0 flex-1 text-stone-700 dark:text-stone-200"><span class="' + (i < 3 ? 'text-teal-500' : 'text-stone-400') + ' font-extrabold w-3 md:w-4 text-center flex-shrink-0">' + (i + 1) + '</span><span class="min-w-0 flex-1 break-words v373-station-name leading-snug">' + escapeHTML(item.tag) + '</span></span><span class="flex-shrink-0 text-right"><span class="font-mono font-extrabold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 px-2 py-0.5 md:py-1 rounded-lg shadow-sm inline-block">' + item.count + ' 次</span><span class="block text-[9px] font-bold text-stone-400 mt-1">累計 ' + item.power.toFixed(1) + ' 度' + (item.last ? ' · 最近 ' + item.last : '') + '</span></span></div>').join('');
                 }
             } catch (e) {}
         };
@@ -4245,7 +4249,7 @@ function cacheDOMNodes() {
                         sc.innerHTML = (allFree ? '<div class="text-[11px] md:text-sm font-extrabold text-teal-600 dark:text-teal-400 p-3 bg-teal-50 dark:bg-teal-950/30 rounded-3xl border border-teal-100 dark:border-teal-900/40 mb-1">🎉 至今充電全部免費，以下依充電次數排序</div>' : '') + arr.map((g, i) => {
                             const share = allFree ? Math.round(g.count / denom * 100) : (totalCostAll > 0 ? Math.round(g.cost / totalCostAll * 100) : 0);
                             const barW = allFree ? Math.round(g.count / denom * 100) : share;
-                            return '<div class="flex items-center gap-3 text-[11px] md:text-sm p-3 bg-stone-50 dark:bg-neutral-900/50 rounded-3xl border border-stone-100 dark:border-stone-700/50"><span class="font-extrabold w-4 text-center shrink-0 ' + (i < 3 ? 'text-rose-500' : 'text-stone-400') + '">' + (i + 1) + '</span><span class="font-bold w-28 md:w-40 shrink-0 truncate text-stone-700 dark:text-stone-200" title="' + escapeHTML(g.tag) + '">' + escapeHTML(g.tag) + '</span><div class="flex-1 h-2 rounded-full bg-stone-200/70 dark:bg-neutral-800 overflow-hidden"><div class="h-full rounded-full bg-rose-400" style="width:' + barW + '%"></div></div><span class="font-mono font-extrabold text-stone-800 dark:text-white w-20 text-right shrink-0">$' + Math.round(g.cost).toLocaleString() + '</span><span class="text-[10px] font-bold text-stone-400 w-24 text-right shrink-0">' + (allFree ? g.count + ' 次' : share + '% · ' + g.count + ' 次') + '<br>' + g.kwh.toFixed(1) + ' 度</span></div>';
+                            return '<div class="p-3 bg-stone-50 dark:bg-neutral-900/50 rounded-3xl border border-stone-100 dark:border-stone-700/50"><div class="flex items-center gap-3 text-[11px] md:text-sm"><span class="font-extrabold w-4 text-center shrink-0 ' + (i < 3 ? 'text-rose-500' : 'text-stone-400') + '">' + (i + 1) + '</span><span class="font-bold min-w-0 flex-1 break-words v373-station-name leading-snug text-stone-700 dark:text-stone-200">' + escapeHTML(g.tag) + '</span><span class="font-mono font-extrabold text-stone-800 dark:text-white shrink-0">$' + Math.round(g.cost).toLocaleString() + '</span></div><div class="flex items-center gap-3 mt-2 pl-7"><div class="flex-1 h-2 rounded-full bg-stone-200/70 dark:bg-neutral-800 overflow-hidden"><div class="h-full rounded-full bg-rose-400" style="width:' + barW + '%"></div></div><span class="text-[10px] font-bold text-stone-400 shrink-0">' + (allFree ? g.count + ' 次' : share + '% · ' + g.count + ' 次') + ' · ' + g.kwh.toFixed(1) + ' 度</span></div></div>';
                         }).join('');
                     }
                 }
@@ -6164,7 +6168,7 @@ window.setupSocSliders = function() {
                 else {
                     DOM.cpRankingList.innerHTML = cpArr.map((item, i) => `
                         <div class="flex justify-between items-start gap-3 text-[11px] md:text-sm p-3 md:p-4 bg-stone-50 dark:bg-neutral-900/50 rounded-3xl border border-stone-100 dark:border-stone-700/50 hover:bg-stone-100 dark:hover:bg-neutral-800 transition">
-                            <span class="font-bold flex items-start gap-2 min-w-0 flex-1 text-stone-700 dark:text-stone-200"><span class="${i<3?'text-amber-500':'text-stone-400'} font-extrabold w-3 md:w-4 text-center flex-shrink-0">${i+1}</span><span class="min-w-0 flex-1 break-words leading-snug">${escapeHTML(item.tag)}</span></span>
+                            <span class="font-bold flex items-start gap-2 min-w-0 flex-1 text-stone-700 dark:text-stone-200"><span class="${i<3?'text-amber-500':'text-stone-400'} font-extrabold w-3 md:w-4 text-center flex-shrink-0">${i+1}</span><span class="min-w-0 flex-1 break-words v373-station-name leading-snug">${escapeHTML(item.tag)}</span></span>
                             <span class="flex-shrink-0 font-mono font-extrabold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 px-2 py-0.5 md:py-1 rounded-lg shadow-sm">$${item.cp.toFixed(1)} <span class="text-[9px] md:text-[10px] font-bold">/度</span></span>
                         </div>
                     `).join('');
