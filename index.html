@@ -1129,6 +1129,12 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         html.dark nav.v81-snap-bar .v81-sep { background: rgba(190,205,230,.12) !important; }
         html.dark nav.v81-snap-bar #tab-add.v81-snap-btn { background: linear-gradient(180deg, #A9BDD8, #7E93B8) !important; color: #10151F !important; box-shadow: 0 0 10px rgba(143,168,200,.25), 0 4px 10px rgba(0,0,0,.4) !important; /* v182：光暈縮小 */ } /* v181：＋鈕改霧鋼藍漸層 */
     </style>
+    <style id="v370-cute">
+        /* ===== v370：汽車主題可愛 — 按壓彈跳＋進度條小車（車開在進度條上，朝保養前進） ===== */
+        @keyframes cutePress { 0% { transform: scale(1); } 35% { transform: scale(0.9); } 65% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        .v92-save-btn:active, #tab-add:active, .charge-type-btn:active { animation: cutePress 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .cute-progress-car { position: absolute; top: 50%; transform: translate(-50%, -50%) scaleX(-1); font-size: 16px; line-height: 1; transition: left 1s ease-out; pointer-events: none; user-select: none; z-index: 2; }
+    </style>
     <style id="v180-hero">
         /* ===== v180：hero 無自訂照片時的繪本車場景（深色開燈／淺色關燈、背景跟著換） ===== */
         #heroScene .hs-sky { fill: #D8EEF8; }
@@ -1928,7 +1934,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
 
                 <div class="v169-chap"><span class="no">3</span><h3>最近的足跡</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#A8D3E6" stroke-width="3" stroke-linecap="round"/></svg><button onclick="switchTab('records')" class="v169-more">看全部 →</button></div>
                 <div class="v169-tl" id="v169Timeline"></div>
-                <div class="v169-chap"><span class="no">4</span><h3>車輛保養</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#B9DAA5" stroke-width="3" stroke-linecap="round"/></svg></div>
+                <div class="v169-chap"><span class="no">4</span><h3>車輛保養</h3><svg class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="#38BDF8" aria-hidden="true"><path d="M12 2l2.9 6.2 6.6.8-4.9 4.6 1.3 6.6L12 17l-5.9 3.2 1.3-6.6L2.5 9l6.6-.8L12 2z"/></svg><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#B9DAA5" stroke-width="3" stroke-linecap="round"/></svg></div>
 <div class="mb-0">
                     <!-- 🔧 車輛保養、維護與財務總覽 (HUD 模組化升級版) -->
                     <div class="rpg-card bg-white dark:bg-neutral-900/90 p-5 md:p-6 rounded-[2rem] border border-stone-200/80 dark:border-stone-800 shadow-sm space-y-4">
@@ -1966,8 +1972,11 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                 <span class="text-[10px] text-stone-400 font-bold font-mono"> km</span>
             </div>
         </div>
-        <div class="w-full bg-stone-200/80 dark:bg-neutral-900 rounded-full h-2 overflow-hidden flex soc-progress-track mt-2">
-            <div id="maintProgressBar" class="bg-gradient-to-r from-indigo-500 to-cyan-400 h-2 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+        <div class="relative mt-2">
+            <div class="w-full bg-stone-200/80 dark:bg-neutral-900 rounded-full h-2 overflow-hidden flex soc-progress-track">
+                <div id="maintProgressBar" class="bg-gradient-to-r from-indigo-500 to-cyan-400 h-2 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+            </div>
+            <span id="maintProgressCar" class="cute-progress-car" style="left: 0%">🚗</span>
         </div>
     </div>
 
@@ -1989,8 +1998,11 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                 <span class="text-[10px] text-stone-400 font-bold font-mono"> km</span>
             </div>
         </div>
-        <div class="w-full bg-stone-200/80 dark:bg-neutral-900 rounded-full h-2 overflow-hidden flex soc-progress-track mt-2">
-            <div id="tireProgressBar" class="bg-gradient-to-r from-cyan-500 to-teal-400 h-2 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+        <div class="relative mt-2">
+            <div class="w-full bg-stone-200/80 dark:bg-neutral-900 rounded-full h-2 overflow-hidden flex soc-progress-track">
+                <div id="tireProgressBar" class="bg-gradient-to-r from-cyan-500 to-teal-400 h-2 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+            </div>
+            <span id="tireProgressCar" class="cute-progress-car" style="left: 0%">🚗</span>
         </div>
     </div>
 
@@ -2061,7 +2073,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v369</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v370</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2634,7 +2646,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-[2rem] border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v369</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v370</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-3xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -3187,7 +3199,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v369';
+        const APP_VERSION = 'v370';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -3231,12 +3243,12 @@ function cacheDOMNodes() {
      'tagInputArea', 'costLabel', 'startSocLabel', 'endSocLabel', 'recordMobileList', 'noDataPlaceholder', 'homeStatsContainer', 
      'onboardingCard', 'confirmModal', 'confirmModalContent', 'confirmModalTitle', 'confirmModalMessage', 'appSplashScreen', 
      'evNameInput', 'batteryCapacityInput', 'initialOdometerInput', 'maintIntervalInput', 'lastMaintOdoInput', 'lastMaintDateInput', 'iceEfficiencyInput', 
-     'tireIntervalInput', 'lastTireRotationOdoInput', 'lastTireRotationDateInput', 'tireIntervalText', 'tireRemainingText', 'tireNextOdoText', 'tireLastDateLine', 'tireProgressBar',
+     'tireIntervalInput', 'lastTireRotationOdoInput', 'lastTireRotationDateInput', 'tireIntervalText', 'tireRemainingText', 'tireNextOdoText', 'tireLastDateLine', 'tireProgressBar', 'tireProgressCar',
      'gasPriceInput', 'nextMaintDateInput', 'insuranceExpiryInput', 
      'loanTotalMonthsInput', 'loanMonthlyPaymentInput', 'loanStartDateInput', 'loanPayoffDateInput',
      'syncUrlInput', 'syncTokenInput', 'topEvName', 'heroEvName', 'formTitle', 'cancelEditBtn', 
      'recordForm', 'monthFilterContainer', 'monthFilterContainer_analysis', 'statTotalKm', 'statAvgEfficiency', 'statFuelSavings', 
-     'savingsBaseText', 'statCo2Savings', 'statTreesPlanted', 'maintIntervalText', 'maintRemainingText', 'maintNextOdoText', 'maintNextDateText', 'maintLastDateLine', 'maintProgressBar',
+     'savingsBaseText', 'statCo2Savings', 'statTreesPlanted', 'maintIntervalText', 'maintRemainingText', 'maintNextOdoText', 'maintNextDateText', 'maintLastDateLine', 'maintProgressBar', 'maintProgressCar',
      'maintDateAlertContainer', 'maintTargetDateStr', 'maintDaysRemainingBadge',
      'insuranceDateAlertContainer', 'insuranceTargetDateStr', 'insuranceDaysRemainingBadge',
      'loanDateAlertContainer', 'loanTargetDateStr', 'loanDaysRemainingBadge',
@@ -5618,6 +5630,7 @@ window.setupSocSliders = function() {
                     }
                 }
                 if(DOM.maintProgressBar) DOM.maintProgressBar.style.width = `${Math.min(100, progMaint)}%`;
+                if(DOM.maintProgressCar) DOM.maintProgressCar.style.left = `${Math.min(100, progMaint)}%`;
                 updateProgressStyle(DOM.maintRemainingText, DOM.maintProgressBar, remMaint);
             }
 
@@ -5635,6 +5648,7 @@ window.setupSocSliders = function() {
                     }
                 }
                 if(DOM.tireProgressBar) DOM.tireProgressBar.style.width = `${Math.min(100, progTire)}%`;
+                if(DOM.tireProgressCar) DOM.tireProgressCar.style.left = `${Math.min(100, progTire)}%`;
                 updateProgressStyle(DOM.tireRemainingText, DOM.tireProgressBar, remTire);
             }
 
