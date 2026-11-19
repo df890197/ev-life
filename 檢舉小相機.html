@@ -163,15 +163,7 @@
       .vf-error h3{ margin:0; font-size:18px; }
       .vf-error p{ margin:0; color:var(--cam-ink-2); font-size:14px; max-width:320px; }
 
-      /* ---------- 備註 + 快門 ---------- */
-      .note-row{ padding:12px 14px 0; }
-      .note-row input{
-        width:100%; border:1.5px solid #33373b; background:var(--cam-panel);
-        color:var(--cam-ink); border-radius:10px; padding:11px 13px;
-        font-size:15.5px; font-family:inherit; outline:none;
-      }
-      .note-row input::placeholder{ color:#7d848b; }
-      .note-row input:focus{ border-color:var(--accent); }
+      /* ---------- 快門 ---------- */
       .controls{
         display:flex; align-items:center; justify-content:space-between;
         padding:14px 22px 20px;
@@ -330,20 +322,16 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
             </div>
             <button class="btn btn-accent" id="startBtn" type="button">啟動相機</button>
-            <p>按下後瀏覽器會跳出視窗詢問是否允許使用相機，請按「允許」。定位請點右上角的定位鈕開啟，照片才會帶有當下時間與地點。</p>
+            <p>按下後瀏覽器會跳出視窗詢問是否允許使用相機，請按「允許」。定位請點右上角的定位鈕開啟，照片才會帶有當下地點。拍完一張相機會自動關閉省電，要再拍請重新啟動。</p>
             <button class="btn btn-ghost-dark" id="sysCamBtn0" type="button">改用系統相機拍照</button>
           </div>
 
           <div class="vf-error" id="camError" hidden>
             <h3>相機無法開啟</h3>
-            <p id="camErrorText">請確認已允許相機權限，或改用系統相機拍照，一樣會自動壓上時間與地點。</p>
+            <p id="camErrorText">請確認已允許相機權限，或改用系統相機拍照，一樣會自動在照片下方壓上日期、時間、地址與經緯度。</p>
             <button class="btn btn-accent" id="sysCamBtn" type="button">用系統相機拍照</button>
             <button class="btn btn-ghost-dark" id="retryCamBtn" type="button">再試一次</button>
           </div>
-        </div>
-
-        <div class="note-row">
-          <input id="noteInput" type="text" maxlength="40" placeholder="備註（選填）：車牌號碼、違規事項，會印在照片上" autocomplete="off" />
         </div>
 
         <div class="controls">
@@ -365,12 +353,11 @@
           <h2 id="previewTitle">確認這張照片</h2>
           <span class="saved-tag" id="savedTag" hidden>已儲存</span>
         </div>
-        <img class="ph" id="previewImg" alt="剛拍下的照片，上面印有時間與地點" />
+        <img class="ph" id="previewImg" alt="剛拍下的照片，下方印有日期、時間、地址與經緯度" />
         <dl class="meta">
           <div><dt>時間</dt><dd id="mTime">—</dd></div>
           <div><dt>地點</dt><dd id="mAddr">—</dd></div>
           <div><dt>座標</dt><dd class="mono" id="mGps">—</dd></div>
-          <div id="mNoteRow" hidden><dt>備註</dt><dd id="mNote">—</dd></div>
         </dl>
         <div class="preview-actions">
           <button class="btn btn-save" id="saveBtn" type="button">
@@ -399,7 +386,8 @@
       <section class="help" aria-label="使用說明">
         <h2>使用說明</h2>
         <ul>
-          <li><b>浮水印直接印在照片上：</b>按下快門的那一刻，日期時間、地址與 GPS 座標會直接壓印在照片下方，照片傳到哪裡資訊都還在。</li>
+          <li><b>浮水印直接印在照片上：</b>按下快門的那一刻，照片下方會壓印日期、時間、地址（含門牌號）與經緯度座標，照片傳到哪裡，日期、時間與地點都還在；下方確認畫面的資訊欄也會再列一次，檔名也是拍照時間。</li>
+          <li><b>拍完自動關閉相機：</b>按下快門後相機會立刻關閉省電，不會繼續耗電；要再拍一張，請按「啟動相機」重新開啟。</li>
           <li><b>拍完先確認再存：</b>每張照片拍完都會先跳出確認畫面，選「儲存到手機」才會存，「取消重拍」就會丟掉重拍。</li>
           <li><b>iPhone 儲存方式：</b>點「儲存到手機」後會跳出分享選單，請選「儲存影像」，照片就會進相簿。</li>
           <li><b>定位要準：</b>在戶外、或把手機定位服務打開，座標會更準；狀態列會顯示目前誤差範圍。</li>
@@ -458,6 +446,7 @@
 
       /* ---------- 定位 ---------- */
       var lastGeoKey = "";
+      var lastGeoAt = 0;
       function gpsText(){
         if(!state.pos) return "";
         return state.pos.lat.toFixed(6) + ", " + state.pos.lng.toFixed(6) +
@@ -500,17 +489,54 @@
         $("permHelp").hidden = false;
       }
       function hidePermHelp(){ $("permHelp").hidden = true; }
+      function formatHouseNumber(hn){
+        if(!hn) return "";
+        var s = String(hn).trim();
+        if(!s) return "";
+        if(/號$/.test(s)) return s;
+        /* 純門牌（數字，可含 -、之、-之 等）才補上「號」，避免把其他文字誤加 */
+        if(/^[\d\-之]+$/.test(s)) return s + "號";
+        return s;
+      }
+      function houseNumberFromDisplay(displayName){
+        if(!displayName) return "";
+        var segs = String(displayName).split(/[,，]/);
+        for(var i = 0; i < segs.length; i++){
+          var s = segs[i].trim();
+          if(/^\d[\d\-之]*號$/.test(s)) return s;
+          if(i === 0 && /^\d[\d\-之]*$/.test(s)) return s + "號";
+        }
+        return "";
+      }
+      function buildAddress(data){
+        var a = (data && data.address) || {};
+        var admin = [a.state, a.county, a.city, a.town, a.city_district, a.district, a.suburb, a.borough, a.village, a.neighbourhood, a.quarter];
+        var out = [];
+        admin.forEach(function(p){ if(p && out.indexOf(p) === -1) out.push(p); });
+        var road = a.road || a.pedestrian || a.footway || a.cycleway || "";
+        if(road && out.indexOf(road) === -1) out.push(road);
+        var hn = formatHouseNumber(a.house_number) || houseNumberFromDisplay(data && data.display_name);
+        var addr = out.join("");
+        if(hn){
+          /* 門牌已包含在路名／地址裡就不重複加 */
+          if(addr.indexOf(hn) === -1) addr += hn;
+        }
+        if(!addr && data && data.display_name){
+          /* 備援：用完整地址，但要保留含「號」的門牌段落，不能只切前三段 */
+          var segs = String(data.display_name).split(/[,，]/).map(function(s){ return s.trim(); }).filter(Boolean);
+          var rev = segs.slice().reverse();
+          /* display_name 在台灣多為「門牌, 路, 區, 市, …」由小到大，反轉成由大到小、並去掉郵遞區號與國名 */
+          rev = rev.filter(function(s){ return s !== "臺灣" && s !== "台灣" && s !== "Taiwan" && !/^\d{3,5}$/.test(s); });
+          addr = rev.join("");
+        }
+        return addr;
+      }
       function reverseGeocode(lat, lng){
         var url = "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=" +
           encodeURIComponent(lat) + "&lon=" + encodeURIComponent(lng) + "&zoom=18&addressdetails=1&accept-language=zh-TW";
         fetch(url).then(function(r){ return r.json(); }).then(function(data){
           if(!data) return;
-          var a = data.address || {};
-          var parts = [a.state || a.county, a.city || a.town || a.county, a.suburb || a.district || a.borough, a.road, a.house_number];
-          var out = [];
-          parts.forEach(function(p){ if(p && out.indexOf(p) === -1) out.push(p); });
-          var addr = out.join("");
-          if(!addr && data.display_name) addr = data.display_name.split(",").slice(0,3).join("");
+          var addr = buildAddress(data);
           if(addr){ state.address = addr; renderLoc(); }
         }).catch(function(){ /* 地址查不到時只顯示座標 */ });
       }
@@ -519,8 +545,13 @@
         state.pos = { lat: lat, lng: lng, acc: p.coords.accuracy };
         state.geoErr = false; state.geoDenied = false;
         renderLoc();
-        var key = lat.toFixed(3) + "," + lng.toFixed(3);
-        if(key !== lastGeoKey){ lastGeoKey = key; reverseGeocode(lat, lng); }
+        var key = lat.toFixed(4) + "," + lng.toFixed(4);
+        /* 地址還沒有門牌號時也重新查一次（間隔至少 10 秒，避免一直重查），
+           避免第一次查到不完整的地址就不再更新 */
+        var lackNumber = state.address && state.address.indexOf("號") === -1;
+        if(key !== lastGeoKey || (lackNumber && Date.now() - lastGeoAt > 10000)){
+          lastGeoKey = key; lastGeoAt = Date.now(); reverseGeocode(lat, lng);
+        }
       }
       function onGeoErr(err){
         if(err && err.code === 1){ state.geoDenied = true; showPermHelp("geo"); }
@@ -576,6 +607,20 @@
       /* ---------- 相機 ---------- */
       function stopStream(){
         if(state.stream){ state.stream.getTracks().forEach(function(t){ t.stop(); }); state.stream = null; }
+      }
+      /* 拍完立刻關閉相機：停掉串流、清掉畫面、回到「啟動相機」畫面，避免相機持續耗電 */
+      function closeCamera(){
+        stopStream();
+        try{ video.srcObject = null; }catch(e){}
+        video.classList.remove("mirror");
+        state.torch = false;
+        var tb = $("torchBtn"); tb.classList.remove("active"); tb.hidden = true;
+        $("vfTop").hidden = true;
+        $("vfLive").hidden = true;
+        $("camError").hidden = true;
+        $("startOverlay").hidden = false;
+        $("startBtn").textContent = "重新啟動相機";
+        shutterBtn.disabled = true;
       }
       function setupTorch(){
         var btn = $("torchBtn");
@@ -657,10 +702,11 @@
 
       /* ---------- 浮水印 ---------- */
       function buildLines(info){
-        var lines = [info.timeStr];
-        lines.push(info.address ? info.address : (info.hasPos ? "地址查詢中" : "未取得定位（請開啟定位權限）"));
-        if(info.hasPos) lines.push("GPS " + info.gpsStr);
-        if(info.note) lines.push("備註：" + info.note);
+        /* 照片下方浮水印：日期＋時間一行、地址一行、經緯度一行，三者都直接印在照片上 */
+        var lines = [];
+        if(info.timeStr) lines.push(info.timeStr);
+        lines.push(info.address ? info.address : (info.hasPos ? "地址查詢中" : "未取得地址（請開啟定位權限）"));
+        lines.push(info.gpsStr ? ("GPS " + info.gpsStr) : "GPS 未取得定位（請開啟定位權限）");
         return lines;
       }
       function drawWatermark(ctx, w, h, info){
@@ -670,19 +716,23 @@
         var padX = Math.round(w * 0.035), padY = Math.round(fs * 0.75);
         var barH = lines.length * lh + padY * 2;
         ctx.save();
-        ctx.fillStyle = "rgba(8,9,10,0.78)";
-        ctx.fillRect(0, h - barH, w, barH);
-        ctx.fillStyle = "#e8490f";
-        ctx.fillRect(0, h - barH, Math.max(5, Math.round(w * 0.008)), barH);
+        /* 不畫底色條：文字直接壓在照片上，靠深色描邊＋陰影讓亮色背景上也讀得清楚 */
         ctx.textBaseline = "top";
+        ctx.lineJoin = "round";
+        ctx.shadowColor = "rgba(0,0,0,0.9)";
+        ctx.shadowBlur = Math.max(4, Math.round(fs * 0.28));
+        ctx.shadowOffsetY = Math.max(1, Math.round(fs * 0.07));
         for(var i = 0; i < lines.length; i++){
-          var isFirst = i === 0;
-          ctx.font = (isFirst ? "600 " : "500 ") + fs + "px " + (isFirst ? '"IBM Plex Mono", ui-monospace, monospace' : '"Noto Sans TC", sans-serif');
-          ctx.fillStyle = isFirst ? "#ffffff" : (i === 1 ? "#eef0f1" : "#c9ced3");
+          ctx.font = "700 " + fs + "px \"Noto Sans TC\", sans-serif";
           var text = lines[i], maxW = w - padX * 2;
           while(text.length > 1 && ctx.measureText(text).width > maxW){ text = text.slice(0, -1); }
           if(text !== lines[i]) text = text.slice(0, -1) + "…";
-          ctx.fillText(text, padX, h - barH + padY + i * lh);
+          var y = h - barH + padY + i * lh;
+          ctx.strokeStyle = "rgba(0,0,0,0.85)";
+          ctx.lineWidth = Math.max(3, Math.round(fs * 0.22));
+          ctx.strokeText(text, padX, y);
+          ctx.fillStyle = "#ffffff";
+          ctx.fillText(text, padX, y);
         }
         /* 右上角小標記 */
         var tag = "檢舉紀錄";
@@ -705,8 +755,7 @@
           timeStr: fmtTime(now),
           address: state.address,
           hasPos: !!state.pos,
-          gpsStr: gpsText(),
-          note: $("noteInput").value.trim()
+          gpsStr: gpsText()
         };
       }
 
@@ -719,7 +768,7 @@
             blob: blob, url: URL.createObjectURL(blob),
             name: fileName(now), saved: false,
             timeStr: fmtTime(now), address: state.address,
-            gpsStr: state.pos ? gpsText() : "", note: $("noteInput").value.trim()
+            gpsStr: state.pos ? gpsText() : ""
           };
           state.photos.unshift(rec);
           renderGallery();
@@ -737,6 +786,7 @@
         ctx.drawImage(video, 0, 0);
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         drawWatermark(ctx, canvas.width, canvas.height, currentInfo(now));
+        closeCamera();
         finishCapture(canvas, now);
       });
 
@@ -777,8 +827,6 @@
         $("mTime").textContent = rec.timeStr;
         $("mAddr").textContent = rec.address || (rec.gpsStr ? "地址查詢中（座標已記錄）" : "未取得定位");
         $("mGps").textContent = rec.gpsStr || "—";
-        $("mNoteRow").hidden = !rec.note;
-        $("mNote").textContent = rec.note || "";
         $("previewTitle").textContent = mode === "new" ? "確認這張照片" : "照片內容";
         $("savedTag").hidden = !rec.saved;
         $("retakeBtn").textContent = "取消重拍";
@@ -807,7 +855,7 @@
           state.photos = state.photos.filter(function(p){ return p.id !== rec.id; });
           URL.revokeObjectURL(rec.url);
           renderGallery();
-          toast("已丟掉這張，重拍吧");
+          toast("已丟掉這張，重新啟動相機再重拍");
         }
         closePreview();
       });
