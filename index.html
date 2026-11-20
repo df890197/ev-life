@@ -1157,6 +1157,95 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         /* 首頁 rpg 卡深色原本 1 成米白，改 6 成；寬度維持 3px */
         html.dark #view-home .rpg-card { border-color: rgba(237,230,214,.6) !important; }
     </style>
+    <style id="v376-cute">
+        /* ===== v376 可愛化（使用者提案，依審查修 4 處：微笑上移避開閃電、淺色規則加 :not([data-festival]) 讓節日主題整套保留、加 :not(.lite) 讓簡化模式不套用、章節編號拿掉 nth-of-type 輪替） ===== */
+        :root {
+          --cute-ink: #6B574D;
+          --cute-peach: #F2A497; --cute-butter: #F6D27A; --cute-sky: #A8D3E6; --cute-mint: #B9DAA5; --cute-pink: #F7C8D8;
+        }
+
+        /* 1) 淺色卡片：暖棕邊框、粉彩硬影、圓角 36px（雙 id 用來蓋過舊的 v243） */
+        html:not(.dark):not([data-festival]):not(.lite) #view-home#view-home .rpg-card,
+        html:not(.dark):not([data-festival]):not(.lite) #view-home#view-home .v169-outer,
+        html:not(.dark):not([data-festival]):not(.lite) #view-home#view-home .v165-ehon-card,
+        html:not(.dark):not([data-festival]):not(.lite) #view-analysis#view-analysis .rpg-card,
+        html:not(.dark):not([data-festival]):not(.lite) #view-settings#view-settings .rpg-card {
+          border-color: var(--cute-ink) !important;
+          border-radius: 36px !important;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,.75), 4px 5px 0 rgba(242,164,151,.55), 0 18px 28px -20px rgba(107,87,77,.35) !important;
+        }
+        html:not(.dark):not([data-festival]):not(.lite) .v169-plate { box-shadow: 5px 6px 0 rgba(168,211,230,.7) !important; }
+        html:not(.dark):not([data-festival]):not(.lite) .v169-tl-card { border-color: var(--cute-ink) !important; border-radius: 30px !important; box-shadow: 3px 4px 0 rgba(168,211,230,.65) !important; }
+        html:not(.dark):not([data-festival]):not(.lite) .v169-stile,
+        html:not(.dark):not([data-festival]):not(.lite) .v165-ehon-tile { border-color: var(--cute-ink) !important; box-shadow: 2.5px 3px 0 rgba(107,87,77,.28) !important; }
+        html:not(.dark):not([data-festival]):not(.lite) .v169-chip,
+        html:not(.dark):not([data-festival]):not(.lite) .v169-more { border-color: var(--cute-ink) !important; box-shadow: 2.5px 3px 0 rgba(242,164,151,.7) !important; }
+        html:not(.dark):not([data-festival]):not(.lite) .v169-prog-track,
+        html:not(.dark):not([data-festival]):not(.lite) .v169-tl-bar { border-color: var(--cute-ink) !important; }
+        html:not(.dark):not([data-festival]):not(.lite) .v169-chap h3 { color: var(--cute-ink); }
+
+        /* 2) 深色：保留夜繪本，只加圓角 */
+        html.dark #view-home#view-home .rpg-card,
+        html.dark #view-home#view-home .v169-outer,
+        html.dark #view-analysis#view-analysis .rpg-card,
+        html.dark #view-settings#view-settings .rpg-card { border-radius: 36px !important; }
+        html.dark .v169-tl-card { border-radius: 30px; }
+
+        /* 3) 章節編號：歪歪的小貼紙（5 個標題不在同一父層，nth-of-type 輪替無效，全部同一方向） */
+        .v169-chap .no { width: 30px; height: 30px; transform: rotate(-8deg); font-size: 15px; }
+        html:not(.dark) .v169-chap .no {
+          background: var(--cute-butter); color: var(--cute-ink); border: 2.5px solid var(--cute-ink);
+          box-shadow: 2px 2.5px 0 rgba(242,164,151,.75);
+        }
+
+        /* 4) 數據磚：微微歪斜 */
+        .v165-ehon-tile { border-radius: 26px; }
+        .v165-ehon-tile:nth-child(odd)  { transform: rotate(-1.2deg); }
+        .v165-ehon-tile:nth-child(even) { transform: rotate(1deg); }
+        .v169-stile { border-radius: 26px; }
+        .v169-stile:nth-child(odd)  { transform: rotate(-.8deg); }
+        .v169-stile:nth-child(even) { transform: rotate(.8deg); }
+
+        /* 5) 最新足跡的圓點會呼吸 */
+        .v169-tl-ev:first-child .v169-tl-dot { animation: cutePulse 2.4s ease-in-out infinite; }
+        @keyframes cutePulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.22); } }
+
+        /* 6) 輸入框：更圓，focus 變粉橘 */
+        html:not(.dark) #view-add#view-add form input:not([type="range"]):not([type="color"]):not([type="hidden"]):not([type="file"]),
+        html:not(.dark) #view-add#view-add form select,
+        html:not(.dark) #view-settings#view-settings input:not([type="range"]):not([type="color"]):not([type="hidden"]):not([type="file"]) {
+          border-color: rgba(107,87,77,.55) !important; border-radius: 22px !important;
+        }
+        html:not(.dark) #view-add#view-add form input:focus,
+        html:not(.dark) #view-settings#view-settings input:focus { border-color: var(--cute-peach) !important; }
+
+        /* 7) 底部導覽：選中圖示跳一下 */
+        nav.v81-snap-bar .tab-btn.active svg { animation: cuteTabHop .5s cubic-bezier(.34,1.56,.64,1); }
+        @keyframes cuteTabHop { 0% { transform: translateY(0) scale(1); } 40% { transform: translateY(-5px) scale(1.18); } 100% { transform: translateY(0) scale(1); } }
+        html:not(.dark) nav.v81-snap-bar { border-color: var(--cute-ink) !important; }
+
+        /* 8) Hero 小車的臉、雲朵、太陽 */
+        #heroScene .hs-eye { fill: var(--cute-ink); transform-box: fill-box; transform-origin: center; animation: cuteBlink 4.2s infinite; }
+        html.dark #heroScene .hs-eye { fill: #EDD9A3; }
+        #heroScene .hs-eye-shine { fill: #fff; }
+        #heroScene .hs-cheek { fill: #FF9FA8; opacity: .75; }
+        html.dark #heroScene .hs-cheek { fill: #D8A48F; opacity: .55; }
+        #heroScene .hs-smile { fill: none; stroke: var(--cute-ink); stroke-width: 3; stroke-linecap: round; }
+        html.dark #heroScene .hs-smile { stroke: #EDD9A3; }
+        @keyframes cuteBlink { 0%,93%,100% { transform: scaleY(1); } 96% { transform: scaleY(.1); } }
+        #heroScene .hs-cloud { animation: cuteCloud 22s ease-in-out infinite alternate; }
+        @keyframes cuteCloud { from { transform: translateX(-26px); } to { transform: translateX(34px); } }
+        #heroScene .hs-sun { transform-box: fill-box; transform-origin: center; animation: cuteSun 5s ease-in-out infinite alternate; }
+        @keyframes cuteSun { from { transform: translateY(-3px) scale(1); } to { transform: translateY(4px) scale(1.05); } }
+
+        /* 9) 減少動態與 lite 模式：動畫全關 */
+        @media (prefers-reduced-motion: reduce) {
+          .v169-tl-ev:first-child .v169-tl-dot, nav.v81-snap-bar .tab-btn.active svg,
+          #heroScene .hs-eye, #heroScene .hs-cloud, #heroScene .hs-sun { animation: none !important; }
+        }
+        html.lite .v169-tl-ev:first-child .v169-tl-dot, html.lite nav.v81-snap-bar .tab-btn.active svg,
+        html.lite #heroScene .hs-eye, html.lite #heroScene .hs-cloud, html.lite #heroScene .hs-sun { animation: none !important; }
+    </style>
     <style id="v180-hero">
         /* ===== v180：hero 無自訂照片時的繪本車場景（深色開燈／淺色關燈、背景跟著換） ===== */
         #heroScene .hs-sky { fill: #D8EEF8; }
@@ -2109,7 +2198,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="#F472B6" aria-hidden="true"><path d="M12 2l2.9 6.2 6.6.8-4.9 4.6 1.3 6.6L12 17l-5.9 3.2 1.3-6.6L2.5 9l6.6-.8L12 2z"/></svg><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v375</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v376</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2687,7 +2776,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-[2rem] border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v375</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v376</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-3xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -3240,7 +3329,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v375';
+        const APP_VERSION = 'v376';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -11746,6 +11835,33 @@ window.syncHeroScene();
       btn.addEventListener('pointercancel', function(){ clearWarm(); }, { passive: true });
       btn.addEventListener('pointerleave', function(){ clearWarm(); }, { passive: true });
     });
+  } catch (e) {}
+})();
+</script>
+
+<script>
+// ===== v376：幫 hero 小車畫臉（眼睛＋腮紅＋微笑），只加 SVG 元素，不動既有結構；微笑上移到車窗與閃電之間（y34–40，原 y62–70 會壓到閃電標誌） =====
+(function addCarFace() {
+  try {
+    var car = document.querySelector('#heroScene .hs-car');
+    if (!car || car.querySelector('.hs-face')) return;
+    var NS = 'http://www.w3.org/2000/svg';
+    var g = document.createElementNS(NS, 'g');
+    g.setAttribute('class', 'hs-face');
+    function el(tag, attrs) {
+      var n = document.createElementNS(NS, tag);
+      for (var k in attrs) n.setAttribute(k, attrs[k]);
+      return n;
+    }
+    [[100, 21], [150, 21]].forEach(function (p) {
+      g.appendChild(el('ellipse', { 'class': 'hs-eye', cx: p[0], cy: p[1], rx: 4.2, ry: 5.2 }));
+      g.appendChild(el('circle', { 'class': 'hs-eye-shine', cx: p[0] - 1.3, cy: p[1] - 1.8, r: 1.4 }));
+    });
+    [[78, 48], [172, 48]].forEach(function (p) {
+      g.appendChild(el('ellipse', { 'class': 'hs-cheek', cx: p[0], cy: p[1], rx: 8, ry: 5 }));
+    });
+    g.appendChild(el('path', { 'class': 'hs-smile', d: 'M112 34 Q122 40 132 34' }));
+    car.appendChild(g);
   } catch (e) {}
 })();
 </script>
