@@ -1246,6 +1246,40 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
         html.lite .v169-tl-ev:first-child .v169-tl-dot, html.lite nav.v81-snap-bar .tab-btn.active svg,
         html.lite #heroScene .hs-eye, html.lite #heroScene .hs-cloud, html.lite #heroScene .hs-sun { animation: none !important; }
     </style>
+    <style id="v377-dark-gold">
+        /* ===== v377：深色卡片邊框換香檳金（使用者指認：深色白色框框太白；主框 rgba(227,200,120,.65) 與深色晶片金一致，內框 .20；加 :not([data-festival]) 讓節日主題整套保留；淺色不動；晶片／徽章本來就是金色，不動） ===== */
+        html.dark:not([data-festival]) #view-home#view-home .rpg-card,
+        html.dark:not([data-festival]) #view-analysis#view-analysis .rpg-card,
+        html.dark:not([data-festival]) #view-settings#view-settings .rpg-card,
+        html.dark:not([data-festival]) #view-records#view-records .rpg-card,
+        html.dark:not([data-festival]) #view-add#view-add .rpg-card,
+        html.dark:not([data-festival]) #view-home#view-home .v169-outer,
+        html.dark:not([data-festival]) #view-home#view-home .v165-ehon-card,
+        html.dark:not([data-festival]) #view-analysis#view-analysis .v165-ehon-card,
+        html.dark:not([data-festival]) #view-home#view-home .v169-plate,
+        html.dark:not([data-festival]) #view-home#view-home .v169-plate .hero-image-container {
+          border-color: rgba(227,200,120,.65) !important;
+        }
+        html.dark:not([data-festival]) .v165-ehon-tile,
+        html.dark:not([data-festival]) .v169-stile,
+        html.dark:not([data-festival]) .v169-stile-ic,
+        html.dark:not([data-festival]) .v169-tl-card,
+        html.dark:not([data-festival]) .v169-tl-bar,
+        html.dark:not([data-festival]) .v169-prog-track,
+        html.dark:not([data-festival]) .rpg-card-sublayer,
+        html.dark:not([data-festival]) #maintDateAlertContainer,
+        html.dark:not([data-festival]) #insuranceDateAlertContainer,
+        html.dark:not([data-festival]) #view-home .rpg-card [class*="bg-stone-50"],
+        html.dark:not([data-festival]) #view-records [data-v106-month],
+        html.dark:not([data-festival]) #view-analysis [class*="dark:bg-neutral-900/50"],
+        html.dark:not([data-festival]) #view-analysis [class*="dark:bg-neutral-900/40"],
+        html.dark:not([data-festival]) #chartTimeView,
+        html.dark:not([data-festival]) #monthFilterContainer [class*="dark:bg-neutral-900"],
+        html.dark:not([data-festival]) #monthFilterContainer_analysis [class*="dark:bg-neutral-900"] {
+          border-color: rgba(227,200,120,.20) !important;
+        }
+        html.dark:not([data-festival]) .v169-tl-dot { border-color: rgba(227,200,120,.55) !important; }
+    </style>
     <style id="v180-hero">
         /* ===== v180：hero 無自訂照片時的繪本車場景（深色開燈／淺色關燈、背景跟著換） ===== */
         #heroScene .hs-sky { fill: #D8EEF8; }
@@ -2198,7 +2232,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="#F472B6" aria-hidden="true"><path d="M12 2l2.9 6.2 6.6.8-4.9 4.6 1.3 6.6L12 17l-5.9 3.2 1.3-6.6L2.5 9l6.6-.8L12 2z"/></svg><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v376</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v377</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2776,7 +2810,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-[2rem] border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v376</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v377</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-3xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -3329,7 +3363,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v376';
+        const APP_VERSION = 'v377';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
