@@ -1325,6 +1325,66 @@ html.dark .fx160-stamp { background: rgba(0,0,0,.55); color:#fda4af; border-colo
           border-color: rgba(199,178,153,.25) !important;
         }
     </style>
+    <style id="v380-dark-stone">
+        /* ===== v380：深色卡片邊框全改深石暖灰（使用者選定；以紀錄卡片的 dark:border-stone-800 #292524 為準，全站框色統一為實色 #292524；淺色／節日不動；晶片／徽章的金不動） ===== */
+        html.dark:not([data-festival]) #view-home#view-home .rpg-card,
+        html.dark:not([data-festival]) #view-analysis#view-analysis .rpg-card,
+        html.dark:not([data-festival]) #view-settings#view-settings .rpg-card,
+        html.dark:not([data-festival]) #view-records#view-records .rpg-card,
+        html.dark:not([data-festival]) #view-add#view-add .rpg-card,
+        html.dark:not([data-festival]) #view-home#view-home .v169-outer,
+        html.dark:not([data-festival]) #view-home#view-home .v165-ehon-card,
+        html.dark:not([data-festival]) #view-analysis#view-analysis .v165-ehon-card,
+        html.dark:not([data-festival]) #view-home#view-home .v169-plate,
+        html.dark:not([data-festival]) #view-home#view-home .v169-plate .hero-image-container {
+          border-color: #292524 !important;
+        }
+        html.dark:not([data-festival]) .v165-ehon-tile,
+        html.dark:not([data-festival]) .v169-stile,
+        html.dark:not([data-festival]) .v169-stile-ic,
+        html.dark:not([data-festival]) .v169-tl-card,
+        html.dark:not([data-festival]) .v169-tl-bar,
+        html.dark:not([data-festival]) .v169-prog-track,
+        html.dark:not([data-festival]) .rpg-card-sublayer,
+        html.dark:not([data-festival]) #maintDateAlertContainer,
+        html.dark:not([data-festival]) #insuranceDateAlertContainer,
+        html.dark:not([data-festival]) #view-home .rpg-card [class*="bg-stone-50"],
+        html.dark:not([data-festival]) #view-records [data-v106-month],
+        html.dark:not([data-festival]) #view-analysis [class*="dark:bg-neutral-900/50"],
+        html.dark:not([data-festival]) #view-analysis [class*="dark:bg-neutral-900/40"],
+        html.dark:not([data-festival]) #chartTimeView,
+        html.dark:not([data-festival]) #monthFilterContainer [class*="dark:bg-neutral-900"],
+        html.dark:not([data-festival]) #monthFilterContainer_analysis [class*="dark:bg-neutral-900"] {
+          border-color: #292524 !important;
+        }
+        html.dark:not([data-festival]) .v169-tl-dot { border-color: #292524 !important; }
+        html.dark:not([data-festival]) #view-analysis#view-analysis > .rpg-card,
+        html.dark:not([data-festival]) #view-settings#view-settings > .rpg-card {
+          border-color: #292524 !important;
+        }
+    </style>
+    <style id="v381-cute">
+        /* ===== v381：可愛風 5 項（使用者選「全部都加」） ===== */
+        /* 1. 足跡時間軸變虛線公路（車道標線感）；淺色深棕、深色淡米白；節日主題不動 */
+        html:not([data-festival]) .v169-tl::before { background: repeating-linear-gradient(180deg, #3E3A39 0 7px, transparent 7px 13px); }
+        html.dark:not([data-festival]) .v169-tl::before { background: repeating-linear-gradient(180deg, rgba(237,230,214,.55) 0 7px, transparent 7px 13px); }
+        /* 2. 保養／調胎進度條終點小旗子 */
+        .cute-progress-flag { position: absolute; right: -4px; top: 50%; transform: translateY(-50%); font-size: 15px; line-height: 1; pointer-events: none; z-index: 1; }
+        /* 3. 充電紀錄 SOC 條末端小閃電 */
+        .cute-soc-bolt { position: absolute; right: 1px; top: 50%; transform: translateY(-50%); font-size: 11px; line-height: 1; pointer-events: none; }
+        /* 4. Hero 小車排氣雲（車尾冒小雲、向左飄散淡出） */
+        .hs-puff { opacity: .75; animation: hsPuffDrift 2.8s ease-out infinite; }
+        .hs-puff circle { fill: #FFFFFF; }
+        @keyframes hsPuffDrift { 0% { translate: 0 0; opacity: 0; } 20% { opacity: .75; } 100% { translate: -34px -12px; opacity: 0; } }
+        /* 5. Tab 小車（開到目前分頁上方） */
+        .cute-tab-car { position: absolute; top: -18px; left: 0; font-size: 18px; line-height: 1; pointer-events: none; z-index: 30; transition: left .55s cubic-bezier(.34,1.56,.64,1), transform .3s ease; }
+        @media (prefers-reduced-motion: reduce) {
+            .hs-puff { animation: none !important; }
+            .cute-tab-car { transition: none !important; }
+        }
+        html.lite .hs-puff { animation: none !important; }
+        html.lite .cute-tab-car { transition: none !important; }
+    </style>
     <style id="v180-hero">
         /* ===== v180：hero 無自訂照片時的繪本車場景（深色開燈／淺色關燈、背景跟著換） ===== */
         #heroScene .hs-sky { fill: #D8EEF8; }
@@ -1810,7 +1870,12 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                             <path class="hs-ground" d="M0 352 Q260 322 520 342 T800 336 V450 H0 Z"/>
                             <path class="hs-road" d="M0 394 Q300 372 800 386 V450 H0 Z"/>
                             <path class="hs-roadline" d="M0 420 Q300 400 800 412" fill="none" stroke-width="6" stroke-dasharray="28 22" stroke-linecap="round"/>
-                            <g class="hs-car" transform="translate(238,262)">
+                                                        <g class="hs-puff">
+                                <circle cx="230" cy="328" r="6"/>
+                                <circle cx="220" cy="320" r="4.5"/>
+                                <circle cx="238" cy="318" r="4"/>
+                            </g>
+<g class="hs-car" transform="translate(238,262)">
                                 <polygon class="hs-beam" points="232,64 368,40 368,100" fill="url(#hsBeamGrad)"/>
                                 <circle class="hs-glow" cx="230" cy="64" r="20" fill="url(#hsGlowGrad)"/>
                                 <ellipse cx="122" cy="104" rx="122" ry="8" fill="rgba(0,0,0,.16)"/>
@@ -2168,6 +2233,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
             </div>
             <span id="maintProgressCar" class="cute-progress-car" style="left: 0%" onclick="boingCar('maint')">🚗<span class="text-[11px]">💨</span></span>
             <span id="maintCarBubble" class="cute-car-bubble" style="left: 0%">嗶嗶！</span>
+            <span class="cute-progress-flag">🏁</span>
         </div>
     </div>
 
@@ -2195,6 +2261,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
             </div>
             <span id="tireProgressCar" class="cute-progress-car" style="left: 0%" onclick="boingCar('tire')">🚗<span class="text-[11px]">💨</span></span>
             <span id="tireCarBubble" class="cute-car-bubble" style="left: 0%">嗶嗶！</span>
+            <span class="cute-progress-flag">🏁</span>
         </div>
     </div>
 
@@ -2277,7 +2344,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="#F472B6" aria-hidden="true"><path d="M12 2l2.9 6.2 6.6.8-4.9 4.6 1.3 6.6L12 17l-5.9 3.2 1.3-6.6L2.5 9l6.6-.8L12 2z"/></svg><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v379</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v381</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2855,7 +2922,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-[2rem] border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v379</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v381</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-3xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -3226,6 +3293,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
         <div class="flex justify-around items-center h-16 md:h-20 max-w-md md:max-w-full mx-auto relative" id="nav-container">
             <div id="liquid-indicator" class="liquid-indicator opacity-0 absolute top-1/2 -translate-y-1/2 left-0 w-14 md:h-16 md:rounded-full"></div>
             <div id="v109TabPill"></div>
+            <span id="tabCar" class="cute-tab-car">🚗</span>
 
             <button onclick="switchTab('home')" id="tab-home" class="tab-btn active flex flex-col items-center gap-1 w-14 md:w-20 text-slate-500 dark:text-slate-400 cursor-pointer">
                 <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.8 12 4l7.5 6.8"/><path stroke-linecap="round" stroke-linejoin="round" d="M6.5 9.3V19A1.5 1.5 0 0 0 8 20.5h8A1.5 1.5 0 0 0 17.5 19V9.3"/><circle cx="12" cy="14.6" r="1.7"/></svg>
@@ -3408,7 +3476,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v379';
+        const APP_VERSION = 'v381';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -4495,7 +4563,7 @@ function cacheDOMNodes() {
             const activeBtn = document.getElementById('tab-' + tabId);
             if (activeBtn && tabId !== 'add') activeBtn.classList.add('active');
             if (switchTabIndicatorRaf) cancelAnimationFrame(switchTabIndicatorRaf);
-            switchTabIndicatorRaf = requestAnimationFrame(() => { switchTabIndicatorRaf = 0; updateLiquidIndicator(tabId); if (typeof window.v109MoveTabPill === 'function') window.v109MoveTabPill(tabId); }); // v109：底部 bar 滑動 pill
+            switchTabIndicatorRaf = requestAnimationFrame(() => { switchTabIndicatorRaf = 0; updateLiquidIndicator(tabId); if (typeof window.v109MoveTabPill === 'function') window.v109MoveTabPill(tabId); if (typeof window.moveTabCar === 'function') window.moveTabCar(tabId); }); // v109：底部 bar 滑動 pill
             window._switchTimers.push(setTimeout(cacheTabMetrics, 800)); // v203：延到過場動畫跑完再刷新座標快取（原 350ms，仍在動畫＋重畫高峰期）
 
             // v206：切回首頁不再觸發 playV99Progress（回首頁 60ms 後強制重排整個首頁＋BarGrow/BarShine 至約 1.46 秒，在 iOS 上塞住離開首頁的點按約 1.5 秒；初載 900ms 那次保留、0.75s 換頁動畫不動）
@@ -5435,7 +5503,7 @@ window.setupSocSliders = function() {
                                 </div>
                                 <!-- ⚡ 效果 1：加入流動電流光紋 electric-stream -->
                                 <div class="w-full h-2 bg-stone-200/90 dark:bg-black/90 rounded-full mt-1.5 overflow-hidden soc-progress-track">
-                                    <div class="h-full rounded-full ${isCharging ? 'bg-gradient-to-r from-teal-500 via-emerald-400 to-teal-300 electric-stream soc-progress-glow-charging' : 'bg-gradient-to-r from-stone-400 to-stone-500 soc-progress-glow-discharging'}" style="width: ${barWidth}%"></div>
+                                    <div class="relative h-full rounded-full ${isCharging ? 'bg-gradient-to-r from-teal-500 via-emerald-400 to-teal-300 electric-stream soc-progress-glow-charging' : 'bg-gradient-to-r from-stone-400 to-stone-500 soc-progress-glow-discharging'}" style="width: ${barWidth}%">${isCharging && barWidth > 0 ? '<span class="cute-soc-bolt">⚡</span>' : ''}</div>
                                 </div>
                             </div>
 
@@ -11945,5 +12013,46 @@ window.syncHeroScene();
 })();
 </script>
 
+    <script>
+        // v381：Tab 小車（開到目前分頁上方；方向依分頁順序翻面）
+        window.moveTabCar = function(tabId) {
+            try {
+                const car = document.getElementById('tabCar');
+                const nav = document.getElementById('nav-container');
+                if (!car || !nav) return;
+                let id = tabId;
+                if (!id) {
+                    if (typeof currentTabId !== 'undefined' && currentTabId) { id = currentTabId; }
+                    else { const a = document.querySelector('.tab-btn.active'); id = a ? a.id.replace('tab-', '') : 'home'; }
+                }
+                const btn = document.getElementById('tab-' + id);
+                if (!btn) return;
+                const order = ['home', 'records', 'add', 'analysis', 'settings'];
+                const idx = order.indexOf(id);
+                const prev = (window._tabCarIdx == null) ? idx : window._tabCarIdx;
+                const flip = (idx >= prev) ? -1 : 1;
+                window._tabCarIdx = idx;
+                const r = btn.getBoundingClientRect();
+                const nr = nav.getBoundingClientRect();
+                const cx = r.left - nr.left + r.width / 2;
+                const tf = 'translateX(-50%) scaleX(' + flip + ')';
+                if (!car.dataset.placed) {
+                    const prevT = car.style.transition;
+                    car.style.transition = 'none';
+                    car.style.left = cx + 'px';
+                    car.style.transform = tf;
+                    void car.offsetWidth;
+                    car.style.transition = prevT;
+                    car.dataset.placed = '1';
+                } else {
+                    car.style.left = cx + 'px';
+                    car.style.transform = tf;
+                }
+            } catch (e) {}
+        };
+        window.addEventListener('resize', function() { if (typeof window.moveTabCar === 'function') window.moveTabCar(); });
+        setTimeout(function() { if (typeof window.moveTabCar === 'function') window.moveTabCar(); }, 350);
+        setTimeout(function() { if (typeof window.moveTabCar === 'function') window.moveTabCar(); }, 1200);
+    </script>
 </body>
 </html>
