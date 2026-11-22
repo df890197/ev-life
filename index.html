@@ -2344,7 +2344,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="#F472B6" aria-hidden="true"><path d="M12 2l2.9 6.2 6.6.8-4.9 4.6 1.3 6.6L12 17l-5.9 3.2 1.3-6.6L2.5 9l6.6-.8L12 2z"/></svg><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v388</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v390</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2922,7 +2922,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-[2rem] border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v388</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v390</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-3xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -3476,7 +3476,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v388';
+        const APP_VERSION = 'v390';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -9255,7 +9255,9 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
           const useAnchorLimits = !!limitPoints;
           if (!limitPoints) limitPoints = buildRoutesLimitPoints(stepTable, totalDistanceKm);
           const segments = buildEnergySegments(fracs, totalDistanceKm, stepTable, limitPoints, avgSpeedKmh, useAnchorLimits ? 0.02 : Infinity);
-          const segFlat = computeSegmentFlatEnergy(segments, baseHighwayEff, avgSpeedKmh);
+          // v390：南下／北上分開算 — 終點緯度 < 起點緯度為南下，高速段用 0.95（不用 0.84）。
+          const isSouthbound = leg.end_location.lat() < leg.start_location.lat();
+          const segFlat = computeSegmentFlatEnergy(segments, baseHighwayEff, avgSpeedKmh, isSouthbound);
           if (segFlat !== null && isFinite(segFlat) && segFlat >= 0) {
             flatEnergyKwh = segFlat;
             speedMode = 'segmented';
@@ -9461,7 +9463,8 @@ function speedEffFactor(avgSpeedKmh) {
     // v384：持續 120 巡航（限速 110＋10）實測校準 — 2026-11-21 高雄回程（左楠路中油→泰安）
     // 實際效率約 4.4 km/度（基準 5.33 → 倍率約 0.82），舊表 ≥100 只罰到 0.95 嚴重低估 120 的風阻。
     // v388：0.82 是整段路效率（含爬升／平面）拿來只算高速段，偏嚴；改 0.84，回程驗算 13.8%（實際 14%）。
-    if (avgSpeedKmh >= 115) return 0.84;
+    // v389：改用 GPS 實速（110 限速→114、100 限速→104），≥115 門檻降為 ≥110，使 GPS 114 仍吃 0.84（回程校準不變）。
+    if (avgSpeedKmh >= 110) return 0.84;
     if (avgSpeedKmh >= 100) return 0.95;
     if (avgSpeedKmh >= 85) return 0.98;
     if (avgSpeedKmh >= 70) return 1;
@@ -9706,14 +9709,14 @@ function buildAnchorLimitPoints(route, totalDistanceKm, sampleFracs) {
 // v384/v387：某段的巡航速度（純函式，可測試）。
 // routesSpeedKmh：Routes 該段預期速度（step 距離 ÷ 路況時間，含塞車）；
 // speedLimitKmh：該段速限（v387 為錨點表查到的真實速限；無資料傳 null）。
-// 速限 ≥90 視為高速段：路況順暢（Routes 速度 ≥ 限速−15）時用限速＋10（上限 120）；塞車時用 Routes 速度。
+// 速限 ≥90 視為高速段：路況順暢（Routes 速度 ≥ 限速−15）時用限速＋4（GPS 實速，上限 120）；塞車時用 Routes 速度。
 // 非高速段或無速限資料時，一律用 Routes 速度。
 function segmentCruiseSpeed(routesSpeedKmh, speedLimitKmh) {
   const r = (isFinite(routesSpeedKmh) && routesSpeedKmh > 0) ? routesSpeedKmh : 0;
   if (r <= 0) return 0;
   const lim = (isFinite(speedLimitKmh) && speedLimitKmh > 0) ? speedLimitKmh : null;
   if (lim === null) return r;
-  if (lim >= 90 && r >= lim - 15) return Math.min(lim + 10, 120); // v386：上限 120
+  if (lim >= 90 && r >= lim - 15) return Math.min(lim + 4, 120); // v389：改用 GPS 實速（表顯 120 ≈ GPS 114），限速＋4
   return r;
 }
 
@@ -9721,7 +9724,7 @@ function segmentCruiseSpeed(routesSpeedKmh, speedLimitKmh) {
 // segments：[{ distanceKm, speedKmh }]；baseline：滾動平均效率（km/kWh）。
 // 每段用自己的速度查倍率再加總；某段速度無效時用 fallbackSpeedKmh（整條路平均時速）。
 // 全部無效回 null（呼叫端退回單一平均時速）。
-function computeSegmentFlatEnergy(segments, baseline, fallbackSpeedKmh) {
+function computeSegmentFlatEnergy(segments, baseline, fallbackSpeedKmh, isSouthbound = false) {
   if (!Array.isArray(segments) || segments.length === 0 || !(baseline > 0)) return null;
   const fb = (isFinite(fallbackSpeedKmh) && fallbackSpeedKmh > 0) ? fallbackSpeedKmh : 0;
   let total = 0;
@@ -9731,7 +9734,9 @@ function computeSegmentFlatEnergy(segments, baseline, fallbackSpeedKmh) {
     let sp = s && isFinite(s.speedKmh) && s.speedKmh > 0 ? s.speedKmh : 0;
     if (sp <= 0) sp = fb;
     if (sp <= 0) return null;
-    total += d / (baseline * speedEffFactor(sp));
+    // v390：南下高速（GPS 114）用 0.95，不用 0.84 — 南下塞車多、實測較省（中壢→楠梓 5.71 km/度）；北上維持 0.84。
+    const f = (isSouthbound && sp >= 110) ? 0.95 : speedEffFactor(sp);
+    total += d / (baseline * f);
   }
   return total;
 }
