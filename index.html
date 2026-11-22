@@ -2344,7 +2344,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="#F472B6" aria-hidden="true"><path d="M12 2l2.9 6.2 6.6.8-4.9 4.6 1.3 6.6L12 17l-5.9 3.2 1.3-6.6L2.5 9l6.6-.8L12 2z"/></svg><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v381</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v384</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2922,7 +2922,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-[2rem] border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v381</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v384</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-3xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -3476,7 +3476,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v381';
+        const APP_VERSION = 'v384';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -4807,7 +4807,8 @@ if (_tc && (Date.now() - _tc.t < 900000) && DOM.inputTemperature) { DOM.inputTem
                             fields: ['displayName', 'location'],
                             locationRestriction: { center: new google.maps.LatLng(lat, lng), radius: 5000 },
                             includedTypes: ['electric_vehicle_charging_station'],
-                            maxResultCount: 15
+                            maxResultCount: 15,
+                            rankPreference: 'DISTANCE'
                         });
 
                         if (places?.length > 0) {
@@ -4817,6 +4818,11 @@ if (_tc && (Date.now() - _tc.t < 900000) && DOM.inputTemperature) { DOM.inputTem
 
                                // 🛑 過濾特斯拉自營站與 Volvo 專屬站點
 if (lowerName.includes('tesla') || lowerName.includes('特斯拉') || lowerName.includes('supercharger') || lowerName.includes('volvo') || lowerName.includes('富豪')) {
+    return;
+}
+
+                               // 🛑 過濾二輪電動機車與換電站（與 searchDestinationCharging 同規則）
+if (lowerName.includes('gogoro') || lowerName.includes('ionex') || lowerName.includes('換電') || lowerName.includes('機車')) {
     return;
 }
 
@@ -7902,7 +7908,9 @@ function normalizeRoutesApiRoute(r, idx) {
         // v61: 轉 LatLng（Directions 的 step.path 亦為 LatLng[]；下游用 .lat()/.lng() 方法）。
         path: decodePolyline(st.polyline?.encodedPolyline || '').map(p => new google.maps.LatLng(p.lat, p.lng)),
         distance: { value: st.distanceMeters || 0 },
-        duration: { value: parseRoutesDuration(st.staticDuration) }
+        duration: { value: parseRoutesDuration(st.staticDuration) },
+        // v384：分段速度用路況時間（TRAFFIC_AWARE 的 step.duration）；無路況時間時退回靜態時間。
+        duration_in_traffic: { value: parseRoutesDuration(st.duration) }
       }))
     };
   });
@@ -7930,7 +7938,7 @@ function normalizeDirectionsRoute(rt) {
       duration_in_traffic: leg.duration_in_traffic || leg.duration,
       start_location: leg.start_location,
       end_location: leg.end_location,
-      steps: (leg.steps || []).map(st => ({ path: st.path || [], distance: st.distance, duration: st.duration }))
+      steps: (leg.steps || []).map(st => ({ path: st.path || [], distance: st.distance, duration: st.duration, duration_in_traffic: st.duration_in_traffic || st.duration }))
     })),
     routesApiPolylineDetails: null,
     routesApiSource: 'directions-fallback'
@@ -9143,6 +9151,13 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
       usedDetailedPath = false;
     }
 
+    // v384：速限查詢與高程查詢並行（Roads API 未啟用／失敗 → 回 null，後面退回平均時速，不擋計算）
+    let roadsLimitPromise = null;
+    try {
+      const _speedLimitPts = buildSpeedLimitQueryPoints(elevationPath, 100);
+      if (_speedLimitPts && _speedLimitPts.length) roadsLimitPromise = fetchRoadsSpeedLimits(_speedLimitPts, getMapsApiKey());
+    } catch (_) { roadsLimitPromise = null; }
+
     let sampleDistFrac = null; // v134：樣本真實距離比例（投影 overview_path 得出）
     let { elevations, eStatus } = await fetchElevationSmart(elevationPath, sampleCount);
     if (!isCurrentElevationRequest(routeIdx, requestToken)) return;
@@ -9224,7 +9239,38 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
     // v119：塞車（平均速度）修正 — 行車時間已含即時路況。低速巡航對電車較省電、高速較耗，
     // 只修正平地能耗項；基準（全域平均）與爬坡 0.65／回充 0.40 係數不動，倍率有界 0.95–1.10。
     const avgSpeedKmh = totalSeconds > 0 ? totalDistanceKm / (totalSeconds / 3600) : 0;
-    const flatEnergyKwh = totalDistanceKm / (baseHighwayEff * speedEffFactor(avgSpeedKmh));
+    // v384：分段速度 — 速限（Roads API）＋巡航規則（限速＋10）分段算平地耗電。
+    // Roads API 未啟用／失敗／無資料時自動退回單一平均時速（speedLimitNote 顯示提示），不擋計算、不編速限。
+    let flatEnergyKwh = totalDistanceKm / (baseHighwayEff * speedEffFactor(avgSpeedKmh));
+    let speedMode = 'average';
+    let speedLimitNote = null;
+    {
+      let limitPoints = null;
+      if (roadsLimitPromise) {
+        try { limitPoints = await roadsLimitPromise; } catch (_) { limitPoints = null; }
+      }
+      if (limitPoints && limitPoints.length) {
+        try {
+          const stepTable = buildStepSpeedTable(route);
+          const fracs = (sampleDistFrac && sampleDistFrac.length === smoothed.length)
+            ? sampleDistFrac
+            : smoothed.map((_, i) => (smoothed.length > 1 ? i / (smoothed.length - 1) : 0));
+          const segments = buildEnergySegments(fracs, totalDistanceKm, stepTable, limitPoints, avgSpeedKmh);
+          const segFlat = computeSegmentFlatEnergy(segments, baseHighwayEff, avgSpeedKmh);
+          if (segFlat !== null && isFinite(segFlat) && segFlat >= 0) {
+            flatEnergyKwh = segFlat;
+            speedMode = 'segmented';
+          } else {
+            speedLimitNote = '速限資料未取得，改用平均時速估算；請在 Google Cloud Console 啟用 Roads API';
+          }
+        } catch (e) {
+          console.warn('[EvLife] v384 分段耗電例外，退回平均時速', e);
+          speedLimitNote = '速限資料未取得，改用平均時速估算；請在 Google Cloud Console 啟用 Roads API';
+        }
+      } else {
+        speedLimitNote = '速限資料未取得，改用平均時速估算；請在 Google Cloud Console 啟用 Roads API';
+      }
+    }
     const climbEnergyKwh = (totalClimbMeters / 100) * 0.65;
     const regenEnergyKwh = (totalDescentMeters / 100) * 0.60;
     const totalConsumedKwh = flatEnergyKwh + climbEnergyKwh - regenEnergyKwh;
@@ -9249,7 +9295,8 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
       directArrivalSoc, startSoc,
       rawMax: rawMax === null ? null : Math.round(rawMax),
       rawMaxIdx, cleanedMaxIdx, usedDetailedPath, usedPathLabel, elevationUnavailable: false,
-      rawElevations, tunnelSegments: tunnelCorrection.segments, tunnelCorrectionCount: tunnelCorrection.correctedCount, hasUnknownTunnel: tunnelCorrection.hasUnknownTunnel, tunnelSource: route.routesApiPolylineDetails ? 'routes-api' : null
+      rawElevations, tunnelSegments: tunnelCorrection.segments, tunnelCorrectionCount: tunnelCorrection.correctedCount, hasUnknownTunnel: tunnelCorrection.hasUnknownTunnel, tunnelSource: route.routesApiPolylineDetails ? 'routes-api' : null,
+      speedMode, speedLimitNote
     };
 
     if (!isCurrentElevationRequest(routeIdx, requestToken)) return;
@@ -9412,12 +9459,198 @@ function updateElevationHudUi(data) {
 // 低於 40 走走停停＋冷氣使紅利遞減（1.05）；高速巡航風阻大，小幅下修（85+ 為 0.98、100+ 為 0.95）。
 function speedEffFactor(avgSpeedKmh) {
     if (!isFinite(avgSpeedKmh) || avgSpeedKmh <= 0) return 1;
+    // v384：持續 120 巡航（限速 110＋10）實測校準 — 2026-11-21 高雄回程（左楠路中油→泰安）
+    // 實際效率約 4.4 km/度（基準 5.33 → 倍率約 0.82），舊表 ≥100 只罰到 0.95 嚴重低估 120 的風阻。
+    if (avgSpeedKmh >= 115) return 0.82;
     if (avgSpeedKmh >= 100) return 0.95;
     if (avgSpeedKmh >= 85) return 0.98;
     if (avgSpeedKmh >= 70) return 1;
     if (avgSpeedKmh >= 55) return 1.05;
     if (avgSpeedKmh >= 40) return 1.10;
     return 1.05;
+}
+
+// ---------- v384：分段速度（Roads API 速限＋使用者巡航規則） ----------
+// 背景：2026-11-21 高雄回程（左楠路中油→泰安）模型樂觀 9%（預估 23%、實際 14%）。
+// 原因：單一平均時速把台南前塞車段和台南後 120 巡航段混在一起，低估了高速段的耗電
+// （風阻約與時速平方成正比，快段多耗的遠超過慢段省下的）。
+// 使用者巡航規則（2026-11-22 使用者親述）：國道限速 110 → 巡航 120；限速 100 → 巡航 110（限速＋10）。
+// 速限來自 Roads API speedLimits；Roads API 未啟用／失敗時自動退回單一平均時速（見下方能量計算）。
+
+// v384：某段的巡航速度（純函式，可測試）。
+// routesSpeedKmh：Routes 該段預期速度（step 距離 ÷ 路況時間，含塞車）；
+// speedLimitKmh：該段速限（Roads API；無資料傳 null）。
+// 速限 ≥90 視為高速段：路況順暢（Routes 速度 ≥ 限速−15）時用限速＋10；塞車時用 Routes 速度。
+// 非高速段或無速限資料時，一律用 Routes 速度。
+function segmentCruiseSpeed(routesSpeedKmh, speedLimitKmh) {
+  const r = (isFinite(routesSpeedKmh) && routesSpeedKmh > 0) ? routesSpeedKmh : 0;
+  if (r <= 0) return 0;
+  const lim = (isFinite(speedLimitKmh) && speedLimitKmh > 0) ? speedLimitKmh : null;
+  if (lim === null) return r;
+  if (lim >= 90 && r >= lim - 15) return lim + 10;
+  return r;
+}
+
+// v384：分段平地耗電（純函式，可測試）。
+// segments：[{ distanceKm, speedKmh }]；baseline：滾動平均效率（km/kWh）。
+// 每段用自己的速度查倍率再加總；某段速度無效時用 fallbackSpeedKmh（整條路平均時速）。
+// 全部無效回 null（呼叫端退回單一平均時速）。
+function computeSegmentFlatEnergy(segments, baseline, fallbackSpeedKmh) {
+  if (!Array.isArray(segments) || segments.length === 0 || !(baseline > 0)) return null;
+  const fb = (isFinite(fallbackSpeedKmh) && fallbackSpeedKmh > 0) ? fallbackSpeedKmh : 0;
+  let total = 0;
+  for (const s of segments) {
+    const d = s && isFinite(s.distanceKm) ? s.distanceKm : 0;
+    if (d <= 0) continue;
+    let sp = s && isFinite(s.speedKmh) && s.speedKmh > 0 ? s.speedKmh : 0;
+    if (sp <= 0) sp = fb;
+    if (sp <= 0) return null;
+    total += d / (baseline * speedEffFactor(sp));
+  }
+  return total;
+}
+
+// v384：速限內插（純函式，可測試）。limitPoints 為依 frac 排序的 [{ frac, limit }]，
+// 回傳 frac 處的速限（最近鄰）；無資料回 null（呼叫端退回 Routes 速度）。
+function speedLimitAtFrac(limitPoints, frac) {
+  if (!Array.isArray(limitPoints) || limitPoints.length === 0 || !isFinite(frac)) return null;
+  const f = Math.min(1, Math.max(0, frac));
+  let best = null, bestD = Infinity;
+  for (const p of limitPoints) {
+    if (!p || !isFinite(p.frac) || !isFinite(p.limit)) continue;
+    const d = Math.abs(p.frac - f);
+    if (d < bestD) { bestD = d; best = p.limit; }
+  }
+  return best;
+}
+
+// v384：從路線路徑取最多 maxPoints 個等距取樣點給 Roads API speedLimits（純函式，可測試）。
+// 回傳 [{ lat, lng, frac }]，frac 為沿路線距離比例（0→1）。Roads API 單次上限 100 點。
+function buildSpeedLimitQueryPoints(path, maxPoints) {
+  if (!Array.isArray(path) || path.length < 2) return [];
+  const max = (isFinite(maxPoints) && maxPoints > 0) ? Math.floor(maxPoints) : 100;
+  const cum = [0];
+  for (let i = 1; i < path.length; i++) cum.push(cum[i - 1] + haversineM(path[i - 1], path[i]));
+  const total = cum[cum.length - 1];
+  if (!(total > 0)) return [];
+  const n = Math.min(max, path.length);
+  const out = [];
+  let lastIdx = -1;
+  for (let k = 0; k < n; k++) {
+    const target = (k / (n - 1)) * total;
+    let idx = 0;
+    while (idx < cum.length - 2 && cum[idx + 1] < target) idx++;
+    if (k === n - 1) idx = cum.length - 1; // 最後一點取路線終點（frac = 1）
+    if (idx === lastIdx) continue; // 同一點去重
+    lastIdx = idx;
+    const p = path[idx];
+    out.push({ lat: latOf(p), lng: lngOf(p), frac: cum[idx] / total });
+  }
+  return out;
+}
+
+// v384：把路線 legs/steps 攤平成 [{ startKm, endKm, routesSpeedKmh }]（純函式，可測試）。
+// Routes 速度用 duration_in_traffic（路況時間）；無路況時間時退回靜態 duration；都沒有則為 null。
+function buildStepSpeedTable(route) {
+  const table = [];
+  let cumKm = 0;
+  for (const leg of (route?.legs || [])) {
+    for (const st of (leg?.steps || [])) {
+      const dKm = (st?.distance?.value || 0) / 1000;
+      const durTraffic = st?.duration_in_traffic?.value;
+      const durStatic = st?.duration?.value;
+      const durSec = (isFinite(durTraffic) && durTraffic > 0) ? durTraffic : durStatic;
+      const sp = (dKm > 0 && isFinite(durSec) && durSec > 0) ? (dKm / (durSec / 3600)) : null;
+      table.push({ startKm: cumKm, endKm: cumKm + dKm, routesSpeedKmh: sp });
+      cumKm += dKm;
+    }
+  }
+  return table;
+}
+
+// v384：查某公里處的 Routes 預期速度（km/h），查不到回 fallback（純函式，可測試）。
+function stepSpeedAtKm(table, km, fallbackKmh) {
+  if (!Array.isArray(table) || table.length === 0) return fallbackKmh;
+  const last = table[table.length - 1];
+  const k = Math.min(Math.max(km, 0), last.endKm);
+  for (const s of table) {
+    if (k >= s.startKm && k < s.endKm) return (isFinite(s.routesSpeedKmh) && s.routesSpeedKmh > 0) ? s.routesSpeedKmh : fallbackKmh;
+  }
+  return (isFinite(last.routesSpeedKmh) && last.routesSpeedKmh > 0) ? last.routesSpeedKmh : fallbackKmh;
+}
+
+// v384：Roads API 回應 → [{ frac, limit }]（純函式，可測試）。
+// speedLimits[i] 對應 snappedPoints[i]（同順序）；以 placeId 對上 originalIndex 指出請求的第幾點，
+// 對不上時退回同序號。無有效速限回 null。
+function mapRoadsSpeedLimits(queryPoints, data) {
+  const limits = data?.speedLimits;
+  if (!Array.isArray(limits) || limits.length === 0) return null;
+  const snapped = Array.isArray(data?.snappedPoints) ? data.snappedPoints : null;
+  const idxByPlace = new Map();
+  if (snapped) {
+    snapped.forEach((sp) => {
+      if (sp && sp.placeId != null && isFinite(sp.originalIndex)) idxByPlace.set(sp.placeId, sp.originalIndex);
+    });
+  }
+  const out = [];
+  for (let i = 0; i < limits.length; i++) {
+    const lim = limits[i];
+    if (!lim || !isFinite(lim.speedLimit)) continue;
+    let qi = null;
+    if (lim.placeId != null && idxByPlace.has(lim.placeId)) qi = idxByPlace.get(lim.placeId);
+    else if (snapped && snapped[i] && isFinite(snapped[i].originalIndex)) qi = snapped[i].originalIndex;
+    else qi = i;
+    const qp = queryPoints[qi];
+    if (!qp || !isFinite(qp.frac)) continue;
+    out.push({ frac: qp.frac, limit: lim.speedLimit });
+  }
+  out.sort((a, b) => a.frac - b.frac);
+  return out.length ? out : null;
+}
+
+// v384：把高程樣本切成路段（純函式，可測試）。
+// sampleFracs：每個高程樣本的距離比例（0→1，遞增）；totalDistanceKm：總里程；
+// stepTable：buildStepSpeedTable 的輸出；limitPoints：mapRoadsSpeedLimits 的輸出（可為 null）；
+// fallbackSpeedKmh：整條路平均時速（某段查不到速度時用）。
+// 回傳 [{ distanceKm, speedKmh }]（分段平地耗電用）。
+function buildEnergySegments(sampleFracs, totalDistanceKm, stepTable, limitPoints, fallbackSpeedKmh) {
+  if (!Array.isArray(sampleFracs) || sampleFracs.length < 2 || !(totalDistanceKm > 0)) return [];
+  const segs = [];
+  for (let i = 0; i < sampleFracs.length - 1; i++) {
+    const f0 = sampleFracs[i], f1 = sampleFracs[i + 1];
+    if (!isFinite(f0) || !isFinite(f1) || f1 <= f0) continue;
+    const dKm = (f1 - f0) * totalDistanceKm;
+    if (dKm <= 0) continue;
+    const midKm = ((f0 + f1) / 2) * totalDistanceKm;
+    const midFrac = (f0 + f1) / 2;
+    const routesSpeed = stepSpeedAtKm(stepTable, midKm, fallbackSpeedKmh);
+    const limit = limitPoints ? speedLimitAtFrac(limitPoints, midFrac) : null;
+    const speed = segmentCruiseSpeed(routesSpeed, limit);
+    segs.push({ distanceKm: dKm, speedKmh: (isFinite(speed) && speed > 0) ? speed : fallbackSpeedKmh });
+  }
+  return segs;
+}
+
+// v384：Roads API speedLimits（速限查詢）。失敗／未啟用／無資料一律回 null（不拋錯），
+// 呼叫端退回單一平均時速模型。path 最多 100 點（Google 上限），超過時呼叫端先等距抽稀。
+// 逾時用 Promise.race（不用 AbortController：iOS WebKit 的 fetch＋AbortSignal 有相容性問題，
+// 此處雖為 GET，沿用 computeRoutesApiRoute 的同一安全寫法）。
+async function fetchRoadsSpeedLimits(queryPoints, apiKey) {
+  if (!Array.isArray(queryPoints) || queryPoints.length === 0 || !apiKey) return null;
+  try {
+    const pts = queryPoints.slice(0, 100);
+    const path = pts.map(p => `${latOf(p)},${lngOf(p)}`).join('|');
+    const url = 'https://roads.googleapis.com/v1/speedLimits?path=' + encodeURIComponent(path) + '&units=KPH&key=' + encodeURIComponent(apiKey);
+    const fetchPromise = fetch(url);
+    fetchPromise.catch(() => {});
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Roads API 逾時')), 10000));
+    const res = await Promise.race([fetchPromise, timeoutPromise]);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return mapRoadsSpeedLimits(pts, data);
+  } catch (_) {
+    return null;
+  }
 }
 
 // v53：多站充電規劃（純函式，不依賴 Google API，可單元測試）
@@ -9584,6 +9817,7 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
             <p class="text-[11px] opacity-90 leading-relaxed">
                 總里程約 ${totalDistanceKm.toFixed(1)} km（地形：<b>${routeProfileText}</b>，等效電耗 <b>${realEff.toFixed(2)} km/度</b>），預估抵達剩餘 <b>${directArrivalSoc}%</b> 電量，高於您設定的 <b>${userTargetSoc}%</b> 底線。
             </p>
+            ${calcData.elevationData?.speedLimitNote ? `<p class="text-[11px] opacity-90 leading-relaxed">ℹ️ ${calcData.elevationData.speedLimitNote}</p>` : ''}
         `;
         pkRouteCache[routeIdx].isReady = true;
         if (typeof window.fx160Confetti === 'function') window.fx160Confetti(recCard); // v160
@@ -9617,6 +9851,7 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         <div class="text-[11px] opacity-90 leading-relaxed text-stone-600 dark:text-stone-300">
             地形判定：<b>${routeProfileText}</b>（均耗 <b>${realEff.toFixed(2)} km/度</b>，共 ${totalDistanceKm.toFixed(1)} km）
         </div>
+        ${calcData.elevationData?.speedLimitNote ? `<div class="text-[11px] opacity-90 leading-relaxed text-stone-600 dark:text-stone-300">ℹ️ ${calcData.elevationData.speedLimitNote}</div>` : ''}
         <div id="abrpStopRecommendation" class="text-[11px] pt-1">
             <div class="min-h-[90px] bg-white/50 dark:bg-black/20 rounded-3xl border border-amber-200/50 dark:border-amber-700/30 p-3 space-y-2.5">
                 <div class="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-bold">
@@ -10312,6 +10547,7 @@ function renderAbrpCachedResults(calcData, totalDistanceKm, durationText) {
         <div class="text-[11px] opacity-90 leading-relaxed text-stone-600 dark:text-stone-300">
             地形判定：<b>${calcData.routeProfileText}</b>（均耗 <b>${calcData.realEff.toFixed(2)} km/度</b>，共 ${totalDistanceKm.toFixed(1)} km）
         </div>
+        ${calcData.elevationData?.speedLimitNote ? `<div class="text-[11px] opacity-90 leading-relaxed text-stone-600 dark:text-stone-300">ℹ️ ${calcData.elevationData.speedLimitNote}</div>` : ''}
         <div id="abrpStopRecommendation" class="text-[11px] pt-1">
             ${calcData.stationCardHtml}
             ${renderLaterStopsHtml(calcData.stopPlan)}
