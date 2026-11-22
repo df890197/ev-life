@@ -2344,7 +2344,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="#F472B6" aria-hidden="true"><path d="M12 2l2.9 6.2 6.6.8-4.9 4.6 1.3 6.6L12 17l-5.9 3.2 1.3-6.6L2.5 9l6.6-.8L12 2z"/></svg><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v386</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v387</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2922,7 +2922,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-[2rem] border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v386</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v387</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-3xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -3476,7 +3476,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v386';
+        const APP_VERSION = 'v387';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -9151,7 +9151,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
       usedDetailedPath = false;
     }
 
-    // v386：OSM 速限查詢已移除（Overpass 手機上連不上且等 15 秒才失敗）；分段速度改用 Routes 速度＋10（見下方能量計算），不再額外取速限。
+    // v387：OSM 速限查詢已移除（Overpass 手機上連不上且等 15 秒才失敗）；分段速度改查錨點表（見下方能量計算），不再額外取速限。
 
     let sampleDistFrac = null; // v134：樣本真實距離比例（投影 overview_path 得出）
     let { elevations, eStatus } = await fetchElevationSmart(elevationPath, sampleCount);
@@ -9234,8 +9234,8 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
     // v119：塞車（平均速度）修正 — 行車時間已含即時路況。低速巡航對電車較省電、高速較耗，
     // 只修正平地能耗項；基準（全域平均）與爬坡 0.65／回充 0.40 係數不動，倍率有界 0.95–1.10。
     const avgSpeedKmh = totalSeconds > 0 ? totalDistanceKm / (totalSeconds / 3600) : 0;
-    // v386：分段速度 — Routes 速度＋10（取代 v385 的 OSM 速限；Overpass 手機上連不上且等 15 秒才失敗）。
-    // Routes 速度在順暢高速段約等於速限（110 段約 110、100 段約 100），故高速段（Routes 速度 ≥90）用 Routes 速度＋10
+    // v387：分段速度 — 錨點表速限＋10（取代 v386 的 Routes 速度合成；Routes 速度比真實速限低約 12，已證實失效）。
+    // 錨點表查到的速限即真實速限，高速段（速限 ≥90）且路況順暢（Routes 速度 ≥ 限速−15）時用限速＋10
     // （上限 120），分得出 100／110；塞車／慢速段用 Routes 速度。不再額外取速限、無新增網路呼叫。
     // 只有 Routes 步驟資料缺失時才退回單一平均時速（speedLimitNote 顯示提示），不擋計算。
     let flatEnergyKwh = totalDistanceKm / (baseHighwayEff * speedEffFactor(avgSpeedKmh));
@@ -9245,11 +9245,16 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
       try {
         const stepTable = buildStepSpeedTable(route);
         if (stepTable && stepTable.length) {
-          const limitPoints = buildRoutesLimitPoints(stepTable, totalDistanceKm);
           const fracs = (sampleDistFrac && sampleDistFrac.length === smoothed.length)
             ? sampleDistFrac
             : smoothed.map((_, i) => (smoothed.length > 1 ? i / (smoothed.length - 1) : 0));
-          const segments = buildEnergySegments(fracs, totalDistanceKm, stepTable, limitPoints, avgSpeedKmh);
+          // v387：速限改查錨點表（真實速限）；錨點全無才退回 Routes 速度合成。
+          // 錨點路徑限速點最遠 0.02 frac（約 3.5 km）才有效，避免非國道段隔空繼承國道速限；
+          // 退回路徑（Routes 合成點稀疏）維持最近鄰不設限。
+          let limitPoints = buildAnchorLimitPoints(route, totalDistanceKm, fracs);
+          const useAnchorLimits = !!limitPoints;
+          if (!limitPoints) limitPoints = buildRoutesLimitPoints(stepTable, totalDistanceKm);
+          const segments = buildEnergySegments(fracs, totalDistanceKm, stepTable, limitPoints, avgSpeedKmh, useAnchorLimits ? 0.02 : Infinity);
           const segFlat = computeSegmentFlatEnergy(segments, baseHighwayEff, avgSpeedKmh);
           if (segFlat !== null && isFinite(segFlat) && segFlat >= 0) {
             flatEnergyKwh = segFlat;
@@ -9261,7 +9266,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
           speedLimitNote = '路線速度資料不足，改用平均時速估算';
         }
       } catch (e) {
-        console.warn('[EvLife] v386 分段耗電例外，退回平均時速', e);
+        console.warn('[EvLife] v387 分段耗電例外，退回平均時速', e);
         speedLimitNote = '路線速度資料不足，改用平均時速估算';
       }
     }
@@ -9464,19 +9469,242 @@ function speedEffFactor(avgSpeedKmh) {
     return 1.05;
 }
 
-// ---------- v384/v386：分段速度（Routes 速度＋10＋使用者巡航規則） ----------
+// ---------- v387：國道速限錨點表（取代 v386 的 Routes 速度合成速限） ----------
 // 背景：2026-11-21 高雄回程（左楠路中油→泰安）模型樂觀 9%（預估 23%、實際 14%）。
 // 原因：單一平均時速把台南前塞車段和台南後 120 巡航段混在一起，低估了高速段的耗電
 // （風阻約與時速平方成正比，快段多耗的遠超過慢段省下的）。
 // 使用者巡航規則（2026-11-22 使用者親述）：國道限速 110 → 巡航 120；限速 100 → 巡航 110（限速＋10）。
-// 速限來源：v386 改用 Routes 速度＋10（v385 的 OSM／Overpass 手機上連不上且等 15 秒才失敗，2026-11-22 使用者回報後移除；
-// v384 的 Google speedLimits 需 Asset Tracking 授權亦已移除）。Routes 速度在順暢高速段約等於速限，
-// 故高速段（Routes 速度 ≥90）用 Routes 速度＋10（上限 120），分得出 100／110；無新增網路呼叫。
-// 只有 Routes 步驟資料缺失時才退回單一平均時速（見下方能量計算）。
+// 速限來源：v387 改用錨點表（v386 的 Routes 速度＋10 已證實失效：真實步驟速度 97.8／102.1 比真實速限 110
+// 低約 12，巡航只到 107.8／112.1、沒跨過 115 那檔，結果跟平均模型一樣 23%）。錨點從真實 Routes API
+// 國道路徑取樣（每 ~5 km 一點），速限依高公局公告分段；無新增網路呼叫。
+// 國道一號：大安溪橋以北 100、大安溪橋→楠梓 110、楠梓以南 100（75 點）。
+// 國道三號：中和以北 90、中和→土城 100、土城以南 110（84 點）。
+// 錨點全無才退回 Routes 速度合成（buildRoutesLimitPoints，見下方能量計算）。
 
-// v384/v386：某段的巡航速度（純函式，可測試）。
+// v387：國道速限錨點表（真實 Routes API 國道路徑取樣，每 ~5 km 一點；速限依高公局公告分段）。
+// 國道一號（75 點）：大安溪橋以北 100、大安溪橋→楠梓 110、楠梓以南 100。
+// 國道三號（84 點）：中和以北 90、中和→土城 100、土城以南 110。
+// 格式：[lat, lng, limit]。lat/lng 取 4 位小數。
+const FREEWAY_SPEED_ANCHORS = [
+  [25.1301, 121.7401, 100],
+  [25.1, 121.7085, 100],
+  [25.081, 121.6673, 100],
+  [25.0546, 121.6359, 100],
+  [25.0238, 121.6019, 100],
+  [24.9817, 121.5868, 100],
+  [24.9624, 121.5446, 100],
+  [24.9781, 121.5074, 100],
+  [24.9782, 121.466, 100],
+  [24.959, 121.4247, 100],
+  [24.9512, 121.3792, 100],
+  [24.9382, 121.3362, 100],
+  [24.9174, 121.2955, 100],
+  [24.8882, 121.2625, 100],
+  [24.8618, 121.2232, 100],
+  [24.8314, 121.1994, 100],
+  [24.7971, 121.1803, 100],
+  [24.8023, 121.1357, 100],
+  [24.7781, 121.0974, 100],
+  [24.758, 121.0563, 100],
+  [24.7559, 121.012, 100],
+  [24.7415, 120.9738, 100],
+  [24.7212, 120.9325, 100],
+  [24.6835, 120.9104, 100],
+  [24.6513, 120.8798, 100],
+  [24.6127, 120.864, 100],
+  [24.5703, 120.8525, 100],
+  [24.5321, 120.8277, 100],
+  [24.5028, 120.7925, 100],
+  [24.463, 120.7881, 100],
+  [24.4197, 120.7754, 100],
+  [24.3818, 120.7521, 100],
+  [24.3444, 120.7242, 110],
+  [24.3054, 120.6985, 110],
+  [24.2602, 120.6916, 110],
+  [24.2192, 120.6789, 110],
+  [24.192, 120.6394, 110],
+  [24.153, 120.6198, 110],
+  [24.112, 120.6057, 110],
+  [24.106, 120.5616, 110],
+  [24.0818, 120.5255, 110],
+  [24.0377, 120.5221, 110],
+  [23.995, 120.51, 110],
+  [23.9507, 120.506, 110],
+  [23.9053, 120.4978, 110],
+  [23.8631, 120.4882, 110],
+  [23.8178, 120.4851, 110],
+  [23.7743, 120.472, 110],
+  [23.7289, 120.4729, 110],
+  [23.6875, 120.4685, 110],
+  [23.6463, 120.4453, 110],
+  [23.6025, 120.4354, 110],
+  [23.5594, 120.4179, 110],
+  [23.5188, 120.4041, 110],
+  [23.48, 120.3813, 110],
+  [23.4382, 120.3626, 110],
+  [23.3943, 120.3554, 110],
+  [23.356, 120.3354, 110],
+  [23.3252, 120.3008, 110],
+  [23.2851, 120.2771, 110],
+  [23.2457, 120.2518, 110],
+  [23.2047, 120.2366, 110],
+  [23.1605, 120.2309, 110],
+  [23.1191, 120.2429, 110],
+  [23.0729, 120.2528, 110],
+  [23.0282, 120.2492, 110],
+  [22.9876, 120.2482, 110],
+  [22.9402, 120.2503, 110],
+  [22.8986, 120.2691, 110],
+  [22.8573, 120.2889, 110],
+  [22.8181, 120.3126, 110],
+  [22.7701, 120.327, 110],
+  [22.7315, 120.3342, 110],
+  [22.6866, 120.3281, 100],
+  [22.6437, 120.3369, 100],
+  [25.1299, 121.6991, 90],
+  [25.1243, 121.6989, 90],
+  [25.0977, 121.669, 90],
+  [25.0631, 121.6425, 90],
+  [25.0307, 121.6122, 90],
+  [24.9915, 121.5925, 100],
+  [24.9721, 121.5523, 100],
+  [24.9755, 121.5192, 100],
+  [24.9861, 121.4758, 100],
+  [24.9618, 121.4357, 110],
+  [24.954, 121.418, 110],
+  [24.948, 121.371, 110],
+  [24.9397, 121.3275, 110],
+  [24.9112, 121.2916, 110],
+  [24.882, 121.2569, 110],
+  [24.8598, 121.2158, 110],
+  [24.817, 121.2002, 110],
+  [24.8003, 121.1735, 110],
+  [24.796, 121.1289, 110],
+  [24.7751, 121.0903, 110],
+  [24.7616, 121.0495, 110],
+  [24.7572, 121.0036, 110],
+  [24.7567, 120.9563, 110],
+  [24.7372, 120.9134, 110],
+  [24.7081, 120.8833, 110],
+  [24.6769, 120.8471, 110],
+  [24.6409, 120.8218, 110],
+  [24.606, 120.7945, 110],
+  [24.5725, 120.762, 110],
+  [24.5348, 120.7367, 110],
+  [24.5005, 120.7067, 110],
+  [24.4641, 120.6797, 110],
+  [24.4218, 120.68, 110],
+  [24.3773, 120.6655, 110],
+  [24.3382, 120.6463, 110],
+  [24.3078, 120.6137, 110],
+  [24.2703, 120.5911, 110],
+  [24.226, 120.5886, 110],
+  [24.1914, 120.5639, 110],
+  [24.1612, 120.5283, 110],
+  [24.1219, 120.533, 110],
+  [24.104, 120.5739, 110],
+  [24.0832, 120.6179, 110],
+  [24.0659, 120.661, 110],
+  [24.0301, 120.6707, 110],
+  [23.9913, 120.6518, 110],
+  [23.9543, 120.6636, 110],
+  [23.9181, 120.6899, 110],
+  [23.8924, 120.7207, 110],
+  [23.8915, 120.6886, 110],
+  [23.8504, 120.6986, 110],
+  [23.8131, 120.6987, 110],
+  [23.7773, 120.6905, 110],
+  [23.7743, 120.6424, 110],
+  [23.7598, 120.6043, 110],
+  [23.7219, 120.6029, 110],
+  [23.6803, 120.5903, 110],
+  [23.6412, 120.5723, 110],
+  [23.6108, 120.5442, 110],
+  [23.5788, 120.5088, 110],
+  [23.5379, 120.494, 110],
+  [23.4973, 120.4936, 110],
+  [23.4572, 120.4898, 110],
+  [23.4205, 120.463, 110],
+  [23.3917, 120.4298, 110],
+  [23.3476, 120.4394, 110],
+  [23.3063, 120.4218, 110],
+  [23.2778, 120.388, 110],
+  [23.2395, 120.3636, 110],
+  [23.1971, 120.3553, 110],
+  [23.1538, 120.3441, 110],
+  [23.1122, 120.3275, 110],
+  [23.0692, 120.3261, 110],
+  [23.0247, 120.3266, 110],
+  [22.9803, 120.3222, 110],
+  [22.9505, 120.3543, 110],
+  [22.9067, 120.3518, 110],
+  [22.8651, 120.3663, 110],
+  [22.8349, 120.4021, 110],
+  [22.7999, 120.4263, 110],
+  [22.7656, 120.4499, 110],
+  [22.7489, 120.491, 110],
+  [22.706, 120.4903, 110],
+  [22.6804, 120.481, 110],
+];
+
+// v387：查某經緯度附近的國道速限（純函式，可測試）。
+// 回傳 3 km 內最近錨點的速限；無錨點回 null。
+function speedLimitAtLatLng(lat, lng) {
+  if (!isFinite(lat) || !isFinite(lng) || !Array.isArray(FREEWAY_SPEED_ANCHORS) || FREEWAY_SPEED_ANCHORS.length === 0) return null;
+  const p = { lat, lng };
+  let best = null, bestD = Infinity;
+  for (const a of FREEWAY_SPEED_ANCHORS) {
+    if (!a || !isFinite(a[0]) || !isFinite(a[1]) || !isFinite(a[2])) continue;
+    const d = haversineM(p, { lat: a[0], lng: a[1] });
+    if (d < bestD) { bestD = d; best = a[2]; }
+  }
+  return (bestD <= 3000) ? best : null;
+}
+
+// v387：沿路線 overview_path 求某 frac 處的經緯度（純函式，可測試）。
+// path：LatLng[]（或 {lat,lng}[]）；cumKm：沿 path 的累積公里陣列（與 path 等長）；
+// frac：0→1；totalKm：路徑總里程（km）。回傳 {lat, lng}；path 無效回 null。
+function latLngAtFrac(path, cumKm, frac, totalKm) {
+  if (!Array.isArray(path) || path.length === 0 || !Array.isArray(cumKm) || cumKm.length !== path.length || !(totalKm > 0)) return null;
+  const f = Math.min(1, Math.max(0, frac));
+  const targetKm = f * totalKm;
+  let lo = 0, hi = cumKm.length - 1;
+  while (lo < hi) { const mid = (lo + hi) >> 1; if (cumKm[mid] < targetKm) lo = mid + 1; else hi = mid; }
+  const i = lo;
+  if (i === 0) return { lat: latOf(path[0]), lng: lngOf(path[0]) };
+  const d0 = cumKm[i - 1], d1 = cumKm[i];
+  if (!(d1 > d0)) return { lat: latOf(path[i]), lng: lngOf(path[i]) };
+  const t = Math.min(1, Math.max(0, (targetKm - d0) / (d1 - d0)));
+  const la0 = latOf(path[i - 1]), lo0 = lngOf(path[i - 1]), la1 = latOf(path[i]), lo1 = lngOf(path[i]);
+  return { lat: la0 + (la1 - la0) * t, lng: lo0 + (lo1 - lo0) * t };
+}
+
+// v387：從錨點表建立速限點（純函式，可測試）。
+// 對每個高程樣本 frac，求該處經緯度、查錨點速限，回傳依 frac 排序的 [{frac, limit}]；
+// 全無錨點回 null（呼叫端退回 buildRoutesLimitPoints）。
+function buildAnchorLimitPoints(route, totalDistanceKm, sampleFracs) {
+  const path = route?.overview_path;
+  if (!Array.isArray(path) || path.length < 2 || !Array.isArray(sampleFracs) || sampleFracs.length === 0 || !(totalDistanceKm > 0)) return null;
+  const cumKm = [0];
+  for (let i = 1; i < path.length; i++) cumKm.push(cumKm[i - 1] + haversineM(path[i - 1], path[i]) / 1000);
+  const totalPathKm = cumKm[cumKm.length - 1];
+  if (!(totalPathKm > 0)) return null;
+  const out = [];
+  for (const f of sampleFracs) {
+    if (!isFinite(f)) continue;
+    const pt = latLngAtFrac(path, cumKm, f, totalPathKm);
+    if (!pt) continue;
+    const lim = speedLimitAtLatLng(pt.lat, pt.lng);
+    if (lim === null) continue;
+    out.push({ frac: Math.min(1, Math.max(0, f)), limit: lim });
+  }
+  out.sort((a, b) => a.frac - b.frac);
+  return out.length ? out : null;
+}
+
+// v384/v387：某段的巡航速度（純函式，可測試）。
 // routesSpeedKmh：Routes 該段預期速度（step 距離 ÷ 路況時間，含塞車）；
-// speedLimitKmh：該段速限（v386 為 buildRoutesLimitPoints 合成的 Routes 速度；無資料傳 null）。
+// speedLimitKmh：該段速限（v387 為錨點表查到的真實速限；無資料傳 null）。
 // 速限 ≥90 視為高速段：路況順暢（Routes 速度 ≥ 限速−15）時用限速＋10（上限 120）；塞車時用 Routes 速度。
 // 非高速段或無速限資料時，一律用 Routes 速度。
 function segmentCruiseSpeed(routesSpeedKmh, speedLimitKmh) {
@@ -9509,7 +9737,9 @@ function computeSegmentFlatEnergy(segments, baseline, fallbackSpeedKmh) {
 
 // v384：速限內插（純函式，可測試）。limitPoints 為依 frac 排序的 [{ frac, limit }]，
 // 回傳 frac 處的速限（最近鄰）；無資料回 null（呼叫端退回 Routes 速度）。
-function speedLimitAtFrac(limitPoints, frac) {
+// v387：maxFracDist（可選）— 最近點比它遠就回 null，避免非國道段（進出交流道／平面道路）
+// 隔空繼承國道速限。預設 Infinity（v386 退回路徑維持舊行為）。
+function speedLimitAtFrac(limitPoints, frac, maxFracDist = Infinity) {
   if (!Array.isArray(limitPoints) || limitPoints.length === 0 || !isFinite(frac)) return null;
   const f = Math.min(1, Math.max(0, frac));
   let best = null, bestD = Infinity;
@@ -9518,12 +9748,13 @@ function speedLimitAtFrac(limitPoints, frac) {
     const d = Math.abs(p.frac - f);
     if (d < bestD) { bestD = d; best = p.limit; }
   }
+  if (isFinite(maxFracDist) && bestD > maxFracDist) return null;
   return best;
 }
 
-// v386：從 Routes 步驟速度表合成速限點（純函式，可測試）。
-// Routes 速度在順暢高速段約等於速限（110 段約 110、100 段約 100），
-// 因此把 Routes 速度 ≥90 的步驟中點當成「速限點」（limit = 該段 Routes 速度），
+// v387：從 Routes 步驟速度表合成速限點（純函式，可測試；僅為錨點表全無時的退回方案）。
+// 注意：Routes 速度比真實速限低約 12（長路段平均速度），故此退回方案會低估高速段耗電。
+// 把 Routes 速度 ≥90 的步驟中點當成「速限點」（limit = 該段 Routes 速度），
 // 餵給既有的 speedLimitAtFrac / segmentCruiseSpeed：
 // 順暢段（Routes 速度 ≥ 限速−15）→ 限速＋10（即 Routes 速度＋10，上限 120）；
 // 塞車段（Routes 速度 < 限速−15）→ 用 Routes 速度（不加 10）。
@@ -9578,8 +9809,9 @@ function stepSpeedAtKm(table, km, fallbackKmh) {
 // sampleFracs：每個高程樣本的距離比例（0→1，遞增）；totalDistanceKm：總里程；
 // stepTable：buildStepSpeedTable 的輸出；limitPoints：buildRoutesLimitPoints 的輸出（可為 null）；
 // fallbackSpeedKmh：整條路平均時速（某段查不到速度時用）。
+// maxFracDist（v387，可選）：速限點最遠容許距離（frac），超過回 null；預設 Infinity。
 // 回傳 [{ distanceKm, speedKmh }]（分段平地耗電用）。
-function buildEnergySegments(sampleFracs, totalDistanceKm, stepTable, limitPoints, fallbackSpeedKmh) {
+function buildEnergySegments(sampleFracs, totalDistanceKm, stepTable, limitPoints, fallbackSpeedKmh, maxFracDist = Infinity) {
   if (!Array.isArray(sampleFracs) || sampleFracs.length < 2 || !(totalDistanceKm > 0)) return [];
   const segs = [];
   for (let i = 0; i < sampleFracs.length - 1; i++) {
@@ -9590,7 +9822,7 @@ function buildEnergySegments(sampleFracs, totalDistanceKm, stepTable, limitPoint
     const midKm = ((f0 + f1) / 2) * totalDistanceKm;
     const midFrac = (f0 + f1) / 2;
     const routesSpeed = stepSpeedAtKm(stepTable, midKm, fallbackSpeedKmh);
-    const limit = limitPoints ? speedLimitAtFrac(limitPoints, midFrac) : null;
+    const limit = limitPoints ? speedLimitAtFrac(limitPoints, midFrac, maxFracDist) : null;
     const speed = segmentCruiseSpeed(routesSpeed, limit);
     segs.push({ distanceKm: dKm, speedKmh: (isFinite(speed) && speed > 0) ? speed : fallbackSpeedKmh });
   }
