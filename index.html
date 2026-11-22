@@ -2344,7 +2344,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="#F472B6" aria-hidden="true"><path d="M12 2l2.9 6.2 6.6.8-4.9 4.6 1.3 6.6L12 17l-5.9 3.2 1.3-6.6L2.5 9l6.6-.8L12 2z"/></svg><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v384</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v385</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2922,7 +2922,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-[2rem] border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v384</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v385</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-3xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -3476,7 +3476,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v384';
+        const APP_VERSION = 'v385';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -9151,12 +9151,12 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
       usedDetailedPath = false;
     }
 
-    // v384：速限查詢與高程查詢並行（Roads API 未啟用／失敗 → 回 null，後面退回平均時速，不擋計算）
-    let roadsLimitPromise = null;
+    // v385：速限查詢（OSM maxspeed）與高程查詢並行（OSM 失敗／無資料 → 回 null，後面退回平均時速，不擋計算）
+    let speedLimitPromise = null;
     try {
       const _speedLimitPts = buildSpeedLimitQueryPoints(elevationPath, 100);
-      if (_speedLimitPts && _speedLimitPts.length) roadsLimitPromise = fetchRoadsSpeedLimits(_speedLimitPts, getMapsApiKey());
-    } catch (_) { roadsLimitPromise = null; }
+      if (_speedLimitPts && _speedLimitPts.length) speedLimitPromise = fetchOsmSpeedLimits(_speedLimitPts);
+    } catch (_) { speedLimitPromise = null; }
 
     let sampleDistFrac = null; // v134：樣本真實距離比例（投影 overview_path 得出）
     let { elevations, eStatus } = await fetchElevationSmart(elevationPath, sampleCount);
@@ -9239,15 +9239,15 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
     // v119：塞車（平均速度）修正 — 行車時間已含即時路況。低速巡航對電車較省電、高速較耗，
     // 只修正平地能耗項；基準（全域平均）與爬坡 0.65／回充 0.40 係數不動，倍率有界 0.95–1.10。
     const avgSpeedKmh = totalSeconds > 0 ? totalDistanceKm / (totalSeconds / 3600) : 0;
-    // v384：分段速度 — 速限（Roads API）＋巡航規則（限速＋10）分段算平地耗電。
-    // Roads API 未啟用／失敗／無資料時自動退回單一平均時速（speedLimitNote 顯示提示），不擋計算、不編速限。
+    // v385：分段速度 — 速限（OSM maxspeed）＋巡航規則（限速＋10）分段算平地耗電。
+    // OSM 失敗／無資料時自動退回單一平均時速（speedLimitNote 顯示提示），不擋計算、不編速限。
     let flatEnergyKwh = totalDistanceKm / (baseHighwayEff * speedEffFactor(avgSpeedKmh));
     let speedMode = 'average';
     let speedLimitNote = null;
     {
       let limitPoints = null;
-      if (roadsLimitPromise) {
-        try { limitPoints = await roadsLimitPromise; } catch (_) { limitPoints = null; }
+      if (speedLimitPromise) {
+        try { limitPoints = await speedLimitPromise; } catch (_) { limitPoints = null; }
       }
       if (limitPoints && limitPoints.length) {
         try {
@@ -9261,14 +9261,14 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
             flatEnergyKwh = segFlat;
             speedMode = 'segmented';
           } else {
-            speedLimitNote = '速限資料未取得，改用平均時速估算；請在 Google Cloud Console 啟用 Roads API';
+            speedLimitNote = '速限資料未取得，改用平均時速估算';
           }
         } catch (e) {
           console.warn('[EvLife] v384 分段耗電例外，退回平均時速', e);
-          speedLimitNote = '速限資料未取得，改用平均時速估算；請在 Google Cloud Console 啟用 Roads API';
+          speedLimitNote = '速限資料未取得，改用平均時速估算';
         }
       } else {
-        speedLimitNote = '速限資料未取得，改用平均時速估算；請在 Google Cloud Console 啟用 Roads API';
+        speedLimitNote = '速限資料未取得，改用平均時速估算';
       }
     }
     const climbEnergyKwh = (totalClimbMeters / 100) * 0.65;
@@ -9470,16 +9470,16 @@ function speedEffFactor(avgSpeedKmh) {
     return 1.05;
 }
 
-// ---------- v384：分段速度（Roads API 速限＋使用者巡航規則） ----------
+// ---------- v384/v385：分段速度（OSM maxspeed 速限＋使用者巡航規則） ----------
 // 背景：2026-11-21 高雄回程（左楠路中油→泰安）模型樂觀 9%（預估 23%、實際 14%）。
 // 原因：單一平均時速把台南前塞車段和台南後 120 巡航段混在一起，低估了高速段的耗電
 // （風阻約與時速平方成正比，快段多耗的遠超過慢段省下的）。
 // 使用者巡航規則（2026-11-22 使用者親述）：國道限速 110 → 巡航 120；限速 100 → 巡航 110（限速＋10）。
-// 速限來自 Roads API speedLimits；Roads API 未啟用／失敗時自動退回單一平均時速（見下方能量計算）。
+// 速限來自 OSM maxspeed（Overpass API）；OSM 失敗／無資料時自動退回單一平均時速（見下方能量計算）。
 
 // v384：某段的巡航速度（純函式，可測試）。
 // routesSpeedKmh：Routes 該段預期速度（step 距離 ÷ 路況時間，含塞車）；
-// speedLimitKmh：該段速限（Roads API；無資料傳 null）。
+// speedLimitKmh：該段速限（OSM maxspeed；無資料傳 null）。
 // 速限 ≥90 視為高速段：路況順暢（Routes 速度 ≥ 限速−15）時用限速＋10；塞車時用 Routes 速度。
 // 非高速段或無速限資料時，一律用 Routes 速度。
 function segmentCruiseSpeed(routesSpeedKmh, speedLimitKmh) {
@@ -9524,8 +9524,8 @@ function speedLimitAtFrac(limitPoints, frac) {
   return best;
 }
 
-// v384：從路線路徑取最多 maxPoints 個等距取樣點給 Roads API speedLimits（純函式，可測試）。
-// 回傳 [{ lat, lng, frac }]，frac 為沿路線距離比例（0→1）。Roads API 單次上限 100 點。
+// v384：從路線路徑取最多 maxPoints 個等距取樣點給速限查詢（純函式，可測試）。
+// 回傳 [{ lat, lng, frac }]，frac 為沿路線距離比例（0→1）。速限查詢取最多 100 點。
 function buildSpeedLimitQueryPoints(path, maxPoints) {
   if (!Array.isArray(path) || path.length < 2) return [];
   const max = (isFinite(maxPoints) && maxPoints > 0) ? Math.floor(maxPoints) : 100;
@@ -9579,38 +9579,9 @@ function stepSpeedAtKm(table, km, fallbackKmh) {
   return (isFinite(last.routesSpeedKmh) && last.routesSpeedKmh > 0) ? last.routesSpeedKmh : fallbackKmh;
 }
 
-// v384：Roads API 回應 → [{ frac, limit }]（純函式，可測試）。
-// speedLimits[i] 對應 snappedPoints[i]（同順序）；以 placeId 對上 originalIndex 指出請求的第幾點，
-// 對不上時退回同序號。無有效速限回 null。
-function mapRoadsSpeedLimits(queryPoints, data) {
-  const limits = data?.speedLimits;
-  if (!Array.isArray(limits) || limits.length === 0) return null;
-  const snapped = Array.isArray(data?.snappedPoints) ? data.snappedPoints : null;
-  const idxByPlace = new Map();
-  if (snapped) {
-    snapped.forEach((sp) => {
-      if (sp && sp.placeId != null && isFinite(sp.originalIndex)) idxByPlace.set(sp.placeId, sp.originalIndex);
-    });
-  }
-  const out = [];
-  for (let i = 0; i < limits.length; i++) {
-    const lim = limits[i];
-    if (!lim || !isFinite(lim.speedLimit)) continue;
-    let qi = null;
-    if (lim.placeId != null && idxByPlace.has(lim.placeId)) qi = idxByPlace.get(lim.placeId);
-    else if (snapped && snapped[i] && isFinite(snapped[i].originalIndex)) qi = snapped[i].originalIndex;
-    else qi = i;
-    const qp = queryPoints[qi];
-    if (!qp || !isFinite(qp.frac)) continue;
-    out.push({ frac: qp.frac, limit: lim.speedLimit });
-  }
-  out.sort((a, b) => a.frac - b.frac);
-  return out.length ? out : null;
-}
-
 // v384：把高程樣本切成路段（純函式，可測試）。
 // sampleFracs：每個高程樣本的距離比例（0→1，遞增）；totalDistanceKm：總里程；
-// stepTable：buildStepSpeedTable 的輸出；limitPoints：mapRoadsSpeedLimits 的輸出（可為 null）；
+// stepTable：buildStepSpeedTable 的輸出；limitPoints：mapOsmSpeedLimits 的輸出（可為 null）；
 // fallbackSpeedKmh：整條路平均時速（某段查不到速度時用）。
 // 回傳 [{ distanceKm, speedKmh }]（分段平地耗電用）。
 function buildEnergySegments(sampleFracs, totalDistanceKm, stepTable, limitPoints, fallbackSpeedKmh) {
@@ -9631,23 +9602,142 @@ function buildEnergySegments(sampleFracs, totalDistanceKm, stepTable, limitPoint
   return segs;
 }
 
-// v384：Roads API speedLimits（速限查詢）。失敗／未啟用／無資料一律回 null（不拋錯），
-// 呼叫端退回單一平均時速模型。path 最多 100 點（Google 上限），超過時呼叫端先等距抽稀。
-// 逾時用 Promise.race（不用 AbortController：iOS WebKit 的 fetch＋AbortSignal 有相容性問題，
-// 此處雖為 GET，沿用 computeRoutesApiRoute 的同一安全寫法）。
-async function fetchRoadsSpeedLimits(queryPoints, apiKey) {
-  if (!Array.isArray(queryPoints) || queryPoints.length === 0 || !apiKey) return null;
+// v385：OSM maxspeed（速限查詢，取代 v384 的 Google 速限查詢）。
+// 來源：OpenStreetMap（開放資料，免費、免金鑰）經 Overpass API 查詢。舊的 Google 速限服務
+// 需 Asset Tracking 授權（約 1 萬美金／年），本專案無法使用，2026-11-22 使用者決定移除。
+// 取路線等距取樣點附近道路的 maxspeed 標籤，回傳與舊版相同的
+// [{ frac, limit }]（frac 為沿路線距離比例 0→1，limit 為速限 km/h），直接餵給
+// buildEnergySegments / speedLimitAtFrac，不動計算邏輯。
+// 失敗／逾時／無資料一律回 null（不拋錯），呼叫端退回單一平均時速模型。
+// 逾時用 Promise.race（不用 AbortController：iOS WebKit 的 fetch＋AbortSignal 有相容性問題）。
+// Overpass 查詢為 POST（data 參數；application/x-www-form-urlencoded 為 CORS simple 請求，免預檢）。
+// 速限資料 © OpenStreetMap contributors（ODbL）。
+
+// v385：解析 OSM maxspeed 標籤為 km/h 數字（純函式，可測試）。
+// "110"→110、"50 mph"→80、"100;50"→100；"RO:urban" 等無數字者回 null。
+function parseOsmMaxspeed(raw) {
+  if (raw == null) return null;
+  const s = String(raw).trim();
+  if (!s) return null;
+  const m = s.match(/(\d+(?:\.\d+)?)/);
+  if (!m) return null;
+  let v = parseFloat(m[1]);
+  if (!isFinite(v) || v <= 0 || v > 350) return null;
+  if (/mph/i.test(s)) v = v * 1.609344;
+  return Math.round(v);
+}
+
+// v385：點到道路折線的最短距離（公尺，純函式，可測試）。
+// 以查詢點為原點做等距圓柱投影（<1 km 內準確），算點到每段折線的最短距離。
+function osmPointToWayDistM(lat, lng, geom) {
+  if (!Array.isArray(geom) || geom.length === 0) return Infinity;
+  const R = 6371000;
+  const cosLat = Math.cos(lat * Math.PI / 180);
+  if (geom.length === 1) {
+    const g = geom[0];
+    if (!isFinite(g.lat) || !isFinite(g.lon)) return Infinity;
+    const x = (g.lon - lng) * Math.PI / 180 * R * cosLat;
+    const y = (g.lat - lat) * Math.PI / 180 * R;
+    return Math.hypot(x, y);
+  }
+  let best = Infinity;
+  for (let i = 0; i < geom.length - 1; i++) {
+    const a = geom[i], b = geom[i + 1];
+    if (!isFinite(a.lat) || !isFinite(a.lon) || !isFinite(b.lat) || !isFinite(b.lon)) continue;
+    const ax = (a.lon - lng) * Math.PI / 180 * R * cosLat;
+    const ay = (a.lat - lat) * Math.PI / 180 * R;
+    const bx = (b.lon - lng) * Math.PI / 180 * R * cosLat;
+    const by = (b.lat - lat) * Math.PI / 180 * R;
+    const dx = bx - ax, dy = by - ay;
+    const len2 = dx * dx + dy * dy;
+    let t = 0;
+    if (len2 > 0) t = Math.max(0, Math.min(1, ((0 - ax) * dx + (0 - ay) * dy) / len2));
+    const cx = ax + t * dx, cy = ay + t * dy;
+    const d = Math.hypot(cx, cy);
+    if (d < best) best = d;
+  }
+  return best;
+}
+
+// v385：等距抽稀取樣點至最多 maxPoints 個（含首末點，純函式，可測試）。
+// Overpass 單次查詢不宜帶太多 around 子句，取 40 點已足夠抓到速限變化（國道 100/110 邊界）。
+function subsampleQueryPoints(queryPoints, maxPoints) {
+  if (!Array.isArray(queryPoints) || queryPoints.length === 0) return [];
+  const max = (isFinite(maxPoints) && maxPoints > 0) ? Math.floor(maxPoints) : 40;
+  if (queryPoints.length <= max) return queryPoints.slice();
+  const out = [];
+  const step = (queryPoints.length - 1) / (max - 1);
+  for (let i = 0; i < max; i++) {
+    const idx = Math.min(queryPoints.length - 1, Math.round(i * step));
+    if (out.length && out[out.length - 1] === queryPoints[idx]) continue;
+    out.push(queryPoints[idx]);
+  }
+  return out;
+}
+
+// v385：Overpass 回應 → [{ frac, limit }]（純函式，可測試）。
+// 每個取樣點取最近的有 maxspeed 道路；優先非匝道（*_link 只有附近無主線時才用，
+// 避免交流道匝道 40 速限誤蓋主線 110）。最近的路 >120 m 視為無資料（該點跳過）。
+// 有效點 <3 回 null（呼叫端退回平均時速）。
+function mapOsmSpeedLimits(queryPoints, data) {
+  const elements = data && Array.isArray(data.elements) ? data.elements : null;
+  if (!elements || elements.length === 0) return null;
+  const ways = [];
+  for (const el of elements) {
+    if (!el || el.type !== 'way') continue;
+    const tags = el.tags || {};
+    const limit = parseOsmMaxspeed(tags.maxspeed);
+    if (limit === null) continue;
+    const geom = Array.isArray(el.geometry) ? el.geometry : null;
+    if (!geom || geom.length === 0) continue;
+    const hw = String(tags.highway || '');
+    ways.push({ limit, geom, isLink: /_link$/.test(hw) });
+  }
+  if (ways.length === 0) return null;
+  const out = [];
+  for (const qp of (queryPoints || [])) {
+    if (!qp || !isFinite(qp.lat) || !isFinite(qp.lng) || !isFinite(qp.frac)) continue;
+    let best = null, bestIsLink = 1, bestD = Infinity;
+    for (const w of ways) {
+      const d = osmPointToWayDistM(qp.lat, qp.lng, w.geom);
+      if (!isFinite(d)) continue;
+      const linkRank = w.isLink ? 1 : 0;
+      if (linkRank < bestIsLink || (linkRank === bestIsLink && d < bestD)) {
+        bestIsLink = linkRank; bestD = d; best = w;
+      }
+    }
+    if (!best || bestD > 120) continue;
+    out.push({ frac: qp.frac, limit: best.limit });
+  }
+  out.sort((a, b) => a.frac - b.frac);
+  return out.length >= 3 ? out : null;
+}
+
+// v385：OSM maxspeed（速限查詢）。失敗／逾時／無資料一律回 null（不拋錯），
+// 呼叫端退回單一平均時速模型。免金鑰；單次查詢取最多 40 個取樣點。
+async function fetchOsmSpeedLimits(queryPoints) {
+  if (!Array.isArray(queryPoints) || queryPoints.length === 0) return null;
   try {
-    const pts = queryPoints.slice(0, 100);
-    const path = pts.map(p => `${latOf(p)},${lngOf(p)}`).join('|');
-    const url = 'https://roads.googleapis.com/v1/speedLimits?path=' + encodeURIComponent(path) + '&units=KPH&key=' + encodeURIComponent(apiKey);
-    const fetchPromise = fetch(url);
+    const pts = subsampleQueryPoints(queryPoints, 40);
+    if (pts.length === 0) return null;
+    const clauses = [];
+    for (const p of pts) {
+      if (!p || !isFinite(p.lat) || !isFinite(p.lng)) continue;
+      clauses.push(`way(around:80,${p.lat},${p.lng})["highway"]["maxspeed"];`);
+    }
+    if (clauses.length === 0) return null;
+    const query = `[out:json][timeout:15];\n(\n${clauses.join('\n')}\n);\nout geom;`;
+    const fetchPromise = fetch('https://overpass-api.de/api/interpreter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'data=' + encodeURIComponent(query),
+    });
     fetchPromise.catch(() => {});
-    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Roads API 逾時')), 10000));
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('OSM 逾時')), 15000));
     const res = await Promise.race([fetchPromise, timeoutPromise]);
     if (!res.ok) return null;
     const data = await res.json();
-    return mapRoadsSpeedLimits(pts, data);
+    return mapOsmSpeedLimits(pts, data);
   } catch (_) {
     return null;
   }
