@@ -2344,7 +2344,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="#F472B6" aria-hidden="true"><path d="M12 2l2.9 6.2 6.6.8-4.9 4.6 1.3 6.6L12 17l-5.9 3.2 1.3-6.6L2.5 9l6.6-.8L12 2z"/></svg><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v395</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v396</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2922,7 +2922,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-[2rem] border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v395</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v396</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-3xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -3146,6 +3146,36 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
         </div>
     </div>
 
+<!-- v396：路線選項（中途點／避開收費／避開高速／出發時間／路況最佳或最短距離） -->
+<div class="w-full pt-2.5 border-t border-stone-200/40 dark:border-stone-800/60 mt-1 space-y-2">
+    <div class="flex items-center justify-between gap-2">
+        <span class="text-[10px] font-bold text-stone-400 px-1 shrink-0">🗺️ 路線選項</span>
+        <button type="button" id="btnAddWaypoint" onclick="toggleWaypointInput()" class="text-[10px] font-bold px-2.5 py-1 rounded-2xl bg-stone-100 dark:bg-black/60 text-stone-600 dark:text-stone-300 border border-stone-200/60 dark:border-stone-700 active:scale-95 transition">＋ 中途點</button>
+    </div>
+    <!-- 中途點輸入（預設隱藏；有值才納入路線） -->
+    <div id="waypointRow" class="hidden w-full">
+        <div class="relative">
+            <input type="text" id="routeWaypointInput" autocomplete="off" oninput="toggleRouteClearBtn('routeWaypointInput', 'btnClearWaypoint')" placeholder="例如: 泰安服務區（留空＝不經中途點）" class="w-full pl-3 pr-8 py-2 text-xs font-bold rounded-3xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-black focus:outline-none focus:border-amber-400">
+            <button type="button" id="btnClearWaypoint" onclick="clearRouteInput('routeWaypointInput', 'btnClearWaypoint')" class="hidden absolute right-1 top-1/2 -translate-y-1/2 w-6 h-6 leading-[24px] text-center text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-[13px] font-bold active:scale-90 transition">✕</button>
+        </div>
+    </div>
+    <!-- 避開＋路況 -->
+    <div class="flex flex-wrap items-center gap-1.5">
+        <button type="button" id="btnAvoidTolls" onclick="toggleRouteAvoid('tolls')" class="route-avoid-chip px-2.5 py-1 rounded-2xl text-[10px] font-bold text-stone-500 dark:text-stone-400 border border-transparent transition-all">💰 避開收費路段</button>
+        <button type="button" id="btnAvoidHighways" onclick="toggleRouteAvoid('highways')" class="route-avoid-chip px-2.5 py-1 rounded-2xl text-[10px] font-bold text-stone-500 dark:text-stone-400 border border-transparent transition-all">🛣️ 避開高速公路</button>
+        <div class="flex items-center bg-stone-200/70 dark:bg-neutral-900 p-0.5 rounded-3xl text-[10px] font-extrabold shrink-0">
+            <button type="button" id="btnRoutePrefTraffic" onclick="setRoutePref('TRAFFIC_AWARE')" class="px-2.5 py-1 rounded-2xl bg-white dark:bg-neutral-800 text-stone-900 dark:text-white shadow-sm transition-colors flex items-center justify-center gap-1">路況最佳</button>
+            <button type="button" id="btnRoutePrefShortest" onclick="setRoutePref('TRAFFIC_UNAWARE')" class="px-2.5 py-1 rounded-2xl text-stone-500 dark:text-stone-400 transition-colors flex items-center justify-center gap-1 hover:text-stone-900 dark:hover:text-white">最短距離</button>
+        </div>
+    </div>
+    <!-- 出發時間 -->
+    <div class="flex items-center gap-2">
+        <span class="text-[10px] font-bold text-stone-400 px-1 shrink-0">🕐 出發時間</span>
+        <input type="datetime-local" id="routeDepartInput" class="flex-1 min-w-0 px-2.5 py-1.5 text-xs font-bold rounded-3xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-black focus:outline-none focus:border-amber-400">
+        <button type="button" onclick="clearRouteDepartTime()" class="text-[10px] font-bold px-2.5 py-1.5 rounded-2xl bg-stone-100 dark:bg-black/60 text-stone-600 dark:text-stone-300 border border-stone-200/60 dark:border-stone-700 active:scale-95 transition shrink-0">現在</button>
+    </div>
+</div>
+
     <!-- 第三行：路線模擬滿版按鈕 -->
     <button type="button" id="fx160PlanBtn" onclick="planElectricRoute()" class="w-full rpg-btn-primary py-2.5 rounded-3xl text-xs font-extrabold shadow-sm active:scale-95 transition flex items-center justify-center gap-1.5">
         <span>⚡</span><span id="fx160PlanBtnLabel">開始路線模擬</span>
@@ -3242,6 +3272,23 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                             <div class="text-[10px] text-stone-400 font-bold mt-1 flex justify-between">
                                 <span>里程: <span id="pkDist1" class="font-mono">-</span> km</span>
                                 <span>預估均耗: <span id="pkEff1" class="font-mono text-teal-500">-</span></span>
+                            </div>
+                        </div>
+                        <div id="pkCardRoute2" onclick="selectPkRoute(2)" class="hidden p-3 rounded-[2rem] border-2 border-stone-200 dark:border-stone-800 box-border opacity-60 select-none cursor-pointer relative bg-stone-50 dark:bg-black/60 shadow-sm transition-[border-color,opacity] duration-150 will-change-[border-color,opacity]">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <span class="text-xs font-extrabold text-stone-800 dark:text-white flex items-center gap-1.5">
+                                    <span class="w-4 h-4 rounded-full bg-stone-800 dark:bg-white text-white dark:text-stone-900 text-[10px] flex items-center justify-center font-mono font-extrabold">3</span>
+                                    <span id="pkName2" class="truncate max-w-[120px]">路線 3</span>
+                                </span>
+                                <span id="pkTrafficTag2" class="text-[9px] font-extrabold px-1.5 py-0.5 rounded-lg">路況分析中</span>
+                            </div>
+                            <div class="flex items-baseline justify-between text-xs">
+                                <span class="text-stone-400 font-bold">時間: <b id="pkDuration2" class="text-stone-700 dark:text-stone-200 font-mono">-</b></span>
+                                <span class="text-stone-400 font-bold">抵達: <b id="pkSoc2" class="font-mono text-emerald-500 font-extrabold">-</b></span>
+                            </div>
+                            <div class="text-[10px] text-stone-400 font-bold mt-1 flex justify-between">
+                                <span>里程: <span id="pkDist2" class="font-mono">-</span> km</span>
+                                <span>預估均耗: <span id="pkEff2" class="font-mono text-teal-500">-</span></span>
                             </div>
                         </div>
                     </div>
@@ -3578,7 +3625,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v395';
+        const APP_VERSION = 'v396';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -7335,6 +7382,11 @@ let abrpDirectionsRenderer = null;
 let currentStartLatLng = null;
 let currentEndLatLng = null; // v240：終點選取存下的座標
 let currentPkRoutes = [];
+// v396：路線選項狀態（中途點座標／避開／路況偏好）
+let routeWaypointLatLng = null;
+let routeAvoidTolls = false;
+let routeAvoidHighways = false;
+let routeRoutingPref = 'TRAFFIC_AWARE'; // 'TRAFFIC_AWARE' 路況最佳 / 'TRAFFIC_UNAWARE' 最短距離
 let pkRouteCache = {};
 // v7: 高程請求 token，防舊請求覆蓋新結果。每次呼叫 processRouteElevationAndCharging 都發新 token，
 // 舊請求在每一個 await 之後檢查 token，過期就直接 return，不更新 UI / 快取。
@@ -7790,7 +7842,19 @@ function initAbrpAutocomplete() {
                 const options = { componentRestrictions: { country: "tw" }, fields: ["name", "formatted_address", "geometry"] };
                 const startAuto = new google.maps.places.Autocomplete(startInput, options);
                 const endAuto = new google.maps.places.Autocomplete(endInput, options);
-                abrpAutocompleteInstances = { startAuto, endAuto };
+                // v396：中途點自動完成（與起訖點同規則；手打清座標、選取存座標）
+                const wpInput = document.getElementById('routeWaypointInput');
+                let waypointAuto = null;
+                if (wpInput) {
+                    waypointAuto = new google.maps.places.Autocomplete(wpInput, options);
+                    wpInput.addEventListener('input', () => { routeWaypointLatLng = null; });
+                    waypointAuto.addListener("place_changed", () => {
+                        const place = waypointAuto.getPlace();
+                        if (place && place.geometry && place.geometry.location) routeWaypointLatLng = place.geometry.location;
+                        toggleRouteClearBtn('routeWaypointInput', 'btnClearWaypoint');
+                    });
+                }
+                abrpAutocompleteInstances = { startAuto, endAuto, waypointAuto };
                 // v152：使用者手打起點時清掉自動定位標記，下次打開不覆蓋手打值
                 startInput.addEventListener('input', () => { delete startInput.dataset.autoLoc; currentStartLatLng = null; }); // v240：手打起點同時清掉選取存下的座標
                 endInput.addEventListener('input', () => { currentEndLatLng = null; }); // v240：手打終點同時清掉選取存下的座標
@@ -7854,6 +7918,75 @@ window.setAbrpStopPref = function(pref) {
 };
 
 
+// v396：路線選項 — 中途點輸入顯示／隱藏（收起時清空中途點）
+window.toggleWaypointInput = function() {
+    const row = document.getElementById('waypointRow');
+    const btn = document.getElementById('btnAddWaypoint');
+    if (!row) return;
+    const show = row.classList.contains('hidden');
+    row.classList.toggle('hidden', !show);
+    if (btn) btn.textContent = show ? '－ 收起中途點' : '＋ 中途點';
+    if (!show) {
+        const inp = document.getElementById('routeWaypointInput');
+        if (inp) inp.value = '';
+        routeWaypointLatLng = null;
+        toggleRouteClearBtn('routeWaypointInput', 'btnClearWaypoint');
+    } else {
+        const inp = document.getElementById('routeWaypointInput');
+        if (inp) inp.focus();
+    }
+};
+// v396：路線選項 — 避開收費／高速切換
+window.toggleRouteAvoid = function(kind) {
+    if (kind === 'tolls') routeAvoidTolls = !routeAvoidTolls;
+    else if (kind === 'highways') routeAvoidHighways = !routeAvoidHighways;
+    const btn = document.getElementById(kind === 'tolls' ? 'btnAvoidTolls' : 'btnAvoidHighways');
+    if (!btn) return;
+    const on = kind === 'tolls' ? routeAvoidTolls : routeAvoidHighways;
+    btn.className = on
+        ? 'route-avoid-chip px-2.5 py-1 rounded-2xl text-[10px] font-extrabold bg-white dark:bg-neutral-800 text-stone-900 dark:text-white shadow-sm transition-all border border-stone-200/50 dark:border-stone-600'
+        : 'route-avoid-chip px-2.5 py-1 rounded-2xl text-[10px] font-bold text-stone-500 dark:text-stone-400 border border-transparent transition-all';
+};
+// v396：路線選項 — 路況最佳／最短距離
+window.setRoutePref = function(pref) {
+    routeRoutingPref = pref;
+    const btnT = document.getElementById('btnRoutePrefTraffic');
+    const btnS = document.getElementById('btnRoutePrefShortest');
+    const activeClass = 'px-2.5 py-1 rounded-2xl bg-white dark:bg-neutral-800 text-stone-900 dark:text-white shadow-sm transition-colors flex items-center justify-center gap-1';
+    const inactiveClass = 'px-2.5 py-1 rounded-2xl text-stone-500 dark:text-stone-400 transition-colors flex items-center justify-center gap-1 hover:text-stone-900 dark:hover:text-white';
+    if (btnT && btnS) {
+        btnT.className = pref === 'TRAFFIC_AWARE' ? activeClass : inactiveClass;
+        btnS.className = pref === 'TRAFFIC_UNAWARE' ? activeClass : inactiveClass;
+    }
+};
+// v396：路線選項 — 出發時間重設為現在（留空＝現在出發）
+window.clearRouteDepartTime = function() {
+    const inp = document.getElementById('routeDepartInput');
+    if (inp) inp.value = '';
+};
+// v396：讀路線選項（中途點／避開／路況／出發時間），回傳給 Routes API / Directions 用的 opts。
+function getRoutePlanOptions() {
+  let waypoint = null;
+  const wpText = (document.getElementById('routeWaypointInput')?.value || '').trim();
+  if (wpText) waypoint = routeWaypointLatLng || wpText;
+  let departureTime = null;
+  const depVal = document.getElementById('routeDepartInput')?.value || '';
+  if (depVal) {
+    const depDate = new Date(depVal);
+    // Google 要求 departureTime 為未來時間；過去時間改用現在＋60 秒。
+    departureTime = (isFinite(depDate.getTime()) && depDate.getTime() > Date.now())
+      ? depDate.toISOString()
+      : new Date(Date.now() + 60000).toISOString();
+  }
+  return {
+    waypoint: waypoint,
+    avoidTolls: routeAvoidTolls,
+    avoidHighways: routeAvoidHighways,
+    routingPreference: routeRoutingPref,
+    departureTime: departureTime
+  };
+}
+
 window.selectPkRoute = function(idx) {
     if (!currentPkRoutes?.[idx]) return;
     
@@ -7861,22 +7994,18 @@ window.selectPkRoute = function(idx) {
     abrpDirectionsRenderer.setOptions({ preserveViewport: true });
     abrpDirectionsRenderer.setRouteIndex(idx);
 
-    const card0 = document.getElementById('pkCardRoute0');
-    const card1 = document.getElementById('pkCardRoute1');
-
-    if (card0 && card1) {
-        if (idx === 0) {
-            card0.classList.add('border-amber-400');
-            card0.classList.remove('border-stone-200', 'dark:border-stone-800', 'opacity-60');
-            card1.classList.add('border-stone-200', 'dark:border-stone-800', 'opacity-60');
-            card1.classList.remove('border-amber-400');
+    // v396：第 3 張卡片 — 卡片邊框改用迴圈（選中的亮 amber，其餘變淡）
+    [0, 1, 2].forEach(i => {
+        const card = document.getElementById(`pkCardRoute${i}`);
+        if (!card) return;
+        if (i === idx) {
+            card.classList.add('border-amber-400');
+            card.classList.remove('border-stone-200', 'dark:border-stone-800', 'opacity-60');
         } else {
-            card1.classList.add('border-amber-400');
-            card1.classList.remove('border-stone-200', 'dark:border-stone-800', 'opacity-60');
-            card0.classList.add('border-stone-200', 'dark:border-stone-800', 'opacity-60');
-            card0.classList.remove('border-amber-400');
+            card.classList.add('border-stone-200', 'dark:border-stone-800', 'opacity-60');
+            card.classList.remove('border-amber-400');
         }
-    }
+    });
 
     const startSoc = parseFloat(document.getElementById('routeStartSoc')?.value) || 90;
     
@@ -7955,13 +8084,18 @@ function routesApiWaypoint(loc) {
 }
 
 // Routes API computeRoutes：TRAFFIC_AWARE（對應舊版 BEST_GUESS），要替代路線＋隧道／高架資訊。
-async function computeRoutesApiRoute(startLoc, endLoc) {
+async function computeRoutesApiRoute(startLoc, endLoc, opts) {
   const apiKey = getMapsApiKey();
   if (!apiKey) throw new Error('找不到 Maps API key');
   // v68: 不傳 AbortController signal（iOS WebKit 的 fetch + AbortSignal + POST body
   // 有 bug，會把 body 送壞 → Google 回 400；Android／電腦的 Blink 沒這 bug）。
   // 改用 Promise.race 做 15 秒逾時（不中斷底層請求，逾時後底層 fetch 若晚到 reject，
   // 由下方的 no-op .catch() 吞掉，不變成 unhandled rejection）。
+  // v396：路線選項 — 中途點先轉格式（失敗就忽略，不擋路線規劃）
+  let waypointParam = null;
+  if (opts && opts.waypoint) {
+    try { waypointParam = routesApiWaypoint(opts.waypoint); } catch (e) { console.warn('[EvLife] 中途點格式不支援，忽略', e); }
+  }
   const fetchPromise = fetch('https://routes.googleapis.com/directions/v2:computeRoutes', {
     method: 'POST',
     headers: {
@@ -7973,7 +8107,7 @@ async function computeRoutesApiRoute(startLoc, endLoc) {
       origin: routesApiWaypoint(startLoc),
       destination: routesApiWaypoint(endLoc),
       travelMode: 'DRIVE',
-      routingPreference: 'TRAFFIC_AWARE',
+      routingPreference: (opts && opts.routingPreference) || 'TRAFFIC_AWARE',
       computeAlternativeRoutes: true,
       polylineQuality: 'HIGH_QUALITY',
       polylineEncoding: 'ENCODED_POLYLINE',
@@ -7981,11 +8115,13 @@ async function computeRoutesApiRoute(startLoc, endLoc) {
       // 網路延遲會讓時間戳到 Google 時已變過去 → 400「Timestamp must be set to a future
       // time.」。iPhone 在 4G 上延遲較高所以一直失敗、Android 偶爾失敗。60 秒緩衝吸收延遲，
       // 路況預測跟現在幾乎一樣，不影響結果。）
-      departureTime: new Date(Date.now() + 60000).toISOString(),
+      departureTime: (opts && opts.departureTime) || new Date(Date.now() + 60000).toISOString(),
       languageCode: 'zh-TW',
       regionCode: 'TW',
       units: 'METRIC',
-      extraComputations: ['TUNNEL_INFO_ON_POLYLINE', 'FLYOVER_INFO_ON_POLYLINE', 'TRAFFIC_ON_POLYLINE']
+      extraComputations: ['TUNNEL_INFO_ON_POLYLINE', 'FLYOVER_INFO_ON_POLYLINE', 'TRAFFIC_ON_POLYLINE'],
+      ...(waypointParam ? { intermediates: [{ waypoint: waypointParam, via: false }] } : {}),
+      ...((opts && (opts.avoidTolls || opts.avoidHighways)) ? { routeModifiers: { avoidTolls: !!opts.avoidTolls, avoidHighways: !!opts.avoidHighways, avoidFerries: false } } : {})
     })
   });
   fetchPromise.catch(() => {});
@@ -8169,7 +8305,7 @@ function handlePlannedRoutes(routes, startSoc) {
   if (routes.length >= 2 && pkBox) {
       pkBox.classList.remove('hidden');
 
-      routes.slice(0, 2).forEach((rt, idx) => {
+      routes.slice(0, 3).forEach((rt, idx) => {
           const leg = rt.legs[0];
           const distKm = leg.distance.value / 1000;
           const name = rt.summary || `路線 ${idx + 1}`;
@@ -8195,6 +8331,9 @@ function handlePlannedRoutes(routes, startSoc) {
           if (effEl) effEl.textContent = "計算中...";
           if (socEl) socEl.textContent = "...";
       });
+      // v396：有第 3 條路線才顯示第 3 張卡片
+      const pkCard2 = document.getElementById('pkCardRoute2');
+      if (pkCard2) pkCard2.classList.toggle('hidden', routes.length < 3);
   } else if (pkBox) {
       pkBox.classList.add('hidden');
   }
@@ -8210,6 +8349,16 @@ function handlePlannedRoutes(routes, startSoc) {
               processRouteElevationAndCharging(rt1, startSoc, 1);
           }
       }, 150);
+  }
+
+  // v396：若有第 3 條路線（路線 2），也在背景靜默預算
+  if (routes.length >= 3) {
+      setTimeout(() => {
+          const rt2 = routes[2];
+          if (!pkRouteCache[2]?.isReady) {
+              processRouteElevationAndCharging(rt2, startSoc, 2);
+          }
+      }, 300);
   }
 
   // 🎯 觸發目的地景點補電判斷
@@ -8299,9 +8448,11 @@ window.planElectricRoute = async function() {
         }
         if (_samePoint) { showToast('起點與終點是同一個地點，請檢查起訖點 📍', true); if (typeof window.fx160PlanBusy === 'function') window.fx160PlanBusy(false); return; }
     } catch (_) { /* v261 防呆失敗不擋正常規劃 */ }
+    // v396：路線選項 — 讀中途點／避開／路況／出發時間
+    const routeOpts = getRoutePlanOptions();
     let planned = null;
     try {
-      const apiRoutes = await computeRoutesApiRoute(startLoc, endLoc);
+      const apiRoutes = await computeRoutesApiRoute(startLoc, endLoc, routeOpts);
       planned = apiRoutes.map((r, i) => normalizeRoutesApiRoute(r, i));
       console.log('[EvLife] routes: Routes API 成功', planned.length, '條');
       // v71: 成功也要明確提示（之前成功是靜默的，只有 fallback 才跳紅 toast，
@@ -8312,7 +8463,13 @@ window.planElectricRoute = async function() {
       showToast(`Routes API 失敗（${(err && err.message) || err}），已改用 Directions 規劃（無隧道資訊）⚠️`, true);
       try {
         planned = await new Promise((resolve, reject) => {
-          new google.maps.DirectionsService().route({ origin: startLoc, destination: endLoc, travelMode: google.maps.TravelMode.DRIVING, provideRouteAlternatives: true, drivingOptions: { departureTime: new Date(), trafficModel: google.maps.TrafficModel.BEST_GUESS } }, (response, status) => {
+          // v396：路線選項 — 備援 Directions 也帶中途點／避開／出發時間
+          const dirReq = { origin: startLoc, destination: endLoc, travelMode: google.maps.TravelMode.DRIVING, provideRouteAlternatives: true };
+          if (routeOpts.waypoint) dirReq.waypoints = [{ location: routeOpts.waypoint, stopover: true }];
+          if (routeOpts.avoidTolls) dirReq.avoidTolls = true;
+          if (routeOpts.avoidHighways) dirReq.avoidHighways = true;
+          if (routeOpts.routingPreference !== 'TRAFFIC_UNAWARE') dirReq.drivingOptions = { departureTime: routeOpts.departureTime ? new Date(routeOpts.departureTime) : new Date(), trafficModel: google.maps.TrafficModel.BEST_GUESS };
+          new google.maps.DirectionsService().route(dirReq, (response, status) => {
             if (status !== google.maps.DirectionsStatus.OK || !response.routes[0]) reject(new Error('Directions:' + status));
             else resolve(response.routes.map(rt => normalizeDirectionsRoute(rt)));
           });
