@@ -2344,7 +2344,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="#F472B6" aria-hidden="true"><path d="M12 2l2.9 6.2 6.6.8-4.9 4.6 1.3 6.6L12 17l-5.9 3.2 1.3-6.6L2.5 9l6.6-.8L12 2z"/></svg><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v391</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v393</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2922,7 +2922,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-[2rem] border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v391</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v393</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-3xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -3277,6 +3277,8 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                         </div>
                     </div>
 
+                    <!-- v392：預估過路費（僅顯示、不寫紀錄） -->
+                    <div id="abrpTollLine" class="hidden px-3.5 py-2.5 rounded-3xl border border-stone-200 dark:border-stone-700/60 bg-white/60 dark:bg-white/5 text-[11px] leading-relaxed text-stone-600 dark:text-stone-300"></div>
                     <!-- 建議卡片 -->
                     <div id="abrpRecommendationCard" class="p-4 rounded-[2rem] border text-xs leading-relaxed space-y-2"></div>
                     <div id="windImpactLine" class="hidden mt-2 px-3.5 py-2.5 rounded-3xl border border-stone-200 dark:border-stone-700/60 bg-white/60 dark:bg-white/5 text-[11px] leading-relaxed text-stone-600 dark:text-stone-300"></div>
@@ -3378,6 +3380,106 @@ function detectFestival(now) {
     return '';
 }
 /* FESTIVAL-PURE-END */
+/* v393：國道過路費試算（僅顯示、不寫紀錄；僅算國道路段） */
+/* TOLL-START */
+// 收費國道：國 1、3、5 號及 3 甲。小型車：每日 20km 免費、20~200km 1.2元/km、>200km 0.9元/km；eTag 預儲足額 9 折；四捨五入到元；每日按車號歸戶結算。
+// 連假單一費率：取消 20km 免費（長途折扣仍適用）；每日 00:00–05:00 全線暫停收費（該時段通過門架免費，App 不知出發時刻故不自動扣除，僅提示）。
+// 連假表以高公局公告為準；新增年份/連假請在此補一筆（未列入者一律平日費率）。未來年份待高公局公告後再補，勿憑推測填入。
+// v393：只算國道路段 — 步驟路名取自 Routes API navigationInstruction.instructions（Directions 備援取 html_instructions 去標籤）；
+// 無路名資料時退回總里程估算，路名齊全但無國道時為 $0。
+const TOLL_RATES = { freeKmPerDay: 20, standardPerKm: 1.2, longPerKm: 0.9, longThresholdKm: 200, etagFactor: 0.9 };
+const TOLL_HOLIDAYS = [
+  { name: '春節', start: '2026-02-14', end: '2026-02-22', freeStart: '2026-02-17', freeEnd: '2026-02-22', note: '國3新竹系統～燕巢系統 8折（2/17–2/22）' },
+  { name: '清明', start: '2026-04-03', end: '2026-04-06', freeStart: '2026-04-03', freeEnd: '2026-04-06', note: '' },
+  { name: '端午', start: '2026-06-19', end: '2026-06-21', freeStart: '2026-06-19', freeEnd: '2026-06-21', note: '' },
+  { name: '中秋', start: '2026-09-25', end: '2026-09-28', freeStart: '2026-09-25', freeEnd: '2026-09-28', note: '國3新竹系統～燕巢系統 8折' },
+  { name: '國慶', start: '2026-10-09', end: '2026-10-11', freeStart: '2026-10-09', freeEnd: '2026-10-11', note: '' },
+];
+function _tollDateStr(d) {
+  const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), day = String(d.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + day;
+}
+function getTollHoliday(dateStr) {
+  for (const h of TOLL_HOLIDAYS) {
+    if (dateStr >= h.start && dateStr <= h.end) return h;
+  }
+  return null;
+}
+function _tollInRange(dateStr, start, end) { return !!(start && end && dateStr >= start && dateStr <= end); }
+// 純函式：highwayKm 為國道里程（km），dateStr 為 'YYYY-MM-DD'。回傳 { amount, base, isHoliday, holidayName, free0005, note, freeKm }。
+function calculateToll(highwayKm, dateStr) {
+  const km = (isFinite(highwayKm) && highwayKm > 0) ? highwayKm : 0;
+  const h = getTollHoliday(dateStr || '');
+  const isHoliday = !!h;
+  const freeKm = isHoliday ? 0 : TOLL_RATES.freeKmPerDay;
+  const paidWithin = Math.max(0, Math.min(km, TOLL_RATES.longThresholdKm) - freeKm);
+  const paidBeyond = Math.max(0, km - TOLL_RATES.longThresholdKm);
+  const base = paidWithin * TOLL_RATES.standardPerKm + paidBeyond * TOLL_RATES.longPerKm;
+  const amount = Math.round(base * TOLL_RATES.etagFactor);
+  return {
+    amount: amount,
+    base: base,
+    isHoliday: isHoliday,
+    holidayName: h ? h.name : '',
+    free0005: h ? _tollInRange(dateStr || '', h.freeStart, h.freeEnd) : false,
+    note: h ? (h.note || '') : '',
+    freeKm: freeKm
+  };
+}
+// v393：步驟路名是否提到收費國道（國1/3/5/3甲；國2/4/6/8/10 免費不算）。中英文、阿拉伯／中文數字皆認。
+const TOLL_HIGHWAY_RE = /(?:國\s*道?\s*[135一三五]\s*號|國\s*道?\s*(?:3|三)\s*甲|中山高|福爾摩沙|蔣渭水|National\s+(?:Freeway|Highway)\s+No\.?\s*[135]\b|Freeway\s+No\.?\s*[135]\b)/i;
+function isTollHighwayText(text) {
+  return typeof text === 'string' && text.length > 0 && TOLL_HIGHWAY_RE.test(text);
+}
+// 純函式：加總路線中收費國道步驟的里程（km）。無路名資料時回 null（呼叫端退回總里程估算）；路名齊全但無國道時回 0。
+function highwayDistanceKm(route) {
+  const legs = route && route.legs;
+  if (!Array.isArray(legs) || legs.length === 0) return null;
+  let hasRoadText = false;
+  let hwM = 0;
+  for (const leg of legs) {
+    for (const st of (leg.steps || [])) {
+      const txt = (st && typeof st.roadText === 'string') ? st.roadText : '';
+      if (txt) hasRoadText = true;
+      if (txt && isTollHighwayText(txt)) hwM += (st.distance && st.distance.value) || 0;
+    }
+  }
+  if (!hasRoadText) return null;
+  // 安全網：路名齊全卻算出 0，但路線摘要明明提到收費國道 → 視為偵測失敗，退回 null（改用總里程估算）。
+  if (hwM === 0 && route.summary && isTollHighwayText(route.summary)) return null;
+  return hwM / 1000;
+}
+// 路線模擬結果用：僅算國道路段的過路費（僅顯示、不寫紀錄）。highwayKm 為國道里程（km），totalKm 為總里程。
+// highwayKm 為 null 時退回總里程估算；為 0 時表示未行駛收費國道。
+function updateTollDisplay(highwayKm, totalKm) {
+  const el = document.getElementById('abrpTollLine');
+  if (!el) return;
+  const total = (isFinite(totalKm) && totalKm > 0) ? totalKm : 0;
+  if (total <= 0) { el.classList.add('hidden'); el.innerHTML = ''; return; }
+  const hw = (highwayKm != null && isFinite(highwayKm) && highwayKm >= 0) ? highwayKm : null;
+  const effKm = (hw != null) ? hw : total;
+  const todayStr = _tollDateStr(new Date());
+  const t = calculateToll(effKm, todayStr);
+  const md = todayStr.slice(5).replace('-', '/');
+  const parts = [];
+  if (hw != null && hw === 0) {
+    parts.push('<span class="font-extrabold text-stone-800 dark:text-white">🛣️ 預估過路費 <span class="font-mono">$0</span></span>');
+    parts.push('<span>本路線未行駛收費國道（國1/3/5/3甲），無過路費。</span>');
+  } else {
+    const rateLabel = t.isHoliday ? ('連假單一費率（' + t.holidayName + '）') : '平日費率';
+    parts.push('<span class="font-extrabold text-stone-800 dark:text-white">🛣️ 預估過路費 <span class="font-mono">$' + t.amount + '</span></span>');
+    const distLabel = (hw != null)
+      ? ('國道約 ' + effKm.toFixed(1) + ' km（總里程 ' + total.toFixed(1) + ' km）')
+      : ('以總里程 ' + total.toFixed(1) + ' km 估算（無法區分國道路段）');
+    parts.push('<span>依 ' + md + ' ' + rateLabel + ' · ' + distLabel + (t.freeKm > 0 ? ' · 免費 ' + t.freeKm + ' km' : ' · 無免費里程') + ' · eTag 9折</span>');
+    if (t.free0005) parts.push('<span>🌙 今日 00:00–05:00 通過門架免費（若該時段行駛，實際更低）</span>');
+    if (t.note) parts.push('<span>ℹ️ ' + t.note + '（路段差別費率未計入，實際以遠通帳單為準）</span>');
+    parts.push('<span class="text-stone-400">僅算國道路段；本趟以當日國道里程計，同日多趟國道請以遠通帳單為準。</span>');
+  }
+  el.innerHTML = parts.join('<br>');
+  el.classList.remove('hidden');
+}
+/* TOLL-END */
 const FESTIVALS = {
     halloween: { emoji: '🎃', chipName: '萬聖節', tiles: ['#A8B8C8', '#E8DCC0', '#D0C8D8', '#D0A8A8', '#D0D8CC', '#A8B89A'] },
     christmas: { emoji: '🎄', chipName: '聖誕節', tiles: ['#9DB8A0', '#E8D9B0', '#D8C8D8', '#D0A0A8', '#D0DCE8', '#D8C890'] },
@@ -3476,7 +3578,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v391';
+        const APP_VERSION = 'v393';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -7925,6 +8027,7 @@ function normalizeRoutesApiRoute(r, idx) {
         // v61: 轉 LatLng（Directions 的 step.path 亦為 LatLng[]；下游用 .lat()/.lng() 方法）。
         path: decodePolyline(st.polyline?.encodedPolyline || '').map(p => new google.maps.LatLng(p.lat, p.lng)),
         distance: { value: st.distanceMeters || 0 },
+        roadText: st.navigationInstruction?.instructions || '', // v393：過路費僅算國道段（步驟路名）
         duration: { value: parseRoutesDuration(st.staticDuration) },
         // v384：分段速度用路況時間（TRAFFIC_AWARE 的 step.duration）；無路況時間時退回靜態時間。
         duration_in_traffic: { value: parseRoutesDuration(st.duration) }
@@ -7955,7 +8058,7 @@ function normalizeDirectionsRoute(rt) {
       duration_in_traffic: leg.duration_in_traffic || leg.duration,
       start_location: leg.start_location,
       end_location: leg.end_location,
-      steps: (leg.steps || []).map(st => ({ path: st.path || [], distance: st.distance, duration: st.duration, duration_in_traffic: st.duration_in_traffic || st.duration }))
+      steps: (leg.steps || []).map(st => ({ path: st.path || [], distance: st.distance, duration: st.duration, duration_in_traffic: st.duration_in_traffic || st.duration, roadText: (st.html_instructions || '').replace(/<[^>]*>/g, ' ') })) // v393：過路費僅算國道段（步驟路名，去標籤）
     })),
     routesApiPolylineDetails: null,
     routesApiSource: 'directions-fallback'
@@ -9086,6 +9189,7 @@ function showElevationUnavailable(routeIdx, startSoc, totalDistanceKm, durationT
   document.getElementById('abrpResultSection')?.classList.remove('hidden');
   const totalDistEl = document.getElementById('abrpTotalDist');
   if (totalDistEl && isFinite(totalDistanceKm)) totalDistEl.innerHTML = `${totalDistanceKm.toFixed(1)}<br><span class="text-xs font-bold text-stone-500 dark:text-stone-400">km</span>`;
+  if (typeof updateTollDisplay === 'function') updateTollDisplay(highwayDistanceKm((typeof currentPkRoutes !== 'undefined' && currentPkRoutes) ? currentPkRoutes[routeIdx] : null), totalDistanceKm); // v393：過路費僅算國道段
   const driveDurEl = document.getElementById('abrpDriveDuration');
   if (driveDurEl && durationText) driveDurEl.textContent = durationText;
   const directSocEl = document.getElementById('abrpDirectSoc');
@@ -9335,6 +9439,7 @@ function processRouteElevationAndCharging(route, startSoc, routeIdx = 0) {
     pkRouteCache[routeIdx] = {
       _seq: requestToken,
       totalDistanceKm, durationText, directArrivalSoc, realEff,
+      highwayKm: highwayDistanceKm(route), // v393：過路費僅算國道段
       routeProfileText,
       neededStops: totalConsumedKwh > (startSoc / 100) * AppState.batteryCapacity ? 1 : 0,
       isReady: false, elevationData, stationCardHtml: "",
@@ -9979,6 +10084,7 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
 
     const totalDistEl = document.getElementById('abrpTotalDist');
     if (totalDistEl) totalDistEl.innerHTML = `${totalDistanceKm.toFixed(1)}<br><span class="text-xs font-bold text-stone-500 dark:text-stone-400">km</span>`;
+    if (typeof updateTollDisplay === 'function') updateTollDisplay(highwayDistanceKm(route), totalDistanceKm); // v393：過路費僅算國道段
 
     const driveDurEl = document.getElementById('abrpDriveDuration');
     if (driveDurEl) driveDurEl.innerHTML = formattedDuration;
@@ -10725,6 +10831,7 @@ window.cycleRecommendedStation = function() {
 // 唯一保留的快取渲染函式（支援動態補電次數）
 function renderAbrpCachedResults(calcData, totalDistanceKm, durationText) {
     if (typeof window.fx160PlanBusy === 'function') window.fx160PlanBusy(false); // v160
+    if (typeof updateTollDisplay === 'function') updateTollDisplay(calcData ? calcData.highwayKm : null, totalDistanceKm); // v393：過路費僅算國道段（快取）
     // v7: 高程不可用時不拿 null SOC 去渲染。
     if (calcData?.elevationUnavailable) {
         return;
