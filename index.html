@@ -2344,7 +2344,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="#F472B6" aria-hidden="true"><path d="M12 2l2.9 6.2 6.6.8-4.9 4.6 1.3 6.6L12 17l-5.9 3.2 1.3-6.6L2.5 9l6.6-.8L12 2z"/></svg><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v396</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v397</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2922,7 +2922,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-[2rem] border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v396</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v397</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-3xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -3172,7 +3172,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
     <div class="flex items-center gap-2">
         <span class="text-[10px] font-bold text-stone-400 px-1 shrink-0">🕐 出發時間</span>
         <input type="datetime-local" id="routeDepartInput" class="flex-1 min-w-0 px-2.5 py-1.5 text-xs font-bold rounded-3xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-black focus:outline-none focus:border-amber-400">
-        <button type="button" onclick="clearRouteDepartTime()" class="text-[10px] font-bold px-2.5 py-1.5 rounded-2xl bg-stone-100 dark:bg-black/60 text-stone-600 dark:text-stone-300 border border-stone-200/60 dark:border-stone-700 active:scale-95 transition shrink-0">現在</button>
+        <button type="button" onclick="setRouteDepartNow()" class="text-[10px] font-bold px-2.5 py-1.5 rounded-2xl bg-stone-100 dark:bg-black/60 text-stone-600 dark:text-stone-300 border border-stone-200/60 dark:border-stone-700 active:scale-95 transition shrink-0">現在</button>
     </div>
 </div>
 
@@ -3625,7 +3625,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v396';
+        const APP_VERSION = 'v397';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -7959,10 +7959,13 @@ window.setRoutePref = function(pref) {
         btnS.className = pref === 'TRAFFIC_UNAWARE' ? activeClass : inactiveClass;
     }
 };
-// v396：路線選項 — 出發時間重設為現在（留空＝現在出發）
-window.clearRouteDepartTime = function() {
+// v397：路線選項 — 出發時間設為現在（把當下時間帶進欄位）
+window.setRouteDepartNow = function() {
     const inp = document.getElementById('routeDepartInput');
-    if (inp) inp.value = '';
+    if (!inp) return;
+    const now = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    inp.value = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) + 'T' + pad(now.getHours()) + ':' + pad(now.getMinutes());
 };
 // v396：讀路線選項（中途點／避開／路況／出發時間），回傳給 Routes API / Directions 用的 opts。
 function getRoutePlanOptions() {
