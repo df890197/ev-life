@@ -2344,7 +2344,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
             <div><div class="v169-chap"><span class="no">5</span><h3>每月電耗</h3><svg class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="#F472B6" aria-hidden="true"><path d="M12 2l2.9 6.2 6.6.8-4.9 4.6 1.3 6.6L12 17l-5.9 3.2 1.3-6.6L2.5 9l6.6-.8L12 2z"/></svg><svg class="wv" preserveAspectRatio="none" viewBox="0 0 100 10"><path d="M0 5 Q12 0 25 5 T50 5 T75 5 T100 5" fill="none" stroke="#F7C8D8" stroke-width="3" stroke-linecap="round"/></svg></div></div>
             <div class="v169-chartcard v169-outer"><div id="v169HomeChart"></div><p class="v169-chart-cap">單位 km/度・近 6 個月</p></div>
             <div class="pt-6 pb-4 text-center">
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v397</span></div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 font-bold">Ev Life · 版本 <span class="app-version-label">v399</span></div>
                 <button onclick="forceAppUpdate()" class="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 underline underline-offset-2">🔄 強制更新 App（紀錄不會不見）</button>
                 <div class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">如果這裡顯示的不是最新版本，點上方按鈕會清除快取並重新載入</div>
             </div>
@@ -2922,7 +2922,7 @@ html[data-festival="midautumn"] .v303-pure-chip { background-color: #F0D89A !imp
                     <div id="settings-tab-pwa" class="space-y-6 hidden">
                         <div class="bg-stone-50 dark:bg-black p-5 rounded-[2rem] border border-stone-200 dark:border-stone-700 space-y-3">
                             <span class="text-sm font-extrabold text-stone-700 dark:text-stone-300 block">📦 版本與更新</span>
-                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v397</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
+                            <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">目前開啟的版本是 <b class="text-stone-900 dark:text-white"><span class="app-version-label">v399</span></b>。這個數字就是你現在載入的這份檔案的版本，如果跟最新版不一樣，代表瀏覽器還在用舊快取。</p>
                             <button onclick="forceAppUpdate()" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-extrabold py-3.5 rounded-3xl transition-all shadow-sm flex justify-center items-center gap-2">🔄 強制更新 App（紀錄不會不見）</button>
                             <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">點了會先清除 Service Worker 與快取，再帶參數重新載入，確保拿到伺服器上的最新檔案。如果重載後版本還是舊的，代表部署的檔案本身還沒更新。</p>
                         </div>
@@ -3625,7 +3625,7 @@ document.addEventListener('visibilitychange', function () {
         }
 
         // 📦 App 版本：單一來源。畫面版本標籤與 SW 快取名都由此產生，改版時只改這一行。
-        const APP_VERSION = 'v397';
+        const APP_VERSION = 'v399';
         window.APP_VERSION = APP_VERSION;
 
         window.AppState = AppState;
@@ -7408,6 +7408,7 @@ function invalidateAllElevationRequests() {
   elevationRequestTokenByRoute = {};
 }
 let abrpChargerMarker = null;
+let abrpWaypointMarker = null; // v398：中途點地圖標記
 let abrpStopPreference = 'restArea';
 
 // ⚡ 複選狀態管理：預設選取 CCS1
@@ -8123,7 +8124,7 @@ async function computeRoutesApiRoute(startLoc, endLoc, opts) {
       regionCode: 'TW',
       units: 'METRIC',
       extraComputations: ['TUNNEL_INFO_ON_POLYLINE', 'FLYOVER_INFO_ON_POLYLINE', 'TRAFFIC_ON_POLYLINE'],
-      ...(waypointParam ? { intermediates: [{ waypoint: waypointParam, via: false }] } : {}),
+      ...(waypointParam ? { intermediates: [{ ...waypointParam, via: false }] } : {}),
       ...((opts && (opts.avoidTolls || opts.avoidHighways)) ? { routeModifiers: { avoidTolls: !!opts.avoidTolls, avoidHighways: !!opts.avoidHighways, avoidFerries: false } } : {})
     })
   });
@@ -8302,6 +8303,28 @@ function handlePlannedRoutes(routes, startSoc) {
   abrpDirectionsRenderer.setOptions({ preserveViewport: false });
   abrpDirectionsRenderer.setRoutes(routes);
   currentPkRoutes = routes;
+  // v398：中途點標記 — 路線有 2 段以上代表有中途點，在第 1 段終點（中途點）放琥珀色標記；無中途點則清除舊標記
+  if (abrpWaypointMarker) { abrpWaypointMarker.setMap(null); abrpWaypointMarker = null; }
+  const firstRouteLegs = routes[0]?.legs || [];
+  if (firstRouteLegs.length >= 2 && firstRouteLegs[0]?.end_location && window.google?.maps && abrpMap) {
+      const wpName = (document.getElementById('routeWaypointInput')?.value || '').trim() || '中途點';
+      abrpWaypointMarker = new google.maps.Marker({
+          position: firstRouteLegs[0].end_location,
+          map: abrpMap,
+          animation: google.maps.Animation.DROP,
+          icon: {
+              path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+              fillColor: '#f59e0b',
+              fillOpacity: 1,
+              strokeWeight: 1.5,
+              strokeColor: '#ffffff',
+              scale: 1.5,
+              anchor: new google.maps.Point(12, 22)
+          },
+          title: `中途點：${wpName}`
+      });
+  }
+
 
 
   const pkBox = document.getElementById('highwayPkContainer');
@@ -8415,6 +8438,7 @@ window.planElectricRoute = async function() {
     }
 
     if (abrpChargerMarker) { abrpChargerMarker.setMap(null); abrpChargerMarker = null; }
+    if (abrpWaypointMarker) { abrpWaypointMarker.setMap(null); abrpWaypointMarker = null; }
 
     if (window.clearToastQueueAndHide) window.clearToastQueueAndHide(); // v69: 清掉舊 toast，避免舊紅 toast 殘留造成先紅後黑閃爍
     if (typeof window.fx160PlanBusy === 'function') window.fx160PlanBusy(true); // v160
@@ -10311,7 +10335,7 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
 
     recCard.innerHTML = `
         <div class="font-extrabold text-sm text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
-            <span>⚠️</span> 直達電量不足 (預估僅剩 ${directArrivalSoc}%)，${stopPromptText}
+            <span>⚠️</span><span>直達電量不足 (預估僅剩 ${directArrivalSoc}%)，${stopPromptText}</span>
         </div>
         <div class="text-[11px] opacity-90 leading-relaxed text-stone-600 dark:text-stone-300">
             地形判定：<b>${routeProfileText}</b>（均耗 <b>${realEff.toFixed(2)} km/度</b>，共 ${totalDistanceKm.toFixed(1)} km）
@@ -10320,7 +10344,7 @@ async function renderAbrpCalculatedResultsDirect(calcData, leg, startSoc, routeI
         <div id="abrpStopRecommendation" class="text-[11px] pt-1">
             <div class="min-h-[90px] bg-white/50 dark:bg-black/20 rounded-3xl border border-amber-200/50 dark:border-amber-700/30 p-3 space-y-2.5">
                 <div class="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-bold">
-                    <span class="animate-spin text-base">⏳</span> 正在尋找路徑上的最佳快充站點...
+                    <span class="animate-spin text-base">⏳</span><span>正在尋找路徑上的最佳快充站點...</span>
                 </div>
                 <div class="v100-skeleton h-3.5 w-2/5"></div>
                 <div class="v100-skeleton h-3 w-4/5"></div>
@@ -11008,7 +11032,7 @@ function renderAbrpCachedResults(calcData, totalDistanceKm, durationText) {
     recCard.className = "p-4 rounded-[2rem] border border-amber-300 dark:border-amber-700/60 bg-amber-50/80 dark:bg-amber-950/40 v274-rec-dark text-amber-950 dark:text-amber-200 space-y-2 min-h-[136px]";
     recCard.innerHTML = `
         <div class="font-extrabold text-sm text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
-            <span>⚠️</span> 直達電量不足 (預估僅剩 ${calcData.directArrivalSoc}%)，${stopPromptText}
+            <span>⚠️</span><span>直達電量不足 (預估僅剩 ${calcData.directArrivalSoc}%)，${stopPromptText}</span>
         </div>
         <div class="text-[11px] opacity-90 leading-relaxed text-stone-600 dark:text-stone-300">
             地形判定：<b>${calcData.routeProfileText}</b>（均耗 <b>${calcData.realEff.toFixed(2)} km/度</b>，共 ${totalDistanceKm.toFixed(1)} km）
